@@ -587,7 +587,7 @@ QImage View::GetQImage(const boost::optional<QRect>& rect) const
     const std::array<GLsizei, 2> ys =
     {
       y,
-      y / 2
+      y / 4
     };
     const std::array<GLsizei, 2> widths =
     {
