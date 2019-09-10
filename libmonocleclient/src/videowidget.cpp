@@ -344,7 +344,7 @@ VideoWidget::VideoWidget(QWidget* parent) :
   
   setMouseTracking(true);
 
-  if (MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDMOTION)
+  if ((MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDMOTION) || (MainWindow::Instance()->GetMouseState() == MOUSESTATE_COLOURPICKER))
   {
     parentWidget()->setCursor(Qt::CrossCursor);
 
