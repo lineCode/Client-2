@@ -1,0 +1,10 @@
+namespace monocle;
+
+table RecordingJobChanged
+{
+  recordingtoken:uint64 (id:0);
+  token:uint64 (id:1);
+  name:string (id:2);
+  enabled:bool (id:3);
+  priority:uint64 (id:4);
+}

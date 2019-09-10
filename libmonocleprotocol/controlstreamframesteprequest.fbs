@@ -1,0 +1,9 @@
+namespace monocle;
+
+table ControlStreamFrameStepRequest
+{
+  token:uint64 (id:0);
+  playrequestindex:uint64 (id:1);
+  forwards:bool (id:2);
+  sequencenum:uint64 (id:3);
+}

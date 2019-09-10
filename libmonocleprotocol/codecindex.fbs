@@ -1,0 +1,11 @@
+include "codec.fbs";
+
+namespace monocle;
+
+table CodecIndex
+{
+  id:uint64 (id:0);
+  codec:Codec (id:1);
+  parameters:string (id:2);
+  timestamp:uint64 (id:3);
+}

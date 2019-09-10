@@ -1,0 +1,16 @@
+include "receivermode.fbs";
+include "receiverstate.fbs";
+
+namespace monocle;
+
+table Receiver
+{
+  token:uint64 (id:0);
+  mode:ReceiverMode (id:1);
+  mediauri:string (id:2);
+  autocreated:bool (id:3);
+  username:string (id:4);
+  password:string (id:5);
+  parameters:[string] (id:6);
+  state:ReceiverState (id:7);
+}

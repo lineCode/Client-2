@@ -1,0 +1,7 @@
+namespace monocle;
+
+table UserChanged
+{
+  token:uint64 (id:0);
+  group:uint64 (id:1);
+}

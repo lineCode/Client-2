@@ -1,0 +1,6 @@
+namespace monocle;
+
+table AddTrackResponse
+{
+  token:uint32 (id:0);
+}

@@ -1,0 +1,6 @@
+namespace monocle;
+
+table AddRecordingResponse
+{
+  token:uint64 (id:0);
+}

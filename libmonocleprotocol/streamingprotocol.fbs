@@ -1,0 +1,10 @@
+namespace monocle;
+
+enum StreamingProtocol : byte
+{
+  UDPUnicast = 0,
+  TCPInterleaved = 1,
+  UDPMulticast = 2,
+  RTPMulticast = 3,
+  HTTPUnicast = 4
+}

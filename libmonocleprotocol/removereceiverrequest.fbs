@@ -1,0 +1,6 @@
+namespace monocle;
+
+table RemoveReceiverRequest
+{
+  token:uint64 (id:0);
+}

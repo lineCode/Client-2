@@ -1,0 +1,9 @@
+include "token.fbs";
+
+namespace monocle;
+
+table RecordingActiveJobChanged
+{
+  token:uint64 (id:0);
+  activejob:TOKEN (id:1);
+}

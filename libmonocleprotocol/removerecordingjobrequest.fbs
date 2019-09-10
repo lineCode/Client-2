@@ -1,0 +1,7 @@
+namespace monocle;
+
+table RemoveRecordingJobRequest
+{
+  recordingtoken:uint64 (id:0);
+  token:uint64 (id:1);
+}

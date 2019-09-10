@@ -1,0 +1,9 @@
+include "codecindex.fbs";
+
+namespace monocle;
+
+table CreateStreamResponse
+{
+  token:uint64 (id:0);
+  codecindices:[CodecIndex] (id:1);
+}

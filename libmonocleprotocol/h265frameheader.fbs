@@ -1,0 +1,16 @@
+namespace monocle;
+
+table H265FrameHeader
+{
+  token:uint64 (id:0);
+  playrequestindex:uint64 (id:1);
+  codecindex:uint64 (id:2);
+  marker:bool (id:3);
+  timestamp:uint64 (id:4);
+  sequencenum:int64 (id:5);
+  progress:float (id:6);
+  signature:[ubyte] (id:7);
+  
+  donlfield:bool (id:8);
+  offsets:[uint32] (id:9);
+}

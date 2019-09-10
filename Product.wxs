@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Product Id="*" Name="MonocleClient" Language="1033" Version="1.9.0.0" Manufacturer="Monocle Security" UpgradeCode="b8005458-f311-4fbc-8865-54e59aef1972">
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+    <WixVariable Id="WixUILicenseRtf" Overridable="yes" Value="license.rtf"/>
+
+    <UIRef Id="WixUI_InstallDir" />
+
+    <Icon Id="logo.ico" SourceFile="logo.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="logo.ico" />
+
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+
+    <MediaTemplate EmbedCab="yes" />
+
+    <?define Win64="yes" ?>
+    <?define PlatformProgramFilesFolder="ProgramFiles64Folder" ?>
+
+    <Feature Id="ProductFeature" Title="Client.Installer" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+      <ComponentRef Id="ApplicationShortcut" />
+    </Feature>
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLFOLDER" Name="MonocleClient">
+          <Directory Id="BEARERFOLDER" Name="bearer" />
+          <Directory Id="ICONENGINESFOLDER" Name="iconengines" />
+          <Directory Id="IMAGEFORMATSFOLDER" Name="imageformats" />
+          <Directory Id="PLATFORMSFOLDER" Name="platforms" />
+          <Directory Id="STYLESFOLDER" Name="styles" />
+          <Directory Id="TRANSLATIONSFOLDER" Name="translations" />
+
+        </Directory>
+      </Directory>
+
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="Monocle Security" />
+      </Directory>
+    </Directory>
+
+    <CustomAction Id="CA_Set_WIXUI_EXITDIALOGOPTIONALTEXT" Property="WIXUI_EXITDIALOGOPTIONALTEXT" Value="Thank you for installing [ProductName]."/>
+    <InstallUISequence>
+      <Custom Action="CA_Set_WIXUI_EXITDIALOGOPTIONALTEXT" After="FindRelatedProducts">NOT Installed</Custom>
+    </InstallUISequence>
+    
+  </Product>
+
+  <Fragment>
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="e1ec407d-1b1c-4da2-b458-28ec160a7850">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="Monocle Client"
+                  Icon="logo.ico"
+                  Description="Monocle Client"
+                  Target="[#monocleclient.exe]"
+                  WorkingDirectory="INSTALLFOLDER"/>
+        <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU" Key="Software\MonocleSecurity\MonocleClient" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+
+      <Component Id="monocleclient.exe" Guid="1cba0e3e-39b7-46a3-ab74-1c5ebd379030">
+        <File
+          Id="monocleclient.exe"
+          Name="monocleclient.exe"
+          Source="monocleclient.exe"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="BEARERFOLDER" Guid="bacded88-36e1-44ba-8aa3-1aa62fc91a6c">
+        <File
+          Id="bearer"
+          Name="qgenericbearer.dll"
+          Source="$(env.QT_DIR)/plugins/bearer/qgenericbearer.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="ICONENGINESFOLDER" Guid="6632ec81-278d-4bc0-adc7-1977d69132a8">
+        <File
+          Id="qsvgicon"
+          Name="qsvgicon.dll"
+          Source="$(env.QT_DIR)/plugins/iconengines/qsvgicon.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="IMAGEFORMATSFOLDER" Guid="6cc549d4-8222-44ec-acb3-e34fe4cc5e68">
+        <File
+          Id="qgif"
+          Name="qgif.dll"
+          Source="$(env.QT_DIR)/plugins/imageformats/qgif.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="IMAGEFORMATSFOLDER" Guid="2946cceb-ade1-44da-b1d3-18d1627c69c3">
+        <File
+          Id="qicns"
+          Name="qicns.dll"
+          Source="$(env.QT_DIR)/plugins/imageformats/qicns.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="IMAGEFORMATSFOLDER" Guid="0911c9ed-1366-409f-936b-ce1e36f7c148">
+        <File
+          Id="qico"
+          Name="qico.dll"
+          Source="$(env.QT_DIR)/plugins/imageformats/qico.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="IMAGEFORMATSFOLDER" Guid="9471dd49-fc5a-4281-9b3d-2bc33d2e7149">
+        <File
+          Id="qjpeg"
+          Name="qjpeg.dll"
+          Source="$(env.QT_DIR)/plugins/imageformats/qjpeg.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="IMAGEFORMATSFOLDER" Guid="b2025969-86fb-4398-93ce-fc5e3936d515">
+        <File
+          Id="qsvg"
+          Name="qsvg.dll"
+          Source="$(env.QT_DIR)/plugins/imageformats/qsvg.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="IMAGEFORMATSFOLDER" Guid="cae7ca32-52c5-4488-bee0-89f7b251f31d">
+        <File
+          Id="qtga"
+          Name="qtga.dll"
+          Source="$(env.QT_DIR)/plugins/imageformats/qtga.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="IMAGEFORMATSFOLDER" Guid="ec531100-9141-45fd-a5b4-1602c96f2a22">
+        <File
+          Id="qtiff"
+          Name="qtiff.dll"
+          Source="$(env.QT_DIR)/plugins/imageformats/qtiff.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="IMAGEFORMATSFOLDER" Guid="89a4059f-3229-47fb-8f3a-e86a04261a77">
+        <File
+          Id="qwbmp"
+          Name="qwbmp.dll"
+          Source="$(env.QT_DIR)/plugins/imageformats/qwbmp.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="IMAGEFORMATSFOLDER" Guid="a7483831-26d3-4b56-81f6-6abad54b6351">
+        <File
+          Id="qwebp"
+          Name="qwebp.dll"
+          Source="$(env.QT_DIR)/plugins/imageformats/qwebp.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="PLATFORMSFOLDER" Guid="490034dc-b182-4d76-84bc-bb64aa41c7e4">
+        <File
+          Id="qwindows"
+          Name="qwindows.dll"
+          Source="$(env.QT_DIR)/plugins/platforms/qwindows.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="STYLESFOLDER" Guid="f15a6415-0c84-42ad-a689-c701cec1e30a">
+        <File
+          Id="qwindowsvistastyle"
+          Name="qwindowsvistastyle.dll"
+          Source="$(env.QT_DIR)/plugins/styles/qwindowsvistastyle.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="TRANSLATIONSFOLDER" Guid="1e181d37-7e86-48fc-bcdd-22e86baff31b">
+        <File
+          Id="monocle_en_GB"
+          Name="monocle_en_GB.qm"
+          Source="translations/monocle_en_GB.qm"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="TRANSLATIONSFOLDER" Guid="4312e991-8800-4bdf-a3e4-208b1a7f9868">
+        <File
+          Id="monocle_en_US"
+          Name="monocle_en_US.qm"
+          Source="translations/monocle_en_US.qm"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="INSTALLFOLDER" Guid="08df5dbe-680f-42cb-8efc-f4e8fcd580be">
+        <File
+          Id="nvcuda"
+          Name="nvcuda.dll"
+          Source="C:/Windows/System32/nvcuda.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="INSTALLFOLDER" Guid="c7818f3d-d4a2-43f7-b3c6-8eafe6d886d1">
+        <File
+          Id="nvfatbinaryLoader"
+          Name="nvfatbinaryLoader.dll"
+          Source="C:/Windows/System32/nvfatbinaryLoader.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="INSTALLFOLDER" Guid="6f044adf-1844-4012-bd78-2828da193ebf">
+        <File
+          Id="D3Dcompiler_47"
+          Name="D3Dcompiler_47.dll"
+          Source="$(env.QT_DIR)/bin/D3Dcompiler_47.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="INSTALLFOLDER" Guid="362263a0-2f50-4e8b-b9dd-88b2ef535fc7">
+        <File
+          Id="libcrypto"
+          Name="libcrypto-1_1-x64.dll"
+          Source="$(env.OPENSSL_DIR)\libcrypto-1_1-x64.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="INSTALLFOLDER" Guid="486eb88f-a8a2-449b-afc7-ae6990697ca6">
+        <File
+          Id="libEGL"
+          Name="libEGL.dll"
+          Source="$(env.QT_DIR)/bin/libEGL.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="INSTALLFOLDER" Guid="5a7db52e-bffe-489d-8cd1-7629b7742c79">
+        <File
+          Id="libGLESv2"
+          Name="libGLESv2.dll"
+          Source="$(env.QT_DIR)/bin/libGLESv2.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="INSTALLFOLDER" Guid="dec51a35-86c7-448e-a1c4-a4344c764fcc">
+        <File
+          Id="libssl"
+          Name="libssl-1_1-x64.dll"
+          Source="$(env.OPENSSL_DIR)\libssl-1_1-x64.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="INSTALLFOLDER" Guid="63ef49bb-aab7-4548-af26-85bf592547c5">
+        <File
+          Id="opengl32sw"
+          Name="opengl32sw.dll"
+          Source="$(env.QT_DIR)/bin/opengl32sw.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="INSTALLFOLDER" Guid="21ed1d8e-0759-4168-a48a-ffad9b551464">
+        <File
+          Id="Qt5Charts"
+          Name="Qt5Charts.dll"
+          Source="$(env.QT_DIR)/bin/Qt5Charts.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="INSTALLFOLDER" Guid="167e85b4-9b3f-4101-b44e-c5e30be8b34f">
+        <File
+          Id="Qt5Core"
+          Name="Qt5Core.dll"
+          Source="$(env.QT_DIR)/bin/Qt5Core.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="INSTALLFOLDER" Guid="a11bd652-e00c-4c2a-90ff-69d3ab3e9206">
+        <File
+          Id="Qt5Gui"
+          Name="Qt5Gui.dll"
+          Source="$(env.QT_DIR)/bin/Qt5Gui.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="INSTALLFOLDER" Guid="d3a2cd84-94f2-4355-8e58-0e4dd0038a6e">
+        <File
+          Id="Qt5Network"
+          Name="Qt5Network.dll"
+          Source="$(env.QT_DIR)/bin/Qt5Network.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="INSTALLFOLDER" Guid="df45547d-5d15-4cf7-8d22-46f86c918748">
+        <File
+          Id="Qt5OpenGL"
+          Name="Qt5OpenGL.dll"
+          Source="$(env.QT_DIR)/bin/Qt5OpenGL.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="INSTALLFOLDER" Guid="1dd66699-5220-4b1d-b8da-9d56519f6f7f">
+        <File
+          Id="Qt5Svg"
+          Name="Qt5Svg.dll"
+          Source="$(env.QT_DIR)/bin/Qt5Svg.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Directory="INSTALLFOLDER" Guid="8152cabd-7081-448b-b759-e205fb5cb73c">
+        <File
+          Id="Qt5Widgets"
+          Name="Qt5Widgets.dll"
+          Source="$(env.QT_DIR)/bin/Qt5Widgets.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Id="msvcp140" Directory="INSTALLFOLDER" Guid="93f48104-4b20-4a45-8d3f-a566de428697">
+        <File
+          Id="msvcp140"
+          Name="msvcp140.dll"
+          Source="C:/Windows/System32/msvcp140.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Id="msvcp" Directory="INSTALLFOLDER" Guid="713d687f-49c7-4e57-8fc7-e594b4d4f421">
+        <File
+          Id="vcruntime140"
+          Name="vcruntime140.dll"
+          Source="C:/Windows/System32/vcruntime140.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+</Wix>

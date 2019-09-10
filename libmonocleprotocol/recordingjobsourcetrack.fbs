@@ -1,0 +1,13 @@
+include "recordingjobstate.fbs";
+
+namespace monocle;
+
+table RecordingJobSourceTrack
+{
+  token:uint64 (id:0);
+  recordingtrack:uint64 (id:1);
+  parameters:[string] (id:2);
+  state:RecordingJobState (id:3);
+  error:string (id:4);
+  activeparameters:[string] (id:5);
+}

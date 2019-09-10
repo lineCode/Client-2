@@ -1,0 +1,20 @@
+namespace monocle;
+
+enum ErrorCode : uint16
+{
+  Success = 0,
+  BadAuth = 1,
+  Disconnected = 2,
+  InternalError = 3,
+  InvalidMessage = 4,
+  InvalidParameter = 5,
+  InvalidToken = 6,
+  MaxRecordings = 7,
+  MissingMessage = 8,
+  MissingParameter = 9,
+  OperationCancelled = 10,
+  OperationTimeout = 11,
+  Permission = 12,
+  UnrecognisedMessageID = 13,
+  InvalidLicense = 14
+}

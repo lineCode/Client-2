@@ -1,0 +1,6 @@
+namespace monocle;
+
+table DestroyFindMotionRequest
+{
+  token:uint64 (id:0);
+}

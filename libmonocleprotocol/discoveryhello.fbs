@@ -1,0 +1,7 @@
+namespace monocle;
+
+table DiscoveryHello
+{
+  addresses:[string] (id:0);
+  scopes:[string] (id:1);
+}

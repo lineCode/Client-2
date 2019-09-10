@@ -1,0 +1,9 @@
+namespace monocle;
+
+table RecordingJobSourceTrackRemoved
+{
+  recordingtoken:uint64 (id:0);
+  recordingjobtoken:uint64 (id:1);
+  recordingjobsourcetoken:uint64 (id:2);
+  token:uint64 (id:3);
+}

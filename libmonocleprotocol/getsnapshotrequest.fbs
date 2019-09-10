@@ -1,0 +1,8 @@
+namespace monocle;
+
+table GetSnapshotRequest
+{
+  recordingtoken:uint64 (id:0);
+  recordingtrackid:uint32 (id:1);
+  time:uint64 (id:2);
+}

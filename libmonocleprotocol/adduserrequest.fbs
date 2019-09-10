@@ -1,0 +1,8 @@
+namespace monocle;
+
+table AddUserRequest
+{
+  username:string (id:0);
+  digest:string (id:1);
+  group:uint64 (id:2);
+}

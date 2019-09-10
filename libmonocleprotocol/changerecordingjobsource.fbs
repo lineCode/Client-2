@@ -1,0 +1,14 @@
+include "receivermode.fbs";
+
+namespace monocle;
+
+table ChangeRecordingJobSource
+{
+  recordingtrackid:uint32 (id:0);
+  receivermode:ReceiverMode (id:1);
+  sourceparameters:[string] (id:2);
+  mediauri:string (id:3);
+  username:string (id:4);
+  password:string (id:5);
+  recordingjobsourcetrackparameters:[string] (id:6);
+}

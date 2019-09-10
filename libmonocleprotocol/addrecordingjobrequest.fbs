@@ -1,0 +1,12 @@
+include "addrecordingjobsource.fbs";
+
+namespace monocle;
+
+table AddRecordingJobRequest
+{
+  recordingtoken:uint64 (id:0);
+  name:string (id:1);
+  enabled:bool (id:2);
+  priority:uint64 (id:3);
+  sources:[AddRecordingJobSource] (id:4);
+}

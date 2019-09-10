@@ -1,0 +1,13 @@
+namespace monocle;
+
+table AddRecordingRequest
+{
+  sourceid:string (id:0);
+  name:string (id:1);
+  location:string (id:2);
+  description:string (id:3);
+  address:string (id:4);
+  content:string (id:5);
+  retentiontime:uint64 (id:6);
+  createdefaulttracks:bool (id:7);
+}

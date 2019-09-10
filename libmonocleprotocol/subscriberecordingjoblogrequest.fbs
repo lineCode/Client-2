@@ -1,0 +1,6 @@
+namespace monocle;
+
+table SubscribeRecordingJobLogRequest
+{
+  recordingtoken:uint64 (id:0);
+}

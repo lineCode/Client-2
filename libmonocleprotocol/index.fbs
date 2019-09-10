@@ -1,0 +1,7 @@
+namespace monocle;
+
+struct INDEX
+{
+  starttime:uint64 (id:0);
+  endtime:uint64 (id:1);
+}

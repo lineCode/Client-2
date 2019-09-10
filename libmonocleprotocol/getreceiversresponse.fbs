@@ -1,0 +1,8 @@
+include "receiver.fbs";
+
+namespace monocle;
+
+table GetReceiversResponse
+{
+  receivers:[Receiver] (id:0);
+}

@@ -1,0 +1,6 @@
+namespace monocle;
+
+table SubscribeDiscoveryRequest
+{
+  broadcast:bool (id:0);
+}

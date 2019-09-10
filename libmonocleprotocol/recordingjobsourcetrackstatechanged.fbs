@@ -1,0 +1,14 @@
+include "recordingjobstate.fbs";
+
+namespace monocle;
+
+table RecordingJobSourceTrackStateChanged
+{
+  recording:uint64 (id:0);
+  recordingjob:uint64 (id:1);
+  recordingjobsource:uint64 (id:2);
+  recordingjobsourcetrack:uint64 (id:3);
+  time:uint64 (id:4);
+  state:RecordingJobState (id:5);
+  error:string (id:6);
+}

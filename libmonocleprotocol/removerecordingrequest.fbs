@@ -1,0 +1,6 @@
+namespace monocle;
+
+table RemoveRecordingRequest
+{
+  token:uint64 (id:0);
+}

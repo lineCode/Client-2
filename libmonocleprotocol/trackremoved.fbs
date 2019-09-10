@@ -1,0 +1,7 @@
+namespace monocle;
+
+table TrackRemoved
+{
+  recordingtoken:uint64 (id:0);
+  id:uint32 (id:1);
+}

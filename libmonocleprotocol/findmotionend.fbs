@@ -1,0 +1,7 @@
+namespace monocle;
+
+table FindMotionEnd
+{
+  token:uint64 (id:0);
+  ret:uint64 (id:1);
+}

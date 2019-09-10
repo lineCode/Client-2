@@ -1,0 +1,9 @@
+namespace monocle;
+
+enum FileState : byte
+{
+  Unmounted = 0,
+  Mounted = 1,
+  Mounting = 2,
+  Unmounting = 3
+}

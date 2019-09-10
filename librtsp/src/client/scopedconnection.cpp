@@ -1,0 +1,67 @@
+// scopedconnection.cpp
+//
+
+///// Includes /////
+
+#include "rtsp/client/scopedconnection.hpp"
+
+///// Namespaces /////
+
+namespace rtsp
+{
+
+namespace client
+{
+
+///// Methods /////
+
+ScopedConnection::ScopedConnection()
+{
+
+}
+
+ScopedConnection::ScopedConnection(ScopedConnection&& scopedconnection) noexcept :
+  connection_(std::move(scopedconnection.connection_))
+{
+
+}
+
+ScopedConnection::ScopedConnection(Connection&& connection) noexcept :
+  connection_(std::move(connection))
+{
+
+}
+
+ScopedConnection::~ScopedConnection()
+{
+  connection_.Close();
+
+}
+
+void ScopedConnection::Close()
+{
+  connection_.Close();
+
+}
+
+bool ScopedConnection::IsConnected() const
+{
+  
+  return connection_.IsConnected();
+}
+
+ScopedConnection& ScopedConnection::operator=(ScopedConnection&& scopedconnection) noexcept
+{
+  connection_ = std::move(scopedconnection.connection_);
+  return (*this);
+}
+
+ScopedConnection& ScopedConnection::operator=(Connection&& connection) noexcept
+{
+  connection_ = std::move(connection);
+  return (*this);
+}
+
+}
+
+}

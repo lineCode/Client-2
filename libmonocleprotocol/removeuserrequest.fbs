@@ -1,0 +1,6 @@
+namespace monocle;
+
+table RemoveUserRequest
+{
+  token:uint64 (id:0);
+}

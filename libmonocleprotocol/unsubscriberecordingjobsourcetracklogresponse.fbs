@@ -1,0 +1,6 @@
+namespace monocle;
+
+table UnsubscribeRecordingJobSourceTrackLogResponse
+{
+
+}

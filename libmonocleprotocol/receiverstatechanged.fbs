@@ -1,0 +1,9 @@
+include "receiverstate.fbs";
+
+namespace monocle;
+
+table ReceiverStateChanged
+{
+  receiver:uint64 (id:0);
+  state:ReceiverState (id:1);
+}

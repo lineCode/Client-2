@@ -1,0 +1,7 @@
+namespace monocle;
+
+table GetSnapshotResponse
+{
+  data:[uint8] (id:0);
+  time:uint64 (id:1);
+}

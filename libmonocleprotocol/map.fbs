@@ -1,0 +1,9 @@
+namespace monocle;
+
+table Map
+{
+  token:uint64 (id:0);
+  name:string (id:1);
+  location:string (id:2);
+  md5sum:string (id:3);
+}

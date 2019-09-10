@@ -1,0 +1,16 @@
+include "token.fbs";
+
+namespace monocle;
+
+table RecordingChanged
+{
+  token:uint64 (id:0);
+  sourceid:string (id:1);
+  name:string (id:2);
+  location:string (id:3);
+  description:string (id:4);
+  address:string (id:5);
+  content:string (id:6);
+  retentiontime:uint64 (id:7);
+  activejob:TOKEN (id:8);
+}

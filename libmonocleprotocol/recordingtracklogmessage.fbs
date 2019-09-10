@@ -1,0 +1,10 @@
+include "logmessage.fbs";
+
+namespace monocle;
+
+table RecordingTrackLogMessage
+{
+  recordingtoken:uint64 (id:0);
+  id:uint32 (id:1);
+  message:LogMessage (id:2);
+}

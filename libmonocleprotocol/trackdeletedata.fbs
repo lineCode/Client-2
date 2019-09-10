@@ -1,0 +1,9 @@
+namespace monocle;
+
+table TrackDeleteData
+{
+  recording:uint64 (id:0);
+  track:uint32 (id:1);
+  start:uint64 (id:2);
+  end:uint64 (id:3);
+}

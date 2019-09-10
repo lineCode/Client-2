@@ -1,0 +1,12 @@
+namespace monocle;
+
+table AddGroupRequest
+{
+  name:string (id:0);
+  manageusers:bool (id:1);
+  managerecordings:bool (id:2);
+  managemaps:bool = false (id:5);
+  managedevice:bool = false (id:6);
+  allrecordings:bool (id:3);
+  recordings:[uint64] (id:4);
+}

@@ -1,0 +1,17 @@
+include "tracktype.fbs";
+
+namespace monocle;
+
+table TrackAdded
+{
+  recordingtoken:uint64 (id:0);
+  id:uint32 (id:1);
+  token:string (id:2);
+  tracktype:TrackType (id:3);
+  description:string (id:4);
+  fixedfiles:bool (id:5);
+  digitalsigning:bool (id:6);
+  encrypt:bool (id:7);
+  flushfrequency:uint32 (id:8);
+  files:[uint64] (id:9);
+}

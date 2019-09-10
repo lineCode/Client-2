@@ -1,0 +1,9 @@
+include "codecindex.fbs";
+
+namespace monocle;
+
+table NewCodecIndex
+{
+  stream:uint64 (id:0);
+  codecindex:CodecIndex (id:1);
+}

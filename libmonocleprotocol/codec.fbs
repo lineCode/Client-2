@@ -1,0 +1,11 @@
+namespace monocle;
+
+// Ths values of these must not change, and must only be extended
+enum Codec : byte
+{
+  METADATA = 0,
+  MJPEG = 1,
+  MPEG4 = 2,
+  H264 = 3,
+  H265 = 4
+}

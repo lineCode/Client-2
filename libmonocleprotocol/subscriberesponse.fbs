@@ -1,0 +1,40 @@
+include "file.fbs";
+include "group.fbs";
+include "logmessage.fbs";
+include "map.fbs";
+include "mountpoint.fbs";
+include "onvifuser.fbs";
+include "receiver.fbs";
+include "recording.fbs";
+include "user.fbs";
+include "version.fbs";
+
+namespace monocle;
+
+table SubscribeResponse
+{
+  name:string (id:0);
+  publickey:string (id:1);
+  architecture:string (id:2);
+  operatingsystem:int (id:3); // This corresponds to the utility::OPERATINGSYSTEM enum
+  compiler:string (id:4);
+  databasepath:string (id:5);
+  version:VERSION (id:6);
+  identifier:uint64 (id:7);
+  environmentvariables:[string] (id:8);
+  commandlinevariables:[string] (id:9);
+  onvifusers:[ONVIFUser] (id:10);
+  groups:[Group] (id:11);
+  users:[User] (id:12);
+  files:[File] (id:13);
+  receivers:[Receiver] (id:14);
+  recordings:[Recording] (id:15);
+  serverlogmessages:[LogMessage] (id:16);
+  maxrecordings:uint (id:17);
+  maps:[Map] (id:18);
+  mountpoints:[MountPoint] (id:19);
+  latitude:string (id:20);
+  longitude:string (id:21);
+  //TODO network settings
+  //TODO access policies
+}

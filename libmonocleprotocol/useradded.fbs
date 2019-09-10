@@ -1,0 +1,9 @@
+namespace monocle;
+
+table UserAdded
+{
+  token:uint64 (id:0);
+  username:string (id:1);
+  digest:string (id:2);
+  group:uint64 (id:3);
+}

@@ -1,0 +1,8 @@
+namespace monocle;
+
+table AddMapRequest
+{
+  name:string (id:0);
+  location:string (id:1);
+  image:[byte] (id:2);
+}

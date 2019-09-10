@@ -1,0 +1,6 @@
+namespace monocle;
+
+table RemoveFileRequest
+{
+  token:uint64 (id:0);
+}

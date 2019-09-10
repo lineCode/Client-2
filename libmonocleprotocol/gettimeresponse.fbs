@@ -1,0 +1,6 @@
+namespace monocle;
+
+table GetTimeResponse
+{
+  utctime:uint64 (id:0);
+}

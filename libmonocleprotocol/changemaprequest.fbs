@@ -1,0 +1,9 @@
+namespace monocle;
+
+table ChangeMapRequest
+{
+  token:uint64 (id:0);
+  name:string (id:1);
+  location:string (id:2);
+  image:[byte] (id:3);
+}

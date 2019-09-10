@@ -1,0 +1,10 @@
+include "onvifuserlevel.fbs";
+
+namespace monocle;
+
+table AddONVIFUserRequest
+{
+  username:string (id:0);
+  password:string (id:1);
+  onvifuserlevel:ONVIFUserlevel = Anonymous (id:2);
+}

@@ -1,0 +1,9 @@
+include "errorcode.fbs";
+
+namespace monocle;
+
+table ErrorResponse
+{
+  code:ErrorCode (id:0);
+  text:string (id:1);
+}

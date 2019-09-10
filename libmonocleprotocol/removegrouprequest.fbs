@@ -1,0 +1,6 @@
+namespace monocle;
+
+table RemoveGroupRequest
+{
+  token:uint64 (id:0);
+}

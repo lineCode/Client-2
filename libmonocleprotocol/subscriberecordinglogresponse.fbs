@@ -1,0 +1,8 @@
+include "logmessage.fbs";
+
+namespace monocle;
+
+table SubscribeRecordingLogResponse
+{
+  messages:[LogMessage] (id:0);
+}

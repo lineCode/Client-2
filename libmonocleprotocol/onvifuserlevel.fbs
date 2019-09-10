@@ -1,0 +1,10 @@
+namespace monocle;
+
+// The values match what is in the onvif library, so do not change!
+enum ONVIFUserlevel : byte
+{
+  Anonymous = 1,
+  User = 2,
+  Operator = 3,
+  Administrator = 4
+}

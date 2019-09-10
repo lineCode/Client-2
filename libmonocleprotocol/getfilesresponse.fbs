@@ -1,0 +1,8 @@
+include "file.fbs";
+
+namespace monocle;
+
+table GetFilesResponse
+{
+  files:[File] (required, id:0);
+}

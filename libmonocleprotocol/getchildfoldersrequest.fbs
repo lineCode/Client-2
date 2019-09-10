@@ -1,0 +1,6 @@
+namespace monocle;
+
+table GetChildFoldersRequest
+{
+  path:string (id:0);
+}

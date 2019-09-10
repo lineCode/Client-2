@@ -1,0 +1,6 @@
+namespace monocle;
+
+table NameChanged
+{
+  name:string (id:0);
+}

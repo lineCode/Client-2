@@ -1,0 +1,12 @@
+include "recordingjobsourcetype.fbs";
+include "recordingjobsourcetrack.fbs";
+
+namespace monocle;
+
+table RecordingJobSource
+{
+  token:uint64 (id:0);
+  type:RecordingJobSourceType (id:1);
+  receiver:uint64 (id:2);
+  recordingjobsourcetracks:[RecordingJobSourceTrack] (id:3);
+}

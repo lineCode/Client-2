@@ -1,0 +1,9 @@
+namespace monocle;
+
+table RecordingJobSourceAdded
+{
+  recordingtoken:uint64 (id:0);
+  recordingjobtoken:uint64 (id:1);
+  recordingjobsourcetoken:uint64 (id:2);
+  receivertoken:uint64 (id:3);
+}

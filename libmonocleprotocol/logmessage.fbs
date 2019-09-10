@@ -1,0 +1,10 @@
+include "severity.fbs";
+
+namespace monocle;
+
+table LogMessage
+{
+  time:uint64 (id:0);
+  severity:Severity (id:1);
+  message:string (id:2);
+}

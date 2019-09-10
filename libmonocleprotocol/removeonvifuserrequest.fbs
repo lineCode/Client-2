@@ -1,0 +1,6 @@
+namespace monocle;
+
+table RemoveONVIFUserRequest
+{
+  token:uint64 (id:0);
+}

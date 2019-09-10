@@ -1,0 +1,6 @@
+namespace monocle;
+
+table UnmountFileRequest
+{
+  token:uint64 (id:0);
+}

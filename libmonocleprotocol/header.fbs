@@ -1,0 +1,7 @@
+namespace monocle;
+
+enum HeaderFlags : uint32 (bit_flags)
+{
+  FLAG_ERROR,
+  FLAG_COMPRESSED
+}

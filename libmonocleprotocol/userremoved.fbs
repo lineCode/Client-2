@@ -1,0 +1,6 @@
+namespace monocle;
+
+table UserRemoved
+{
+  token:uint64 (id:0);
+}

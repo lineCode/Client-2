@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>client::ManageRecordingJobWindow</class>
+ <widget class="QDialog" name="client::ManageRecordingJobWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>873</width>
+    <height>482</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>199</width>
+    <height>99</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>16777215</width>
+    <height>99999</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Add Recording Job</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" rowspan="2">
+    <layout class="QGridLayout" name="gridLayout_2" rowstretch="10,0,0,0,0,0" columnstretch="0,0,0,0">
+     <item row="0" column="0" rowspan="3" colspan="4">
+      <widget class="QGroupBox" name="groupBox">
+       <property name="title">
+        <string>Recording Job</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_5">
+        <item row="2" column="1">
+         <widget class="QSpinBox" name="spinpriority"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Priority:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="editname"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Name:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0" colspan="2">
+         <widget class="QGroupBox" name="groupsources">
+          <property name="title">
+           <string>Sources</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_4">
+           <item row="1" column="0" rowspan="2">
+            <layout class="QGridLayout" name="gridLayout_6">
+             <item row="1" column="0">
+              <widget class="QPushButton" name="buttonaddrtspsource">
+               <property name="text">
+                <string>Add RTSP Source</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QPushButton" name="buttonaddonvifsource">
+               <property name="text">
+                <string>Add ONVIF Source</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QPushButton" name="buttonedit">
+               <property name="text">
+                <string>Edit</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="3">
+              <widget class="QPushButton" name="buttonremove">
+               <property name="text">
+                <string>Remove</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="0" column="0">
+            <layout class="QGridLayout" name="gridLayout_3">
+             <item row="0" column="0">
+              <widget class="QTableWidget" name="tablerecordingjobsources">
+               <property name="editTriggers">
+                <set>QAbstractItemView::NoEditTriggers</set>
+               </property>
+               <property name="selectionMode">
+                <enum>QAbstractItemView::SingleSelection</enum>
+               </property>
+               <property name="selectionBehavior">
+                <enum>QAbstractItemView::SelectRows</enum>
+               </property>
+               <attribute name="horizontalHeaderStretchLastSection">
+                <bool>true</bool>
+               </attribute>
+               <column>
+                <property name="text">
+                 <string>Token</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Enabled</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Track</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>URI</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Username</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Parameters</string>
+                </property>
+               </column>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QCheckBox" name="checkenabled">
+          <property name="text">
+           <string>Enabled</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="3" column="2" rowspan="3" colspan="2">
+      <widget class="QPushButton" name="buttoncancel">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0" rowspan="3" colspan="2">
+      <widget class="QPushButton" name="buttonok">
+       <property name="text">
+        <string>OK</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>checkenabled</tabstop>
+  <tabstop>editname</tabstop>
+  <tabstop>spinpriority</tabstop>
+  <tabstop>tablerecordingjobsources</tabstop>
+  <tabstop>buttonaddrtspsource</tabstop>
+  <tabstop>buttonaddonvifsource</tabstop>
+  <tabstop>buttonedit</tabstop>
+  <tabstop>buttonremove</tabstop>
+  <tabstop>buttonok</tabstop>
+  <tabstop>buttoncancel</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

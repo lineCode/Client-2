@@ -1,0 +1,8 @@
+include "recording.fbs";
+
+namespace monocle;
+
+table GetRecordingsResponse
+{
+  recordings:[Recording] (id:0);
+}

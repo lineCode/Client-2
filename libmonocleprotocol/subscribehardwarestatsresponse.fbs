@@ -1,0 +1,8 @@
+include "hardwarestats.fbs";
+
+namespace monocle;
+
+table SubscribeHardwareStatsResponse
+{
+  currenthardwarestats:HardwareStats (id:0);
+}

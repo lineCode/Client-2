@@ -1,0 +1,968 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>client::MainWindow</class>
+ <widget class="QMainWindow" name="client::MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1062</width>
+    <height>748</height>
+   </rect>
+  </property>
+  <property name="acceptDrops">
+   <bool>true</bool>
+  </property>
+  <property name="windowTitle">
+   <string>Monocle Client</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../monocleclient/resources/resources.qrc">
+    <normaloff>:/icon.ico</normaloff>:/icon.ico</iconset>
+  </property>
+  <property name="toolButtonStyle">
+   <enum>Qt::ToolButtonIconOnly</enum>
+  </property>
+  <property name="documentMode">
+   <bool>false</bool>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Rounded</enum>
+  </property>
+  <property name="dockOptions">
+   <set>QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks</set>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout2">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <item row="1" column="0">
+     <widget class="VideoWidget" name="videowidget">
+      <property name="acceptDrops">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="VideoWidgetToolbar" name="widgettoolbar" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>16</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>16</height>
+       </size>
+      </property>
+      <widget class="QToolButton" name="toolbuttonaddcolumn">
+       <property name="geometry">
+        <rect>
+         <x>32</x>
+         <y>0</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Add Column</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../monocleclient/resources/resources.qrc">
+         <normaloff>:/addcolumn.png</normaloff>:/addcolumn.png</iconset>
+       </property>
+      </widget>
+      <widget class="QToolButton" name="toolbuttonremovecolumn">
+       <property name="geometry">
+        <rect>
+         <x>48</x>
+         <y>0</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Remove Column</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../monocleclient/resources/resources.qrc">
+         <normaloff>:/removecolumn.png</normaloff>:/removecolumn.png</iconset>
+       </property>
+      </widget>
+      <widget class="QToolButton" name="toolbuttonremoverow">
+       <property name="geometry">
+        <rect>
+         <x>16</x>
+         <y>0</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Remove Row</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../monocleclient/resources/resources.qrc">
+         <normaloff>:/removerow.png</normaloff>:/removerow.png</iconset>
+       </property>
+      </widget>
+      <widget class="QToolButton" name="toolbuttonaddrow">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Add Row</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../monocleclient/resources/resources.qrc">
+         <normaloff>:/addrow.png</normaloff>:/addrow.png</iconset>
+       </property>
+      </widget>
+      <widget class="QToolButton" name="toolbuttonshowfullscreen">
+       <property name="geometry">
+        <rect>
+         <x>64</x>
+         <y>0</y>
+         <width>16</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Fullscreen</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../monocleclient/resources/resources.qrc">
+         <normaloff>:/showfullscreen.png</normaloff>:/showfullscreen.png</iconset>
+       </property>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1062</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menfile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionexit"/>
+   </widget>
+   <widget class="QMenu" name="menutools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="actionadddevice"/>
+    <addaction name="actionimportfile"/>
+    <addaction name="actionoptions"/>
+   </widget>
+   <widget class="QMenu" name="menuhelp">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actioncheckforupdate"/>
+    <addaction name="actionabout"/>
+   </widget>
+   <widget class="QMenu" name="menuwindow">
+    <property name="title">
+     <string>&amp;Window</string>
+    </property>
+    <addaction name="actionnewvideowindow"/>
+    <addaction name="separator"/>
+    <addaction name="actiondevices"/>
+    <addaction name="actionlog"/>
+    <addaction name="actionplayback"/>
+    <addaction name="separator"/>
+    <addaction name="actiontoolbar"/>
+   </widget>
+   <widget class="QMenu" name="menulanguage">
+    <property name="title">
+     <string>Language</string>
+    </property>
+   </widget>
+   <addaction name="menfile"/>
+   <addaction name="menutools"/>
+   <addaction name="menuwindow"/>
+   <addaction name="menulanguage"/>
+   <addaction name="menuhelp"/>
+  </widget>
+  <widget class="QDockWidget" name="dockdevices">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>100</horstretch>
+     <verstretch>100</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="windowIcon">
+    <iconset resource="../monocleclient/resources/resources.qrc">
+     <normaloff>:/icon.ico</normaloff>:/icon.ico</iconset>
+   </property>
+   <property name="floating">
+    <bool>false</bool>
+   </property>
+   <property name="features">
+    <set>QDockWidget::AllDockWidgetFeatures</set>
+   </property>
+   <property name="windowTitle">
+    <string>Devices</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents2">
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <layout class="QGridLayout" name="gridLayout">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <item row="0" column="0">
+      <widget class="QTabWidget" name="tabsdevices">
+       <property name="tabPosition">
+        <enum>QTabWidget::South</enum>
+       </property>
+       <property name="tabShape">
+        <enum>QTabWidget::Triangular</enum>
+       </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="tabdevices">
+        <attribute name="title">
+         <string>Devices</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <layout class="QGridLayout" name="gridLayout_5">
+           <item row="0" column="0">
+            <widget class="FilterLineEdit" name="editdevicetreefilter"/>
+           </item>
+          </layout>
+         </item>
+         <item row="2" column="0">
+          <widget class="client::DeviceTree" name="devicetree">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="dragDropMode">
+            <enum>QAbstractItemView::DragOnly</enum>
+           </property>
+           <property name="uniformRowHeights">
+            <bool>true</bool>
+           </property>
+           <attribute name="headerVisible">
+            <bool>false</bool>
+           </attribute>
+           <column>
+            <property name="text">
+             <string notr="true">1</string>
+            </property>
+           </column>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tablocations">
+        <attribute name="title">
+         <string>Locations</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item row="1" column="0">
+          <widget class="client::LocationTree" name="locationtree">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="dragDropMode">
+            <enum>QAbstractItemView::DragOnly</enum>
+           </property>
+           <attribute name="headerVisible">
+            <bool>false</bool>
+           </attribute>
+           <column>
+            <property name="text">
+             <string notr="true">1</string>
+            </property>
+           </column>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="FilterLineEdit" name="editlocationtreefilter"/>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="docklog">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>100</horstretch>
+     <verstretch>100</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="windowIcon">
+    <iconset resource="../monocleclient/resources/resources.qrc">
+     <normaloff>:/icon.ico</normaloff>:/icon.ico</iconset>
+   </property>
+   <property name="windowTitle">
+    <string>Log</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <layout class="QGridLayout" name="gridLayout1">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <item row="0" column="0">
+      <widget class="client::LogTable" name="logtable">
+       <property name="verticalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOn</enum>
+       </property>
+       <property name="editTriggers">
+        <set>QAbstractItemView::NoEditTriggers</set>
+       </property>
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::SingleSelection</enum>
+       </property>
+       <property name="selectionBehavior">
+        <enum>QAbstractItemView::SelectRows</enum>
+       </property>
+       <attribute name="horizontalHeaderHighlightSections">
+        <bool>false</bool>
+       </attribute>
+       <attribute name="horizontalHeaderStretchLastSection">
+        <bool>true</bool>
+       </attribute>
+       <attribute name="verticalHeaderVisible">
+        <bool>false</bool>
+       </attribute>
+       <column>
+        <property name="text">
+         <string>Index</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Type</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Time</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Source</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Message</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockplayback">
+   <property name="minimumSize">
+    <size>
+     <width>285</width>
+     <height>89</height>
+    </size>
+   </property>
+   <property name="windowTitle">
+    <string>Playback</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_2">
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(120, 120, 120);</string>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_2">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item row="0" column="0">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="spacing">
+        <number>1</number>
+       </property>
+       <item>
+        <layout class="QGridLayout" name="gridLayout_6">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <item row="0" column="5">
+          <widget class="QPushButton" name="buttonframestepforwards">
+           <property name="minimumSize">
+            <size>
+             <width>23</width>
+             <height>23</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>23</width>
+             <height>23</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Step Forwards</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normalon>:/framestepforwards.png</normalon>
+            </iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QPushButton" name="buttonplay">
+           <property name="minimumSize">
+            <size>
+             <width>23</width>
+             <height>23</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>23</width>
+             <height>23</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Play</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normalon>:/play.ico</normalon>
+            </iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="7">
+          <widget class="QPushButton" name="buttonzoomout">
+           <property name="minimumSize">
+            <size>
+             <width>23</width>
+             <height>23</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>23</width>
+             <height>23</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Zoom Out</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normalon>:/zoomout.png</normalon>
+            </iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QPushButton" name="buttonframestepbackwards">
+           <property name="minimumSize">
+            <size>
+             <width>23</width>
+             <height>23</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>23</width>
+             <height>23</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Step Backwards</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normalon>:/framestepbackwards.png</normalon>
+            </iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="8">
+          <widget class="QPushButton" name="buttonexport">
+           <property name="minimumSize">
+            <size>
+             <width>21</width>
+             <height>21</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>21</width>
+             <height>21</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Export</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normalon>:/export.png</normalon>
+            </iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QPushButton" name="buttonpause">
+           <property name="minimumSize">
+            <size>
+             <width>23</width>
+             <height>23</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>23</width>
+             <height>23</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Pause</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normalon>:/pause.ico</normalon>
+            </iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4">
+          <widget class="QPushButton" name="buttonstop">
+           <property name="minimumSize">
+            <size>
+             <width>23</width>
+             <height>23</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>23</width>
+             <height>23</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Stop(Live)</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normalon>:/stop.ico</normalon>
+            </iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="6">
+          <widget class="QPushButton" name="buttonzoomin">
+           <property name="minimumSize">
+            <size>
+             <width>23</width>
+             <height>23</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>23</width>
+             <height>23</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Zoom In</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normalon>:/zoomin.png</normalon>
+            </iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="9">
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="PlaybackWidget" name="playbackwidget">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QToolBar" name="toolbar">
+   <property name="windowTitle">
+    <string>Toolbar</string>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>16</width>
+     <height>16</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonIconOnly</enum>
+   </property>
+   <property name="floatable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionfindmotion"/>
+   <addaction name="actioncolourpicker"/>
+  </widget>
+  <action name="actionabout">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;About</string>
+   </property>
+  </action>
+  <action name="actionexit">
+   <property name="text">
+    <string>E&amp;xit</string>
+   </property>
+  </action>
+  <action name="actiondevices">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Devices</string>
+   </property>
+  </action>
+  <action name="actionlog">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Log</string>
+   </property>
+  </action>
+  <action name="actionoptions">
+   <property name="text">
+    <string>&amp;Options</string>
+   </property>
+  </action>
+  <action name="actioncheckforupdate">
+   <property name="text">
+    <string>&amp;Check for Update</string>
+   </property>
+  </action>
+  <action name="actionnewvideowindow">
+   <property name="text">
+    <string>&amp;New Video Window</string>
+   </property>
+  </action>
+  <action name="actionadddevice">
+   <property name="text">
+    <string>&amp;Add Device</string>
+   </property>
+   <property name="toolTip">
+    <string>Add Device</string>
+   </property>
+  </action>
+  <action name="actionplayback">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Playback</string>
+   </property>
+  </action>
+  <action name="actionimportfile">
+   <property name="text">
+    <string>Import File</string>
+   </property>
+  </action>
+  <action name="actionfindmotion">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../monocleclient/resources/resources.qrc">
+     <normaloff>:/findmotion.png</normaloff>:/findmotion.png</iconset>
+   </property>
+   <property name="text">
+    <string>Find Motion</string>
+   </property>
+   <property name="toolTip">
+    <string>Find Motion</string>
+   </property>
+  </action>
+  <action name="actiontoolbar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Toolbar</string>
+   </property>
+  </action>
+  <action name="actioncolourpicker">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../monocleclient/resources/resources.qrc">
+     <normaloff>:/colourpicker.png</normaloff>:/colourpicker.png</iconset>
+   </property>
+   <property name="text">
+    <string>Colour Picker</string>
+   </property>
+   <property name="toolTip">
+    <string>Colour Picker</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>VideoWidget</class>
+   <extends>QOpenGLWidget</extends>
+   <header>monocleclient/videowidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>VideoWidgetToolbar</class>
+   <extends>QWidget</extends>
+   <header>monocleclient/videowidgettoolbar.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>client::DeviceTree</class>
+   <extends>QTreeWidget</extends>
+   <header>monocleclient/devicetree.h</header>
+  </customwidget>
+  <customwidget>
+   <class>client::LogTable</class>
+   <extends>QTableWidget</extends>
+   <header>monocleclient/logtable.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PlaybackWidget</class>
+   <extends>QOpenGLWidget</extends>
+   <header>monocleclient/playbackwidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>client::LocationTree</class>
+   <extends>QTreeWidget</extends>
+   <header>monocleclient/locationtree.h</header>
+  </customwidget>
+  <customwidget>
+   <class>FilterLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>monocleclient/filterlineedit.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>toolbuttonaddrow</tabstop>
+  <tabstop>toolbuttonremoverow</tabstop>
+  <tabstop>toolbuttonaddcolumn</tabstop>
+  <tabstop>toolbuttonremovecolumn</tabstop>
+  <tabstop>toolbuttonshowfullscreen</tabstop>
+  <tabstop>editdevicetreefilter</tabstop>
+  <tabstop>devicetree</tabstop>
+  <tabstop>logtable</tabstop>
+  <tabstop>locationtree</tabstop>
+  <tabstop>tabsdevices</tabstop>
+  <tabstop>editlocationtreefilter</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../monocleclient/resources/resources.qrc"/>
+  <include location="../monocleclient/resources/resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

@@ -1,0 +1,16 @@
+include "filemonitorstate.fbs";
+include "filestate.fbs";
+
+namespace monocle;
+
+table AddFileRequest
+{
+  mountpoint:string (id:0);
+  path:string (id:1);
+  filldisk:bool (id:2);
+  numchunks:uint64 (id:3);
+  chunksize:uint64 (id:4);
+  automount:bool (id:5);
+  state:FileState (id:6);
+  monitorstate:FileMonitorState (id:7);
+}

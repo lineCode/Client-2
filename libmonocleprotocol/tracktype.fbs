@@ -1,0 +1,8 @@
+namespace monocle;
+
+enum TrackType : byte
+{
+  Video = 0,
+  Audio = 1,
+  Metadata = 2
+}

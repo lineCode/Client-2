@@ -1,0 +1,6 @@
+namespace monocle;
+
+table ReceiverRemoved
+{
+  token:uint64 (id:0);
+}

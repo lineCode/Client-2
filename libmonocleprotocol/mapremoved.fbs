@@ -1,0 +1,6 @@
+namespace monocle;
+
+table MapRemoved
+{
+  token:uint64 (id:0);
+}

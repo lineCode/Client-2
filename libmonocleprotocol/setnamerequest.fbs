@@ -1,0 +1,6 @@
+namespace monocle;
+
+table SetNameRequest
+{
+  name:string (id:0);
+}

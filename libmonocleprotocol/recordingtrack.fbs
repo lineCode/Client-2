@@ -1,0 +1,18 @@
+include "index.fbs";
+include "tracktype.fbs";
+
+namespace monocle;
+
+table RecordingTrack
+{
+  id:uint32 (id:0);
+  token:string (id:1);
+  tracktype:TrackType (id:2);
+  description:string (id:3);
+  fixedfiles:bool (id:4);
+  digitalsigning:bool (id:5);
+  encrypt:bool (id:6);
+  flushfrequency:uint32 (id:7);
+  files:[uint64] (id:8);
+  indices:[INDEX] (id:9);
+}

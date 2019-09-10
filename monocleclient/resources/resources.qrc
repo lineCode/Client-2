@@ -1,0 +1,30 @@
+<RCC>
+    <qresource prefix="/">
+      <file>arial.ttf</file>
+      <file>icon.ico</file>
+      <file>play.ico</file>
+	  <file>showfullscreen.png</file>
+      <file>findmotion.png</file>
+      <file>colourpicker.png</file>
+      <file>framestepbackwards.png</file>
+      <file>pause.ico</file>
+      <file>stop.ico</file>
+      <file>framestepforwards.png</file>
+      <file>export.png</file>
+      <file>map.png</file>
+      <file>recording.png</file>
+      <file>latencygreen.png</file>
+      <file>latencyyellow.png</file>
+      <file>latencyred.png</file>
+      <file>latencynone.png</file>
+      <file>licensepub.pem</file>
+      <file>addrow.png</file>
+      <file>removerow.png</file>
+      <file>addcolumn.png</file>
+      <file>removecolumn.png</file>
+      <file>greenpadlock.png</file>
+      <file>redpadlock.png</file>
+      <file>zoomin.png</file>
+      <file>zoomout.png</file>
+    </qresource>
+</RCC>

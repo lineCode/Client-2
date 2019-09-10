@@ -1,0 +1,6 @@
+namespace monocle;
+
+table MountFileRequest
+{
+  token:uint64 (id:0);
+}

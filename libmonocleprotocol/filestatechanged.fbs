@@ -1,0 +1,9 @@
+include "filestate.fbs";
+
+namespace monocle;
+
+table FileStateChanged
+{
+  token:uint64 (id:0);
+  state:FileState (id:1);
+}

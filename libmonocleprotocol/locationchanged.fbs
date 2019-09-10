@@ -1,0 +1,7 @@
+namespace monocle;
+
+table LocationChanged
+{
+  latitude:string (id:0);
+  longitude:string (id:1);
+}

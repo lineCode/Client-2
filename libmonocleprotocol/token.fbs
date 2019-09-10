@@ -1,0 +1,6 @@
+namespace monocle;
+
+struct TOKEN
+{
+  token:uint64;
+}

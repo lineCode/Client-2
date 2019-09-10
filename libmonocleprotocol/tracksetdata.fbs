@@ -1,0 +1,10 @@
+include "index.fbs";
+
+namespace monocle;
+
+table TrackSetData
+{
+  recording:uint64 (id:0);
+  track:uint32 (id:1);
+  indices:[INDEX] (id:2);
+}

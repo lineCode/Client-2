@@ -1,0 +1,6 @@
+namespace monocle;
+
+table DestroyStreamRequest
+{
+  streamtoken:uint64 (id:0);
+}

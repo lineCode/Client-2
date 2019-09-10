@@ -1,0 +1,10 @@
+include "errorcode.fbs";
+
+namespace monocle;
+
+table ControlStreamEnd
+{
+  token:uint64 (id:0);
+  playrequestindex:uint64 (id:1);
+  error:ErrorCode (id:2);
+}

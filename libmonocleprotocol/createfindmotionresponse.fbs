@@ -1,0 +1,6 @@
+namespace monocle;
+
+table CreateFindMotionResponse
+{
+  token:uint64 (id:0);
+}

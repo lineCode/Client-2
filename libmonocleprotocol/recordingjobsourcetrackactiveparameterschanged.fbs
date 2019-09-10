@@ -1,0 +1,10 @@
+namespace monocle;
+
+table RecordingJobSourceTrackActiveParametersChanged
+{
+  recording:uint64 (id:0);
+  recordingjob:uint64 (id:1);
+  recordingjobsource:uint64 (id:2);
+  recordingjobsourcetrack:uint64 (id:3);
+  activeparameters:[string] (id:4);
+}

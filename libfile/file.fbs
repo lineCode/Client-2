@@ -1,0 +1,117 @@
+namespace file;
+
+enum FrameHeaderType : byte
+{
+  H264 = 1,
+  JPEG = 2,
+  METADATA = 3,
+  MPEG4 = 4,
+  H265 = 5
+}
+
+table Codec
+{
+  index:uint64 (id:0);
+  codec:int (id:1);
+  parameters:string (id:2);
+}
+
+table H265FrameHeader
+{
+  codecindex:uint64 (id:0);
+  offset:uint64 (id:1);
+  size:uint64 (id:2);
+  marker:bool (id:3);
+  time:uint64 (id:4);
+  signature:[ubyte] (id:5);
+  
+  donlfield:bool (id:6);
+  offsets:[uint32] (id:7);
+}
+
+table H264FrameHeader
+{
+  codecindex:uint64 (id:0);
+  offset:uint64 (id:1);
+  size:uint64 (id:2);
+  marker:bool (id:3);
+  time:uint64 (id:4);
+  signature:[ubyte] (id:5);
+  
+  offsets:[uint32] (id:6);
+}
+
+table JPEGFrameHeader
+{
+  codecindex:uint64 (id:0);
+  offset:uint64 (id:1);
+  size:uint64 (id:2);
+  marker:bool (id:3);
+  time:uint64 (id:4);
+  signature:[ubyte] (id:5);
+  
+  restartinterval:uint16 (id:6);
+  typespecificfragmentoffset:uint32 (id:7);
+  type:uint8 (id:8);
+  q:uint8 (id:9);
+  width:uint8 (id:10);
+  height:uint8 (id:11);
+  lqt:[ubyte] (id:12);
+  cqt:[ubyte] (id:13);
+}
+
+table MetadataFrameHeader
+{
+  codecindex:uint64 (id:0);
+  offset:uint64 (id:1);
+  size:uint64 (id:2);
+  marker:bool (id:3);
+  time:uint64 (id:4);
+  signature:[ubyte] (id:5);
+}
+
+table MPEG4FrameHeader
+{
+  codecindex:uint64 (id:0);
+  offset:uint64 (id:1);
+  size:uint64 (id:2);
+  marker:bool (id:3);
+  time:uint64 (id:4);
+  signature:[ubyte] (id:5);
+}
+
+table Track
+{
+  index:uint64 (id:0);
+  description:string (id:1);
+  codecs:[Codec] (id:2);
+  h265frameheaders:[H265FrameHeader] (id:7);
+  h264frameheaders:[H264FrameHeader] (id:3);
+  jpegframeheaders:[JPEGFrameHeader] (id:4);
+  metadataframeheaders:[MetadataFrameHeader] (id:5);
+  mpeg4frameheaders:[MPEG4FrameHeader] (id:6);
+}
+
+table Recording
+{
+  index:uint64 (id:0);
+  name:string (id:1);
+  location:string (id:3);
+  tracks:[Track] (id:2);
+}
+
+table Device
+{
+  index:uint64 (id:0);
+  name:string (id:1);
+  address:string (id:2);
+  signingkey:string (id:3);
+  recordings:[Recording] (id:4);
+}
+
+table File
+{
+  devices:[Device] (id:0);
+}
+
+root_type File;

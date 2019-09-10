@@ -1,0 +1,6 @@
+namespace monocle;
+
+table UnsubscribeRecordingTrackLogRequest
+{
+  recordingtoken:uint64 (id:0);
+}

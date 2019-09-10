@@ -1,0 +1,9 @@
+include "filemonitorstate.fbs";
+
+namespace monocle;
+
+table FileMonitorStateChanged
+{
+  token:uint64 (id:0);
+  state:FileMonitorState (id:1);
+}

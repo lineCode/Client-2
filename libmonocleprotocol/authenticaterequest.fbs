@@ -1,0 +1,8 @@
+namespace monocle;
+
+table AuthenticateRequest
+{
+  username:string (id:0);
+  clientnonce:string (id:1);
+  authdigest:string (id:2);
+}

@@ -1,0 +1,20 @@
+include "recordingjob.fbs";
+include "recordingtrack.fbs";
+include "token.fbs";
+
+namespace monocle;
+
+table Recording
+{
+  token:uint64 (id:0);
+  sourceid:string (id:1);
+  name:string (id:2);
+  location:string (id:3);
+  description:string (id:4);
+  address:string (id:5);
+  content:string (id:6);
+  retentiontime:uint64 (id:7);
+  recordingjobs:[RecordingJob] (id:8);
+  tracks:[RecordingTrack] (id:9);
+  activejob:TOKEN (id:10);
+}

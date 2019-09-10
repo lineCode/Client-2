@@ -1,0 +1,7 @@
+namespace monocle;
+
+enum RecordingJobSourceType : byte
+{
+  Media = 0,
+  Receiver
+}

@@ -1,0 +1,12 @@
+namespace monocle;
+
+table MountPointAdded
+{
+  id:uint64 (id:0);
+  parentid:uint64 (id:1);
+  majorstdev:uint64 (id:2);
+  minorstdev:uint64 (id:3);
+  path:string (id:4);
+  type:string (id:5);
+  source:string (id:6);
+}

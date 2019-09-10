@@ -1,0 +1,13 @@
+namespace monocle;
+
+table ControlStreamPlayRequest
+{
+  token:uint64 (id:0);
+  playrequestindex:uint64 (id:1);
+  fetchmarker:bool (id:2); // Whether to retrieve the frames before the requested time up to the previous marker(iframe)
+  ratecontrol:bool (id:3);
+  forwards:bool (id:4);
+  starttime:uint64 (id:5);
+  endtime:uint64 (id:6);
+  numframes:uint64 (id:7);
+}

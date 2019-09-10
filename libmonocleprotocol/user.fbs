@@ -1,0 +1,8 @@
+namespace monocle;
+
+table User
+{
+  token:uint64 (id:0);
+  username:string (id:1);
+  grouptoken:uint64 (id:2);
+}

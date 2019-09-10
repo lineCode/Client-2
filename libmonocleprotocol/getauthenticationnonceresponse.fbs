@@ -1,0 +1,6 @@
+namespace monocle;
+
+table GetAuthenticationNonceResponse
+{
+  nonce:string (id:0);
+}

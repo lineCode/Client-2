@@ -1,0 +1,15 @@
+namespace monocle;
+
+table CreateFindMotionRequest
+{
+  recordingtoken:uint64 (id:0);
+  trackid:uint32 (id:1);
+  starttime:uint64 (id:2);
+  endtime:uint64 (id:3);
+  x:float (id:4);
+  y:float (id:5);
+  width:float (id:6);
+  height:float (id:7);
+  sensitivity:float (id:8);
+  fast:bool (id:9);
+}

@@ -1,0 +1,9 @@
+namespace monocle;
+
+table DiskStat
+{
+  device:string (id:0);
+  utility:double (id:1);
+  readspeed:double (id:2);
+  writespeed:double (id:3);
+}

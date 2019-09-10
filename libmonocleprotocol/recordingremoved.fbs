@@ -1,0 +1,6 @@
+namespace monocle;
+
+table RecordingRemoved
+{
+  token:uint64 (id:0);
+}

@@ -1,0 +1,13 @@
+namespace monocle;
+
+table GroupAdded
+{
+  token:uint64 (id:0);
+  name:string (id:1);
+  manageusers:bool (id:2);
+  managerecordings:bool (id:3);
+  managemaps:bool = false (id:6);
+  managedevice:bool = false (id:7);
+  allrecordings:bool (id:4);
+  recordings:[uint64] (id:5);
+}

@@ -1,0 +1,120 @@
+cmake_minimum_required(VERSION 3.0)
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
+########## CLIENT ##########
+
+if (WIN32)
+  set(RESOURCES resources/resources.rc)
+endif(WIN32)
+
+add_executable(monocleclient
+main.h
+main.cpp
+resources/resources.qrc
+${RESOURCES})
+
+add_sanitizers(monocleclient)
+
+if(WIN32)
+  target_compile_definitions(monocleclient PUBLIC WINVER=0x0601 _WIN32_WINNT=0x0601)
+  set_target_properties(monocleclient PROPERTIES LINK_FLAGS "/INCREMENTAL:NO /DEBUG:FASTLINK")
+  set_target_properties(monocleclient PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS /LTCG")
+endif()
+
+set_property(TARGET monocleclient PROPERTY CXX_STANDARD 17)
+
+# Create a translations directory next to the exe and place the qm files in there after every build
+add_custom_command(TARGET monocleclient PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:monocleclient>/translations)
+foreach(TRANSLATIONQM ${TRANSLATIONSQM})
+  add_custom_command(TARGET monocleclient POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${TRANSLATIONQM} $<TARGET_FILE_DIR:monocleclient>/translations)
+endforeach(TRANSLATIONQM)
+
+set_directory_properties(PROPERTIES CLEAN_NO_CUSTOM true)
+
+##### INCLUDES #####
+
+include_directories(monocleclient ${Boost_INCLUDE_DIRS})
+include_directories(monocleclient ${CMAKE_CURRENT_BINARY_DIR})
+include_directories(monocleclient ${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(monocleclient ${FFMPEG_INCLUDE_DIR})
+include_directories(monocleclient ${OPENSSL_INCLUDE_DIR})
+include_directories(monocleclient ${PROJECT_BINARY_DIR}/curl/include/curl)
+include_directories(monocleclient ${PROJECT_BINARY_DIR}/libmonocleclient)
+include_directories(monocleclient ${PROJECT_BINARY_DIR}/zlib)
+include_directories(monocleclient ${Qt5Charts_INCLUDE_DIRS})
+include_directories(monocleclient ${Qt5Core_INCLUDE_DIRS})
+include_directories(monocleclient ${Qt5Network_INCLUDE_DIRS})
+include_directories(monocleclient ${Qt5OpenGL_INCLUDE_DIRS})
+include_directories(monocleclient ${Qt5Widgets_INCLUDE_DIRS})
+include_directories(monocleclient ../curl/include)
+include_directories(monocleclient ../flatbuffers/include)
+include_directories(monocleclient ../freetype2/include)
+include_directories(monocleclient ../libmonocleclient/include)
+include_directories(monocleclient ../libmonocleprotocol/include)
+include_directories(monocleclient ../libonvifclient/include)
+include_directories(monocleclient ../libonviftypes/include)
+include_directories(monocleclient ../libsocket/include)
+include_directories(monocleclient ../libutility/include)
+include_directories(monocleclient ../libwsdiscover/include)
+include_directories(monocleclient ../pugixml/src)
+include_directories(monocleclient ../uri/include)
+include_directories(monocleclient ../zlib)
+
+if(CMAKE_COMPILER_IS_GNUCXX)
+  include_directories(monocleclient pthread)
+endif(CMAKE_COMPILER_IS_GNUCXX)
+
+##### LIBRARIES #####
+
+target_link_libraries(monocleclient ${OPENGL_LIBRARIES})
+target_link_libraries(monocleclient ${OPENSSL_LIBRARIES})
+target_link_libraries(monocleclient ${Qt5Gui_EGL_LIBRARIES})
+target_link_libraries(monocleclient ${Qt5Gui_LIBRARIES})
+target_link_libraries(monocleclient debug ${Boost_CHRONO_LIBRARY_DEBUG} optimized ${Boost_CHRONO_LIBRARY_RELEASE})
+target_link_libraries(monocleclient debug ${Boost_DATE_TIME_LIBRARY_DEBUG} optimized ${Boost_DATE_TIME_LIBRARY_RELEASE})
+target_link_libraries(monocleclient debug ${Boost_FILESYSTEM_LIBRARY_DEBUG} optimized ${Boost_FILESYSTEM_LIBRARY_RELEASE})
+target_link_libraries(monocleclient debug ${Boost_PROGRAM_OPTIONS_LIBRARY_DEBUG} optimized ${Boost_PROGRAM_OPTIONS_LIBRARY_RELEASE})
+target_link_libraries(monocleclient debug ${Boost_REGEX_LIBRARY_DEBUG} optimized ${Boost_REGEX_LIBRARY_RELEASE})
+target_link_libraries(monocleclient debug ${Boost_SYSTEM_LIBRARY_DEBUG} optimized ${Boost_SYSTEM_LIBRARY_RELEASE})
+target_link_libraries(monocleclient debug ${Boost_THREAD_LIBRARY_DEBUG} optimized ${Boost_THREAD_LIBRARY_RELEASE})
+target_link_libraries(monocleclient Qt5::Charts)
+target_link_libraries(monocleclient Qt5::Core)
+target_link_libraries(monocleclient Qt5::Gui)
+target_link_libraries(monocleclient Qt5::Network)
+target_link_libraries(monocleclient Qt5::OpenGL)
+target_link_libraries(monocleclient Qt5::Widgets)
+target_link_libraries(monocleclient freetype)
+target_link_libraries(monocleclient libcurl)
+target_link_libraries(monocleclient libmonocleclient)
+target_link_libraries(monocleclient libmonocleprotocol)
+target_link_libraries(monocleclient libonvifclient)
+target_link_libraries(monocleclient libonviftypes)
+target_link_libraries(monocleclient network-uri)
+target_link_libraries(monocleclient pugixml)
+target_link_libraries(monocleclient libsocket)
+target_link_libraries(monocleclient libwsdiscover)
+target_link_libraries(monocleclient libutility)
+target_link_libraries(monocleclient sqlite3)
+target_link_libraries(monocleclient zlibstatic)
+
+if(WIN32)
+  target_link_libraries(monocleclient ${CMAKE_CURRENT_SOURCE_DIR}/../libmfx.lib)
+  target_link_libraries(monocleclient ${FFMPEG_LIBRARIES})
+  target_link_libraries(monocleclient Bcrypt.lib)
+  target_link_libraries(monocleclient Iphlpapi.lib)
+  target_link_libraries(monocleclient netapi32.lib)
+  target_link_libraries(monocleclient Qt5::Gui_GLESv2)
+  target_link_libraries(monocleclient Secur32.lib)
+  target_link_libraries(monocleclient wbemuuid.lib)
+  target_link_libraries(monocleclient Ws2_32.lib)
+  target_link_libraries(monocleclient Wsdapi)
+else()
+  target_link_libraries(monocleclient ${X11_LIBRARIES})
+  target_link_libraries(monocleclient avcodec.so)
+  target_link_libraries(monocleclient avformat.so)
+  target_link_libraries(monocleclient pthread)
+  target_link_libraries(monocleclient swscale.so)
+  target_link_libraries(monocleclient avutil.so)
+endif()

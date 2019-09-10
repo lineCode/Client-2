@@ -1,0 +1,16 @@
+include "logmessage.fbs";
+
+namespace monocle;
+
+table RecordingJobSourceTrackLogMessages
+{
+  recordingjobtoken:uint64 (id:0);
+  recordingjobsourcetoken:uint64 (id:1);
+  token:uint64 (id:2);
+  messages:[LogMessage] (id:3);
+}
+
+table SubscribeRecordingJobSourceTrackLogResponse
+{
+  recordingjobsourcetracklogmessages:[RecordingJobSourceTrackLogMessages] (id:0);
+}

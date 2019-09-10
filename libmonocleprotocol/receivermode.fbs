@@ -1,0 +1,8 @@
+namespace monocle;
+
+enum ReceiverMode : byte
+{
+  AutoConnect = 0,
+  AlwaysConnect = 1,
+  NeverConnect = 2
+}

@@ -1,0 +1,6 @@
+namespace monocle;
+
+table ONVIFUserRemoved
+{
+  token:uint64 (id:0);
+}

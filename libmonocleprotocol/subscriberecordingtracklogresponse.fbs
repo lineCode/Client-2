@@ -1,0 +1,14 @@
+include "logmessage.fbs";
+
+namespace monocle;
+
+table RecordingTrackLogMessages
+{
+  token:uint32 (id:0);
+  messages:[LogMessage] (id:1);
+}
+
+table SubscribeRecordingTrackLogResponse
+{
+  recordingtracklogmessages:[RecordingTrackLogMessages] (id:0);
+}

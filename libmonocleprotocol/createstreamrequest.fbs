@@ -1,0 +1,7 @@
+namespace monocle;
+
+table CreateStreamRequest
+{
+  recordingtoken:uint64 (id:0);
+  tracktoken:uint64 (id:1);
+}

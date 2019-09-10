@@ -1,0 +1,21 @@
+namespace monocle;
+
+table JPEGFrameHeader
+{
+  token:uint64 (id:0);
+  playrequestindex:uint64 (id:1);
+  codecindex:uint64 (id:2);
+  timestamp:uint64 (id:3);
+  sequencenum:int64 (id:4);
+  progress:float (id:5);
+  signature:[ubyte] (id:6);
+  
+  restartinterval:uint16 (id:7);
+  typespecificfragmentoffset:uint32 (id:8);
+  type:uint8 (id:9);
+  q:uint8 (id:10);
+  width:uint8 (id:11);
+  height:uint8 (id:12);
+  lqt:[ubyte] (id:13);
+  cqt:[ubyte] (id:14);
+}

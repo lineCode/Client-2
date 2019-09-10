@@ -1,0 +1,7 @@
+namespace monocle;
+
+table ControlStreamLiveRequest
+{
+  token:uint64 (id:0);
+  playrequestindex:uint64 (id:1);
+}

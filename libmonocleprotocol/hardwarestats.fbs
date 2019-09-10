@@ -1,0 +1,12 @@
+include "diskstat.fbs";
+
+namespace monocle;
+
+table HardwareStats
+{
+  time:uint64 (id:0);
+  diskstats:[DiskStat] (id:1);
+  cpuusage:double (id:2);
+  totalmemory:uint64 (id:3);
+  availablememory:uint64 (id:4);
+}
