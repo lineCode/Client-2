@@ -183,14 +183,13 @@ int main(int argc, char** argv)
   }
 
   // Stylesheet
-  QString stylesheet; //TODO style.qss
+  QString stylesheet;
   {
-    QFile f("style.qss");
+    QFile f("styles.qss");
     if (f.open(QFile::ReadOnly | QFile::Text))
     {
       QTextStream in(&f);
       stylesheet = in.readAll();
-      qDebug() << "yay" << stylesheet;
     }
   }
   

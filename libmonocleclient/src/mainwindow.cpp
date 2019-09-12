@@ -95,28 +95,28 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   connect(ui_.toolbar, &QToolBar::visibilityChanged, [this](bool visible) { ui_.actiontoolbar->setChecked(visible); ui_.actionfindmotion->setChecked(false); });
 
   const int ibmplexmonobold = QFontDatabase::addApplicationFont(":/IBMPlexMono-Bold.ttf");
-  if (ibmplexmonobold)
+  if (ibmplexmonobold == -1)
   {
     LOG_GUI_WARNING(tr("Failed to load font: IBMPlexMono-Bold.ttf"));
 
   }
 
   const int ibmplexmonoregular = QFontDatabase::addApplicationFont(":/IBMPlexMono-Regular.ttf");
-  if (ibmplexmonoregular)
+  if (ibmplexmonoregular == -1)
   {
     LOG_GUI_WARNING(tr("Failed to load font: IBMPlexMono-Regular.ttf"));
 
   }
 
   const int ibmplexsansitalic = QFontDatabase::addApplicationFont(":/IBMPlexSans-Italic.ttf");
-  if (ibmplexsansitalic)
+  if (ibmplexsansitalic == -1)
   {
     LOG_GUI_WARNING(tr("Failed to load font: IBMPlexSans-Italic.ttf"));
 
   }
 
   const int ibmplexsansregular = QFontDatabase::addApplicationFont(":/IBMPlexSans-Regular.ttf");
-  if (ibmplexsansregular)
+  if (ibmplexsansregular == -1)
   {
     LOG_GUI_WARNING(tr("Failed to load font: IBMPlexSans-Regular.ttf"));
 
