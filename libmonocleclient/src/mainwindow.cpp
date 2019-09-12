@@ -11,6 +11,7 @@
 #include <QCloseEvent>
 #include <QDirIterator>
 #include <QFileDialog>
+#include <QFontDatabase>
 #include <QLocale>
 #include <QMessageBox>
 #include <QMimeData>
@@ -92,6 +93,34 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   connect(ui_.docklog, &QDockWidget::visibilityChanged, [this](bool visible) { ui_.actionlog->setChecked(visible); });
   connect(ui_.dockplayback, &QDockWidget::visibilityChanged, [this](bool visible) { ui_.actionplayback->setChecked(visible); });
   connect(ui_.toolbar, &QToolBar::visibilityChanged, [this](bool visible) { ui_.actiontoolbar->setChecked(visible); ui_.actionfindmotion->setChecked(false); });
+
+  const int ibmplexmonobold = QFontDatabase::addApplicationFont(":/IBMPlexMono-Bold.ttf");
+  if (ibmplexmonobold)
+  {
+    LOG_GUI_WARNING(tr("Failed to load font: IBMPlexMono-Bold.ttf"));
+
+  }
+
+  const int ibmplexmonoregular = QFontDatabase::addApplicationFont(":/IBMPlexMono-Regular.ttf");
+  if (ibmplexmonoregular)
+  {
+    LOG_GUI_WARNING(tr("Failed to load font: IBMPlexMono-Regular.ttf"));
+
+  }
+
+  const int ibmplexsansitalic = QFontDatabase::addApplicationFont(":/IBMPlexSans-Italic.ttf");
+  if (ibmplexsansitalic)
+  {
+    LOG_GUI_WARNING(tr("Failed to load font: IBMPlexSans-Italic.ttf"));
+
+  }
+
+  const int ibmplexsansregular = QFontDatabase::addApplicationFont(":/IBMPlexSans-Regular.ttf");
+  if (ibmplexsansregular)
+  {
+    LOG_GUI_WARNING(tr("Failed to load font: IBMPlexSans-Regular.ttf"));
+
+  }
 
   // Collect all short month names for later
   std::array<char, 256> buffer;

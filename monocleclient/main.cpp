@@ -22,6 +22,9 @@
 #include <monocleclient/recordingtrack.h>
 #include <monocleclient/streamingprotocol.h>
 #include <monocleprotocol/streamingprotocol_generated.h>
+#include <QFile>
+#include <QString>
+#include <QTextStream>
 #include <vector>
 
 extern "C"
@@ -178,10 +181,23 @@ int main(int argc, char** argv)
     // Do nothing I suppose?
 
   }
+
+  // Stylesheet
+  QString stylesheet; //TODO style.qss
+  {
+    QFile f("style.qss");
+    if (f.open(QFile::ReadOnly | QFile::Text))
+    {
+      QTextStream in(&f);
+      stylesheet = in.readAll();
+      qDebug() << "yay" << stylesheet;
+    }
+  }
   
   // Init
   QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
   QApplication app(argc, argv);
+  app.setStyleSheet(stylesheet);
   app.setOrganizationName(ORGANISATIONNAME);
   app.setApplicationName(APPLICATIONNAME);
 

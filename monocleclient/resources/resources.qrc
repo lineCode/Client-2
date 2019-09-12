@@ -1,6 +1,10 @@
 <RCC>
     <qresource prefix="/">
       <file>arial.ttf</file>
+      <file>IBMPlexMono-Bold.ttf</file>
+      <file>IBMPlexMono-Regular.ttf</file>
+      <file>IBMPlexSans-Italic.ttf</file>
+      <file>IBMPlexSans-Regular.ttf</file>
       <file>icon.ico</file>
       <file>play.ico</file>
 	  <file>showfullscreen.png</file>
