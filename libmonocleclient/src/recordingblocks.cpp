@@ -221,7 +221,7 @@ boost::optional<uint64_t> RecordingBlocks::GetStartTime() const
 void RecordingBlocks::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)
 {
   playbackwidget_->makeCurrent();
-  InitRecordingBlocks(track);
+  recordingtracks_.emplace(track->GetId(), InitRecordingBlocks(track));
   playbackwidget_->doneCurrent();
 }
 
@@ -308,8 +308,8 @@ void RecordingBlocks::TrackSetData(const QSharedPointer<client::RecordingTrack>&
   playbackwidget_->makeCurrent();
   recordingtrack->second = InitRecordingBlocks(track);
   playbackwidget_->UpdateRecordingsBlocks();
-  playbackwidget_->update();
   playbackwidget_->doneCurrent();
+  playbackwidget_->update();
 }
 
 void RecordingBlocks::TrackDeleteData(const QSharedPointer<client::RecordingTrack>& track, const monocle::RecordingJobState state, const boost::optional<uint64_t>& start, const boost::optional<uint64_t>& end)

@@ -92,7 +92,7 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   connect(ui_.dockdevices, &QDockWidget::visibilityChanged, [this](bool visible) { ui_.actiondevices->setChecked(visible); });
   connect(ui_.docklog, &QDockWidget::visibilityChanged, [this](bool visible) { ui_.actionlog->setChecked(visible); });
   connect(ui_.dockplayback, &QDockWidget::visibilityChanged, [this](bool visible) { ui_.actionplayback->setChecked(visible); });
-  connect(ui_.toolbar, &QToolBar::visibilityChanged, [this](bool visible) { ui_.actiontoolbar->setChecked(visible); ui_.actionfindmotion->setChecked(false); });
+  connect(ui_.toolbar, &QToolBar::visibilityChanged, [this](bool visible) { ui_.actiontoolbar->setChecked(visible); ui_.actionfindmotion->setChecked(false); ui_.actioncolourpicker->setChecked(false); });
 
   const int ibmplexmonobold = QFontDatabase::addApplicationFont(":/IBMPlexMono-Bold.ttf");
   if (ibmplexmonobold == -1)
@@ -236,6 +236,11 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
     ui_.docklog->hide(); // First load should hide the dock log
 
   }
+
+  ui_.actiondevices->setChecked(ui_.dockdevices->isVisible());
+  ui_.actionlog->setChecked(ui_.docklog->isVisible());
+  ui_.actionplayback->setChecked(ui_.dockplayback->isVisible());
+  ui_.actiontoolbar->setChecked(ui_.toolbar->isVisible());
 
   // Translations
   QActionGroup* langgroup = new QActionGroup(ui_.menulanguage);
