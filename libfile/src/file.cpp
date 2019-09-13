@@ -66,8 +66,8 @@ H264FRAMEHEADER::H264FRAMEHEADER(const uint64_t codecindex, const uint64_t offse
 
 }
 
-JPEGFRAMEHEADER::JPEGFRAMEHEADER(const uint64_t codecindex, const uint64_t offset, const uint64_t size, const bool marker, const uint64_t time, const std::vector<uint8_t>& signature, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const std::array<uint8_t, 64>& lqt, const std::array<uint8_t, 64>& cqt) :
-  FRAMEHEADER(codecindex, offset, size, marker, time, signature),
+JPEGFRAMEHEADER::JPEGFRAMEHEADER(const uint64_t codecindex, const uint64_t offset, const uint64_t size, const uint64_t time, const std::vector<uint8_t>& signature, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const std::array<uint8_t, 64>& lqt, const std::array<uint8_t, 64>& cqt) :
+  FRAMEHEADER(codecindex, offset, size, true, time, signature),
   restartinterval_(restartinterval),
   typespecificfragmentoffset_(typespecificfragmentoffset),
   type_(type),
@@ -80,8 +80,8 @@ JPEGFRAMEHEADER::JPEGFRAMEHEADER(const uint64_t codecindex, const uint64_t offse
 
 }
 
-METADATAFRAMEHEADER::METADATAFRAMEHEADER(const uint64_t codecindex, const uint64_t offset, const uint64_t size, const bool marker, const uint64_t time, const std::vector<uint8_t>& signature) :
-  FRAMEHEADER(codecindex, offset, size, marker, time, signature)
+METADATAFRAMEHEADER::METADATAFRAMEHEADER(const uint64_t codecindex, const uint64_t offset, const uint64_t size, const uint64_t time, const std::vector<uint8_t>& signature) :
+  FRAMEHEADER(codecindex, offset, size, true, time, signature)
 {
 
 }

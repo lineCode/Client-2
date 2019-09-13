@@ -553,7 +553,7 @@ void MediaView::Init(const boost::optional<uint64_t>& starttime)
   SendControlRequest<PlaybackControlRequest>(GetPlayRequestIndex(), 0, true, starttime, boost::none, boost::none);
   thread_ = std::thread([this, playrequestindex = GetPlayRequestIndex(), future = std::move(future)]() mutable
   {
-    std::unique_ptr< char[], utility::DeleteAligned<char> > buffer;
+    std::unique_ptr< uint8_t[], utility::DeleteAligned<uint8_t> > buffer;
     size_t buffersize = 0;
     size_t frame = 0;
     std::chrono::milliseconds delay(0);
@@ -855,7 +855,7 @@ void MediaView::Init(const boost::optional<uint64_t>& starttime)
   });
 }
 
-void MediaView::FrameStepForwards(const uint64_t playrequestindex, size_t& frame, std::unique_ptr< char[], utility::DeleteAligned<char> >& buffer, size_t& buffersize)
+void MediaView::FrameStepForwards(const uint64_t playrequestindex, size_t& frame, std::unique_ptr< uint8_t[], utility::DeleteAligned<uint8_t> >& buffer, size_t& buffersize)
 {
   if ((frame + 1) >= currenttrack_.frameheaders_.size())
   {
@@ -962,7 +962,7 @@ void MediaView::FrameStepForwards(const uint64_t playrequestindex, size_t& frame
   }, Qt::QueuedConnection);
 }
 
-void MediaView::FrameStepBackwards(const uint64_t playrequestindex, size_t& frame, std::unique_ptr< char[], utility::DeleteAligned<char> >& buffer, size_t& buffersize)
+void MediaView::FrameStepBackwards(const uint64_t playrequestindex, size_t& frame, std::unique_ptr< uint8_t[], utility::DeleteAligned<uint8_t> >& buffer, size_t& buffersize)
 {
   if (frame == 0)
   {
@@ -1046,7 +1046,7 @@ void MediaView::FrameStepBackwards(const uint64_t playrequestindex, size_t& fram
   }, Qt::QueuedConnection);
 }
 
-std::pair<int, bool> MediaView::SendFrame(const uint64_t playrequestindex, const size_t frame, std::unique_ptr< char[], utility::DeleteAligned<char> >& buffer, size_t& buffersize)
+std::pair<int, bool> MediaView::SendFrame(const uint64_t playrequestindex, const size_t frame, std::unique_ptr< uint8_t[], utility::DeleteAligned<uint8_t> >& buffer, size_t& buffersize)
 {
   const std::shared_ptr<file::FRAMEHEADER> frameheader = currenttrack_.frameheaders_[frame];
   
@@ -1054,7 +1054,7 @@ std::pair<int, bool> MediaView::SendFrame(const uint64_t playrequestindex, const
   const uint64_t newsize = frameheader->size_ + 1024; // We may need a bit of extra space for the H264 or JPEG headers
   if (buffersize < newsize)
   {
-    buffer = utility::AlignedAllocArray<char>(PAGE_SIZE, newsize);
+    buffer = utility::AlignedAllocArray<uint8_t>(PAGE_SIZE, newsize);
     buffersize = newsize;
   }
   
@@ -1083,7 +1083,7 @@ std::pair<int, bool> MediaView::SendFrame(const uint64_t playrequestindex, const
 
       const std::shared_ptr<file::H265FRAMEHEADER> h265frameheader = std::static_pointer_cast<file::H265FRAMEHEADER>(frameheader);
       std::vector<unsigned char> buf;
-      if (BuildH265Frame(h265frameheader->donlfield_, h265frameheader->offsets_.data(), h265frameheader->offsets_.size(), buffer.get(), frameheader->size_, buf))
+      if (BuildH265Frame(h265frameheader->donlfield_, h265frameheader->offsets_.data(), h265frameheader->offsets_.size(), reinterpret_cast<const char*>(buffer.get()), frameheader->size_, buf))
       {
 
         return std::make_pair(2, false);
@@ -1095,7 +1095,7 @@ std::pair<int, bool> MediaView::SendFrame(const uint64_t playrequestindex, const
         return std::make_pair(3, false);
       }
 
-      imagebuffer = (*h265decoder)->Decode(playrequestindex, frameheader->marker_, frameheader->time_, frame, signature, frameheader->signature_.size(), buffer.get(), frameheader->size_, reinterpret_cast<const uint8_t*>(buf.data()), static_cast<int>(buf.size()), &freeimagequeue_);
+      imagebuffer = (*h265decoder)->Decode(playrequestindex, frameheader->marker_, frameheader->time_, frame, signature, frameheader->signature_.size(), reinterpret_cast<const char*>(buffer.get()), frameheader->size_, reinterpret_cast<const uint8_t*>(buf.data()), static_cast<int>(buf.size()), &freeimagequeue_);
       if (imagebuffer.buffer_)
       {
         if (imagequeue_.write_available())
@@ -1125,7 +1125,7 @@ std::pair<int, bool> MediaView::SendFrame(const uint64_t playrequestindex, const
 
       const std::shared_ptr<file::H264FRAMEHEADER> h264frameheader = std::static_pointer_cast<file::H264FRAMEHEADER>(frameheader);
       std::vector<unsigned char> buf;
-      if (BuildH264Frame(h264frameheader->offsets_.data(), h264frameheader->offsets_.size(), buffer.get(), frameheader->size_, buf))
+      if (BuildH264Frame(h264frameheader->offsets_.data(), h264frameheader->offsets_.size(), reinterpret_cast<const char*>(buffer.get()), frameheader->size_, buf))
       {
 
         return std::make_pair(2, false);
@@ -1137,7 +1137,7 @@ std::pair<int, bool> MediaView::SendFrame(const uint64_t playrequestindex, const
         return std::make_pair(3, false);
       }
 
-      imagebuffer = (*h264decoder)->Decode(playrequestindex, frameheader->marker_, frameheader->time_, frame, signature, frameheader->signature_.size(), buffer.get(), frameheader->size_, reinterpret_cast<const uint8_t*>(buf.data()), static_cast<int>(buf.size()), &freeimagequeue_);
+      imagebuffer = (*h264decoder)->Decode(playrequestindex, frameheader->marker_, frameheader->time_, frame, signature, frameheader->signature_.size(), reinterpret_cast<const char*>(buffer.get()), frameheader->size_, reinterpret_cast<const uint8_t*>(buf.data()), static_cast<int>(buf.size()), &freeimagequeue_);
       if (imagebuffer.buffer_)
       {
         if (imagequeue_.write_available())
@@ -1165,7 +1165,7 @@ std::pair<int, bool> MediaView::SendFrame(const uint64_t playrequestindex, const
         return std::make_pair(1, false);
       }
 
-      imagebuffer = (*mpeg4decoder)->Decode(playrequestindex, frameheader->time_, frame, signature, frameheader->signature_.size(), buffer.get(), frameheader->size_, reinterpret_cast<const uint8_t*>(buffer.get()), static_cast<int>(frameheader->size_), &freeimagequeue_);
+      imagebuffer = (*mpeg4decoder)->Decode(playrequestindex, frameheader->time_, frame, signature, frameheader->signature_.size(), reinterpret_cast<const char*>(buffer.get()), frameheader->size_, reinterpret_cast<const uint8_t*>(buffer.get()), static_cast<int>(frameheader->size_), &freeimagequeue_);
       if (imagebuffer.buffer_)
       {
         if (imagequeue_.write_available())
@@ -1197,7 +1197,7 @@ std::pair<int, bool> MediaView::SendFrame(const uint64_t playrequestindex, const
         return std::make_pair(1, false);
       }
 
-      imagebuffer = mjpegdecoder_->Decode(playrequestindex, frameheader->time_, frame, signature, frameheader->signature_.size(), buffer.get() + tmp.size(), frameheader->size_, reinterpret_cast<const uint8_t*>(buffer.get()), static_cast<unsigned int>(frameheader->size_ + tmp.size()), &freeimagequeue_);
+      imagebuffer = mjpegdecoder_->Decode(playrequestindex, frameheader->time_, frame, signature, frameheader->signature_.size(), reinterpret_cast<const char*>(buffer.get()) + tmp.size(), frameheader->size_, reinterpret_cast<const uint8_t*>(buffer.get()), static_cast<unsigned int>(frameheader->size_ + tmp.size()), &freeimagequeue_);
       if (imagebuffer.buffer_)
       {
         if (imagequeue_.write_available())

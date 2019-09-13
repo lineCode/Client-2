@@ -79,7 +79,7 @@ struct H264FRAMEHEADER : public FRAMEHEADER
 
 struct JPEGFRAMEHEADER : public FRAMEHEADER
 {
-  JPEGFRAMEHEADER(const uint64_t codecindex, const uint64_t offset, const uint64_t size, const bool marker, const uint64_t time, const std::vector<uint8_t>& signature, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const std::array<uint8_t, 64>& lqt, const std::array<uint8_t, 64>& cqt);
+  JPEGFRAMEHEADER(const uint64_t codecindex, const uint64_t offset, const uint64_t size, const uint64_t time, const std::vector<uint8_t>& signature, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const std::array<uint8_t, 64>& lqt, const std::array<uint8_t, 64>& cqt);
 
   virtual FrameHeaderType Type() { return FrameHeaderType::JPEG; };
 
@@ -96,7 +96,7 @@ struct JPEGFRAMEHEADER : public FRAMEHEADER
 
 struct METADATAFRAMEHEADER : public FRAMEHEADER
 {
-  METADATAFRAMEHEADER(const uint64_t codecindex, const uint64_t offset, const uint64_t size, const bool marker, const uint64_t time, const std::vector<uint8_t>& signature);
+  METADATAFRAMEHEADER(const uint64_t codecindex, const uint64_t offset, const uint64_t size, const uint64_t time, const std::vector<uint8_t>& signature);
 
   virtual FrameHeaderType Type() { return FrameHeaderType::METADATA; };
 

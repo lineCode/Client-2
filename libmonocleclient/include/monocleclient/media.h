@@ -35,7 +35,7 @@ class Media : public QObject, public QEnableSharedFromThis<Media>
   void Init();
   void Destroy();
 
-  int Read(const uint64_t offset, const uint64_t size, char* buffer);
+  int Read(const uint64_t offset, const uint64_t size, uint8_t* buffer);
 
   const QString& GetPath() const { return path_; }
   const file::FileRead& GetMedia() const { return media_; }

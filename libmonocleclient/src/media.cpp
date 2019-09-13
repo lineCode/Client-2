@@ -49,7 +49,7 @@ void Media::Destroy()
   media_.Destroy();
 }
 
-int Media::Read(const uint64_t offset, const uint64_t size, char* buffer)
+int Media::Read(const uint64_t offset, const uint64_t size, uint8_t* buffer)
 {
   std::lock_guard<std::mutex> lock(mutex_);
   return media_.Read(offset, size, buffer);

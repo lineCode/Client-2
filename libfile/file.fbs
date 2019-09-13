@@ -16,68 +16,64 @@ table Codec
   parameters:string (id:2);
 }
 
-table H265FrameHeader
+table H265Frame
 {
   codecindex:uint64 (id:0);
-  offset:uint64 (id:1);
-  size:uint64 (id:2);
-  marker:bool (id:3);
-  time:uint64 (id:4);
-  signature:[ubyte] (id:5);
-  
-  donlfield:bool (id:6);
-  offsets:[uint32] (id:7);
+  marker:bool (id:1);
+  time:uint64 (id:2);
+  signature:[ubyte] (id:3);
+  donlfield:bool (id:4);
+  offsets:[uint32] (id:5);
+  data:[ubyte] (id:6);
 }
 
-table H264FrameHeader
+table H264Frame
 {
   codecindex:uint64 (id:0);
-  offset:uint64 (id:1);
-  size:uint64 (id:2);
-  marker:bool (id:3);
-  time:uint64 (id:4);
-  signature:[ubyte] (id:5);
-  
-  offsets:[uint32] (id:6);
+  marker:bool (id:1);
+  time:uint64 (id:2);
+  signature:[ubyte] (id:3);
+  offsets:[uint32] (id:4);
+  data:[ubyte] (id:5);
 }
 
-table JPEGFrameHeader
+table JPEGFrame
 {
   codecindex:uint64 (id:0);
-  offset:uint64 (id:1);
-  size:uint64 (id:2);
-  marker:bool (id:3);
-  time:uint64 (id:4);
-  signature:[ubyte] (id:5);
-  
-  restartinterval:uint16 (id:6);
-  typespecificfragmentoffset:uint32 (id:7);
-  type:uint8 (id:8);
-  q:uint8 (id:9);
-  width:uint8 (id:10);
-  height:uint8 (id:11);
-  lqt:[ubyte] (id:12);
-  cqt:[ubyte] (id:13);
+  time:uint64 (id:1);
+  signature:[ubyte] (id:2);
+  restartinterval:uint16 (id:3);
+  typespecificfragmentoffset:uint32 (id:4);
+  type:uint8 (id:5);
+  q:uint8 (id:6);
+  width:uint8 (id:7);
+  height:uint8 (id:8);
+  lqt:[ubyte] (id:9);
+  cqt:[ubyte] (id:10);
+  data:[ubyte] (id:11);
 }
 
-table MetadataFrameHeader
+table MetadataFrame
 {
   codecindex:uint64 (id:0);
-  offset:uint64 (id:1);
-  size:uint64 (id:2);
-  marker:bool (id:3);
-  time:uint64 (id:4);
-  signature:[ubyte] (id:5);
+  time:uint64 (id:1);
+  signature:[ubyte] (id:2);
+  data:[ubyte] (id:3);
 }
 
-table MPEG4FrameHeader
+table MPEG4Frame
 {
   codecindex:uint64 (id:0);
-  offset:uint64 (id:1);
-  size:uint64 (id:2);
-  marker:bool (id:3);
-  time:uint64 (id:4);
-  signature:[ubyte] (id:5);
+  marker:bool (id:1);
+  time:uint64 (id:2);
+  signature:[ubyte] (id:3);
+  data:[ubyte] (id:4);
+}
+
+table FrameHeader
+{
+  offset:uint64 (id:0);
+  size:uint64 (id:1);
 }
 
 table Track
@@ -85,19 +81,19 @@ table Track
   index:uint64 (id:0);
   description:string (id:1);
   codecs:[Codec] (id:2);
-  h265frameheaders:[H265FrameHeader] (id:7);
-  h264frameheaders:[H264FrameHeader] (id:3);
-  jpegframeheaders:[JPEGFrameHeader] (id:4);
-  metadataframeheaders:[MetadataFrameHeader] (id:5);
-  mpeg4frameheaders:[MPEG4FrameHeader] (id:6);
+  h265frameheaders:[FrameHeader] (id:3);
+  h264frameheaders:[FrameHeader] (id:4);
+  jpegframeheaders:[FrameHeader] (id:5);
+  metadataframeheaders:[FrameHeader] (id:6);
+  mpeg4frameheaders:[FrameHeader] (id:7);
 }
 
 table Recording
 {
   index:uint64 (id:0);
   name:string (id:1);
-  location:string (id:3);
-  tracks:[Track] (id:2);
+  location:string (id:2);
+  tracks:[Track] (id:3);
 }
 
 table Device

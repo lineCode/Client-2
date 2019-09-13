@@ -37,7 +37,7 @@ class FileRead
   std::future<int> Init(const boost::filesystem::path& path, const std::shared_ptr<float>& progress);
   void Destroy();
 
-  int Read(const uint64_t offset, const uint64_t size, char* buffer);
+  int Read(const uint64_t offset, const uint64_t size, uint8_t* buffer);
 
   inline const FILE& GetFile() const { return file_; }
   boost::optional<DEVICE> GetDevice(const uint64_t deviceindex) const;

@@ -142,79 +142,87 @@ int FileWrite::Close(const FILE& file)
   // Build the flat buffer
   flatbuffers::FlatBufferBuilder fbb;
   std::vector< flatbuffers::Offset<file::Device> > devicesfb;
+  devicesfb.reserve(file.devices_.size());
   for (const file::DEVICE& device : file.devices_)
   {
     std::vector< flatbuffers::Offset<file::Recording> > recordingsfb;
+    recordingsfb.reserve(device.recordings_.size());
     for (const file::RECORDING& recording : device.recordings_)
     {
       std::vector< flatbuffers::Offset<file::Track> > tracksfb;
       for (const file::TRACK& track : recording.tracks_)
       {
         std::vector< flatbuffers::Offset<file::Codec> > codecsfb;
+        codecsfb.reserve(track.codecs_.size());
         for (const CODEC& codec : track.codecs_)
         {
           codecsfb.push_back(CreateCodecDirect(fbb, codec.index_, codec.codec_, codec.parameters_.c_str()));
 
         }
 
-        std::vector< flatbuffers::Offset<H265FrameHeader> > h265frameheadersfb;
+        std::vector< flatbuffers::Offset<FrameHeader> > h265frameheadersfb;
         std::map<FRAMEINDEX, std::vector< std::unique_ptr<H265FRAMEHEADER> > >::iterator h265frameheaders = h265frameheaders_.find(FRAMEINDEX(device.index_, recording.index_, track.index_));
         if (h265frameheaders != h265frameheaders_.cend())
         {
+          h265frameheadersfb.reserve(h265frameheaders->second.size());
           for (const std::unique_ptr<H265FRAMEHEADER>& h265frameheader : h265frameheaders->second)
           {
-            h265frameheadersfb.push_back(CreateH265FrameHeader(fbb, h265frameheader->codecindex_, h265frameheader->offset_, h265frameheader->size_, h265frameheader->marker_, h265frameheader->time_, h265frameheader->signature_.size() ? fbb.CreateVector(h265frameheader->signature_) : flatbuffers::Offset< flatbuffers::Vector<uint8_t> >(), h265frameheader->donlfield_, fbb.CreateVector(h265frameheader->offsets_)));
+            h265frameheadersfb.push_back(CreateFrameHeader(fbb, h265frameheader->offset_, h265frameheader->size_));
 
           }
         }
 
-        std::vector< flatbuffers::Offset<H264FrameHeader> > h264frameheadersfb;
+        std::vector< flatbuffers::Offset<FrameHeader> > h264frameheadersfb;
         std::map<FRAMEINDEX, std::vector< std::unique_ptr<H264FRAMEHEADER> > >::iterator h264frameheaders = h264frameheaders_.find(FRAMEINDEX(device.index_, recording.index_, track.index_));
         if (h264frameheaders != h264frameheaders_.cend())
         {
+          h264frameheadersfb.reserve(h264frameheaders->second.size());
           for (const std::unique_ptr<H264FRAMEHEADER>& h264frameheader : h264frameheaders->second)
           {
-            h264frameheadersfb.push_back(CreateH264FrameHeader(fbb, h264frameheader->codecindex_, h264frameheader->offset_, h264frameheader->size_, h264frameheader->marker_, h264frameheader->time_, h264frameheader->signature_.size() ? fbb.CreateVector(h264frameheader->signature_) : flatbuffers::Offset< flatbuffers::Vector<uint8_t> >(), fbb.CreateVector(h264frameheader->offsets_)));
+            h264frameheadersfb.push_back(CreateFrameHeader(fbb, h264frameheader->offset_, h264frameheader->size_));
 
           }
         }
 
-        std::vector< flatbuffers::Offset<JPEGFrameHeader> > jpegframeheadersfb;
+        std::vector< flatbuffers::Offset<FrameHeader> > jpegframeheadersfb;
         std::map<FRAMEINDEX, std::vector< std::unique_ptr<JPEGFRAMEHEADER> > >::iterator jpegframeheaders = jpegframeheaders_.find(FRAMEINDEX(device.index_, recording.index_, track.index_));
         if (jpegframeheaders != jpegframeheaders_.cend())
         {
+          jpegframeheadersfb.reserve(jpegframeheaders->second.size());
           for (const std::unique_ptr<JPEGFRAMEHEADER>& jpegframeheader : jpegframeheaders->second)
           {
-            jpegframeheadersfb.push_back(CreateJPEGFrameHeader(fbb, jpegframeheader->codecindex_, jpegframeheader->offset_, jpegframeheader->size_, jpegframeheader->marker_, jpegframeheader->time_, jpegframeheader->signature_.size() ? fbb.CreateVector(jpegframeheader->signature_) : flatbuffers::Offset< flatbuffers::Vector<uint8_t> >(), jpegframeheader->restartinterval_, jpegframeheader->typespecificfragmentoffset_, jpegframeheader->type_, jpegframeheader->q_, jpegframeheader->width_, jpegframeheader->height_, fbb.CreateVector(jpegframeheader->lqt_.data(), jpegframeheader->lqt_.size()), fbb.CreateVector(jpegframeheader->cqt_.data(), jpegframeheader->cqt_.size())));
+            jpegframeheadersfb.push_back(CreateFrameHeader(fbb, jpegframeheader->offset_, jpegframeheader->size_));
 
           }
         }
 
-        std::vector< flatbuffers::Offset<MetadataFrameHeader> > metadataframeheadersfb;
+        std::vector< flatbuffers::Offset<FrameHeader> > metadataframeheadersfb;
         std::map<FRAMEINDEX, std::vector< std::unique_ptr<METADATAFRAMEHEADER> > >::iterator metadataframeheaders = metadataframeheaders_.find(FRAMEINDEX(device.index_, recording.index_, track.index_));
         if (metadataframeheaders != metadataframeheaders_.cend())
         {
+          metadataframeheadersfb.reserve(metadataframeheaders->second.size());
           for (const std::unique_ptr<METADATAFRAMEHEADER>& metadataframeheader : metadataframeheaders->second)
           {
-            metadataframeheadersfb.push_back(CreateMetadataFrameHeader(fbb, metadataframeheader->codecindex_, metadataframeheader->offset_, metadataframeheader->size_, metadataframeheader->marker_, metadataframeheader->time_, metadataframeheader->signature_.size() ? fbb.CreateVector(metadataframeheader->signature_) : flatbuffers::Offset< flatbuffers::Vector<uint8_t> >()));
+            metadataframeheadersfb.push_back(CreateFrameHeader(fbb, metadataframeheader->offset_, metadataframeheader->size_));
 
           }
         }
 
-        std::vector< flatbuffers::Offset<MPEG4FrameHeader> > mpeg4frameheadersfb;
+        std::vector< flatbuffers::Offset<FrameHeader> > mpeg4frameheadersfb;
         std::map<FRAMEINDEX, std::vector< std::unique_ptr<MPEG4FRAMEHEADER> > >::iterator mpeg4frameheaders = mpeg4frameheaders_.find(FRAMEINDEX(device.index_, recording.index_, track.index_));
         if (mpeg4frameheaders != mpeg4frameheaders_.cend())
         {
+          mpeg4frameheadersfb.reserve(mpeg4frameheaders->second.size());
           for (const std::unique_ptr<MPEG4FRAMEHEADER>& mpeg4frameheader : mpeg4frameheaders->second)
           {
-            mpeg4frameheadersfb.push_back(CreateMPEG4FrameHeader(fbb, mpeg4frameheader->codecindex_, mpeg4frameheader->offset_, mpeg4frameheader->size_, mpeg4frameheader->marker_, mpeg4frameheader->time_, mpeg4frameheader->signature_.size() ? fbb.CreateVector(mpeg4frameheader->signature_) : flatbuffers::Offset< flatbuffers::Vector<uint8_t> >()));
+            mpeg4frameheadersfb.push_back(CreateFrameHeader(fbb, mpeg4frameheader->offset_, mpeg4frameheader->size_));
 
           }
         }
 
-        tracksfb.push_back(CreateTrackDirect(fbb, track.index_, track.description_.c_str(), &codecsfb, &h264frameheadersfb, &jpegframeheadersfb, &metadataframeheadersfb, &mpeg4frameheadersfb, &h265frameheadersfb));
+        tracksfb.push_back(CreateTrackDirect(fbb, track.index_, track.description_.c_str(), &codecsfb, &h265frameheadersfb, &h264frameheadersfb, &jpegframeheadersfb, &metadataframeheadersfb, &mpeg4frameheadersfb));
       }
-      recordingsfb.push_back(CreateRecording(fbb, recording.index_, fbb.CreateString(recording.name_), fbb.CreateVector(tracksfb), fbb.CreateString(recording.location_)));
+      recordingsfb.push_back(CreateRecording(fbb, recording.index_, fbb.CreateString(recording.name_), fbb.CreateString(recording.location_), fbb.CreateVector(tracksfb)));
     }
     devicesfb.push_back(CreateDeviceDirect(fbb, device.index_, device.name_.c_str(), device.address_.c_str(), device.signingkey_.c_str(), &recordingsfb));
   }
@@ -263,9 +271,13 @@ int FileWrite::Close(const FILE& file)
   return 0;
 }
 
-int FileWrite::WriteH265Frame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const char* data, const uint64_t size, const bool marker, const uint64_t time, const std::vector<unsigned char>& signature, const bool donlfield, const std::vector<uint32_t>& offsets)
+int FileWrite::WriteH265Frame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const uint8_t* data, const uint64_t size, const bool marker, const uint64_t time, const std::vector<unsigned char>& signature, const bool donlfield, const std::vector<uint32_t>& offsets)
 {
-  const int ret = WriteFrame(data, size);
+  fbb_.Clear();
+  flatbuffers::Offset<H265Frame> h265frame = CreateH265Frame(fbb_, codecindex, marker, time, signature.size() ? fbb_.CreateVector(signature) : flatbuffers::Offset< flatbuffers::Vector<uint8_t> >(), donlfield, fbb_.CreateVector(offsets), fbb_.CreateVector(data, size));
+  fbb_.Finish(h265frame);
+
+  const int ret = WriteFrame(fbb_.GetBufferPointer(), fbb_.GetSize());
   if (ret)
   {
 
@@ -277,22 +289,26 @@ int FileWrite::WriteH265Frame(const uint64_t deviceindex, const uint64_t recordi
   if (h265frameheader == h265frameheaders_.cend())
   {
     std::vector< std::unique_ptr<H265FRAMEHEADER> > tmp;
-    tmp.emplace_back(std::make_unique<H265FRAMEHEADER>(codecindex, currentoffset_, size, marker, time, signature, donlfield, offsets));
+    tmp.emplace_back(std::make_unique<H265FRAMEHEADER>(codecindex, currentoffset_, fbb_.GetSize(), marker, time, signature, donlfield, offsets));
     h265frameheaders_.emplace(frameindex, std::move(tmp));
   }
   else
   {
-    h265frameheader->second.push_back(std::make_unique<H265FRAMEHEADER>(codecindex, currentoffset_, size, marker, time, signature, donlfield, offsets));
+    h265frameheader->second.push_back(std::make_unique<H265FRAMEHEADER>(codecindex, currentoffset_, fbb_.GetSize(), marker, time, signature, donlfield, offsets));
 
   }
 
-  currentoffset_ += size;
+  currentoffset_ += fbb_.GetSize();
   return 0;
 }
 
-int FileWrite::WriteH264Frame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const char* data, const uint64_t size, const bool marker, const uint64_t time, const std::vector<unsigned char>& signature, const std::vector<uint32_t>& offsets)
+int FileWrite::WriteH264Frame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const uint8_t* data, const uint64_t size, const bool marker, const uint64_t time, const std::vector<unsigned char>& signature, const std::vector<uint32_t>& offsets)
 {
-  const int ret = WriteFrame(data, size);
+  fbb_.Clear();
+  flatbuffers::Offset<H264Frame> h264frame = CreateH264Frame(fbb_, codecindex, marker, time, signature.size() ? fbb_.CreateVector(signature) : flatbuffers::Offset< flatbuffers::Vector<uint8_t> >(), fbb_.CreateVector(offsets), fbb_.CreateVector(data, size));
+  fbb_.Finish(h264frame);
+
+  const int ret = WriteFrame(fbb_.GetBufferPointer(), fbb_.GetSize());
   if (ret)
   {
 
@@ -304,22 +320,26 @@ int FileWrite::WriteH264Frame(const uint64_t deviceindex, const uint64_t recordi
   if (h264frameheader == h264frameheaders_.cend())
   {
     std::vector< std::unique_ptr<H264FRAMEHEADER> > tmp;
-    tmp.emplace_back(std::make_unique<H264FRAMEHEADER>(codecindex, currentoffset_, size, marker, time, signature, offsets));
+    tmp.emplace_back(std::make_unique<H264FRAMEHEADER>(codecindex, currentoffset_, fbb_.GetSize(), marker, time, signature, offsets));
     h264frameheaders_.emplace(frameindex, std::move(tmp));
   }
   else
   {
-    h264frameheader->second.push_back(std::make_unique<H264FRAMEHEADER>(codecindex, currentoffset_, size, marker, time, signature, offsets));
+    h264frameheader->second.push_back(std::make_unique<H264FRAMEHEADER>(codecindex, currentoffset_, fbb_.GetSize(), marker, time, signature, offsets));
 
   }
 
-  currentoffset_ += size;
+  currentoffset_ += fbb_.GetSize();
   return 0;
 }
 
-int FileWrite::WriteJPEGFrame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const char* data, const uint64_t size, const bool marker, const uint64_t time, const std::vector<unsigned char>& signature, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const std::array<uint8_t, 64>& lqt, const std::array<uint8_t, 64>& cqt)
+int FileWrite::WriteJPEGFrame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const uint8_t* data, const uint64_t size, const uint64_t time, const std::vector<unsigned char>& signature, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const std::array<uint8_t, 64>& lqt, const std::array<uint8_t, 64>& cqt)
 {
-  const int ret = WriteFrame(data, size);
+  fbb_.Clear();
+  flatbuffers::Offset<JPEGFrame> jpegframe = CreateJPEGFrame(fbb_, codecindex, time, signature.size() ? fbb_.CreateVector(signature) : flatbuffers::Offset< flatbuffers::Vector<uint8_t> >(), restartinterval, typespecificfragmentoffset, type, q, width, height, fbb_.CreateVector(lqt.data(), lqt.size()), fbb_.CreateVector(cqt.data(), cqt.size()), fbb_.CreateVector(data, size));
+  fbb_.Finish(jpegframe);
+
+  const int ret = WriteFrame(fbb_.GetBufferPointer(), fbb_.GetSize());
   if (ret)
   {
 
@@ -331,22 +351,26 @@ int FileWrite::WriteJPEGFrame(const uint64_t deviceindex, const uint64_t recordi
   if (jpegframeheader == jpegframeheaders_.cend())
   {
     std::vector< std::unique_ptr<JPEGFRAMEHEADER> > tmp;
-    tmp.emplace_back(std::make_unique<JPEGFRAMEHEADER>(codecindex, currentoffset_, size, marker, time, signature, restartinterval, typespecificfragmentoffset, type, q, width, height, lqt, cqt));
+    tmp.emplace_back(std::make_unique<JPEGFRAMEHEADER>(codecindex, currentoffset_, fbb_.GetSize(), time, signature, restartinterval, typespecificfragmentoffset, type, q, width, height, lqt, cqt));
     jpegframeheaders_.emplace(frameindex, std::move(tmp));
   }
   else
   {
-    jpegframeheader->second.push_back(std::make_unique<JPEGFRAMEHEADER>(codecindex, currentoffset_, size, marker, time, signature, restartinterval, typespecificfragmentoffset, type, q, width, height, lqt, cqt));
+    jpegframeheader->second.push_back(std::make_unique<JPEGFRAMEHEADER>(codecindex, currentoffset_, fbb_.GetSize(), time, signature, restartinterval, typespecificfragmentoffset, type, q, width, height, lqt, cqt));
 
   }
 
-  currentoffset_ += size;
+  currentoffset_ += fbb_.GetSize();
   return 0;
 }
 
-int FileWrite::WriteMetadataFrame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const char* data, const uint64_t size, const bool marker, const uint64_t time, const std::vector<unsigned char>& signature)
+int FileWrite::WriteMetadataFrame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const uint8_t* data, const uint64_t size, const uint64_t time, const std::vector<unsigned char>& signature)
 {
-  const int ret = WriteFrame(data, size);
+  fbb_.Clear();
+  flatbuffers::Offset<MetadataFrame> metadataframe = CreateMetadataFrame(fbb_, codecindex, time, signature.size() ? fbb_.CreateVector(signature) : flatbuffers::Offset< flatbuffers::Vector<uint8_t> >(), fbb_.CreateVector(data, size));
+  fbb_.Finish(metadataframe);
+
+  const int ret = WriteFrame(fbb_.GetBufferPointer(), fbb_.GetSize());
   if (ret)
   {
 
@@ -358,22 +382,26 @@ int FileWrite::WriteMetadataFrame(const uint64_t deviceindex, const uint64_t rec
   if (metadataframeheader == metadataframeheaders_.cend())
   {
     std::vector< std::unique_ptr<METADATAFRAMEHEADER> > tmp;
-    tmp.emplace_back(std::make_unique<METADATAFRAMEHEADER>(codecindex, currentoffset_, size, marker, time, signature));
+    tmp.emplace_back(std::make_unique<METADATAFRAMEHEADER>(codecindex, currentoffset_, fbb_.GetSize(), time, signature));
     metadataframeheaders_.emplace(frameindex, std::move(tmp));
   }
   else
   {
-    metadataframeheader->second.push_back(std::make_unique<METADATAFRAMEHEADER>(codecindex, currentoffset_, size, marker, time, signature));
+    metadataframeheader->second.push_back(std::make_unique<METADATAFRAMEHEADER>(codecindex, currentoffset_, fbb_.GetSize(), time, signature));
 
   }
 
-  currentoffset_ += size;
+  currentoffset_ += fbb_.GetSize();
   return 0;
 }
 
-int FileWrite::WriteMPEG4Frame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const char* data, const uint64_t size, const bool marker, const uint64_t time, const std::vector<unsigned char>& signature)
+int FileWrite::WriteMPEG4Frame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const uint8_t* data, const uint64_t size, const bool marker, const uint64_t time, const std::vector<unsigned char>& signature)
 {
-  const int ret = WriteFrame(data, size);
+  fbb_.Clear();
+  flatbuffers::Offset<MPEG4Frame> mpeg4frame = CreateMPEG4Frame(fbb_, codecindex, marker, time, signature.size() ? fbb_.CreateVector(signature) : flatbuffers::Offset< flatbuffers::Vector<uint8_t> >(), fbb_.CreateVector(data, size));
+  fbb_.Finish(mpeg4frame);
+
+  const int ret = WriteFrame(fbb_.GetBufferPointer(), fbb_.GetSize());
   if (ret)
   {
 
@@ -385,20 +413,20 @@ int FileWrite::WriteMPEG4Frame(const uint64_t deviceindex, const uint64_t record
   if (mpeg4frameheader == mpeg4frameheaders_.cend())
   {
     std::vector< std::unique_ptr<MPEG4FRAMEHEADER> > tmp;
-    tmp.emplace_back(std::make_unique<MPEG4FRAMEHEADER>(codecindex, currentoffset_, size, marker, time, signature));
+    tmp.emplace_back(std::make_unique<MPEG4FRAMEHEADER>(codecindex, currentoffset_, fbb_.GetSize(), marker, time, signature));
     mpeg4frameheaders_.emplace(frameindex, std::move(tmp));
   }
   else
   {
-    mpeg4frameheader->second.push_back(std::make_unique<MPEG4FRAMEHEADER>(codecindex, currentoffset_, size, marker, time, signature));
+    mpeg4frameheader->second.push_back(std::make_unique<MPEG4FRAMEHEADER>(codecindex, currentoffset_, fbb_.GetSize(), marker, time, signature));
 
   }
 
-  currentoffset_ += size;
+  currentoffset_ += fbb_.GetSize();
   return 0;
 }
 
-int FileWrite::WriteFrame(const char* data, const uint64_t size)
+int FileWrite::WriteFrame(const uint8_t* data, const uint64_t size)
 {
 #ifdef _WIN32
   if (file_ == INVALID_HANDLE_VALUE)

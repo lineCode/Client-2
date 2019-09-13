@@ -473,7 +473,7 @@ void ExportProgressWindow::H265Callback(const uint64_t streamtoken, const uint64
     case EXPORTFORMAT_MONOCLE:
     {
       std::lock_guard<std::recursive_mutex> lock(*exporttrackconnection->filewritermutex_);
-      if (exporttrackconnection->filewriter_->WriteH265Frame(exporttrackconnection->deviceindex_, exporttrackconnection->recordingtoken_, exporttrackconnection->trackid_, codecindex, signaturedata, signaturedatasize, marker, timestamp, Signature(signature, signaturesize), donlfield, std::vector<uint32_t>(offsets, offsets + numoffsets)))
+      if (exporttrackconnection->filewriter_->WriteH265Frame(exporttrackconnection->deviceindex_, exporttrackconnection->recordingtoken_, exporttrackconnection->trackid_, codecindex, reinterpret_cast<const uint8_t*>(signaturedata), signaturedatasize, marker, timestamp, Signature(signature, signaturesize), donlfield, std::vector<uint32_t>(offsets, offsets + numoffsets)))
       {
         exporttrackconnection->audit_.push_back("FileWrite::WriteFrame failed");
         exporttrackconnection->state_ = EXPORTTRACKSTATE_ERROR;
@@ -555,7 +555,7 @@ void ExportProgressWindow::H264Callback(const uint64_t streamtoken, const uint64
     case EXPORTFORMAT_MONOCLE:
     {
       std::lock_guard<std::recursive_mutex> lock(*exporttrackconnection->filewritermutex_);
-      if (exporttrackconnection->filewriter_->WriteH264Frame(exporttrackconnection->deviceindex_, exporttrackconnection->recordingtoken_, exporttrackconnection->trackid_, codecindex, signaturedata, signaturedatasize, marker, timestamp, Signature(signature, signaturesize), std::vector<uint32_t>(offsets, offsets + numoffsets)))
+      if (exporttrackconnection->filewriter_->WriteH264Frame(exporttrackconnection->deviceindex_, exporttrackconnection->recordingtoken_, exporttrackconnection->trackid_, codecindex, reinterpret_cast<const uint8_t*>(signaturedata), signaturedatasize, marker, timestamp, Signature(signature, signaturesize), std::vector<uint32_t>(offsets, offsets + numoffsets)))
       {
         exporttrackconnection->audit_.push_back("FileWrite::WriteFrame failed");
         exporttrackconnection->state_ = EXPORTTRACKSTATE_ERROR;
@@ -637,7 +637,7 @@ void ExportProgressWindow::MetadataCallback(const uint64_t streamtoken, const ui
     case EXPORTFORMAT_MONOCLE:
     {
       std::lock_guard<std::recursive_mutex> lock(*exporttrackconnection->filewritermutex_);
-      if (exporttrackconnection->filewriter_->WriteMetadataFrame(exporttrackconnection->deviceindex_, exporttrackconnection->recordingtoken_, exporttrackconnection->trackid_, codecindex, signaturedata, signaturedatasize, true, timestamp, Signature(signature, signaturesize)))
+      if (exporttrackconnection->filewriter_->WriteMetadataFrame(exporttrackconnection->deviceindex_, exporttrackconnection->recordingtoken_, exporttrackconnection->trackid_, codecindex, reinterpret_cast<const uint8_t*>(signaturedata), signaturedatasize, timestamp, Signature(signature, signaturesize)))
       {
         exporttrackconnection->audit_.push_back("FileWrite::WriteFrame failed");
         exporttrackconnection->state_ = EXPORTTRACKSTATE_ERROR;
@@ -684,7 +684,7 @@ void ExportProgressWindow::JPEGCallback(const uint64_t streamtoken, const uint64
 
       }
 
-      if (exporttrackconnection->filewriter_->WriteJPEGFrame(exporttrackconnection->deviceindex_, exporttrackconnection->recordingtoken_, exporttrackconnection->trackid_, codecindex, signaturedata, signaturedatasize, true, timestamp, Signature(signature, signaturesize), restartinterval, typespecificfragmentoffset, type, q, width, height, lqtarr, cqtarr))
+      if (exporttrackconnection->filewriter_->WriteJPEGFrame(exporttrackconnection->deviceindex_, exporttrackconnection->recordingtoken_, exporttrackconnection->trackid_, codecindex, reinterpret_cast<const uint8_t*>(signaturedata), signaturedatasize, timestamp, Signature(signature, signaturesize), restartinterval, typespecificfragmentoffset, type, q, width, height, lqtarr, cqtarr))
       {
         exporttrackconnection->audit_.push_back("FileWrite::WriteFrame failed");
         exporttrackconnection->state_ = EXPORTTRACKSTATE_ERROR;
@@ -736,7 +736,7 @@ void ExportProgressWindow::MPEG4Callback(const uint64_t streamtoken, const uint6
     case EXPORTFORMAT_MONOCLE:
     {
       std::lock_guard<std::recursive_mutex> lock(*exporttrackconnection->filewritermutex_);
-      if (exporttrackconnection->filewriter_->WriteMPEG4Frame(exporttrackconnection->deviceindex_, exporttrackconnection->recordingtoken_, exporttrackconnection->trackid_, codecindex, signaturedata, signaturedatasize, marker, timestamp, Signature(signature, signaturesize)))
+      if (exporttrackconnection->filewriter_->WriteMPEG4Frame(exporttrackconnection->deviceindex_, exporttrackconnection->recordingtoken_, exporttrackconnection->trackid_, codecindex, reinterpret_cast<const uint8_t*>(signaturedata), signaturedatasize, marker, timestamp, Signature(signature, signaturesize)))
       {
         exporttrackconnection->audit_.push_back("FileWrite::WriteFrame failed");
         exporttrackconnection->state_ = EXPORTTRACKSTATE_ERROR;

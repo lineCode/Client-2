@@ -12,7 +12,7 @@
 #include <utility/publickey.hpp>
 
 #include "monocleclient/media.h"
-
+#include <QDebug>//TODO remove
 ///// Namespaces /////
 
 QT_BEGIN_NAMESPACE
@@ -112,9 +112,9 @@ MediaPropertiesWindow::MediaPropertiesWindow(QWidget* parent, QSharedPointer<Med
         trackitem->setData(0, VERIFIEDFRAMESROLE, 0);
         trackitem->setData(0, FAILEDVERIFIEDFRAMESROLE, 0);
         trackitem->setData(0, UNVERIFIEDFRAMESROLE, 0);
+        trackitem->setData(0, SIZEROLE, 0);
         trackitem->setData(0, MINTIMEROLE, static_cast<qulonglong>(std::numeric_limits<uint64_t>::max()));
         trackitem->setData(0, MAXTIMEROLE, 0);
-        trackitem->setData(0, SIZEROLE, 0);
 
         QStringList codecs;
         for (const file::CODEC& codec : track.codecs_)
@@ -185,7 +185,7 @@ MediaPropertiesWindow::MediaPropertiesWindow(QWidget* parent, QSharedPointer<Med
     // Read the frames and collect the data
     size_t currentframe = 0;
     unsigned int prevpercent = 0;
-    std::vector<char> buffer;
+    std::vector<uint8_t> buffer;
     for (const file::DEVICE& device : media_->GetMedia().GetFile().devices_)
     {
       utility::PublicKey publickey;
@@ -252,7 +252,7 @@ MediaPropertiesWindow::MediaPropertiesWindow(QWidget* parent, QSharedPointer<Med
 
             // Send a signal every time the percent changes
             ++currentframe;
-            unsigned int currentpercent = static_cast<unsigned int>((100 * currentframe) / totalframes);
+            const unsigned int currentpercent = static_cast<unsigned int>((100 * currentframe) / totalframes);
             if (currentpercent != prevpercent)
             {
               prevpercent = currentpercent;
@@ -317,7 +317,7 @@ QString MediaPropertiesWindow::Size(size_t numbytes) const
   }
   numbytes /= 1024;
 
-  return (QString::number(numbytes) + "." + QString::number(numbytes % (1024 * 1024)) + "Terabytes");
+  return (QString::number(numbytes / 1024) + "." + QString::number(numbytes % 1024) + "Terabytes");
 }
 
 void MediaPropertiesWindow::CurrentItemChanged(QTreeWidgetItem* item, QTreeWidgetItem*)
@@ -375,12 +375,11 @@ void MediaPropertiesWindow::CurrentItemChanged(QTreeWidgetItem* item, QTreeWidge
             continue;
           }
           
-
           failedreadframes += trackitem->data(0, FAILEDREADFRAMESROLE).toInt();
           verifiedframes += trackitem->data(0, VERIFIEDFRAMESROLE).toInt();
           failedverifiedframes += trackitem->data(0, FAILEDVERIFIEDFRAMESROLE).toInt();
           unverifiedframes += trackitem->data(0, UNVERIFIEDFRAMESROLE).toInt();
-          size += trackitem->data(0, SIZEROLE).toInt();
+          size += trackitem->data(0, SIZEROLE).toULongLong();
           mintime = std::min(mintime, trackitem->data(0, MINTIMEROLE).toULongLong());
           maxtime = std::max(maxtime, trackitem->data(0, MAXTIMEROLE).toULongLong());
           codecs += trackitem->data(0, CODECSROLE).toStringList();

@@ -8,6 +8,7 @@
 
 #include <boost/container/flat_set.hpp>
 #include <boost/filesystem/path.hpp>
+#include <flatbuffers/flatbuffers.h>
 #include <map>
 #include <vector>
 
@@ -39,15 +40,15 @@ class FileWrite
   int Open();
   int Close(const FILE& file);
 
-  int WriteH265Frame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const char* data, const uint64_t size, const bool marker, const uint64_t time, const std::vector<unsigned char>& signature, const bool donlfield, const std::vector<uint32_t>& offsets);
-  int WriteH264Frame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const char* data, const uint64_t size, const bool marker, const uint64_t time, const std::vector<unsigned char>& signature, const std::vector<uint32_t>& offsets);
-  int WriteJPEGFrame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const char* data, const uint64_t size, const bool marker, const uint64_t time, const std::vector<unsigned char>& signature, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const std::array<uint8_t, 64>& lqt, const std::array<uint8_t, 64>& cqt);
-  int WriteMetadataFrame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const char* data, const uint64_t size, const bool marker, const uint64_t time, const std::vector<unsigned char>& signature);
-  int WriteMPEG4Frame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const char* data, const uint64_t size, const bool marker, const uint64_t time, const std::vector<unsigned char>& signature);
+  int WriteH265Frame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const uint8_t* data, const uint64_t size, const bool marker, const uint64_t time, const std::vector<unsigned char>& signature, const bool donlfield, const std::vector<uint32_t>& offsets);
+  int WriteH264Frame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const uint8_t* data, const uint64_t size, const bool marker, const uint64_t time, const std::vector<unsigned char>& signature, const std::vector<uint32_t>& offsets);
+  int WriteJPEGFrame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const uint8_t* data, const uint64_t size, const uint64_t time, const std::vector<unsigned char>& signature, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const std::array<uint8_t, 64>& lqt, const std::array<uint8_t, 64>& cqt);
+  int WriteMetadataFrame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const uint8_t* data, const uint64_t size, const uint64_t time, const std::vector<unsigned char>& signature);
+  int WriteMPEG4Frame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const uint8_t* data, const uint64_t size, const bool marker, const uint64_t time, const std::vector<unsigned char>& signature);
 
  private:
 
-  int WriteFrame(const char* data, const uint64_t size);
+  int WriteFrame(const uint8_t* data, const uint64_t size);
 
   struct FRAMEINDEX
   {
@@ -74,6 +75,8 @@ class FileWrite
   std::map<FRAMEINDEX, std::vector< std::unique_ptr<JPEGFRAMEHEADER> > > jpegframeheaders_;
   std::map<FRAMEINDEX, std::vector< std::unique_ptr<METADATAFRAMEHEADER> > > metadataframeheaders_;
   std::map<FRAMEINDEX, std::vector< std::unique_ptr<MPEG4FRAMEHEADER> > > mpeg4frameheaders_;
+
+  flatbuffers::FlatBufferBuilder fbb_;
 
 };
 

@@ -93,9 +93,9 @@ class MediaView : public View
  private:
 
   void Init(const boost::optional<uint64_t>& starttime);
-  void FrameStepForwards(const uint64_t playrequestindex, size_t& frame, std::unique_ptr< char[], utility::DeleteAligned<char> >& buffer, size_t& buffersize);
-  void FrameStepBackwards(const uint64_t playrequestindex, size_t& frame, std::unique_ptr< char[], utility::DeleteAligned<char> >& buffer, size_t& buffersize);
-  std::pair<int, bool> SendFrame(const uint64_t playrequestindex, const size_t frame, std::unique_ptr< char[], utility::DeleteAligned<char> >& buffer, size_t& buffersize); // <ret, frame> The boolean represents whether a frame was decoded or not for this buffer
+  void FrameStepForwards(const uint64_t playrequestindex, size_t& frame, std::unique_ptr< uint8_t[], utility::DeleteAligned<uint8_t> >& buffer, size_t& buffersize);
+  void FrameStepBackwards(const uint64_t playrequestindex, size_t& frame, std::unique_ptr< uint8_t[], utility::DeleteAligned<uint8_t> >& buffer, size_t& buffersize);
+  std::pair<int, bool> SendFrame(const uint64_t playrequestindex, const size_t frame, std::unique_ptr< uint8_t[], utility::DeleteAligned<uint8_t> >& buffer, size_t& buffersize); // <ret, frame> The boolean represents whether a frame was decoded or not for this buffer
   void ResetDecoders();
 
   template<typename U, typename... Args>
