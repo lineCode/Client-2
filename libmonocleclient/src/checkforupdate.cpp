@@ -48,10 +48,17 @@ void CheckForUpdate::NetworkReply(QNetworkReply* networkreply)
   networkreply->deleteLater();
 
   // Error checking
-  if ((networkreply == nullptr) || networkreply->error())
+  if (networkreply == nullptr)
   {
     emit UpdateAvailable(false, std::vector<UpdateVersion>(), UpdateVersion());
     LOG_WARNING(tr("Failed to check for update"));
+    return;
+  }
+
+  if (networkreply->error())
+  {
+    emit UpdateAvailable(false, std::vector<UpdateVersion>(), UpdateVersion());
+    LOG_WARNING(tr("Failed to check for update: ") + QString::number(networkreply->error()));
     return;
   }
 
@@ -105,7 +112,7 @@ void CheckForUpdate::NetworkReply(QNetworkReply* networkreply)
       updateversion.date_ = QDate::fromString(QString::fromStdString(datenode.text().get()));
       if (!updateversion.date_.isValid())
       {
-        LOG_WARNING(tr("Invalid release date"));
+        LOG_WARNING(tr("Invalid release date: ") + datenode.text().get());
 
       }
 
