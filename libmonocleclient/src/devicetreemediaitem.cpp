@@ -183,12 +183,13 @@ void DeviceTreeMediaItem::Progress(const float progress)
   if (progress >= 1.0f)
   {
     setText(0, media_->GetPath());
-
+    setToolTip(0, QString());
   }
   else
   {
-    setText(0, media_->GetPath() + "(" + QString::number(static_cast<int>(progress * 100)) + "%)");
-
+    const QString number = QString::number(static_cast<int>(progress * 100)) + "%";
+    setText(0, media_->GetPath() + "(" + number + ")");
+    setToolTip(0, number);
   }
 }
 
@@ -204,6 +205,7 @@ void DeviceTreeMediaItem::Finished(const int ret)
   else
   {
     setBackground(0, Qt::green);
+    setToolTip(0, QString());
     InitChildren();
   }
 }
