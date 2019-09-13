@@ -44,6 +44,8 @@ class VideoWidgetsMgr : public QObject
 
   const std::vector<VideoWidget*>& GetVideoWidgets() const { return videowidgets_; }
 
+  void ResetViews();
+
   std::vector< QSharedPointer<View> > GetViews(); // Returns all video views from all video widgets
 
   void SetUpdateFrequency(const int frequency);

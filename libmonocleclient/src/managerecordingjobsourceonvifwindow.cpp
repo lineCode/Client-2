@@ -1,4 +1,4 @@
-// managereceiverwindow.cpp
+// managerecordingjobsourceonvifwindow.cpp
 //
 
 ///// Includes /////

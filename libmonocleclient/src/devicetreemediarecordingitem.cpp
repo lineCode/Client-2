@@ -73,13 +73,13 @@ void DeviceTreeMediaRecordingItem::DoubleClicked()
     return;
   }
 
-  if (recording->tracks_.empty())
+  if (recording->videotracks_.empty())
   {
-    QMessageBox(QMessageBox::Warning, tr("Error"), tr("No tracks available"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+    QMessageBox(QMessageBox::Warning, tr("Error"), tr("No video track available"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
     return;
   }
 
-  MainWindow::Instance()->GetVideoWidgetsMgr().CreateMediaView(media_, deviceindex_, recordingindex_, recording->tracks_.begin()->index_);
+  MainWindow::Instance()->GetVideoWidgetsMgr().CreateMediaView(media_, deviceindex_, recordingindex_, recording->videotracks_.begin()->index_);
 }
 
 void DeviceTreeMediaRecordingItem::SetFilter(const QString& filter)

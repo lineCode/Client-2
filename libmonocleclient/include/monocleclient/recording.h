@@ -60,6 +60,7 @@ class Recording : public QObject
   std::vector<QString> GetActiveProfileTokens(const QSharedPointer<client::RecordingTrack>& track) const;
   std::vector<ROTATION> GetActiveRotations(const QSharedPointer<client::RecordingTrack>& track) const;
   inline const QSharedPointer<client::RecordingJob>& GetActiveJob() const { return activejob_; }
+  size_t GetNumObjectDetectors() const;
 
   void SetActiveJob(const boost::optional<uint64_t>& activejob);
   void Set(const QString& sourceid, const QString& name, const QString& location, const QString& description, const QString& address, const QString& content, const uint64_t retentiontime, const boost::optional<uint64_t>& activejob);

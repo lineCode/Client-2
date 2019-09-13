@@ -69,6 +69,36 @@ inline const char *EnumNameFrameHeaderType(FrameHeaderType e) {
   return EnumNamesFrameHeaderType()[index];
 }
 
+enum class MetadataFrameType : uint16_t {
+  ONVIF_XML = 1,
+  OBJECT_DETECTION = 2,
+  MIN = ONVIF_XML,
+  MAX = OBJECT_DETECTION
+};
+
+inline const MetadataFrameType (&EnumValuesMetadataFrameType())[2] {
+  static const MetadataFrameType values[] = {
+    MetadataFrameType::ONVIF_XML,
+    MetadataFrameType::OBJECT_DETECTION
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesMetadataFrameType() {
+  static const char * const names[3] = {
+    "ONVIF_XML",
+    "OBJECT_DETECTION",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameMetadataFrameType(MetadataFrameType e) {
+  if (e < MetadataFrameType::ONVIF_XML || e > MetadataFrameType::OBJECT_DETECTION) return "";
+  const size_t index = static_cast<size_t>(e) - static_cast<size_t>(MetadataFrameType::ONVIF_XML);
+  return EnumNamesMetadataFrameType()[index];
+}
+
 struct Codec FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_INDEX = 4,
@@ -576,7 +606,8 @@ struct MetadataFrame FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_CODECINDEX = 4,
     VT_TIME = 6,
     VT_SIGNATURE = 8,
-    VT_DATA = 10
+    VT_METADATAFRAMETYPE = 10,
+    VT_DATA = 12
   };
   uint64_t codecindex() const {
     return GetField<uint64_t>(VT_CODECINDEX, 0);
@@ -587,6 +618,9 @@ struct MetadataFrame FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const flatbuffers::Vector<uint8_t> *signature() const {
     return GetPointer<const flatbuffers::Vector<uint8_t> *>(VT_SIGNATURE);
   }
+  file::MetadataFrameType metadataframetype() const {
+    return static_cast<file::MetadataFrameType>(GetField<uint16_t>(VT_METADATAFRAMETYPE, 1));
+  }
   const flatbuffers::Vector<uint8_t> *data() const {
     return GetPointer<const flatbuffers::Vector<uint8_t> *>(VT_DATA);
   }
@@ -596,6 +630,7 @@ struct MetadataFrame FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyField<uint64_t>(verifier, VT_TIME) &&
            VerifyOffset(verifier, VT_SIGNATURE) &&
            verifier.VerifyVector(signature()) &&
+           VerifyField<uint16_t>(verifier, VT_METADATAFRAMETYPE) &&
            VerifyOffset(verifier, VT_DATA) &&
            verifier.VerifyVector(data()) &&
            verifier.EndTable();
@@ -613,6 +648,9 @@ struct MetadataFrameBuilder {
   }
   void add_signature(flatbuffers::Offset<flatbuffers::Vector<uint8_t>> signature) {
     fbb_.AddOffset(MetadataFrame::VT_SIGNATURE, signature);
+  }
+  void add_metadataframetype(file::MetadataFrameType metadataframetype) {
+    fbb_.AddElement<uint16_t>(MetadataFrame::VT_METADATAFRAMETYPE, static_cast<uint16_t>(metadataframetype), 1);
   }
   void add_data(flatbuffers::Offset<flatbuffers::Vector<uint8_t>> data) {
     fbb_.AddOffset(MetadataFrame::VT_DATA, data);
@@ -634,12 +672,14 @@ inline flatbuffers::Offset<MetadataFrame> CreateMetadataFrame(
     uint64_t codecindex = 0,
     uint64_t time = 0,
     flatbuffers::Offset<flatbuffers::Vector<uint8_t>> signature = 0,
+    file::MetadataFrameType metadataframetype = file::MetadataFrameType::ONVIF_XML,
     flatbuffers::Offset<flatbuffers::Vector<uint8_t>> data = 0) {
   MetadataFrameBuilder builder_(_fbb);
   builder_.add_time(time);
   builder_.add_codecindex(codecindex);
   builder_.add_data(data);
   builder_.add_signature(signature);
+  builder_.add_metadataframetype(metadataframetype);
   return builder_.Finish();
 }
 
@@ -648,6 +688,7 @@ inline flatbuffers::Offset<MetadataFrame> CreateMetadataFrameDirect(
     uint64_t codecindex = 0,
     uint64_t time = 0,
     const std::vector<uint8_t> *signature = nullptr,
+    file::MetadataFrameType metadataframetype = file::MetadataFrameType::ONVIF_XML,
     const std::vector<uint8_t> *data = nullptr) {
   auto signature__ = signature ? _fbb.CreateVector<uint8_t>(*signature) : 0;
   auto data__ = data ? _fbb.CreateVector<uint8_t>(*data) : 0;
@@ -656,6 +697,7 @@ inline flatbuffers::Offset<MetadataFrame> CreateMetadataFrameDirect(
       codecindex,
       time,
       signature__,
+      metadataframetype,
       data__);
 }
 
@@ -966,7 +1008,9 @@ struct Recording FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_INDEX = 4,
     VT_NAME = 6,
     VT_LOCATION = 8,
-    VT_TRACKS = 10
+    VT_VIDEOTRACKS = 10,
+    VT_AUDIOTRACKS = 12,
+    VT_METADATATRACKS = 14
   };
   uint64_t index() const {
     return GetField<uint64_t>(VT_INDEX, 0);
@@ -977,8 +1021,14 @@ struct Recording FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const flatbuffers::String *location() const {
     return GetPointer<const flatbuffers::String *>(VT_LOCATION);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<file::Track>> *tracks() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<file::Track>> *>(VT_TRACKS);
+  const flatbuffers::Vector<flatbuffers::Offset<file::Track>> *videotracks() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<file::Track>> *>(VT_VIDEOTRACKS);
+  }
+  const flatbuffers::Vector<flatbuffers::Offset<file::Track>> *audiotracks() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<file::Track>> *>(VT_AUDIOTRACKS);
+  }
+  const flatbuffers::Vector<flatbuffers::Offset<file::Track>> *metadatatracks() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<file::Track>> *>(VT_METADATATRACKS);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -987,9 +1037,15 @@ struct Recording FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            verifier.VerifyString(name()) &&
            VerifyOffset(verifier, VT_LOCATION) &&
            verifier.VerifyString(location()) &&
-           VerifyOffset(verifier, VT_TRACKS) &&
-           verifier.VerifyVector(tracks()) &&
-           verifier.VerifyVectorOfTables(tracks()) &&
+           VerifyOffset(verifier, VT_VIDEOTRACKS) &&
+           verifier.VerifyVector(videotracks()) &&
+           verifier.VerifyVectorOfTables(videotracks()) &&
+           VerifyOffset(verifier, VT_AUDIOTRACKS) &&
+           verifier.VerifyVector(audiotracks()) &&
+           verifier.VerifyVectorOfTables(audiotracks()) &&
+           VerifyOffset(verifier, VT_METADATATRACKS) &&
+           verifier.VerifyVector(metadatatracks()) &&
+           verifier.VerifyVectorOfTables(metadatatracks()) &&
            verifier.EndTable();
   }
 };
@@ -1006,8 +1062,14 @@ struct RecordingBuilder {
   void add_location(flatbuffers::Offset<flatbuffers::String> location) {
     fbb_.AddOffset(Recording::VT_LOCATION, location);
   }
-  void add_tracks(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<file::Track>>> tracks) {
-    fbb_.AddOffset(Recording::VT_TRACKS, tracks);
+  void add_videotracks(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<file::Track>>> videotracks) {
+    fbb_.AddOffset(Recording::VT_VIDEOTRACKS, videotracks);
+  }
+  void add_audiotracks(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<file::Track>>> audiotracks) {
+    fbb_.AddOffset(Recording::VT_AUDIOTRACKS, audiotracks);
+  }
+  void add_metadatatracks(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<file::Track>>> metadatatracks) {
+    fbb_.AddOffset(Recording::VT_METADATATRACKS, metadatatracks);
   }
   explicit RecordingBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1026,10 +1088,14 @@ inline flatbuffers::Offset<Recording> CreateRecording(
     uint64_t index = 0,
     flatbuffers::Offset<flatbuffers::String> name = 0,
     flatbuffers::Offset<flatbuffers::String> location = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<file::Track>>> tracks = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<file::Track>>> videotracks = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<file::Track>>> audiotracks = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<file::Track>>> metadatatracks = 0) {
   RecordingBuilder builder_(_fbb);
   builder_.add_index(index);
-  builder_.add_tracks(tracks);
+  builder_.add_metadatatracks(metadatatracks);
+  builder_.add_audiotracks(audiotracks);
+  builder_.add_videotracks(videotracks);
   builder_.add_location(location);
   builder_.add_name(name);
   return builder_.Finish();
@@ -1040,16 +1106,22 @@ inline flatbuffers::Offset<Recording> CreateRecordingDirect(
     uint64_t index = 0,
     const char *name = nullptr,
     const char *location = nullptr,
-    const std::vector<flatbuffers::Offset<file::Track>> *tracks = nullptr) {
+    const std::vector<flatbuffers::Offset<file::Track>> *videotracks = nullptr,
+    const std::vector<flatbuffers::Offset<file::Track>> *audiotracks = nullptr,
+    const std::vector<flatbuffers::Offset<file::Track>> *metadatatracks = nullptr) {
   auto name__ = name ? _fbb.CreateString(name) : 0;
   auto location__ = location ? _fbb.CreateString(location) : 0;
-  auto tracks__ = tracks ? _fbb.CreateVector<flatbuffers::Offset<file::Track>>(*tracks) : 0;
+  auto videotracks__ = videotracks ? _fbb.CreateVector<flatbuffers::Offset<file::Track>>(*videotracks) : 0;
+  auto audiotracks__ = audiotracks ? _fbb.CreateVector<flatbuffers::Offset<file::Track>>(*audiotracks) : 0;
+  auto metadatatracks__ = metadatatracks ? _fbb.CreateVector<flatbuffers::Offset<file::Track>>(*metadatatracks) : 0;
   return file::CreateRecording(
       _fbb,
       index,
       name__,
       location__,
-      tracks__);
+      videotracks__,
+      audiotracks__,
+      metadatatracks__);
 }
 
 struct Device FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {

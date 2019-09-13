@@ -79,8 +79,11 @@ Device::Device(const sock::ProxyParams& proxyparams, const QString& address, con
   keepalivetimer_(-1),
   name_(address), // Temporary until we grab it from the server!
   utctimeoffset_(0),
+  numcldevices_(0),
+  numcudadevices_(0),
   identifier_(0),
   logmessages_(1000),
+  maxobjectdetectors_(0),
   maxrecordings_(0)
 {
   connect(this, &Connection::SignalDiscoveryHello, this, QOverload<const std::vector<std::string>&, const std::vector<std::string>&>::of(&Device::SlotDiscoveryHello), Qt::QueuedConnection);
@@ -340,13 +343,13 @@ void Device::Subscribe()
           emit MainWindow::Instance()->GetDeviceMgr().TimeOffsetChanged(boost::static_pointer_cast<Device>(shared_from_this()));
         });
 
-        SetState(DEVICESTATE::AUTHORIZED, "Susbcribing");
+        SetState(DEVICESTATE::AUTHORIZED, "Subscribing");
         subscribe_ = Connection::Subscribe([this](const std::chrono::steady_clock::duration latency, const monocle::client::SUBSCRIBERESPONSE& subscriberesponse)
         {
           emit SignalLatency(latency);
           if (subscriberesponse.GetErrorCode() != monocle::ErrorCode::Success)
           {
-            SetState(DEVICESTATE::DISCONNECTED, "Failed to susbcribe to server");
+            SetState(DEVICESTATE::DISCONNECTED, "Failed to subscribe to server");
             QTimer::singleShot(RECONNECT_DELAY, this, &Device::Reconnect);
             return;
           }
@@ -369,6 +372,8 @@ void Device::Subscribe()
             name_ = QString::fromStdString(subscriberesponse.name_);
             emit SignalNameChanged(name_);
           }
+          numcldevices_ = subscriberesponse.numcldevices_;
+          numcudadevices_ = subscriberesponse.numcudadevices_;
           architecture_ = QString::fromStdString(subscriberesponse.architecture_);
           operatingsystem_ = utility::GetOperatingSystem(subscriberesponse.operatingsystem_);
           compiler_ = QString::fromStdString(subscriberesponse.compiler_);
@@ -656,7 +661,7 @@ void Device::Subscribe()
               std::vector< QSharedPointer<client::RecordingJob> >::const_iterator i = std::find_if(recording->GetRecordingJobs().cbegin(), recording->GetRecordingJobs().cend(), [&rj](const QSharedPointer<client::RecordingJob>& recordingjob) { return (recordingjob->GetToken() == rj.token_); });
               if (i == recording->GetRecordingJobs().cend())
               {
-                recordingjob = QSharedPointer<client::RecordingJob>::create(rj.token_, QString::fromStdString(rj.name_), rj.enabled_, rj.priority_);
+                recordingjob = QSharedPointer<client::RecordingJob>::create(boost::static_pointer_cast<Device>(shared_from_this()), rj.token_, QString::fromStdString(rj.name_), rj.enabled_, rj.priority_);
                 recording->AddJob(recordingjob);
                 emit SignalRecordingJobAdded(recording, recordingjob);
               }
@@ -835,6 +840,7 @@ void Device::Subscribe()
 
           logmessages_.insert(logmessages_.end(), subscriberesponse.serverlogmessages_.cbegin(), subscriberesponse.serverlogmessages_.cend());
 
+          maxobjectdetectors_ = subscriberesponse.maxobjectdetectors_;
           maxrecordings_ = subscriberesponse.maxrecordings_;
 
           // Add and update maps
@@ -1180,6 +1186,16 @@ bool Device::SupportsFindMotion() const
   return true;
 }
 
+bool Device::SupportsObjectDetection() const
+{
+  if (version_ < utility::Version(1, 10, 0))
+  {
+
+    return false;
+  }
+  return true;
+}
+
 bool Device::CanManageUsers()
 {
   std::vector< QSharedPointer<User> >::const_iterator user = std::find_if(users_.cbegin(), users_.cend(), [this](const QSharedPointer<User>& user) { return (user->GetUsername() == username_); });
@@ -1268,8 +1284,25 @@ bool Device::CanManageDevice()
   return (*group)->GetManageDevice();
 }
 
+size_t Device::GetNumObjectDetectors() const
+{
+  size_t totalobjectdetectors = 0;
+  for (const QSharedPointer<Recording>& recording : recordings_)
+  {
+    totalobjectdetectors += recording->GetNumObjectDetectors();
+
+  }
+  return totalobjectdetectors;
+}
+
 bool Device::IsValidLicense() const
 {
+  if (GetNumObjectDetectors() > maxobjectdetectors_)
+  {
+
+    return false;
+  }
+
   if (recordings_.size() > maxrecordings_)
   {
 
@@ -1342,11 +1375,6 @@ std::vector<QString> Device::ToStrings(const std::vector<std::string>& strings) 
     result.push_back(QString::fromStdString(string));
   }
   return result;
-}
-
-bool Device::GetLicenseState() const
-{
-  return (maxrecordings_ <= recordings_.size());
 }
 
 bool Device::IsPermutation(const std::vector<QString>& lhs, const std::vector<std::string>& rhs) const
@@ -1883,7 +1911,7 @@ void Device::SlotRecordingJobAdded(const uint64_t recordingtoken, const uint64_t
   }
   else
   {
-    QSharedPointer<client::RecordingJob> rj = QSharedPointer<client::RecordingJob>::create(token, QString::fromStdString(name), enabled, priority);
+    QSharedPointer<client::RecordingJob> rj = QSharedPointer<client::RecordingJob>::create(boost::static_pointer_cast<Device>(shared_from_this()), token, QString::fromStdString(name), enabled, priority);
     (*r)->AddJob(rj);
     emit SignalRecordingJobAdded(*r, rj);
   }

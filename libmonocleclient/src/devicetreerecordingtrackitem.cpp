@@ -110,7 +110,7 @@ void DeviceTreeRecordingTrackItem::TrackChanged(const QSharedPointer<client::Rec
 
     return;
   }
-  setText(0, track->GetDescription());
+  setText(0, GetName(track));
 }
 
 }

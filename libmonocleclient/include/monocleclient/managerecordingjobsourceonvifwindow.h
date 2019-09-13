@@ -1,4 +1,4 @@
-// manageonvifreceiverwindow.h
+// managerecordingjobsourceonvifwindow.h
 //
 
 #ifndef ID2VVCASASDKSADL45944DSLAJD9WKDN9G

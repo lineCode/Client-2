@@ -63,18 +63,29 @@ void RecordingBlocks::Init()
   {
     QSharedPointer<MediaView> mediaview = qSharedPointerCast<MediaView>(view_);
     std::vector< std::unique_ptr<RecordingBlock> > recordingblocks;
-    for (const std::pair<uint64_t, uint64_t>& index : mediaview->GetCurrentTrack().GetIndices())
+    for (const std::pair<uint64_t, uint64_t>& index : mediaview->GetVideoTrack().GetIndices())
     {
       std::unique_ptr<RecordingBlock> recordingblock = std::make_unique<RecordingBlock>(false, index.first, index.second);
       recordingblocks.emplace_back(std::move(recordingblock));
     }
-    recordingtracks_.emplace(mediaview->GetCurrentTrack().index_, std::move(recordingblocks));
+    recordingtracks_.emplace(mediaview->GetVideoTrack().index_, std::move(recordingblocks));
+    recordingblocks.clear();
+    
+    for (const file::TRACK& metadatatrack : mediaview->GetMetadataTracks())
+    {
+      for (const std::pair<uint64_t, uint64_t>& index : metadatatrack.GetIndices())
+      {
+        std::unique_ptr<RecordingBlock> recordingblock = std::make_unique<RecordingBlock>(true, index.first, index.second);
+        recordingblocks.emplace_back(std::move(recordingblock));
+      }
+      recordingtracks_.emplace(metadatatrack.index_, std::move(recordingblocks));
+      recordingblocks.clear();
+    }
   }
   else if (view_->GetViewType() == VIEWTYPE_MONOCLE)
   {
     const QSharedPointer<VideoView> videoview = qSharedPointerCast<VideoView>(view_);
     recordingtracks_.emplace(videoview->GetTrack()->GetId(), InitRecordingBlocks(videoview->GetTrack()));
-
     for (const QSharedPointer<RecordingTrack>& metadatatrack : videoview->GetRecording()->GetMetadataTracks())
     {
       recordingtracks_.emplace(metadatatrack->GetId(), InitRecordingBlocks(metadatatrack));
@@ -200,6 +211,12 @@ boost::optional<uint64_t> RecordingBlocks::GetStartTime() const
 
     for (const std::unique_ptr<RecordingBlock>& recordingblock : recordingtrack.second)
     {
+      if (recordingblock->IsMetadata())
+      {
+
+        continue;
+      }
+
       if (time.is_initialized())
       {
         if (recordingblock->GetStartTime() < *time)

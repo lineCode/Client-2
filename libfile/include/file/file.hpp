@@ -96,9 +96,11 @@ struct JPEGFRAMEHEADER : public FRAMEHEADER
 
 struct METADATAFRAMEHEADER : public FRAMEHEADER
 {
-  METADATAFRAMEHEADER(const uint64_t codecindex, const uint64_t offset, const uint64_t size, const uint64_t time, const std::vector<uint8_t>& signature);
+  METADATAFRAMEHEADER(const uint64_t codecindex, const uint64_t offset, const uint64_t size, const uint64_t time, const file::MetadataFrameType metadataframetype, const std::vector<uint8_t>& signature);
 
   virtual FrameHeaderType Type() { return FrameHeaderType::METADATA; };
+
+  file::MetadataFrameType metadataframetype_;
 
 };
 
@@ -132,7 +134,9 @@ struct RECORDING
 {
   RECORDING();
   RECORDING(const uint64_t index, const std::string& name, const std::string& location);
-  RECORDING(const uint64_t index, const std::string& name, const std::string& location, const boost::container::flat_set<TRACK>& tracks);
+  RECORDING(const uint64_t index, const std::string& name, const std::string& location, const boost::container::flat_set<TRACK>& videotracks, const boost::container::flat_set<TRACK>& audiotracks, const boost::container::flat_set<TRACK>& metadatatracks);
+
+  boost::container::flat_set<TRACK> GetTracks() const;
 
   bool operator<(const RECORDING& rhs) const;
   bool operator==(const RECORDING& rhs) const;
@@ -140,7 +144,9 @@ struct RECORDING
   uint64_t index_;
   std::string name_;
   std::string location_;
-  boost::container::flat_set<TRACK> tracks_;
+  boost::container::flat_set<TRACK> videotracks_;
+  boost::container::flat_set<TRACK> audiotracks_;
+  boost::container::flat_set<TRACK> metadatatracks_;
   
 };
 

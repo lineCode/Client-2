@@ -19,6 +19,10 @@
 namespace client
 {
 
+///// Declarations /////
+
+enum class MetadataFrameType : uint16_t;
+
 ///// Classes /////
 
 class Connection : public QObject, public monocle::client::Client
@@ -53,7 +57,7 @@ class Connection : public QObject, public monocle::client::Client
   virtual void MapAdded(const uint64_t token, const std::string& name, const std::string& location, const std::string& imagemd5) override;
   virtual void MapChanged(const uint64_t token, const std::string& name, const std::string& location, const std::string& imagemd5) override;
   virtual void MapRemoved(const uint64_t token) override;
-  virtual void MetadataFrame(const uint64_t token, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* data, const size_t size) override;
+  virtual void MetadataFrame(const uint64_t token, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::MetadataFrameType metadataframetype, const char* data, const size_t size) override;
   virtual void MountPointAdded(const uint64_t id, const uint64_t parentid, const uint64_t majorstdev, const uint64_t minorstdev, const std::string& path, const std::string& type, const std::string& source) override;
   virtual void MountPointRemoved(const uint64_t id, const uint64_t parentid, const uint64_t majorstdev, const uint64_t minorstdev, const std::string& path, const std::string& type, const std::string& source) override;
   virtual void MPEG4Frame(const uint64_t token, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* data, const size_t size) override;

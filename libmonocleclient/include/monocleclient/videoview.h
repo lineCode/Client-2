@@ -95,7 +95,6 @@ class VideoView : public View
 
   virtual int64_t GetTimeOffset() const override;
 
-  virtual void Play() override;
   virtual void FrameStep(const bool forwards) override;
   virtual void Play(const uint64_t time, const boost::optional<uint64_t>& numframes) override;
   virtual void Pause(const boost::optional<uint64_t>& time) override;
@@ -130,17 +129,19 @@ class VideoView : public View
   static void ControlStreamEnd(const uint64_t streamtoken, const uint64_t playrequestindex, const monocle::ErrorCode error, void* callbackdata);
   static void H265Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const bool donlfield, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata);
   static void H264Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata);
-  static void MetadataCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata);
+  static void MetadataCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::MetadataFrameType metadataframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata);
   static void JPEGCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const uint8_t* lqt, const uint8_t* cqt, const char* framedata, const size_t size, void* callbackdata);
   static void MPEG4Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata);
   static void NewCodecIndexCallback(const uint64_t streamtoken, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp, void* callbackdata);
-  
+
   void ConnectONVIF(const QSharedPointer<client::Receiver>& receiver);
   void AddCodecIndex(const monocle::CODECINDEX& codecindex);
   void DestroyDecoders();
   void Keepalive();
   ROTATION GetRotation() const;
   void ResetDecoders();
+  uint64_t GetNextMetadataPlayRequestIndex();
+  void AddMetadataTrack(const QSharedPointer<RecordingTrack>& metadatatrack);
 
   boost::shared_ptr<Device> device_;
   QSharedPointer<Recording> recording_;
@@ -167,6 +168,7 @@ class VideoView : public View
   boost::optional<float> zoommax_;
 
   boost::shared_ptr<Connection> connection_;
+  boost::shared_ptr<Connection> metadataconnection_;
 
   sock::Connection connect_;
   monocle::client::Connection getauthenticatenonce_;
@@ -177,12 +179,26 @@ class VideoView : public View
 
   uint64_t streamtoken_;
 
+  sock::Connection metadataconnect_;
+  monocle::client::Connection metadatagetauthenticatenonce_;
+  monocle::client::Connection metadataauthenticate_;
+  std::vector<monocle::client::Connection> metadatacreatestreams_;
+  std::vector<monocle::client::Connection> metadatacontrolstreams_;
+  std::vector<monocle::client::Connection> metadatakeepalives_;
+
+  std::vector< std::pair<QSharedPointer<RecordingTrack>, uint64_t> > metadatastreamtokens_;
+
+  uint64_t metadataplayrequestindex_;
+
   std::unique_ptr<MJpegDecoder> mjpegdecoder_; // We only ever need one MJPEG decoder because there are never any worthwhile parameters and frames are discrete
   std::vector< std::unique_ptr<H265Decoder> > h265decoders_;
   std::vector< std::unique_ptr<H264Decoder> > h264decoders_;
   std::vector< std::unique_ptr<MPEG4Decoder> > mpeg4decoders_;
 
   std::function<void(const uint64_t, const monocle::ErrorCode)> controlstreamendcallback_;
+
+  int updatetimer_;
+  int metadatakeepalivetimer_;
 
  public slots:
 

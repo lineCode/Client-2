@@ -89,7 +89,7 @@ std::vector<uint8_t> Signature(const uint8_t* signature, const size_t signatures
 
 ///// Methods /////
 
-ExportProgressWindow::ExportTrackConnection::ExportTrackConnection(const EXPORTFORMAT exportformat, const std::shared_ptr<std::recursive_mutex>& filewritermutex, const std::shared_ptr<file::FileWrite>& filewriter, const uint64_t starttime, const uint64_t endtime, const QDir& directory, const uint64_t deviceindex, const uint64_t recordingtoken, const QString& devicename, const QString& deviceaddress, const QString& recordingname, const QString& recordinglocation, const utility::PublicKey& publickey, const uint64_t trackid, const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port) :
+ExportProgressWindow::ExportTrackConnection::ExportTrackConnection(const EXPORTFORMAT exportformat, const std::shared_ptr<std::recursive_mutex>& filewritermutex, const std::shared_ptr<file::FileWrite>& filewriter, const uint64_t starttime, const uint64_t endtime, const QDir& directory, const uint64_t deviceindex, const uint64_t recordingtoken, const QString& devicename, const QString& deviceaddress, const QString& recordingname, const QString& recordinglocation, const monocle::TrackType tracktype, const QString& trackdescription, const utility::PublicKey& publickey, const uint64_t trackid, const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port) :
   Connection(MainWindow::Instance()->GetIOServicePool().GetIoService(), proxyparams, address, port),
   state_(EXPORTTRACKSTATE_CONNECTING),
   exportformat_(exportformat),
@@ -104,6 +104,8 @@ ExportProgressWindow::ExportTrackConnection::ExportTrackConnection(const EXPORTF
   deviceaddress_(deviceaddress),
   recordingname_(recordingname),
   recordinglocation_(recordinglocation),
+  tracktype_(tracktype),
+  trackdescription_(trackdescription),
   publickey_(publickey),
   trackid_(trackid),
   currentprogress_(0.0f),
@@ -233,9 +235,9 @@ ExportProgressWindow::ExportProgressWindow(QWidget* parent, const QString& direc
     }
 
     // Stream all the tracks from all the recordings
-    for (const QSharedPointer<client::RecordingTrack>& track : recording->GetVideoTracks())
+    for (const QSharedPointer<client::RecordingTrack>& track : recording->GetTracks())
     {
-      boost::shared_ptr<ExportTrackConnection> exporttrackconnection = boost::make_shared<ExportTrackConnection>(exportformat_, filewritermutex_, filewriter_, starttime, endtime, directory_, deviceindex, recording->GetToken(), recording->GetDevice()->GetName(), recording->GetDevice()->GetAddress(), recording->GetName(), recording->GetLocation(), recording->GetDevice()->GetPublicKey(), track->GetId(), recording->GetDevice()->GetProxyParams(), recording->GetDevice()->GetAddress(), recording->GetDevice()->GetPort());
+      boost::shared_ptr<ExportTrackConnection> exporttrackconnection = boost::make_shared<ExportTrackConnection>(exportformat_, filewritermutex_, filewriter_, starttime, endtime, directory_, deviceindex, recording->GetToken(), recording->GetDevice()->GetName(), recording->GetDevice()->GetAddress(), recording->GetName(), recording->GetLocation(), track->GetTrackType(), track->GetDescription(), recording->GetDevice()->GetPublicKey(), track->GetId(), recording->GetDevice()->GetProxyParams(), recording->GetDevice()->GetAddress(), recording->GetDevice()->GetPort());
       exporttrackconnection->state_ = EXPORTTRACKSTATE_CONNECTING;
       exporttrackconnection->connect_ = exporttrackconnection->Connect([this, exporttrackconnection, username = recording->GetDevice()->GetUsername(), password = recording->GetDevice()->GetPassword(), recordingname = recording->GetName(), recordingtoken = recording->GetToken(), trackid = track->GetId(), starttime, endtime](const boost::system::error_code& err) mutable
       {
@@ -363,12 +365,12 @@ void ExportProgressWindow::timerEvent(QTimerEvent*)
           std::lock_guard<std::recursive_mutex> lock(exporttrackconnection->mutex_);
           if (exporttrackconnection->state_ == EXPORTTRACKSTATE_SUCCESS)
           {
-            messages.push_back(exporttrackconnection->recordingname_ + ": Success " + QString::number(exporttrackconnection->totalsize_ / 1024) + "kB " + QString::number(std::chrono::duration_cast<std::chrono::seconds>(exporttrackconnection->end_ - start_).count()) + "seconds");
+            messages.push_back(exporttrackconnection->recordingname_ + " " + exporttrackconnection->trackdescription_ + ": Success " + QString::number(exporttrackconnection->totalsize_ / 1024) + "kB " + QString::number(std::chrono::duration_cast<std::chrono::seconds>(exporttrackconnection->end_ - start_).count()) + "seconds");
 
           }
           else // (savevideo->GetState() == SAVEVIDEOSTATE_ERROR)
           {
-            messages.push_back(exporttrackconnection->recordingname_ + ": Error ");
+            messages.push_back(exporttrackconnection->recordingname_ + " " + exporttrackconnection->trackdescription_ + ": Error ");
 
           }
           boost::container::flat_set<file::CODEC> codecsindices;
@@ -392,7 +394,21 @@ void ExportProgressWindow::timerEvent(QTimerEvent*)
 
           }
 
-          recording->tracks_.insert(file::TRACK(exporttrackconnection->trackid_, std::string(), codecsindices));
+          if (exporttrackconnection->tracktype_ == monocle::TrackType::Video)
+          {
+            recording->videotracks_.insert(file::TRACK(exporttrackconnection->trackid_, exporttrackconnection->trackdescription_.toStdString(), codecsindices));
+
+          }
+          else if (exporttrackconnection->tracktype_ == monocle::TrackType::Audio)
+          {
+            recording->audiotracks_.insert(file::TRACK(exporttrackconnection->trackid_, exporttrackconnection->trackdescription_.toStdString(), codecsindices));
+
+          }
+          else if (exporttrackconnection->tracktype_ == monocle::TrackType::Metadata)
+          {
+            recording->metadatatracks_.insert(file::TRACK(exporttrackconnection->trackid_, exporttrackconnection->trackdescription_.toStdString(), codecsindices));
+
+          }
         }
         if (filewriter_->Close(file::FILE(devices)))
         {
@@ -410,12 +426,12 @@ void ExportProgressWindow::timerEvent(QTimerEvent*)
           std::lock_guard<std::recursive_mutex> lock(exporttrackconnection->mutex_);
           if (exporttrackconnection->state_ == EXPORTTRACKSTATE_SUCCESS)
           {
-            messages.push_back(exporttrackconnection->recordingname_ + ": Success " + QString::number(exporttrackconnection->totalsize_ / 1024) + "kB " + QString::number(std::chrono::duration_cast<std::chrono::seconds>(exporttrackconnection->end_ - start_).count()) + "seconds");
+            messages.push_back(exporttrackconnection->recordingname_ + " " + exporttrackconnection->trackdescription_ + ": Success " + QString::number(exporttrackconnection->totalsize_ / 1024) + "kB " + QString::number(std::chrono::duration_cast<std::chrono::seconds>(exporttrackconnection->end_ - start_).count()) + "seconds");
 
           }
           else // (savevideo->GetState() == SAVEVIDEOSTATE_ERROR)
           {
-            messages.push_back(exporttrackconnection->recordingname_ + ": Error ");
+            messages.push_back(exporttrackconnection->recordingname_ + " " + exporttrackconnection->trackdescription_ + ": Error ");
 
           }
         }
@@ -629,7 +645,7 @@ void ExportProgressWindow::H264Callback(const uint64_t streamtoken, const uint64
   }
 }
 
-void ExportProgressWindow::MetadataCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
+void ExportProgressWindow::MetadataCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::MetadataFrameType metadataframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
 {
   ExportTrackConnection* exporttrackconnection = reinterpret_cast<ExportTrackConnection*>(callbackdata);
   switch (exporttrackconnection->exportformat_)
@@ -637,7 +653,7 @@ void ExportProgressWindow::MetadataCallback(const uint64_t streamtoken, const ui
     case EXPORTFORMAT_MONOCLE:
     {
       std::lock_guard<std::recursive_mutex> lock(*exporttrackconnection->filewritermutex_);
-      if (exporttrackconnection->filewriter_->WriteMetadataFrame(exporttrackconnection->deviceindex_, exporttrackconnection->recordingtoken_, exporttrackconnection->trackid_, codecindex, reinterpret_cast<const uint8_t*>(signaturedata), signaturedatasize, timestamp, Signature(signature, signaturesize)))
+      if (exporttrackconnection->filewriter_->WriteMetadataFrame(exporttrackconnection->deviceindex_, exporttrackconnection->recordingtoken_, exporttrackconnection->trackid_, codecindex, reinterpret_cast<const uint8_t*>(signaturedata), signaturedatasize, timestamp, static_cast<file::MetadataFrameType>(metadataframetype), Signature(signature, signaturesize)))
       {
         exporttrackconnection->audit_.push_back("FileWrite::WriteFrame failed");
         exporttrackconnection->state_ = EXPORTTRACKSTATE_ERROR;

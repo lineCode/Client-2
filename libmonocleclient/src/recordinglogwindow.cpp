@@ -128,7 +128,7 @@ RecordingLogWindow::RecordingLogWindow(QWidget* parent, const boost::shared_ptr<
 
   recordingitem->setExpanded(true);
 
-  // Susbcribe to all the logs we want to listen to
+  // Subscribe to all the logs we want to listen to
   boost::shared_ptr< std::vector<std::string> > messages = boost::make_shared< std::vector<std::string> >(); // messages will collate all the possible failures into a single QMessageBox if there is one failure or more(empty strings represent success)
   const size_t totalrequests = 4;
   subscriberecordingconnection_ = recording_->GetDevice()->SubscribeRecordingLog(recording_->GetToken(), [this, recording, messages, totalrequests](const std::chrono::steady_clock::duration latency, const monocle::client::SUBSCRIBERECORDINGLOGRESPONSE& subscriberecordinglogresponse)

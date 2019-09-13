@@ -43,7 +43,6 @@ class MapView : public View
 
   virtual int64_t GetTimeOffset() const override { return 0; }
 
-  virtual void Play() override;
   virtual void FrameStep(const bool forwards) override;
   virtual void Play(const uint64_t time, const boost::optional<uint64_t>& numframes) override;
   virtual void Pause(const boost::optional<uint64_t>& time) override;

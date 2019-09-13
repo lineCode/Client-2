@@ -332,11 +332,11 @@ void Stream::H264Frame(const uint64_t playrequestindex, const uint64_t codecinde
   }
 }
 
-void Stream::MetadataFrame(const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* data, const size_t size) const
+void Stream::MetadataFrame(const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::MetadataFrameType metadataframetype, const char* data, const size_t size) const
 {
   if (metadatacallback_)
   {
-    metadatacallback_(token_, playrequestindex, codecindex, timestamp, sequencenum, progress, signature, signaturesize, data, size, data, size, callbackdata_);
+    metadatacallback_(token_, playrequestindex, codecindex, timestamp, sequencenum, progress, signature, signaturesize, metadataframetype, data, size, data, size, callbackdata_);
 
   }
 }

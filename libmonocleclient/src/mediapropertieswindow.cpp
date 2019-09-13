@@ -90,7 +90,7 @@ MediaPropertiesWindow::MediaPropertiesWindow(QWidget* parent, QSharedPointer<Med
       }
 
       QTreeWidgetItem* recordingitem = new QTreeWidgetItem({ QString::fromStdString(recording.name_) });
-      for (const file::TRACK& track : recording.tracks_)
+      for (const file::TRACK& track : recording.GetTracks())
       {
         std::string trackname;
         if (track.description_.empty())
@@ -174,7 +174,7 @@ MediaPropertiesWindow::MediaPropertiesWindow(QWidget* parent, QSharedPointer<Med
     {
       for (const file::RECORDING& recording : device.recordings_)
       {
-        for (const file::TRACK& track : recording.tracks_)
+        for (const file::TRACK& track : recording.GetTracks())
         {
           totalframes += track.frameheaders_.size();
 
@@ -200,7 +200,7 @@ MediaPropertiesWindow::MediaPropertiesWindow(QWidget* parent, QSharedPointer<Med
 
       for (const file::RECORDING& recording : device.recordings_)
       {
-        for (const file::TRACK& track : recording.tracks_)
+        for (const file::TRACK& track : recording.GetTracks())
         {
           uint64_t failedreadframes = 0;
           uint64_t verifiedframes = 0;

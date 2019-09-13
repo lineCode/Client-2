@@ -10,6 +10,7 @@
 #include <boost/asio/ip/address.hpp>
 #include <boost/bind.hpp>
 #include <GL/gl.h>
+#include <monocleprotocol/objects_generated.h>
 #include <network/uri.hpp>
 #include <QClipboard>
 #include <QFileDialog>
@@ -71,6 +72,70 @@ const std::array<float, 8> View::texturecoords_ =
 };
 
 ///// Methods /////
+
+Object::Object(const uint64_t id, const  monocle::ObjectClass classid, const uint64_t time, const float x, const float y, const float width, const float height) :
+  id_(id),
+  classid_(classid),
+  time_(time),
+  x_(x),
+  y_(y),
+  width_(width),
+  height_(height),
+  age_(std::chrono::steady_clock::now())
+{
+
+}
+
+Object::Object(Object&& rhs) :
+  id_(rhs.id_),
+  classid_(rhs.classid_),
+  time_(rhs.time_),
+  x_(rhs.x_),
+  y_(rhs.y_),
+  width_(rhs.width_),
+  height_(rhs.height_),
+  vertexbuffer_(std::move(rhs.vertexbuffer_)),
+  text_(std::move(rhs.text_)),
+  age_(rhs.age_)
+{
+
+}
+
+void Object::Allocate(const QRect& imagepixelrect, const int videowidgetwidth, const int videowidgetheight)
+{
+  // Allocate the sort out the bufferbuffer
+  const float left = (((imagepixelrect.left() + (x_ * imagepixelrect.width())) / videowidgetwidth) * 2.0f) - 1.0f;
+  const float top = 1.0f - (((imagepixelrect.top() + (y_ * imagepixelrect.height())) / videowidgetheight) * 2.0f);
+  const float right = (((imagepixelrect.left() + ((x_ + width_) * imagepixelrect.width())) / videowidgetwidth) * 2.0f) - 1.0f;
+  const float bottom = 1.0f - (((imagepixelrect.top() + ((y_ + height_) * imagepixelrect.height())) / videowidgetheight) * 2.0f);
+  vertexbuffer_.bind();
+  const std::array<float, 10> vertices =
+  {
+    static_cast<float>(right), static_cast<float>(bottom),
+    static_cast<float>(right), static_cast<float>(top),
+    static_cast<float>(left), static_cast<float>(top),
+    static_cast<float>(left), static_cast<float>(bottom),
+    static_cast<float>(right), static_cast<float>(bottom)
+  };
+  vertexbuffer_.allocate(vertices.data(), static_cast<int>(vertices.size() * sizeof(float)));
+  vertexbuffer_.release();
+
+}
+
+Object& Object::operator=(Object&& rhs)
+{
+  id_ = rhs.id_;
+  classid_ = rhs.classid_;
+  time_ = rhs.time_;
+  x_ = rhs.x_;
+  y_ = rhs.y_;
+  width_ = rhs.width_;
+  height_ = rhs.height_;
+  vertexbuffer_ = std::move(rhs.vertexbuffer_);
+  text_ = std::move(rhs.text_);
+  age_ = rhs.age_;
+  return *this;
+}
 
 View::View(VideoWidget* videowidget, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool info, const QResource* arial, const bool showsaveimagemenu, const bool showcopymenu, const bool showinfomenu) :
   videowidget_(videowidget),
@@ -381,7 +446,7 @@ void View::SetPosition(VideoWidget* videowidget, const unsigned int x, const uns
   infovertexbuffer_.allocate(infovertices.data(), static_cast<int>(infovertices.size() * sizeof(float)));
   infovertexbuffer_.release();
 
-  // Digital Sign
+  // Digital Signature
   if (digitalsignvertexbuffer_.isCreated())
   {
     digitalsignvertexbuffer_.destroy();
@@ -404,11 +469,24 @@ void View::SetPosition(VideoWidget* videowidget, const unsigned int x, const uns
   digitalsignvertexbuffer_.allocate(digitalsignvertices.data(), static_cast<int>(digitalsignvertices.size() * sizeof(float)));
   digitalsignvertexbuffer_.release();
 
+  const QRect imagepixelrect = GetImagePixelRect();
+  for (std::pair< const std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> >& objects : objects_)
+  {
+    for (Object& object : objects.second)
+    {
+      object.Allocate(imagepixelrect, videowidget_->width(), videowidget_->height());
+
+    }
+  }
+
+  // Update the objects
   if (makecurrent)
   {
     videowidget_->doneCurrent();
 
   }
+
+  videowidget_->update();
 }
 
 void View::AddCacheImage(ImageBuffer& imagebuffer)
@@ -503,12 +581,12 @@ QImage View::GetQImage(const boost::optional<QRect>& rect) const
 
     videowidget_->glBindTexture(GL_TEXTURE_2D, textures_.at(0));
     videowidget_->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textures_.at(0), 0);
-    glViewport(0, 0, imagewidth_, imageheight_);
+    videowidget_->glViewport(0, 0, imagewidth_, imageheight_);
     std::unique_ptr<unsigned char[]> rgb = std::make_unique<unsigned char[]>(imagewidth_ * imageheight_ * 4);
     videowidget_->glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, rgb.get());
     videowidget_->glBindTexture(GL_TEXTURE_2D, 0);
     videowidget_->glBindFramebuffer(GL_FRAMEBUFFER, videowidget_->defaultFramebufferObject());
-    glViewport(0, 0, videowidget_->width(), videowidget_->height());
+    videowidget_->glViewport(0, 0, videowidget_->width(), videowidget_->height());
     videowidget_->glDeleteFramebuffers(1, &framebuffer);
 
     image = QImage(rgb.get(), width, height, QImage::Format_RGBA8888);
@@ -548,13 +626,13 @@ QImage View::GetQImage(const boost::optional<QRect>& rect) const
     {
       videowidget_->glBindTexture(GL_TEXTURE_2D, textures_.at(i));
       videowidget_->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textures_.at(i), 0);
-      glViewport(0, 0, widths.at(i), heights.at(i));
+      videowidget_->glViewport(0, 0, widths.at(i), heights.at(i));
       yuv.at(i) = std::make_unique<unsigned char[]>(widths.at(i) * heights.at(i));
       videowidget_->glReadPixels(xs.at(i), ys.at(i), widths.at(i), heights.at(i), GL_LUMINANCE, GL_UNSIGNED_BYTE, yuv.at(i).get());
       videowidget_->glBindTexture(GL_TEXTURE_2D, 0);
     }
     videowidget_->glBindFramebuffer(GL_FRAMEBUFFER, videowidget_->defaultFramebufferObject());
-    glViewport(0, 0, videowidget_->width(), videowidget_->height());
+    videowidget_->glViewport(0, 0, videowidget_->width(), videowidget_->height());
     videowidget_->glDeleteFramebuffers(1, &framebuffer);
 
     image = QImage(width, height, QImage::Format_RGB888);
@@ -603,7 +681,7 @@ QImage View::GetQImage(const boost::optional<QRect>& rect) const
     {
       videowidget_->glBindTexture(GL_TEXTURE_2D, textures_.at(i));
       videowidget_->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textures_.at(i), 0);
-      glViewport(x, y, widths.at(i), heights.at(i));
+      videowidget_->glViewport(x, y, widths.at(i), heights.at(i));
       nv.at(i) = std::make_unique<unsigned char[]>(widths.at(i) * heights.at(i) * 8);
       videowidget_->glReadPixels(xs.at(i), ys.at(i), widths.at(i), heights.at(i), (i == 0) ? GL_RED : GL_RG, GL_UNSIGNED_BYTE, nv.at(i).get());
       videowidget_->glBindTexture(GL_TEXTURE_2D, 0);
@@ -647,6 +725,39 @@ void View::SetPaused(const bool paused)
   std::for_each(cache_.begin(), cache_.end(), [](ImageBuffer& imagebuffer) { imagebuffer.Destroy(); });
   cache_.clear();
   paused_ = paused;
+}
+
+void View::timerEvent(QTimerEvent* event)
+{
+
+}
+
+QString View::HTMLColour(const int r, const int g, const int b)
+{
+  QString red = QString::number(r, 16).toUpper();
+  if (red.size() == 1)
+  {
+    red = QString("0") + red;
+
+  }
+  QString green = QString::number(g, 16).toUpper();
+  if (green.size() == 1)
+  {
+    green = QString("0") + green;
+
+  }
+  QString blue = QString::number(b, 16).toUpper();
+  if (blue.size() == 1)
+  {
+    blue = QString("0") + blue;
+
+  }
+  return (red + green + blue);
+}
+
+QString View::FontText(const QVector4D& colour, const QString& text)
+{
+  return (QString("<b><font color=#") + HTMLColour(colour.x() * 255, colour.y() * 255, colour.z() * 255) + ">" + text + "</font></b>");
 }
 
 QRectF View::GetOpenglRect(unsigned int x, unsigned int y, unsigned int width, unsigned int height) const
@@ -909,6 +1020,58 @@ void View::WriteFrame(const ImageBuffer& imagebuffer)
   }
   videowidget_->doneCurrent();
   videowidget_->update();
+}
+
+void View::UpdateObjects(const monocle::Objects* objects, const uint64_t time)
+{
+  const QRect imagepixelrect = GetImagePixelRect();
+  for (const monocle::Object* object : *objects->objects())
+  {
+    Object o(object->id(), object->classid(), time, object->x(), object->y(), object->width(), object->height());
+    if (static_cast<size_t>(o.classid_) > static_cast<size_t>(monocle::ObjectClass::Suitcase))
+    {
+      // Ignore unknown types
+      continue;
+    }
+    o.text_.setPerformanceHint(QStaticText::PerformanceHint::AggressiveCaching);
+    o.text_.setTextFormat(Qt::TextFormat::RichText);
+    o.vertexbuffer_.create();
+    o.vertexbuffer_.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    o.Allocate(imagepixelrect, videowidget_->width(), videowidget_->height());
+
+    auto i = std::find_if(objects_.begin(), objects_.end(), [object](const std::pair< const std::pair<monocle::ObjectClass, uint64_t>, const std::vector<Object>& >& o) { return ((o.first.first == object->classid()) && (o.first.second == object->id())); });
+    if (i == objects_.end())
+    {
+      o.text_.setText(FontText(OBJECT_COLOURS[static_cast<size_t>(o.classid_)], QString(monocle::EnumNameObjectClass(object->classid())) + ": " + QString::number(o.id_)));
+      std::vector<Object> objects;
+      objects.emplace_back(std::move(o));
+      objects_.insert({ std::make_pair(object->classid(), object->id()), std::move(objects) });
+    }
+    else
+    {
+      o.text_.setText(FontText(OBJECT_COLOURS[static_cast<size_t>(o.classid_)], QString(monocle::EnumNameObjectClass(object->classid())) + ": " + QString::number(o.id_)));
+      auto j = std::find_if(i->second.begin(), i->second.end(), [time](const Object& object) { return (object.time_ == time); });
+      if (j == i->second.end())
+      {
+        utility::EmplaceSorted(i->second, std::move(o), [](const Object& lhs, const Object& rhs) { return (lhs.time_ < rhs.time_); });
+
+      }
+      else
+      {
+        *j = std::move(o);
+
+      }
+
+      // Clear up any old objects while we're here...
+      const std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+      i->second.erase(std::remove_if(i->second.begin(), i->second.end(), [this, now](const Object& object) { return ((time_ > object.time_) && ((time_ - object.time_) > OBJECT_KILL_DELAY) && ((now - object.age_) > OBJECT_KILL_AGE)); }), i->second.end());
+      if (i->second.empty())
+      {
+        objects_.erase(i);
+      
+      }
+    }
+  }
 }
 
 void View::SaveImage(bool)

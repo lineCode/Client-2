@@ -223,6 +223,17 @@ std::vector<ROTATION> Recording::GetActiveRotations(const QSharedPointer<client:
   return activejob_->GetActiveRotations(track);
 }
 
+size_t Recording::GetNumObjectDetectors() const
+{
+  size_t total = 0;
+  for (const QSharedPointer<RecordingJob>& job : jobs_)
+  {
+    total += job->GetNumObjectDetectors();
+
+  }
+  return total;
+}
+
 void Recording::SetActiveJob(const boost::optional<uint64_t>& activejob)
 {
   if ((activejob_ == nullptr) && !activejob.is_initialized())

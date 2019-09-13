@@ -141,6 +141,9 @@ class MainWindow : public QMainWindow
 
   void ShowHideDocks();
 
+  QColor GetRandomHSVColour() const;
+  QVector4D GetRandomHSVColour4D() const;
+
   const utility::Version& GetVersion() const { return version_; }
   ShortcutMgr& GetShortcutMgr() { return shortcutmgr_; }
   DeviceMgr& GetDeviceMgr() { return devicemgr_; }
@@ -197,6 +200,10 @@ class MainWindow : public QMainWindow
   const boost::filesystem::path licensepath_;
   const QResource* arial_;
   const QIcon showfullscreen_;
+
+  std::random_device rd_;
+  mutable std::mt19937 gen_;
+  std::uniform_real_distribution<double> hsvcolordist_;
 
   Ui::MainWindow ui_;
 

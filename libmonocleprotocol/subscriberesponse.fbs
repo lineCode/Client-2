@@ -35,6 +35,9 @@ table SubscribeResponse
   mountpoints:[MountPoint] (id:19);
   latitude:string (id:20);
   longitude:string (id:21);
+  numcudadevices:uint (id:22);
+  numcldevices:uint (id:23);
+  maxobjectdetectors:uint (id:24);
   //TODO network settings
   //TODO access policies
 }

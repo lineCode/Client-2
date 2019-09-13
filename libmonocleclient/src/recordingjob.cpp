@@ -6,7 +6,10 @@
 #include "monocleclient/recordingjob.h"
 
 #include <monocleprotocol/recordingjobstate_generated.h>
+#include <network/uri.hpp>
 
+#include "monocleclient/device.h"
+#include "monocleclient/receiver.h"
 #include "monocleclient/recordingjobsource.h"
 
 ///// Namespaces /////
@@ -16,7 +19,8 @@ namespace client
 
 ///// Methods /////
 
-RecordingJob::RecordingJob(const uint64_t token, const QString& name, const bool enabled, const uint64_t priority) :
+RecordingJob::RecordingJob(const boost::shared_ptr<Device>& device, const uint64_t token, const QString& name, const bool enabled, const uint64_t priority) :
+  device_(device),
   token_(token),
   name_(name),
   enabled_(enabled),
@@ -127,6 +131,32 @@ std::vector<ROTATION> RecordingJob::GetActiveRotations(const QSharedPointer<clie
     result.insert(result.end(), activerotations.begin(), activerotations.end());
   }
   return result;
+}
+
+size_t RecordingJob::GetNumObjectDetectors() const
+{
+  size_t total = 0;
+  for (const QSharedPointer<RecordingJobSource>& source : sources_)
+  {
+    const QSharedPointer<Receiver> receiver = device_->GetReceiver(source->GetReceiverToken());
+    if (receiver)
+    {
+      try
+      {
+        const network::uri uri(receiver->GetMediaUri().toStdString());
+        if (uri.has_scheme() && (uri.scheme().to_string() == "objectdetector"))
+        {
+          total += source->GetTracks().size();
+
+        }
+      }
+      catch (...)
+      {
+
+      }
+    }
+  }
+  return total;
 }
 
 }

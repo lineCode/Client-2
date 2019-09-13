@@ -609,7 +609,7 @@ SETNAMERESPONSE::SETNAMERESPONSE(const Error& error) :
 
 }
 
-SUBSCRIBERESPONSE::SUBSCRIBERESPONSE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentalvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude) :
+SUBSCRIBERESPONSE::SUBSCRIBERESPONSE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentalvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude, const unsigned int numcudadevices, const unsigned int numcldevices, const uint32_t maxobjectdetectors) :
   RESPONSE(Error(ErrorCode::Success, std::string())),
   name_(name),
   publickey_(publickey),
@@ -632,13 +632,18 @@ SUBSCRIBERESPONSE::SUBSCRIBERESPONSE(const std::string& name, const std::string&
   maps_(maps),
   mountpoints_(mountpoints),
   latitude_(latitude),
-  longitude_(longitude)
+  longitude_(longitude),
+  numcudadevices_(numcudadevices),
+  numcldevices_(numcldevices),
+  maxobjectdetectors_(maxobjectdetectors)
 {
 
 }
 
 SUBSCRIBERESPONSE::SUBSCRIBERESPONSE(const Error& error) :
-  RESPONSE(error)
+  RESPONSE(error),
+  operatingsystem_(0),
+  numcudadevices_(0)
 {
 
 }

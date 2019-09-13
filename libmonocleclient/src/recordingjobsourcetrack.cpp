@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "monocleclient/view.h"
 
@@ -29,6 +30,40 @@ namespace client
 const QString PROFILE_TOKEN_PARAMETER_NAME = "ProfileToken";
 const QString SOURCE_TAG_PARAMETER_NAME = "SourceTag";
 const QString ROTATION_PARAMETER_NAME = "Rotation";
+const QString OBJECT_DETECTOR_ACCURACY_PARAMETER_NAME = "ObjectDetectorAccuracy";
+const QString OBJECT_DETECTOR_HUMANS_ENABLED_PARAMETER_NAME = "HumansEnabled";
+const QString OBJECT_DETECTOR_HUMANS_SENSITIVITY_PARAMETER_NAME = "HumansSensitivity";
+const QString OBJECT_DETECTOR_BICYCLES_ENABLED_PARAMETER_NAME = "BicyclesEnabled";
+const QString OBJECT_DETECTOR_BICYCLES_SENSITIVITY_PARAMETER_NAME = "BicyclesSensitivity";
+const QString OBJECT_DETECTOR_CARS_ENABLED_PARAMETER_NAME = "CarsEnabled";
+const QString OBJECT_DETECTOR_CARS_SENSITIVITY_PARAMETER_NAME = "CarsSensitivity";
+const QString OBJECT_DETECTOR_MOTORBIKES_ENABLED_PARAMETER_NAME = "MotorbikesEnabled";
+const QString OBJECT_DETECTOR_MOTORBIKES_SENSITIVITY_PARAMETER_NAME = "MotorbikesSensitivity";
+const QString OBJECT_DETECTOR_BUSES_ENABLED_PARAMETER_NAME = "BusesEnabled";
+const QString OBJECT_DETECTOR_BUSES_SENSITIVITY_PARAMETER_NAME = "BusesSensitivity";
+const QString OBJECT_DETECTOR_TRUCKS_ENABLED_PARAMETER_NAME = "TrucksEnabled";
+const QString OBJECT_DETECTOR_TRUCKS_SENSITIVITY_PARAMETER_NAME = "TrucksSensitivity";
+const QString OBJECT_DETECTOR_BACKPACKS_ENABLED_PARAMETER_NAME = "BackpacksEnabled";
+const QString OBJECT_DETECTOR_BACKPACKS_SENSITIVITY_PARAMETER_NAME = "BackpacksSensitivity";
+const QString OBJECT_DETECTOR_UMBRELLAS_ENABLED_PARAMETER_NAME = "UmbrellasEnabled";
+const QString OBJECT_DETECTOR_UMBRELLAS_SENSITIVITY_PARAMETER_NAME = "UmbrellasSensitivity";
+const QString OBJECT_DETECTOR_HANDBAGS_ENABLED_PARAMETER_NAME = "HandbagsEnabled";
+const QString OBJECT_DETECTOR_HANDBAGS_SENSITIVITY_PARAMETER_NAME = "HandbagsSensitivity";
+const QString OBJECT_DETECTOR_SUITCASES_ENABLED_PARAMETER_NAME = "SuitcasesEnabled";
+const QString OBJECT_DETECTOR_SUITCASES_SENSITIVITY_PARAMETER_NAME = "SuitcasesSensitivity";
+const QString OBJECT_DETECTOR_CATS_ENABLED_PARAMETER_NAME = "CatsEnabled";
+const QString OBJECT_DETECTOR_CATS_SENSITIVITY_PARAMETER_NAME = "CatsSensitivity";
+const QString OBJECT_DETECTOR_DOGS_ENABLED_PARAMETER_NAME = "DogsEnabled";
+const QString OBJECT_DETECTOR_DOGS_SENSITIVITY_PARAMETER_NAME = "DogsSensitivity";
+const QString OBJECT_DETECTOR_AEROPLANES_ENABLED_PARAMETER_NAME = "AeroplanesEnabled";
+const QString OBJECT_DETECTOR_AEROPLANES_SENSITIVITY_PARAMETER_NAME = "AeroplanesSensitivity";
+const QString OBJECT_DETECTOR_TRAINS_ENABLED_PARAMETER_NAME = "TrainsEnabled";
+const QString OBJECT_DETECTOR_TRAINS_SENSITIVITY_PARAMETER_NAME = "TrainsSensitivity";
+const QString OBJECT_DETECTOR_BOATS_ENABLED_PARAMETER_NAME = "BoatsEnabled";
+const QString OBJECT_DETECTOR_BOATS_SENSITIVITY_PARAMETER_NAME = "BoatsSensitivity";
+const QString OBJECT_DETECTOR_HORSES_ENABLED_PARAMETER_NAME = "HorsesEnabled";
+const QString OBJECT_DETECTOR_HORSES_SENSITIVITY_PARAMETER_NAME = "HorsesSensitivity";
+
 
 ///// Methods /////
 
@@ -107,6 +142,189 @@ boost::optional<QString> RecordingJobSourceTrack::GetActiveProfileToken() const
   return GetActiveParameter(PROFILE_TOKEN_PARAMETER_NAME);
 }
 
+int RecordingJobSourceTrack::GetObjectDetectorAccuracy() const
+{
+  const boost::optional<QString> accuracy = GetParameter(OBJECT_DETECTOR_ACCURACY_PARAMETER_NAME);
+  try
+  {
+    if (accuracy.is_initialized())
+    {
+
+      return boost::lexical_cast<int>(accuracy->toStdString());
+    }
+    else
+    {
+
+      return 1;
+    }
+  }
+  catch (...)
+  {
+
+    return 1;
+  }
+}
+
+bool RecordingJobSourceTrack::GetObjectDetectorHumansEnabled() const
+{
+  return GetObjectDetectorEnabled(OBJECT_DETECTOR_HUMANS_ENABLED_PARAMETER_NAME);
+}
+
+double RecordingJobSourceTrack::GetObjectDetectorHumansSensitivity() const
+{
+  return GetObjectDetectorSensitivity(OBJECT_DETECTOR_HUMANS_SENSITIVITY_PARAMETER_NAME);
+}
+
+bool RecordingJobSourceTrack::GetObjectDetectorBicyclesEnabled() const
+{
+  return GetObjectDetectorEnabled(OBJECT_DETECTOR_BICYCLES_ENABLED_PARAMETER_NAME);
+}
+
+double RecordingJobSourceTrack::GetObjectDetectorBicyclesSensitivity() const
+{
+  return GetObjectDetectorSensitivity(OBJECT_DETECTOR_BICYCLES_SENSITIVITY_PARAMETER_NAME);
+}
+
+bool RecordingJobSourceTrack::GetObjectDetectorCarsEnabled() const
+{
+  return GetObjectDetectorEnabled(OBJECT_DETECTOR_CARS_ENABLED_PARAMETER_NAME);
+}
+
+double RecordingJobSourceTrack::GetObjectDetectorCarsSensitivity() const
+{
+  return GetObjectDetectorSensitivity(OBJECT_DETECTOR_CARS_SENSITIVITY_PARAMETER_NAME);
+}
+
+bool RecordingJobSourceTrack::GetObjectDetectorMotorbikesEnabled() const
+{
+  return GetObjectDetectorEnabled(OBJECT_DETECTOR_MOTORBIKES_ENABLED_PARAMETER_NAME);
+}
+
+double RecordingJobSourceTrack::GetObjectDetectorMotorbikesSensitivity() const
+{
+  return GetObjectDetectorSensitivity(OBJECT_DETECTOR_MOTORBIKES_SENSITIVITY_PARAMETER_NAME);
+}
+
+bool RecordingJobSourceTrack::GetObjectDetectorBusesEnabled() const
+{
+  return GetObjectDetectorEnabled(OBJECT_DETECTOR_BUSES_ENABLED_PARAMETER_NAME);
+}
+
+double RecordingJobSourceTrack::GetObjectDetectorBusesSensitivity() const
+{
+  return GetObjectDetectorSensitivity(OBJECT_DETECTOR_BUSES_SENSITIVITY_PARAMETER_NAME);
+}
+
+bool RecordingJobSourceTrack::GetObjectDetectorTrucksEnabled() const
+{
+  return GetObjectDetectorEnabled(OBJECT_DETECTOR_TRUCKS_ENABLED_PARAMETER_NAME);
+}
+
+double RecordingJobSourceTrack::GetObjectDetectorTrucksSensitivity() const
+{
+  return GetObjectDetectorSensitivity(OBJECT_DETECTOR_TRUCKS_SENSITIVITY_PARAMETER_NAME);
+}
+
+bool RecordingJobSourceTrack::GetObjectDetectorBackpacksEnabled() const
+{
+  return GetObjectDetectorEnabled(OBJECT_DETECTOR_BACKPACKS_ENABLED_PARAMETER_NAME);
+}
+
+double RecordingJobSourceTrack::GetObjectDetectorBackpacksSensitivity() const
+{
+  return GetObjectDetectorSensitivity(OBJECT_DETECTOR_BACKPACKS_SENSITIVITY_PARAMETER_NAME);
+}
+
+bool RecordingJobSourceTrack::GetObjectDetectorUmbrellasEnabled() const
+{
+  return GetObjectDetectorEnabled(OBJECT_DETECTOR_UMBRELLAS_ENABLED_PARAMETER_NAME);
+}
+
+double RecordingJobSourceTrack::GetObjectDetectorUmbrellasSensitivity() const
+{
+  return GetObjectDetectorSensitivity(OBJECT_DETECTOR_UMBRELLAS_SENSITIVITY_PARAMETER_NAME);
+}
+
+bool RecordingJobSourceTrack::GetObjectDetectorHandbagsEnabled() const
+{
+  return GetObjectDetectorEnabled(OBJECT_DETECTOR_HANDBAGS_ENABLED_PARAMETER_NAME);
+}
+
+double RecordingJobSourceTrack::GetObjectDetectorHandbagsSensitivity() const
+{
+  return GetObjectDetectorSensitivity(OBJECT_DETECTOR_HANDBAGS_SENSITIVITY_PARAMETER_NAME);
+}
+
+bool RecordingJobSourceTrack::GetObjectDetectorSuitcasesEnabled() const
+{
+  return GetObjectDetectorEnabled(OBJECT_DETECTOR_SUITCASES_ENABLED_PARAMETER_NAME);
+}
+
+double RecordingJobSourceTrack::GetObjectDetectorSuitcasesSensitivity() const
+{
+  return GetObjectDetectorSensitivity(OBJECT_DETECTOR_SUITCASES_SENSITIVITY_PARAMETER_NAME);
+}
+
+bool RecordingJobSourceTrack::GetObjectDetectorCatsEnabled() const
+{
+  return GetObjectDetectorEnabled(OBJECT_DETECTOR_CATS_ENABLED_PARAMETER_NAME);
+}
+
+double RecordingJobSourceTrack::GetObjectDetectorCatsSensitivity() const
+{
+  return GetObjectDetectorSensitivity(OBJECT_DETECTOR_CATS_SENSITIVITY_PARAMETER_NAME);
+}
+
+bool RecordingJobSourceTrack::GetObjectDetectorDogsEnabled() const
+{
+  return GetObjectDetectorEnabled(OBJECT_DETECTOR_DOGS_ENABLED_PARAMETER_NAME);
+}
+
+double RecordingJobSourceTrack::GetObjectDetectorDogsSensitivity() const
+{
+  return GetObjectDetectorSensitivity(OBJECT_DETECTOR_DOGS_SENSITIVITY_PARAMETER_NAME);
+}
+
+bool RecordingJobSourceTrack::GetObjectDetectorAeroplanesEnabled() const
+{
+  return GetObjectDetectorEnabled(OBJECT_DETECTOR_AEROPLANES_ENABLED_PARAMETER_NAME);
+}
+
+double RecordingJobSourceTrack::GetObjectDetectorAeroplanesSensitivity() const
+{
+  return GetObjectDetectorSensitivity(OBJECT_DETECTOR_AEROPLANES_SENSITIVITY_PARAMETER_NAME);
+}
+
+bool RecordingJobSourceTrack::GetObjectDetectorTrainsEnabled() const
+{
+  return GetObjectDetectorEnabled(OBJECT_DETECTOR_TRAINS_ENABLED_PARAMETER_NAME);
+}
+
+double RecordingJobSourceTrack::GetObjectDetectorTrainsSensitivity() const
+{
+  return GetObjectDetectorSensitivity(OBJECT_DETECTOR_TRAINS_SENSITIVITY_PARAMETER_NAME);
+}
+
+bool RecordingJobSourceTrack::GetObjectDetectorBoatsEnabled() const
+{
+  return GetObjectDetectorEnabled(OBJECT_DETECTOR_BOATS_ENABLED_PARAMETER_NAME);
+}
+
+double RecordingJobSourceTrack::GetObjectDetectorBoatsSensitivity() const
+{
+  return GetObjectDetectorSensitivity(OBJECT_DETECTOR_BOATS_SENSITIVITY_PARAMETER_NAME);
+}
+
+bool RecordingJobSourceTrack::GetObjectDetectorHorsesEnabled() const
+{
+  return GetObjectDetectorEnabled(OBJECT_DETECTOR_HORSES_ENABLED_PARAMETER_NAME);
+}
+
+double RecordingJobSourceTrack::GetObjectDetectorHorsesSensitivity() const
+{
+  return GetObjectDetectorSensitivity(OBJECT_DETECTOR_HORSES_SENSITIVITY_PARAMETER_NAME);
+}
+
 boost::optional<QString> RecordingJobSourceTrack::GetParameter(const QString& name) const
 {
   const std::string tmp = name.toStdString() + "=";
@@ -129,6 +347,44 @@ boost::optional<QString> RecordingJobSourceTrack::GetActiveParameter(const QStri
     return boost::none;
   }
   return activeparameter->mid(static_cast<int>(tmp.size()), -1);
+}
+
+bool RecordingJobSourceTrack::GetObjectDetectorEnabled(const QString& parameter) const
+{
+  const boost::optional<QString> enabled = GetParameter(parameter);
+  if (enabled.is_initialized())
+  {
+
+    return ((*enabled) != "0");
+  }
+  else
+  {
+
+    return false;
+  }
+}
+
+double RecordingJobSourceTrack::GetObjectDetectorSensitivity(const QString& parameter) const
+{
+  const boost::optional<QString> enabled = GetParameter(parameter);
+  try
+  {
+    if (enabled.is_initialized())
+    {
+
+      return boost::lexical_cast<double>(enabled->toStdString());
+    }
+    else
+    {
+
+      return 0.5;
+    }
+  }
+  catch (...)
+  {
+
+    return 0.5;
+  }
 }
 
 }

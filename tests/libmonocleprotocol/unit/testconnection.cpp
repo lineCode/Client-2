@@ -58,7 +58,7 @@ bool TESTFRAME::operator==(const TESTFRAME& rhs) const
   return ((stream_ == rhs.stream_) && (playrequest_ == rhs.playrequest_) && (codec_ == rhs.codec_) && (timestamp_ == rhs.timestamp_) && (sequencenum_ == rhs.sequencenum_) && (signature_ == rhs.signature_) && (data_ == rhs.data_));
 }
 
-TestConnection::TestConnection(boost::asio::io_service& io, const boost::shared_ptr<Server>& server, const std::string& testusername, const std::string& testpassword, const std::string& testnonce, const STREAM& teststream, const std::string& testname, const std::string& testpublickey, const std::string& testarchitecture, const int testoperatingsystem, const std::string& testcompiler, const std::string& testdatabasepath, const utility::Version& testversion, const uint64_t testidentifier, const std::vector<std::string>& testenvironmentvariables, const std::vector<std::string>& testcommandlinevariables, const std::vector<ONVIFUSER>& testonvifusers, const std::vector<GROUP>& testgroups, const std::vector<USER>& testusers, const std::vector<FILE>& testfiles, const std::vector<RECEIVER>& testreceivers, const std::vector<RECORDING>& testrecordings, const std::vector<monocle::LOGMESSAGE>& testrecordinglogmessages, const uint32_t testmaxrecordings, const std::vector<MAP>& testmaps, const std::vector<MOUNTPOINT>& testmountpoints, const std::string& testlatitude, const std::string& testlongitude, const TESTFRAME& testframe) :
+TestConnection::TestConnection(boost::asio::io_service& io, const boost::shared_ptr<Server>& server, const std::string& testusername, const std::string& testpassword, const std::string& testnonce, const STREAM& teststream, const std::string& testname, const std::string& testpublickey, const std::string& testarchitecture, const int testoperatingsystem, const std::string& testcompiler, const std::string& testdatabasepath, const utility::Version& testversion, const uint64_t testidentifier, const std::vector<std::string>& testenvironmentvariables, const std::vector<std::string>& testcommandlinevariables, const std::vector<ONVIFUSER>& testonvifusers, const std::vector<GROUP>& testgroups, const std::vector<USER>& testusers, const std::vector<FILE>& testfiles, const std::vector<RECEIVER>& testreceivers, const std::vector<RECORDING>& testrecordings, const std::vector<monocle::LOGMESSAGE>& testrecordinglogmessages, const uint32_t testmaxrecordings, const std::vector<MAP>& testmaps, const std::vector<MOUNTPOINT>& testmountpoints, const std::string& testlatitude, const std::string& testlongitude, const int testnumcudadevices, const int testnumcldevices, const int testmaxobjectdetectors, const TESTFRAME& testframe) :
   Connection(io, server),
   testusername_(testusername),
   testpassword_(testpassword),
@@ -87,6 +87,9 @@ TestConnection::TestConnection(boost::asio::io_service& io, const boost::shared_
   testlatitude_(testlatitude),
   testlongitude_(testlongitude),
   testframe_(testframe),
+  testnumcudadevices_(testnumcudadevices),
+  testnumcldevices_(testnumcldevices),
+  testmaxobjectdetectors_(testmaxobjectdetectors),
   frames_(socket_.get_io_service())
 {
 
@@ -383,7 +386,7 @@ Error TestConnection::SetName(const std::string& name)
 
 std::pair<Error, SUBSCRIBE> TestConnection::Subscribe()
 {
-  return std::make_pair(Error(), SUBSCRIBE(testname_, testpublickey_, testarchitecture_, testoperatingsystem_, testcompiler_, testdatabasepath_, testversion_, testidentifier_, testenvironmentvariables_, testcommandlinevariables_, testonvifusers_, testgroups_, testusers_, testfiles_, testreceivers_, testrecordings_, {}, testmaxrecordings_, testmaps_, testmountpoints_, testlatitude_, testlongitude_));
+  return std::make_pair(Error(), SUBSCRIBE(testname_, testpublickey_, testarchitecture_, testoperatingsystem_, testcompiler_, testdatabasepath_, testversion_, testidentifier_, testenvironmentvariables_, testcommandlinevariables_, testonvifusers_, testgroups_, testusers_, testfiles_, testreceivers_, testrecordings_, {}, testmaxrecordings_, testmaps_, testmountpoints_, testlatitude_, testlongitude_, testnumcudadevices_, testnumcldevices_, testmaxobjectdetectors_));
 }
 
 Error TestConnection::SubscribeDiscovery(const bool broadcast)

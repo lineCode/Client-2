@@ -134,11 +134,6 @@ bool MapView::GetImage(ImageBuffer& imagebuffer)
   return true;
 }
 
-void MapView::Play()
-{
-  
-}
-
 void MapView::FrameStep(const bool forwards)
 {
   

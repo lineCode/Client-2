@@ -14,6 +14,7 @@
 #include <chrono>
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include <map>
 #include <memory>
 #include <mutex>
 #include <QEnableSharedFromThis>
@@ -23,12 +24,17 @@
 #include <QOpenGLVertexArrayObject>
 #include <QRectF>
 #include <QResource>
+#include <QStaticText>
 #include <QVector4D>
 #include <vector>
 
 #include "connection.h"
 #include "decoder.h"
 #include "options.h"
+
+///// Declarations /////
+
+namespace monocle { enum class ObjectClass : uint16_t; struct Objects; }
 
 ///// Namespaces /////
 
@@ -65,6 +71,36 @@ enum VIEWTYPE
 
 QString ToString(const ROTATION rotation);
 
+///// Structures /////
+
+struct Object
+{
+  Object(const uint64_t id, const monocle::ObjectClass classid, const uint64_t time, const float x, const float y, const float width, const float height);
+  Object(Object&& rhs);
+
+  void Allocate(const QRect& imagepixelrect, const int videowidgetwidth, const int videowidgetheight);
+
+  Object& operator=(Object&& rhs);
+
+  uint64_t id_;
+  monocle::ObjectClass classid_;
+  uint64_t time_;
+  float x_;
+  float y_;
+  float width_;
+  float height_;
+  std::chrono::steady_clock::time_point age_;
+
+  QOpenGLBuffer vertexbuffer_;
+  QStaticText text_;
+
+};
+
+///// Globals /////
+
+const uint64_t OBJECT_KILL_DELAY = 4000;
+const std::chrono::steady_clock::duration OBJECT_KILL_AGE(std::chrono::milliseconds(4000));
+
 ///// Classes /////
 
 class View : public QObject, public QEnableSharedFromThis<View>
@@ -89,7 +125,6 @@ class View : public QObject, public QEnableSharedFromThis<View>
 
   virtual int64_t GetTimeOffset() const = 0;
 
-  virtual void Play() = 0;
   virtual void FrameStep(const bool forwards) = 0;
   virtual void Play(const uint64_t time, const boost::optional<uint64_t>& numframes) = 0;
   virtual void Pause(const boost::optional<uint64_t>& time) = 0;
@@ -135,11 +170,11 @@ class View : public QObject, public QEnableSharedFromThis<View>
   inline int64_t GetSequenceNum() const { return sequencenum_; }
   inline void SetDigitallySigned(const boost::optional<bool>& digitallysigned) { digitallysigned_ = digitallysigned; }
   inline const boost::optional<bool>& GetDigitallySigned() const { return digitallysigned_; }
-
   inline QOpenGLBuffer& GetTextureBuffer() { return texturebuffer_; }
   inline QOpenGLBuffer& GetTextVertexBuffer() { return textvertexbuffer_; }
   inline QOpenGLBuffer& GetVertexBuffer() { return vertexbuffer_; }
   inline QOpenGLBuffer& GetSelectedVertexBuffer() { return selectvertexbuffer_; }
+  inline std::map< std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> >& GetObjects() { return objects_; }
   std::array<GLuint, 3>& GetTextures() { return textures_; }
   inline GLuint GetInfoTexture() const { return infotexture_; }
   inline QOpenGLBuffer& GetInfoTextureBuffer() { return infotexturebuffer_; }
@@ -167,12 +202,17 @@ class View : public QObject, public QEnableSharedFromThis<View>
 
  protected:
 
+  static QString HTMLColour(const int r, const int g, const int b);
+  static QString FontText(const QVector4D& colour, const QString& text);
+
   static const std::array<float, 8> texturecoords_;
 
+  virtual void timerEvent(QTimerEvent* event) override;
   QRectF GetOpenglRect(unsigned int x, unsigned int y, unsigned int width, unsigned int height) const;
   void SetMessage(const uint64_t playrequestindex, bool error, const QString& text);
   std::array<float, 12> GetVertices(const QRectF& rect, const ROTATION rotation, const bool mirror) const;
   void WriteFrame(const ImageBuffer& imagebuffer);
+  void UpdateObjects(const monocle::Objects* objects, const uint64_t time);
 
   const std::chrono::steady_clock::time_point starttime_;
   const QVector4D selectedcolour_;
@@ -208,6 +248,7 @@ class View : public QObject, public QEnableSharedFromThis<View>
   QOpenGLBuffer textvertexbuffer_;
   QOpenGLBuffer vertexbuffer_;
   QOpenGLBuffer selectvertexbuffer_; // Represents the selection box
+  std::map< std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> > objects_;
   std::array<GLuint, 3> textures_;
   GLuint infotexture_;
   QOpenGLBuffer infotexturebuffer_;

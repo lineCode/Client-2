@@ -74,6 +74,7 @@ include/monocleclient/manageonvifmediavideoencoderconfigurationswindow.h
 include/monocleclient/manageonvifuserswindow.h
 include/monocleclient/manageonvifuserwindow.h
 include/monocleclient/manageonvifwindow.h
+include/monocleclient/managerecordingjobsourceobjectdetectorwindow.h
 include/monocleclient/managerecordingjobsourceonvifwindow.h
 include/monocleclient/managerecordingjobsourceonvifdiscoverytree.h
 include/monocleclient/managerecordingjobsourceonvifdiscoverytreeitem.h
@@ -197,6 +198,7 @@ src/manageonvifmediaprofilewindow.cpp
 src/manageonvifuserswindow.cpp
 src/manageonvifuserwindow.cpp
 src/manageonvifwindow.cpp
+src/managerecordingjobsourceobjectdetectorwindow.cpp
 src/managerecordingjobsourceonvifwindow.cpp
 src/managerecordingjobsourceonvifdiscoverytree.cpp
 src/managerecordingjobsourceonvifdiscoverytreeitem.cpp
@@ -287,6 +289,7 @@ manageonvifmediavideoencoderconfigurationwindow.ui
 manageonvifuserswindow.ui
 manageonvifuserwindow.ui
 manageonvifwindow.ui
+managerecordingjobsourceobjectdetectorwindow.ui
 managerecordingjobsourceonvifwindow.ui
 managerecordingjobsourcertspwindow.ui
 managerecordingjobswindow.ui

@@ -69,6 +69,40 @@ const std::string DELTAE =
   "return ((i < 0.0) ? 0.0 : sqrt(i));\n"
 "}\n";
 
+const std::array<QVector4D, 30> OBJECT_COLOURS =
+{
+  QVector4D(1.000f, 0.078f, 0.576f, 1.0f),
+  QVector4D(0.129f, 0.996f, 0.011f, 1.0f),
+  QVector4D(0.431f, 0.427f, 0.019f, 1.0f),
+  QVector4D(0.968f, 0.972f, 0.031f, 1.0f),
+  QVector4D(0.933f, 0.894f, 0.007f, 1.0f),
+  QVector4D(0.415f, 0.364f, 0.043f, 1.0f),
+  QVector4D(0.776f, 0.717f, 0.007f, 1.0f),
+  QVector4D(0.968f, 0.211f, 0.015f, 1.0f),
+  QVector4D(0.015f, 0.941f, 0.015f, 1.0f),
+  QVector4D(0.094f, 0.494f, 0.039f, 1.0f),
+  QVector4D(0.286f, 0.027f, 0.047f, 1.0f),
+  QVector4D(0.780f, 0.913f, 0.039f, 1.0f),
+  QVector4D(0.941f, 0.988f, 0.058f, 1.0f),
+  QVector4D(0.321f, 0.364f, 0.027f, 1.0f),
+  QVector4D(0.239f, 0.901f, 0.015f, 1.0f),
+  QVector4D(0.803f, 0.082f, 0.415f, 1.0f),
+  QVector4D(0.603f, 0.549f, 0.843f, 1.0f),
+  QVector4D(0.596f, 0.988f, 0.556f, 1.0f),
+  QVector4D(0.247f, 0.968f, 0.823f, 1.0f),
+  QVector4D(0.454f, 0.388f, 0.172f, 1.0f),
+  QVector4D(0.168f, 0.262f, 0.086f, 1.0f),
+  QVector4D(0.403f, 0.345f, 0.870f, 1.0f),
+  QVector4D(0.309f, 0.176f, 0.984f, 1.0f),
+  QVector4D(0.913f, 0.188f, 0.023f, 1.0f),
+  QVector4D(0.474f, 0.301f, 0.776f, 1.0f),
+  QVector4D(0.223f, 0.172f, 0.419f, 1.0f),
+  QVector4D(0.101f, 0.121f, 0.356f, 1.0f),
+  QVector4D(0.949f, 0.274f, 0.149f, 1.0f),
+  QVector4D(0.996f, 0.027f, 0.615f, 1.0f),
+  QVector4D(0.972f, 0.403f, 0.023f, 1.0f)
+};
+
 ///// Functions /////
 
 void ToBandwidthString(size_t bandwidth, std::vector<char>& buffer)
@@ -304,8 +338,6 @@ void ToInfoText(const QDateTime& datetime, const std::string& format, const mono
 
 VideoWidget::VideoWidget(QWidget* parent) :
   QOpenGLWidget(parent),
-  gen_(rd_()),
-  colordist_(0.5, 1.0),
   timer_(-1),
   freetype_(nullptr),
   freetypearial_(nullptr),
@@ -320,8 +352,8 @@ VideoWidget::VideoWidget(QWidget* parent) :
   yuvtexturesamplerlocation_({ -1, -1, -1 }),
   nv12texturecoordlocation_(-1),
   nv12positionlocation_(-1),
-  nv12texturesamplerlocation_({ -1, -1 }),
   nv12colourpickerlocation_(-1),
+  nv12texturesamplerlocation_({ -1, -1 }),
   width_(0),
   height_(0),
   showtoolbar_(new QAction(tr("Show Toolbar"), this)),
@@ -450,7 +482,7 @@ QSharedPointer<MapView> VideoWidget::CreateMapView(unsigned int x, unsigned int 
     return QSharedPointer<MapView>();
   }
 
-  QSharedPointer<MapView> mapview = QSharedPointer<MapView>::create(this, QColor::fromHsvF(colordist_(gen_), colordist_(gen_), colordist_(gen_), 1.0f), x, y, width, height, ROTATION::_0, Options::Instance().GetStretchVideo(), device, map, arial_);
+  QSharedPointer<MapView> mapview = QSharedPointer<MapView>::create(this, MainWindow::Instance()->GetRandomHSVColour(), x, y, width, height, ROTATION::_0, Options::Instance().GetStretchVideo(), device, map, arial_);
   connect(mapview->GetActionClose(), &QAction::triggered, mapview.data(), [this, mapview = mapview.toWeakRef()](bool)
   {
     QSharedPointer<MapView> m = mapview.lock();
@@ -483,7 +515,7 @@ QSharedPointer<MediaView> VideoWidget::CreateMediaView(unsigned int x, unsigned 
     return QSharedPointer<MediaView>();
   }
 
-  QSharedPointer<MediaView> mediaview = QSharedPointer<MediaView>::create(this, QColor::fromHsvF(colordist_(gen_), colordist_(gen_), colordist_(gen_), 1.0f), x, y, width, height, ROTATION::_0, false, Options::Instance().GetStretchVideo(), Options::Instance().GetShowInfo(), media, deviceindex, recordingindex, trackindex, arial_);
+  QSharedPointer<MediaView> mediaview = QSharedPointer<MediaView>::create(this, MainWindow::Instance()->GetRandomHSVColour(), x, y, width, height, ROTATION::_0, false, Options::Instance().GetStretchVideo(), Options::Instance().GetShowInfo(), media, deviceindex, recordingindex, trackindex, arial_);
   connect(mediaview->GetActionClose(), &QAction::triggered, mediaview.data(), [this, mediaview = mediaview.toWeakRef()](bool)
   {
     QSharedPointer<MediaView> m = mediaview.lock();
@@ -516,7 +548,7 @@ QSharedPointer<VideoView> VideoWidget::CreateVideoView(unsigned int x, unsigned 
     return QSharedPointer<VideoView>();
   }
 
-  const QSharedPointer<VideoView> videoview = QSharedPointer<VideoView>::create(this, QColor::fromHsvF(colordist_(gen_), colordist_(gen_), colordist_(gen_), 1.0f), x, y, width, height, ROTATION::_0, false, Options::Instance().GetStretchVideo(), Options::Instance().GetShowInfo(), device, recording, track, arial_);
+  const QSharedPointer<VideoView> videoview = QSharedPointer<VideoView>::create(this, MainWindow::Instance()->GetRandomHSVColour(), x, y, width, height, ROTATION::_0, false, Options::Instance().GetStretchVideo(), Options::Instance().GetShowInfo(), device, recording, track, arial_);
   connect(videoview->GetActionClose(), &QAction::triggered, videoview.data(), [this, videoview = videoview.toWeakRef()](bool)
   {
     QSharedPointer<VideoView> v = videoview.lock();
@@ -1231,16 +1263,16 @@ void VideoWidget::initializeGL()
     ("#version 130\n"
     + RGB2LAB + DELTAE +
     "in vec2 out_texcoord;\n"
-    "uniform sampler2D texY;\n"
-    "uniform sampler2D texU;\n"
-    "uniform sampler2D texV;\n"
+    "uniform sampler2D texy;\n"
+    "uniform sampler2D texu;\n"
+    "uniform sampler2D texv;\n"
     "uniform vec3 colourpicker;\n"
     "out vec4 colour;\n"
     "void main()\n"
     "{\n"
-    "  float y = 1.1643 * (texture2D(texY, out_texcoord.st).r - 0.0625);\n"
-    "  float u = texture2D(texU, out_texcoord.st).r - 0.5;\n"
-    "  float v = texture2D(texV, out_texcoord.st).r - 0.5;\n"
+    "  float y = 1.1643 * (texture2D(texy, out_texcoord.st).r - 0.0625);\n"
+    "  float u = texture2D(texu, out_texcoord.st).r - 0.5;\n"
+    "  float v = texture2D(texv, out_texcoord.st).r - 0.5;\n"
     "  float r = y + 1.5958 * v;\n"
     "  float g = y - 0.39173 * u - 0.81290 * v;\n"
     "  float b = y + 2.017 * u;\n"
@@ -1286,21 +1318,21 @@ void VideoWidget::initializeGL()
     return;
   }
 
-  yuvtexturesamplerlocation_.at(0) = viewyuvshader_.uniformLocation("texY");
+  yuvtexturesamplerlocation_.at(0) = viewyuvshader_.uniformLocation("texy");
   if (yuvtexturesamplerlocation_.at(0) == -1)
   {
     LOG_GUI_WARNING(QString("QOpenGLShaderProgram::uniformLocation failed"));
     return;
   }
 
-  yuvtexturesamplerlocation_.at(1) = viewyuvshader_.uniformLocation("texU");
+  yuvtexturesamplerlocation_.at(1) = viewyuvshader_.uniformLocation("texu");
   if (yuvtexturesamplerlocation_.at(1) == -1)
   {
     LOG_GUI_WARNING(QString("QOpenGLShaderProgram::uniformLocation failed"));
     return;
   }
 
-  yuvtexturesamplerlocation_.at(2) = viewyuvshader_.uniformLocation("texV");
+  yuvtexturesamplerlocation_.at(2) = viewyuvshader_.uniformLocation("texv");
   if (yuvtexturesamplerlocation_.at(2) == -1)
   {
     LOG_GUI_WARNING(QString("QOpenGLShaderProgram::uniformLocation failed"));
@@ -1327,15 +1359,15 @@ void VideoWidget::initializeGL()
     ("#version 130\n"
     + RGB2LAB + DELTAE +
     "in vec2 out_texcoord;\n"
-    "uniform sampler2D texY;\n"
-    "uniform sampler2D texUV;\n"
+    "uniform sampler2D texy;\n"
+    "uniform sampler2D texuv;\n"
     "uniform vec3 colourpicker;\n"
     "out vec4 colour;\n"
     "void main()\n"
     "{\n"
-    "  float y = texture2D(texY, out_texcoord.st).r;\n"
-    "  float u = texture2D(texUV, out_texcoord.st).r - 0.5;\n"
-    "  float v = texture2D(texUV, out_texcoord.st).g - 0.5;\n"
+    "  float y = texture2D(texy, out_texcoord.st).r;\n"
+    "  float u = texture2D(texuv, out_texcoord.st).r - 0.5;\n"
+    "  float v = texture2D(texuv, out_texcoord.st).g - 0.5;\n"
     "  float r = y + (1.13983 * v);\n"
     "  float g = y - ((0.39465 * u) + (0.58060 * v));\n"
     "  float b = y + (2.03211 * u);\n"
@@ -1374,22 +1406,22 @@ void VideoWidget::initializeGL()
     return;
   }
 
-  nv12texturesamplerlocation_.at(0) = viewnv12shader_.uniformLocation("texY");
+  nv12colourpickerlocation_ = viewnv12shader_.uniformLocation("colourpicker");
+  if (nv12colourpickerlocation_ == -1)
+  {
+    LOG_GUI_WARNING(QString("QOpenGLShaderProgram::uniformLocation failed"));
+    return;
+  }
+
+  nv12texturesamplerlocation_.at(0) = viewnv12shader_.uniformLocation("texy");
   if (nv12texturesamplerlocation_.at(0) == -1)
   {
     LOG_GUI_WARNING(QString("QOpenGLShaderProgram::uniformLocation failed"));
     return;
   }
 
-  nv12texturesamplerlocation_.at(1) = viewnv12shader_.uniformLocation("texUV");
+  nv12texturesamplerlocation_.at(1) = viewnv12shader_.uniformLocation("texuv");
   if (nv12texturesamplerlocation_.at(1) == -1)
-  {
-    LOG_GUI_WARNING(QString("QOpenGLShaderProgram::uniformLocation failed"));
-    return;
-  }
-
-  nv12colourpickerlocation_ = viewnv12shader_.uniformLocation("colourpicker");
-  if (nv12colourpickerlocation_ == -1)
   {
     LOG_GUI_WARNING(QString("QOpenGLShaderProgram::uniformLocation failed"));
     return;
@@ -1407,7 +1439,7 @@ void VideoWidget::initializeGL()
     LOG_GUI_WARNING(QString("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
     return;
   }
-
+  
   if (!viewselectedshader_.addShaderFromSourceCode(QOpenGLShader::Fragment,
     "#version 130\n"
     "uniform vec4 colour;\n"
@@ -1761,12 +1793,12 @@ void VideoWidget::paintGL()
 
       if (view->GetImageType() == IMAGEBUFFERTYPE_TEXT)
       {
-        viewyuvshader_.setUniformValue(yuvcolourpickerlocation_, QVector3D(2.0f, 2.0f, 2.0f));
+        viewrgbshader_.setUniformValue(rgbcolourpickerlocation_, QVector3D(2.0f, 2.0f, 2.0f));
 
       }
       else
       {
-        viewyuvshader_.setUniformValue(yuvcolourpickerlocation_, MainWindow::Instance()->GetColourPickerColour());
+        viewrgbshader_.setUniformValue(rgbcolourpickerlocation_, MainWindow::Instance()->GetColourPickerColour());
 
       }
     }
@@ -1790,7 +1822,7 @@ void VideoWidget::paintGL()
       viewnv12shader_.enableAttributeArray(nv12positionlocation_);
       viewnv12shader_.setAttributeBuffer(nv12positionlocation_, GL_FLOAT, 0, 3);
 
-      viewyuvshader_.setUniformValue(nv12colourpickerlocation_, MainWindow::Instance()->GetColourPickerColour());
+      viewnv12shader_.setUniformValue(nv12colourpickerlocation_, MainWindow::Instance()->GetColourPickerColour());
     }
 
     if ((view->GetImageType() == IMAGEBUFFERTYPE_TEXT) || (view->GetImageType() == IMAGEBUFFERTYPE_RGBA) || (view->GetImageType() == IMAGEBUFFERTYPE_YUV) || (view->GetImageType() == IMAGEBUFFERTYPE_NV12))
@@ -1830,7 +1862,6 @@ void VideoWidget::paintGL()
         glActiveTexture(GL_TEXTURE0 + texture);
         glBindTexture(GL_TEXTURE_2D, 0);
       }
-      viewyuvshader_.release();
     }
     else if (view->GetImageType() == IMAGEBUFFERTYPE_NV12)
     {
@@ -1843,12 +1874,12 @@ void VideoWidget::paintGL()
         glActiveTexture(GL_TEXTURE0 + texture);
         glBindTexture(GL_TEXTURE_2D, 0);
       }
-      viewnv12shader_.release();
     }
   }
   
   // Info boxes
   glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glActiveTexture(GL_TEXTURE0);
   viewinfoshader_.bind();
   for (QSharedPointer<View>& view : views_)
@@ -1863,7 +1894,7 @@ void VideoWidget::paintGL()
     {
       if (view->GetViewType() == VIEWTYPE_MEDIA)
       {
-        ToInfoText(QDateTime::fromMSecsSinceEpoch(view->GetTime(), Qt::UTC), Options::Instance().GetInfoTextFormat(), view->GetCodec(), view->GetBandwidthSizes(), std::make_pair<const std::string&, const QString&>(view.staticCast<MediaView>()->GetRecording().location_, QString()), std::make_pair<const std::string&, const QString&>(view.staticCast<MediaView>()->GetRecording().name_, QString()), view->GetImageWidth(), view->GetImageHeight(), infotextformatbuffer_);
+        ToInfoText(QDateTime::fromMSecsSinceEpoch(view->GetTime(), Qt::UTC), Options::Instance().GetInfoTextFormat(), view->GetCodec(), view->GetBandwidthSizes(), std::make_pair<const std::string&, const QString&>(view.staticCast<MediaView>()->GetVideoLocation(), QString()), std::make_pair<const std::string&, const QString&>(view.staticCast<MediaView>()->GetVideoName(), QString()), view->GetImageWidth(), view->GetImageHeight(), infotextformatbuffer_);
 
       }
       else if (view->GetViewType() == VIEWTYPE_MONOCLE)
@@ -2051,6 +2082,76 @@ void VideoWidget::paintGL()
       vertexbuffer.destroy();
     }
   }
+  
+  // Objects
+  for (QSharedPointer<View>& view : views_)
+  {
+    if ((view->GetViewType() != VIEWTYPE_MEDIA) && (view->GetViewType() != VIEWTYPE_MONOCLE))
+    {
+  
+      continue;
+    }
+
+    if ((view->GetImageType() != IMAGEBUFFERTYPE_RGBA) && (view->GetImageType() != IMAGEBUFFERTYPE_NV12) && (view->GetImageType() != IMAGEBUFFERTYPE_YUV)) // We should have a frame drawn before we begin drawing things on top
+    {
+
+      continue;
+    }
+
+    const QRectF imagepixelrect = view->GetImagePixelRect();
+    for (std::pair< const std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> >& objects : view->GetObjects())
+    {
+      const uint64_t time = view->GetTime();
+      auto object = std::find_if(objects.second.rbegin(), objects.second.rend(), [time](const Object& object) { return ((object.time_ <= time) && ((time - object.time_) < OBJECT_KILL_DELAY)); });
+      if (object == objects.second.rend())
+      {
+
+        continue;
+      }
+
+      object->vertexbuffer_.bind();
+      viewselectedshader_.enableAttributeArray(selectedpositionlocation_);
+      viewselectedshader_.setAttributeBuffer(selectedpositionlocation_, GL_FLOAT, 0, 2);
+      viewselectedshader_.setUniformValue(selectedcolourlocation_, OBJECT_COLOURS[static_cast<size_t>(object->classid_)]);
+      glDrawArrays(GL_LINE_STRIP, 0, 5);
+      viewselectedshader_.disableAttributeArray(selectedpositionlocation_);
+      object->vertexbuffer_.release();
+    }
+  }
+
+  // Text
+  QPainter painter(this);
+  for (QSharedPointer<View>& view : views_)
+  {
+    if ((view->GetViewType() != VIEWTYPE_MEDIA) && (view->GetViewType() != VIEWTYPE_MONOCLE))
+    {
+
+      continue;
+    }
+
+    if ((view->GetImageType() != IMAGEBUFFERTYPE_RGBA) && (view->GetImageType() != IMAGEBUFFERTYPE_NV12) && (view->GetImageType() != IMAGEBUFFERTYPE_YUV)) // We should have a frame drawn before we begin drawing things on top
+    {
+
+      continue;
+    }
+
+    const QRectF imagepixelrect = view->GetImagePixelRect();
+    for (std::pair< const std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> >& objects : view->GetObjects())
+    {
+      const uint64_t time = view->GetTime();
+      auto object = std::find_if(objects.second.rbegin(), objects.second.rend(), [time](const Object& object) { return ((object.time_ <= time) && ((time - object.time_) < OBJECT_KILL_DELAY)); });
+      if (object == objects.second.rend())
+      {
+
+        continue;
+      }
+
+      const int left = imagepixelrect.left() + (object->x_ * imagepixelrect.width());
+      const int top = imagepixelrect.top() + (object->y_ * imagepixelrect.height()) - object->text_.size().height();
+      painter.drawStaticText(QPoint(left, top), object->text_);
+    }
+  }
+
   viewselectedshader_.release();
 }
 

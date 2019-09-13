@@ -99,6 +99,7 @@ void OptionsWindow::on_buttonok_clicked()
   }
 
   MainWindow::Instance()->GetVideoWidgetsMgr().SetUpdateFrequency(ui_.spinupdatefrequency->value());
+  MainWindow::Instance()->GetVideoWidgetsMgr().ResetViews();
 
   // UI
   Options::Instance().SetDefaultVideoWindowWidth(ui_.spindefaultvideowindowwidth->value());

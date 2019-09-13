@@ -59,7 +59,10 @@ struct SubscribeResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_MAPS = 40,
     VT_MOUNTPOINTS = 42,
     VT_LATITUDE = 44,
-    VT_LONGITUDE = 46
+    VT_LONGITUDE = 46,
+    VT_NUMCUDADEVICES = 48,
+    VT_NUMCLDEVICES = 50,
+    VT_MAXOBJECTDETECTORS = 52
   };
   const flatbuffers::String *name() const {
     return GetPointer<const flatbuffers::String *>(VT_NAME);
@@ -127,6 +130,15 @@ struct SubscribeResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const flatbuffers::String *longitude() const {
     return GetPointer<const flatbuffers::String *>(VT_LONGITUDE);
   }
+  uint32_t numcudadevices() const {
+    return GetField<uint32_t>(VT_NUMCUDADEVICES, 0);
+  }
+  uint32_t numcldevices() const {
+    return GetField<uint32_t>(VT_NUMCLDEVICES, 0);
+  }
+  uint32_t maxobjectdetectors() const {
+    return GetField<uint32_t>(VT_MAXOBJECTDETECTORS, 0);
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_NAME) &&
@@ -180,6 +192,9 @@ struct SubscribeResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            verifier.VerifyString(latitude()) &&
            VerifyOffset(verifier, VT_LONGITUDE) &&
            verifier.VerifyString(longitude()) &&
+           VerifyField<uint32_t>(verifier, VT_NUMCUDADEVICES) &&
+           VerifyField<uint32_t>(verifier, VT_NUMCLDEVICES) &&
+           VerifyField<uint32_t>(verifier, VT_MAXOBJECTDETECTORS) &&
            verifier.EndTable();
   }
 };
@@ -253,6 +268,15 @@ struct SubscribeResponseBuilder {
   void add_longitude(flatbuffers::Offset<flatbuffers::String> longitude) {
     fbb_.AddOffset(SubscribeResponse::VT_LONGITUDE, longitude);
   }
+  void add_numcudadevices(uint32_t numcudadevices) {
+    fbb_.AddElement<uint32_t>(SubscribeResponse::VT_NUMCUDADEVICES, numcudadevices, 0);
+  }
+  void add_numcldevices(uint32_t numcldevices) {
+    fbb_.AddElement<uint32_t>(SubscribeResponse::VT_NUMCLDEVICES, numcldevices, 0);
+  }
+  void add_maxobjectdetectors(uint32_t maxobjectdetectors) {
+    fbb_.AddElement<uint32_t>(SubscribeResponse::VT_MAXOBJECTDETECTORS, maxobjectdetectors, 0);
+  }
   explicit SubscribeResponseBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -288,9 +312,15 @@ inline flatbuffers::Offset<SubscribeResponse> CreateSubscribeResponse(
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::Map>>> maps = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::MountPoint>>> mountpoints = 0,
     flatbuffers::Offset<flatbuffers::String> latitude = 0,
-    flatbuffers::Offset<flatbuffers::String> longitude = 0) {
+    flatbuffers::Offset<flatbuffers::String> longitude = 0,
+    uint32_t numcudadevices = 0,
+    uint32_t numcldevices = 0,
+    uint32_t maxobjectdetectors = 0) {
   SubscribeResponseBuilder builder_(_fbb);
   builder_.add_identifier(identifier);
+  builder_.add_maxobjectdetectors(maxobjectdetectors);
+  builder_.add_numcldevices(numcldevices);
+  builder_.add_numcudadevices(numcudadevices);
   builder_.add_longitude(longitude);
   builder_.add_latitude(latitude);
   builder_.add_mountpoints(mountpoints);
@@ -338,7 +368,10 @@ inline flatbuffers::Offset<SubscribeResponse> CreateSubscribeResponseDirect(
     const std::vector<flatbuffers::Offset<monocle::Map>> *maps = nullptr,
     const std::vector<flatbuffers::Offset<monocle::MountPoint>> *mountpoints = nullptr,
     const char *latitude = nullptr,
-    const char *longitude = nullptr) {
+    const char *longitude = nullptr,
+    uint32_t numcudadevices = 0,
+    uint32_t numcldevices = 0,
+    uint32_t maxobjectdetectors = 0) {
   auto name__ = name ? _fbb.CreateString(name) : 0;
   auto publickey__ = publickey ? _fbb.CreateString(publickey) : 0;
   auto architecture__ = architecture ? _fbb.CreateString(architecture) : 0;
@@ -380,7 +413,10 @@ inline flatbuffers::Offset<SubscribeResponse> CreateSubscribeResponseDirect(
       maps__,
       mountpoints__,
       latitude__,
-      longitude__);
+      longitude__,
+      numcudadevices,
+      numcldevices,
+      maxobjectdetectors);
 }
 
 }  // namespace monocle

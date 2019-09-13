@@ -38,7 +38,7 @@ public:
 
   inline void SetUpdateFrequency(const unsigned int updatefrequency) { updatefrequency_ = updatefrequency; }
   inline unsigned int GetUpdateFrequency() const { return updatefrequency_; }
-  
+
   inline void SetDefaultShowToolbar(const bool defaultshowtoolbar) { defaultshowtoolbar_ = defaultshowtoolbar; }
   inline bool GetDefaultShowToolbar() const { return defaultshowtoolbar_; }
 

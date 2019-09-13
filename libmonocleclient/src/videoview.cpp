@@ -9,6 +9,8 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/asio/ip/address.hpp>
 #include <boost/bind.hpp>
+#include <monocleprotocol/objects_generated.h>
+#include <monocleprotocol/metadataframetype_generated.h>
 #include <onvifclient/deviceclient.hpp>
 #include <onvifclient/eventclient.hpp>
 #include <onvifclient/mediaclient.hpp>
@@ -50,7 +52,9 @@ VideoView::VideoView(VideoWidget* videowidget, const QColor& selectedcolour, con
   actionreconnect_(new QAction(tr("Reconnect"), this)),
   actionproperties_(new QAction(tr("Properties"), this)),
   connection_(boost::make_shared<Connection>(MainWindow::Instance()->GetIOServicePool().GetIoService(), device_->GetProxyParams(), device_->GetAddress(), device_->GetPort())),
-  streamtoken_(0)
+  metadataconnection_(boost::make_shared<Connection>(MainWindow::Instance()->GetGUIIOService(), device_->GetProxyParams(), device_->GetAddress(), device_->GetPort())),
+  streamtoken_(0),
+  metadataplayrequestindex_(0)
 {
   connect(actionreconnect_, &QAction::triggered, this, static_cast<void (VideoView::*)(bool)>(&VideoView::Reconnect));
   connect(actionproperties_, &QAction::triggered, this, static_cast<void (VideoView::*)(bool)>(&VideoView::Properties));
@@ -62,7 +66,8 @@ VideoView::VideoView(VideoWidget* videowidget, const QColor& selectedcolour, con
   rotation_ = GetRotation();
   SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), rotation_, mirror_, stretch_, true);
 
-  startTimer(std::chrono::milliseconds(200));
+  updatetimer_ = startTimer(std::chrono::milliseconds(150));
+  metadatakeepalivetimer_ = startTimer(std::chrono::seconds(15));
 
   Connect();
 }
@@ -163,7 +168,42 @@ void VideoView::Connect()
             }
 		        Keepalive();
           });
-        }, VideoView::ControlStreamEnd, VideoView::H265Callback, VideoView::H264Callback, VideoView::MetadataCallback, VideoView::JPEGCallback, VideoView::MPEG4Callback, VideoView::NewCodecIndexCallback, this);
+        }, VideoView::ControlStreamEnd, VideoView::H265Callback, VideoView::H264Callback, nullptr, VideoView::JPEGCallback, VideoView::MPEG4Callback, VideoView::NewCodecIndexCallback, this);
+      });
+    });
+  });
+
+  metadatastreamtokens_.clear();
+  metadataconnect_ = metadataconnection_->Connect([this, username, password](const boost::system::error_code& err)
+  {
+    if (err)
+    {
+      LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Failed to connect metadata stream"));
+      return;
+    }
+
+    metadatagetauthenticatenonce_ = metadataconnection_->GetAuthenticationNonce([this, username, password](const std::chrono::steady_clock::duration latency, const monocle::client::GETAUTHENTICATIONNONCERESPONSE& getauthenticationnonceresponse)
+    {
+      if (getauthenticationnonceresponse.GetErrorCode() != monocle::ErrorCode::Success)
+      {
+        LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Failed to retrieve metadata stream authentication nonce"));
+        return;
+      }
+
+      const std::string clientnonce = utility::GenerateRandomString(32);
+      metadataauthenticate_ = metadataconnection_->Authenticate(username, clientnonce, monocle::AuthenticateDigest(username, password, getauthenticationnonceresponse.authenticatenonce_, clientnonce), [this](const std::chrono::steady_clock::duration latency, const monocle::client::AUTHENTICATERESPONSE& authenticateresponse)
+      {
+        if (authenticateresponse.GetErrorCode() != monocle::ErrorCode::Success)
+        {
+          LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Failed to authenticate metadata stream"));
+          return;
+        }
+
+        for (const QSharedPointer<RecordingTrack>& metadatatrack : recording_->GetMetadataTracks())
+        {
+          AddMetadataTrack(metadatatrack);
+
+        }
       });
     });
   });
@@ -183,7 +223,18 @@ void VideoView::Disconnect()
   controlstream_.Close();
   keepalive_.Close();
 
+  metadataconnect_.Close();
+  metadatagetauthenticatenonce_.Close();
+  metadataauthenticate_.Close();
+  std::for_each(metadatacreatestreams_.begin(), metadatacreatestreams_.end(), [](monocle::client::Connection& connection) { connection.Close(); });
+  metadatacreatestreams_.clear();
+  std::for_each(metadatacontrolstreams_.begin(), metadatacontrolstreams_.end(), [](monocle::client::Connection& connection) { connection.Close(); });
+  metadatacontrolstreams_.clear();
+  std::for_each(metadatakeepalives_.begin(), metadatakeepalives_.end(), [](monocle::client::Connection& connection) { connection.Close(); });
+  metadatakeepalives_.clear();
+
   connection_->Destroy();
+  metadataconnection_->Destroy();
 
   if (onvifptz_)
   {
@@ -303,21 +354,6 @@ bool VideoView::GetImage(ImageBuffer& imagebuffer)
 int64_t VideoView::GetTimeOffset() const
 {
   return device_->GetTimeOffset();
-}
-
-void VideoView::Play()
-{
-  SetPaused(false);
-  if (time_ == 0) // If we haven't got anywhere to continue from, just play live
-  {
-    connection_->ControlStreamLive(streamtoken_, GetNextPlayRequestIndex(true));
-
-  }
-  else
-  {
-    connection_->ControlStream(streamtoken_, GetNextPlayRequestIndex(true), false, true, true, time_, boost::none, boost::none);
-
-  }
 }
 
 void VideoView::FrameStep(const bool forwards)
@@ -443,6 +479,12 @@ void VideoView::FrameStep(const bool forwards)
     WriteFrame(*imagebuffer);
     
   }
+
+  for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
+  {
+    metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, false, forwards, time_, boost::none, 2); // This request a couple of additional frame just in case
+
+  }
 }
 
 void VideoView::Play(const uint64_t time, const boost::optional<uint64_t>& numframes)
@@ -510,18 +552,34 @@ void VideoView::Play(const uint64_t time, const boost::optional<uint64_t>& numfr
     paused_ = false;
 
   }
+
+  for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
+  {
+    metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, !numframes.is_initialized(), true, time + GetTimeOffset(), boost::none, numframes);
+
+  }
 }
 
 void VideoView::Pause(const boost::optional<uint64_t>& time)
 {
   SetPaused(true);
   connection_->ControlStreamPause(streamtoken_, time);
+  for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
+  {
+    metadataconnection_->ControlStreamPause(metadatastreamtoken.second, time);
+
+  }
 }
 
 void VideoView::Stop()
 {
   SetPaused(false);
   connection_->ControlStreamLive(streamtoken_, GetNextPlayRequestIndex(true));
+  for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
+  {
+    metadataconnection_->ControlStreamLive(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex());
+
+  }
 }
 
 void VideoView::Scrub(const uint64_t time)
@@ -531,7 +589,7 @@ void VideoView::Scrub(const uint64_t time)
     ResetDecoders();
   }
 
-  connection_->ControlStream(streamtoken_, GetNextPlayRequestIndex(false), true, true, true, time + GetTimeOffset(), boost::none, 1);
+  connection_->ControlStream(streamtoken_, GetNextPlayRequestIndex(false), true, false, true, time + GetTimeOffset(), boost::none, 1);
   controlstreamendcallback_ = [this](const uint64_t playrequestindex, const monocle::ErrorCode err)
   {
     if (err != monocle::ErrorCode::Success)
@@ -566,6 +624,12 @@ void VideoView::Scrub(const uint64_t time)
     std::for_each(cache_.begin(), cache_.end(), [](ImageBuffer& imagebuffer) { imagebuffer.Destroy(); });
     cache_.clear();
   };
+
+  for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
+  {
+    metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, false, true, time + GetTimeOffset(), boost::none, 1);
+
+  }
   paused_ = true;
 }
 
@@ -594,30 +658,41 @@ std::vector<QString> VideoView::GetProfileTokens() const
 
 void VideoView::timerEvent(QTimerEvent* event)
 {
-  if (onvifdevice_ && onvifdevice_->IsInitialised())
+  if (updatetimer_)
   {
-    onvifdevice_->Update();
+    if (onvifdevice_ && onvifdevice_->IsInitialised())
+    {
+      onvifdevice_->Update();
 
+    }
+
+    if (onvifevent_ && onvifevent_->IsInitialised())
+    {
+      onvifevent_->Update();
+
+    }
+
+    if (onvifmedia_ && onvifmedia_->IsInitialised())
+    {
+      onvifmedia_->Update();
+
+    }
+
+    if (onvifptz_ && onvifptz_->IsInitialised())
+    {
+      onvifptz_->Update();
+
+    }
   }
-
-  if (onvifevent_ && onvifevent_->IsInitialised())
+  else if (metadatakeepalivetimer_)
   {
-    onvifevent_->Update();
+    if (metadataconnection_)
+    {
+      metadataconnection_->Keepalive();
 
+    }
   }
-
-  if (onvifmedia_ && onvifmedia_->IsInitialised())
-  {
-    onvifmedia_->Update();
-
-  }
-
-  if (onvifptz_ && onvifptz_->IsInitialised())
-  {
-    onvifptz_->Update();
-
-  }
-
+  
   View::timerEvent(event);
 }
 
@@ -706,10 +781,33 @@ void VideoView::H264Callback(const uint64_t streamtoken, const uint64_t playrequ
   }
 }
 
-void VideoView::MetadataCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
+void VideoView::MetadataCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::MetadataFrameType metadataframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
 {
   VideoView* videoview = reinterpret_cast<VideoView*>(callbackdata);
-  std::lock_guard<std::mutex> lock(videoview->mutex_);
+  if (videoview->metadataplayrequestindex_ != playrequestindex)
+  {
+
+    return;
+  }
+  if (metadataframetype == monocle::MetadataFrameType::OBJECT_DETECTION)
+  {
+    if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(signaturedata), signaturedatasize).VerifyBuffer<monocle::Objects>(nullptr))
+    {
+      // Ignore illegal packets
+      return;
+    }
+
+    const monocle::Objects* objects = flatbuffers::GetRoot<monocle::Objects>(signaturedata);
+    if ((objects == nullptr) || (objects->objects() == nullptr))
+    {
+
+      return;
+    }
+
+    videoview->videowidget_->makeCurrent();
+    videoview->UpdateObjects(objects, timestamp);
+    videoview->videowidget_->doneCurrent();
+  }
 }
 
 void VideoView::JPEGCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const uint8_t* lqt, const uint8_t* cqt, const char* framedata, const size_t size, void* callbackdata) // This gets called by the Connection thread
@@ -1109,6 +1207,36 @@ void VideoView::ResetDecoders()
   }
 }
 
+uint64_t VideoView::GetNextMetadataPlayRequestIndex()
+{
+  videowidget_->makeCurrent();
+  objects_.clear();
+  videowidget_->doneCurrent();
+  return ++metadataplayrequestindex_;
+}
+
+void VideoView::AddMetadataTrack(const QSharedPointer<RecordingTrack>& metadatatrack)
+{
+  metadatacreatestreams_.push_back(metadataconnection_->CreateStream(recording_->GetToken(), metadatatrack->GetId(), [this, metadatatrack](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
+  {
+    if (createstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
+    {
+      LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Failed to create metadata stream: ") + QString::number(metadatatrack->GetId()));
+      return;
+    }
+
+    metadatastreamtokens_.push_back(std::make_pair(metadatatrack, createstreamresponse.token_));
+    metadatacontrolstreams_.push_back(metadataconnection_->ControlStreamLive(createstreamresponse.token_, GetNextMetadataPlayRequestIndex(), [this, metadatatrack](const std::chrono::steady_clock::duration latency, const monocle::client::CONTROLSTREAMRESPONSE& controlstreamresponse)
+    {
+      if (controlstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
+      {
+        LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Failed to control live stream: ") + QString::number(metadatatrack->GetId()));
+        return;
+      }
+    }));
+  }, VideoView::ControlStreamEnd, nullptr, nullptr, VideoView::MetadataCallback, nullptr, nullptr, nullptr, this));
+}
+
 void VideoView::DeviceStateChanged(const DEVICESTATE state, const QString&)
 {
   if (state == DEVICESTATE::SUBSCRIBED)
@@ -1140,6 +1268,12 @@ void VideoView::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)
       Connect();
     }
   }
+
+  if (track->GetTrackType() == monocle::TrackType::Metadata)
+  {
+    AddMetadataTrack(track);
+
+  }
 }
 
 void VideoView::TrackRemoved(const uint32_t token)
@@ -1157,6 +1291,13 @@ void VideoView::TrackRemoved(const uint32_t token)
       track_.reset();
     }
     Connect();
+  }
+
+  auto i = std::find_if(metadatastreamtokens_.begin(), metadatastreamtokens_.end(), [token](const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatatrack) { return (metadatatrack.second == token); });
+  if (i != metadatastreamtokens_.end())
+  {
+    metadatastreamtokens_.erase(i);
+
   }
 }
 

@@ -9,6 +9,12 @@ enum FrameHeaderType : byte
   H265 = 5
 }
 
+enum MetadataFrameType : uint16
+{
+  ONVIF_XML = 1,
+  OBJECT_DETECTION = 2
+}
+
 table Codec
 {
   index:uint64 (id:0);
@@ -58,7 +64,8 @@ table MetadataFrame
   codecindex:uint64 (id:0);
   time:uint64 (id:1);
   signature:[ubyte] (id:2);
-  data:[ubyte] (id:3);
+  metadataframetype:MetadataFrameType = ONVIF_XML (id:3);
+  data:[ubyte] (id:4);
 }
 
 table MPEG4Frame
@@ -93,7 +100,9 @@ table Recording
   index:uint64 (id:0);
   name:string (id:1);
   location:string (id:2);
-  tracks:[Track] (id:3);
+  videotracks:[Track] (id:3);
+  audiotracks:[Track] (id:4);
+  metadatatracks:[Track] (id:5);
 }
 
 table Device

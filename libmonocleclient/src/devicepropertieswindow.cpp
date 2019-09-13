@@ -99,6 +99,11 @@ DevicePropertiesWindow::DevicePropertiesWindow(QWidget* parent, boost::shared_pt
   ui_.tableparameters->setItem(currentparamrow, 0, new QTableWidgetItem("Max Recordings"));
   ui_.tableparameters->setItem(currentparamrow, 1, new QTableWidgetItem(QString::number(device_->GetMaxRecordings())));
 
+  currentparamrow = paramrow++;
+  ui_.tableparameters->insertRow(currentparamrow);
+  ui_.tableparameters->setItem(currentparamrow, 0, new QTableWidgetItem("Max Object Detectors"));
+  ui_.tableparameters->setItem(currentparamrow, 1, new QTableWidgetItem(QString::number(device_->GetMaxObjectDetectors())));
+
   // Environment variables
   int envrow = 0;
   for (const QString& environmentvariable : device_->GetEnvironmentVariables())

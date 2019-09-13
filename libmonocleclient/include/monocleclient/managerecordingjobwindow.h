@@ -41,12 +41,12 @@ class ManageRecordingJobWindow : public QDialog
 
  private:
 
-  void AddFile(const QSharedPointer<client::File>& file);
   void SetEnabled(const bool enabled);
   void Setup(const QSharedPointer<client::RecordingJob>& recordingjob);
   void AddRecordingJobSourceTrack(const QSharedPointer<client::RecordingJobSource>& recordingjobsource, const QSharedPointer<client::RecordingJobSourceTrack>& recordingjobsourcetrack);
   std::vector<uint32_t> GetTrackIds() const;
   bool SelectItem(const uint64_t token);
+  std::vector<std::string> GetParameters(const int row) const;
 
   Ui::ManageRecordingJobWindow ui_;
 
@@ -63,6 +63,7 @@ class ManageRecordingJobWindow : public QDialog
   void on_tablerecordingjobsources_itemSelectionChanged();
   void on_buttonaddrtspsource_clicked();
   void on_buttonaddonvifsource_clicked();
+  void on_buttonaddobjectdetector_clicked();
   void on_buttonedit_clicked();
   void on_buttonremove_clicked();
   void on_buttonok_clicked();

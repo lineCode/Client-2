@@ -91,6 +91,8 @@ class Device : public Connection
   inline QString GetPassword() const { return password_; }
   inline DEVICESTATE GetState() const { return state_; }
   inline int64_t GetTimeOffset() const { return utctimeoffset_; }
+  inline unsigned int GetNumClDevices() const { return numcldevices_; }
+  inline unsigned int GetNumCudaDevices() const { return numcudadevices_; }
   inline std::pair<QString, QString> GetLocation() const { return std::make_pair(latitude_, longitude_); }
   inline const QString& GetName() const { return name_; }
   inline utility::PublicKey& GetPublicKey() { return publickey_; }
@@ -113,6 +115,7 @@ class Device : public Connection
   inline const std::vector< QSharedPointer<client::Recording> > GetRecordings() const { return recordings_; }
   const QSharedPointer<client::Recording> GetRecording(const uint64_t token) const;
   inline const boost::circular_buffer<monocle::LOGMESSAGE>& GetLogMessages() const { return logmessages_; }
+  inline uint32_t GetMaxObjectDetectors() const { return maxobjectdetectors_; }
   inline uint32_t GetMaxRecordings() const { return maxrecordings_; }
   inline const std::vector< QSharedPointer<Map> >& GetMaps() const { return maps_; }
   inline const std::vector<MOUNTPOINT> GetMountPoints() const { return mountpoints_; }
@@ -131,6 +134,7 @@ class Device : public Connection
   bool SupportsManageDevice() const;
   bool SupportsDeviceLocation() const;
   bool SupportsFindMotion() const;
+  bool SupportsObjectDetection() const;
 
   // These methods look for the current user in the users_, find the group and figure out whether the current user has permission to do the operation
   bool CanManageUsers();
@@ -138,6 +142,7 @@ class Device : public Connection
   bool CanManageMaps();
   bool CanManageDevice();
 
+  size_t GetNumObjectDetectors() const;
   bool IsValidLicense() const;
 
  protected:
@@ -149,7 +154,6 @@ class Device : public Connection
 
   void SetState(const DEVICESTATE state, const QString& message);
   std::vector<QString> ToStrings(const std::vector<std::string>& strings) const;
-  bool GetLicenseState() const;
   bool IsPermutation(const std::vector<QString>& lhs, const std::vector<std::string>& rhs) const;
 
   QString username_;
@@ -167,6 +171,8 @@ class Device : public Connection
 
   int64_t utctimeoffset_;
 
+  unsigned int numcldevices_;
+  unsigned int numcudadevices_;
   QString latitude_;
   QString longitude_;
   QString name_;
@@ -186,6 +192,7 @@ class Device : public Connection
   std::vector< QSharedPointer<client::Receiver> > receivers_;
   std::vector< QSharedPointer<client::Recording> > recordings_;
   boost::circular_buffer<monocle::LOGMESSAGE> logmessages_;
+  uint32_t maxobjectdetectors_;
   uint32_t maxrecordings_;
   std::vector< QSharedPointer<Map> > maps_;
   std::vector<MOUNTPOINT> mountpoints_;

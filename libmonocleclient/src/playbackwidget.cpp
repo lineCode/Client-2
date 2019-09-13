@@ -31,7 +31,7 @@ namespace client
 
 ///// Glboals /////
 
-const std::chrono::milliseconds SCRUB_DELAY(200);
+const std::chrono::milliseconds SCRUB_DELAY(400);
 const qint64 START_EPOCH = QDateTime(QDate(2016, 1, 1), QTime(0, 0, 0)).toMSecsSinceEpoch(); // Stop a user going back further than this, just for convenience
 const qint64 END_EPOCH = QDateTime(QDate(2200, 1, 1), QTime(0, 0, 0)).toMSecsSinceEpoch(); // Stop a user going further than this, just for convenience
 
@@ -1621,8 +1621,16 @@ void PlaybackWidget::on_buttonpause_clicked()
 {
   for (QSharedPointer<RecordingBlocks>& recordingblocks : recordingsblocks_)
   {
-    recordingblocks->GetView()->Pause(recordingblocks->GetView()->GetTime());
+    if (recordingblocks->GetView()->GetViewType() == VIEWTYPE_MEDIA)
+    {
+      recordingblocks->GetView()->Pause(recordingblocks->GetView()->GetSequenceNum());
 
+    }
+    else
+    {
+      recordingblocks->GetView()->Pause(recordingblocks->GetView()->GetTime());
+
+    }
   }
 }
 
@@ -1718,7 +1726,7 @@ void PlaybackWidget::ViewDestroyed(const QSharedPointer<View>& view) // We just 
 
 void PlaybackWidget::Selected(const QSharedPointer<View>& view, bool select)
 {
-  if (view->GetViewType() != VIEWTYPE_MEDIA && view->GetViewType() != VIEWTYPE_MONOCLE) // Ignore other guff
+  if ((view->GetViewType() != VIEWTYPE_MEDIA) && (view->GetViewType() != VIEWTYPE_MONOCLE)) // Ignore other guff
   {
 
     return;

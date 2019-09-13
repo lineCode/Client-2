@@ -75,6 +75,8 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   translationsdirectory_((QCoreApplication::applicationDirPath() + QString("/translations"))),
   arial_(new QResource(":/arial.ttf")),
   showfullscreen_(":/showfullscreen.png"),
+  gen_(rd_()),
+  hsvcolordist_(0.5, 1.0),
   numcudadevices_(0),
   ioservicepool_(numioservices, numioservicethreads, [](){}, [](){}),
   guiioservice_(0),
@@ -439,6 +441,17 @@ void MainWindow::ShowHideDocks()
     ui_.dockplayback->show();
     ui_.docklog->show();
   }
+}
+
+QColor MainWindow::GetRandomHSVColour() const
+{
+  return QColor::fromHsvF(hsvcolordist_(gen_), hsvcolordist_(gen_), hsvcolordist_(gen_), 1.0f);
+}
+
+QVector4D MainWindow::GetRandomHSVColour4D() const
+{
+  const QColor color = QColor::fromHsvF(hsvcolordist_(gen_), hsvcolordist_(gen_), hsvcolordist_(gen_), 1.0f);
+  return QVector4D(color.redF(), color.greenF(), color.blueF(), color.alphaF());
 }
 
 void MainWindow::changeEvent(QEvent* event)

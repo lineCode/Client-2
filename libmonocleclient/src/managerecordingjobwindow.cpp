@@ -13,6 +13,7 @@
 
 #include "monocleclient/device.h"
 #include "monocleclient/file.h"
+#include "monocleclient/managerecordingjobsourceobjectdetectorwindow.h"
 #include "monocleclient/managerecordingjobsourceonvifwindow.h"
 #include "monocleclient/managerecordingjobsourcertspwindow.h"
 #include "monocleclient/options.h"
@@ -36,6 +37,39 @@ const int SOURCE_TAG_ROLE = Qt::UserRole;
 const int PROFILE_ROLE = Qt::UserRole + 1;
 const int STREAMING_PROTOCOL_ROLE = Qt::UserRole + 2;
 const int ROTATION_ROLE = Qt::UserRole + 3;
+const int OBJECT_DETECTOR_ACCURACY_ROLE = Qt::UserRole + 4;
+const int OBJECT_DETECTOR_HUMANS_ENABLED_ROLE = Qt::UserRole + 5;
+const int OBJECT_DETECTOR_HUMANS_SENSITIVITY_ROLE = Qt::UserRole + 6;
+const int OBJECT_DETECTOR_BICYCLES_ENABLED_ROLE = Qt::UserRole + 7;
+const int OBJECT_DETECTOR_BICYCLES_SENSITIVITY_ROLE = Qt::UserRole + 8;
+const int OBJECT_DETECTOR_CARS_ENABLED_ROLE = Qt::UserRole + 9;
+const int OBJECT_DETECTOR_CARS_SENSITIVITY_ROLE = Qt::UserRole + 10;
+const int OBJECT_DETECTOR_MOTORBIKES_ENABLED_ROLE = Qt::UserRole + 11;
+const int OBJECT_DETECTOR_MOTORBIKES_SENSITIVITY_ROLE = Qt::UserRole + 12;
+const int OBJECT_DETECTOR_BUSES_ENABLED_ROLE = Qt::UserRole + 13;
+const int OBJECT_DETECTOR_BUSES_SENSITIVITY_ROLE = Qt::UserRole + 14;
+const int OBJECT_DETECTOR_TRUCKS_ENABLED_ROLE = Qt::UserRole + 15;
+const int OBJECT_DETECTOR_TRUCKS_SENSITIVITY_ROLE = Qt::UserRole + 16;
+const int OBJECT_DETECTOR_BACKPACKS_ENABLED_ROLE = Qt::UserRole + 17;
+const int OBJECT_DETECTOR_BACKPACKS_SENSITIVITY_ROLE = Qt::UserRole + 18;
+const int OBJECT_DETECTOR_UMBRELLAS_ENABLED_ROLE = Qt::UserRole + 19;
+const int OBJECT_DETECTOR_UMBRELLAS_SENSITIVITY_ROLE = Qt::UserRole + 20;
+const int OBJECT_DETECTOR_HANDBAGS_ENABLED_ROLE = Qt::UserRole + 21;
+const int OBJECT_DETECTOR_HANDBAGS_SENSITIVITY_ROLE = Qt::UserRole + 22;
+const int OBJECT_DETECTOR_SUITCASES_ENABLED_ROLE = Qt::UserRole + 23;
+const int OBJECT_DETECTOR_SUITCASES_SENSITIVITY_ROLE = Qt::UserRole + 24;
+const int OBJECT_DETECTOR_CATS_ENABLED_ROLE = Qt::UserRole + 25;
+const int OBJECT_DETECTOR_CATS_SENSITIVITY_ROLE = Qt::UserRole + 26;
+const int OBJECT_DETECTOR_DOGS_ENABLED_ROLE = Qt::UserRole + 27;
+const int OBJECT_DETECTOR_DOGS_SENSITIVITY_ROLE = Qt::UserRole + 28;
+const int OBJECT_DETECTOR_AEROPLANES_ENABLED_ROLE = Qt::UserRole + 29;
+const int OBJECT_DETECTOR_AEROPLANES_SENSITIVITY_ROLE = Qt::UserRole + 30;
+const int OBJECT_DETECTOR_TRAINS_ENABLED_ROLE = Qt::UserRole + 31;
+const int OBJECT_DETECTOR_TRAINS_SENSITIVITY_ROLE = Qt::UserRole + 32;
+const int OBJECT_DETECTOR_BOATS_ENABLED_ROLE = Qt::UserRole + 33;
+const int OBJECT_DETECTOR_BOATS_SENSITIVITY_ROLE = Qt::UserRole + 34;
+const int OBJECT_DETECTOR_HORSES_ENABLED_ROLE = Qt::UserRole + 35;
+const int OBJECT_DETECTOR_HORSES_SENSITIVITY_ROLE = Qt::UserRole + 36;
 
 ///// Methods /////
 
@@ -157,6 +191,39 @@ void ManageRecordingJobWindow::AddRecordingJobSourceTrack(const QSharedPointer<c
   ui_.tablerecordingjobsources->item(row, 5)->setData(STREAMING_PROTOCOL_ROLE, static_cast<int>(streamingprotocol.is_initialized() ? *streamingprotocol : monocle::StreamingProtocol::TCPInterleaved));
   const boost::optional<ROTATION> rotation = recordingjobsourcetrack->GetRotation();
   ui_.tablerecordingjobsources->item(row, 5)->setData(ROTATION_ROLE, ToString(rotation.is_initialized() ? *rotation : ROTATION::_0));
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_ACCURACY_ROLE, recordingjobsourcetrack->GetObjectDetectorAccuracy());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_HUMANS_ENABLED_ROLE, recordingjobsourcetrack->GetObjectDetectorHumansEnabled());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_HUMANS_SENSITIVITY_ROLE, recordingjobsourcetrack->GetObjectDetectorHumansSensitivity());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BICYCLES_ENABLED_ROLE, recordingjobsourcetrack->GetObjectDetectorBicyclesEnabled());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BICYCLES_SENSITIVITY_ROLE, recordingjobsourcetrack->GetObjectDetectorBicyclesSensitivity());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_CARS_ENABLED_ROLE, recordingjobsourcetrack->GetObjectDetectorCarsEnabled());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_CARS_SENSITIVITY_ROLE, recordingjobsourcetrack->GetObjectDetectorCarsSensitivity());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_MOTORBIKES_ENABLED_ROLE, recordingjobsourcetrack->GetObjectDetectorMotorbikesEnabled());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_MOTORBIKES_SENSITIVITY_ROLE, recordingjobsourcetrack->GetObjectDetectorMotorbikesSensitivity());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BUSES_ENABLED_ROLE, recordingjobsourcetrack->GetObjectDetectorBusesEnabled());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BUSES_SENSITIVITY_ROLE, recordingjobsourcetrack->GetObjectDetectorBusesSensitivity());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_TRUCKS_ENABLED_ROLE, recordingjobsourcetrack->GetObjectDetectorTrucksEnabled());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_TRUCKS_SENSITIVITY_ROLE, recordingjobsourcetrack->GetObjectDetectorTrucksSensitivity());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BACKPACKS_ENABLED_ROLE, recordingjobsourcetrack->GetObjectDetectorBackpacksEnabled());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BACKPACKS_SENSITIVITY_ROLE, recordingjobsourcetrack->GetObjectDetectorBackpacksSensitivity());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_UMBRELLAS_ENABLED_ROLE, recordingjobsourcetrack->GetObjectDetectorUmbrellasEnabled());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_UMBRELLAS_SENSITIVITY_ROLE, recordingjobsourcetrack->GetObjectDetectorUmbrellasSensitivity());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_HANDBAGS_ENABLED_ROLE, recordingjobsourcetrack->GetObjectDetectorHandbagsEnabled());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_HANDBAGS_SENSITIVITY_ROLE, recordingjobsourcetrack->GetObjectDetectorHandbagsSensitivity());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_SUITCASES_ENABLED_ROLE, recordingjobsourcetrack->GetObjectDetectorSuitcasesEnabled());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_SUITCASES_SENSITIVITY_ROLE, recordingjobsourcetrack->GetObjectDetectorSuitcasesSensitivity());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_CATS_ENABLED_ROLE, recordingjobsourcetrack->GetObjectDetectorCatsEnabled());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_CATS_SENSITIVITY_ROLE, recordingjobsourcetrack->GetObjectDetectorCatsSensitivity());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_DOGS_ENABLED_ROLE, recordingjobsourcetrack->GetObjectDetectorDogsEnabled());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_DOGS_SENSITIVITY_ROLE, recordingjobsourcetrack->GetObjectDetectorDogsSensitivity());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_AEROPLANES_ENABLED_ROLE, recordingjobsourcetrack->GetObjectDetectorAeroplanesEnabled());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_AEROPLANES_SENSITIVITY_ROLE, recordingjobsourcetrack->GetObjectDetectorAeroplanesSensitivity());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_TRAINS_ENABLED_ROLE, recordingjobsourcetrack->GetObjectDetectorTrainsEnabled());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_TRAINS_SENSITIVITY_ROLE, recordingjobsourcetrack->GetObjectDetectorTrainsSensitivity());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BOATS_ENABLED_ROLE, recordingjobsourcetrack->GetObjectDetectorBoatsEnabled());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BOATS_SENSITIVITY_ROLE, recordingjobsourcetrack->GetObjectDetectorBoatsSensitivity());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_HORSES_ENABLED_ROLE, recordingjobsourcetrack->GetObjectDetectorHorsesEnabled());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_HORSES_SENSITIVITY_ROLE, recordingjobsourcetrack->GetObjectDetectorHorsesSensitivity());
 }
 
 std::vector<uint32_t> ManageRecordingJobWindow::GetTrackIds() const
@@ -184,6 +251,227 @@ bool ManageRecordingJobWindow::SelectItem(const uint64_t token)
     }
   }
   return false;
+}
+
+std::vector<std::string> ManageRecordingJobWindow::GetParameters(const int row) const
+{
+  std::vector<std::string> recordingjobsourcetrackparameters;
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(SOURCE_TAG_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((SOURCE_TAG_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(SOURCE_TAG_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(PROFILE_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((PROFILE_TOKEN_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(PROFILE_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(ROTATION_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((ROTATION_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(ROTATION_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_ACCURACY_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_ACCURACY_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_ACCURACY_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_HUMANS_ENABLED_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_HUMANS_ENABLED_PARAMETER_NAME + "=" + (ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_HUMANS_ENABLED_ROLE).toBool() ? "1" : "0")).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_HUMANS_SENSITIVITY_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_HUMANS_SENSITIVITY_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_HUMANS_SENSITIVITY_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BICYCLES_ENABLED_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_BICYCLES_ENABLED_PARAMETER_NAME + "=" + (ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BICYCLES_ENABLED_ROLE).toBool() ? "1" : "0")).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BICYCLES_SENSITIVITY_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_BICYCLES_SENSITIVITY_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BICYCLES_SENSITIVITY_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_CARS_ENABLED_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_CARS_ENABLED_PARAMETER_NAME + "=" + (ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_CARS_ENABLED_ROLE).toBool() ? "1" : "0")).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_CARS_SENSITIVITY_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_CARS_SENSITIVITY_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_CARS_SENSITIVITY_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_MOTORBIKES_ENABLED_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_MOTORBIKES_ENABLED_PARAMETER_NAME + "=" + (ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_MOTORBIKES_ENABLED_ROLE).toBool() ? "1" : "0")).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_MOTORBIKES_SENSITIVITY_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_MOTORBIKES_SENSITIVITY_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_MOTORBIKES_SENSITIVITY_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BUSES_ENABLED_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_BUSES_ENABLED_PARAMETER_NAME + "=" + (ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BUSES_ENABLED_ROLE).toBool() ? "1" : "0")).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BUSES_SENSITIVITY_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_BUSES_SENSITIVITY_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BUSES_SENSITIVITY_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_TRUCKS_ENABLED_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_TRUCKS_ENABLED_PARAMETER_NAME + "=" + (ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_TRUCKS_ENABLED_ROLE).toBool() ? "1" : "0")).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_TRUCKS_SENSITIVITY_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_TRUCKS_SENSITIVITY_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_TRUCKS_SENSITIVITY_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BACKPACKS_ENABLED_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_BACKPACKS_ENABLED_PARAMETER_NAME + "=" + (ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BACKPACKS_ENABLED_ROLE).toBool() ? "1" : "0")).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BACKPACKS_SENSITIVITY_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_BACKPACKS_SENSITIVITY_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BACKPACKS_SENSITIVITY_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_UMBRELLAS_ENABLED_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_UMBRELLAS_ENABLED_PARAMETER_NAME + "=" + (ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_UMBRELLAS_ENABLED_ROLE).toBool() ? "1" : "0")).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_UMBRELLAS_SENSITIVITY_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_UMBRELLAS_SENSITIVITY_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_UMBRELLAS_SENSITIVITY_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_HANDBAGS_ENABLED_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_HANDBAGS_ENABLED_PARAMETER_NAME + "=" + (ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_HANDBAGS_ENABLED_ROLE).toBool() ? "1" : "0")).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_HANDBAGS_SENSITIVITY_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_HANDBAGS_SENSITIVITY_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_HANDBAGS_SENSITIVITY_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_SUITCASES_ENABLED_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_SUITCASES_ENABLED_PARAMETER_NAME + "=" + (ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_SUITCASES_ENABLED_ROLE).toBool() ? "1" : "0")).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_SUITCASES_SENSITIVITY_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_SUITCASES_SENSITIVITY_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_SUITCASES_SENSITIVITY_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_CATS_ENABLED_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_CATS_ENABLED_PARAMETER_NAME + "=" + (ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_CATS_ENABLED_ROLE).toBool() ? "1" : "0")).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_CATS_SENSITIVITY_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_CATS_SENSITIVITY_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_CATS_SENSITIVITY_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_DOGS_ENABLED_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_DOGS_ENABLED_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_DOGS_ENABLED_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_DOGS_SENSITIVITY_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_DOGS_SENSITIVITY_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_DOGS_SENSITIVITY_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_AEROPLANES_ENABLED_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_AEROPLANES_ENABLED_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_AEROPLANES_ENABLED_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_AEROPLANES_SENSITIVITY_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_AEROPLANES_SENSITIVITY_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_AEROPLANES_SENSITIVITY_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_TRAINS_ENABLED_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_TRAINS_ENABLED_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_TRAINS_ENABLED_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_TRAINS_SENSITIVITY_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_TRAINS_SENSITIVITY_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_TRAINS_SENSITIVITY_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BOATS_ENABLED_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_BOATS_ENABLED_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BOATS_ENABLED_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BOATS_SENSITIVITY_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_BOATS_SENSITIVITY_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BOATS_SENSITIVITY_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_HORSES_ENABLED_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_HORSES_ENABLED_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_HORSES_ENABLED_ROLE).toString()).toStdString());
+
+  }
+
+  if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_HORSES_SENSITIVITY_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_HORSES_SENSITIVITY_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_HORSES_SENSITIVITY_ROLE).toString()).toStdString());
+
+  }
+  return recordingjobsourcetrackparameters;
 }
 
 void ManageRecordingJobWindow::RecordingJobRemoved(const uint64_t token)
@@ -256,21 +544,21 @@ void ManageRecordingJobWindow::on_buttonaddrtspsource_clicked()
 
 void ManageRecordingJobWindow::on_buttonaddonvifsource_clicked()
 {
-    ManageRecordingJobSourceONVIFWindow dialog(this,
-                                               device_,
-                                               recording_,
-                                               recordingjob_,
-                                               false,
-                                               true,
-                                               0,
-                                               QString(),
-                                               QString(),
-                                               QString(),
-                                               monocle::StreamingProtocol::TCPInterleaved,
-                                               QString(),
-                                               QString(),
-                                               QString(),
-                                               GetTrackIds());
+  ManageRecordingJobSourceONVIFWindow dialog(this,
+                                             device_,
+                                             recording_,
+                                             recordingjob_,
+                                             false,
+                                             true,
+                                             0,
+                                             QString(),
+                                             QString(),
+                                             QString(),
+                                             monocle::StreamingProtocol::TCPInterleaved,
+                                             QString(),
+                                             QString(),
+                                             QString(),
+                                             GetTrackIds());
   if (dialog.exec() == QDialog::Accepted)
   {
     const QSharedPointer<client::RecordingTrack> track = recording_->GetTrack(dialog.trackid_);
@@ -321,6 +609,164 @@ void ManageRecordingJobWindow::on_buttonaddonvifsource_clicked()
   }
 }
 
+void ManageRecordingJobWindow::on_buttonaddobjectdetector_clicked()
+{
+  if (!device_->SupportsObjectDetection())
+  {
+    QMessageBox(QMessageBox::Warning, tr("Error"), tr("Server does not support object detection, please upgrade server to the latest version"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+    return;
+  }
+
+  if (device_->GetNumCudaDevices() <= 0)
+  {
+    QMessageBox(QMessageBox::Warning, tr("Error"), tr("Server does not have any CUDA Devices, please install a CUDA device"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+    return;
+  }
+
+  if (device_->GetNumObjectDetectors() >= device_->GetMaxObjectDetectors())
+  {
+    QMessageBox(QMessageBox::Warning, tr("Error"), tr("Max object detectors reached"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+    return;
+  }
+
+  if (recording_->GetMetadataTracks().empty())
+  {
+    QMessageBox(QMessageBox::Warning, tr("Error"), tr("No metadata tracks available for this recording, please add a metadata track"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+    return;
+  }
+
+  if (recording_->GetVideoTracks().empty())
+  {
+    QMessageBox(QMessageBox::Warning, tr("Error"), tr("No video tracks available for this recording, please add a video track"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+    return;
+  }
+
+  ManageRecordingJobSourceObjectDetectorWindow dialog(this,
+                                                      device_,
+                                                      recording_,
+                                                      recordingjob_,
+                                                      false,
+                                                      true,
+                                                      0,
+                                                      QString(),
+                                                      1,
+                                                      true,
+                                                      true,
+                                                      true,
+                                                      true,
+                                                      true,
+                                                      true,
+                                                      true,
+                                                      true,
+                                                      true,
+                                                      true,
+                                                      true,
+                                                      true,
+                                                      true,
+                                                      true,
+                                                      true,
+                                                      true,
+                                                      0.5,
+                                                      0.5,
+                                                      0.5,
+                                                      0.5,
+                                                      0.5,
+                                                      0.5,
+                                                      0.5,
+                                                      0.5,
+                                                      0.5,
+                                                      0.5,
+                                                      0.5,
+                                                      0.5,
+                                                      0.5,
+                                                      0.5,
+                                                      0.5,
+                                                      0.5,
+                                                      GetTrackIds());
+  if (dialog.exec() == QDialog::Accepted)
+  {
+    const QSharedPointer<client::RecordingTrack> track = recording_->GetTrack(dialog.metadatatrackid_);
+    if (!track)
+    {
+      QMessageBox(QMessageBox::Warning, tr("Error"), tr("Unable to find metadata track: ") + QString::number(dialog.metadatatrackid_), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+      return;
+    }
+
+    if (track->GetTrackType() != monocle::TrackType::Metadata)
+    {
+      QMessageBox(QMessageBox::Warning, tr("Error"), tr("Metadata track is not of metadata type: ") + QString::number(dialog.metadatatrackid_), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+      return;
+    }
+
+    const QStringList parameters =
+    {
+       QString("accuracy=") + QString::number(dialog.accuracy_),
+       QString("humans=") + (dialog.humans_ ? "1" : "0"), QString("humanssensitivity=") + QString::number(dialog.humanssensitivity_),
+       QString("bicycles=") + (dialog.humans_ ? "1" : "0"), QString("bicyclessensitivity=") + QString::number(dialog.bicyclessensitivity_),
+       QString("cars=") + (dialog.humans_ ? "1" : "0"), QString("carssensitivity=") + QString::number(dialog.carssensitivity_),
+       QString("motorbikes=") + (dialog.humans_ ? "1" : "0"), QString("motorbikessensitivity=") + QString::number(dialog.motorbikessensitivity_),
+       QString("buses=") + (dialog.humans_ ? "1" : "0"), QString("busessensitivity=") + QString::number(dialog.busessensitivity_),
+       QString("trucks=") + (dialog.humans_ ? "1" : "0"), QString("truckssensitivity=") + QString::number(dialog.truckssensitivity_),
+       QString("backpacks=") + (dialog.humans_ ? "1" : "0"), QString("backpackssensitivity=") + QString::number(dialog.backpackssensitivity_),
+       QString("umbrellas=") + (dialog.humans_ ? "1" : "0"), QString("umbrellassensitivity=") + QString::number(dialog.umbrellassensitivity_),
+       QString("handbags=") + (dialog.humans_ ? "1" : "0"), QString("handbagssensitivity=") + QString::number(dialog.handbagssensitivity_),
+       QString("suitcases=") + (dialog.humans_ ? "1" : "0"), QString("suitcasessensitivity=") + QString::number(dialog.suitcasessensitivity_),
+       QString("cats=") + (dialog.humans_ ? "1" : "0"), QString("catssensitivity=") + QString::number(dialog.catssensitivity_),
+       QString("dogs=") + (dialog.humans_ ? "1" : "0"), QString("dogssensitivity=") + QString::number(dialog.dogssensitivity_),
+       QString("aeroplanes=") + (dialog.humans_ ? "1" : "0"), QString("aeroplanessensitivity=") + QString::number(dialog.aeroplanessensitivity_),
+       QString("trains=") + (dialog.humans_ ? "1" : "0"), QString("trainssensitivity=") + QString::number(dialog.trainssensitivity_),
+       QString("boats=") + (dialog.humans_ ? "1" : "0"), QString("boatssensitivity=") + QString::number(dialog.boatssensitivity_),
+       QString("horses=") + (dialog.humans_ ? "1" : "0"), QString("horsessensitivity=") + QString::number(dialog.horsessensitivity_)
+    };
+
+    const int row = ui_.tablerecordingjobsources->rowCount();
+    ui_.tablerecordingjobsources->insertRow(row);
+    
+    ui_.tablerecordingjobsources->setItem(row, 1, new QTableWidgetItem(dialog.enabled_ ? "True" : "False"));
+    ui_.tablerecordingjobsources->item(row, 1)->setData(Qt::UserRole, static_cast<bool>(dialog.enabled_));
+    ui_.tablerecordingjobsources->setItem(row, 2, new QTableWidgetItem(track->GetDescription() + " (" + monocle::EnumNameTrackType(track->GetTrackType()) + ")"));
+    ui_.tablerecordingjobsources->item(row, 2)->setData(Qt::UserRole, dialog.metadatatrackid_);
+    ui_.tablerecordingjobsources->setItem(row, 3, new QTableWidgetItem(dialog.uri_));
+    ui_.tablerecordingjobsources->item(row, 3)->setText(dialog.uri_);
+    ui_.tablerecordingjobsources->setItem(row, 4, new QTableWidgetItem());
+    ui_.tablerecordingjobsources->item(row, 4)->setData(Qt::UserRole, QString());
+    ui_.tablerecordingjobsources->setItem(row, 5, new QTableWidgetItem(parameters.join(":")));
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_ACCURACY_ROLE, dialog.accuracy_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_HUMANS_ENABLED_ROLE, dialog.humans_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_HUMANS_SENSITIVITY_ROLE, dialog.humanssensitivity_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BICYCLES_ENABLED_ROLE, dialog.bicycles_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BICYCLES_SENSITIVITY_ROLE, dialog.bicyclessensitivity_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_CARS_ENABLED_ROLE, dialog.cars_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_CARS_SENSITIVITY_ROLE, dialog.carssensitivity_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_MOTORBIKES_ENABLED_ROLE, dialog.motorbikes_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_MOTORBIKES_SENSITIVITY_ROLE, dialog.motorbikessensitivity_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BUSES_ENABLED_ROLE, dialog.buses_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BUSES_SENSITIVITY_ROLE, dialog.busessensitivity_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_TRUCKS_ENABLED_ROLE, dialog.trucks_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_TRUCKS_SENSITIVITY_ROLE, dialog.truckssensitivity_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BACKPACKS_ENABLED_ROLE, dialog.backpacks_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BACKPACKS_SENSITIVITY_ROLE, dialog.backpackssensitivity_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_UMBRELLAS_ENABLED_ROLE, dialog.umbrellas_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_UMBRELLAS_SENSITIVITY_ROLE, dialog.umbrellassensitivity_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_HANDBAGS_ENABLED_ROLE, dialog.handbags_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_HANDBAGS_SENSITIVITY_ROLE, dialog.handbagssensitivity_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_SUITCASES_ENABLED_ROLE, dialog.suitcases_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_SUITCASES_SENSITIVITY_ROLE, dialog.suitcasessensitivity_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_CATS_ENABLED_ROLE, dialog.cats_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_CATS_SENSITIVITY_ROLE, dialog.catssensitivity_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_DOGS_ENABLED_ROLE, dialog.dogs_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_DOGS_SENSITIVITY_ROLE, dialog.dogssensitivity_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_AEROPLANES_ENABLED_ROLE, dialog.aeroplanes_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_AEROPLANES_SENSITIVITY_ROLE, dialog.aeroplanessensitivity_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_TRAINS_ENABLED_ROLE, dialog.trains_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_TRAINS_SENSITIVITY_ROLE, dialog.trainssensitivity_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BOATS_ENABLED_ROLE, dialog.boats_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BOATS_SENSITIVITY_ROLE, dialog.boatssensitivity_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_HORSES_ENABLED_ROLE, dialog.horses_);
+    ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_HORSES_SENSITIVITY_ROLE, dialog.horsessensitivity_);
+  }
+}
+
 void ManageRecordingJobWindow::on_buttonedit_clicked()
 {
   const QModelIndexList selectedrows = ui_.tablerecordingjobsources->selectionModel()->selectedRows();
@@ -350,7 +796,125 @@ void ManageRecordingJobWindow::on_buttonedit_clicked()
     return;
   }
 
-  if (uri.scheme().to_string() == "http")
+  if (uri.scheme().to_string() == "objectdetector")
+  {
+    ManageRecordingJobSourceObjectDetectorWindow dialog(this,
+                                                        device_,
+                                                        recording_,
+                                                        recordingjob_,
+                                                        true,
+                                                        ui_.tablerecordingjobsources->item(row, 1)->data(Qt::UserRole).toBool(),
+                                                        ui_.tablerecordingjobsources->item(row, 2)->data(Qt::UserRole).toUInt(),
+                                                        ui_.tablerecordingjobsources->item(row, 3)->text(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_ACCURACY_ROLE).toUInt(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_HUMANS_ENABLED_ROLE).toBool(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BICYCLES_ENABLED_ROLE).toBool(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_CARS_ENABLED_ROLE).toBool(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_MOTORBIKES_ENABLED_ROLE).toBool(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BUSES_ENABLED_ROLE).toBool(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_TRUCKS_ENABLED_ROLE).toBool(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BACKPACKS_ENABLED_ROLE).toBool(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_UMBRELLAS_ENABLED_ROLE).toBool(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_HANDBAGS_ENABLED_ROLE).toBool(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_SUITCASES_ENABLED_ROLE).toBool(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_CATS_ENABLED_ROLE).toBool(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_DOGS_ENABLED_ROLE).toBool(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_AEROPLANES_ENABLED_ROLE).toBool(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_TRAINS_ENABLED_ROLE).toBool(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BOATS_ENABLED_ROLE).toBool(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_HORSES_ENABLED_ROLE).toBool(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_HUMANS_SENSITIVITY_ROLE).toDouble(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BICYCLES_SENSITIVITY_ROLE).toDouble(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_CARS_SENSITIVITY_ROLE).toDouble(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_MOTORBIKES_SENSITIVITY_ROLE).toDouble(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BUSES_SENSITIVITY_ROLE).toDouble(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_TRUCKS_SENSITIVITY_ROLE).toDouble(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BACKPACKS_SENSITIVITY_ROLE).toDouble(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_UMBRELLAS_SENSITIVITY_ROLE).toDouble(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_HANDBAGS_SENSITIVITY_ROLE).toDouble(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_SUITCASES_SENSITIVITY_ROLE).toDouble(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_CATS_SENSITIVITY_ROLE).toDouble(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_DOGS_SENSITIVITY_ROLE).toDouble(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_AEROPLANES_SENSITIVITY_ROLE).toDouble(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_TRAINS_SENSITIVITY_ROLE).toDouble(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BOATS_SENSITIVITY_ROLE).toDouble(),
+                                                        ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_HORSES_SENSITIVITY_ROLE).toDouble(),
+                                                        GetTrackIds());
+    if (dialog.exec() == QDialog::Accepted)
+    {
+      const QSharedPointer<client::RecordingTrack> metadatatrack = recording_->GetTrack(dialog.metadatatrackid_);
+      if (!metadatatrack)
+      {
+        QMessageBox(QMessageBox::Warning, tr("Error"), tr("Unable to find track: ") + QString::number(dialog.metadatatrackid_), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+        return;
+      }
+
+      const QStringList parameters =
+      {
+         QString("accuracy=") + QString::number(dialog.accuracy_),
+         QString("humans=") + (dialog.humans_ ? "1" : "0"), QString("humanssensitivity=") + QString::number(dialog.humanssensitivity_),
+         QString("bicycles=") + (dialog.humans_ ? "1" : "0"), QString("bicyclessensitivity=") + QString::number(dialog.bicyclessensitivity_),
+         QString("cars=") + (dialog.humans_ ? "1" : "0"), QString("carssensitivity=") + QString::number(dialog.carssensitivity_),
+         QString("motorbikes=") + (dialog.humans_ ? "1" : "0"), QString("motorbikessensitivity=") + QString::number(dialog.motorbikessensitivity_),
+         QString("buses=") + (dialog.humans_ ? "1" : "0"), QString("busessensitivity=") + QString::number(dialog.busessensitivity_),
+         QString("trucks=") + (dialog.humans_ ? "1" : "0"), QString("truckssensitivity=") + QString::number(dialog.truckssensitivity_),
+         QString("backpacks=") + (dialog.humans_ ? "1" : "0"), QString("backpackssensitivity=") + QString::number(dialog.backpackssensitivity_),
+         QString("umbrellas=") + (dialog.humans_ ? "1" : "0"), QString("umbrellassensitivity=") + QString::number(dialog.umbrellassensitivity_),
+         QString("handbags=") + (dialog.humans_ ? "1" : "0"), QString("handbagssensitivity=") + QString::number(dialog.handbagssensitivity_),
+         QString("suitcases=") + (dialog.humans_ ? "1" : "0"), QString("suitcasessensitivity=") + QString::number(dialog.suitcasessensitivity_),
+         QString("cats=") + (dialog.humans_ ? "1" : "0"), QString("catssensitivity=") + QString::number(dialog.catssensitivity_),
+         QString("dogs=") + (dialog.humans_ ? "1" : "0"), QString("dogssensitivity=") + QString::number(dialog.dogssensitivity_),
+         QString("aeroplanes=") + (dialog.humans_ ? "1" : "0"), QString("aeroplanessensitivity=") + QString::number(dialog.aeroplanessensitivity_),
+         QString("trains=") + (dialog.humans_ ? "1" : "0"), QString("trainssensitivity=") + QString::number(dialog.trainssensitivity_),
+         QString("boats=") + (dialog.humans_ ? "1" : "0"), QString("boatssensitivity=") + QString::number(dialog.boatssensitivity_),
+         QString("horses=") + (dialog.humans_ ? "1" : "0"), QString("horsessensitivity=") + QString::number(dialog.horsessensitivity_)
+      };
+
+      ui_.tablerecordingjobsources->setItem(row, 1, new QTableWidgetItem(dialog.enabled_ ? "True" : "False"));
+      ui_.tablerecordingjobsources->item(row, 1)->setData(Qt::UserRole, static_cast<bool>(dialog.enabled_));
+      ui_.tablerecordingjobsources->setItem(row, 2, new QTableWidgetItem(metadatatrack->GetDescription() + " (" + monocle::EnumNameTrackType(metadatatrack->GetTrackType()) + ")"));
+      ui_.tablerecordingjobsources->item(row, 2)->setData(Qt::UserRole, dialog.metadatatrackid_);
+      ui_.tablerecordingjobsources->setItem(row, 3, new QTableWidgetItem(dialog.uri_));
+      ui_.tablerecordingjobsources->item(row, 3)->setText(dialog.uri_);
+      ui_.tablerecordingjobsources->setItem(row, 4, new QTableWidgetItem());
+      ui_.tablerecordingjobsources->item(row, 4)->setData(Qt::UserRole, QString());
+      ui_.tablerecordingjobsources->setItem(row, 5, new QTableWidgetItem(parameters.join(":")));
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_ACCURACY_ROLE, dialog.accuracy_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_HUMANS_ENABLED_ROLE, dialog.humans_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_HUMANS_SENSITIVITY_ROLE, dialog.humanssensitivity_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BICYCLES_ENABLED_ROLE, dialog.bicycles_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BICYCLES_SENSITIVITY_ROLE, dialog.bicyclessensitivity_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_CARS_ENABLED_ROLE, dialog.cars_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_CARS_SENSITIVITY_ROLE, dialog.carssensitivity_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_MOTORBIKES_ENABLED_ROLE, dialog.motorbikes_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_MOTORBIKES_SENSITIVITY_ROLE, dialog.motorbikessensitivity_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BUSES_ENABLED_ROLE, dialog.buses_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BUSES_SENSITIVITY_ROLE, dialog.busessensitivity_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_TRUCKS_ENABLED_ROLE, dialog.trucks_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_TRUCKS_SENSITIVITY_ROLE, dialog.truckssensitivity_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BACKPACKS_ENABLED_ROLE, dialog.backpacks_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BACKPACKS_SENSITIVITY_ROLE, dialog.backpackssensitivity_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_UMBRELLAS_ENABLED_ROLE, dialog.umbrellas_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_UMBRELLAS_SENSITIVITY_ROLE, dialog.umbrellassensitivity_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_HANDBAGS_ENABLED_ROLE, dialog.handbags_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_HANDBAGS_SENSITIVITY_ROLE, dialog.handbagssensitivity_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_SUITCASES_ENABLED_ROLE, dialog.suitcases_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_SUITCASES_SENSITIVITY_ROLE, dialog.suitcasessensitivity_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_CATS_ENABLED_ROLE, dialog.cats_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_CATS_SENSITIVITY_ROLE, dialog.catssensitivity_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_DOGS_ENABLED_ROLE, dialog.dogs_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_DOGS_SENSITIVITY_ROLE, dialog.dogssensitivity_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_AEROPLANES_ENABLED_ROLE, dialog.aeroplanes_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_AEROPLANES_SENSITIVITY_ROLE, dialog.aeroplanessensitivity_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_TRAINS_ENABLED_ROLE, dialog.trains_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_TRAINS_SENSITIVITY_ROLE, dialog.trainssensitivity_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BOATS_ENABLED_ROLE, dialog.boats_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_BOATS_SENSITIVITY_ROLE, dialog.boatssensitivity_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_HORSES_ENABLED_ROLE, dialog.horses_);
+      ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_HORSES_SENSITIVITY_ROLE, dialog.horsessensitivity_);
+    }
+  }
+  else if (uri.scheme().to_string() == "http")
   {
     ManageRecordingJobSourceONVIFWindow dialog(this,
                                                device_,
@@ -499,38 +1063,19 @@ void ManageRecordingJobWindow::on_buttonok_clicked()
   }
 
   SetEnabled(false);
-  if (recordingjob_)
+  if (recordingjob_) // Edit
   {
     std::vector<monocle::CHANGERECORDINGJOBSOURCE> sources;
     sources.reserve(ui_.tablerecordingjobsources->rowCount());
     for (int i = 0; i < ui_.tablerecordingjobsources->rowCount(); ++i)
     {
-      std::vector<std::string> recordingjobsourcetrackparameters;
-      if (!ui_.tablerecordingjobsources->item(i, 5)->data(SOURCE_TAG_ROLE).toString().isEmpty())
-      {
-        recordingjobsourcetrackparameters.push_back((SOURCE_TAG_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(i, 5)->data(SOURCE_TAG_ROLE).toString()).toStdString());
-
-      }
-
-      if (!ui_.tablerecordingjobsources->item(i, 5)->data(PROFILE_ROLE).toString().isEmpty())
-      {
-        recordingjobsourcetrackparameters.push_back((PROFILE_TOKEN_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(i, 5)->data(PROFILE_ROLE).toString()).toStdString());
-
-      }
-
-      if (!ui_.tablerecordingjobsources->item(i, 5)->data(ROTATION_ROLE).toString().isEmpty())
-      {
-        recordingjobsourcetrackparameters.push_back((ROTATION_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(i, 5)->data(ROTATION_ROLE).toString()).toStdString());
-
-      }
-
       sources.emplace_back(ui_.tablerecordingjobsources->item(i, 2)->data(Qt::UserRole).toUInt(),
                             ui_.tablerecordingjobsources->item(i, 1)->data(Qt::UserRole).toBool() ? monocle::ReceiverMode::AutoConnect : monocle::ReceiverMode::NeverConnect,
                             std::vector<std::string>({ (STREAMING_PROTOCOL_PARAMETER_NAME + "=" + monocle::EnumNameStreamingProtocol(static_cast<monocle::StreamingProtocol>(ui_.tablerecordingjobsources->item(i, 5)->data(STREAMING_PROTOCOL_ROLE).toInt()))).toStdString() }),
                             ui_.tablerecordingjobsources->item(i, 3)->text().toStdString(),
                             ui_.tablerecordingjobsources->item(i, 4)->text().toStdString(),
                             ui_.tablerecordingjobsources->item(i, 4)->data(Qt::UserRole).toString().toStdString(),
-                            recordingjobsourcetrackparameters);
+                            GetParameters(i));
     }
 
     recordingjobconnection_ = device_->ChangeRecordingJob(recording_->GetToken(), recordingjob_->GetToken(), ui_.editname->text().toStdString(), ui_.checkenabled->isChecked(), ui_.spinpriority->value(), sources, [this](const std::chrono::nanoseconds latency, const monocle::client::CHANGERECORDINGJOBRESPONSE& changerecordingjobresponse)
@@ -544,38 +1089,19 @@ void ManageRecordingJobWindow::on_buttonok_clicked()
       accept();
     });
   }
-  else
+  else // Add
   {
     std::vector<monocle::ADDRECORDINGJOBSOURCE> sources;
     sources.reserve(ui_.tablerecordingjobsources->rowCount());
     for (int i = 0; i < ui_.tablerecordingjobsources->rowCount(); ++i)
     {
-      std::vector<std::string> recordingjobsourcetrackparameters;
-      if (!ui_.tablerecordingjobsources->item(i, 5)->data(SOURCE_TAG_ROLE).toString().isEmpty())
-      {
-        recordingjobsourcetrackparameters.push_back((SOURCE_TAG_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(i, 5)->data(SOURCE_TAG_ROLE).toString()).toStdString());
-
-      }
-
-      if (!ui_.tablerecordingjobsources->item(i, 5)->data(PROFILE_ROLE).toString().isEmpty())
-      {
-        recordingjobsourcetrackparameters.push_back((PROFILE_TOKEN_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(i, 5)->data(PROFILE_ROLE).toString()).toStdString());
-
-      }
-
-      if (!ui_.tablerecordingjobsources->item(i, 5)->data(ROTATION_ROLE).toString().isEmpty())
-      {
-        recordingjobsourcetrackparameters.push_back((ROTATION_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(i, 5)->data(ROTATION_ROLE).toString()).toStdString());
-
-      }
-
       sources.emplace_back(ui_.tablerecordingjobsources->item(i, 2)->data(Qt::UserRole).toUInt(),
                            ui_.tablerecordingjobsources->item(i, 1)->data(Qt::UserRole).toBool() ? monocle::ReceiverMode::AutoConnect : monocle::ReceiverMode::NeverConnect,
                            std::vector<std::string>({ (STREAMING_PROTOCOL_PARAMETER_NAME + "=" + monocle::EnumNameStreamingProtocol(static_cast<monocle::StreamingProtocol>(ui_.tablerecordingjobsources->item(i, 5)->data(STREAMING_PROTOCOL_ROLE).toInt()))).toStdString() }),
                            ui_.tablerecordingjobsources->item(i, 3)->text().toStdString(),
                            ui_.tablerecordingjobsources->item(i, 4)->text().toStdString(),
                            ui_.tablerecordingjobsources->item(i, 4)->data(Qt::UserRole).toString().toStdString(),
-                           recordingjobsourcetrackparameters);
+                           GetParameters(i));
     }
 
     recordingjobconnection_ = device_->AddRecordingJob(recording_->GetToken(), ui_.editname->text().toStdString(), ui_.checkenabled->isChecked(), ui_.spinpriority->value(), sources, [this](const std::chrono::nanoseconds latency, const monocle::client::ADDRECORDINGJOBRESPONSE& addrecordingjobresponse)

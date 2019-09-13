@@ -81,7 +81,7 @@ class ExportProgressWindow : public QDialog
 
   struct ExportTrackConnection : public Connection
   {
-    ExportTrackConnection(const EXPORTFORMAT exportformat, const std::shared_ptr<std::recursive_mutex>& filewritermutex, const std::shared_ptr<file::FileWrite>& filewriter, const uint64_t starttime, const uint64_t endtime, const QDir& directory, const uint64_t deviceindex, const uint64_t recordingtoken, const QString& devicename, const QString& deviceaddress, const QString& recordingname, const QString& recordinglocation, const utility::PublicKey& publickey, const uint64_t trackid, const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port);
+    ExportTrackConnection(const EXPORTFORMAT exportformat, const std::shared_ptr<std::recursive_mutex>& filewritermutex, const std::shared_ptr<file::FileWrite>& filewriter, const uint64_t starttime, const uint64_t endtime, const QDir& directory, const uint64_t deviceindex, const uint64_t recordingtoken, const QString& devicename, const QString& deviceaddress, const QString& recordingname, const QString& recordinglocation, const monocle::TrackType tracktype, const QString& trackdescription, const utility::PublicKey& publickey, const uint64_t trackid, const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port);
     ~ExportTrackConnection();
 
     void AddFrame(const ImageBuffer& imagebuffer, const float progress, const uint64_t timestamp, const size_t size);
@@ -102,6 +102,8 @@ class ExportProgressWindow : public QDialog
     QString deviceaddress_;
     QString recordingname_;
     QString recordinglocation_;
+    monocle::TrackType tracktype_;
+    QString trackdescription_;
     utility::PublicKey publickey_;
     uint64_t trackid_;
     std::recursive_mutex mutex_;
@@ -129,7 +131,7 @@ class ExportProgressWindow : public QDialog
   static void ControlStreamEndCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const monocle::ErrorCode error, void* callbackdata);
   static void H265Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const bool donlfield, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata);
   static void H264Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata);
-  static void MetadataCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata);
+  static void MetadataCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::MetadataFrameType metadataframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata);
   static void JPEGCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const uint8_t* lqt, const uint8_t* cqt, const char* framedata, const size_t size, void* callbackdata);
   static void MPEG4Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata);
   static void NewCodecIndexCallback(const uint64_t streamtoken, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp, void* callbackdata);

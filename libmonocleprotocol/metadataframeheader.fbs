@@ -1,3 +1,5 @@
+include "metadataframetype.fbs";
+
 namespace monocle;
 
 table MetadataFrameHeader
@@ -10,4 +12,5 @@ table MetadataFrameHeader
   sequencenum:int64 (id:5);
   progress:float (id:6);
   signature:[ubyte] (id:7);
+  metadataframetype:MetadataFrameType = ONVIF_XML (id:8);
 }

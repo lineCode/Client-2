@@ -59,6 +59,8 @@ const int INFO_BORDER = 5;
 const int INFO_WIDTH = 576;
 const int INFO_HEIGHT = (INFO_BORDER * 2) + INFO_FONT_HEIGHT;
 
+extern const std::array<QVector4D, 30> OBJECT_COLOURS;
+
 ///// Declarations /////
 
 class Map;
@@ -145,10 +147,6 @@ class VideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
  private:
 
   RESIZEDIRECTION GetResizeDirection(const QSharedPointer<View>& view, const QPoint& pos) const;
-
-  std::random_device rd_;
-  std::mt19937 gen_;
-  std::uniform_real_distribution<double> colordist_;
 
   int timer_;
 

@@ -115,6 +115,21 @@ void VideoWidgetsMgr::CreateVideoView(const boost::shared_ptr<Device>& device, c
   }
 }
 
+void VideoWidgetsMgr::ResetViews()
+{
+  for (auto& videowidget : videowidgets_)
+  {
+    videowidget->makeCurrent();
+    for (auto& view : videowidget->GetViews())
+    {
+
+      view->ResetPosition(false);
+
+    }
+    videowidget->doneCurrent();
+  }
+}
+
 std::vector< QSharedPointer<View> > VideoWidgetsMgr::GetViews()
 {
   std::vector< QSharedPointer<View> > views;

@@ -142,7 +142,8 @@ void DeviceTreeRecordingJobItem::JobSourceTrackRemoved(const QSharedPointer<clie
 {
   for (int i = (childCount() - 1); i >= 0; --i)
   {
-    if (static_cast<DeviceTreeRecordingJobSourceItem*>(child(i))->GetRecordingJobSourceTrack()->GetToken() == token)
+    DeviceTreeRecordingJobSourceItem* recordingjobsourcetrack = static_cast<DeviceTreeRecordingJobSourceItem*>(child(i));
+    if ((recordingjobsourcetrack->GetRecordingJobSource() == recordingjobsource) && (recordingjobsourcetrack->GetRecordingJobSourceTrack()->GetToken() == token))
     {
       removeChild(child(i));
 

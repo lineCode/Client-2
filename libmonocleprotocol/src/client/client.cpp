@@ -4722,7 +4722,7 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         return;
       }
       data += headersize;
-      MetadataFrame(metadataframeheader->token(), metadataframeheader->playrequestindex(), metadataframeheader->codecindex(), metadataframeheader->timestamp(), metadataframeheader->sequencenum(), metadataframeheader->progress(), metadataframeheader->signature() ? metadataframeheader->signature()->data() : nullptr, metadataframeheader->signature() ? metadataframeheader->signature()->size() : 0, data, datasize - (sizeof(headersize) + headersize));
+      MetadataFrame(metadataframeheader->token(), metadataframeheader->playrequestindex(), metadataframeheader->codecindex(), metadataframeheader->timestamp(), metadataframeheader->sequencenum(), metadataframeheader->progress(), metadataframeheader->signature() ? metadataframeheader->signature()->data() : nullptr, metadataframeheader->signature() ? metadataframeheader->signature()->size() : 0, metadataframeheader->metadataframetype(), data, datasize - (sizeof(headersize) + headersize));
       break;
     }
     case Message::MOUNTPOINTADDED:
@@ -6070,7 +6070,7 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         longitude = subscriberesponse->longitude()->str();
       }
 
-      subscribe_.Response(sequence, SUBSCRIBERESPONSE(name, publickey, architecture, subscriberesponse->operatingsystem(), compiler, databasepath, version, subscriberesponse->identifier(), environmentvariables, commandlinevariables, onvifusers.second, groups.second, users.second, files.second, receivers.second, recordings.second, serverlogmessages, subscriberesponse->maxrecordings(), maps, mountpoints, latitude, longitude));
+      subscribe_.Response(sequence, SUBSCRIBERESPONSE(name, publickey, architecture, subscriberesponse->operatingsystem(), compiler, databasepath, version, subscriberesponse->identifier(), environmentvariables, commandlinevariables, onvifusers.second, groups.second, users.second, files.second, receivers.second, recordings.second, serverlogmessages, subscriberesponse->maxrecordings(), maps, mountpoints, latitude, longitude, subscriberesponse->numcudadevices(), subscriberesponse->numcldevices(), subscriberesponse->maxobjectdetectors()));
       break;
     }
     case Message::SUBSCRIBEDISCOVERY:

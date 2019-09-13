@@ -112,7 +112,7 @@ TEST(TestFile, Frames)
           std::sort(frameheaders.begin(), frameheaders.end(), [](const std::shared_ptr<file::FRAMEHEADER>& lhs, const std::shared_ptr<file::FRAMEHEADER>& rhs) { return (lhs->time_ < rhs->time_); });
           tracks.insert(file::TRACK(track, std::to_string(track), codecs, frameheaders));
         }
-        recordings.insert(file::RECORDING(recording, std::to_string(recording), std::to_string(recording), tracks));
+        recordings.insert(file::RECORDING(recording, std::to_string(recording), std::to_string(recording), tracks, boost::container::flat_set<file::TRACK>(), boost::container::flat_set<file::TRACK>()));
       }
       file.devices_.insert(file::DEVICE(device, "name", "address", "signingkey", recordings));
     }
@@ -134,10 +134,10 @@ TEST(TestFile, Frames)
       auto l = j->recordings_.cbegin();
       for (; k != i->recordings_.cend(); ++k, ++l)
       {
-        ASSERT_EQ(k->tracks_.size(), l->tracks_.size());
-        auto m = k->tracks_.cbegin();
-        auto n = l->tracks_.cbegin();
-        for (; m != k->tracks_.cend(); ++m, ++n)
+        ASSERT_EQ(k->videotracks_.size(), l->videotracks_.size());
+        auto m = k->videotracks_.cbegin();
+        auto n = l->videotracks_.cbegin();
+        for (; m != k->videotracks_.cend(); ++m, ++n)
         {
           ASSERT_EQ(m->frameheaders_.size(), n->frameheaders_.size());
           auto o = m->frameheaders_.cbegin();

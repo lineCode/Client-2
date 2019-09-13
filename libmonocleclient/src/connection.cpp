@@ -29,8 +29,8 @@ Connection::~Connection()
 
 void Connection::Destroy()
 {
+  streams_.clear();
   Client::Destroy();
-
 }
 
 void Connection::FileAdded(const uint64_t token, const std::string& mountpoint, const std::string& path, const uint64_t numchunks, const uint64_t chunksize, const bool automount, const monocle::FileState state, const monocle::FileMonitorState monitorstate)
@@ -179,7 +179,7 @@ void Connection::MapRemoved(const uint64_t token)
 
 }
 
-void Connection::MetadataFrame(const uint64_t token, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* data, const size_t size)
+void Connection::MetadataFrame(const uint64_t token, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::MetadataFrameType metadataframetype, const char* data, const size_t size)
 {
   std::vector<Stream>::iterator stream = std::find_if(streams_.begin(), streams_.end(), [token](const Stream& stream) { return (stream.GetToken() == token); });
   if (stream == streams_.end())
@@ -187,7 +187,7 @@ void Connection::MetadataFrame(const uint64_t token, const uint64_t playrequesti
     // Just ignore
     return;
   }
-  stream->MetadataFrame(playrequestindex, codecindex, timestamp, sequencenum, progress, signature, signaturesize, data, size);
+  stream->MetadataFrame(playrequestindex, codecindex, timestamp, sequencenum, progress, signature, signaturesize, metadataframetype, data, size);
 }
 
 void Connection::MountPointAdded(const uint64_t id, const uint64_t parentid, const uint64_t majorstdev, const uint64_t minorstdev, const std::string& path, const std::string& type, const std::string& source)

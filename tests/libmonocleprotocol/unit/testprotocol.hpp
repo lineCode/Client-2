@@ -58,6 +58,9 @@ class TestProtocol : public testing::Test
   const std::vector<MOUNTPOINT> testmountpoints_;
   const std::string testlatitude_;
   const std::string testlongitude_;
+  const int testnumcudadevices_;
+  const int testnumcldevices_;
+  const int testmaxobjectdetectors_;
   const server::tests::TESTFRAME testframe_;
 
   boost::shared_ptr<client::tests::TestClient> client_;

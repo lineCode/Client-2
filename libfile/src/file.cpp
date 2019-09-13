@@ -80,8 +80,9 @@ JPEGFRAMEHEADER::JPEGFRAMEHEADER(const uint64_t codecindex, const uint64_t offse
 
 }
 
-METADATAFRAMEHEADER::METADATAFRAMEHEADER(const uint64_t codecindex, const uint64_t offset, const uint64_t size, const uint64_t time, const std::vector<uint8_t>& signature) :
-  FRAMEHEADER(codecindex, offset, size, true, time, signature)
+METADATAFRAMEHEADER::METADATAFRAMEHEADER(const uint64_t codecindex, const uint64_t offset, const uint64_t size, const uint64_t time, const file::MetadataFrameType metadataframetype, const std::vector<uint8_t>& signature) :
+  FRAMEHEADER(codecindex, offset, size, true, time, signature),
+  metadataframetype_(metadataframetype)
 {
 
 }
@@ -163,13 +164,25 @@ RECORDING::RECORDING(const uint64_t index, const std::string& name, const std::s
 
 }
 
-RECORDING::RECORDING(const uint64_t index, const std::string& name, const std::string& location, const boost::container::flat_set<TRACK>& tracks) :
+RECORDING::RECORDING(const uint64_t index, const std::string& name, const std::string& location, const boost::container::flat_set<TRACK>& videotracks, const boost::container::flat_set<TRACK>& audiotracks, const boost::container::flat_set<TRACK>& metadatatracks) :
   index_(index),
   name_(name),
   location_(location),
-  tracks_(tracks)
+  videotracks_(videotracks),
+  audiotracks_(audiotracks),
+  metadatatracks_(metadatatracks)
 {
 
+}
+
+boost::container::flat_set<TRACK> RECORDING::GetTracks() const
+{
+  boost::container::flat_set<TRACK> tracks;
+  tracks.reserve(videotracks_.size() + audiotracks_.size() + metadatatracks_.size());
+  tracks.insert(videotracks_.begin(), videotracks_.end());
+  tracks.insert(audiotracks_.begin(), audiotracks_.end());
+  tracks.insert(metadatatracks_.begin(), metadatatracks_.end());
+  return tracks;
 }
 
 bool RECORDING::operator<(const RECORDING& rhs) const
@@ -179,7 +192,12 @@ bool RECORDING::operator<(const RECORDING& rhs) const
 
 bool RECORDING::operator==(const RECORDING& rhs) const
 {
-  return ((index_ == rhs.index_) && (name_ == rhs.name_) && (location_ == rhs.location_) && (tracks_ == rhs.tracks_));
+  return ((index_ == rhs.index_) &&
+          (name_ == rhs.name_) &&
+          (location_ == rhs.location_) &&
+          std::is_permutation(videotracks_.cbegin(), videotracks_.cend(), rhs.videotracks_.cbegin(), rhs.videotracks_.cend()) &&
+          std::is_permutation(audiotracks_.cbegin(), audiotracks_.cend(), rhs.audiotracks_.cbegin(), rhs.audiotracks_.cend()) &&
+          std::is_permutation(metadatatracks_.cbegin(), metadatatracks_.cend(), rhs.metadatatracks_.cbegin(), rhs.metadatatracks_.cend()));
 }
 
 DEVICE::DEVICE() :

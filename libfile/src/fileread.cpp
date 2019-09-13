@@ -228,9 +228,9 @@ std::future<int> FileRead::Init(const boost::filesystem::path& path, const std::
       {
         for (const file::Recording* recording : *device->recordings())
         {
-          if (recording->tracks())
+          if (recording->videotracks())
           {
-            for (const file::Track* track : *recording->tracks())
+            for (const file::Track* track : *recording->videotracks())
             {
               if (track->h265frameheaders())
               {
@@ -250,15 +250,21 @@ std::future<int> FileRead::Init(const boost::filesystem::path& path, const std::
 
               }
 
-              if (track->metadataframeheaders())
-              {
-                totalframes += track->metadataframeheaders()->size();
-
-              }
-
               if (track->mpeg4frameheaders())
               {
                 totalframes += track->mpeg4frameheaders()->size();
+
+              }
+            }
+          }
+
+          if (recording->metadatatracks())
+          {
+            for (const file::Track* track : *recording->metadatatracks())
+            {
+              if (track->metadataframeheaders())
+              {
+                totalframes += track->metadataframeheaders()->size();
 
               }
             }
@@ -292,268 +298,303 @@ std::future<int> FileRead::Init(const boost::filesystem::path& path, const std::
           return;
         }
 
-        if (recording->tracks() == nullptr)
+        boost::container::flat_set<TRACK> videotracks;
+        if (recording->videotracks())
         {
-          promise->set_value(28);
-          return;
-        }
-
-        boost::container::flat_set<TRACK> tracks;
-        for (const file::Track* track : *recording->tracks())
-        {
-          if (std::find_if(tracks.cbegin(), tracks.cend(), [track](const TRACK& t) { return (t.index_ == track->index()); }) != tracks.cend()) // Make sure the index is unique
+          videotracks.reserve(recording->videotracks()->size());
+          for (const file::Track* videotrack : *recording->videotracks())
           {
-            promise->set_value(29);
-            return;
-          }
-
-          // Codecs
-          if (track->codecs() == nullptr)
-          {
-            promise->set_value(30);
-            return;
-          }
-
-          boost::container::flat_set<CODEC> codecs;
-          for (const file::Codec* codec : *track->codecs())
-          {
-            if (std::find_if(codecs.cbegin(), codecs.cend(), [codec](const CODEC& c) { return (c.index_ == codec->index()); }) != codecs.cend()) // Make sure the index is unique
+            if (std::find_if(videotracks.cbegin(), videotracks.cend(), [videotrack](const TRACK& t) { return (t.index_ == videotrack->index()); }) != videotracks.cend()) // Make sure the index is unique
             {
-              promise->set_value(31);
+              promise->set_value(28);
               return;
             }
-            codecs.insert(CODEC(codec->index(), codec->codec(), codec->parameters() ? codec->parameters()->str() : std::string()));
-          }
 
-          // Frame headers
-          std::vector< std::shared_ptr<FRAMEHEADER> > frameheaders;
-          if (track->h265frameheaders())
-          {
-            for (const file::FrameHeader* h265frameheader : *track->h265frameheaders())
+            // Codecs
+            if (videotrack->codecs() == nullptr)
             {
-              ++currentframe;
-              *progress = static_cast<float>(currentframe) / static_cast<float>(totalframes);
-
-              if (!running_)
-              {
-                promise->set_value(999);
-                return;
-              }
-
-              if (h265frameheader->offset() > (size_ - (sizeof(MAGIC_BYTES) + sizeof(VERSION) + filesize + sizeof(filesize)))) // Make sure the frame remains inside the correct bounds
-              {
-                promise->set_value(32);
-                return;
-              }
-
-              buffer.resize(h265frameheader->size());
-              if (Read(h265frameheader->offset(), h265frameheader->size(), buffer.data()))
-              {
-                promise->set_value(33);
-                return;
-              }
-
-              const file::H265Frame* h265frame = flatbuffers::GetRoot<H265Frame>(buffer.data());
-              if (!h265frame || !h265frame->data())
-              {
-                // Ignore I guess?
-                continue;
-              }
-
-              std::vector<uint32_t> offsets;
-              if (h265frame->offsets())
-              {
-                offsets = std::vector<uint32_t>(h265frame->offsets()->cbegin(), h265frame->offsets()->cend());
-
-              }
-
-              frameheaders.push_back(std::make_shared<H265FRAMEHEADER>(h265frame->codecindex(), h265frameheader->offset() + (h265frame->data()->data() - buffer.data()), h265frame->data()->size(), h265frame->marker(), h265frame->time(), (h265frame->signature() && h265frame->signature()->size()) ? std::vector<uint8_t>(h265frame->signature()->data(), h265frame->signature()->data() + h265frame->signature()->size()) : std::vector<uint8_t>(), h265frame->donlfield(), offsets));
+              promise->set_value(29);
+              return;
             }
-          }
 
-          if (track->h264frameheaders())
-          {
-            for (const file::FrameHeader* h264frameheader : *track->h264frameheaders())
+            boost::container::flat_set<CODEC> codecs;
+            for (const file::Codec* codec : *videotrack->codecs())
             {
-              ++currentframe;
-              *progress = static_cast<float>(currentframe) / static_cast<float>(totalframes);
-
-              if (!running_)
+              if (std::find_if(codecs.cbegin(), codecs.cend(), [codec](const CODEC& c) { return (c.index_ == codec->index()); }) != codecs.cend()) // Make sure the index is unique
               {
-                promise->set_value(999);
+                promise->set_value(30);
                 return;
               }
-
-              if (h264frameheader->offset() > (size_ - (sizeof(MAGIC_BYTES) + sizeof(VERSION) + filesize + sizeof(filesize)))) // Make sure the frame remains inside the correct bounds
-              {
-                promise->set_value(33);
-                return;
-              }
-
-              buffer.resize(h264frameheader->size());
-              if (Read(h264frameheader->offset(), h264frameheader->size(), buffer.data()))
-              {
-                promise->set_value(33);
-                return;
-              }
-
-              const file::H264Frame* h264frame = flatbuffers::GetRoot<H264Frame>(buffer.data());
-              if (!h264frame || !h264frame->data())
-              {
-                // Ignore I guess?
-                continue;
-              }
-
-              std::vector<uint32_t> offsets;
-              if (h264frame->offsets())
-              {
-                offsets = std::vector<uint32_t>(h264frame->offsets()->cbegin(), h264frame->offsets()->cend());
-
-              }
-
-              frameheaders.push_back(std::make_shared<H264FRAMEHEADER>(h264frame->codecindex(), h264frameheader->offset() + (h264frame->data()->data() - buffer.data()), h264frame->data()->size(), h264frame->marker(), h264frame->time(), (h264frame->signature() && h264frame->signature()->size()) ? std::vector<uint8_t>(h264frame->signature()->data(), h264frame->signature()->data() + h264frame->signature()->size()) : std::vector<uint8_t>(), offsets));
+              codecs.insert(CODEC(codec->index(), codec->codec(), codec->parameters() ? codec->parameters()->str() : std::string()));
             }
-          }
 
-          if (track->jpegframeheaders())
-          {
-            for (const file::FrameHeader* jpegframeheader : *track->jpegframeheaders())
+            // Frame headers
+            std::vector< std::shared_ptr<FRAMEHEADER> > frameheaders;
+            if (videotrack->h265frameheaders())
             {
-              ++currentframe;
-              *progress = static_cast<float>(currentframe) / static_cast<float>(totalframes);
-
-              if (!running_)
+              for (const file::FrameHeader* h265frameheader : *videotrack->h265frameheaders())
               {
-                promise->set_value(999);
-                return;
+                ++currentframe;
+                *progress = static_cast<float>(currentframe) / static_cast<float>(totalframes);
+
+                if (!running_)
+                {
+                  promise->set_value(999);
+                  return;
+                }
+
+                if (h265frameheader->offset() > (size_ - (sizeof(MAGIC_BYTES) + sizeof(VERSION) + filesize + sizeof(filesize)))) // Make sure the frame remains inside the correct bounds
+                {
+                  promise->set_value(32);
+                  return;
+                }
+
+                buffer.resize(h265frameheader->size());
+                if (Read(h265frameheader->offset(), h265frameheader->size(), buffer.data()))
+                {
+                  promise->set_value(33);
+                  return;
+                }
+
+                const file::H265Frame* h265frame = flatbuffers::GetRoot<H265Frame>(buffer.data());
+                if (!h265frame || !h265frame->data())
+                {
+                  // Ignore I guess?
+                  continue;
+                }
+
+                std::vector<uint32_t> offsets;
+                if (h265frame->offsets())
+                {
+                  offsets = std::vector<uint32_t>(h265frame->offsets()->cbegin(), h265frame->offsets()->cend());
+
+                }
+
+                frameheaders.push_back(std::make_shared<H265FRAMEHEADER>(h265frame->codecindex(), h265frameheader->offset() + (h265frame->data()->data() - buffer.data()), h265frame->data()->size(), h265frame->marker(), h265frame->time(), (h265frame->signature() && h265frame->signature()->size()) ? std::vector<uint8_t>(h265frame->signature()->data(), h265frame->signature()->data() + h265frame->signature()->size()) : std::vector<uint8_t>(), h265frame->donlfield(), offsets));
               }
-
-              if (jpegframeheader->offset() > (size_ - (sizeof(MAGIC_BYTES) + sizeof(VERSION) + filesize + sizeof(filesize)))) // Make sure the frame remains inside the correct bounds
-              {
-                promise->set_value(34);
-                return;
-              }
-
-              buffer.resize(jpegframeheader->size());
-              if (Read(jpegframeheader->offset(), jpegframeheader->size(), buffer.data()))
-              {
-                promise->set_value(33);
-                return;
-              }
-
-              const file::JPEGFrame* jpegframe = flatbuffers::GetRoot<JPEGFrame>(buffer.data());
-              if (!jpegframe || !jpegframe->data())
-              {
-                // Ignore I guess?
-                continue;
-              }
-
-              std::array<uint8_t, 64> lqt;
-              if (jpegframe->lqt() && jpegframe->lqt()->size() == 64)
-              {
-                memcpy(lqt.data(), jpegframe->lqt()->data(), lqt.size());
-
-              }
-              else
-              {
-                lqt.fill(0);
-
-              }
-
-              std::array<uint8_t, 64> cqt;
-              if (jpegframe->cqt() && jpegframe->cqt()->size() == 64)
-              {
-                memcpy(cqt.data(), jpegframe->cqt()->data(), cqt.size());
-
-              }
-              else
-              {
-                cqt.fill(0);
-
-              }
-
-              frameheaders.push_back(std::make_shared<JPEGFRAMEHEADER>(jpegframe->codecindex(), jpegframeheader->offset() + (jpegframe->data()->data() - buffer.data()), jpegframe->data()->size(), jpegframe->time(), (jpegframe->signature() && jpegframe->signature()->size()) ? std::vector<uint8_t>(jpegframe->signature()->data(), jpegframe->signature()->data() + jpegframe->signature()->size()) : std::vector<uint8_t>(), jpegframe->restartinterval(), jpegframe->typespecificfragmentoffset(), jpegframe->type(), jpegframe->q(), jpegframe->width(), jpegframe->height(), lqt, cqt));
             }
-          }
 
-          if (track->metadataframeheaders())
-          {
-            for (const file::FrameHeader* metadataframeheader : *track->metadataframeheaders())
+            if (videotrack->h264frameheaders())
             {
-              ++currentframe;
-              *progress = static_cast<float>(currentframe) / static_cast<float>(totalframes);
-
-              if (!running_)
+              for (const file::FrameHeader* h264frameheader : *videotrack->h264frameheaders())
               {
-                promise->set_value(999);
-                return;
-              }
+                ++currentframe;
+                *progress = static_cast<float>(currentframe) / static_cast<float>(totalframes);
 
-              if (metadataframeheader->offset() > (size_ - (sizeof(MAGIC_BYTES) + sizeof(VERSION) + filesize + sizeof(filesize)))) // Make sure the frame remains inside the correct bounds
-              {
-                promise->set_value(35);
-                return;
-              }
+                if (!running_)
+                {
+                  promise->set_value(999);
+                  return;
+                }
 
-              buffer.resize(metadataframeheader->size());
-              if (Read(metadataframeheader->offset(), metadataframeheader->size(), buffer.data()))
-              {
-                promise->set_value(33);
-                return;
-              }
+                if (h264frameheader->offset() > (size_ - (sizeof(MAGIC_BYTES) + sizeof(VERSION) + filesize + sizeof(filesize)))) // Make sure the frame remains inside the correct bounds
+                {
+                  promise->set_value(33);
+                  return;
+                }
 
-              const file::MetadataFrame* metadataframe = flatbuffers::GetRoot<MetadataFrame>(buffer.data());
-              if (!metadataframe || !metadataframe->data())
-              {
-                // Ignore I guess?
-                continue;
-              }
+                buffer.resize(h264frameheader->size());
+                if (Read(h264frameheader->offset(), h264frameheader->size(), buffer.data()))
+                {
+                  promise->set_value(33);
+                  return;
+                }
 
-              frameheaders.push_back(std::make_shared<METADATAFRAMEHEADER>(metadataframe->codecindex(), metadataframeheader->offset() + (metadataframe->data()->data() - buffer.data()), metadataframe->data()->size(), metadataframe->time(), (metadataframe->signature() && metadataframe->signature()->size()) ? std::vector<uint8_t>(metadataframe->signature()->data(), metadataframe->signature()->data() + metadataframe->signature()->size()) : std::vector<uint8_t>()));
+                const file::H264Frame* h264frame = flatbuffers::GetRoot<H264Frame>(buffer.data());
+                if (!h264frame || !h264frame->data())
+                {
+                  // Ignore I guess?
+                  continue;
+                }
+
+                std::vector<uint32_t> offsets;
+                if (h264frame->offsets())
+                {
+                  offsets = std::vector<uint32_t>(h264frame->offsets()->cbegin(), h264frame->offsets()->cend());
+
+                }
+
+                frameheaders.push_back(std::make_shared<H264FRAMEHEADER>(h264frame->codecindex(), h264frameheader->offset() + (h264frame->data()->data() - buffer.data()), h264frame->data()->size(), h264frame->marker(), h264frame->time(), (h264frame->signature() && h264frame->signature()->size()) ? std::vector<uint8_t>(h264frame->signature()->data(), h264frame->signature()->data() + h264frame->signature()->size()) : std::vector<uint8_t>(), offsets));
+              }
             }
-          }
 
-          if (track->mpeg4frameheaders())
-          {
-            for (const file::FrameHeader* mpeg4frameheader : *track->mpeg4frameheaders())
+            if (videotrack->jpegframeheaders())
             {
-              ++currentframe;
-              *progress = static_cast<float>(currentframe) / static_cast<float>(totalframes);
-
-              if (!running_)
+              for (const file::FrameHeader* jpegframeheader : *videotrack->jpegframeheaders())
               {
-                promise->set_value(999);
-                return;
-              }
+                ++currentframe;
+                *progress = static_cast<float>(currentframe) / static_cast<float>(totalframes);
 
-              if (mpeg4frameheader->offset() > (size_ - (sizeof(MAGIC_BYTES) + sizeof(VERSION) + filesize + sizeof(filesize)))) // Make sure the frame remains inside the correct bounds
-              {
-                promise->set_value(36);
-                return;
-              }
+                if (!running_)
+                {
+                  promise->set_value(999);
+                  return;
+                }
 
-              buffer.resize(mpeg4frameheader->size());
-              if (Read(mpeg4frameheader->offset(), mpeg4frameheader->size(), buffer.data()))
-              {
-                promise->set_value(33);
-                return;
-              }
+                if (jpegframeheader->offset() > (size_ - (sizeof(MAGIC_BYTES) + sizeof(VERSION) + filesize + sizeof(filesize)))) // Make sure the frame remains inside the correct bounds
+                {
+                  promise->set_value(34);
+                  return;
+                }
 
-              const file::MPEG4Frame* mpeg4frame = flatbuffers::GetRoot<MPEG4Frame>(buffer.data());
-              if (!mpeg4frame || !mpeg4frame->data())
-              {
-                // Ignore I guess?
-                continue;
-              }
+                buffer.resize(jpegframeheader->size());
+                if (Read(jpegframeheader->offset(), jpegframeheader->size(), buffer.data()))
+                {
+                  promise->set_value(33);
+                  return;
+                }
 
-              frameheaders.push_back(std::make_shared<MPEG4FRAMEHEADER>(mpeg4frame->codecindex(), mpeg4frameheader->offset() + (mpeg4frame->data()->data() - buffer.data()), mpeg4frame->data()->size(), mpeg4frame->marker(), mpeg4frame->time(), (mpeg4frame->signature() && mpeg4frame->signature()->size()) ? std::vector<uint8_t>(mpeg4frame->signature()->data(), mpeg4frame->signature()->data() + mpeg4frame->signature()->size()) : std::vector<uint8_t>()));
+                const file::JPEGFrame* jpegframe = flatbuffers::GetRoot<JPEGFrame>(buffer.data());
+                if (!jpegframe || !jpegframe->data())
+                {
+                  // Ignore I guess?
+                  continue;
+                }
+
+                std::array<uint8_t, 64> lqt;
+                if (jpegframe->lqt() && jpegframe->lqt()->size() == 64)
+                {
+                  memcpy(lqt.data(), jpegframe->lqt()->data(), lqt.size());
+
+                }
+                else
+                {
+                  lqt.fill(0);
+
+                }
+
+                std::array<uint8_t, 64> cqt;
+                if (jpegframe->cqt() && jpegframe->cqt()->size() == 64)
+                {
+                  memcpy(cqt.data(), jpegframe->cqt()->data(), cqt.size());
+
+                }
+                else
+                {
+                  cqt.fill(0);
+
+                }
+
+                frameheaders.push_back(std::make_shared<JPEGFRAMEHEADER>(jpegframe->codecindex(), jpegframeheader->offset() + (jpegframe->data()->data() - buffer.data()), jpegframe->data()->size(), jpegframe->time(), (jpegframe->signature() && jpegframe->signature()->size()) ? std::vector<uint8_t>(jpegframe->signature()->data(), jpegframe->signature()->data() + jpegframe->signature()->size()) : std::vector<uint8_t>(), jpegframe->restartinterval(), jpegframe->typespecificfragmentoffset(), jpegframe->type(), jpegframe->q(), jpegframe->width(), jpegframe->height(), lqt, cqt));
+              }
             }
-          }
 
-          std::sort(frameheaders.begin(), frameheaders.end(), [](const std::shared_ptr<FRAMEHEADER>& lhs, const std::shared_ptr<FRAMEHEADER>& rhs) { return (lhs->time_ < rhs->time_); }); // Order the frame headers so the user can index them properly
-          tracks.insert(TRACK(track->index(), track->description() ? track->description()->str() : std::string(), codecs, frameheaders));
+            if (videotrack->mpeg4frameheaders())
+            {
+              for (const file::FrameHeader* mpeg4frameheader : *videotrack->mpeg4frameheaders())
+              {
+                ++currentframe;
+                *progress = static_cast<float>(currentframe) / static_cast<float>(totalframes);
+
+                if (!running_)
+                {
+                  promise->set_value(999);
+                  return;
+                }
+
+                if (mpeg4frameheader->offset() > (size_ - (sizeof(MAGIC_BYTES) + sizeof(VERSION) + filesize + sizeof(filesize)))) // Make sure the frame remains inside the correct bounds
+                {
+                  promise->set_value(36);
+                  return;
+                }
+
+                buffer.resize(mpeg4frameheader->size());
+                if (Read(mpeg4frameheader->offset(), mpeg4frameheader->size(), buffer.data()))
+                {
+                  promise->set_value(33);
+                  return;
+                }
+
+                const file::MPEG4Frame* mpeg4frame = flatbuffers::GetRoot<MPEG4Frame>(buffer.data());
+                if (!mpeg4frame || !mpeg4frame->data())
+                {
+                  // Ignore I guess?
+                  continue;
+                }
+
+                frameheaders.push_back(std::make_shared<MPEG4FRAMEHEADER>(mpeg4frame->codecindex(), mpeg4frameheader->offset() + (mpeg4frame->data()->data() - buffer.data()), mpeg4frame->data()->size(), mpeg4frame->marker(), mpeg4frame->time(), (mpeg4frame->signature() && mpeg4frame->signature()->size()) ? std::vector<uint8_t>(mpeg4frame->signature()->data(), mpeg4frame->signature()->data() + mpeg4frame->signature()->size()) : std::vector<uint8_t>()));
+              }
+            }
+
+            std::sort(frameheaders.begin(), frameheaders.end(), [](const std::shared_ptr<FRAMEHEADER>& lhs, const std::shared_ptr<FRAMEHEADER>& rhs) { return (lhs->time_ < rhs->time_); }); // Order the frame headers so the user can index them properly
+            videotracks.insert(TRACK(videotrack->index(), videotrack->description() ? videotrack->description()->str() : std::string(), codecs, frameheaders));
+          }
         }
-        recordings.insert(RECORDING(recording->index(), recording->name() ? recording->name()->str() : std::string(), recording->location() ? recording->location()->str() : std::string(), tracks));
+
+        boost::container::flat_set<TRACK> metadatatracks;
+        if (recording->metadatatracks())
+        {
+          metadatatracks.reserve(recording->metadatatracks()->size());
+          for (const file::Track* metadatatrack : *recording->metadatatracks())
+          {
+            if (std::find_if(metadatatracks.cbegin(), metadatatracks.cend(), [metadatatrack](const TRACK& t) { return (t.index_ == metadatatrack->index()); }) != metadatatracks.cend()) // Make sure the index is unique
+            {
+              promise->set_value(28);
+              return;
+            }
+
+            // Codecs
+            if (metadatatrack->codecs() == nullptr)
+            {
+              promise->set_value(29);
+              return;
+            }
+
+            boost::container::flat_set<CODEC> codecs;
+            for (const file::Codec* codec : *metadatatrack->codecs())
+            {
+              if (std::find_if(codecs.cbegin(), codecs.cend(), [codec](const CODEC& c) { return (c.index_ == codec->index()); }) != codecs.cend()) // Make sure the index is unique
+              {
+                promise->set_value(30);
+                return;
+              }
+              codecs.insert(CODEC(codec->index(), codec->codec(), codec->parameters() ? codec->parameters()->str() : std::string()));
+            }
+
+            // Frame headers
+            std::vector< std::shared_ptr<FRAMEHEADER> > frameheaders;
+            if (metadatatrack->metadataframeheaders())
+            {
+              for (const file::FrameHeader* metadataframeheader : *metadatatrack->metadataframeheaders())
+              {
+                ++currentframe;
+                *progress = static_cast<float>(currentframe) / static_cast<float>(totalframes);
+
+                if (!running_)
+                {
+                  promise->set_value(999);
+                  return;
+                }
+
+                if (metadataframeheader->offset() > (size_ - (sizeof(MAGIC_BYTES) + sizeof(VERSION) + filesize + sizeof(filesize)))) // Make sure the frame remains inside the correct bounds
+                {
+                  promise->set_value(35);
+                  return;
+                }
+
+                buffer.resize(metadataframeheader->size());
+                if (Read(metadataframeheader->offset(), metadataframeheader->size(), buffer.data()))
+                {
+                  promise->set_value(33);
+                  return;
+                }
+
+                const file::MetadataFrame* metadataframe = flatbuffers::GetRoot<MetadataFrame>(buffer.data());
+                if (!metadataframe || !metadataframe->data())
+                {
+                  // Ignore I guess?
+                  continue;
+                }
+
+                frameheaders.push_back(std::make_shared<METADATAFRAMEHEADER>(metadataframe->codecindex(), metadataframeheader->offset() + (metadataframe->data()->data() - buffer.data()), metadataframe->data()->size(), metadataframe->time(), metadataframe->metadataframetype(), (metadataframe->signature() && metadataframe->signature()->size()) ? std::vector<uint8_t>(metadataframe->signature()->data(), metadataframe->signature()->data() + metadataframe->signature()->size()) : std::vector<uint8_t>()));
+              }
+            }
+
+            std::sort(frameheaders.begin(), frameheaders.end(), [](const std::shared_ptr<FRAMEHEADER>& lhs, const std::shared_ptr<FRAMEHEADER>& rhs) { return (lhs->time_ < rhs->time_); }); // Order the frame headers so the user can index them properly
+            metadatatracks.insert(TRACK(metadatatrack->index(), metadatatrack->description() ? metadatatrack->description()->str() : std::string(), codecs, frameheaders));
+          }
+        }
+        recordings.insert(RECORDING(recording->index(), recording->name() ? recording->name()->str() : std::string(), recording->location() ? recording->location()->str() : std::string(), videotracks, boost::container::flat_set<file::TRACK>(), metadatatracks));
       }
       file_.devices_.insert(DEVICE(device->index(), device->name() ? device->name()->str() : std::string(), device->address() ? device->address()->str() : std::string(), device->signingkey() ? device->signingkey()->str() : std::string(), recordings));
     }
@@ -652,7 +693,6 @@ boost::optional<RECORDING> FileRead::GetRecording(const uint64_t deviceindex, co
     return boost::none;
   }
   return *recording;
-
 }
 
 }

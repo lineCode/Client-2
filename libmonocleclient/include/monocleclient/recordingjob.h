@@ -6,6 +6,7 @@
 
 ///// Includes /////
 
+#include <boost/shared_ptr.hpp>
 #include <QObject>
 #include <QSharedPointer>
 
@@ -24,6 +25,7 @@ namespace client
 
 ///// Declarations /////
 
+class Device;
 class Receiver;
 class RecordingJobSource;
 class RecordingJobSourceTrack;
@@ -38,7 +40,7 @@ class RecordingJob : public QObject
 
  public:
 
-  RecordingJob(const uint64_t token, const QString& name, const bool enabled, const uint64_t priority);
+  RecordingJob(const boost::shared_ptr<Device>& device, const uint64_t token, const QString& name, const bool enabled, const uint64_t priority);
   ~RecordingJob();
 
   void Set(const QString& name, const bool enabled, const uint64_t priority);
@@ -52,6 +54,7 @@ class RecordingJob : public QObject
   std::vector<uint64_t> GetReceivers(const QSharedPointer<client::RecordingTrack>& track) const;
   std::vector<QString> GetActiveProfileTokens(const QSharedPointer<client::RecordingTrack>& track) const;
   std::vector<ROTATION> GetActiveRotations(const QSharedPointer<client::RecordingTrack>& track) const;
+  size_t GetNumObjectDetectors() const;
 
   inline uint64_t GetToken() const { return token_; }
   inline void SetName(const QString& name) { name_ = name; }
@@ -65,6 +68,7 @@ class RecordingJob : public QObject
 
  private:
 
+  boost::shared_ptr<Device> device_;
   uint64_t token_;
   QString name_;
   bool enabled_;

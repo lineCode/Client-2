@@ -22,7 +22,7 @@ namespace client
 
 ///// Methods /////
 
-  ManageRecordingTrackWindow::ManageRecordingTrackWindow(QWidget* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingTrack>& track) :
+ManageRecordingTrackWindow::ManageRecordingTrackWindow(QWidget* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingTrack>& track) :
   QDialog(parent),
   device_(device),
   recording_(recording),
@@ -100,8 +100,8 @@ void ManageRecordingTrackWindow::Setup(const QSharedPointer<client::RecordingTra
   ui_.editdescription->setText(track->GetDescription());
   ui_.checkdigitalsigning->setChecked(track->GetDigitalSigning());
   ui_.checkencrypt->setChecked(track->GetEncrypt());
+  ui_.spinflushfrequency->setValue(track->GetFlushFrequency());
   ui_.checkfixedfiles->setChecked(track->GetFixedFiles());
-
   ui_.listavailablerecordings->clear();
   ui_.listselectedrecordings->clear();
   for (const QSharedPointer<client::File>& file : device_->GetFiles())
