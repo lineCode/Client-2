@@ -182,23 +182,21 @@ int main(int argc, char** argv)
 
   }
 
+  // Init
+  QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+  QApplication app(argc, argv);
+  app.setOrganizationName(ORGANISATIONNAME);
+  app.setApplicationName(APPLICATIONNAME);
+
   // Stylesheet
-  QString stylesheet;
   {
     QFile f("styles.qss");
     if (f.open(QFile::ReadOnly | QFile::Text))
     {
       QTextStream in(&f);
-      stylesheet = in.readAll();
+      app.setStyleSheet(in.readAll());
     }
   }
-  
-  // Init
-  QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
-  QApplication app(argc, argv);
-  app.setStyleSheet(stylesheet);
-  app.setOrganizationName(ORGANISATIONNAME);
-  app.setApplicationName(APPLICATIONNAME);
 
   client::MainWindow::Create(numioservices, numioservicethreads);
   client::MainWindow::Instance()->show();
