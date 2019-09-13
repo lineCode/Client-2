@@ -73,7 +73,7 @@ Q_DECLARE_METATYPE(uint64_t)
 ///// Functions /////
 
 // We use WinMain for release builds to avoid bringing up the console entirely
-#if (BOOST_OS_WINDOWS && defined(NDEBUG))
+#if BOOST_OS_WINDOWS && defined(NDEBUG)
 int CALLBACK WinMain(HINSTANCE instance, HINSTANCE previnstance, LPSTR cmdline, int show)
 #else
 int main(int argc, char** argv)
@@ -147,7 +147,7 @@ int main(int argc, char** argv)
     ("version,v", boost::program_options::value<bool>()->implicit_value(false), "Version");
 
   // If using WinMain, convert cmdline to argv for boost program options. We don't use boost::split_winmain because it crashes in release mode
-#if (BOOST_OS_WINDOWS && defined(NDEBUG))
+#if BOOST_OS_WINDOWS && defined(NDEBUG)
   std::vector<std::string> args;
   boost::split(args, std::string(cmdline), boost::is_any_of(" "), boost::algorithm::token_compress_on);
   int argc = static_cast<int>(args.size());
@@ -200,12 +200,10 @@ int main(int argc, char** argv)
 
   client::MainWindow::Create(numioservices, numioservicethreads);
   client::MainWindow::Instance()->show();
-
   const int ret = app.exec();
-
   client::MainWindow::Destroy();
 
-#if defined(BOOST_OS_WINDOWS) && defined(NDEBUG)
+#if BOOST_OS_WINDOWS && defined(NDEBUG)
   for (int i = 0; i < argc; ++i)
   {
     delete[] argv[i];
