@@ -12,7 +12,7 @@
 #include <utility/publickey.hpp>
 
 #include "monocleclient/media.h"
-#include <QDebug>//TODO remove
+
 ///// Namespaces /////
 
 QT_BEGIN_NAMESPACE
