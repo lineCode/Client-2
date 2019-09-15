@@ -9,6 +9,8 @@
 #include <openssl/err.h>
 #include <openssl/pem.h>
 
+#include "utility/privatekey.hpp"
+
 ///// Namespaces /////
 
 namespace utility

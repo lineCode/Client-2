@@ -6,6 +6,7 @@
 #include "onviftypes/onviftypes.hpp"
 
 #include <curl/curl.h>
+#include <pugixml.hpp>
 
 ///// Namespaces /////
 

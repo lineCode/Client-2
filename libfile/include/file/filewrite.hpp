@@ -6,6 +6,7 @@
 
 ///// Includes /////
 
+#include <array>
 #include <boost/container/flat_set.hpp>
 #include <boost/filesystem/path.hpp>
 #include <flatbuffers/flatbuffers.h>

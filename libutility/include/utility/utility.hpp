@@ -10,33 +10,35 @@
 
 #include <algorithm>
 #include <array>
+#include <boost/optional/optional.hpp>
 #include <boost/filesystem/path.hpp>
 #include <chrono>
-#include <iomanip>
+#include <corecrt_malloc.h>
+#include <cstring>
+#include <limits>
 #include <memory>
+#include <new>
 #include <random>
-#include <sstream>
+#include <stddef.h>
 #include <stdint.h>
 #include <string>
+#include <type_traits>
+#include <utility>
 #include <vector>
 #include <zlib.h>
 
 #ifdef _WIN32
-  #include <Winsock2.h>
+  #include <handleapi.h>
+  #include <minwindef.h>
+  #include <WinBase.h>
 #else
   #include <arpa/inet.h>
 #endif
 
-#ifdef _WIN32
-  #include "registry.hpp"
-  #include "service.hpp"
-  #include "servicemgr.hpp"
-#endif
+///// Declarations /////
 
-#include "cpuid.hpp"
-#include "privatekey.hpp"
-#include "publickey.hpp"
-#include "version.hpp"
+struct sockaddr_in6;
+struct sockaddr_in;
 
 ///// Defines /////
 

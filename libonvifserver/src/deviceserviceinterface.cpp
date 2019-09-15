@@ -11,6 +11,8 @@
 #include <boost/regex.hpp>
 #include <onviftypes/onviftypes.hpp>
 #include <pugixml.hpp>
+#include <utility/service.hpp>
+#include <utility/servicemgr.hpp>
 
 #include "onvifserver/soapfault.hpp"
 

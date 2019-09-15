@@ -6,12 +6,26 @@
 
 ///// Includes /////
 
-#include <boost/algorithm/string.hpp>
-#include <boost/optional.hpp>
-#include <boost/date_time.hpp>
-#include <pugixml.hpp>
-#include <utility/utility.hpp>
+#include <algorithm>
+#include <boost/algorithm/string/join.hpp>
+#include <boost/date_time/local_time/posix_time_zone.hpp>
+#include <boost/date_time/posix_time/posix_time_config.hpp>
+#include <boost/date_time/posix_time/ptime.hpp>
+#include <boost/none.hpp>
+#include <boost/optional/optional.hpp>
+#include <limits>
+#include <memory>
+#include <stdint.h>
+#include <string>
+#include <type_traits>
+#include <utility>
+#include <utility/version.hpp>
 #include <vector>
+
+///// Declarations /////
+
+namespace boost { namespace gregorian { class date; } }
+namespace pugi { class xml_node; }
 
 ///// Defines /////
 

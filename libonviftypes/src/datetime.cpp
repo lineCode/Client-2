@@ -5,6 +5,8 @@
 
 #include "onviftypes/onviftypes.hpp"
 
+#include <pugixml.hpp>
+
 #include <chrono>
 
 ///// Namespaces /////

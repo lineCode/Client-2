@@ -11,12 +11,14 @@
 #include <string>
 #include <vector>
 
-#include "privatekey.hpp"
-
 ///// Namespaces /////
 
 namespace utility
 {
+
+///// Declarations /////
+
+class PrivateKey;
 
 ///// Classes /////
 

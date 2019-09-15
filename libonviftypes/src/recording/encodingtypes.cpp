@@ -5,6 +5,10 @@
 
 #include "onviftypes/onviftypes.hpp"
 
+
+#include <boost/algorithm/string.hpp>
+#include <pugixml.hpp>
+
 ///// Namespaces /////
 
 namespace onvif

@@ -5,6 +5,9 @@
 
 #include "onviftypes/onviftypes.hpp"
 
+#include <pugixml.hpp>
+#include <utility/utility.hpp>
+
 ///// Namespaces /////
 
 namespace onvif

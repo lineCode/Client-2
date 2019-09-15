@@ -11,7 +11,6 @@
 #include <boost/optional.hpp>
 #include <openssl/rsa.h>
 #include <string>
-#include <vector>
 
 ///// Namespaces /////
 

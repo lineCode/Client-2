@@ -9,6 +9,8 @@
 
 #include <boost/make_shared.hpp>
 
+#include "utility/service.hpp"
+
 ///// Namespaces /////
 
 namespace utility

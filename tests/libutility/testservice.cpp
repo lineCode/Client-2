@@ -7,6 +7,7 @@
 
 #include <boost/filesystem.hpp>
 #include <gtest/gtest.h>
+#include <utility/service.hpp>
 #include <utility/servicemgr.hpp>
 
 ///// Namespaces /////

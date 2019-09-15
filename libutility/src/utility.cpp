@@ -10,6 +10,7 @@
 #include <boost/predef.h>
 #include <boost/random.hpp>
 #include <boost/scope_exit.hpp>
+#include <iomanip>
 #include <malloc.h>
 #include <memory>
 #include <openssl/aes.h>

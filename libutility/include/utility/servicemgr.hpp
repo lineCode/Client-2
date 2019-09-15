@@ -8,11 +8,13 @@
 
 ///// Includes /////
 
-#include <boost/shared_ptr.hpp>
-#include <string>
+#include <boost/smart_ptr/shared_ptr.hpp>
 #include <windows.h>
+#include <winsvc.h>
 
-#include "service.hpp"
+///// Declarations /////
+
+namespace utility { class Service; }
 
 ///// Namespaces /////
 

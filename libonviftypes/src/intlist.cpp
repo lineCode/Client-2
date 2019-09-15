@@ -3,9 +3,10 @@
 
 ///// Includes /////
 
-#include <algorithm>
-
 #include "onviftypes/onviftypes.hpp"
+
+#include <algorithm>
+#include <pugixml.hpp>
 
 ///// Namespaces /////
 

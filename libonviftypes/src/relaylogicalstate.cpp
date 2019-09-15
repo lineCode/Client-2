@@ -5,6 +5,8 @@
 
 #include "onviftypes/onviftypes.hpp"
 
+#include <boost/algorithm/string.hpp>
+
 ///// Namespaces /////
 
 namespace onvif
