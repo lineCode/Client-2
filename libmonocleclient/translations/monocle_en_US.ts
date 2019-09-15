@@ -28,29 +28,34 @@ Date built: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/checkforupdate.cpp" line="62"/>
-        <location filename="../src/checkforupdate.cpp" line="70"/>
+        <location filename="../src/checkforupdate.cpp" line="61"/>
+        <source>Failed to check for update: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/checkforupdate.cpp" line="69"/>
+        <location filename="../src/checkforupdate.cpp" line="77"/>
         <source>Invalid update xml</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/checkforupdate.cpp" line="90"/>
         <location filename="../src/checkforupdate.cpp" line="97"/>
+        <location filename="../src/checkforupdate.cpp" line="104"/>
         <source>Invalid update version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/checkforupdate.cpp" line="108"/>
-        <source>Invalid release date</source>
+        <location filename="../src/checkforupdate.cpp" line="115"/>
+        <source>Invalid release date: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/checkforupdate.cpp" line="116"/>
+        <location filename="../src/checkforupdate.cpp" line="123"/>
         <source>Empty changelist change</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/checkforupdate.cpp" line="137"/>
+        <location filename="../src/checkforupdate.cpp" line="144"/>
         <source>No versions found</source>
         <translation type="unfinished"></translation>
     </message>
@@ -364,44 +369,44 @@ Date built: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/findmotionplaybackwidget.cpp" line="83"/>
+        <location filename="../src/findmotionplaybackwidget.cpp" line="92"/>
         <source>Error destroying arial face</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/findmotionplaybackwidget.cpp" line="93"/>
+        <location filename="../src/findmotionplaybackwidget.cpp" line="102"/>
         <source>Error destroying FreeType</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/findmotionplaybackwidget.cpp" line="566"/>
-        <location filename="../src/findmotionplaybackwidget.cpp" line="577"/>
-        <location filename="../src/findmotionplaybackwidget.cpp" line="599"/>
-        <location filename="../src/findmotionplaybackwidget.cpp" line="611"/>
-        <location filename="../src/findmotionplaybackwidget.cpp" line="636"/>
-        <location filename="../src/findmotionplaybackwidget.cpp" line="650"/>
+        <location filename="../src/findmotionplaybackwidget.cpp" line="574"/>
+        <location filename="../src/findmotionplaybackwidget.cpp" line="585"/>
+        <location filename="../src/findmotionplaybackwidget.cpp" line="607"/>
+        <location filename="../src/findmotionplaybackwidget.cpp" line="619"/>
+        <location filename="../src/findmotionplaybackwidget.cpp" line="644"/>
+        <location filename="../src/findmotionplaybackwidget.cpp" line="658"/>
         <source>QOpenGLShaderProgram::addShaderFromSourceCode failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/findmotionplaybackwidget.cpp" line="584"/>
-        <location filename="../src/findmotionplaybackwidget.cpp" line="659"/>
+        <location filename="../src/findmotionplaybackwidget.cpp" line="592"/>
+        <location filename="../src/findmotionplaybackwidget.cpp" line="667"/>
         <source>QOpenGLShaderProgram::link failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/findmotionplaybackwidget.cpp" line="618"/>
+        <location filename="../src/findmotionplaybackwidget.cpp" line="626"/>
         <source>QOpenGLShaderProgram::bindAttributeLocation failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/findmotionplaybackwidget.cpp" line="666"/>
-        <location filename="../src/findmotionplaybackwidget.cpp" line="673"/>
+        <location filename="../src/findmotionplaybackwidget.cpp" line="674"/>
+        <location filename="../src/findmotionplaybackwidget.cpp" line="681"/>
         <source>QOpenGLShaderProgram::attributeLocation failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/findmotionplaybackwidget.cpp" line="680"/>
+        <location filename="../src/findmotionplaybackwidget.cpp" line="688"/>
         <source>QOpenGLShaderProgram::uniformLocation failed</source>
         <translation type="unfinished"></translation>
     </message>
@@ -409,36 +414,42 @@ Date built: </source>
 <context>
     <name>FindMotionWindow</name>
     <message>
-        <location filename="../src/findmotionwindow.cpp" line="734"/>
-        <location filename="../src/findmotionwindow.cpp" line="742"/>
-        <location filename="../src/findmotionwindow.cpp" line="751"/>
-        <location filename="../src/findmotionwindow.cpp" line="759"/>
+        <location filename="../src/findmotionwindow.cpp" line="658"/>
+        <location filename="../src/findmotionwindow.cpp" line="755"/>
+        <location filename="../src/findmotionwindow.cpp" line="763"/>
+        <location filename="../src/findmotionwindow.cpp" line="772"/>
         <location filename="../src/findmotionwindow.cpp" line="780"/>
+        <location filename="../src/findmotionwindow.cpp" line="800"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/findmotionwindow.cpp" line="734"/>
+        <location filename="../src/findmotionwindow.cpp" line="658"/>
+        <source>Find Motion failed: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/findmotionwindow.cpp" line="755"/>
         <source>Failed to connect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/findmotionwindow.cpp" line="742"/>
+        <location filename="../src/findmotionwindow.cpp" line="763"/>
         <source>Failed to get authentication nonce: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/findmotionwindow.cpp" line="751"/>
+        <location filename="../src/findmotionwindow.cpp" line="772"/>
         <source>Failed to authenticate: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/findmotionwindow.cpp" line="759"/>
+        <location filename="../src/findmotionwindow.cpp" line="780"/>
         <source>Failed to create stream: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/findmotionwindow.cpp" line="780"/>
+        <location filename="../src/findmotionwindow.cpp" line="800"/>
         <source>Failed to create find motion detector: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -586,92 +597,112 @@ Date built: </source>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/mainwindow.cpp" line="151"/>
+        <location filename="../src/mainwindow.cpp" line="100"/>
+        <source>Failed to load font: IBMPlexMono-Bold.ttf</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="107"/>
+        <source>Failed to load font: IBMPlexMono-Regular.ttf</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="114"/>
+        <source>Failed to load font: IBMPlexSans-Italic.ttf</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="121"/>
+        <source>Failed to load font: IBMPlexSans-Regular.ttf</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="180"/>
         <source>Could not locate or create: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="157"/>
+        <location filename="../src/mainwindow.cpp" line="186"/>
         <source>Could not open log.txt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="163"/>
+        <location filename="../src/mainwindow.cpp" line="192"/>
         <source>Error retrieving Arial resource</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="171"/>
+        <location filename="../src/mainwindow.cpp" line="200"/>
         <source>Unable to load public key: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="177"/>
+        <location filename="../src/mainwindow.cpp" line="206"/>
         <source>Unable to initialise public key: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="220"/>
+        <location filename="../src/mainwindow.cpp" line="254"/>
         <source>Could not find any translations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="232"/>
+        <location filename="../src/mainwindow.cpp" line="266"/>
         <source>Language did not match regular expression: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="239"/>
+        <location filename="../src/mainwindow.cpp" line="273"/>
         <source>Could not match locale: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="263"/>
+        <location filename="../src/mainwindow.cpp" line="297"/>
         <source>Error loading translation: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="271"/>
+        <location filename="../src/mainwindow.cpp" line="305"/>
         <source>&amp;Restore</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="274"/>
+        <location filename="../src/mainwindow.cpp" line="308"/>
         <source>&amp;Maximize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="277"/>
+        <location filename="../src/mainwindow.cpp" line="311"/>
         <source>&amp;Quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="286"/>
+        <location filename="../src/mainwindow.cpp" line="320"/>
         <source>Monocle Client</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="667"/>
+        <location filename="../src/mainwindow.cpp" line="702"/>
         <source>MainWindow::SelectLanguage Failed to select language: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="748"/>
+        <location filename="../src/mainwindow.cpp" line="783"/>
         <source>MainWindow::LanguageChanged Failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="754"/>
+        <location filename="../src/mainwindow.cpp" line="789"/>
         <source>Error loading language: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="829"/>
+        <location filename="../src/mainwindow.cpp" line="864"/>
         <source>Import File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="829"/>
+        <location filename="../src/mainwindow.cpp" line="864"/>
         <source>Monocle File (*.mon);;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1982,69 +2013,69 @@ Date built: </source>
 <context>
     <name>PlaybackWidget</name>
     <message>
-        <location filename="../src/playbackwidget.cpp" line="258"/>
+        <location filename="../src/playbackwidget.cpp" line="259"/>
         <source>Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/playbackwidget.cpp" line="259"/>
+        <location filename="../src/playbackwidget.cpp" line="260"/>
         <source>Metadata</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/playbackwidget.cpp" line="292"/>
+        <location filename="../src/playbackwidget.cpp" line="293"/>
         <source>Error initialising FreeType</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/playbackwidget.cpp" line="299"/>
+        <location filename="../src/playbackwidget.cpp" line="300"/>
         <source>Error loading Arial resource</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/playbackwidget.cpp" line="305"/>
+        <location filename="../src/playbackwidget.cpp" line="306"/>
         <source>Error initialising Arial resource</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/playbackwidget.cpp" line="346"/>
+        <location filename="../src/playbackwidget.cpp" line="357"/>
         <source>Error destroying arial face</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/playbackwidget.cpp" line="356"/>
+        <location filename="../src/playbackwidget.cpp" line="367"/>
         <source>Error destroying FreeType</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/playbackwidget.cpp" line="545"/>
-        <location filename="../src/playbackwidget.cpp" line="556"/>
-        <location filename="../src/playbackwidget.cpp" line="579"/>
-        <location filename="../src/playbackwidget.cpp" line="591"/>
-        <location filename="../src/playbackwidget.cpp" line="617"/>
-        <location filename="../src/playbackwidget.cpp" line="631"/>
+        <location filename="../src/playbackwidget.cpp" line="558"/>
+        <location filename="../src/playbackwidget.cpp" line="569"/>
+        <location filename="../src/playbackwidget.cpp" line="592"/>
+        <location filename="../src/playbackwidget.cpp" line="604"/>
+        <location filename="../src/playbackwidget.cpp" line="630"/>
+        <location filename="../src/playbackwidget.cpp" line="644"/>
         <source>QOpenGLShaderProgram::addShaderFromSourceCode failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/playbackwidget.cpp" line="563"/>
-        <location filename="../src/playbackwidget.cpp" line="640"/>
+        <location filename="../src/playbackwidget.cpp" line="576"/>
+        <location filename="../src/playbackwidget.cpp" line="653"/>
         <source>QOpenGLShaderProgram::link failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/playbackwidget.cpp" line="598"/>
+        <location filename="../src/playbackwidget.cpp" line="611"/>
         <source>QOpenGLShaderProgram::bindAttributeLocation failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/playbackwidget.cpp" line="647"/>
-        <location filename="../src/playbackwidget.cpp" line="654"/>
+        <location filename="../src/playbackwidget.cpp" line="660"/>
+        <location filename="../src/playbackwidget.cpp" line="667"/>
         <source>QOpenGLShaderProgram::attributeLocation failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/playbackwidget.cpp" line="661"/>
+        <location filename="../src/playbackwidget.cpp" line="674"/>
         <source>QOpenGLShaderProgram::uniformLocation failed</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2208,6 +2239,19 @@ Date built: </source>
     <message>
         <location filename="../src/videowidgettoolbar.cpp" line="19"/>
         <source>Hide Toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>VideoWidgetsMgr</name>
+    <message>
+        <location filename="../src/videowidgetsmgr.cpp" line="407"/>
+        <source>Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/videowidgetsmgr.cpp" line="407"/>
+        <source>Server does not support find motion</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

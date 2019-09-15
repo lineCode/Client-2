@@ -97,6 +97,7 @@ class MediaView : public View
   void FrameStepBackwards(const uint64_t playrequestindex, size_t& frame, std::unique_ptr< uint8_t[], utility::DeleteAligned<uint8_t> >& buffer, size_t& buffersize);
   std::pair<int, bool> SendFrame(const uint64_t playrequestindex, const size_t frame, std::unique_ptr< uint8_t[], utility::DeleteAligned<uint8_t> >& buffer, size_t& buffersize); // <ret, frame> The boolean represents whether a frame was decoded or not for this buffer
   void ResetDecoders();
+  std::vector< std::shared_ptr<file::FRAMEHEADER> >::const_iterator GetFrame(const uint64_t time) const;
 
   template<typename U, typename... Args>
   void SendControlRequest(Args... args)

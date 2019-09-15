@@ -324,7 +324,7 @@ bool MediaView::GetImage(ImageBuffer& imagebuffer)
 
 void MediaView::Play()
 {
-  //TODO ResetDecoders here...
+  ResetDecoders();
 
   paused_ = false;
   SendControlRequest<PlaybackControlRequest>(GetNextPlayRequestIndex(true), false, true, time_, boost::none, boost::none);
@@ -662,16 +662,15 @@ void MediaView::Init(const boost::optional<uint64_t>& starttime)
           numframes = 1;
           scrub = true;
 
-          //TODO this can be really REALLY Slow on large files... binary search I think
-          std::vector< std::shared_ptr<file::FRAMEHEADER> >::const_reverse_iterator frameheader = std::find_if(currenttrack_.frameheaders_.crbegin(), currenttrack_.frameheaders_.crend(), [pausetimecontrolrequest](const std::shared_ptr<file::FRAMEHEADER>& frameheader) { return (frameheader->time_ <= pausetimecontrolrequest->time_); });
-          if (frameheader == currenttrack_.frameheaders_.crend())
+          auto frameheader = GetFrame(pausetimecontrolrequest->time_);
+          if (frameheader == currenttrack_.frameheaders_.cend())
           {
             // This shouldn't really happen given we check this earlier, but lets just start at the beginning just in case
             frame = 0;
           }
           else
           {
-            frame = (currenttrack_.frameheaders_.size() - 1) - std::distance(currenttrack_.frameheaders_.crbegin(), frameheader);
+            frame = std::distance(currenttrack_.frameheaders_.cbegin(), frameheader);
             for (uint64_t i = frame; (i > (frame - 500)) && (i <= frame); --i)
             {
               if (currenttrack_.frameheaders_[i]->marker_)
@@ -748,16 +747,15 @@ void MediaView::Init(const boost::optional<uint64_t>& starttime)
             playing = true;
             starttime = time;
 
-            //TODO this can be really REALLY Slow on large files... binary search I think
-            std::vector< std::shared_ptr<file::FRAMEHEADER> >::const_reverse_iterator frameheader = std::find_if(currenttrack_.frameheaders_.crbegin(), currenttrack_.frameheaders_.crend(), [time](const std::shared_ptr<file::FRAMEHEADER>& frameheader) { return (frameheader->time_ <= time); });
-            if (frameheader == currenttrack_.frameheaders_.crend())
+            auto frameheader = GetFrame(time);
+            if (frameheader == currenttrack_.frameheaders_.cend())
             {
               // This shouldn't really happen given we check this earlier, but lets just start at the beginning just in case
               frame = 0;
             }
             else
             {
-              frame = (currenttrack_.frameheaders_.size() - 1) - std::distance(currenttrack_.frameheaders_.crbegin(), frameheader);
+              frame = std::distance(currenttrack_.frameheaders_.cbegin(), frameheader);
               if (playbackcontrolrequest->fetchmarker_) // Search for previous iframe
               {
                 for (uint64_t i = frame; (i > (frame - 500)) && (i <= frame); --i)
@@ -1246,6 +1244,34 @@ void MediaView::ResetDecoders()
     mpeg4decoder->Reset();
 
   }
+}
+
+std::vector< std::shared_ptr<file::FRAMEHEADER> >::const_iterator MediaView::GetFrame(const uint64_t time) const
+{
+  auto i = currenttrack_.frameheaders_.cend();
+  if (currenttrack_.frameheaders_.size() && (time > currenttrack_.frameheaders_.back()->time_)) // lower_bound doesn't work beyond the end, so hack this one in...
+  {
+    i = currenttrack_.frameheaders_.cend() - 1;
+    
+  }
+  else
+  {
+    const std::shared_ptr<file::FRAMEHEADER> tmp = std::make_shared<file::METADATAFRAMEHEADER>(0, 0, 0, time, std::vector<uint8_t>());
+    i = std::lower_bound(currenttrack_.frameheaders_.cbegin(), currenttrack_.frameheaders_.cend(), tmp, [](const std::shared_ptr<file::FRAMEHEADER>& lhs, const std::shared_ptr<file::FRAMEHEADER>& rhs) { return (lhs->time_ < rhs->time_); });
+  }
+  if (i == currenttrack_.frameheaders_.cend())
+  {
+
+    return currenttrack_.frameheaders_.cend();
+  }
+
+  while ((i > currenttrack_.frameheaders_.cbegin()) && ((*i)->time_ > time))
+  {
+    --i;
+
+  }
+
+  return i;
 }
 
 }
