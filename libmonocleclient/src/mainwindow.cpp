@@ -76,7 +76,7 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   arial_(new QResource(":/arial.ttf")),
   showfullscreen_(":/showfullscreen.png"),
   gen_(rd_()),
-  hsvcolordist_(0.5, 1.0),
+  hsvcolordist_(0.0, 1.0),
   numcudadevices_(0),
   ioservicepool_(numioservices, numioservicethreads, [](){}, [](){}),
   guiioservice_(0),
@@ -450,8 +450,8 @@ QColor MainWindow::GetRandomHSVColour() const
 
 QVector4D MainWindow::GetRandomHSVColour4D() const
 {
-  const QColor color = QColor::fromHsvF(hsvcolordist_(gen_), hsvcolordist_(gen_), hsvcolordist_(gen_), 1.0f);
-  return QVector4D(color.redF(), color.greenF(), color.blueF(), color.alphaF());
+  const QColor colour = QColor::fromHsvF(hsvcolordist_(gen_), hsvcolordist_(gen_), hsvcolordist_(gen_), 1.0f).darker(200);
+  return QVector4D(colour.redF(), colour.greenF(), colour.blueF(), 1.0f);
 }
 
 void MainWindow::changeEvent(QEvent* event)
