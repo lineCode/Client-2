@@ -2365,7 +2365,7 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
         return SendErrorResponse(Message::CONTROLSTREAM, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
       }
 
-      const Error error = ControlStream(controlstreamplayrequest->token(), controlstreamplayrequest->playrequestindex(), controlstreamplayrequest->fetchmarker(), controlstreamplayrequest->ratecontrol(), controlstreamplayrequest->forwards() ? boost::optional<bool>(controlstreamplayrequest->forwards()) : boost::none, controlstreamplayrequest->starttime() ? boost::optional<uint64_t>(controlstreamplayrequest->starttime()) : boost::none, controlstreamplayrequest->endtime() ? boost::optional<uint64_t>(controlstreamplayrequest->endtime()) : boost::none, controlstreamplayrequest->numframes() ? boost::optional<uint64_t>(controlstreamplayrequest->numframes()) : boost::none);
+      const Error error = ControlStream(controlstreamplayrequest->token(), controlstreamplayrequest->playrequestindex(), controlstreamplayrequest->fetchmarker(), controlstreamplayrequest->ratecontrol(), controlstreamplayrequest->forwards() ? boost::optional<bool>(controlstreamplayrequest->forwards()) : boost::none, controlstreamplayrequest->starttime() ? boost::optional<uint64_t>(controlstreamplayrequest->starttime()) : boost::none, controlstreamplayrequest->endtime() ? boost::optional<uint64_t>(controlstreamplayrequest->endtime()) : boost::none, controlstreamplayrequest->numframes() ? boost::optional<uint64_t>(controlstreamplayrequest->numframes()) : boost::none, controlstreamplayrequest->iframes());
       if (error.code_ != ErrorCode::Success)
       {
 

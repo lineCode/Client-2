@@ -482,7 +482,7 @@ void VideoView::FrameStep(const bool forwards)
 
   for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
   {
-    metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, false, forwards, time_, boost::none, 2); // This request a couple of additional frame just in case
+    metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, false, forwards, time_, boost::none, 2, false); // This request a couple of additional frame just in case
 
   }
 }
@@ -494,7 +494,7 @@ void VideoView::Play(const uint64_t time, const boost::optional<uint64_t>& numfr
     ResetDecoders();
   }
 
-  connection_->ControlStream(streamtoken_, GetNextPlayRequestIndex(true), true, !numframes.is_initialized(), true, time + GetTimeOffset(), boost::none, numframes);
+  connection_->ControlStream(streamtoken_, GetNextPlayRequestIndex(true), true, !numframes.is_initialized(), true, time + GetTimeOffset(), boost::none, numframes, false);
   if (numframes.is_initialized() && ((*numframes == 0) || (*numframes == 1))) // Is this an effectively pause request...
   {
     controlstreamendcallback_ = [this](const uint64_t playrequestindex, const monocle::ErrorCode err)
@@ -555,7 +555,7 @@ void VideoView::Play(const uint64_t time, const boost::optional<uint64_t>& numfr
 
   for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
   {
-    metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, !numframes.is_initialized(), true, time + GetTimeOffset(), boost::none, numframes);
+    metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, !numframes.is_initialized(), true, time + GetTimeOffset(), boost::none, numframes, false);
 
   }
 }
@@ -589,7 +589,7 @@ void VideoView::Scrub(const uint64_t time)
     ResetDecoders();
   }
 
-  connection_->ControlStream(streamtoken_, GetNextPlayRequestIndex(false), true, false, true, time + GetTimeOffset(), boost::none, 1);
+  connection_->ControlStream(streamtoken_, GetNextPlayRequestIndex(false), true, false, true, time + GetTimeOffset(), boost::none, 1, true);
   controlstreamendcallback_ = [this](const uint64_t playrequestindex, const monocle::ErrorCode err)
   {
     if (err != monocle::ErrorCode::Success)
@@ -627,7 +627,7 @@ void VideoView::Scrub(const uint64_t time)
 
   for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
   {
-    metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, false, true, time + GetTimeOffset(), boost::none, 1);
+    metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, false, false, time + GetTimeOffset(), boost::none, 5, false);
 
   }
   paused_ = true;

@@ -92,7 +92,7 @@ class Connection : public boost::enable_shared_from_this<Connection>
   virtual Error ChangeRecordingJob(const uint64_t recordingtoken, const uint64_t token, const std::string& name, const bool enabled, const uint64_t priority, const std::vector<CHANGERECORDINGJOBSOURCE>& sources) = 0;
   virtual Error ChangeTrack(const uint64_t recordingtoken, const uint32_t id, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files) = 0;
   virtual Error ChangeUser(const uint64_t token, const boost::optional<std::string>& digest, const uint64_t group) = 0;
-  virtual Error ControlStream(const uint64_t streamtoken, const uint64_t playrequestindex, const bool fetchmarker, const bool ratecontrol, const boost::optional<bool>& forwards, const boost::optional<uint64_t>& starttime, const boost::optional<uint64_t>& endtime, const boost::optional<uint64_t>& numframes) = 0;
+  virtual Error ControlStream(const uint64_t streamtoken, const uint64_t playrequestindex, const bool fetchmarker, const bool ratecontrol, const boost::optional<bool>& forwards, const boost::optional<uint64_t>& starttime, const boost::optional<uint64_t>& endtime, const boost::optional<uint64_t>& numframes, const bool iframes) = 0;
   virtual Error ControlStreamFrameStep(const uint64_t streamtoken, const uint64_t playrequestindex, const bool forwards, const uint64_t sequencenum) = 0;
   virtual Error ControlStreamLive(const uint64_t streamtoken, const uint64_t playrequestindex) = 0;
   virtual Error ControlStreamPause(const uint64_t streamtoken, const boost::optional<uint64_t>& time) = 0;

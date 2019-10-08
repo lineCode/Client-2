@@ -76,12 +76,13 @@ class PauseTimeControlRequest : public ControlRequest
 {
  public:
 
-   PauseTimeControlRequest(std::future< std::unique_ptr<ControlRequest> >&& nextcontrolrequest, const uint64_t playrequestindex, const uint64_t time);
+   PauseTimeControlRequest(std::future< std::unique_ptr<ControlRequest> >&& nextcontrolrequest, const uint64_t playrequestindex, const uint64_t time, const bool iframes);
 
   inline CONTROLTYPE GetControlType() const { return CONTROLTYPE_PAUSETIME; }
 
   uint64_t playrequestindex_;
   uint64_t time_;
+  bool iframes_;
 
 };
 
@@ -170,10 +171,11 @@ PlaybackControlFrameStepRequest::PlaybackControlFrameStepRequest(std::future< st
 
 }
 
-PauseTimeControlRequest::PauseTimeControlRequest(std::future< std::unique_ptr<ControlRequest> >&& nextcontrolrequest, const uint64_t playrequestindex, const uint64_t time) :
+PauseTimeControlRequest::PauseTimeControlRequest(std::future< std::unique_ptr<ControlRequest> >&& nextcontrolrequest, const uint64_t playrequestindex, const uint64_t time, const bool iframes) :
   ControlRequest(std::move(nextcontrolrequest)),
   playrequestindex_(playrequestindex),
-  time_(time)
+  time_(time),
+  iframes_(iframes)
 {
 
 }
@@ -531,10 +533,10 @@ void MediaView::Scrub(const uint64_t time)
 
   paused_ = true;
   const uint64_t playrequestindex = GetNextPlayRequestIndex(false);
-  videostream_->SendControlRequest<PauseTimeControlRequest>(playrequestindex, time);
+  videostream_->SendControlRequest<PauseTimeControlRequest>(playrequestindex, time, true);
   for (boost::shared_ptr<MediaStream>& metadatastream : metadatastreams_)
   {
-    metadatastream->SendControlRequest<PauseTimeControlRequest>(playrequestindex, time);
+    metadatastream->SendControlRequest<PlaybackControlRequest>(GetPlayRequestIndex(), 0, true, false, time_, boost::none, 5);
 
   }
 }
@@ -1219,6 +1221,7 @@ void MediaView::PlayThread(boost::shared_ptr<MediaStream> stream, const bool mai
   boost::optional<uint64_t> numframes;
   std::chrono::steady_clock::time_point requesttime;
   bool scrub = false;
+  bool iframes = false;
   while (stream->IsRunning())
   {
     if (mainstream && numframes.is_initialized() && (*numframes == 0))
@@ -1318,6 +1321,7 @@ void MediaView::PlayThread(boost::shared_ptr<MediaStream> stream, const bool mai
         frame = 0;
         numframes = 1;
         scrub = true;
+        iframes = pausetimecontrolrequest->iframes_;
 
         auto frameheader = stream->GetFrame(pausetimecontrolrequest->time_);
         if (frameheader == stream->track_.frameheaders_.cend())
@@ -1332,7 +1336,7 @@ void MediaView::PlayThread(boost::shared_ptr<MediaStream> stream, const bool mai
           {
             if (stream->track_.frameheaders_[i]->marker_)
             {
-              if (numframes.is_initialized())
+              if (!iframes && numframes.is_initialized())
               {
                 *numframes += (frame - i);
 
@@ -1351,6 +1355,7 @@ void MediaView::PlayThread(boost::shared_ptr<MediaStream> stream, const bool mai
         playing = false;
         numframes.reset();
         scrub = false;
+        iframes = false;
         if (pausecontrolrequest->frame_.is_initialized())
         {
           frame = *pausecontrolrequest->frame_;
@@ -1360,6 +1365,7 @@ void MediaView::PlayThread(boost::shared_ptr<MediaStream> stream, const bool mai
       else if (controlrequest->GetControlType() == CONTROLTYPE_PLAYBACK)
       {
         scrub = false;
+        iframes = false;
         if (stream->track_.frameheaders_.empty())
         {
           playing = false;
@@ -1406,7 +1412,7 @@ void MediaView::PlayThread(boost::shared_ptr<MediaStream> stream, const bool mai
           playing = true;
           starttime = time;
 
-          auto frameheader = stream->GetFrame(time);
+          std::vector< std::shared_ptr<file::FRAMEHEADER> >::const_iterator frameheader = stream->GetFrame(time);
           if (frameheader == stream->track_.frameheaders_.cend())
           {
             // This shouldn't really happen given we check this earlier, but lets just start at the beginning just in case
@@ -1439,6 +1445,7 @@ void MediaView::PlayThread(boost::shared_ptr<MediaStream> stream, const bool mai
         PlaybackControlFrameStepRequest* playbackcontrolframesteprequest = reinterpret_cast<PlaybackControlFrameStepRequest*>(controlrequest.get());
         playing = false;
         scrub = false;
+        iframes = false;
         playrequestindex = playbackcontrolframesteprequest->playrequestindex_;
 
         {

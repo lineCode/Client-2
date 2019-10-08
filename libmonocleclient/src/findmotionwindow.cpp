@@ -165,7 +165,7 @@ void FindMotionWindow::Play(const uint64_t time, const boost::optional<uint64_t>
   }
 
   ResetDecoders();
-  connection_->ControlStream(*streamtoken_, ui_.videowidget->GetNextPlayRequestIndex(), true, true, true, time + device_->GetTimeOffset(), boost::none, numframes);
+  connection_->ControlStream(*streamtoken_, ui_.videowidget->GetNextPlayRequestIndex(), true, true, true, time + device_->GetTimeOffset(), boost::none, numframes, false);
   if (numframes.is_initialized() && ((*numframes == 0) || (*numframes == 1))) // Is this an effectively pause request...
   {
     controlstreamendcallback_ = [this](const uint64_t playrequestindex, const monocle::ErrorCode err)

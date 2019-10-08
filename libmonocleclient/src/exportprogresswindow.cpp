@@ -282,7 +282,7 @@ ExportProgressWindow::ExportProgressWindow(QWidget* parent, const QString& direc
               }
               exporttrackconnection->state_ = EXPORTTRACKSTATE_OPENING;
               exporttrackconnection->codecindices_ = createstreamresponse.codecindices_;
-              exporttrackconnection->controlstream_ = exporttrackconnection->ControlStream(createstreamresponse.token_, 0, true, false, true, starttime, endtime, boost::none, [this, exporttrackconnection, recordingname](const std::chrono::steady_clock::duration latency, const monocle::client::CONTROLSTREAMRESPONSE& controlstreamresponse)
+              exporttrackconnection->controlstream_ = exporttrackconnection->ControlStream(createstreamresponse.token_, 0, true, false, true, starttime, endtime, boost::none, false, [this, exporttrackconnection, recordingname](const std::chrono::steady_clock::duration latency, const monocle::client::CONTROLSTREAMRESPONSE& controlstreamresponse)
               {
                 std::lock_guard<std::recursive_mutex> lock(exporttrackconnection->mutex_);
                 if (controlstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)

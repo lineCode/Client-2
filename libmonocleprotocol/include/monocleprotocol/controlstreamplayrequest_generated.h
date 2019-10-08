@@ -19,7 +19,8 @@ struct ControlStreamPlayRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::T
     VT_FORWARDS = 12,
     VT_STARTTIME = 14,
     VT_ENDTIME = 16,
-    VT_NUMFRAMES = 18
+    VT_NUMFRAMES = 18,
+    VT_IFRAMES = 20
   };
   uint64_t token() const {
     return GetField<uint64_t>(VT_TOKEN, 0);
@@ -45,6 +46,9 @@ struct ControlStreamPlayRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::T
   uint64_t numframes() const {
     return GetField<uint64_t>(VT_NUMFRAMES, 0);
   }
+  bool iframes() const {
+    return GetField<uint8_t>(VT_IFRAMES, 0) != 0;
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_TOKEN) &&
@@ -55,6 +59,7 @@ struct ControlStreamPlayRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::T
            VerifyField<uint64_t>(verifier, VT_STARTTIME) &&
            VerifyField<uint64_t>(verifier, VT_ENDTIME) &&
            VerifyField<uint64_t>(verifier, VT_NUMFRAMES) &&
+           VerifyField<uint8_t>(verifier, VT_IFRAMES) &&
            verifier.EndTable();
   }
 };
@@ -86,6 +91,9 @@ struct ControlStreamPlayRequestBuilder {
   void add_numframes(uint64_t numframes) {
     fbb_.AddElement<uint64_t>(ControlStreamPlayRequest::VT_NUMFRAMES, numframes, 0);
   }
+  void add_iframes(bool iframes) {
+    fbb_.AddElement<uint8_t>(ControlStreamPlayRequest::VT_IFRAMES, static_cast<uint8_t>(iframes), 0);
+  }
   explicit ControlStreamPlayRequestBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -107,13 +115,15 @@ inline flatbuffers::Offset<ControlStreamPlayRequest> CreateControlStreamPlayRequ
     bool forwards = false,
     uint64_t starttime = 0,
     uint64_t endtime = 0,
-    uint64_t numframes = 0) {
+    uint64_t numframes = 0,
+    bool iframes = false) {
   ControlStreamPlayRequestBuilder builder_(_fbb);
   builder_.add_numframes(numframes);
   builder_.add_endtime(endtime);
   builder_.add_starttime(starttime);
   builder_.add_playrequestindex(playrequestindex);
   builder_.add_token(token);
+  builder_.add_iframes(iframes);
   builder_.add_forwards(forwards);
   builder_.add_ratecontrol(ratecontrol);
   builder_.add_fetchmarker(fetchmarker);

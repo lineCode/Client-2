@@ -10,4 +10,5 @@ table ControlStreamPlayRequest
   starttime:uint64 (id:5);
   endtime:uint64 (id:6);
   numframes:uint64 (id:7);
+  iframes:bool (id:8);
 }

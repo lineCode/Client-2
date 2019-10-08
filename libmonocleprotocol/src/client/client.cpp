@@ -566,10 +566,10 @@ boost::unique_future<CHANGEUSERRESPONSE> Client::ChangeUser(const uint64_t token
   return changeuser_.CreateFuture(sequence_);
 }
 
-boost::unique_future<CONTROLSTREAMRESPONSE> Client::ControlStream(const uint64_t streamtoken, const uint64_t playrequest, const bool fetchmarker, const bool ratecontrol, const bool forwards, const boost::optional<uint64_t>& starttime, const boost::optional<uint64_t>& endtime, const boost::optional<uint64_t>& numframes)
+boost::unique_future<CONTROLSTREAMRESPONSE> Client::ControlStream(const uint64_t streamtoken, const uint64_t playrequest, const bool fetchmarker, const bool ratecontrol, const bool forwards, const boost::optional<uint64_t>& starttime, const boost::optional<uint64_t>& endtime, const boost::optional<uint64_t>& numframes, const bool iframes)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  if (ControlStreamSend(streamtoken, playrequest, fetchmarker, ratecontrol, forwards, starttime, endtime, numframes))
+  if (ControlStreamSend(streamtoken, playrequest, fetchmarker, ratecontrol, forwards, starttime, endtime, numframes, iframes))
   {
 
     return boost::make_ready_future(CONTROLSTREAMRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
@@ -1260,10 +1260,10 @@ Connection Client::ChangeUser(const uint64_t token, const boost::optional<std::s
   return changeuser_.CreateCallback(sequence_, callback);
 }
 
-Connection Client::ControlStream(const uint64_t streamtoken, const uint64_t playrequest, const bool fetchmarker, const bool ratecontrol, const bool forwards, const boost::optional<uint64_t>& starttime, const boost::optional<uint64_t>& endtime, const boost::optional<uint64_t>& numframes, boost::function<void(const std::chrono::steady_clock::duration latency, const CONTROLSTREAMRESPONSE&)> callback)
+Connection Client::ControlStream(const uint64_t streamtoken, const uint64_t playrequest, const bool fetchmarker, const bool ratecontrol, const bool forwards, const boost::optional<uint64_t>& starttime, const boost::optional<uint64_t>& endtime, const boost::optional<uint64_t>& numframes, const bool iframes, boost::function<void(const std::chrono::steady_clock::duration latency, const CONTROLSTREAMRESPONSE&)> callback)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  if (ControlStreamSend(streamtoken, playrequest, fetchmarker, ratecontrol, forwards, starttime, endtime, numframes))
+  if (ControlStreamSend(streamtoken, playrequest, fetchmarker, ratecontrol, forwards, starttime, endtime, numframes, iframes))
   {
     callback(std::chrono::steady_clock::duration(), CONTROLSTREAMRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
     return Connection();
@@ -2218,10 +2218,10 @@ boost::system::error_code Client::ChangeUserSend(const uint64_t token, const boo
   return err;
 }
 
-boost::system::error_code Client::ControlStreamSend(const uint64_t streamtoken, const uint64_t playrequest, const bool fetchmarker, const bool ratecontrol, const bool forwards, const boost::optional<uint64_t>& starttime, const boost::optional<uint64_t>& endtime, const boost::optional<uint64_t>& numframes)
+boost::system::error_code Client::ControlStreamSend(const uint64_t streamtoken, const uint64_t playrequest, const bool fetchmarker, const bool ratecontrol, const bool forwards, const boost::optional<uint64_t>& starttime, const boost::optional<uint64_t>& endtime, const boost::optional<uint64_t>& numframes, const bool iframes)
 {
   fbb_.Clear();
-  fbb_.Finish(CreateControlStreamPlayRequest(fbb_, streamtoken, playrequest, fetchmarker, ratecontrol, forwards, starttime.is_initialized() ? *starttime : 0, endtime.is_initialized() ? *endtime : 0, numframes.is_initialized() ? *numframes : 0));
+  fbb_.Finish(CreateControlStreamPlayRequest(fbb_, streamtoken, playrequest, fetchmarker, ratecontrol, forwards, starttime.is_initialized() ? *starttime : 0, endtime.is_initialized() ? *endtime : 0, numframes.is_initialized() ? *numframes : 0, iframes));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::CONTROLSTREAM, ++sequence_);
   boost::system::error_code err;
