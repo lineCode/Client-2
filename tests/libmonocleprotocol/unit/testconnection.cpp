@@ -147,7 +147,7 @@ Error TestConnection::AddReceiver(const monocle::ReceiverMode mode, const std::s
   return Error();
 }
 
-std::pair<Error, uint64_t> TestConnection::AddRecording(const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool createdefaulttracks)
+std::pair<Error, uint64_t> TestConnection::AddRecording(const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool createdefaulttracks, const bool createdefaultjobs)
 {
   return std::make_pair(Error(), 0);
 }

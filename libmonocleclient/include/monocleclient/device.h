@@ -135,6 +135,7 @@ class Device : public Connection
   bool SupportsDeviceLocation() const;
   bool SupportsFindMotion() const;
   bool SupportsObjectDetection() const;
+  bool SupportsCreateDefaultJob() const;
 
   // These methods look for the current user in the users_, find the group and figure out whether the current user has permission to do the operation
   bool CanManageUsers();

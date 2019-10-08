@@ -44,6 +44,13 @@ ManageRecordingWindow::ManageRecordingWindow(QWidget* parent, boost::shared_ptr<
 
   }
 
+  if (!device_->SupportsCreateDefaultJob())
+  {
+    ui_.checkcreatedefaultjob->setEnabled(false);
+    ui_.checkcreatedefaultjob->setChecked(false);
+    ui_.checkcreatedefaultjob->setToolTip("Please upgrade server for support of this option");
+  }
+
   if (token_.is_initialized())
   {
     setWindowTitle("Edit Recording");
@@ -57,6 +64,7 @@ ManageRecordingWindow::ManageRecordingWindow(QWidget* parent, boost::shared_ptr<
     ui_.spinretentiontime->setValue(recording->GetRetentionTime() / (86400 * 1000));
 
     ui_.checkcreatedefaulttracks->setHidden(true);
+    ui_.checkcreatedefaultjob->setHidden(true);
     const QSize sizehint = sizeHint();
     if (sizehint.isValid())
     {
@@ -142,7 +150,7 @@ void ManageRecordingWindow::on_buttonok_clicked()
   }
   else
   {
-    recordingconnection_ = device_->AddRecording(std::string(), ui_.editname->text().toStdString(), ui_.editlocation->text().toStdString(), std::string(), std::string(), std::string(), retentiontime, ui_.checkcreatedefaulttracks->isChecked(), [this](const std::chrono::nanoseconds latency, const monocle::client::ADDRECORDINGRESPONSE& addrecordingresponse)
+    recordingconnection_ = device_->AddRecording(std::string(), ui_.editname->text().toStdString(), ui_.editlocation->text().toStdString(), std::string(), std::string(), std::string(), retentiontime, ui_.checkcreatedefaulttracks->isChecked(), ui_.checkcreatedefaultjob->isChecked(), [this](const std::chrono::nanoseconds latency, const monocle::client::ADDRECORDINGRESPONSE& addrecordingresponse)
     {
       SetEnabled(true);
       if (addrecordingresponse.GetErrorCode() != monocle::ErrorCode::Success)

@@ -79,7 +79,7 @@ class Connection : public boost::enable_shared_from_this<Connection>
   virtual Error AddMap(const std::string& name, const std::string& location, const std::vector<int8_t>& image) = 0;
   virtual Error AddONVIFUser(const std::string& username, const std::string& password, const ONVIFUserlevel onvifuserlevel) = 0;
   virtual Error AddReceiver(const monocle::ReceiverMode mode, const std::string& uri, const std::string& username, const std::string& password, const std::vector<std::string>& parameters) = 0;
-  virtual std::pair<Error, uint64_t> AddRecording(const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool createdefaulttracks) = 0;
+  virtual std::pair<Error, uint64_t> AddRecording(const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool createdefaulttracks, const bool createdefaultjob) = 0;
   virtual Error AddRecordingJob(const uint64_t recordingtoken, const std::string& name, const bool enabled, const uint64_t priority, const std::vector<ADDRECORDINGJOBSOURCE>& sources) = 0;
   virtual std::pair<Error, uint32_t> AddTrack(const uint64_t recordingtoken, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files) = 0;
   virtual Error AddUser(const std::string& username, const std::string& digest, const uint64_t group) = 0;

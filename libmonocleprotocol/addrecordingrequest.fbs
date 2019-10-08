@@ -10,4 +10,5 @@ table AddRecordingRequest
   content:string (id:5);
   retentiontime:uint64 (id:6);
   createdefaulttracks:bool (id:7);
+  createdefaultjob:bool (id:8);
 }

@@ -19,7 +19,8 @@ struct AddRecordingRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table 
     VT_ADDRESS = 12,
     VT_CONTENT = 14,
     VT_RETENTIONTIME = 16,
-    VT_CREATEDEFAULTTRACKS = 18
+    VT_CREATEDEFAULTTRACKS = 18,
+    VT_CREATEDEFAULTJOB = 20
   };
   const flatbuffers::String *sourceid() const {
     return GetPointer<const flatbuffers::String *>(VT_SOURCEID);
@@ -45,6 +46,9 @@ struct AddRecordingRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table 
   bool createdefaulttracks() const {
     return GetField<uint8_t>(VT_CREATEDEFAULTTRACKS, 0) != 0;
   }
+  bool createdefaultjob() const {
+    return GetField<uint8_t>(VT_CREATEDEFAULTJOB, 0) != 0;
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_SOURCEID) &&
@@ -61,6 +65,7 @@ struct AddRecordingRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table 
            verifier.VerifyString(content()) &&
            VerifyField<uint64_t>(verifier, VT_RETENTIONTIME) &&
            VerifyField<uint8_t>(verifier, VT_CREATEDEFAULTTRACKS) &&
+           VerifyField<uint8_t>(verifier, VT_CREATEDEFAULTJOB) &&
            verifier.EndTable();
   }
 };
@@ -92,6 +97,9 @@ struct AddRecordingRequestBuilder {
   void add_createdefaulttracks(bool createdefaulttracks) {
     fbb_.AddElement<uint8_t>(AddRecordingRequest::VT_CREATEDEFAULTTRACKS, static_cast<uint8_t>(createdefaulttracks), 0);
   }
+  void add_createdefaultjob(bool createdefaultjob) {
+    fbb_.AddElement<uint8_t>(AddRecordingRequest::VT_CREATEDEFAULTJOB, static_cast<uint8_t>(createdefaultjob), 0);
+  }
   explicit AddRecordingRequestBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -113,7 +121,8 @@ inline flatbuffers::Offset<AddRecordingRequest> CreateAddRecordingRequest(
     flatbuffers::Offset<flatbuffers::String> address = 0,
     flatbuffers::Offset<flatbuffers::String> content = 0,
     uint64_t retentiontime = 0,
-    bool createdefaulttracks = false) {
+    bool createdefaulttracks = false,
+    bool createdefaultjob = false) {
   AddRecordingRequestBuilder builder_(_fbb);
   builder_.add_retentiontime(retentiontime);
   builder_.add_content(content);
@@ -122,6 +131,7 @@ inline flatbuffers::Offset<AddRecordingRequest> CreateAddRecordingRequest(
   builder_.add_location(location);
   builder_.add_name(name);
   builder_.add_sourceid(sourceid);
+  builder_.add_createdefaultjob(createdefaultjob);
   builder_.add_createdefaulttracks(createdefaulttracks);
   return builder_.Finish();
 }
@@ -135,7 +145,8 @@ inline flatbuffers::Offset<AddRecordingRequest> CreateAddRecordingRequestDirect(
     const char *address = nullptr,
     const char *content = nullptr,
     uint64_t retentiontime = 0,
-    bool createdefaulttracks = false) {
+    bool createdefaulttracks = false,
+    bool createdefaultjob = false) {
   auto sourceid__ = sourceid ? _fbb.CreateString(sourceid) : 0;
   auto name__ = name ? _fbb.CreateString(name) : 0;
   auto location__ = location ? _fbb.CreateString(location) : 0;
@@ -151,7 +162,8 @@ inline flatbuffers::Offset<AddRecordingRequest> CreateAddRecordingRequestDirect(
       address__,
       content__,
       retentiontime,
-      createdefaulttracks);
+      createdefaulttracks,
+      createdefaultjob);
 }
 
 }  // namespace monocle

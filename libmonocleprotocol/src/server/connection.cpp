@@ -1657,7 +1657,7 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
 
       }
 
-      const std::pair<Error, uint64_t> error = AddRecording(sourceid, name, location, description, address, content, addrecordingrequest->retentiontime(), addrecordingrequest->createdefaulttracks());
+      const std::pair<Error, uint64_t> error = AddRecording(sourceid, name, location, description, address, content, addrecordingrequest->retentiontime(), addrecordingrequest->createdefaulttracks(), addrecordingrequest->createdefaultjob());
       if (error.first.code_ != ErrorCode::Success)
       {
 

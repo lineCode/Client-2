@@ -156,7 +156,7 @@ namespace client
 
 ///// Globals /////
 
-const int32_t DEFAULT_TIMEOUT = 10;
+const int32_t DEFAULT_TIMEOUT = 20;
 
 ///// Methods /////
 
@@ -423,10 +423,10 @@ boost::unique_future<ADDRECEIVERRESPONSE> Client::AddReceiver(const monocle::Rec
   return addreceiver_.CreateFuture(sequence_);
 }
 
-boost::unique_future<ADDRECORDINGRESPONSE> Client::AddRecording(const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool createdefaulttracks)
+boost::unique_future<ADDRECORDINGRESPONSE> Client::AddRecording(const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool createdefaulttracks, const bool createdefaultjob)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  if (AddRecordingSend(sourceid, name, location, description, address, content, retentiontime, createdefaulttracks))
+  if (AddRecordingSend(sourceid, name, location, description, address, content, retentiontime, createdefaulttracks, createdefaultjob))
   {
 
     return boost::make_ready_future(ADDRECORDINGRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
@@ -1117,10 +1117,10 @@ Connection Client::AddReceiver(const monocle::ReceiverMode mode, const std::stri
   return addreceiver_.CreateCallback(sequence_, callback);
 }
 
-Connection Client::AddRecording(const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool createdefaulttracks, boost::function<void(const std::chrono::steady_clock::duration, const ADDRECORDINGRESPONSE&)> callback)
+Connection Client::AddRecording(const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool createdefaulttracks, const bool createdefaultjob, boost::function<void(const std::chrono::steady_clock::duration, const ADDRECORDINGRESPONSE&)> callback)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  if (AddRecordingSend(sourceid, name, location, description, address, content, retentiontime, createdefaulttracks))
+  if (AddRecordingSend(sourceid, name, location, description, address, content, retentiontime, createdefaulttracks, createdefaultjob))
   {
     callback(std::chrono::steady_clock::duration(), ADDRECORDINGRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
     return Connection();
@@ -1868,10 +1868,10 @@ boost::system::error_code Client::AddReceiverSend(const monocle::ReceiverMode mo
   return err;
 }
 
-boost::system::error_code Client::AddRecordingSend(const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool createdefaulttracks)
+boost::system::error_code Client::AddRecordingSend(const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool createdefaulttracks, const bool createdefaultjob)
 {
   fbb_.Clear();
-  fbb_.Finish(CreateAddRecordingRequest(fbb_, fbb_.CreateString(sourceid), fbb_.CreateString(name), fbb_.CreateString(location), fbb_.CreateString(description), fbb_.CreateString(address), fbb_.CreateString(content), retentiontime, createdefaulttracks));
+  fbb_.Finish(CreateAddRecordingRequest(fbb_, fbb_.CreateString(sourceid), fbb_.CreateString(name), fbb_.CreateString(location), fbb_.CreateString(description), fbb_.CreateString(address), fbb_.CreateString(content), retentiontime, createdefaulttracks, createdefaultjob));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::ADDRECORDING, ++sequence_);
   boost::system::error_code err;

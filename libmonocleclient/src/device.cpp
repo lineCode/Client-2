@@ -1196,6 +1196,16 @@ bool Device::SupportsObjectDetection() const
   return true;
 }
 
+bool Device::SupportsCreateDefaultJob() const
+{
+  if (version_ < utility::Version(1, 10, 0))
+  {
+
+    return false;
+  }
+  return true;
+}
+
 bool Device::CanManageUsers()
 {
   std::vector< QSharedPointer<User> >::const_iterator user = std::find_if(users_.cbegin(), users_.cend(), [this](const QSharedPointer<User>& user) { return (user->GetUsername() == username_); });
