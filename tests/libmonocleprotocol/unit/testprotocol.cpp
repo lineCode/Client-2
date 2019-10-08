@@ -155,7 +155,7 @@ TEST_F(TestProtocol, BadAuthentication)
 
 TEST_F(TestProtocol, ControlStream)
 {
-  const monocle::client::CONTROLSTREAMRESPONSE controlstream = client_->ControlStream(0, 1, false, false, true, boost::none, 0, 1).get();
+  const monocle::client::CONTROLSTREAMRESPONSE controlstream = client_->ControlStream(0, 1, false, false, true, boost::none, 0, 1, false).get();
   ASSERT_EQ(monocle::ErrorCode::Success, controlstream.GetErrorCode());
 }
 
