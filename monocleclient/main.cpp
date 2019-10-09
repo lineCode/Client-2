@@ -131,7 +131,7 @@ int main(int argc, char** argv)
   qRegisterMetaType<uint64_t>("uint64_t");
 
   // Program options
-  uint32_t numioservices = static_cast<uint32_t>(std::thread::hardware_concurrency());
+  uint32_t numioservices = std::min(16u, static_cast<uint32_t>(std::thread::hardware_concurrency()));
   if (numioservices == 0)
   {
     std::cout << "Warning: Unable to determine number of processors" << std::endl;
