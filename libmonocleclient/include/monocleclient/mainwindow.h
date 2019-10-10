@@ -141,8 +141,8 @@ class MainWindow : public QMainWindow
 
   void ShowHideDocks();
 
-  QColor GetRandomHSVColour() const;
-  QVector4D GetRandomHSVColour4D() const;
+  QColor GetRandomHSVColour();
+  QVector4D GetRandomHSVColour4D();
 
   const utility::Version& GetVersion() const { return version_; }
   ShortcutMgr& GetShortcutMgr() { return shortcutmgr_; }
