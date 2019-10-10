@@ -56,7 +56,7 @@ Options::Options() :
   infotextformat_("%a %b %d %T.%f %Y %k %q"),
   showinfo_(true),
   stretchvideo_(true),
-  maxcudadecodersperdevice_(10),
+  maxcudadecodersperdevice_(0),
   minimisetotray_(true),
   alwaysshowtray_(false),
   backupdirectory_(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + QString("/MonocleSecurity")),
