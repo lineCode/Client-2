@@ -35,8 +35,6 @@ RtspResponse::RtspResponse(const std::string& text) :
   contenttype_(headers::CONTENTTYPE_INVALID),
   timeout_(DEFAULT_TIMEOUT)
 {
-  std::cout << text << std::endl;//TODO remove
-
   // Split the header by line
   std::deque<std::string> headers;
   static const boost::regex newline("\r\n|\r[^\n]|[^\r]\n");
