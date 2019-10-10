@@ -35,6 +35,8 @@ RtspResponse::RtspResponse(const std::string& text) :
   contenttype_(headers::CONTENTTYPE_INVALID),
   timeout_(DEFAULT_TIMEOUT)
 {
+  std::cout << text << std::endl;//TODO remove
+
   // Split the header by line
   std::deque<std::string> headers;
   static const boost::regex newline("\r\n|\r[^\n]|[^\r]\n");
@@ -109,8 +111,9 @@ RtspResponse::RtspResponse(const std::string& text) :
       try
       {
         std::vector<std::string> options;
-        static const boost::regex separator(", |,[^ ]|[^,] ");
-        for (const auto& option : boost::algorithm::split_regex(options, value, separator))
+        options.reserve(8);
+        static const boost::regex separator(",|, |,[^ ]|[^,] ");
+        for (const std::string& option : boost::algorithm::split_regex(options, value, separator))
         {
           headers::REQUESTTYPE optiontype = headers::RequestTypeFromString(option);
           if (optiontype != headers::REQUESTTYPE_INVALID)
