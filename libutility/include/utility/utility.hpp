@@ -13,7 +13,6 @@
 #include <boost/optional/optional.hpp>
 #include <boost/filesystem/path.hpp>
 #include <chrono>
-#include <corecrt_malloc.h>
 #include <cstring>
 #include <limits>
 #include <memory>
@@ -28,6 +27,7 @@
 #include <zlib.h>
 
 #ifdef _WIN32
+  #include <corecrt_malloc.h>
   #include <handleapi.h>
   #include <minwindef.h>
   #include <WinBase.h>

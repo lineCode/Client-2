@@ -443,12 +443,12 @@ void MainWindow::ShowHideDocks()
   }
 }
 
-QColor MainWindow::GetRandomHSVColour() const
+QColor MainWindow::GetRandomHSVColour()
 {
   return QColor::fromHsvF(hsvcolordist_(gen_), hsvcolordist_(gen_), hsvcolordist_(gen_), 1.0f);
 }
 
-QVector4D MainWindow::GetRandomHSVColour4D() const
+QVector4D MainWindow::GetRandomHSVColour4D()
 {
   const QColor colour = QColor::fromHsvF(hsvcolordist_(gen_), hsvcolordist_(gen_), hsvcolordist_(gen_), 1.0f).darker(200);
   return QVector4D(colour.redF(), colour.greenF(), colour.blueF(), 1.0f);
