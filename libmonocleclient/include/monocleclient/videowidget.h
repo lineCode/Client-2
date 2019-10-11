@@ -50,8 +50,8 @@ enum class RESIZEDIRECTION
 
 ///// Globals /////
 
-const unsigned int MAXVIDEOWINDOWWIDTH = 10;
-const unsigned int MAXVIDEOWINDOWHEIGHT = 10;
+const unsigned int MAXVIDEOWINDOWWIDTH = 25;
+const unsigned int MAXVIDEOWINDOWHEIGHT = 25;
 const unsigned int MAXUPDATEFREQUENCY = 100;
 
 const int INFO_FONT_HEIGHT = 16;

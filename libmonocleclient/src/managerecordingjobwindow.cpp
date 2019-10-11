@@ -182,15 +182,16 @@ void ManageRecordingJobWindow::AddRecordingJobSourceTrack(const QSharedPointer<c
     parameters.push_back(parameter);
 
   }
+
   ui_.tablerecordingjobsources->setItem(row, 5, new QTableWidgetItem(parameters.join(":")));
   const boost::optional<QString> sourcetag = recordingjobsourcetrack->GetSourceTag();
-  ui_.tablerecordingjobsources->item(row, 5)->setData(SOURCE_TAG_ROLE, sourcetag.is_initialized() ? *sourcetag : QString());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(SOURCE_TAG_ROLE, sourcetag.is_initialized() ? *sourcetag : QVariant());
   const boost::optional<QString> profiletoken = recordingjobsourcetrack->GetProfileToken();
-  ui_.tablerecordingjobsources->item(row, 5)->setData(PROFILE_ROLE, profiletoken.is_initialized() ? *profiletoken : QString());
+  ui_.tablerecordingjobsources->item(row, 5)->setData(PROFILE_ROLE, profiletoken.is_initialized() ? *profiletoken : QVariant());
   const boost::optional<monocle::StreamingProtocol> streamingprotocol = receiver->GetStreamingProtocol();
-  ui_.tablerecordingjobsources->item(row, 5)->setData(STREAMING_PROTOCOL_ROLE, static_cast<int>(streamingprotocol.is_initialized() ? *streamingprotocol : monocle::StreamingProtocol::TCPInterleaved));
+  ui_.tablerecordingjobsources->item(row, 5)->setData(STREAMING_PROTOCOL_ROLE, (streamingprotocol.is_initialized() ? QVariant(static_cast<int>(*streamingprotocol)) : QVariant()));
   const boost::optional<ROTATION> rotation = recordingjobsourcetrack->GetRotation();
-  ui_.tablerecordingjobsources->item(row, 5)->setData(ROTATION_ROLE, ToString(rotation.is_initialized() ? *rotation : ROTATION::_0));
+  ui_.tablerecordingjobsources->item(row, 5)->setData(ROTATION_ROLE, rotation.is_initialized() ? QVariant(ToString(*rotation)) : QVariant());
   ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_ACCURACY_ROLE, recordingjobsourcetrack->GetObjectDetectorAccuracy());
   ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_HUMANS_ENABLED_ROLE, recordingjobsourcetrack->GetObjectDetectorHumansEnabled());
   ui_.tablerecordingjobsources->item(row, 5)->setData(OBJECT_DETECTOR_HUMANS_SENSITIVITY_ROLE, recordingjobsourcetrack->GetObjectDetectorHumansSensitivity());
@@ -414,7 +415,7 @@ std::vector<std::string> ManageRecordingJobWindow::GetParameters(const int row) 
 
   if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_DOGS_ENABLED_ROLE).toString().isEmpty())
   {
-    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_DOGS_ENABLED_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_DOGS_ENABLED_ROLE).toString()).toStdString());
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_DOGS_ENABLED_PARAMETER_NAME + "=" + (ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_DOGS_ENABLED_ROLE).toBool() ? "1" : "0")).toStdString());
 
   }
 
@@ -426,7 +427,7 @@ std::vector<std::string> ManageRecordingJobWindow::GetParameters(const int row) 
 
   if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_AEROPLANES_ENABLED_ROLE).toString().isEmpty())
   {
-    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_AEROPLANES_ENABLED_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_AEROPLANES_ENABLED_ROLE).toString()).toStdString());
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_AEROPLANES_ENABLED_PARAMETER_NAME + "=" + (ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_AEROPLANES_ENABLED_ROLE).toBool() ? "1" : "0")).toStdString());
 
   }
 
@@ -438,7 +439,7 @@ std::vector<std::string> ManageRecordingJobWindow::GetParameters(const int row) 
 
   if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_TRAINS_ENABLED_ROLE).toString().isEmpty())
   {
-    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_TRAINS_ENABLED_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_TRAINS_ENABLED_ROLE).toString()).toStdString());
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_TRAINS_ENABLED_PARAMETER_NAME + "=" + (ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_TRAINS_ENABLED_ROLE).toBool() ? "1" : "0")).toStdString());
 
   }
 
@@ -450,7 +451,7 @@ std::vector<std::string> ManageRecordingJobWindow::GetParameters(const int row) 
 
   if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BOATS_ENABLED_ROLE).toString().isEmpty())
   {
-    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_BOATS_ENABLED_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BOATS_ENABLED_ROLE).toString()).toStdString());
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_BOATS_ENABLED_PARAMETER_NAME + "=" + (ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_BOATS_ENABLED_ROLE).toBool() ? "1" : "0")).toStdString());
 
   }
 
@@ -462,7 +463,7 @@ std::vector<std::string> ManageRecordingJobWindow::GetParameters(const int row) 
 
   if (!ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_HORSES_ENABLED_ROLE).toString().isEmpty())
   {
-    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_HORSES_ENABLED_PARAMETER_NAME + "=" + ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_HORSES_ENABLED_ROLE).toString()).toStdString());
+    recordingjobsourcetrackparameters.push_back((OBJECT_DETECTOR_HORSES_ENABLED_PARAMETER_NAME + "=" + (ui_.tablerecordingjobsources->item(row, 5)->data(OBJECT_DETECTOR_HORSES_ENABLED_ROLE).toBool() ? "1" : "0")).toStdString());
 
   }
 
@@ -702,21 +703,21 @@ void ManageRecordingJobWindow::on_buttonaddobjectdetector_clicked()
     {
        QString("accuracy=") + QString::number(dialog.accuracy_),
        QString("humans=") + (dialog.humans_ ? "1" : "0"), QString("humanssensitivity=") + QString::number(dialog.humanssensitivity_),
-       QString("bicycles=") + (dialog.humans_ ? "1" : "0"), QString("bicyclessensitivity=") + QString::number(dialog.bicyclessensitivity_),
-       QString("cars=") + (dialog.humans_ ? "1" : "0"), QString("carssensitivity=") + QString::number(dialog.carssensitivity_),
-       QString("motorbikes=") + (dialog.humans_ ? "1" : "0"), QString("motorbikessensitivity=") + QString::number(dialog.motorbikessensitivity_),
-       QString("buses=") + (dialog.humans_ ? "1" : "0"), QString("busessensitivity=") + QString::number(dialog.busessensitivity_),
-       QString("trucks=") + (dialog.humans_ ? "1" : "0"), QString("truckssensitivity=") + QString::number(dialog.truckssensitivity_),
-       QString("backpacks=") + (dialog.humans_ ? "1" : "0"), QString("backpackssensitivity=") + QString::number(dialog.backpackssensitivity_),
-       QString("umbrellas=") + (dialog.humans_ ? "1" : "0"), QString("umbrellassensitivity=") + QString::number(dialog.umbrellassensitivity_),
-       QString("handbags=") + (dialog.humans_ ? "1" : "0"), QString("handbagssensitivity=") + QString::number(dialog.handbagssensitivity_),
-       QString("suitcases=") + (dialog.humans_ ? "1" : "0"), QString("suitcasessensitivity=") + QString::number(dialog.suitcasessensitivity_),
-       QString("cats=") + (dialog.humans_ ? "1" : "0"), QString("catssensitivity=") + QString::number(dialog.catssensitivity_),
-       QString("dogs=") + (dialog.humans_ ? "1" : "0"), QString("dogssensitivity=") + QString::number(dialog.dogssensitivity_),
-       QString("aeroplanes=") + (dialog.humans_ ? "1" : "0"), QString("aeroplanessensitivity=") + QString::number(dialog.aeroplanessensitivity_),
-       QString("trains=") + (dialog.humans_ ? "1" : "0"), QString("trainssensitivity=") + QString::number(dialog.trainssensitivity_),
-       QString("boats=") + (dialog.humans_ ? "1" : "0"), QString("boatssensitivity=") + QString::number(dialog.boatssensitivity_),
-       QString("horses=") + (dialog.humans_ ? "1" : "0"), QString("horsessensitivity=") + QString::number(dialog.horsessensitivity_)
+       QString("bicycles=") + (dialog.bicycles_ ? "1" : "0"), QString("bicyclessensitivity=") + QString::number(dialog.bicyclessensitivity_),
+       QString("cars=") + (dialog.cars_ ? "1" : "0"), QString("carssensitivity=") + QString::number(dialog.carssensitivity_),
+       QString("motorbikes=") + (dialog.motorbikes_ ? "1" : "0"), QString("motorbikessensitivity=") + QString::number(dialog.motorbikessensitivity_),
+       QString("buses=") + (dialog.buses_ ? "1" : "0"), QString("busessensitivity=") + QString::number(dialog.busessensitivity_),
+       QString("trucks=") + (dialog.trucks_ ? "1" : "0"), QString("truckssensitivity=") + QString::number(dialog.truckssensitivity_),
+       QString("backpacks=") + (dialog.backpacks_ ? "1" : "0"), QString("backpackssensitivity=") + QString::number(dialog.backpackssensitivity_),
+       QString("umbrellas=") + (dialog.umbrellas_ ? "1" : "0"), QString("umbrellassensitivity=") + QString::number(dialog.umbrellassensitivity_),
+       QString("handbags=") + (dialog.handbags_ ? "1" : "0"), QString("handbagssensitivity=") + QString::number(dialog.handbagssensitivity_),
+       QString("suitcases=") + (dialog.suitcases_ ? "1" : "0"), QString("suitcasessensitivity=") + QString::number(dialog.suitcasessensitivity_),
+       QString("cats=") + (dialog.cats_ ? "1" : "0"), QString("catssensitivity=") + QString::number(dialog.catssensitivity_),
+       QString("dogs=") + (dialog.dogs_ ? "1" : "0"), QString("dogssensitivity=") + QString::number(dialog.dogssensitivity_),
+       QString("aeroplanes=") + (dialog.aeroplanes_ ? "1" : "0"), QString("aeroplanessensitivity=") + QString::number(dialog.aeroplanessensitivity_),
+       QString("trains=") + (dialog.trains_ ? "1" : "0"), QString("trainssensitivity=") + QString::number(dialog.trainssensitivity_),
+       QString("boats=") + (dialog.boats_ ? "1" : "0"), QString("boatssensitivity=") + QString::number(dialog.boatssensitivity_),
+       QString("horses=") + (dialog.horses_ ? "1" : "0"), QString("horsessensitivity=") + QString::number(dialog.horsessensitivity_)
     };
 
     const int row = ui_.tablerecordingjobsources->rowCount();
@@ -853,21 +854,21 @@ void ManageRecordingJobWindow::on_buttonedit_clicked()
       {
          QString("accuracy=") + QString::number(dialog.accuracy_),
          QString("humans=") + (dialog.humans_ ? "1" : "0"), QString("humanssensitivity=") + QString::number(dialog.humanssensitivity_),
-         QString("bicycles=") + (dialog.humans_ ? "1" : "0"), QString("bicyclessensitivity=") + QString::number(dialog.bicyclessensitivity_),
-         QString("cars=") + (dialog.humans_ ? "1" : "0"), QString("carssensitivity=") + QString::number(dialog.carssensitivity_),
-         QString("motorbikes=") + (dialog.humans_ ? "1" : "0"), QString("motorbikessensitivity=") + QString::number(dialog.motorbikessensitivity_),
-         QString("buses=") + (dialog.humans_ ? "1" : "0"), QString("busessensitivity=") + QString::number(dialog.busessensitivity_),
-         QString("trucks=") + (dialog.humans_ ? "1" : "0"), QString("truckssensitivity=") + QString::number(dialog.truckssensitivity_),
-         QString("backpacks=") + (dialog.humans_ ? "1" : "0"), QString("backpackssensitivity=") + QString::number(dialog.backpackssensitivity_),
-         QString("umbrellas=") + (dialog.humans_ ? "1" : "0"), QString("umbrellassensitivity=") + QString::number(dialog.umbrellassensitivity_),
-         QString("handbags=") + (dialog.humans_ ? "1" : "0"), QString("handbagssensitivity=") + QString::number(dialog.handbagssensitivity_),
-         QString("suitcases=") + (dialog.humans_ ? "1" : "0"), QString("suitcasessensitivity=") + QString::number(dialog.suitcasessensitivity_),
-         QString("cats=") + (dialog.humans_ ? "1" : "0"), QString("catssensitivity=") + QString::number(dialog.catssensitivity_),
-         QString("dogs=") + (dialog.humans_ ? "1" : "0"), QString("dogssensitivity=") + QString::number(dialog.dogssensitivity_),
-         QString("aeroplanes=") + (dialog.humans_ ? "1" : "0"), QString("aeroplanessensitivity=") + QString::number(dialog.aeroplanessensitivity_),
-         QString("trains=") + (dialog.humans_ ? "1" : "0"), QString("trainssensitivity=") + QString::number(dialog.trainssensitivity_),
-         QString("boats=") + (dialog.humans_ ? "1" : "0"), QString("boatssensitivity=") + QString::number(dialog.boatssensitivity_),
-         QString("horses=") + (dialog.humans_ ? "1" : "0"), QString("horsessensitivity=") + QString::number(dialog.horsessensitivity_)
+         QString("bicycles=") + (dialog.bicycles_ ? "1" : "0"), QString("bicyclessensitivity=") + QString::number(dialog.bicyclessensitivity_),
+         QString("cars=") + (dialog.cars_ ? "1" : "0"), QString("carssensitivity=") + QString::number(dialog.carssensitivity_),
+         QString("motorbikes=") + (dialog.motorbikes_ ? "1" : "0"), QString("motorbikessensitivity=") + QString::number(dialog.motorbikessensitivity_),
+         QString("buses=") + (dialog.buses_ ? "1" : "0"), QString("busessensitivity=") + QString::number(dialog.busessensitivity_),
+         QString("trucks=") + (dialog.trucks_ ? "1" : "0"), QString("truckssensitivity=") + QString::number(dialog.truckssensitivity_),
+         QString("backpacks=") + (dialog.backpacks_ ? "1" : "0"), QString("backpackssensitivity=") + QString::number(dialog.backpackssensitivity_),
+         QString("umbrellas=") + (dialog.umbrellas_ ? "1" : "0"), QString("umbrellassensitivity=") + QString::number(dialog.umbrellassensitivity_),
+         QString("handbags=") + (dialog.handbags_ ? "1" : "0"), QString("handbagssensitivity=") + QString::number(dialog.handbagssensitivity_),
+         QString("suitcases=") + (dialog.suitcases_ ? "1" : "0"), QString("suitcasessensitivity=") + QString::number(dialog.suitcasessensitivity_),
+         QString("cats=") + (dialog.cats_ ? "1" : "0"), QString("catssensitivity=") + QString::number(dialog.catssensitivity_),
+         QString("dogs=") + (dialog.dogs_ ? "1" : "0"), QString("dogssensitivity=") + QString::number(dialog.dogssensitivity_),
+         QString("aeroplanes=") + (dialog.aeroplanes_ ? "1" : "0"), QString("aeroplanessensitivity=") + QString::number(dialog.aeroplanessensitivity_),
+         QString("trains=") + (dialog.trains_ ? "1" : "0"), QString("trainssensitivity=") + QString::number(dialog.trainssensitivity_),
+         QString("boats=") + (dialog.boats_ ? "1" : "0"), QString("boatssensitivity=") + QString::number(dialog.boatssensitivity_),
+         QString("horses=") + (dialog.horses_ ? "1" : "0"), QString("horsessensitivity=") + QString::number(dialog.horsessensitivity_)
       };
 
       ui_.tablerecordingjobsources->setItem(row, 1, new QTableWidgetItem(dialog.enabled_ ? "True" : "False"));
@@ -1069,9 +1070,16 @@ void ManageRecordingJobWindow::on_buttonok_clicked()
     sources.reserve(ui_.tablerecordingjobsources->rowCount());
     for (int i = 0; i < ui_.tablerecordingjobsources->rowCount(); ++i)
     {
+      std::vector<std::string> sourceparameters;
+      if (!ui_.tablerecordingjobsources->item(i, 5)->data(STREAMING_PROTOCOL_ROLE).isNull())
+      {
+        sourceparameters.push_back((STREAMING_PROTOCOL_PARAMETER_NAME + "=" + monocle::EnumNameStreamingProtocol(static_cast<monocle::StreamingProtocol>(ui_.tablerecordingjobsources->item(i, 5)->data(STREAMING_PROTOCOL_ROLE).toInt()))).toStdString());
+
+      }
+
       sources.emplace_back(ui_.tablerecordingjobsources->item(i, 2)->data(Qt::UserRole).toUInt(),
                             ui_.tablerecordingjobsources->item(i, 1)->data(Qt::UserRole).toBool() ? monocle::ReceiverMode::AutoConnect : monocle::ReceiverMode::NeverConnect,
-                            std::vector<std::string>({ (STREAMING_PROTOCOL_PARAMETER_NAME + "=" + monocle::EnumNameStreamingProtocol(static_cast<monocle::StreamingProtocol>(ui_.tablerecordingjobsources->item(i, 5)->data(STREAMING_PROTOCOL_ROLE).toInt()))).toStdString() }),
+                            sourceparameters,
                             ui_.tablerecordingjobsources->item(i, 3)->text().toStdString(),
                             ui_.tablerecordingjobsources->item(i, 4)->text().toStdString(),
                             ui_.tablerecordingjobsources->item(i, 4)->data(Qt::UserRole).toString().toStdString(),
@@ -1095,9 +1103,16 @@ void ManageRecordingJobWindow::on_buttonok_clicked()
     sources.reserve(ui_.tablerecordingjobsources->rowCount());
     for (int i = 0; i < ui_.tablerecordingjobsources->rowCount(); ++i)
     {
+      std::vector<std::string> sourceparameters;
+      if (!ui_.tablerecordingjobsources->item(i, 5)->data(STREAMING_PROTOCOL_ROLE).isNull())
+      {
+        sourceparameters.push_back((STREAMING_PROTOCOL_PARAMETER_NAME + "=" + monocle::EnumNameStreamingProtocol(static_cast<monocle::StreamingProtocol>(ui_.tablerecordingjobsources->item(i, 5)->data(STREAMING_PROTOCOL_ROLE).toInt()))).toStdString());
+
+      }
+
       sources.emplace_back(ui_.tablerecordingjobsources->item(i, 2)->data(Qt::UserRole).toUInt(),
                            ui_.tablerecordingjobsources->item(i, 1)->data(Qt::UserRole).toBool() ? monocle::ReceiverMode::AutoConnect : monocle::ReceiverMode::NeverConnect,
-                           std::vector<std::string>({ (STREAMING_PROTOCOL_PARAMETER_NAME + "=" + monocle::EnumNameStreamingProtocol(static_cast<monocle::StreamingProtocol>(ui_.tablerecordingjobsources->item(i, 5)->data(STREAMING_PROTOCOL_ROLE).toInt()))).toStdString() }),
+                           sourceparameters,
                            ui_.tablerecordingjobsources->item(i, 3)->text().toStdString(),
                            ui_.tablerecordingjobsources->item(i, 4)->text().toStdString(),
                            ui_.tablerecordingjobsources->item(i, 4)->data(Qt::UserRole).toString().toStdString(),
