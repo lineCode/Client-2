@@ -27,6 +27,8 @@ OptionsWindow::OptionsWindow(QWidget* parent) :
   connect(ui_.buttoncancel, &QPushButton::clicked, this, &QDialog::reject);
   
   // UI
+  ui_.spindefaultvideowindowwidth->setMaximum(MAXVIDEOWINDOWWIDTH);
+  ui_.spindefaultvideowindowheight->setMaximum(MAXVIDEOWINDOWHEIGHT);
   ui_.spindefaultvideowindowwidth->setValue(Options::Instance().GetDefaultVideoWindowWidth());
   ui_.spindefaultvideowindowheight->setValue(Options::Instance().GetDefaultVideoWindowHeight());
   ui_.spinupdatefrequency->setValue(Options::Instance().GetUpdateFrequency());

@@ -44,8 +44,8 @@ static const QString EXPORTDIRECTORY("exportdirectory");
 ///// Methods /////
 
 Options::Options() :
-  defaultvideowindowwidth_(1),
-  defaultvideowindowheight_(1),
+  defaultvideowindowwidth_(2),
+  defaultvideowindowheight_(2),
   updatefrequency_(33),
   defaultshowtoolbar_(true),
   checkforupdateonstartup_(true),
