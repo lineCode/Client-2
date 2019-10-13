@@ -72,8 +72,8 @@ const std::string DELTAE =
 const std::array<QVector4D, 30> OBJECT_COLOURS =
 {
   QVector4D(1.000f, 0.078f, 0.576f, 1.0f),
-  QVector4D(0.129f, 0.996f, 0.011f, 1.0f),
-  QVector4D(0.431f, 0.427f, 0.019f, 1.0f),
+  QVector4D(0.729f, 0.996f, 0.011f, 1.0f),
+  QVector4D(0.831f, 0.727f, 0.019f, 1.0f),
   QVector4D(0.968f, 0.972f, 0.031f, 1.0f),
   QVector4D(0.933f, 0.894f, 0.007f, 1.0f),
   QVector4D(0.415f, 0.364f, 0.043f, 1.0f),
