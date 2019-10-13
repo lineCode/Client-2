@@ -98,8 +98,8 @@ struct Object
 
 ///// Globals /////
 
-const uint64_t OBJECT_KILL_DELAY = 4000;
-const std::chrono::steady_clock::duration OBJECT_KILL_AGE(std::chrono::milliseconds(4000));
+const uint64_t OBJECT_KILL_DELAY = 1500;
+const std::chrono::steady_clock::duration OBJECT_KILL_AGE(std::chrono::milliseconds(1500));
 
 ///// Classes /////
 
