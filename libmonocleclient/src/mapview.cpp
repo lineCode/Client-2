@@ -20,8 +20,8 @@ namespace client
 
 ///// Methods /////
 
-MapView::MapView(VideoWidget* videowidget, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool stretch, const boost::shared_ptr<client::Device>& device, const QSharedPointer<Map>& map, const QResource* arial) :
-  View(videowidget, selectedcolour, x, y, width, height, rotation, false, stretch, false, arial, false, false, false),
+MapView::MapView(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool stretch, const boost::shared_ptr<client::Device>& device, const QSharedPointer<Map>& map, const QResource* arial) :
+  View(videowidget, cudacontext, selectedcolour, x, y, width, height, rotation, false, stretch, false, arial, false, false, false),
   device_(device),
   map_(map),
   networkaccessmanager_(new QNetworkAccessManager(this)),

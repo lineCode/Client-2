@@ -10,6 +10,7 @@
 #include <boost/lockfree/spsc_queue.hpp>
 #include <boost/optional.hpp>
 #include <boost/shared_ptr.hpp>
+#include <cuda.h>
 #include <memory>
 #include <monocleprotocol/client/connection.hpp>
 #include <monocleprotocol/monocleprotocol.hpp>
@@ -99,6 +100,8 @@ class FindMotionWindow : public QDialog
   void ResetDecoders();
 
   Ui::FindMotionWindow ui_;
+
+  CUcontext cudacontext_;
 
   boost::shared_ptr<Device> device_;
   QSharedPointer<Recording> recording_;

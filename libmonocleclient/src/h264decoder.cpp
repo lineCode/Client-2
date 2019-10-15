@@ -5,12 +5,20 @@
 
 #include "monocleclient/h264decoder.h"
 
+#ifdef _WIN32
+  #include <boost/asio.hpp>
+  #include <windows.h>
+#endif
+
 #include <boost/algorithm/string.hpp>
+#include <cuda_gl_interop.h>
 #include <utility/utility.hpp>
 
 extern "C"
 {
   #include <libavutil/hwcontext.h>
+  #include <libavutil/hwcontext_cuda.h>
+  #include <libavutil/hwcontext_internal.h>
 }
 
 #include "monocleclient/mainwindow.h"
@@ -66,8 +74,8 @@ static enum AVPixelFormat GetHardwareDeviceFormat(const enum AVHWDeviceType type
 
 ///// Methods /////
 
-H264Decoder::H264Decoder(const uint64_t id, const utility::PublicKey& publickey) :
-  Decoder(id, publickey)
+H264Decoder::H264Decoder(const uint64_t id, const utility::PublicKey& publickey, CUcontext cudacontext) :
+  Decoder(id, publickey, cudacontext)
 {
   
 }
@@ -81,7 +89,6 @@ H264Decoder::~H264Decoder()
 void H264Decoder::Destroy()
 {
   Decoder::Destroy();
-  hardwaredevice_.reset();
   profilelevelid_.clear();
   spropparametersets_.clear();
 }
@@ -124,6 +131,36 @@ DECODERERROR H264Decoder::Init()
     return DECODERERROR_INITCODEC;
   }
 
+  context_ = avcodec_alloc_context3(codec_);
+  if (context_ == nullptr)
+  {
+
+    return DECODERERROR_INITCONTEXT;
+  }
+
+  if (avcodec_get_context_defaults3(context_, codec_) < 0)
+  {
+
+    return DECODERERROR_RESETCODEC;
+  }
+
+  // sprop-parameter-sets
+  const size_t PADDING_SIZE = 32;
+  std::vector<uint8_t> extradata;
+  extradata.reserve(512);
+  std::vector<std::string> split;
+  boost::algorithm::split(split, spropparametersets_, boost::is_any_of(","));
+  for (const std::string& data : split)
+  {
+    extradata.insert(extradata.end(), STARTSEQUENCE, STARTSEQUENCE + sizeof(STARTSEQUENCE));
+    const std::vector<unsigned char> decode = utility::Base64Decode(data);
+    extradata.insert(extradata.end(), decode.begin(), decode.end());
+  }
+
+  std::array<uint8_t, PADDING_SIZE> padding;
+  padding.fill(0);
+  extradata.insert(extradata.end(), padding.cbegin(), padding.cend());
+
   // Grab all the hardware encoder possibilities that were compiled into FFMPEG(this does not represent what is available on the local system)
   std::vector<AVHWDeviceType> types;
   types.reserve(10);
@@ -141,60 +178,39 @@ DECODERERROR H264Decoder::Init()
   }
 
   // Do we support CUDA decoding?
-  AVHWDeviceType hardwaredevicetype = AV_HWDEVICE_TYPE_NONE;
-  if (Options::Instance().GetMaxCUDADecodersPerDevice() && MainWindow::Instance()->GetNumCUDADevices() && utility::Contains(types, AV_HWDEVICE_TYPE_CUDA))
+  if (cudacontext_ && Options::Instance().GetMaxCUDADecodersPerDevice() && MainWindow::Instance()->GetNumCUDADevices() && utility::Contains(types, AV_HWDEVICE_TYPE_CUDA))
   {
+    // Count the number of views using this cuda context as their hardware decoder
     const std::vector< QSharedPointer<View> > views = MainWindow::Instance()->GetVideoWidgetsMgr().GetViews();
-    std::vector< std::pair<unsigned int, int> > devices; // <NumViews, Device>
-    devices.reserve(MainWindow::Instance()->GetNumCUDADevices());
-    for (int i = 0; i < MainWindow::Instance()->GetNumCUDADevices(); ++i)
+    unsigned int numcudadecoders = 0;
+    for (const QSharedPointer<View>& view : views)
     {
-      unsigned int numcudadecoders = 0;
-      for (const QSharedPointer<View>& view : views)
+      if (view->GetViewType() == VIEWTYPE_MEDIA)
       {
-        if (view->GetViewType() == VIEWTYPE_MEDIA)
+        QSharedPointer<MediaView> mediaview = view.staticCast<MediaView>();
+        if (mediaview->HasHardwareDecoder() && (cudacontext_ == mediaview->GetCUDAContext()))
         {
-          QSharedPointer<MediaView> mediaview = view.staticCast<MediaView>();
-          if (utility::Contains(mediaview->GetCUDADevices(), i))
-          {
-            ++numcudadecoders;
+          ++numcudadecoders;
 
-          }
-        }
-        else if (view->GetViewType() == VIEWTYPE_MONOCLE)
-        {
-          QSharedPointer<VideoView> videoview = view.staticCast<VideoView>();
-          if (utility::Contains(videoview->GetCUDADevices(), i))
-          {
-            ++numcudadecoders;
-
-          }
         }
       }
-
-      if (numcudadecoders >= Options::Instance().GetMaxCUDADecodersPerDevice())
+      else if (view->GetViewType() == VIEWTYPE_MONOCLE)
       {
+        QSharedPointer<VideoView> videoview = view.staticCast<VideoView>();
+        if (videoview->HasHardwareDecoder() && (cudacontext_ == videoview->GetCUDAContext()))
+        {
+          ++numcudadecoders;
 
-        continue;
+        }
       }
-      devices.push_back(std::make_pair(numcudadecoders, i));
     }
 
-    if (devices.size())
+    if (numcudadecoders < Options::Instance().GetMaxCUDADecodersPerDevice())
     {
-      // Pick the device with the lowest number of current users
-      std::sort(devices.begin(), devices.end());
-      const int hardwaredevice = devices.front().second;
-      const int ret = av_hwdevice_ctx_create(&hwdevice_, AV_HWDEVICE_TYPE_CUDA, std::to_string(hardwaredevice).c_str(), nullptr, 0);
-      if (ret)
+      if (InitCUDA())
       {
         LOG_GUI_WARNING(tr("Unable to initialise CUDA device, falling back to software decoding"));
-        hwdevice_ = nullptr; // Just in case
-      }
-      else
-      {
-        hardwaredevice_ = hardwaredevice;
-        hardwaredevicetype = AV_HWDEVICE_TYPE_CUDA;
+
       }
     }
   }
@@ -214,40 +230,6 @@ DECODERERROR H264Decoder::Init()
   //
   //  }
   //}
-
-  context_ = avcodec_alloc_context3(codec_);
-  if (context_ == nullptr)
-  {
-
-    return DECODERERROR_INITCONTEXT;
-  }
-
-  if (avcodec_get_context_defaults3(context_, codec_) < 0)
-  {
-
-    return DECODERERROR_RESETCODEC;
-  }
-
-  if (hwdevice_)
-  {
-    const AVPixelFormat format = GetHardwareDeviceFormat(hardwaredevicetype);
-    if (format == AV_PIX_FMT_NONE)
-    {
-      // Shouldn't ever happen...
-      return DECODERERROR_INITCONTEXT;
-    }
-
-    context_->hw_device_ctx = av_buffer_ref(hwdevice_);
-    if (context_->hw_device_ctx == nullptr)
-    {
-      // Should only happen if we're out of memory
-      return DECODERERROR_INITCONTEXT;
-    }
-    context_->opaque = reinterpret_cast<void*>(format);
-    context_->get_format = GetHardwareFormat;
-    context_->pix_fmt = format;
-    context_->sw_pix_fmt = (hardwaredevicetype == AV_HWDEVICE_TYPE_CUDA) ? AV_PIX_FMT_NV12 : AV_PIX_FMT_NONE;
-  }
 
   context_->width = 0;
   context_->height = 0;
@@ -283,23 +265,6 @@ DECODERERROR H264Decoder::Init()
     return DECODERERROR_INVALIDPROFILELEVELID;
   }
 
-  const size_t PADDING_SIZE = 32;
-
-  // sprop-parameter-sets
-  std::vector<uint8_t> extradata;
-  std::vector<std::string> split;
-  boost::algorithm::split(split, spropparametersets_, boost::is_any_of(","));
-  for (const std::string& data : split)
-  {
-    extradata.insert(extradata.end(), STARTSEQUENCE, STARTSEQUENCE + sizeof(STARTSEQUENCE));
-    const std::vector<unsigned char> decode = utility::Base64Decode(data);
-    extradata.insert(extradata.end(), decode.begin(), decode.end());
-  }
-
-  std::array<uint8_t, PADDING_SIZE> padding;
-  padding.fill(0);
-  extradata.insert(extradata.end(), padding.cbegin(), padding.cend());
-
   context_->extradata_size = static_cast<int>(extradata.size());
   context_->extradata = new uint8_t[extradata.size()];
   memcpy(context_->extradata, extradata.data(), extradata.size());
@@ -310,6 +275,75 @@ DECODERERROR H264Decoder::Init()
     return DECODERERROR_OPENCODEC;
   }
 
+  return DECODERERROR_SUCCESS;
+}
+
+DECODERERROR H264Decoder::InitCUDA()
+{
+  // Pick the device with the lowest number of current users
+  AVBufferRef* hwdevice = av_hwdevice_ctx_alloc(AV_HWDEVICE_TYPE_CUDA);
+  if (!hwdevice)
+  {
+
+    return DECODERERROR_INITCONTEXT;
+  }
+  AVHWDeviceContext* hwdevicectx = reinterpret_cast<AVHWDeviceContext*>(hwdevice->data);
+  AVCUDADeviceContext* cudadevicectx = reinterpret_cast<AVCUDADeviceContext*>(hwdevicectx->hwctx);
+  cudadevicectx->stream = nullptr;
+  cudadevicectx->cuda_ctx = cudacontext_;
+  //hwctx->internal->is_allocated = 0; // This set to zero automatically by ffmpeg internally with mallocz, but leaving it here for reference
+  if (av_hwdevice_ctx_init(hwdevice))
+  {
+
+    return DECODERERROR_INITCONTEXT;
+  }
+    
+  // Make sure we support the NV12 format required
+  AVHWFramesConstraints* constraints = av_hwdevice_get_hwframe_constraints(hwdevice, nullptr);
+  if (constraints == nullptr)
+  {
+    av_buffer_unref(&hwdevice);
+    return DECODERERROR_INITCONTEXT;
+  }
+
+  AVPixelFormat* hwformat = constraints->valid_hw_formats;
+  std::vector<AVPixelFormat> hwformats;
+  while (*hwformat != AV_PIX_FMT_NONE)
+  {
+    hwformats.push_back(*hwformat);
+    ++hwformat;
+  }
+
+  AVPixelFormat* swformat = constraints->valid_sw_formats;
+  std::vector<AVPixelFormat> swformats;
+  while (*swformat != AV_PIX_FMT_NONE)
+  {
+    swformats.push_back(*swformat);
+    ++swformat;
+  }
+
+  av_hwframe_constraints_free(&constraints);
+  constraints = nullptr;
+
+  if (!utility::Contains(swformats, AV_PIX_FMT_NV12))
+  {
+    av_buffer_unref(&hwdevice);
+    return DECODERERROR_INITCONTEXT;
+  }
+
+  const AVPixelFormat format = GetHardwareDeviceFormat(AV_HWDEVICE_TYPE_CUDA);
+  if (format == AV_PIX_FMT_NONE)
+  {
+    av_buffer_unref(&hwdevice);
+    return DECODERERROR_INITCONTEXT;
+  }
+
+  context_->hw_device_ctx = av_buffer_ref(hwdevice);
+  hwdevice_ = hwdevice;
+  context_->opaque = reinterpret_cast<void*>(format);
+  context_->get_format = GetHardwareFormat;
+  context_->pix_fmt = format;
+  context_->sw_pix_fmt = AV_PIX_FMT_NV12;
   return DECODERERROR_SUCCESS;
 }
 

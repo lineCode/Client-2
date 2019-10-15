@@ -83,6 +83,7 @@ class FindMotionVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
   virtual void resizeGL(int width, int height) override;
   virtual void paintGL() override;
+  void timerEvent(QTimerEvent* event) override;
 
  private:
 
@@ -128,6 +129,7 @@ class FindMotionVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   QOpenGLBuffer texturebuffer_;
   QOpenGLBuffer vertexbuffer_;
   std::array<GLuint, 3> textures_;
+  std::array<CUgraphicsResource, 3> cudaresources_; // Lazily initialised
 
   int imagewidth_;
   int imageheight_;

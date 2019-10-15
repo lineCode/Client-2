@@ -22,4 +22,14 @@
       <change>Added object detector</change>
     </changes>
   </version>
+  <version>
+    <major>1</major>
+    <minor>11</minor>
+    <build>0</build>
+    <date>Wed Oct 09 2019</date>
+    <windowsfilename>MonocleClient_1_11_0.msi</windowsfilename>
+    <changes>
+      <change>Improved decoding performance on CUDA GPUs</change>
+    </changes>
+  </version>
 </versions>

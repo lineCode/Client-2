@@ -5,6 +5,9 @@
 
 #include "monocleclient/findmotionvideowidget.h"
 
+#include <cuda.h>
+#include <cudaGL.h>
+
 #include "monocleclient/decoder.h"
 #include "monocleclient/findmotionwindow.h"
 #include "monocleclient/mainwindow.h"
@@ -36,22 +39,32 @@ FindMotionVideoWidget::FindMotionVideoWidget(QWidget* parent) :
   texturebuffer_(QOpenGLBuffer::VertexBuffer),
   vertexbuffer_(QOpenGLBuffer::VertexBuffer),
   textures_({ 0, 0, 0 }),
+  cudaresources_({ nullptr, nullptr, nullptr }),
   imagewidth_(0),
   imageheight_(0),
   state_(FINDMOTIONSTATE_SELECT)
 {
   setCursor(Qt::CrossCursor);
 
+  startTimer(std::chrono::milliseconds(40));
 }
 
 FindMotionVideoWidget::~FindMotionVideoWidget()
 {
   unsetCursor();
 
+  for (CUgraphicsResource& cudaresource : cudaresources_)
+  {
+    if (cudaresource)
+    {
+      cuGraphicsUnregisterResource(cudaresource);
+      cudaresource = nullptr;
+    }
+  }
+
   imagequeue_.consume_all([this](const ImageBuffer& imagebuffer) { const_cast<ImageBuffer&>(imagebuffer).Destroy(); });
   std::for_each(cache_.begin(), cache_.end(), [](ImageBuffer& imagebuffer) { imagebuffer.Destroy(); });
 }
-
 
 FindMotionWindow* FindMotionVideoWidget::GetFindMotionWindow()
 {
@@ -513,6 +526,25 @@ void FindMotionVideoWidget::paintGL()
       }
       else if (imagebuffer.type_ == IMAGEBUFFERTYPE_NV12)
       {
+        cuCtxPushCurrent_v2(imagebuffer.cudacontext_);
+        bool resetresources = false; // Do we need to reinitialise the cuda stuff if dimensions and format have changed
+        if ((imagebuffer.type_ != type_) || (imagebuffer.widths_[0] != imagewidth_) || (imagebuffer.heights_[0] != imageheight_) || !cudaresources_[0] || !cudaresources_[1])
+        {
+          // Destroy any old CUDA stuff we had laying around
+          if (GetFindMotionWindow()->cudacontext_)
+          {
+            for (CUgraphicsResource& resource : cudaresources_)
+            {
+              if (resource)
+              {
+                cuGraphicsUnregisterResource(resource);
+                resource = nullptr;
+              }
+            }
+          }
+          resetresources = true;
+        }
+
         viewnv12shader_.bind();
         for (GLuint texture = 0; texture < 2; ++texture)
         {
@@ -520,9 +552,42 @@ void FindMotionVideoWidget::paintGL()
           glActiveTexture(GL_TEXTURE0 + texture);
           glPixelStorei(GL_UNPACK_ROW_LENGTH, imagebuffer.strides_[texture]);
           glBindTexture(GL_TEXTURE_2D, textures_[texture]);
-          glTexImage2D(GL_TEXTURE_2D, 0, (texture == 0) ? GL_RED : GL_RG, imagebuffer.widths_.at(texture), (texture == 0) ? imagebuffer.heights_.at(texture) : (imagebuffer.heights_.at(texture) / 2), 0, (texture == 0) ? GL_RED : GL_RG, GL_UNSIGNED_BYTE, imagebuffer.data_[texture]);
+
+          CUgraphicsResource resource = nullptr;
+          if (resetresources)
+          {
+            glTexImage2D(GL_TEXTURE_2D, 0, (texture == 0) ? GL_RED : GL_RG, imagebuffer.widths_.at(texture), imagebuffer.heights_[texture], 0, (texture == 0) ? GL_RED : GL_RG, GL_UNSIGNED_BYTE, nullptr);
+
+            cuGraphicsGLRegisterImage(&resource, textures_[texture], GL_TEXTURE_2D, CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD);
+            cudaresources_[texture] = resource;
+          }
+          else
+          {
+            resource = cudaresources_[texture];
+
+          }
+
+          cuGraphicsMapResources(1, &resource, 0);
+          CUarray resourceptr;
+          cuGraphicsSubResourceGetMappedArray(&resourceptr, resource, 0, 0);
+
+          CUDA_MEMCPY2D copy;
+          memset(&copy, 0, sizeof(copy));
+          copy.srcMemoryType = CU_MEMORYTYPE_DEVICE;
+          copy.dstMemoryType = CU_MEMORYTYPE_ARRAY;
+          copy.srcDevice = (CUdeviceptr)imagebuffer.data_[texture];
+          copy.dstArray = resourceptr;
+          copy.srcPitch = imagebuffer.strides_[texture];
+          copy.dstPitch = imagebuffer.strides_[texture];
+          copy.WidthInBytes = (texture == 0) ? imagebuffer.widths_[texture] : imagebuffer.widths_.at(texture) * 2;
+          copy.Height = imagebuffer.heights_[texture];
+          cuMemcpy2D(&copy);
+          cuGraphicsUnmapResources(1, &resource, 0);
           glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
         }
+
+        CUcontext dummy;
+        cuCtxPopCurrent_v2(&dummy);
       }
       freeimagequeue_.AddFreeImage(imagebuffer);
     }
@@ -693,6 +758,12 @@ void FindMotionVideoWidget::paintGL()
   viewselectedshader_.release();
 }
 
+void FindMotionVideoWidget::timerEvent(QTimerEvent* event)
+{
+  update();
+
+}
+
 bool FindMotionVideoWidget::GetImage(ImageBuffer& imagebuffer)
 {
   bool hasimage = false;
@@ -702,7 +773,7 @@ bool FindMotionVideoWidget::GetImage(ImageBuffer& imagebuffer)
     if (imagequeue_.pop(imagebuffer))
     {
       // If we have skipped frames, we should place them back into the temporary list, or destroy them if there is no room
-      if (previmagebuffer.buffer_)
+      if (previmagebuffer.buffer_ || previmagebuffer.cudacontext_)
       {
         if (paused_)
         {

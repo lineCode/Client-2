@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(Client C CXX)
+project(Client C CXX CUDA)
 
 enable_testing()
 
@@ -11,7 +11,7 @@ if (UNIX)
 endif (UNIX)
 
 add_definitions(/DMONOCLE_CLIENT_VERSION_MAJOR=1)
-add_definitions(/DMONOCLE_CLIENT_VERSION_MINOR=10)
+add_definitions(/DMONOCLE_CLIENT_VERSION_MINOR=11)
 add_definitions(/DMONOCLE_CLIENT_VERSION_BUILD=0)
 
 add_definitions(-DSQLITE_OMIT_DEPRECATED)

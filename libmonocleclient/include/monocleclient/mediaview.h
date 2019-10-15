@@ -60,7 +60,7 @@ class MediaView : public View
 
  public:
 
-  MediaView(VideoWidget* videowidget, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool info, const QSharedPointer<Media>& media, const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t videotrackindex, const QResource* arial);
+  MediaView(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool info, const QSharedPointer<Media>& media, const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t videotrackindex, const QResource* arial);
   ~MediaView();
 
   virtual VIEWTYPE GetViewType() const override { return VIEWTYPE_MEDIA; }
@@ -79,7 +79,7 @@ class MediaView : public View
   virtual void Stop() override;
   virtual void Scrub(const uint64_t time) override;
 
-  std::vector<int> GetCUDADevices() const;
+  bool HasHardwareDecoder() const;
 
   QSharedPointer<Media>& GetMedia() { return media_; }
   const QSharedPointer<Media>& GetMedia() const { return media_; }

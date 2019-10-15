@@ -8,7 +8,12 @@
 extern "C"
 {
   #include <libavutil/hwcontext.h>
+  #include <libavutil/hwcontext_cuda.h>
 }
+
+#include <boost/scope_exit.hpp>
+#include <cuda.h>
+#include <cuda_runtime.h>
 
 #include "monocleclient/mainwindow.h"
 
@@ -138,7 +143,8 @@ ImageBuffer::ImageBuffer() :
   originalsize_(0),
   time_(0),
   sequencenum_(0),
-  marker_(true)
+  marker_(true),
+  cudacontext_(nullptr)
 {
 
 }
@@ -156,24 +162,49 @@ ImageBuffer::ImageBuffer(const ImageBuffer& imagebuffer) :
   time_(imagebuffer.time_),
   sequencenum_(imagebuffer.sequencenum_),
   digitallysigned_(imagebuffer.digitallysigned_),
-  marker_(imagebuffer.marker_)
+  marker_(imagebuffer.marker_),
+  cudacontext_(imagebuffer.cudacontext_)
 {
 
 }
 
 void ImageBuffer::Destroy()
 {
+  if (cudacontext_ && (type_ == IMAGEBUFFERTYPE_NV12))
+  {
+    if (cuCtxPushCurrent_v2(cudacontext_) == CUDA_SUCCESS)
+    {
+      if (data_[0])
+      {
+        cuMemFree(reinterpret_cast<CUdeviceptr>(data_[0]));
+
+      }
+      if (data_[1])
+      {
+        cuMemFree(reinterpret_cast<CUdeviceptr>(data_[1]));
+
+      }
+      CUcontext dummy;
+      cuCtxPopCurrent_v2(&dummy);
+    }
+  }
+  else
+  {
+    if (buffer_)
+    {
+      delete[] buffer_;
+
+    }
+  }
+
   type_ = IMAGEBUFFERTYPE_INVALID;
   data_.fill(nullptr);
   widths_.fill(0);
   heights_.fill(0);
   strides_.fill(0);
   originalsize_ = 0;
-  if (buffer_)
-  {
-    delete [] buffer_;
-    buffer_ = nullptr;
-  }
+  buffer_ = nullptr;
+  cudacontext_ = nullptr;
 }
 
 FreeImageBuffers::FreeImageBuffers()
@@ -192,6 +223,12 @@ SPSCFreeFrameBuffers::SPSCFreeFrameBuffers()
 }
 
 SPSCFreeFrameBuffers::~SPSCFreeFrameBuffers()
+{
+  Destroy();
+
+}
+
+void SPSCFreeFrameBuffers::Destroy()
 {
   queue_.consume_all([this](const ImageBuffer& imagebuffer) { const_cast<ImageBuffer&>(imagebuffer).Destroy(); });
 
@@ -257,7 +294,7 @@ ImageBuffer VectorFreeFrameBuffer::GetFreeImage()
 
 void VectorFreeFrameBuffer::AddFreeImage(ImageBuffer& imagebuffer)
 {
-  if (queue_.size() > 5) // No need for the queue to get any bigger than this
+  if (queue_.size() > 10) // No need for the queue to get any bigger than this
   {
     imagebuffer.Destroy();
     
@@ -269,9 +306,10 @@ void VectorFreeFrameBuffer::AddFreeImage(ImageBuffer& imagebuffer)
   }
 }
 
-Decoder::Decoder(const uint64_t id, const utility::PublicKey& publickey) :
+Decoder::Decoder(const uint64_t id, const utility::PublicKey& publickey, CUcontext cudacontext) :
   id_(id),
   publickey_(publickey),
+  cudacontext_(cudacontext),
   codec_(nullptr),
   context_(nullptr),
   hwdevice_(nullptr),
@@ -377,58 +415,92 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
     ImageBuffer imagebuffer = freeimagebuffers->GetFreeImage();
     if (context_->pix_fmt == AV_PIX_FMT_CUDA)
     {
-      imagebuffer.type_ = IMAGEBUFFERTYPE_NV12;
-
       if (frame_->hw_frames_ctx == nullptr)
       {
         frame_->hw_frames_ctx = av_buffer_ref(context_->hw_frames_ctx);
 
       }
 
-      swsframe_->format = AV_PIX_FMT_NV12;
-      auto ret = av_hwframe_transfer_data(swsframe_, frame_, 0);
-      if (ret)
+      if (cudacontext_ == nullptr)
       {
-        // Not sure what to do here, SetMessage and log messages could spam, lets just ignore it for the moment...
+        imagebuffer.Destroy();
         return ImageBuffer();
       }
 
-      const std::array<int, 3> widths =
       {
-        swsframe_->width,
-        swsframe_->width / 2,
-        0
-      };
-      const std::array<int, 3> heights =
-      {
-        swsframe_->height,
-        swsframe_->height / 2,
-        0
-      };
-      const std::array<int, 3> strides =
-      {
-        swsframe_->linesize[0],
-        swsframe_->linesize[1],
-        0
-      };
-      const int ysize = strides[0] * heights[0];
-      const int usize = strides[1] * heights[1];
-      if (widths != imagebuffer.widths_ || (heights != imagebuffer.heights_) || strides != imagebuffer.strides_)
-      {
-        imagebuffer.widths_ = widths;
-        imagebuffer.heights_ = heights;
-        imagebuffer.strides_ = strides;
-        if (imagebuffer.buffer_)
+        if (cuCtxPushCurrent_v2(cudacontext_) != CUDA_SUCCESS)
         {
-          delete imagebuffer.buffer_;
-
+          imagebuffer.Destroy();
+          return ImageBuffer();
         }
-        imagebuffer.buffer_ = new uint8_t[ysize + usize + 512];
+
+        BOOST_SCOPE_EXIT(void)
+        {
+          CUcontext dummy;
+          cuCtxPopCurrent_v2(&dummy);
+        } BOOST_SCOPE_EXIT_END
+
+        if ((imagebuffer.type_ != IMAGEBUFFERTYPE_NV12) || (imagebuffer.strides_[0] != frame_->linesize[0]) || (imagebuffer.widths_[0] != frame_->width) || (imagebuffer.heights_[0] != frame_->height) || (imagebuffer.strides_[1] != frame_->linesize[1]) || (imagebuffer.widths_[1] != (frame_->width / 2)) || (imagebuffer.heights_[1] != (frame_->height / 2)))
+        {
+          imagebuffer.Destroy();
+          CUdeviceptr yptr = 0;
+          CUdeviceptr uvptr = 0;
+          CUresult ret = cuMemAlloc(&yptr, frame_->linesize[0] * frame_->height);
+          if (ret != CUDA_SUCCESS)
+          {
+
+            return ImageBuffer();
+          }
+          ret = cuMemAlloc(&uvptr, frame_->linesize[1] * (frame_->height / 2));
+          if (ret != CUDA_SUCCESS)
+          {
+            cuMemFree(yptr);
+            return ImageBuffer();
+          }
+          imagebuffer.type_ = IMAGEBUFFERTYPE_NV12;
+          imagebuffer.strides_[0] = frame_->linesize[0];
+          imagebuffer.strides_[1] = frame_->linesize[1];
+          imagebuffer.widths_[0] = frame_->width;
+          imagebuffer.widths_[1] = frame_->width / 2;
+          imagebuffer.heights_[0] = frame_->height;
+          imagebuffer.heights_[1] = frame_->height / 2;
+          imagebuffer.data_[0] = reinterpret_cast<uint8_t*>(yptr);
+          imagebuffer.data_[1] = reinterpret_cast<uint8_t*>(uvptr);
+          imagebuffer.cudacontext_ = cudacontext_;
+        }
+
+        CUDA_MEMCPY2D ycopy;
+        memset(&ycopy, 0, sizeof(ycopy));
+        ycopy.srcMemoryType = CU_MEMORYTYPE_DEVICE;
+        ycopy.dstMemoryType = CU_MEMORYTYPE_DEVICE;
+        ycopy.srcDevice = (CUdeviceptr)frame_->data[0];
+        ycopy.dstDevice = reinterpret_cast<CUdeviceptr>(imagebuffer.data_[0]);
+        ycopy.srcPitch = frame_->linesize[0];
+        ycopy.dstPitch = frame_->linesize[0];
+        ycopy.WidthInBytes = frame_->width;
+        ycopy.Height = frame_->height;
+        if (cuMemcpy2D(&ycopy) != cudaSuccess)
+        {
+          imagebuffer.Destroy();
+          return ImageBuffer();
+        }
+
+        CUDA_MEMCPY2D uvcopy;
+        memset(&uvcopy, 0, sizeof(uvcopy));
+        uvcopy.srcMemoryType = CU_MEMORYTYPE_DEVICE;
+        uvcopy.dstMemoryType = CU_MEMORYTYPE_DEVICE;
+        uvcopy.srcDevice = (CUdeviceptr)frame_->data[1];
+        uvcopy.dstDevice = reinterpret_cast<CUdeviceptr>(imagebuffer.data_[1]);
+        uvcopy.srcPitch = frame_->linesize[1];
+        uvcopy.dstPitch = frame_->linesize[1];
+        uvcopy.WidthInBytes = frame_->width;
+        uvcopy.Height = frame_->height / 2;
+        if (cuMemcpy2D(&uvcopy) != cudaSuccess)
+        {
+          imagebuffer.Destroy();
+          return ImageBuffer();
+        }
       }
-      imagebuffer.data_[0] = imagebuffer.buffer_;
-      imagebuffer.data_[1] = imagebuffer.buffer_ + ysize + 64;
-      memcpy(imagebuffer.data_[0], swsframe_->data[0], ysize);
-      memcpy(imagebuffer.data_[1], swsframe_->data[1], usize);
     }
     else if (context_->pix_fmt == AV_PIX_FMT_QSV)
     {
@@ -438,6 +510,7 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
     else if ((context_->pix_fmt == AV_PIX_FMT_YUV420P) || (context_->pix_fmt == AV_PIX_FMT_YUVJ420P)) // This format is converted on the GPU, so we pass 3 planes in
     {
       imagebuffer.type_ = IMAGEBUFFERTYPE_YUV;
+      imagebuffer.cudacontext_ = nullptr;
       const std::array<int, 3> widths =
       {
         frame_->width,
@@ -507,6 +580,7 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
         return ImageBuffer();
       }
       imagebuffer.type_ = IMAGEBUFFERTYPE_RGBA;
+      imagebuffer.cudacontext_ = nullptr;
       if ((imagebuffer.widths_[0] != frame_->width) || (imagebuffer.heights_[0] != frame_->height))
       {
         imagebuffer.widths_[0] = frame_->width;

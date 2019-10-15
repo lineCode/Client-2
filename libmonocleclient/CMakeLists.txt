@@ -358,6 +358,7 @@ set_target_properties(libmonocleclient PROPERTIES RELEASE_POSTFIX "")
 include_directories(libmonocleclient ${Boost_INCLUDE_DIRS})
 include_directories(libmonocleclient ${CMAKE_CURRENT_BINARY_DIR})
 include_directories(libmonocleclient ${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(libmonocleclient ${CUDA_INCLUDE_DIRS})
 include_directories(libmonocleclient ${FFMPEG_INCLUDE_DIR})
 include_directories(libmonocleclient ${OPENSSL_INCLUDE_DIR})
 include_directories(libmonocleclient ${PROJECT_BINARY_DIR}/curl/include/curl)
@@ -390,6 +391,7 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 
 ##### LIBRARIES #####
 
+target_link_libraries(libmonocleclient ${CUDA_LIBRARIES})
 target_link_libraries(libmonocleclient ${OPENGL_LIBRARIES})
 target_link_libraries(libmonocleclient ${OPENSSL_LIBRARIES})
 target_link_libraries(libmonocleclient ${Qt5Gui_EGL_LIBRARIES})

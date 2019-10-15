@@ -44,8 +44,8 @@ namespace client
 
 ///// Methods /////
 
-VideoView::VideoView(VideoWidget* videowidget, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool info, boost::shared_ptr<client::Device> device, QSharedPointer<client::Recording> recording, QSharedPointer<client::RecordingTrack> track, const QResource* arial) :
-  View(videowidget, selectedcolour, x, y, width, height, rotation, mirror, stretch, info, arial, true, true, true),
+VideoView::VideoView(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool info, boost::shared_ptr<client::Device> device, QSharedPointer<client::Recording> recording, QSharedPointer<client::RecordingTrack> track, const QResource* arial) :
+  View(videowidget, cudacontext, selectedcolour, x, y, width, height, rotation, mirror, stretch, info, arial, true, true, true),
   device_(device),
   recording_(recording),
   track_(track),
@@ -149,11 +149,16 @@ void VideoView::Connect()
           }
 
           DestroyDecoders();
-          for (const monocle::CODECINDEX& codecindex : createstreamresponse.codecindices_)
-          {
-            AddCodecIndex(codecindex);
 
-          }
+          QMetaObject::invokeMethod(this, [this, codecindices = createstreamresponse.codecindices_]()
+          {
+            std::lock_guard<std::mutex> lock(mutex_);
+            for (const monocle::CODECINDEX& codecindex : codecindices)
+            {
+              AddCodecIndex(codecindex);
+
+            }
+          }, Qt::QueuedConnection);
 
           SetMessage(GetPlayRequestIndex(), false, "Requesting Live");
           streamtoken_ = createstreamresponse.token_;
@@ -211,11 +216,6 @@ void VideoView::Connect()
 
 void VideoView::Disconnect()
 {
-  {
-    std::lock_guard<std::mutex> lock(mutex_);
-    DestroyDecoders();
-  }
-
   connect_.Close();
   getauthenticatenonce_.Close();
   authenticate_.Close();
@@ -235,6 +235,12 @@ void VideoView::Disconnect()
 
   connection_->Destroy();
   metadataconnection_->Destroy();
+
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+    freeimagequeue_.Destroy();
+    DestroyDecoders();
+  }
 
   if (onvifptz_)
   {
@@ -327,7 +333,7 @@ bool VideoView::GetImage(ImageBuffer& imagebuffer)
       bandwidthsizes_.push_back(std::make_pair(std::chrono::steady_clock::now(), imagebuffer.originalsize_));
 
       // If we have skipped frames, we should place them back into the temporary list, or destroy them if there is no room
-      if (previmagebuffer.buffer_)
+      if (previmagebuffer.buffer_ || previmagebuffer.cudacontext_)
       {
         if (paused_)
         {
@@ -633,22 +639,9 @@ void VideoView::Scrub(const uint64_t time)
   paused_ = true;
 }
 
-std::vector<int> VideoView::GetCUDADevices() const
+bool VideoView::HasHardwareDecoder() const
 {
-  std::vector<int> cudadevices;
-  for (const std::unique_ptr<H264Decoder>& h264decoder : h264decoders_)
-  {
-    if (h264decoder->GetHardwareDevice().is_initialized())
-    {
-      if (utility::Contains(cudadevices, *h264decoder->GetHardwareDevice()))
-      {
-
-        continue;
-      }
-      cudadevices.push_back(*h264decoder->GetHardwareDevice());
-    }
-  }
-  return cudadevices;
+  return (cudacontext_ && h264decoders_.size());
 }
 
 std::vector<QString> VideoView::GetProfileTokens() const
@@ -766,7 +759,7 @@ void VideoView::H264Callback(const uint64_t streamtoken, const uint64_t playrequ
   }
 
   ImageBuffer imagebuffer = (*h264decoder)->Decode(playrequestindex, marker, timestamp, sequencenum, signature, signaturesize, signaturedata, signaturedatasize, reinterpret_cast<const uint8_t*>(framedata), static_cast<unsigned int>(size), &videoview->freeimagequeue_);
-  if (imagebuffer.buffer_)
+  if (imagebuffer.buffer_ || imagebuffer.cudacontext_)
   {
     if (videoview->imagequeue_.write_available())
     {
@@ -1083,7 +1076,7 @@ void VideoView::AddCodecIndex(const monocle::CODECINDEX& codecindex)
   }
   else if (codecindex.codec_ == monocle::Codec::H264)
   {
-    std::unique_ptr<H264Decoder> h264decoder = std::make_unique<H264Decoder>(codecindex.id_, device_->GetPublicKey());
+    std::unique_ptr<H264Decoder> h264decoder = std::make_unique<H264Decoder>(codecindex.id_, device_->GetPublicKey(), cudacontext_);
     const DECODERERROR error = h264decoder->Init(parameterssplit);
     if (error)
     {
@@ -1107,6 +1100,10 @@ void VideoView::AddCodecIndex(const monocle::CODECINDEX& codecindex)
 
 void VideoView::DestroyDecoders()
 {
+  // We destroy the imagequeue preemptively here because we need the cuda context stored inside ffmpeg
+  imagequeue_.consume_all([this](const ImageBuffer& imagebuffer) { const_cast<ImageBuffer&>(imagebuffer).Destroy(); });
+  std::for_each(cache_.begin(), cache_.end(), [](ImageBuffer& imagebuffer) { imagebuffer.Destroy(); });
+
   if (mjpegdecoder_)
   {
     mjpegdecoder_->Destroy();
@@ -1118,7 +1115,7 @@ void VideoView::DestroyDecoders()
     h265decoder->Destroy();
 
   }
-  h264decoders_.clear();
+  h265decoders_.clear();
 
   for (std::unique_ptr<H264Decoder>& h264decoder : h264decoders_)
   {

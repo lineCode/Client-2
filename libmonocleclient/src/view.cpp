@@ -9,6 +9,8 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/asio/ip/address.hpp>
 #include <boost/bind.hpp>
+#include <cuda.h>
+#include <cudaGL.h>
 #include <GL/gl.h>
 #include <monocleprotocol/objects_generated.h>
 #include <network/uri.hpp>
@@ -137,8 +139,9 @@ Object& Object::operator=(Object&& rhs)
   return *this;
 }
 
-View::View(VideoWidget* videowidget, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool info, const QResource* arial, const bool showsaveimagemenu, const bool showcopymenu, const bool showinfomenu) :
+View::View(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool info, const QResource* arial, const bool showsaveimagemenu, const bool showcopymenu, const bool showinfomenu) :
   videowidget_(videowidget),
+  cudacontext_(cudacontext),
   starttime_(std::chrono::steady_clock::now()),
   selectedcolour_(selectedcolour.redF(), selectedcolour.greenF(), selectedcolour.blueF(), selectedcolour.alphaF()),
   actionsaveimage_(showsaveimagemenu ? new QAction(tr("Save Image"), this) : nullptr),
@@ -161,6 +164,7 @@ View::View(VideoWidget* videowidget, const QColor& selectedcolour, const unsigne
   textvertexbuffer_(QOpenGLBuffer::VertexBuffer),
   vertexbuffer_(QOpenGLBuffer::VertexBuffer),
   textures_({ 0, 0, 0 }),
+  cudaresources_({ nullptr, nullptr, nullptr }),
   infotexture_(0),
   infotexturebuffer_(QOpenGLBuffer::VertexBuffer),
   infovertexbuffer_(QOpenGLBuffer::VertexBuffer),
@@ -236,13 +240,15 @@ View::View(VideoWidget* videowidget, const QColor& selectedcolour, const unsigne
 
   videowidget->makeCurrent();
 
-  // Textures
+  // Textures, we create three, even though we may actually only use one, but we can't predict the formats.
+  // We could lazily initialise but these consume such little resources we just bang them in now
   videowidget->glGenTextures(static_cast<GLsizei>(textures_.size()), &textures_.at(0));
   for (size_t i = 0; i < textures_.size(); ++i)
   {
     videowidget->glBindTexture(GL_TEXTURE_2D, textures_.at(i));
     videowidget->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     videowidget->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    videowidget->glBindTexture(GL_TEXTURE_2D, 0);
   }
 
   // Setup the texture buffer
@@ -316,6 +322,15 @@ View::~View()
 
   }
   freetype_ = nullptr;
+
+  for (CUgraphicsResource& cudaresource : cudaresources_)
+  {
+    if (cudaresource)
+    {
+      cuGraphicsUnregisterResource(cudaresource);
+      cudaresource = nullptr;
+    }
+  }
 
   // GL stuff
   if (videowidget_)
@@ -675,7 +690,7 @@ QImage View::GetQImage(const boost::optional<QRect>& rect) const
     const std::array<GLsizei, 2> heights =
     {
       height,
-      std::max(1, height / 4)
+      std::max(1, height / 2)
     };
     for (int i = 0; i < 2; ++i)
     {
@@ -693,8 +708,8 @@ QImage View::GetQImage(const boost::optional<QRect>& rect) const
       for (int j = 0; j < height; ++j)
       {
         const float y = static_cast<float>(nv.at(0).get()[(j * width) + i]);
-        const float u = static_cast<float>(nv.at(1).get()[(((j / 4) * 2) * (width / 2)) + ((i / 2) * 2)]) - 128.0f;
-        const float v = static_cast<float>(nv.at(1).get()[(((j / 4) * 2) * (width / 2)) + ((i / 2) * 2) + 1]) - 128.0f;
+        const float u = static_cast<float>(nv.at(1).get()[((j / 2) * width) + ((i / 2) * 2)]) - 128.0f;
+        const float v = static_cast<float>(nv.at(1).get()[((j / 2) * width) + ((i / 2) * 2) + 1]) - 128.0f;
 
         const int r = y + (1.13983f * v);
         const int g = y - ((0.39465f * u) + (0.58060f * v));
@@ -1008,15 +1023,65 @@ void View::WriteFrame(const ImageBuffer& imagebuffer)
   }
   else if (imagebuffer.type_ == IMAGEBUFFERTYPE_NV12)
   {
+    cuCtxPushCurrent_v2(imagebuffer.cudacontext_);
+    bool resetresources = false; // Do we need to reinitialise the cuda stuff if dimensions and format have changed
+    if ((imagebuffer.type_ != type_) || (imagebuffer.widths_[0] != imagewidth_) || (imagebuffer.heights_[0] != imageheight_) || !cudaresources_[0] || !cudaresources_[1])
+    {
+      // Destroy any old CUDA stuff we had laying around
+      for (CUgraphicsResource& resource : cudaresources_)
+      {
+        if (resource)
+        {
+          cuGraphicsUnregisterResource(resource);
+          resource = nullptr;
+        }
+      }
+      resetresources = true;
+    }
+
     for (GLuint texture = 0; texture < 2; ++texture)
     {
       videowidget_->glActiveTexture(GL_TEXTURE0 + texture);
-      videowidget_->glBindTexture(GL_TEXTURE_2D, textures_.at(texture));
       videowidget_->glPixelStorei(GL_UNPACK_ROW_LENGTH, imagebuffer.strides_[texture]);
-      videowidget_->glTexImage2D(GL_TEXTURE_2D, 0, (texture == 0) ? GL_RED : GL_RG, imagebuffer.widths_.at(texture), (texture == 0) ? imagebuffer.heights_.at(texture) : (imagebuffer.heights_.at(texture) / 2), 0, (texture == 0) ? GL_RED : GL_RG, GL_UNSIGNED_BYTE, imagebuffer.data_[texture]);
+      videowidget_->glBindTexture(GL_TEXTURE_2D, textures_.at(texture));
+
+      CUgraphicsResource resource = nullptr;
+      if (resetresources)
+      {
+        videowidget_->glTexImage2D(GL_TEXTURE_2D, 0, (texture == 0) ? GL_RED : GL_RG, imagebuffer.widths_.at(texture), (texture == 0) ? imagebuffer.heights_.at(texture) : (imagebuffer.heights_.at(texture) / 2), 0, (texture == 0) ? GL_RED : GL_RG, GL_UNSIGNED_BYTE, imagebuffer.data_[texture]);
+        glTexImage2D(GL_TEXTURE_2D, 0, (texture == 0) ? GL_RED : GL_RG, imagebuffer.widths_[texture], imagebuffer.heights_[texture], 0, (texture == 0) ? GL_RED : GL_RG, GL_UNSIGNED_BYTE, nullptr);
+        cuGraphicsGLRegisterImage(&resource, textures_[texture], GL_TEXTURE_2D, CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD);
+        cudaresources_[texture] = resource;
+      }
+      else
+      {
+        resource = cudaresources_[texture];
+
+      }
+
+      cuGraphicsMapResources(1, &resource, 0);
+      CUarray resourceptr;
+      cuGraphicsSubResourceGetMappedArray(&resourceptr, resource, 0, 0);
+
+      CUDA_MEMCPY2D copy;
+      memset(&copy, 0, sizeof(copy));
+      copy.srcMemoryType = CU_MEMORYTYPE_DEVICE;
+      copy.dstMemoryType = CU_MEMORYTYPE_ARRAY;
+      copy.srcDevice = (CUdeviceptr)imagebuffer.data_[texture];
+      copy.dstArray = resourceptr;
+      copy.srcPitch = imagebuffer.strides_[texture];
+      copy.dstPitch = imagebuffer.strides_[texture];
+      copy.WidthInBytes = (texture == 0) ? imagebuffer.widths_[texture] : (imagebuffer.widths_[texture] * 2);
+      copy.Height = imagebuffer.heights_[texture];
+      cuMemcpy2D(&copy);
+      cuGraphicsUnmapResources(1, &resource, 0);
+
       videowidget_->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
       videowidget_->glBindTexture(GL_TEXTURE_2D, 0);
     }
+
+    CUcontext dummy;
+    cuCtxPopCurrent_v2(&dummy);
   }
   videowidget_->doneCurrent();
   videowidget_->update();

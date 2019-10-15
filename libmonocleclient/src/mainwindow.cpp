@@ -34,9 +34,6 @@
   #error "MONOCLE_CLIENT_VERSION_XXX not defined"
 #endif
 
-typedef int(*CUDEVICEGETCOUNT)(int*);
-typedef int(*CUINIT)(unsigned int);
-
 ///// Namespaces /////
 
 namespace client
@@ -58,6 +55,13 @@ static const QString MAINSHOWTOOLBAR("showtoolbar");
 
 ///// Methods /////
 
+CUDADEVICE::CUDADEVICE(const CUdevice device, const CUcontext context) :
+  device_(device),
+  context_(context)
+{
+
+}
+
 void MainWindow::Create(const uint32_t numioservices, const uint32_t numioservicethreads)
 {
   assert(!instance_);
@@ -77,7 +81,6 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   showfullscreen_(":/showfullscreen.png"),
   gen_(rd_()),
   hsvcolordist_(0.0, 1.0),
-  numcudadevices_(0),
   ioservicepool_(numioservices, numioservicethreads, [](){}, [](){}),
   guiioservice_(0),
   tray_(new QSystemTrayIcon(QIcon(":/icon.ico"), this)),
@@ -152,26 +155,25 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
     }
   }
 
-  // Get the number of CUDA devices
+  // Get the CUDA devices and create a context on each of them
 #ifdef _WIN32
-  const HMODULE nvcuda = LoadLibrary("nvcuda.dll");
-  if (nvcuda)
+  if (cuInit(0) == CUDA_SUCCESS)
   {
-    const CUINIT cuinit = (CUINIT)GetProcAddress(nvcuda, "cuInit");
-    const CUDEVICEGETCOUNT cudevicegetcount = (CUDEVICEGETCOUNT)GetProcAddress(nvcuda, "cuDeviceGetCount");
-    if (cuinit && cudevicegetcount)
+    int tmp = 0;
+    if (cuDeviceGetCount(&tmp) == CUDA_SUCCESS)
     {
-      if (cuinit(0) == 0)
+      cudadevices_.reserve(tmp);
+      for (int i = 0; i < tmp; ++i)
       {
-        int tmp = 0;
-        if (cudevicegetcount(&tmp) == 0)
+        CUcontext context = nullptr;
+        if (cuDevicePrimaryCtxRetain(&context, i) != CUDA_SUCCESS)
         {
-          numcudadevices_ = tmp;
 
+          continue;
         }
+        cudadevices_.push_back(CUDADEVICE(i, context));
       }
     }
-    FreeLibrary(nvcuda);
   }
 #else
 
@@ -381,6 +383,16 @@ MainWindow::~MainWindow()
 
   ioservicepool_.Destroy();
   guiioservice_.stop();
+
+  for (CUDADEVICE& cudadevice : cudadevices_)
+  {
+    if (cuDevicePrimaryCtxRelease(cudadevice.device_) != CUDA_SUCCESS)
+    {
+      LOG_GUI_WARNING(tr("Failed to destroy CUDA context: ") + QString::number(cudadevice.device_));
+
+    }
+  }
+  cudadevices_.clear();
 }
 
 void MainWindow::ShortMonthName(const int mon, std::vector<char>& buffer) const
@@ -411,6 +423,17 @@ void MainWindow::ShortWeekDayName(const int weekday, std::vector<char>& buffer) 
     buffer.push_back(shortweekdaynames_[weekday][i]);
 
   }
+}
+
+CUcontext MainWindow::GetNextCUDAContext()
+{
+  if (cudadevices_.empty())
+  {
+
+    return nullptr;
+  }
+  std::rotate(cudadevices_.begin(), cudadevices_.begin() + 1, cudadevices_.end());
+  return cudadevices_.front().context_;
 }
 
 void MainWindow::UpdateTray()

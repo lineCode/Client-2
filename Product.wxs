@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-  <Product Id="*" Name="MonocleClient" Language="1033" Version="1.10.0.0" Manufacturer="Monocle Security" UpgradeCode="b8005458-f311-4fbc-8865-54e59aef1972">
+  <Product Id="*" Name="MonocleClient" Language="1033" Version="1.11.0.0" Manufacturer="Monocle Security" UpgradeCode="b8005458-f311-4fbc-8865-54e59aef1972">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
     <WixVariable Id="WixUILicenseRtf" Overridable="yes" Value="license.rtf"/>

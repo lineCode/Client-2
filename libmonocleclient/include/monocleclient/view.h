@@ -12,6 +12,7 @@
 #include <atomic>
 #include <boost/circular_buffer.hpp>
 #include <chrono>
+#include <cuda.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include <map>
@@ -109,7 +110,7 @@ class View : public QObject, public QEnableSharedFromThis<View>
 
  public:
 
-  View(VideoWidget* videowidget, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool info, const QResource* arial, const bool showsaveimagemenu, const bool showcopymenu, const bool showinfomenu);
+  View(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool info, const QResource* arial, const bool showsaveimagemenu, const bool showcopymenu, const bool showinfomenu);
   virtual ~View();
 
   virtual VIEWTYPE GetViewType() const = 0;
@@ -133,6 +134,8 @@ class View : public QObject, public QEnableSharedFromThis<View>
 
   VideoWidget* GetVideoWidget() { return videowidget_; }
   void SetVideoWidget(VideoWidget* videowidget) { videowidget_ = videowidget; }
+
+  CUcontext GetCUDAContext() const { return cudacontext_; }
 
   Q_INVOKABLE void ResetPosition(const bool makecurrent); // Calls set position with current parameters_
   void SetPosition(VideoWidget* videowidget, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent);
@@ -176,6 +179,10 @@ class View : public QObject, public QEnableSharedFromThis<View>
   inline QOpenGLBuffer& GetSelectedVertexBuffer() { return selectvertexbuffer_; }
   inline std::map< std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> >& GetObjects() { return objects_; }
   std::array<GLuint, 3>& GetTextures() { return textures_; }
+  void SetCUDAResource(const size_t index, const CUgraphicsResource cudaresource) { cudaresources_[index] = cudaresource; }
+  CUgraphicsResource GetCUDAResource(const size_t index) const { return cudaresources_[index]; }
+  const std::array<CUgraphicsResource, 3>& GetCUDAResources() const { return cudaresources_; }
+  std::array<CUgraphicsResource, 3>& GetCUDAResources() { return cudaresources_; }
   inline GLuint GetInfoTexture() const { return infotexture_; }
   inline QOpenGLBuffer& GetInfoTextureBuffer() { return infotexturebuffer_; }
   inline QOpenGLBuffer& GetInfoVertexBuffer() { return infovertexbuffer_; }
@@ -218,6 +225,7 @@ class View : public QObject, public QEnableSharedFromThis<View>
   const QVector4D selectedcolour_;
 
   VideoWidget* videowidget_;
+  CUcontext cudacontext_;
 
   QAction* actionsaveimage_;
   QAction* actioncopy_;
@@ -250,6 +258,7 @@ class View : public QObject, public QEnableSharedFromThis<View>
   QOpenGLBuffer selectvertexbuffer_; // Represents the selection box
   std::map< std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> > objects_;
   std::array<GLuint, 3> textures_;
+  std::array<CUgraphicsResource, 3> cudaresources_; // Lazily initialised
   GLuint infotexture_;
   QOpenGLBuffer infotexturebuffer_;
   QOpenGLBuffer infovertexbuffer_;

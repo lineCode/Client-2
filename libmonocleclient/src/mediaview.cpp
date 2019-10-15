@@ -250,8 +250,8 @@ std::vector< std::shared_ptr<file::FRAMEHEADER> >::const_iterator MediaView::Med
   return i;
 }
 
-MediaView::MediaView(VideoWidget* videowidget, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool info, const QSharedPointer<Media>& media, const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t videotrackindex, const QResource* arial) :
-  View(videowidget, selectedcolour, x, y, width, height, rotation, mirror, stretch, info, arial, true, true, true),
+MediaView::MediaView(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool info, const QSharedPointer<Media>& media, const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t videotrackindex, const QResource* arial) :
+  View(videowidget, cudacontext, selectedcolour, x, y, width, height, rotation, mirror, stretch, info, arial, true, true, true),
   media_(media),
   nextstreamindex_(0),
   buffersize_(0)
@@ -400,7 +400,7 @@ bool MediaView::GetImage(ImageBuffer& imagebuffer)
       bandwidthsizes_.push_back(std::make_pair(std::chrono::steady_clock::now(), imagebuffer.originalsize_));
 
       // If we have skipped frames, we should place them back into the temporary list, or destroy them if there is no room
-      if (previmagebuffer.buffer_)
+      if (previmagebuffer.buffer_ || imagebuffer.cudacontext_)
       {
         if (paused_)
         {
@@ -418,7 +418,7 @@ bool MediaView::GetImage(ImageBuffer& imagebuffer)
     }
     else
     {
-      if (imagebuffer.buffer_)
+      if (imagebuffer.buffer_ || imagebuffer.cudacontext_)
       {
         imagewidth_ = imagebuffer.widths_[0];
         imageheight_ = imagebuffer.heights_[0];
@@ -541,23 +541,9 @@ void MediaView::Scrub(const uint64_t time)
   }
 }
 
-std::vector<int> MediaView::GetCUDADevices() const
+bool MediaView::HasHardwareDecoder() const
 {
-  std::lock_guard<std::recursive_mutex> lock(decodersmutex_);
-  std::vector<int> cudadevices;
-  for (const std::unique_ptr<H264Decoder>& h264decoder : h264decoders_)
-  {
-    if (h264decoder->GetHardwareDevice().is_initialized())
-    {
-      if (utility::Contains(cudadevices, *h264decoder->GetHardwareDevice()))
-      {
-
-        continue;
-      }
-      cudadevices.push_back(*h264decoder->GetHardwareDevice());
-    }
-  }
-  return cudadevices;
+  return (cudacontext_ && h264decoders_.size());
 }
 
 file::TRACK MediaView::GetVideoTrack() const
@@ -739,7 +725,7 @@ void MediaView::Init(const size_t deviceindex, const size_t recordingindex, cons
           std::vector<std::string> parameters;
           boost::split(parameters, codec.parameters_, boost::is_any_of(";"), boost::algorithm::token_compress_on);
     
-          std::unique_ptr<H264Decoder> h264decoder = std::make_unique<H264Decoder>(codec.index_, signingkey_);
+          std::unique_ptr<H264Decoder> h264decoder = std::make_unique<H264Decoder>(codec.index_, signingkey_, cudacontext_);
           if (h264decoder->Init(parameters))
           {
             LOG_GUI_WARNING(QString("H264Decoder::Init failed for recording: ") + QString::fromStdString(recording->name_) + " " + QString::number(recording->index_) + " " + QString::fromStdString(codec.parameters_));
@@ -1056,7 +1042,7 @@ std::pair<int, bool> MediaView::SendFrame(const uint64_t playrequestindex, const
       }
 
       imagebuffer = (*h265decoder)->Decode(playrequestindex, frameheader->marker_, frameheader->time_, frame, signature, frameheader->signature_.size(), reinterpret_cast<const char*>(buffer.get()), frameheader->size_, reinterpret_cast<const uint8_t*>(buf.data()), static_cast<int>(buf.size()), &freeimagequeue_);
-      if (imagebuffer.buffer_)
+      if (imagebuffer.buffer_ || imagebuffer.cudacontext_)
       {
         if (imagequeue_.write_available())
         {
@@ -1098,7 +1084,7 @@ std::pair<int, bool> MediaView::SendFrame(const uint64_t playrequestindex, const
       }
 
       imagebuffer = (*h264decoder)->Decode(playrequestindex, frameheader->marker_, frameheader->time_, frame, signature, frameheader->signature_.size(), reinterpret_cast<const char*>(buffer.get()), frameheader->size_, reinterpret_cast<const uint8_t*>(buf.data()), static_cast<int>(buf.size()), &freeimagequeue_);
-      if (imagebuffer.buffer_)
+      if (imagebuffer.buffer_ || imagebuffer.cudacontext_)
       {
         if (imagequeue_.write_available())
         {
@@ -1126,7 +1112,7 @@ std::pair<int, bool> MediaView::SendFrame(const uint64_t playrequestindex, const
       }
 
       imagebuffer = (*mpeg4decoder)->Decode(playrequestindex, frameheader->time_, frame, signature, frameheader->signature_.size(), reinterpret_cast<const char*>(buffer.get()), frameheader->size_, reinterpret_cast<const uint8_t*>(buffer.get()), static_cast<int>(frameheader->size_), &freeimagequeue_);
-      if (imagebuffer.buffer_)
+      if (imagebuffer.buffer_ || imagebuffer.cudacontext_)
       {
         if (imagequeue_.write_available())
         {
@@ -1158,7 +1144,7 @@ std::pair<int, bool> MediaView::SendFrame(const uint64_t playrequestindex, const
       }
 
       imagebuffer = mjpegdecoder_->Decode(playrequestindex, frameheader->time_, frame, signature, frameheader->signature_.size(), reinterpret_cast<const char*>(buffer.get()) + tmp.size(), frameheader->size_, reinterpret_cast<const uint8_t*>(buffer.get()), static_cast<unsigned int>(frameheader->size_ + tmp.size()), &freeimagequeue_);
-      if (imagebuffer.buffer_)
+      if (imagebuffer.buffer_ || imagebuffer.cudacontext_)
       {
         if (imagequeue_.write_available())
         {

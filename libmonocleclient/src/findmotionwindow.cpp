@@ -56,6 +56,7 @@ boost::optional<int> sensitivity;
 
 FindMotionWindow::FindMotionWindow(QWidget* parent, const QImage& image, const boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingTrack>& track, const QVector4D& colour, const uint64_t starttime, const uint64_t endtime, const QRectF& rect) :
   QDialog(parent),
+  cudacontext_(MainWindow::Instance()->GetNextCUDAContext()),
   device_(device),
   recording_(recording),
   track_(track)
@@ -389,7 +390,7 @@ void FindMotionWindow::H265Callback(const uint64_t streamtoken, const uint64_t p
   }
 
   ImageBuffer imagebuffer = (*h265decoder)->Decode(playrequestindex, marker, timestamp, sequencenum, signature, signaturesize, signaturedata, signaturedatasize, reinterpret_cast<const uint8_t*>(framedata), static_cast<unsigned int>(size), &findmotionwindow->GetFreeImageQueue());
-  if (imagebuffer.buffer_)
+  if (imagebuffer.buffer_ || imagebuffer.cudacontext_)
   {
     if (findmotionwindow->GetImageQueue().write_available())
     {
@@ -421,7 +422,7 @@ void FindMotionWindow::H264Callback(const uint64_t streamtoken, const uint64_t p
   }
 
   ImageBuffer imagebuffer = (*h264decoder)->Decode(playrequestindex, marker, timestamp, sequencenum, signature, signaturesize, signaturedata, signaturedatasize, reinterpret_cast<const uint8_t*>(framedata), static_cast<unsigned int>(size), &findmotionwindow->GetFreeImageQueue());
-  if (imagebuffer.buffer_)
+  if (imagebuffer.buffer_ || imagebuffer.cudacontext_)
   {
     if (findmotionwindow->GetImageQueue().write_available())
     {
@@ -461,7 +462,7 @@ void FindMotionWindow::JPEGCallback(const uint64_t streamtoken, const uint64_t p
   }
 
   ImageBuffer imagebuffer = findmotionwindow->mjpegdecoder_->Decode(playrequestindex, timestamp, sequencenum, signature, signaturesize, signaturedata, signaturedatasize, reinterpret_cast<const uint8_t*>(framedata), static_cast<unsigned int>(size), &findmotionwindow->GetFreeImageQueue());
-  if (imagebuffer.buffer_)
+  if (imagebuffer.buffer_ || imagebuffer.cudacontext_)
   {
     if (findmotionwindow->GetImageQueue().write_available())
     {
@@ -493,7 +494,7 @@ void FindMotionWindow::MPEG4Callback(const uint64_t streamtoken, const uint64_t 
   }
 
   ImageBuffer imagebuffer = (*mpeg4decoder)->Decode(playrequestindex, timestamp, sequencenum, signature, signaturesize, signaturedata, signaturedatasize, reinterpret_cast<const uint8_t*>(framedata), static_cast<unsigned int>(size), &findmotionwindow->GetFreeImageQueue());
-  if (imagebuffer.buffer_)
+  if (imagebuffer.buffer_ || imagebuffer.cudacontext_)
   {
     if (findmotionwindow->GetImageQueue().write_available())
     {
@@ -518,7 +519,6 @@ void FindMotionWindow::AddCodecIndex(const monocle::CODECINDEX& codecindex)
 {
   std::vector<std::string> parameterssplit;
   boost::split(parameterssplit, codecindex.parameters_, boost::is_any_of(";"), boost::algorithm::token_compress_on);
-
   if (codecindex.codec_ == monocle::Codec::MJPEG)
   {
     // MJPEG sorts itself out in the callback
@@ -537,7 +537,7 @@ void FindMotionWindow::AddCodecIndex(const monocle::CODECINDEX& codecindex)
   }
   else if (codecindex.codec_ == monocle::Codec::H264)
   {
-    std::unique_ptr<H264Decoder> h264decoder = std::make_unique<H264Decoder>(codecindex.id_, device_->GetPublicKey());
+    std::unique_ptr<H264Decoder> h264decoder = std::make_unique<H264Decoder>(codecindex.id_, device_->GetPublicKey(), cudacontext_);
     const DECODERERROR error = h264decoder->Init(parameterssplit);
     if (error)
     {

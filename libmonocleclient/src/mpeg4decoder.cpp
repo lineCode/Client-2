@@ -16,7 +16,7 @@ namespace client
 ///// Methods /////
 
 MPEG4Decoder::MPEG4Decoder(const uint64_t id, utility::PublicKey& publickey) :
-  Decoder(id, publickey)
+  Decoder(id, publickey, nullptr)
 {
   
 }
