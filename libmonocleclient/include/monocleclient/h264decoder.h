@@ -8,9 +8,19 @@
 
 #include "decoder.h"
 
+#ifdef _WIN32
+#include <boost/asio.hpp>
+#include <windows.h>
+#endif
+
 #include <boost/optional.hpp>
+#include <GL/gl.h>
 #include <string>
 #include <vector>
+
+///// Declarations /////
+
+class QOpenGLFunctions;
 
 ///// Namespaces /////
 
@@ -31,7 +41,7 @@ class H264Decoder : public Decoder
   virtual monocle::Codec GetCodec() const { return monocle::Codec::H264; };
   virtual AVCodecID GetCodecId() const override { return AV_CODEC_ID_H264; }
 
-  DECODERERROR Init(const std::vector<std::string>& parameters);
+  DECODERERROR Init(const std::vector<std::string>& parameters, QOpenGLFunctions* openglfunctions, const std::array<GLuint, 3>& textures);
 
   inline const boost::optional<int>& GetHardwareDevice() const { return hardwaredevice_; }
   inline const std::string& GetProfileLeveLID() const { return profilelevelid_; }
@@ -41,7 +51,7 @@ class H264Decoder : public Decoder
 
  private:
 
-  DECODERERROR Init();
+  DECODERERROR Init(QOpenGLFunctions* openglfunctions, const std::array<GLuint, 3>& textures);
 
   boost::optional<int> hardwaredevice_;
   std::string profilelevelid_;

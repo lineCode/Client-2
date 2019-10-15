@@ -86,7 +86,7 @@ struct ImageBuffer // Image buffers are used to store the output from decoding a
   monocle::Codec codec_;
   IMAGEBUFFERTYPE type_;
   std::array<uint8_t*, 3> data_;
-  uint8_t* buffer_;
+  uint8_t* buffer_; // If (type_ == IMAGEBUFFERTYPE_NV12), this holds the CUdeviceptr
   std::array<int, 3> widths_;
   std::array<int, 3> heights_;
   std::array<int, 3> strides_;

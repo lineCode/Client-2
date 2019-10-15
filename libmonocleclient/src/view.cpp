@@ -236,13 +236,15 @@ View::View(VideoWidget* videowidget, const QColor& selectedcolour, const unsigne
 
   videowidget->makeCurrent();
 
-  // Textures
+  // Textures, we create three, even though we may actually only use one, but we can't predict the formats.
+  // We could lazily initialise but these consume such little resources we just bang them in now
   videowidget->glGenTextures(static_cast<GLsizei>(textures_.size()), &textures_.at(0));
   for (size_t i = 0; i < textures_.size(); ++i)
   {
     videowidget->glBindTexture(GL_TEXTURE_2D, textures_.at(i));
     videowidget->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     videowidget->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    videowidget->glBindTexture(GL_TEXTURE_2D, 0);
   }
 
   // Setup the texture buffer

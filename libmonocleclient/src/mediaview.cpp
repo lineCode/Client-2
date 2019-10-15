@@ -740,7 +740,7 @@ void MediaView::Init(const size_t deviceindex, const size_t recordingindex, cons
           boost::split(parameters, codec.parameters_, boost::is_any_of(";"), boost::algorithm::token_compress_on);
     
           std::unique_ptr<H264Decoder> h264decoder = std::make_unique<H264Decoder>(codec.index_, signingkey_);
-          if (h264decoder->Init(parameters))
+          if (h264decoder->Init(parameters, videowidget_, textures_))
           {
             LOG_GUI_WARNING(QString("H264Decoder::Init failed for recording: ") + QString::fromStdString(recording->name_) + " " + QString::number(recording->index_) + " " + QString::fromStdString(codec.parameters_));
             break;

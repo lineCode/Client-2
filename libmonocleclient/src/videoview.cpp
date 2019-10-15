@@ -149,11 +149,18 @@ void VideoView::Connect()
           }
 
           DestroyDecoders();
-          for (const monocle::CODECINDEX& codecindex : createstreamresponse.codecindices_)
-          {
-            AddCodecIndex(codecindex);
 
-          }
+          QMetaObject::invokeMethod(this, [this, codecindices = createstreamresponse.codecindices_]()
+          {
+            std::lock_guard<std::mutex> lock(mutex_);
+            videowidget_->makeCurrent();
+            for (const monocle::CODECINDEX& codecindex : codecindices)
+            {
+              AddCodecIndex(codecindex);
+
+            }
+            videowidget_->doneCurrent();
+          }, Qt::QueuedConnection);
 
           SetMessage(GetPlayRequestIndex(), false, "Requesting Live");
           streamtoken_ = createstreamresponse.token_;
@@ -884,8 +891,13 @@ void VideoView::MPEG4Callback(const uint64_t streamtoken, const uint64_t playreq
 void VideoView::NewCodecIndexCallback(const uint64_t streamtoken, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp, void* callbackdata)
 {
   VideoView* videoview = reinterpret_cast<VideoView*>(callbackdata);
-  std::lock_guard<std::mutex> lock(videoview->mutex_);
-  videoview->AddCodecIndex(monocle::CODECINDEX(id, codec, parameters, timestamp));
+  QMetaObject::invokeMethod(videoview, [videoview, codecindex = monocle::CODECINDEX(id, codec, parameters, timestamp)]()
+  {
+    std::lock_guard<std::mutex> lock(videoview->mutex_);
+    videoview->videowidget_->makeCurrent();
+    videoview->AddCodecIndex(codecindex);
+    videoview->videowidget_->doneCurrent();
+  }, Qt::QueuedConnection);
 }
 
 void VideoView::ConnectONVIF(const QSharedPointer<client::Receiver>& receiver)
@@ -1084,7 +1096,7 @@ void VideoView::AddCodecIndex(const monocle::CODECINDEX& codecindex)
   else if (codecindex.codec_ == monocle::Codec::H264)
   {
     std::unique_ptr<H264Decoder> h264decoder = std::make_unique<H264Decoder>(codecindex.id_, device_->GetPublicKey());
-    const DECODERERROR error = h264decoder->Init(parameterssplit);
+    const DECODERERROR error = h264decoder->Init(parameterssplit, videowidget_, textures_);
     if (error)
     {
       LOG_GUI_THREAD_WARNING_SOURCE(device_, "H264Decoder failed to initialise");

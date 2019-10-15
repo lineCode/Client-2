@@ -518,7 +518,7 @@ void FindMotionWindow::AddCodecIndex(const monocle::CODECINDEX& codecindex)
 {
   std::vector<std::string> parameterssplit;
   boost::split(parameterssplit, codecindex.parameters_, boost::is_any_of(";"), boost::algorithm::token_compress_on);
-
+  //TODO we need makeCurrent() and doneCurrent() here... and to be in the correct GUI thread?
   if (codecindex.codec_ == monocle::Codec::MJPEG)
   {
     // MJPEG sorts itself out in the callback
@@ -538,7 +538,7 @@ void FindMotionWindow::AddCodecIndex(const monocle::CODECINDEX& codecindex)
   else if (codecindex.codec_ == monocle::Codec::H264)
   {
     std::unique_ptr<H264Decoder> h264decoder = std::make_unique<H264Decoder>(codecindex.id_, device_->GetPublicKey());
-    const DECODERERROR error = h264decoder->Init(parameterssplit);
+    const DECODERERROR error = h264decoder->Init(parameterssplit, ui_.videowidget, ui_.videowidget->textures_);
     if (error)
     {
       LOG_GUI_THREAD_WARNING_SOURCE(device_, "H264Decoder failed to initialise");

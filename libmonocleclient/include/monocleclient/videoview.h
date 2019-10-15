@@ -135,7 +135,7 @@ class VideoView : public View
   static void NewCodecIndexCallback(const uint64_t streamtoken, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp, void* callbackdata);
 
   void ConnectONVIF(const QSharedPointer<client::Receiver>& receiver);
-  void AddCodecIndex(const monocle::CODECINDEX& codecindex);
+  void AddCodecIndex(const monocle::CODECINDEX& codecindex); // Must wrap this call in makeCurrent()/doneCurrent()
   void DestroyDecoders();
   void Keepalive();
   ROTATION GetRotation() const;

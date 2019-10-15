@@ -38,6 +38,7 @@ set_directory_properties(PROPERTIES CLEAN_NO_CUSTOM true)
 include_directories(monocleclient ${Boost_INCLUDE_DIRS})
 include_directories(monocleclient ${CMAKE_CURRENT_BINARY_DIR})
 include_directories(monocleclient ${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(monocleclient ${CUDA_INCLUDE_DIRS})
 include_directories(monocleclient ${FFMPEG_INCLUDE_DIR})
 include_directories(monocleclient ${OPENSSL_INCLUDE_DIR})
 include_directories(monocleclient ${PROJECT_BINARY_DIR}/curl/include/curl)
@@ -68,6 +69,11 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 
 ##### LIBRARIES #####
 
+get_filename_component(CUDA_LIB_PATH ${CUDA_CUDART_LIBRARY} DIRECTORY)
+find_library(CUDA_CUDA_LIBRARY cuda PATHS ${CUDA_LIB_PATH})
+
+target_link_libraries(monocleclient ${CUDA_LIBRARIES})
+target_link_libraries(monocleclient ${CUDA_CUDA_LIBRARY})
 target_link_libraries(monocleclient ${OPENGL_LIBRARIES})
 target_link_libraries(monocleclient ${OPENSSL_LIBRARIES})
 target_link_libraries(monocleclient ${Qt5Gui_EGL_LIBRARIES})
