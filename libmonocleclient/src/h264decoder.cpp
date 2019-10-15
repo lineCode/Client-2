@@ -13,10 +13,11 @@
 #include <boost/algorithm/string.hpp>
 #include <cuda_gl_interop.h>
 #include <utility/utility.hpp>
-#include <iostream>//TODO remove
+
 extern "C"
-{
+  {
   #include <libavutil/hwcontext.h>
+  #include <libavutil/hwcontext_cuda.h>
 }
 
 #include "monocleclient/mainwindow.h"
@@ -92,7 +93,7 @@ void H264Decoder::Destroy()
   spropparametersets_.clear();
 }
 
-DECODERERROR H264Decoder::Init(const std::vector<std::string>& parameters, QOpenGLFunctions* openglfunctions, const std::array<GLuint, 3>& textures)
+DECODERERROR H264Decoder::Init(const std::vector<std::string>& parameters)
 {
   Destroy();
 
@@ -112,21 +113,16 @@ DECODERERROR H264Decoder::Init(const std::vector<std::string>& parameters, QOpen
 
   }
 
-  return Init(openglfunctions, textures);
+  return Init();
 }
 
 ImageBuffer H264Decoder::Decode(const uint64_t playrequestindex, const bool marker, const uint64_t time, const int64_t sequencenum, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint8_t* data, const int size, FreeImageBuffers* freeimagebuffers)
 {
-  if (hardwaredevice_.is_initialized())
-  {
-    cudaSetDevice(*hardwaredevice_);//TODO don't want to do this every tiem surely?
-
-  }
 
   return Decoder::Decode(playrequestindex, marker, time, sequencenum, signature, signaturesize, signaturedata, signaturedatasize, data, size, freeimagebuffers);
 }
 
-DECODERERROR H264Decoder::Init(QOpenGLFunctions* openglfunctions, const std::array<GLuint, 3>& textures)//TODO textures needs to go I think, because get_buffer2() will grab the buffers
+DECODERERROR H264Decoder::Init()
 {
   codec_ = avcodec_find_decoder_by_name("h264");
   if (codec_ == nullptr)
@@ -158,14 +154,6 @@ DECODERERROR H264Decoder::Init(QOpenGLFunctions* openglfunctions, const std::arr
   {
     extradata.insert(extradata.end(), STARTSEQUENCE, STARTSEQUENCE + sizeof(STARTSEQUENCE));
     const std::vector<unsigned char> decode = utility::Base64Decode(data);
-    
-    for (auto a : decode)//TODO remove
-    {
-      std::cout << (int)a << " ";
-
-    }
-    std::cout << std::endl;//TODO remove
-
     extradata.insert(extradata.end(), decode.begin(), decode.end());
   }
 
@@ -191,7 +179,7 @@ DECODERERROR H264Decoder::Init(QOpenGLFunctions* openglfunctions, const std::arr
 
   // Do we support CUDA decoding?
   AVHWDeviceType hardwaredevicetype = AV_HWDEVICE_TYPE_NONE;
-  if (openglfunctions && Options::Instance().GetMaxCUDADecodersPerDevice() && MainWindow::Instance()->GetNumCUDADevices() && utility::Contains(types, AV_HWDEVICE_TYPE_CUDA))//TODO this will need to check the textures[3] is available too
+  if (Options::Instance().GetMaxCUDADecodersPerDevice() && MainWindow::Instance()->GetNumCUDADevices() && utility::Contains(types, AV_HWDEVICE_TYPE_CUDA))
   {
     const std::vector< QSharedPointer<View> > views = MainWindow::Instance()->GetVideoWidgetsMgr().GetViews();
     std::vector< std::pair<unsigned int, int> > devices; // <NumViews, Device>
@@ -247,7 +235,7 @@ DECODERERROR H264Decoder::Init(QOpenGLFunctions* openglfunctions, const std::arr
         if (!constraints)
         {
           LOG_GUI_WARNING(tr("Unable to retrieve CUDA device constraints, falling back to software decoding"));
-          //TODO free hwdevice_
+          av_buffer_unref(&hwdevice_);
           hwdevice_ = nullptr; // Just in case
         }
         else
@@ -273,68 +261,13 @@ DECODERERROR H264Decoder::Init(QOpenGLFunctions* openglfunctions, const std::arr
           if (!utility::Contains(swformats, AV_PIX_FMT_NV12))
           {
             LOG_GUI_WARNING(tr("Unable to initialise CUDA device, NV12 format not supported, falling back to software decoding"));
-            //TODO free hwdevice_
+            av_buffer_unref(&hwdevice_);
             hwdevice_ = nullptr;
           }
           else
           {
             hardwaredevice_ = hardwaredevice;
             hardwaredevicetype = AV_HWDEVICE_TYPE_CUDA;
-
-            //TODO context_->opaque
-            //TODO context_->get_buffer2 = [](AVCodecContext* context, AVFrame* frame, int flags) -> int
-            //TODO {
-            //TODO   push the cuda context
-            //TODO   call the view to create an opengl buffer object and map it to cuda and bring back the CUDevicePtr
-            //TODO   pop the cuda context...
-            //TODO   return 0;
-            //TODO };
-
-
-            //TODO read the SPS to get the width/height and then generate the opengl textures manually here
-
-
-            //TODO create a widths() and heights() array
-
-            // Map CUDA resources for our textures
-            //TODO std::array<cudaGraphicsResource*, 3> resources = { nullptr, nullptr, nullptr };//TODO goes as a member now ?
-            //TODO free the resources_ somewhere
-            //TODO for (int i = 0; i < textures.size(); ++i)//TODO for nv12 we only need two... remove the loop imo
-            //TODO {
-            //TODO   openglfunctions->glBindTexture(GL_TEXTURE_2D, textures[i]);
-            //TODO   openglfunctions->glTexImage2D(GL_TEXTURE_2D, 0, (i == 0) ? GL_RED : GL_RG, (i == 0) ? 1280 : 640, (i == 0) ? 720 : 180, 0, (i == 0) ? GL_RED : GL_RG, GL_UNSIGNED_BYTE, nullptr);//TODO width and height... we need to read the SPS...
-            //TODO   if (cudaGraphicsGLRegisterImage(&resources[i], textures[i], GL_TEXTURE_2D, cudaGraphicsMapFlagsWriteDiscard) != cudaSuccess)
-            //TODO   //TODO if (cudaGraphicsGLRegisterImage(&resources[i], textures[i], GL_TEXTURE_2D, cudaGraphicsMapFlagsNone) != cudaSuccess)
-            //TODO   {
-            //TODO     
-            //TODO     return DECODERERROR_INITCODEC;
-            //TODO   }
-            //TODO 
-            //TODO   cudaError ret = cudaGraphicsMapResources(1, &resources[i], 0);
-            //TODO   if (ret != cudaSuccess)
-            //TODO   {
-            //TODO 
-            //TODO     return DECODERERROR_INITCODEC;
-            //TODO   }
-            //TODO   
-            //TODO   //TODO it's POSSIBLE this pointer will work for FFMPEG...
-            //TODO   cudaArray* ptr = nullptr;//TODO we don't want this kind of pointer... we want a CuDevicePtr or something
-            //TODO   size_t size = 1;
-            //TODO   ret = cudaGraphicsSubResourceGetMappedArray(&ptr, resources[i], 0, 0);
-            //TODO   if (ret != cudaSuccess)
-            //TODO   {
-            //TODO 
-            //TODO     return DECODERERROR_INITCODEC;
-            //TODO   }
-            //TODO 
-            //TODO   //TODO cudaGraphicsUnregisterResource()
-            //TODO   //TODO cudaGraphicsUnmapResources()
-            //TODO   openglfunctions->glBindTexture(GL_TEXTURE_2D, 0);
-            //TODO }
-
-            //TODO sort out the packet_
-              //TODO maybe need to set the packet_ every time before we Decode
-                //TODO we would need to override Decoder::Decode()
           }
         }
       }
@@ -372,7 +305,7 @@ DECODERERROR H264Decoder::Init(QOpenGLFunctions* openglfunctions, const std::arr
       // Should only happen if we're out of memory
       return DECODERERROR_INITCONTEXT;
     }
-    context_->opaque = reinterpret_cast<void*>(format);//TODO probably need to reset this here
+    context_->opaque = reinterpret_cast<void*>(format);
     context_->get_format = GetHardwareFormat;
     context_->pix_fmt = format;
     context_->sw_pix_fmt = (hardwaredevicetype == AV_HWDEVICE_TYPE_CUDA) ? AV_PIX_FMT_NV12 : AV_PIX_FMT_NONE;
@@ -420,6 +353,16 @@ DECODERERROR H264Decoder::Init(QOpenGLFunctions* openglfunctions, const std::arr
   {
 
     return DECODERERROR_OPENCODEC;
+  }
+
+  if (hwdevice_)
+  {
+    cudacontext_ = GetCUDAContext();
+    if (cudacontext_ == nullptr)
+    {
+      LOG_GUI_WARNING(tr("Unable to initialise CUDA device, Invalid CUDA context, falling back to software decoding"));
+      return DECODERERROR_OPENCODEC;
+    }
   }
 
   return DECODERERROR_SUCCESS;

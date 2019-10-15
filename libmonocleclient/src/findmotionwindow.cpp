@@ -538,7 +538,7 @@ void FindMotionWindow::AddCodecIndex(const monocle::CODECINDEX& codecindex)
   else if (codecindex.codec_ == monocle::Codec::H264)
   {
     std::unique_ptr<H264Decoder> h264decoder = std::make_unique<H264Decoder>(codecindex.id_, device_->GetPublicKey());
-    const DECODERERROR error = h264decoder->Init(parameterssplit, ui_.videowidget, ui_.videowidget->textures_);
+    const DECODERERROR error = h264decoder->Init(parameterssplit);
     if (error)
     {
       LOG_GUI_THREAD_WARNING_SOURCE(device_, "H264Decoder failed to initialise");

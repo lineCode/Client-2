@@ -218,11 +218,6 @@ void VideoView::Connect()
 
 void VideoView::Disconnect()
 {
-  {
-    std::lock_guard<std::mutex> lock(mutex_);
-    DestroyDecoders();
-  }
-
   connect_.Close();
   getauthenticatenonce_.Close();
   authenticate_.Close();
@@ -242,6 +237,13 @@ void VideoView::Disconnect()
 
   connection_->Destroy();
   metadataconnection_->Destroy();
+
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+    //TODO there may be more frames to come, even though we have destroyed the connection_
+    freeimagequeue_.Destroy();
+    DestroyDecoders();
+  }
 
   if (onvifptz_)
   {
@@ -1096,7 +1098,7 @@ void VideoView::AddCodecIndex(const monocle::CODECINDEX& codecindex)
   else if (codecindex.codec_ == monocle::Codec::H264)
   {
     std::unique_ptr<H264Decoder> h264decoder = std::make_unique<H264Decoder>(codecindex.id_, device_->GetPublicKey());
-    const DECODERERROR error = h264decoder->Init(parameterssplit, videowidget_, textures_);
+    const DECODERERROR error = h264decoder->Init(parameterssplit);
     if (error)
     {
       LOG_GUI_THREAD_WARNING_SOURCE(device_, "H264Decoder failed to initialise");
@@ -1119,6 +1121,10 @@ void VideoView::AddCodecIndex(const monocle::CODECINDEX& codecindex)
 
 void VideoView::DestroyDecoders()
 {
+  // We destroy the imagequeue preemptively here because we need the cuda context stored inside ffmpeg
+  imagequeue_.consume_all([this](const ImageBuffer& imagebuffer) { const_cast<ImageBuffer&>(imagebuffer).Destroy(); });
+  std::for_each(cache_.begin(), cache_.end(), [](ImageBuffer& imagebuffer) { imagebuffer.Destroy(); });
+
   if (mjpegdecoder_)
   {
     mjpegdecoder_->Destroy();
@@ -1130,7 +1136,7 @@ void VideoView::DestroyDecoders()
     h265decoder->Destroy();
 
   }
-  h264decoders_.clear();
+  h265decoders_.clear();
 
   for (std::unique_ptr<H264Decoder>& h264decoder : h264decoders_)
   {

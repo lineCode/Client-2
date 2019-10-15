@@ -18,7 +18,7 @@
   #include <GL/glu.h>
   #include <GLES3/gl3.h>
 #endif
-
+#include <iostream>//TODO
 #include "monocleclient/mainwindow.h"
 #include "monocleclient/mapview.h"
 #include "monocleclient/mediaview.h"
@@ -1665,7 +1665,7 @@ void VideoWidget::paintGL()
         }
         else if (view->GetImageType() == IMAGEBUFFERTYPE_NV12)
         {
-          viewnv12shader_.bind();//TODO I think everything remains the same here..?
+          viewnv12shader_.bind();
           for (GLuint texture = 0; texture < 2; ++texture)
           {
             viewnv12shader_.setUniformValue(nv12texturesamplerlocation_.at(texture), texture);
@@ -1727,12 +1727,36 @@ void VideoWidget::paintGL()
         }
         else if (imagebuffer.type_ == IMAGEBUFFERTYPE_NV12)
         {
-          auto a = std::chrono::steady_clock::now();//TODO remove
-          if (cuCtxPushCurrent_v2(reinterpret_cast<CUcontext>(imagebuffer.buffer_)) != CUDA_SUCCESS)
+          const CUcontext cucontext = reinterpret_cast<CUcontext>(imagebuffer.buffer_);
+          if (cuCtxPushCurrent_v2(cucontext) != CUDA_SUCCESS)
           {
             int j = 0;//TODO remove
           }
-          qDebug() << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - a).count();
+
+          bool resetresources = false; // Do we need to reinitialise the cuda stuff if dimensions and format have changed
+          if ((cucontext != view->GetCUDAContext()) || (imagebuffer.type_ != view->GetImageType()) || (imagebuffer.widths_[0] != view->GetImageWidth()) || (imagebuffer.heights_[0] != view->GetImageHeight()))
+          {
+            // Destroy any old CUDA stuff we had laying around
+            if (view->GetCUDAContext())
+            {
+              cuCtxPushCurrent_v2(view->GetCUDAContext());
+              for (CUgraphicsResource& resource : view->GetCUDAResources())
+              {
+                if (resource)
+                {
+                  if (cuGraphicsUnregisterResource(resource))
+                  {
+                    int l = 0;//TODO
+                  }
+                  resource = nullptr;
+                }
+              }
+              CUcontext dummy;
+              cuCtxPopCurrent_v2(&dummy);
+            }
+            view->SetCUDAContext(cucontext);
+            resetresources = true;
+          }
 
           viewnv12shader_.bind();
           for (GLuint texture = 0; texture < 2; ++texture)
@@ -1742,35 +1766,35 @@ void VideoWidget::paintGL()
             glPixelStorei(GL_UNPACK_ROW_LENGTH, imagebuffer.strides_[texture]);
             glBindTexture(GL_TEXTURE_2D, view->GetTextures().at(texture));
 
-            a = std::chrono::steady_clock::now();//TODO remove
-            //TODO we might need to call glTextSubImage2D() with the appropriate sizes before copying into it...
-            glTexImage2D(GL_TEXTURE_2D, 0, (texture == 0) ? GL_RED : GL_RG, imagebuffer.widths_.at(texture), (texture == 0) ? imagebuffer.heights_.at(texture) : (imagebuffer.heights_.at(texture) / 2), 0, (texture == 0) ? GL_RED : GL_RG, GL_UNSIGNED_BYTE, nullptr);
-            qDebug() << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - a).count();
-
-            a = std::chrono::steady_clock::now();//TODO remove
-            CUgraphicsResource resource;
-            if (cuGraphicsGLRegisterImage(&resource, view->GetTextures().at(texture), GL_TEXTURE_2D, CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD) != CUDA_SUCCESS)
+            CUgraphicsResource resource = nullptr;
+            if (resetresources)
             {
-              int i = 0;//TODO
-            }
-            qDebug() << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - a).count();
+              glTexImage2D(GL_TEXTURE_2D, 0, (texture == 0) ? GL_RED : GL_RG, imagebuffer.widths_.at(texture), imagebuffer.heights_[texture], 0, (texture == 0) ? GL_RED : GL_RG, GL_UNSIGNED_BYTE, nullptr);
 
-            a = std::chrono::steady_clock::now();//TODO remove
+              if (cuGraphicsGLRegisterImage(&resource, view->GetTextures().at(texture), GL_TEXTURE_2D, CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD) != CUDA_SUCCESS)
+              {
+                int i = 0;//TODO
+              }
+
+              view->SetCUDAResource(texture, resource);
+            }
+            else
+            {
+              resource = view->GetCUDAResource(texture);
+
+            }
+
             if (cuGraphicsMapResources(1, &resource, 0) != CUDA_SUCCESS)
             {
               int p = 0;//TODO
             }
-            qDebug() << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - a).count();
 
-            a = std::chrono::steady_clock::now();//TODO remove
             CUarray resourceptr;
             if (cuGraphicsSubResourceGetMappedArray(&resourceptr, resource, 0, 0) != CUDA_SUCCESS)
             {
               int p = 0;//TODO
             }
-            qDebug() << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - a).count();
 
-            a = std::chrono::steady_clock::now();//TODO remove
             CUDA_MEMCPY2D copy;
             memset(&copy, 0, sizeof(copy));
             copy.srcMemoryType = CU_MEMORYTYPE_DEVICE;
@@ -1779,41 +1803,23 @@ void VideoWidget::paintGL()
             copy.dstArray = resourceptr;
             copy.srcPitch = imagebuffer.strides_[texture];
             copy.dstPitch = imagebuffer.strides_[texture];
-            copy.WidthInBytes = (texture == 0) ? imagebuffer.widths_[texture] : imagebuffer.widths_.at(texture) / 2;//TODO imagebuffer.strides_[texture]
-            copy.Height = (texture == 0) ? imagebuffer.heights_[texture] : imagebuffer.heights_.at(texture) / 2;
-            auto aaa = cuMemcpy2D(&copy);//TODO
-            if (aaa != CUDA_SUCCESS)
+            copy.WidthInBytes = (texture == 0) ? imagebuffer.widths_[texture] : imagebuffer.widths_.at(texture) * 2;
+            copy.Height = imagebuffer.heights_[texture];
+            if (cuMemcpy2D(&copy) != CUDA_SUCCESS)
             {
-              //TODO it could be that the image isn't ready in some way...
               int q = 0;//TODO remove
             }
-            qDebug() << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - a).count();
-            //TODO now we need to copy from the imagebuffer to the 
 
-
-            //TODO glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, imagebuffer.widths_.at(texture), (texture == 0) ? imagebuffer.heights_.at(texture) : (imagebuffer.heights_.at(texture) / 2), (texture == 0) ? GL_RED : GL_RG, GL_UNSIGNED_BYTE, imagebuffer.data_[texture]);
-//TODO            glTexImage2D(GL_TEXTURE_2D, 0, (texture == 0) ? GL_RED : GL_RG, imagebuffer.widths_.at(texture), (texture == 0) ? imagebuffer.heights_.at(texture) : (imagebuffer.heights_.at(texture) / 2), 0, (texture == 0) ? GL_RED : GL_RG, GL_UNSIGNED_BYTE, imagebuffer.data_[texture]);
-            glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-
-            a = std::chrono::steady_clock::now();//TODO remove
             if (cuGraphicsUnmapResources(1, &resource, 0) != CUDA_SUCCESS)
             {
               int l = 0;//TODO
             }
-            qDebug() << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - a).count();
 
-            a = std::chrono::steady_clock::now();//TODO remove
-            if (cuGraphicsUnregisterResource(resource) != CUDA_SUCCESS)
-            {
-              int l = 0;//TODO
-            }
-            qDebug() << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - a).count();
+            glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
           }
 
-          a = std::chrono::steady_clock::now();//TODO remove
           CUcontext dummy;
           cuCtxPopCurrent_v2(&dummy);
-          qDebug() << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - a).count();
         }
         view->GetFreeFrameBuffers().AddFreeImage(imagebuffer);
       }

@@ -621,7 +621,7 @@ void ExportProgressWindow::H264Callback(const uint64_t streamtoken, const uint64
         }
         
         std::unique_ptr<H264Decoder> decoder = std::make_unique<H264Decoder>(ci->id_, utility::PublicKey());
-        if (decoder->Init(ci->GetParameters(), nullptr, { 0, 0, 0 }))
+        if (decoder->Init(ci->GetParameters()))
         {
           exporttrackconnection->audit_.push_back(QString::fromStdString("ExportTrack H264Decoder::Init failed"));
           exporttrackconnection->state_ = EXPORTTRACKSTATE_ERROR;

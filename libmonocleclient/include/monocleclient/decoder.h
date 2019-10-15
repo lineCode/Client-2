@@ -8,6 +8,7 @@
 
 #include <boost/next_prior.hpp>
 #include <boost/lockfree/spsc_queue.hpp>
+#include <cuda.h>
 #include <monocleprotocol/codec_generated.h>
 #include <QObject>
 #include <QString>
@@ -125,6 +126,8 @@ class SPSCFreeFrameBuffers : public FreeImageBuffers
   SPSCFreeFrameBuffers();
   ~SPSCFreeFrameBuffers();
 
+  void Destroy();
+
   virtual ImageBuffer GetFreeImage() override;
   virtual void AddFreeImage(ImageBuffer& imagebuffer) override;
 
@@ -178,6 +181,7 @@ class Decoder : public QObject
  protected:
 
   ImageBuffer Decode(const uint64_t playrequestindex, const bool marker, const uint64_t time, const int64_t sequencenum, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint8_t* data, const int size, FreeImageBuffers* freeimagebuffers);
+  CUcontext GetCUDAContext() const;
 
   const uint64_t id_;
   utility::PublicKey publickey_;
@@ -190,6 +194,8 @@ class Decoder : public QObject
   AVFrame* swsframe_;
 
   SwsContext* swscontext_;
+
+  CUcontext cudacontext_;
 
 };
 

@@ -41,7 +41,7 @@ class H264Decoder : public Decoder
   virtual monocle::Codec GetCodec() const { return monocle::Codec::H264; };
   virtual AVCodecID GetCodecId() const override { return AV_CODEC_ID_H264; }
 
-  DECODERERROR Init(const std::vector<std::string>& parameters, QOpenGLFunctions* openglfunctions, const std::array<GLuint, 3>& textures);
+  DECODERERROR Init(const std::vector<std::string>& parameters);
 
   inline const boost::optional<int>& GetHardwareDevice() const { return hardwaredevice_; }
   inline const std::string& GetProfileLeveLID() const { return profilelevelid_; }
@@ -51,7 +51,7 @@ class H264Decoder : public Decoder
 
  private:
 
-  DECODERERROR Init(QOpenGLFunctions* openglfunctions, const std::array<GLuint, 3>& textures);
+  DECODERERROR Init();
 
   boost::optional<int> hardwaredevice_;
   std::string profilelevelid_;

@@ -15,7 +15,7 @@ extern "C"
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-#include <iostream>//TODO remove
+
 #include "monocleclient/mainwindow.h"
 
 ///// Namespaces /////
@@ -222,6 +222,12 @@ SPSCFreeFrameBuffers::SPSCFreeFrameBuffers()
 
 SPSCFreeFrameBuffers::~SPSCFreeFrameBuffers()
 {
+  Destroy();
+
+}
+
+void SPSCFreeFrameBuffers::Destroy()
+{
   queue_.consume_all([this](const ImageBuffer& imagebuffer) { const_cast<ImageBuffer&>(imagebuffer).Destroy(); });
 
 }
@@ -306,7 +312,8 @@ Decoder::Decoder(const uint64_t id, const utility::PublicKey& publickey) :
   hwdevice_(nullptr),
   frame_(av_frame_alloc()),
   swsframe_(av_frame_alloc()),
-  swscontext_(nullptr)
+  swscontext_(nullptr),
+  cudacontext_(nullptr)
 {
   av_init_packet(&packet_);
   packet_.dts = AV_NOPTS_VALUE;
@@ -381,6 +388,8 @@ void Decoder::Destroy()
     sws_freeContext(swscontext_);
     swscontext_ = nullptr;
   }
+
+  cudacontext_ = nullptr;
 }
 
 ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, const uint64_t time, const int64_t sequencenum, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint8_t* data, const int size, FreeImageBuffers* freeimagebuffers)
@@ -412,14 +421,14 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
 
       }
 
-      //TODO next big thing will be to grab maintain the free buffer queue through the medium of get_buffer2 ffmpeg decoder callback
+      if (cudacontext_ == nullptr)
+      {
 
-      //TODO we would like to retrieve this safely... maybe see how av_hwframe_transfer_data does it
-      auto aaa = (AVHWDeviceContext*)context_->hw_device_ctx->data;//TODO remove
-      auto bbb = (AVCUDADeviceContext*)aaa->hwctx;//TODO maybe get this in initialisation H264Decoder::Init() and then we can error earlier there if there is problems
+        return ImageBuffer();
+      }
 
       {
-        if (cuCtxPushCurrent_v2(bbb->cuda_ctx) != cudaSuccess)
+        if (cuCtxPushCurrent_v2(cudacontext_) != cudaSuccess)
         {
 
           return ImageBuffer();
@@ -456,11 +465,9 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
           imagebuffer.heights_[1] = frame_->height / 2;
           imagebuffer.data_[0] = reinterpret_cast<uint8_t*>(yptr);
           imagebuffer.data_[1] = reinterpret_cast<uint8_t*>(uvptr);
-          imagebuffer.buffer_ = reinterpret_cast<uint8_t*>(bbb->cuda_ctx);
+          imagebuffer.buffer_ = reinterpret_cast<uint8_t*>(cudacontext_);
         }
 
-        //TODO cuStreamCreate()
-        //TODO I think we can do two simultaneous copies in a stream and synchronise... doesn't really matter because its two sequential copies
         CUDA_MEMCPY2D ycopy;
         memset(&ycopy, 0, sizeof(ycopy));
         ycopy.srcMemoryType = CU_MEMORYTYPE_DEVICE;
@@ -469,7 +476,7 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
         ycopy.dstDevice = reinterpret_cast<CUdeviceptr>(imagebuffer.data_[0]);
         ycopy.srcPitch = frame_->linesize[0];
         ycopy.dstPitch = frame_->linesize[0];
-        ycopy.WidthInBytes = frame_->linesize[0];//TODO
+        ycopy.WidthInBytes = frame_->width;
         ycopy.Height = frame_->height;
         if (cuMemcpy2D(&ycopy) != cudaSuccess)
         {
@@ -485,7 +492,7 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
         uvcopy.dstDevice = reinterpret_cast<CUdeviceptr>(imagebuffer.data_[1]);
         uvcopy.srcPitch = frame_->linesize[1];
         uvcopy.dstPitch = frame_->linesize[1];
-        uvcopy.WidthInBytes = frame_->linesize[1];//TODO
+        uvcopy.WidthInBytes = frame_->width;
         uvcopy.Height = frame_->height / 2;
         if (cuMemcpy2D(&uvcopy) != cudaSuccess)
         {
@@ -493,68 +500,6 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
           return ImageBuffer();
         }
       }
-
-
-
-
-
-
-
-
-      //TODO QImage image(reinterpret_cast<const unsigned char*>(ptr), frame_->width, frame_->height, frame_->linesize[0], QImage::Format_Grayscale8, nullptr);
-      //TODO image.save("test.jpg");
-
-
-
-
-
-      //TODO swsframe_->format = AV_PIX_FMT_NV12;
-      //TODO const int ret = av_hwframe_transfer_data(swsframe_, frame_, 0);
-      //TODO if (ret)
-      //TODO {
-      //TODO   // Not sure what to do here, SetMessage and log messages could spam, lets just ignore it for the moment...
-      //TODO   return ImageBuffer();
-      //TODO }
-      //TODO we now want to tell the videowidget this is going to be a glorious opengl texture it should render
-        //TODO so just pass through the two GLuint and say it is NV12?
-          //TODO then it doesn't need to do anything except bind them?
-
-      //TODO const std::array<int, 3> widths =
-      //TODO {
-      //TODO   swsframe_->width,
-      //TODO   swsframe_->width / 2,
-      //TODO   0
-      //TODO };
-      //TODO const std::array<int, 3> heights =
-      //TODO {
-      //TODO   swsframe_->height,
-      //TODO   swsframe_->height / 2,
-      //TODO   0
-      //TODO };
-      //TODO const std::array<int, 3> strides =
-      //TODO {
-      //TODO   swsframe_->linesize[0],
-      //TODO   swsframe_->linesize[1],
-      //TODO   0
-      //TODO };
-      //TODO const int ysize = strides[0] * heights[0];
-      //TODO const int usize = strides[1] * heights[1];
-      //TODO if (widths != imagebuffer.widths_ || (heights != imagebuffer.heights_) || strides != imagebuffer.strides_)
-      //TODO {
-      //TODO   imagebuffer.widths_ = widths;
-      //TODO   imagebuffer.heights_ = heights;
-      //TODO   imagebuffer.strides_ = strides;
-      //TODO   if (imagebuffer.buffer_)
-      //TODO   {
-      //TODO     delete imagebuffer.buffer_;
-      //TODO 
-      //TODO   }
-      //TODO   imagebuffer.buffer_ = new uint8_t[ysize + usize + 512];
-      //TODO }
-      //TODO imagebuffer.data_[0] = imagebuffer.buffer_;
-      //TODO imagebuffer.data_[1] = imagebuffer.buffer_ + ysize + 64;
-      //TODO memcpy(imagebuffer.data_[0], swsframe_->data[0], ysize);
-      //TODO memcpy(imagebuffer.data_[1], swsframe_->data[1], usize);
     }
     else if (context_->pix_fmt == AV_PIX_FMT_QSV)
     {
@@ -679,6 +624,37 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
 
     return ImageBuffer();
   }
+}
+
+CUcontext Decoder::GetCUDAContext() const
+{
+  if (context_->hw_device_ctx == nullptr)
+  {
+
+    return nullptr;
+  }
+
+  if (context_->hw_device_ctx->data == nullptr)
+  {
+
+    return nullptr;
+  }
+
+  AVHWDeviceContext* hwdevicecontext = reinterpret_cast<AVHWDeviceContext*>(context_->hw_device_ctx->data);
+  if (hwdevicecontext->type != AV_HWDEVICE_TYPE_CUDA)
+  {
+
+    return nullptr;
+  }
+
+  AVCUDADeviceContext* hwctx = reinterpret_cast<AVCUDADeviceContext*>(hwdevicecontext->hwctx);
+  if (hwctx == nullptr)
+  {
+
+    return nullptr;
+  }
+
+  return hwctx->cuda_ctx;
 }
 
 }

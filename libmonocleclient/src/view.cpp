@@ -161,6 +161,7 @@ View::View(VideoWidget* videowidget, const QColor& selectedcolour, const unsigne
   textvertexbuffer_(QOpenGLBuffer::VertexBuffer),
   vertexbuffer_(QOpenGLBuffer::VertexBuffer),
   textures_({ 0, 0, 0 }),
+  cudaresources_({ nullptr, { nullptr, nullptr, nullptr } }),
   infotexture_(0),
   infotexturebuffer_(QOpenGLBuffer::VertexBuffer),
   infovertexbuffer_(QOpenGLBuffer::VertexBuffer),
