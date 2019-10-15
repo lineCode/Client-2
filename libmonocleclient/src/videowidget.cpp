@@ -1784,10 +1784,13 @@ void VideoWidget::paintGL()
 
             }
 
-            if (cuGraphicsMapResources(1, &resource, 0) != CUDA_SUCCESS)
+            auto now = std::chrono::steady_clock::now();//TODO remove
+            //TODO cuStreamSynchronize(CUstream hStream)
+            if (cuGraphicsMapResources(1, &resource, 0) != CUDA_SUCCESS)//TODO this can be done with a custream... we can do the whole lot as a stream, and then synchr
             {
               int p = 0;//TODO
             }
+            qDebug() << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - now).count();//TODO remove
 
             CUarray resourceptr;
             if (cuGraphicsSubResourceGetMappedArray(&resourceptr, resource, 0, 0) != CUDA_SUCCESS)
