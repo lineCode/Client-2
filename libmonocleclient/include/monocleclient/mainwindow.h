@@ -7,6 +7,7 @@
 ///// Includes /////
 
 #include <boost/filesystem/path.hpp>
+#include <cuda.h>
 #include <memory>
 #include <QDir>
 #include <QMainWindow>
@@ -110,6 +111,16 @@ enum MOUSESTATE
 namespace client
 {
 
+///// Structures /////
+
+struct CUDADEVICE
+{
+  CUDADEVICE(const CUdevice device, const CUcontext context);
+
+  CUdevice device_;
+  CUcontext context_;
+};
+
 ///// Classes /////
 
 class MainWindow : public QMainWindow
@@ -131,7 +142,8 @@ class MainWindow : public QMainWindow
   void ShortMonthName(const int mon, std::vector<char>& buffer) const;
   void ShortWeekDayName(const int mon, std::vector<char>& buffer) const;
 
-  int GetNumCUDADevices() const { return numcudadevices_; }
+  size_t GetNumCUDADevices() const { return cudadevices_.size(); }
+  CUcontext GetNextCUDAContext();
 
   inline Log& GetLog() { return log_; }
 
@@ -210,7 +222,13 @@ class MainWindow : public QMainWindow
   std::string shortmonthnames_[12];
   std::string shortweekdaynames_[7];
 
-  int numcudadevices_;
+#ifdef _WIN32
+  HMODULE nvcudadll_;
+#else
+
+#endif
+
+  std::vector<CUDADEVICE> cudadevices_;
 
   utility::IoServicePool ioservicepool_;
   boost::asio::io_service guiioservice_;

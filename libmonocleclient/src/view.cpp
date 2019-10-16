@@ -137,8 +137,9 @@ Object& Object::operator=(Object&& rhs)
   return *this;
 }
 
-View::View(VideoWidget* videowidget, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool info, const QResource* arial, const bool showsaveimagemenu, const bool showcopymenu, const bool showinfomenu) :
+View::View(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool info, const QResource* arial, const bool showsaveimagemenu, const bool showcopymenu, const bool showinfomenu) :
   videowidget_(videowidget),
+  cudacontext_(cudacontext),
   starttime_(std::chrono::steady_clock::now()),
   selectedcolour_(selectedcolour.redF(), selectedcolour.greenF(), selectedcolour.blueF(), selectedcolour.alphaF()),
   actionsaveimage_(showsaveimagemenu ? new QAction(tr("Save Image"), this) : nullptr),

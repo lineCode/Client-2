@@ -52,6 +52,7 @@ class H264Decoder : public Decoder
  private:
 
   DECODERERROR Init();
+  DECODERERROR InitCUDA();
 
   boost::optional<int> hardwaredevice_;
   std::string profilelevelid_;

@@ -484,7 +484,7 @@ QSharedPointer<MapView> VideoWidget::CreateMapView(unsigned int x, unsigned int 
     return QSharedPointer<MapView>();
   }
 
-  QSharedPointer<MapView> mapview = QSharedPointer<MapView>::create(this, MainWindow::Instance()->GetRandomHSVColour(), x, y, width, height, ROTATION::_0, Options::Instance().GetStretchVideo(), device, map, arial_);
+  QSharedPointer<MapView> mapview = QSharedPointer<MapView>::create(this, MainWindow::Instance()->GetNextCUDAContext(), MainWindow::Instance()->GetRandomHSVColour(), x, y, width, height, ROTATION::_0, Options::Instance().GetStretchVideo(), device, map, arial_);
   connect(mapview->GetActionClose(), &QAction::triggered, mapview.data(), [this, mapview = mapview.toWeakRef()](bool)
   {
     QSharedPointer<MapView> m = mapview.lock();
@@ -517,7 +517,7 @@ QSharedPointer<MediaView> VideoWidget::CreateMediaView(unsigned int x, unsigned 
     return QSharedPointer<MediaView>();
   }
 
-  QSharedPointer<MediaView> mediaview = QSharedPointer<MediaView>::create(this, MainWindow::Instance()->GetRandomHSVColour(), x, y, width, height, ROTATION::_0, false, Options::Instance().GetStretchVideo(), Options::Instance().GetShowInfo(), media, deviceindex, recordingindex, trackindex, arial_);
+  QSharedPointer<MediaView> mediaview = QSharedPointer<MediaView>::create(this, MainWindow::Instance()->GetNextCUDAContext(), MainWindow::Instance()->GetRandomHSVColour(), x, y, width, height, ROTATION::_0, false, Options::Instance().GetStretchVideo(), Options::Instance().GetShowInfo(), media, deviceindex, recordingindex, trackindex, arial_);
   connect(mediaview->GetActionClose(), &QAction::triggered, mediaview.data(), [this, mediaview = mediaview.toWeakRef()](bool)
   {
     QSharedPointer<MediaView> m = mediaview.lock();
@@ -550,7 +550,7 @@ QSharedPointer<VideoView> VideoWidget::CreateVideoView(unsigned int x, unsigned 
     return QSharedPointer<VideoView>();
   }
 
-  const QSharedPointer<VideoView> videoview = QSharedPointer<VideoView>::create(this, MainWindow::Instance()->GetRandomHSVColour(), x, y, width, height, ROTATION::_0, false, Options::Instance().GetStretchVideo(), Options::Instance().GetShowInfo(), device, recording, track, arial_);
+  const QSharedPointer<VideoView> videoview = QSharedPointer<VideoView>::create(this, MainWindow::Instance()->GetNextCUDAContext(), MainWindow::Instance()->GetRandomHSVColour(), x, y, width, height, ROTATION::_0, false, Options::Instance().GetStretchVideo(), Options::Instance().GetShowInfo(), device, recording, track, arial_);
   connect(videoview->GetActionClose(), &QAction::triggered, videoview.data(), [this, videoview = videoview.toWeakRef()](bool)
   {
     QSharedPointer<VideoView> v = videoview.lock();

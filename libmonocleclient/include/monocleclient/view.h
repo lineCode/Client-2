@@ -110,7 +110,7 @@ class View : public QObject, public QEnableSharedFromThis<View>
 
  public:
 
-  View(VideoWidget* videowidget, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool info, const QResource* arial, const bool showsaveimagemenu, const bool showcopymenu, const bool showinfomenu);
+  View(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool info, const QResource* arial, const bool showsaveimagemenu, const bool showcopymenu, const bool showinfomenu);
   virtual ~View();
 
   virtual VIEWTYPE GetViewType() const = 0;
@@ -225,6 +225,7 @@ class View : public QObject, public QEnableSharedFromThis<View>
   const QVector4D selectedcolour_;
 
   VideoWidget* videowidget_;
+  CUcontext cudacontext_;
 
   QAction* actionsaveimage_;
   QAction* actioncopy_;

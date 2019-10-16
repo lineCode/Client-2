@@ -44,8 +44,8 @@ namespace client
 
 ///// Methods /////
 
-VideoView::VideoView(VideoWidget* videowidget, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool info, boost::shared_ptr<client::Device> device, QSharedPointer<client::Recording> recording, QSharedPointer<client::RecordingTrack> track, const QResource* arial) :
-  View(videowidget, selectedcolour, x, y, width, height, rotation, mirror, stretch, info, arial, true, true, true),
+VideoView::VideoView(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool info, boost::shared_ptr<client::Device> device, QSharedPointer<client::Recording> recording, QSharedPointer<client::RecordingTrack> track, const QResource* arial) :
+  View(videowidget, cudacontext, selectedcolour, x, y, width, height, rotation, mirror, stretch, info, arial, true, true, true),
   device_(device),
   recording_(recording),
   track_(track),
@@ -644,6 +644,8 @@ void VideoView::Scrub(const uint64_t time)
 
 std::vector<int> VideoView::GetCUDADevices() const
 {
+  //TODO every view will get a cuda context, we only need to count ours here if we have at least one H264 decoder
+
   std::vector<int> cudadevices;
   for (const std::unique_ptr<H264Decoder>& h264decoder : h264decoders_)
   {

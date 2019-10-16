@@ -30,7 +30,7 @@ class MapView : public View
 
  public:
 
-  MapView(VideoWidget* videowidget, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool stretch, const boost::shared_ptr<client::Device>& device, const QSharedPointer<Map>& map, const QResource* arial);
+  MapView(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool stretch, const boost::shared_ptr<client::Device>& device, const QSharedPointer<Map>& map, const QResource* arial);
   ~MapView();
 
   virtual VIEWTYPE GetViewType() const override { return VIEWTYPE_MAP; }

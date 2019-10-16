@@ -181,7 +181,7 @@ class Decoder : public QObject
  protected:
 
   ImageBuffer Decode(const uint64_t playrequestindex, const bool marker, const uint64_t time, const int64_t sequencenum, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint8_t* data, const int size, FreeImageBuffers* freeimagebuffers);
-  CUcontext GetCUDAContext() const;
+  CUcontext GetCUDAContext() const;//TODO this appears, to maybe becomes SUPER simple just returning cudacontext_
 
   const uint64_t id_;
   utility::PublicKey publickey_;
