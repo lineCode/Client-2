@@ -258,7 +258,7 @@ class View : public QObject, public QEnableSharedFromThis<View>
   QOpenGLBuffer selectvertexbuffer_; // Represents the selection box
   std::map< std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> > objects_;
   std::array<GLuint, 3> textures_;
-  std::array<CUgraphicsResource, 3> cudaresources_; // Lazily initialised//TODO destroy these on death
+  std::array<CUgraphicsResource, 3> cudaresources_; // Lazily initialised
   GLuint infotexture_;
   QOpenGLBuffer infotexturebuffer_;
   QOpenGLBuffer infovertexbuffer_;

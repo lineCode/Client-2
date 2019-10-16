@@ -15,7 +15,6 @@ extern "C"
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-#include <iostream>//TODO remove
 #include "monocleclient/mainwindow.h"
 
 ///// Namespaces /////
@@ -295,7 +294,7 @@ ImageBuffer VectorFreeFrameBuffer::GetFreeImage()
 
 void VectorFreeFrameBuffer::AddFreeImage(ImageBuffer& imagebuffer)
 {
-  if (queue_.size() > 5) // No need for the queue to get any bigger than this
+  if (queue_.size() > 10) // No need for the queue to get any bigger than this
   {
     imagebuffer.Destroy();
     
@@ -429,7 +428,7 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
       }
 
       {
-        if (cuCtxPushCurrent_v2(cudacontext_) != cudaSuccess)
+        if (cuCtxPushCurrent_v2(cudacontext_) != CUDA_SUCCESS)
         {
           imagebuffer.Destroy();
           return ImageBuffer();
@@ -444,7 +443,6 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
         if ((imagebuffer.type_ != IMAGEBUFFERTYPE_NV12) || (imagebuffer.strides_[0] != frame_->linesize[0]) || (imagebuffer.widths_[0] != frame_->width) || (imagebuffer.heights_[0] != frame_->height) || (imagebuffer.strides_[1] != frame_->linesize[1]) || (imagebuffer.widths_[1] != (frame_->width / 2)) || (imagebuffer.heights_[1] != (frame_->height / 2)))
         {
           imagebuffer.Destroy();
-
           CUdeviceptr yptr = 0;
           CUdeviceptr uvptr = 0;
           CUresult ret = cuMemAlloc(&yptr, frame_->linesize[0] * frame_->height);

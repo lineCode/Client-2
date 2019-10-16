@@ -18,7 +18,7 @@
   #include <GL/glu.h>
   #include <GLES3/gl3.h>
 #endif
-#include <iostream>//TODO
+
 #include "monocleclient/mainwindow.h"
 #include "monocleclient/mapview.h"
 #include "monocleclient/mediaview.h"
@@ -1727,11 +1727,7 @@ void VideoWidget::paintGL()
         }
         else if (imagebuffer.type_ == IMAGEBUFFERTYPE_NV12)
         {
-          if (cuCtxPushCurrent_v2(imagebuffer.cudacontext_) != CUDA_SUCCESS)
-          {
-            int j = 0;//TODO remove
-          }
-
+          cuCtxPushCurrent_v2(imagebuffer.cudacontext_);
           bool resetresources = false; // Do we need to reinitialise the cuda stuff if dimensions and format have changed
           if ((imagebuffer.type_ != view->GetImageType()) || (imagebuffer.widths_[0] != view->GetImageWidth()) || (imagebuffer.heights_[0] != view->GetImageHeight()) || !view->GetCUDAResource(0) || !view->GetCUDAResource(1))
           {
@@ -1742,10 +1738,7 @@ void VideoWidget::paintGL()
               {
                 if (resource)
                 {
-                  if (cuGraphicsUnregisterResource(resource))
-                  {
-                    int l = 0;//TODO
-                  }
+                  cuGraphicsUnregisterResource(resource);
                   resource = nullptr;
                 }
               }
@@ -1766,11 +1759,7 @@ void VideoWidget::paintGL()
             {
               glTexImage2D(GL_TEXTURE_2D, 0, (texture == 0) ? GL_RED : GL_RG, imagebuffer.widths_.at(texture), imagebuffer.heights_[texture], 0, (texture == 0) ? GL_RED : GL_RG, GL_UNSIGNED_BYTE, nullptr);
 
-              if (cuGraphicsGLRegisterImage(&resource, view->GetTextures().at(texture), GL_TEXTURE_2D, CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD) != CUDA_SUCCESS)
-              {
-                int i = 0;//TODO
-              }
-
+              cuGraphicsGLRegisterImage(&resource, view->GetTextures().at(texture), GL_TEXTURE_2D, CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD);
               view->SetCUDAResource(texture, resource);
             }
             else
@@ -1779,17 +1768,9 @@ void VideoWidget::paintGL()
 
             }
 
-            //TODO cuStreamSynchronize(CUstream hStream)
-            if (cuGraphicsMapResources(1, &resource, 0) != CUDA_SUCCESS)//TODO this can be done with a custream... we can do the whole lot as a stream, and then synchr
-            {
-              int p = 0;//TODO
-            }
-
+            cuGraphicsMapResources(1, &resource, 0);
             CUarray resourceptr;
-            if (cuGraphicsSubResourceGetMappedArray(&resourceptr, resource, 0, 0) != CUDA_SUCCESS)
-            {
-              int p = 0;//TODO
-            }
+            cuGraphicsSubResourceGetMappedArray(&resourceptr, resource, 0, 0);
 
             CUDA_MEMCPY2D copy;
             memset(&copy, 0, sizeof(copy));
@@ -1801,16 +1782,8 @@ void VideoWidget::paintGL()
             copy.dstPitch = imagebuffer.strides_[texture];
             copy.WidthInBytes = (texture == 0) ? imagebuffer.widths_[texture] : imagebuffer.widths_.at(texture) * 2;
             copy.Height = imagebuffer.heights_[texture];
-            if (cuMemcpy2D(&copy) != CUDA_SUCCESS)
-            {
-              int q = 0;//TODO remove
-            }
-
-            if (cuGraphicsUnmapResources(1, &resource, 0) != CUDA_SUCCESS)
-            {
-              int l = 0;//TODO
-            }
-
+            cuMemcpy2D(&copy);
+            cuGraphicsUnmapResources(1, &resource, 0);
             glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
           }
 

@@ -335,7 +335,7 @@ bool VideoView::GetImage(ImageBuffer& imagebuffer)
       bandwidthsizes_.push_back(std::make_pair(std::chrono::steady_clock::now(), imagebuffer.originalsize_));
 
       // If we have skipped frames, we should place them back into the temporary list, or destroy them if there is no room
-      if (previmagebuffer.buffer_)
+      if (previmagebuffer.buffer_ || previmagebuffer.cudacontext_)
       {
         if (paused_)
         {

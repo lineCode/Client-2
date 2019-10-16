@@ -278,102 +278,73 @@ DECODERERROR H264Decoder::Init()
   return DECODERERROR_SUCCESS;
 }
 
-DECODERERROR H264Decoder::InitCUDA()//TODO sort this all out to return early instead of lunacy
+DECODERERROR H264Decoder::InitCUDA()
 {
   // Pick the device with the lowest number of current users
-  AVBufferRef* device_ref = av_hwdevice_ctx_alloc(AV_HWDEVICE_TYPE_CUDA);
-  if (!device_ref)
+  AVBufferRef* hwdevice = av_hwdevice_ctx_alloc(AV_HWDEVICE_TYPE_CUDA);
+  if (!hwdevice)
   {
 
     return DECODERERROR_INITCONTEXT;
   }
-  AVHWDeviceContext* device_ctx = (AVHWDeviceContext*)device_ref->data;
-
-  AVCUDADeviceContext* hwctx = (AVCUDADeviceContext*)device_ctx->hwctx;
-  hwctx->stream = nullptr;
-  hwctx->cuda_ctx = cudacontext_;
+  AVHWDeviceContext* hwdevicectx = reinterpret_cast<AVHWDeviceContext*>(hwdevice->data);
+  AVCUDADeviceContext* cudadevicectx = reinterpret_cast<AVCUDADeviceContext*>(hwdevicectx->hwctx);
+  cudadevicectx->stream = nullptr;
+  cudadevicectx->cuda_ctx = cudacontext_;
   //hwctx->internal->is_allocated = 0; // This set to zero automatically by ffmpeg internally with mallocz, but leaving it here for reference
-
-  if (av_hwdevice_ctx_init(device_ref))
+  if (av_hwdevice_ctx_init(hwdevice))
   {
 
     return DECODERERROR_INITCONTEXT;
   }
-
-  hwdevice_ = device_ref;
     
-
   // Make sure we support the NV12 format required
-  AVHWFramesConstraints* constraints = av_hwdevice_get_hwframe_constraints(hwdevice_, nullptr);
-  if (!constraints)
+  AVHWFramesConstraints* constraints = av_hwdevice_get_hwframe_constraints(hwdevice, nullptr);
+  if (constraints == nullptr)
   {
-    LOG_GUI_WARNING(tr("Unable to retrieve CUDA device constraints, falling back to software decoding"));
-    av_buffer_unref(&hwdevice_);
-    hwdevice_ = nullptr; // Just in case
+    av_buffer_unref(&hwdevice);
+    return DECODERERROR_INITCONTEXT;
   }
-  else
+
+  AVPixelFormat* hwformat = constraints->valid_hw_formats;
+  std::vector<AVPixelFormat> hwformats;
+  while (*hwformat != AV_PIX_FMT_NONE)
   {
-    AVPixelFormat* hwformat = constraints->valid_hw_formats;
-    std::vector<AVPixelFormat> hwformats;
-    while (*hwformat != AV_PIX_FMT_NONE)
-    {
-      hwformats.push_back(*hwformat);
-      ++hwformat;
-    }
-
-    AVPixelFormat* swformat = constraints->valid_sw_formats;
-    std::vector<AVPixelFormat> swformats;
-    while (*swformat != AV_PIX_FMT_NONE)
-    {
-      swformats.push_back(*swformat);
-      ++swformat;
-    }
-
-    av_hwframe_constraints_free(&constraints);
-
-    if (!utility::Contains(swformats, AV_PIX_FMT_NV12))
-    {
-      LOG_GUI_WARNING(tr("Unable to initialise CUDA device, NV12 format not supported, falling back to software decoding"));
-      av_buffer_unref(&hwdevice_);
-      hwdevice_ = nullptr;
-    }
-    else
-    {
-      const AVPixelFormat format = GetHardwareDeviceFormat(AV_HWDEVICE_TYPE_CUDA);
-      if (format == AV_PIX_FMT_NONE)
-      {
-        // Shouldn't ever happen...
-        av_buffer_unref(&hwdevice_);
-        hwdevice_ = nullptr;
-        return DECODERERROR_INITCONTEXT;
-      }
-
-      context_->hw_device_ctx = av_buffer_ref(hwdevice_);
-      if (context_->hw_device_ctx == nullptr)
-      {
-        // Should only happen if we're out of memory
-        av_buffer_unref(&hwdevice_);
-        hwdevice_ = nullptr;
-        return DECODERERROR_INITCONTEXT;
-      }
-
-      cudacontext_ = GetCUDAContext();//TODO this becoems something else!
-      if (cudacontext_ == nullptr)
-      {
-        // Shouldn't really happen
-        av_buffer_unref(&hwdevice_);
-        hwdevice_ = nullptr;
-        return DECODERERROR_INITCONTEXT;
-      }
-
-      context_->opaque = reinterpret_cast<void*>(format);
-      context_->get_format = GetHardwareFormat;
-      context_->pix_fmt = format;
-      context_->sw_pix_fmt = AV_PIX_FMT_NV12;
-      return DECODERERROR_SUCCESS;
-    }
+    hwformats.push_back(*hwformat);
+    ++hwformat;
   }
-  return DECODERERROR_INITCONTEXT;//TODO
+
+  AVPixelFormat* swformat = constraints->valid_sw_formats;
+  std::vector<AVPixelFormat> swformats;
+  while (*swformat != AV_PIX_FMT_NONE)
+  {
+    swformats.push_back(*swformat);
+    ++swformat;
+  }
+
+  av_hwframe_constraints_free(&constraints);
+  constraints = nullptr;
+
+  if (!utility::Contains(swformats, AV_PIX_FMT_NV12))
+  {
+    av_buffer_unref(&hwdevice);
+    return DECODERERROR_INITCONTEXT;
+  }
+
+  const AVPixelFormat format = GetHardwareDeviceFormat(AV_HWDEVICE_TYPE_CUDA);
+  if (format == AV_PIX_FMT_NONE)
+  {
+    av_buffer_unref(&hwdevice);
+    return DECODERERROR_INITCONTEXT;
+  }
+
+  context_->hw_device_ctx = av_buffer_ref(hwdevice);
+  hwdevice_ = hwdevice;
+  context_->opaque = reinterpret_cast<void*>(format);
+  context_->get_format = GetHardwareFormat;
+  context_->pix_fmt = format;
+  context_->sw_pix_fmt = AV_PIX_FMT_NV12;
+  return DECODERERROR_SUCCESS;
 }
 
 }

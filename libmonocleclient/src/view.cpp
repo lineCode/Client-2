@@ -9,6 +9,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/asio/ip/address.hpp>
 #include <boost/bind.hpp>
+#include <cuda.h>
 #include <GL/gl.h>
 #include <monocleprotocol/objects_generated.h>
 #include <network/uri.hpp>
@@ -320,6 +321,15 @@ View::~View()
 
   }
   freetype_ = nullptr;
+
+  for (CUgraphicsResource& cudaresource : cudaresources_)
+  {
+    if (cudaresource)
+    {
+      cuGraphicsUnregisterResource(cudaresource);
+      cudaresource = nullptr;
+    }
+  }
 
   // GL stuff
   if (videowidget_)
