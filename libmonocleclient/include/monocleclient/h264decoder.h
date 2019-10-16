@@ -33,7 +33,7 @@ class H264Decoder : public Decoder
 {
  public:
 
-  H264Decoder(const uint64_t id, const utility::PublicKey& publickey);
+  H264Decoder(const uint64_t id, const utility::PublicKey& publickey, CUcontext cudacontext);
   virtual ~H264Decoder();
 
   virtual void Destroy() override;

@@ -304,16 +304,16 @@ void VectorFreeFrameBuffer::AddFreeImage(ImageBuffer& imagebuffer)
   }
 }
 
-Decoder::Decoder(const uint64_t id, const utility::PublicKey& publickey) :
+Decoder::Decoder(const uint64_t id, const utility::PublicKey& publickey, CUcontext cudacontext) :
   id_(id),
   publickey_(publickey),
+  cudacontext_(cudacontext),
   codec_(nullptr),
   context_(nullptr),
   hwdevice_(nullptr),
   frame_(av_frame_alloc()),
   swsframe_(av_frame_alloc()),
-  swscontext_(nullptr),
-  cudacontext_(nullptr)
+  swscontext_(nullptr)
 {
   av_init_packet(&packet_);
   packet_.dts = AV_NOPTS_VALUE;
@@ -388,8 +388,6 @@ void Decoder::Destroy()
     sws_freeContext(swscontext_);
     swscontext_ = nullptr;
   }
-
-  cudacontext_ = nullptr;
 }
 
 ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, const uint64_t time, const int64_t sequencenum, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint8_t* data, const int size, FreeImageBuffers* freeimagebuffers)
@@ -446,12 +444,14 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
 
           CUdeviceptr yptr = 0;
           CUdeviceptr uvptr = 0;
-          if (cuMemAlloc(&yptr, frame_->linesize[0] * frame_->height) != cudaSuccess)
+          CUresult ret = cuMemAlloc(&yptr, frame_->linesize[0] * frame_->height);
+          if (ret != CUDA_SUCCESS)
           {
 
             return ImageBuffer();
           }
-          if (cuMemAlloc(&uvptr, frame_->linesize[1] * (frame_->height / 2)) != cudaSuccess)
+          ret = cuMemAlloc(&uvptr, frame_->linesize[1] * (frame_->height / 2));
+          if (ret != CUDA_SUCCESS)
           {
             cuMemFree(yptr);
             return ImageBuffer();

@@ -1099,7 +1099,7 @@ void VideoView::AddCodecIndex(const monocle::CODECINDEX& codecindex)
   }
   else if (codecindex.codec_ == monocle::Codec::H264)
   {
-    std::unique_ptr<H264Decoder> h264decoder = std::make_unique<H264Decoder>(codecindex.id_, device_->GetPublicKey());
+    std::unique_ptr<H264Decoder> h264decoder = std::make_unique<H264Decoder>(codecindex.id_, device_->GetPublicKey(), cudacontext_);
     const DECODERERROR error = h264decoder->Init(parameterssplit);
     if (error)
     {

@@ -56,6 +56,7 @@ boost::optional<int> sensitivity;
 
 FindMotionWindow::FindMotionWindow(QWidget* parent, const QImage& image, const boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingTrack>& track, const QVector4D& colour, const uint64_t starttime, const uint64_t endtime, const QRectF& rect) :
   QDialog(parent),
+  cudacontext_(MainWindow::Instance()->GetNextCUDAContext()),
   device_(device),
   recording_(recording),
   track_(track)
@@ -537,7 +538,7 @@ void FindMotionWindow::AddCodecIndex(const monocle::CODECINDEX& codecindex)
   }
   else if (codecindex.codec_ == monocle::Codec::H264)
   {
-    std::unique_ptr<H264Decoder> h264decoder = std::make_unique<H264Decoder>(codecindex.id_, device_->GetPublicKey());
+    std::unique_ptr<H264Decoder> h264decoder = std::make_unique<H264Decoder>(codecindex.id_, device_->GetPublicKey(), cudacontext_);
     const DECODERERROR error = h264decoder->Init(parameterssplit);
     if (error)
     {

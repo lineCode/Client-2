@@ -38,6 +38,7 @@ typedef CUresult(*CUCTXCREATE)(CUcontext*, unsigned int, CUdevice);
 typedef CUresult(*CUCTXDESTROY)(CUcontext*);
 typedef CUresult(*CUDEVICEGETCOUNT)(int*);
 typedef CUresult(*CUINIT)(unsigned int);
+typedef CUresult(*CUCTXPOPCURRENT)(CUcontext*);
 
 ///// Namespaces /////
 
@@ -169,7 +170,8 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
     const CUINIT cuinit = (CUINIT)GetProcAddress(nvcudadll_, "cuInit");
     const CUDEVICEGETCOUNT cudevicegetcount = (CUDEVICEGETCOUNT)GetProcAddress(nvcudadll_, "cuDeviceGetCount");
     const CUCTXCREATE cuctxcreate = (CUCTXCREATE)GetProcAddress(nvcudadll_, "cuCtxCreate");
-    if (cuinit && cudevicegetcount && cuctxcreate)
+    const CUCTXPOPCURRENT cuctxpopcurrent = (CUCTXPOPCURRENT)GetProcAddress(nvcudadll_, "cuCtxPopCurrent");
+    if (cuinit && cudevicegetcount && cuctxcreate && cuctxpopcurrent)
     {
       if (cuinit(0) == CUDA_SUCCESS)
       {
@@ -180,11 +182,13 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
           for (int i = 0; i < tmp; ++i)
           {
             CUcontext context = nullptr;
-            if (cuctxcreate(&context, 0, i) != CUDA_SUCCESS)
+            if (cuctxcreate(&context, CU_CTX_SCHED_BLOCKING_SYNC, i) != CUDA_SUCCESS)
             {
 
               continue;
             }
+            CUcontext dummy;
+            cuctxpopcurrent(&dummy);
             cudadevices_.push_back(CUDADEVICE(i, context));
           }
         }

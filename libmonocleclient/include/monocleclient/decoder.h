@@ -159,7 +159,7 @@ class Decoder : public QObject
 
  public:
 
-  Decoder(const uint64_t id, const utility::PublicKey& publickey);
+  Decoder(const uint64_t id, const utility::PublicKey& publickey, CUcontext cudacontext);
   virtual ~Decoder();
 
   virtual void Destroy();
@@ -185,6 +185,7 @@ class Decoder : public QObject
 
   const uint64_t id_;
   utility::PublicKey publickey_;
+  CUcontext cudacontext_;
 
   AVCodec* codec_;
   AVCodecContext* context_;
@@ -194,8 +195,6 @@ class Decoder : public QObject
   AVFrame* swsframe_;
 
   SwsContext* swscontext_;
-
-  CUcontext cudacontext_;
 
 };
 
