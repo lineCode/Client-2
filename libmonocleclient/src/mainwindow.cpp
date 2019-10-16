@@ -34,12 +34,6 @@
   #error "MONOCLE_CLIENT_VERSION_XXX not defined"
 #endif
 
-typedef CUresult(*CUCTXCREATE)(CUcontext*, unsigned int, CUdevice);
-typedef CUresult(*CUCTXDESTROY)(CUcontext*);
-typedef CUresult(*CUDEVICEGETCOUNT)(int*);
-typedef CUresult(*CUINIT)(unsigned int);
-typedef CUresult(*CUCTXPOPCURRENT)(CUcontext*);
-
 ///// Namespaces /////
 
 namespace client
@@ -87,7 +81,6 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   showfullscreen_(":/showfullscreen.png"),
   gen_(rd_()),
   hsvcolordist_(0.0, 1.0),
-  nvcudadll_(nullptr),
   ioservicepool_(numioservices, numioservicethreads, [](){}, [](){}),
   guiioservice_(0),
   tray_(new QSystemTrayIcon(QIcon(":/icon.ico"), this)),
@@ -164,34 +157,21 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
 
   // Get the CUDA devices and create a context on each of them
 #ifdef _WIN32
-  const HMODULE nvcudadll_ = LoadLibrary("nvcuda.dll");
-  if (nvcudadll_)
+  if (cuInit(0) == CUDA_SUCCESS)
   {
-    const CUINIT cuinit = (CUINIT)GetProcAddress(nvcudadll_, "cuInit");
-    const CUDEVICEGETCOUNT cudevicegetcount = (CUDEVICEGETCOUNT)GetProcAddress(nvcudadll_, "cuDeviceGetCount");
-    const CUCTXCREATE cuctxcreate = (CUCTXCREATE)GetProcAddress(nvcudadll_, "cuCtxCreate");
-    const CUCTXPOPCURRENT cuctxpopcurrent = (CUCTXPOPCURRENT)GetProcAddress(nvcudadll_, "cuCtxPopCurrent");
-    if (cuinit && cudevicegetcount && cuctxcreate && cuctxpopcurrent)
+    int tmp = 0;
+    if (cuDeviceGetCount(&tmp) == CUDA_SUCCESS)
     {
-      if (cuinit(0) == CUDA_SUCCESS)
+      cudadevices_.reserve(tmp);
+      for (int i = 0; i < tmp; ++i)
       {
-        int tmp = 0;
-        if (cudevicegetcount(&tmp) == CUDA_SUCCESS)
+        CUcontext context = nullptr;
+        if (cuDevicePrimaryCtxRetain(&context, i) != CUDA_SUCCESS)
         {
-          cudadevices_.reserve(tmp);
-          for (int i = 0; i < tmp; ++i)
-          {
-            CUcontext context = nullptr;
-            if (cuctxcreate(&context, CU_CTX_SCHED_BLOCKING_SYNC, i) != CUDA_SUCCESS)
-            {
 
-              continue;
-            }
-            CUcontext dummy;
-            cuctxpopcurrent(&dummy);
-            cudadevices_.push_back(CUDADEVICE(i, context));
-          }
+          continue;
         }
+        cudadevices_.push_back(CUDADEVICE(i, context));
       }
     }
   }
@@ -404,24 +384,15 @@ MainWindow::~MainWindow()
   ioservicepool_.Destroy();
   guiioservice_.stop();
 
-  if (nvcudadll_)
+  for (CUDADEVICE& cudadevice : cudadevices_)
   {
-    const CUCTXDESTROY cuctxdestroy = (CUCTXDESTROY)GetProcAddress(nvcudadll_, "cuCtxDestroy");
-    if (cuctxdestroy)
+    if (cuDevicePrimaryCtxRelease(cudadevice.device_) != CUDA_SUCCESS)
     {
-      for (CUDADEVICE& cudadevice : cudadevices_)
-      {
-        if (cuctxdestroy(&cudadevice.context_) != CUDA_SUCCESS)
-        {
-          LOG_GUI_WARNING(tr("Failed to destroy CUDA context: ") + QString::number(cudadevice.device_));
+      LOG_GUI_WARNING(tr("Failed to destroy CUDA context: ") + QString::number(cudadevice.device_));
 
-        }
-      }
-      cudadevices_.clear();
     }
-    FreeLibrary(nvcudadll_);
-    nvcudadll_ = nullptr;
   }
+  cudadevices_.clear();
 }
 
 void MainWindow::ShortMonthName(const int mon, std::vector<char>& buffer) const

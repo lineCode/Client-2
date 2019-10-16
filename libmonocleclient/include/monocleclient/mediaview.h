@@ -79,7 +79,7 @@ class MediaView : public View
   virtual void Stop() override;
   virtual void Scrub(const uint64_t time) override;
 
-  std::vector<int> GetCUDADevices() const;
+  bool HasHardwareDecoder() const;
 
   QSharedPointer<Media>& GetMedia() { return media_; }
   const QSharedPointer<Media>& GetMedia() const { return media_; }

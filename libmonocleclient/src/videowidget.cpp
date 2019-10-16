@@ -1727,19 +1727,17 @@ void VideoWidget::paintGL()
         }
         else if (imagebuffer.type_ == IMAGEBUFFERTYPE_NV12)
         {
-          const CUcontext cucontext = reinterpret_cast<CUcontext>(imagebuffer.buffer_);
-          if (cuCtxPushCurrent_v2(cucontext) != CUDA_SUCCESS)
+          if (cuCtxPushCurrent_v2(imagebuffer.cudacontext_) != CUDA_SUCCESS)
           {
             int j = 0;//TODO remove
           }
 
           bool resetresources = false; // Do we need to reinitialise the cuda stuff if dimensions and format have changed
-          if ((cucontext != view->GetCUDAContext()) || (imagebuffer.type_ != view->GetImageType()) || (imagebuffer.widths_[0] != view->GetImageWidth()) || (imagebuffer.heights_[0] != view->GetImageHeight()))
+          if ((imagebuffer.type_ != view->GetImageType()) || (imagebuffer.widths_[0] != view->GetImageWidth()) || (imagebuffer.heights_[0] != view->GetImageHeight()) || !view->GetCUDAResource(0) || !view->GetCUDAResource(1))
           {
             // Destroy any old CUDA stuff we had laying around
             if (view->GetCUDAContext())
             {
-              cuCtxPushCurrent_v2(view->GetCUDAContext());
               for (CUgraphicsResource& resource : view->GetCUDAResources())
               {
                 if (resource)
@@ -1751,10 +1749,7 @@ void VideoWidget::paintGL()
                   resource = nullptr;
                 }
               }
-              CUcontext dummy;
-              cuCtxPopCurrent_v2(&dummy);
             }
-            view->SetCUDAContext(cucontext);
             resetresources = true;
           }
 
@@ -1784,13 +1779,11 @@ void VideoWidget::paintGL()
 
             }
 
-            auto now = std::chrono::steady_clock::now();//TODO remove
             //TODO cuStreamSynchronize(CUstream hStream)
             if (cuGraphicsMapResources(1, &resource, 0) != CUDA_SUCCESS)//TODO this can be done with a custream... we can do the whole lot as a stream, and then synchr
             {
               int p = 0;//TODO
             }
-            qDebug() << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - now).count();//TODO remove
 
             CUarray resourceptr;
             if (cuGraphicsSubResourceGetMappedArray(&resourceptr, resource, 0, 0) != CUDA_SUCCESS)

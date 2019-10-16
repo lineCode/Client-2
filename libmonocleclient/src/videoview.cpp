@@ -240,7 +240,6 @@ void VideoView::Disconnect()
 
   {
     std::lock_guard<std::mutex> lock(mutex_);
-    //TODO there may be more frames to come, even though we have destroyed the connection_
     freeimagequeue_.Destroy();
     DestroyDecoders();
   }
@@ -642,24 +641,9 @@ void VideoView::Scrub(const uint64_t time)
   paused_ = true;
 }
 
-std::vector<int> VideoView::GetCUDADevices() const
+bool VideoView::HasHardwareDecoder() const
 {
-  //TODO every view will get a cuda context, we only need to count ours here if we have at least one H264 decoder
-
-  std::vector<int> cudadevices;
-  for (const std::unique_ptr<H264Decoder>& h264decoder : h264decoders_)
-  {
-    if (h264decoder->GetHardwareDevice().is_initialized())
-    {
-      if (utility::Contains(cudadevices, *h264decoder->GetHardwareDevice()))
-      {
-
-        continue;
-      }
-      cudadevices.push_back(*h264decoder->GetHardwareDevice());
-    }
-  }
-  return cudadevices;
+  return (cudacontext_ && h264decoders_.size());
 }
 
 std::vector<QString> VideoView::GetProfileTokens() const
@@ -777,7 +761,7 @@ void VideoView::H264Callback(const uint64_t streamtoken, const uint64_t playrequ
   }
 
   ImageBuffer imagebuffer = (*h264decoder)->Decode(playrequestindex, marker, timestamp, sequencenum, signature, signaturesize, signaturedata, signaturedatasize, reinterpret_cast<const uint8_t*>(framedata), static_cast<unsigned int>(size), &videoview->freeimagequeue_);
-  if (imagebuffer.buffer_)
+  if (imagebuffer.buffer_ || imagebuffer.cudacontext_)
   {
     if (videoview->imagequeue_.write_available())
     {

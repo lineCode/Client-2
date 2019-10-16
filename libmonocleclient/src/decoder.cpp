@@ -15,7 +15,7 @@ extern "C"
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-
+#include <iostream>//TODO remove
 #include "monocleclient/mainwindow.h"
 
 ///// Namespaces /////
@@ -144,7 +144,8 @@ ImageBuffer::ImageBuffer() :
   originalsize_(0),
   time_(0),
   sequencenum_(0),
-  marker_(true)
+  marker_(true),
+  cudacontext_(nullptr)
 {
 
 }
@@ -162,16 +163,17 @@ ImageBuffer::ImageBuffer(const ImageBuffer& imagebuffer) :
   time_(imagebuffer.time_),
   sequencenum_(imagebuffer.sequencenum_),
   digitallysigned_(imagebuffer.digitallysigned_),
-  marker_(imagebuffer.marker_)
+  marker_(imagebuffer.marker_),
+  cudacontext_(imagebuffer.cudacontext_)
 {
 
 }
 
 void ImageBuffer::Destroy()
 {
-  if (buffer_ && (type_ == IMAGEBUFFERTYPE_NV12))
+  if (cudacontext_ && (type_ == IMAGEBUFFERTYPE_NV12))
   {
-    if (cuCtxPushCurrent_v2(reinterpret_cast<CUcontext>(buffer_)) == cudaSuccess)
+    if (cuCtxPushCurrent_v2(cudacontext_) == CUDA_SUCCESS)
     {
       if (data_[0])
       {
@@ -203,6 +205,7 @@ void ImageBuffer::Destroy()
   strides_.fill(0);
   originalsize_ = 0;
   buffer_ = nullptr;
+  cudacontext_ = nullptr;
 }
 
 FreeImageBuffers::FreeImageBuffers()
@@ -421,14 +424,14 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
 
       if (cudacontext_ == nullptr)
       {
-
+        imagebuffer.Destroy();
         return ImageBuffer();
       }
 
       {
         if (cuCtxPushCurrent_v2(cudacontext_) != cudaSuccess)
         {
-
+          imagebuffer.Destroy();
           return ImageBuffer();
         }
 
@@ -465,7 +468,7 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
           imagebuffer.heights_[1] = frame_->height / 2;
           imagebuffer.data_[0] = reinterpret_cast<uint8_t*>(yptr);
           imagebuffer.data_[1] = reinterpret_cast<uint8_t*>(uvptr);
-          imagebuffer.buffer_ = reinterpret_cast<uint8_t*>(cudacontext_);
+          imagebuffer.cudacontext_ = cudacontext_;
         }
 
         CUDA_MEMCPY2D ycopy;
@@ -509,6 +512,7 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
     else if ((context_->pix_fmt == AV_PIX_FMT_YUV420P) || (context_->pix_fmt == AV_PIX_FMT_YUVJ420P)) // This format is converted on the GPU, so we pass 3 planes in
     {
       imagebuffer.type_ = IMAGEBUFFERTYPE_YUV;
+      imagebuffer.cudacontext_ = nullptr;
       const std::array<int, 3> widths =
       {
         frame_->width,
@@ -578,6 +582,7 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
         return ImageBuffer();
       }
       imagebuffer.type_ = IMAGEBUFFERTYPE_RGBA;
+      imagebuffer.cudacontext_ = nullptr;
       if ((imagebuffer.widths_[0] != frame_->width) || (imagebuffer.heights_[0] != frame_->height))
       {
         imagebuffer.widths_[0] = frame_->width;
@@ -624,37 +629,6 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
 
     return ImageBuffer();
   }
-}
-
-CUcontext Decoder::GetCUDAContext() const
-{
-  if (context_->hw_device_ctx == nullptr)
-  {
-
-    return nullptr;
-  }
-
-  if (context_->hw_device_ctx->data == nullptr)
-  {
-
-    return nullptr;
-  }
-
-  AVHWDeviceContext* hwdevicecontext = reinterpret_cast<AVHWDeviceContext*>(context_->hw_device_ctx->data);
-  if (hwdevicecontext->type != AV_HWDEVICE_TYPE_CUDA)
-  {
-
-    return nullptr;
-  }
-
-  AVCUDADeviceContext* hwctx = reinterpret_cast<AVCUDADeviceContext*>(hwdevicecontext->hwctx);
-  if (hwctx == nullptr)
-  {
-
-    return nullptr;
-  }
-
-  return hwctx->cuda_ctx;
 }
 
 }

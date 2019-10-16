@@ -43,7 +43,6 @@ class H264Decoder : public Decoder
 
   DECODERERROR Init(const std::vector<std::string>& parameters);
 
-  inline const boost::optional<int>& GetHardwareDevice() const { return hardwaredevice_; }
   inline const std::string& GetProfileLeveLID() const { return profilelevelid_; }
   inline const std::string& GetSPropParmaeterSets() const { return spropparametersets_; }
 
@@ -54,7 +53,6 @@ class H264Decoder : public Decoder
   DECODERERROR Init();
   DECODERERROR InitCUDA();
 
-  boost::optional<int> hardwaredevice_;
   std::string profilelevelid_;
   std::string spropparametersets_;
 

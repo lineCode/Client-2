@@ -541,23 +541,9 @@ void MediaView::Scrub(const uint64_t time)
   }
 }
 
-std::vector<int> MediaView::GetCUDADevices() const
+bool MediaView::HasHardwareDecoder() const
 {
-  std::lock_guard<std::recursive_mutex> lock(decodersmutex_);
-  std::vector<int> cudadevices;
-  for (const std::unique_ptr<H264Decoder>& h264decoder : h264decoders_)
-  {
-    if (h264decoder->GetHardwareDevice().is_initialized())
-    {
-      if (utility::Contains(cudadevices, *h264decoder->GetHardwareDevice()))
-      {
-
-        continue;
-      }
-      cudadevices.push_back(*h264decoder->GetHardwareDevice());
-    }
-  }
-  return cudadevices;
+  return (cudacontext_ && h264decoders_.size());
 }
 
 file::TRACK MediaView::GetVideoTrack() const

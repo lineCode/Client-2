@@ -101,7 +101,7 @@ class VideoView : public View
   virtual void Stop() override;
   virtual void Scrub(const uint64_t time) override;
 
-  std::vector<int> GetCUDADevices() const;
+  bool HasHardwareDecoder() const;
 
   boost::shared_ptr<Device>& GetDevice() { return device_; }
   const boost::shared_ptr<Device>& GetDevice() const { return device_; }

@@ -143,6 +143,7 @@ class MainWindow : public QMainWindow
   void ShortWeekDayName(const int mon, std::vector<char>& buffer) const;
 
   size_t GetNumCUDADevices() const { return cudadevices_.size(); }
+  const std::vector<CUDADEVICE>& GetCUDADevices() const { return cudadevices_; }
   CUcontext GetNextCUDAContext();
 
   inline Log& GetLog() { return log_; }
@@ -221,12 +222,6 @@ class MainWindow : public QMainWindow
 
   std::string shortmonthnames_[12];
   std::string shortweekdaynames_[7];
-
-#ifdef _WIN32
-  HMODULE nvcudadll_;
-#else
-
-#endif
 
   std::vector<CUDADEVICE> cudadevices_;
 

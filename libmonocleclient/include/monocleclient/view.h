@@ -135,6 +135,8 @@ class View : public QObject, public QEnableSharedFromThis<View>
   VideoWidget* GetVideoWidget() { return videowidget_; }
   void SetVideoWidget(VideoWidget* videowidget) { videowidget_ = videowidget; }
 
+  CUcontext GetCUDAContext() const { return cudacontext_; }
+
   Q_INVOKABLE void ResetPosition(const bool makecurrent); // Calls set position with current parameters_
   void SetPosition(VideoWidget* videowidget, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent);
 
@@ -177,12 +179,10 @@ class View : public QObject, public QEnableSharedFromThis<View>
   inline QOpenGLBuffer& GetSelectedVertexBuffer() { return selectvertexbuffer_; }
   inline std::map< std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> >& GetObjects() { return objects_; }
   std::array<GLuint, 3>& GetTextures() { return textures_; }
-  void SetCUDAContext(const CUcontext cudacontext) { cudaresources_.first = cudacontext; }
-  CUcontext GetCUDAContext() const { return cudaresources_.first; }
-  void SetCUDAResource(const size_t index, const CUgraphicsResource cudaresource) { cudaresources_.second[index] = cudaresource; }
-  CUgraphicsResource GetCUDAResource(const size_t index) const { return cudaresources_.second[index]; }
-  const std::array<CUgraphicsResource, 3>& GetCUDAResources() const { return cudaresources_.second; }
-  std::array<CUgraphicsResource, 3>& GetCUDAResources() { return cudaresources_.second; }
+  void SetCUDAResource(const size_t index, const CUgraphicsResource cudaresource) { cudaresources_[index] = cudaresource; }
+  CUgraphicsResource GetCUDAResource(const size_t index) const { return cudaresources_[index]; }
+  const std::array<CUgraphicsResource, 3>& GetCUDAResources() const { return cudaresources_; }
+  std::array<CUgraphicsResource, 3>& GetCUDAResources() { return cudaresources_; }
   inline GLuint GetInfoTexture() const { return infotexture_; }
   inline QOpenGLBuffer& GetInfoTextureBuffer() { return infotexturebuffer_; }
   inline QOpenGLBuffer& GetInfoVertexBuffer() { return infovertexbuffer_; }
@@ -258,7 +258,7 @@ class View : public QObject, public QEnableSharedFromThis<View>
   QOpenGLBuffer selectvertexbuffer_; // Represents the selection box
   std::map< std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> > objects_;
   std::array<GLuint, 3> textures_;
-  std::pair<CUcontext, std::array<CUgraphicsResource, 3> > cudaresources_; // Lazily initialised//TODO destroy these on death
+  std::array<CUgraphicsResource, 3> cudaresources_; // Lazily initialised//TODO destroy these on death
   GLuint infotexture_;
   QOpenGLBuffer infotexturebuffer_;
   QOpenGLBuffer infovertexbuffer_;
