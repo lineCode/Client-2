@@ -113,7 +113,7 @@ RtspResponse::RtspResponse(const std::string& text) :
         static const boost::regex separator(",|, |,[^ ]|[^,] ");
         for (const std::string& option : boost::algorithm::split_regex(options, value, separator))
         {
-          headers::REQUESTTYPE optiontype = headers::RequestTypeFromString(option);
+          headers::REQUESTTYPE optiontype = headers::RequestTypeFromString(boost::trim_copy(option));
           if (optiontype != headers::REQUESTTYPE_INVALID)
           {
             options_.insert(optiontype);
