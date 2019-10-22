@@ -144,6 +144,22 @@ class ManageRecordingJobSourceObjectDetectorWindow : public QDialog
   void TrackAdded(const QSharedPointer<client::RecordingTrack>& track);
   void TrackChanged(const QSharedPointer<client::RecordingTrack>& track);
   void TrackRemoved(const uint32_t id);
+  void on_sliderhumans_valueChanged(int value);
+  void on_sliderbicycles_valueChanged(int value);
+  void on_slidercars_valueChanged(int value);
+  void on_slidermotorbikes_valueChanged(int value);
+  void on_sliderbuses_valueChanged(int value);
+  void on_slidertrucks_valueChanged(int value);
+  void on_sliderbackpacks_valueChanged(int value);
+  void on_sliderumbrellas_valueChanged(int value);
+  void on_sliderhandbags_valueChanged(int value);
+  void on_slidersuitcases_valueChanged(int value);
+  void on_slidercats_valueChanged(int value);
+  void on_sliderdogs_valueChanged(int value);
+  void on_slideraeroplanes_valueChanged(int value);
+  void on_slidertrains_valueChanged(int value);
+  void on_sliderboats_valueChanged(int value);
+  void on_sliderhorses_valueChanged(int value);
   void on_buttonok_clicked();
 
 };

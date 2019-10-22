@@ -317,6 +317,103 @@ void ManageRecordingJobSourceObjectDetectorWindow::TrackRemoved(const uint32_t i
   }
 }
 
+void ManageRecordingJobSourceObjectDetectorWindow::on_sliderhumans_valueChanged(int value)
+{
+  ui_.checkhumans->setText("Humans(" + QString::number(value + 1) + ")");
+
+}
+
+void ManageRecordingJobSourceObjectDetectorWindow::on_sliderbicycles_valueChanged(int value)
+{
+  ui_.checkbicycles->setText("Bicycles(" + QString::number(value + 1) + ")");
+
+}
+
+void ManageRecordingJobSourceObjectDetectorWindow::on_slidercars_valueChanged(int value)
+{
+  ui_.checkcars->setText("Cars(" + QString::number(value + 1) + ")");
+
+}
+
+void ManageRecordingJobSourceObjectDetectorWindow::on_slidermotorbikes_valueChanged(int value)
+{
+  ui_.checkmotorbikes->setText("Motorbikes(" + QString::number(value + 1) + ")");
+
+}
+
+void ManageRecordingJobSourceObjectDetectorWindow::on_sliderbuses_valueChanged(int value)
+{
+  ui_.checkbuses->setText("Buses(" + QString::number(value + 1) + ")");
+
+}
+
+void ManageRecordingJobSourceObjectDetectorWindow::on_slidertrucks_valueChanged(int value)
+{
+  ui_.checktrucks->setText("Trucks(" + QString::number(value + 1) + ")");
+
+}
+
+void ManageRecordingJobSourceObjectDetectorWindow::on_sliderbackpacks_valueChanged(int value)
+{
+  ui_.checkbackpacks->setText("Backpacks(" + QString::number(value + 1) + ")");
+
+}
+
+void ManageRecordingJobSourceObjectDetectorWindow::on_sliderumbrellas_valueChanged(int value)
+{
+  ui_.checkumbrellas->setText("Umbrellas(" + QString::number(value + 1) + ")");
+
+}
+
+void ManageRecordingJobSourceObjectDetectorWindow::on_sliderhandbags_valueChanged(int value)
+{
+  ui_.checkhandbags->setText("Handbags(" + QString::number(value + 1) + ")");
+
+}
+
+void ManageRecordingJobSourceObjectDetectorWindow::on_slidersuitcases_valueChanged(int value)
+{
+  ui_.checksuitcases->setText("Suitcases(" + QString::number(value + 1) + ")");
+
+}
+
+void ManageRecordingJobSourceObjectDetectorWindow::on_slidercats_valueChanged(int value)
+{
+  ui_.checkcats->setText("Cats(" + QString::number(value + 1) + ")");
+
+}
+
+void ManageRecordingJobSourceObjectDetectorWindow::on_sliderdogs_valueChanged(int value)
+{
+  ui_.checkdogs->setText("Dogs(" + QString::number(value + 1) + ")");
+
+}
+
+void ManageRecordingJobSourceObjectDetectorWindow::on_slideraeroplanes_valueChanged(int value)
+{
+  ui_.checkaeroplanes->setText("Aeroplanes(" + QString::number(value + 1) + ")");
+
+}
+
+void ManageRecordingJobSourceObjectDetectorWindow::on_slidertrains_valueChanged(int value)
+{
+  ui_.checktrains->setText("Trains(" + QString::number(value + 1) + ")");
+
+}
+
+void ManageRecordingJobSourceObjectDetectorWindow::on_sliderboats_valueChanged(int value)
+{
+  ui_.checkboats->setText("Boats(" + QString::number(value + 1) + ")");
+
+}
+
+void ManageRecordingJobSourceObjectDetectorWindow::on_sliderhorses_valueChanged(int value)
+{
+  ui_.checkhorses->setText("Horses(" + QString::number(value + 1) + ")");
+
+}
+
+
 void ManageRecordingJobSourceObjectDetectorWindow::on_buttonok_clicked()
 {
   if (ui_.combometadatatrack->count() == 0)
