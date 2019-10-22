@@ -760,6 +760,7 @@ void Device::Subscribe()
                     const uint64_t token = (*i)->GetToken();
                     i = recordingjobsource->GetTracks().erase(i);
                     emit recording->JobSourceTrackRemoved(recordingjob, recordingjobsource, token);
+                    emit recordingjob->SourceTrackRemoved(recordingjobsource, token);
                     emit SignalRecordingJobSourceTrackRemoved(recording, recordingjob, recordingjobsource, token);
                   }
                   else
