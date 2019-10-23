@@ -473,7 +473,7 @@ QColor MainWindow::GetRandomHSVColour()
 
 QVector4D MainWindow::GetRandomHSVColour4D()
 {
-  const QColor colour = QColor::fromHsvF(hsvcolordist_(gen_), hsvcolordist_(gen_), hsvcolordist_(gen_), 1.0f).darker(200);
+  const QColor colour = QColor::fromHsvF(hsvcolordist_(gen_), hsvcolordist_(gen_), hsvcolordist_(gen_), 1.0f).darker(300);
   return QVector4D(colour.redF(), colour.greenF(), colour.blueF(), 1.0f);
 }
 

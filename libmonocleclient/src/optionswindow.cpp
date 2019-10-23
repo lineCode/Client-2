@@ -43,6 +43,7 @@ OptionsWindow::OptionsWindow(QWidget* parent) :
   ui_.editinfotextformat->setText(QString::fromStdString(Options::Instance().GetInfoTextFormat()));
   ui_.checkstretchvideo->setCheckState(Options::Instance().GetStretchVideo() ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
   ui_.checkshowinfo->setCheckState(Options::Instance().GetShowInfo() ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
+  ui_.checkshowobjects->setCheckState(Options::Instance().GetShowObjects() ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
   ui_.spinmaxcudadecodersperdevice->setValue(Options::Instance().GetMaxCUDADecodersPerDevice());
 
   // Tray
@@ -118,6 +119,7 @@ void OptionsWindow::on_buttonok_clicked()
   Options::Instance().SetInfoTextFormat(ui_.editinfotextformat->text().toStdString());
   Options::Instance().SetStretchVideo(ui_.checkstretchvideo->isChecked());
   Options::Instance().SetShowInfo(ui_.checkshowinfo->isChecked());
+  Options::Instance().SetShowObjects(ui_.checkshowobjects->isChecked());
   Options::Instance().SetMaxCUDADecodersPerDevice(ui_.spinmaxcudadecodersperdevice->value());
 
   // Tray

@@ -139,7 +139,7 @@ Object& Object::operator=(Object&& rhs)
   return *this;
 }
 
-View::View(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool info, const QResource* arial, const bool showsaveimagemenu, const bool showcopymenu, const bool showinfomenu) :
+View::View(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool showinfo, const bool showobjects, const QResource* arial, const bool showsaveimagemenu, const bool showcopymenu, const bool showinfomenu, const bool showobjectsmenu) :
   videowidget_(videowidget),
   cudacontext_(cudacontext),
   starttime_(std::chrono::steady_clock::now()),
@@ -153,6 +153,7 @@ View::View(VideoWidget* videowidget, CUcontext cudacontext, const QColor& select
   actionmirror_(new QAction(tr("Mirror"), this)),
   actionstretch_(new QAction(tr("Stretch"), this)),
   actioninfo_(showinfomenu ? new QAction(tr("Info"), this) : nullptr),
+  actionobjects_(showobjectsmenu ? new QAction(tr("Objects"), this) : nullptr),
   freetype_(nullptr),
   totalframes_(0),
   totalbytes_(0),
@@ -175,7 +176,8 @@ View::View(VideoWidget* videowidget, CUcontext cudacontext, const QColor& select
   rotation_(rotation),
   mirror_(mirror),
   stretch_(stretch),
-  info_(info),
+  showinfo_(showinfo),
+  showobjects_(showobjects),
   selected_(false),
   paused_(false),
   actionclose_(new QAction(tr("Close"), this)),
@@ -197,8 +199,8 @@ View::View(VideoWidget* videowidget, CUcontext cudacontext, const QColor& select
   connect(actionrotate90_, &QAction::triggered, this, &View::Rotate90);
   connect(actionrotate180_, &QAction::triggered, this, &View::Rotate180);
   connect(actionrotate270_, &QAction::triggered, this, &View::Rotate270);
-  connect(actionmirror_, &QAction::triggered, this, &View::Mirror);
-  connect(actionstretch_, &QAction::triggered, this, &View::Stretch);
+  connect(actionmirror_, &QAction::triggered, this, &View::ToggleMirror);
+  connect(actionstretch_, &QAction::triggered, this, &View::ToggleStretch);
 
   if (actionsaveimage_)
   {
@@ -215,8 +217,15 @@ View::View(VideoWidget* videowidget, CUcontext cudacontext, const QColor& select
   if (actioninfo_)
   {
     actioninfo_->setCheckable(true);
-    actioninfo_->setChecked(info_);
-    connect(actioninfo_, &QAction::triggered, this, &View::Info);
+    actioninfo_->setChecked(showinfo_);
+    connect(actioninfo_, &QAction::triggered, this, &View::ToggleShowInfo);
+  }
+
+  if (actionobjects_)
+  {
+    actionobjects_->setCheckable(true);
+    actionobjects_->setChecked(showobjects_);
+    connect(actionobjects_, &QAction::triggered, this, &View::ToggleShowObjects);
   }
 
   // Freetype
@@ -381,6 +390,11 @@ void View::GetMenu(QMenu& parent)
   if (actioninfo_)
   {
     parent.addAction(actioninfo_);
+
+  }
+  if (actionobjects_)
+  {
+    parent.addAction(actionobjects_);
 
   }
   parent.addAction(actionclose_);
@@ -1204,22 +1218,28 @@ void View::Rotate270(bool)
 
 }
 
-void View::Mirror(bool)
+void View::ToggleMirror(bool)
 {
   SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), rotation_, !mirror_, stretch_, true);
 
 }
 
-void View::Stretch(bool)
+void View::ToggleStretch(bool)
 {
   SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), rotation_, mirror_, !stretch_, true);
 
 }
 
-void View::Info(bool)
+void View::ToggleShowInfo(bool)
 {
-  info_ = !info_;
+  showinfo_ = !showinfo_;
+  videowidget_->update();
+}
 
+void View::ToggleShowObjects(bool)
+{
+  showobjects_ = !showobjects_;
+  videowidget_->update();
 }
 
 }

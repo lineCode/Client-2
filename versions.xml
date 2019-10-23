@@ -30,6 +30,8 @@
     <windowsfilename>MonocleClient_1_11_0.msi</windowsfilename>
     <changes>
       <change>Improved decoding performance on CUDA GPUs</change>
+      <change>fixed possible duplication of items in the device tree</change>
+      <change>Added option to hide objects in the GUI</change>
     </changes>
   </version>
 </versions>

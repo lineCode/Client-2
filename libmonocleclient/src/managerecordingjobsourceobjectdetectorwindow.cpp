@@ -413,7 +413,6 @@ void ManageRecordingJobSourceObjectDetectorWindow::on_sliderhorses_valueChanged(
 
 }
 
-
 void ManageRecordingJobSourceObjectDetectorWindow::on_buttonok_clicked()
 {
   if (ui_.combometadatatrack->count() == 0)

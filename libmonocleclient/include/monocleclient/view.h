@@ -110,7 +110,7 @@ class View : public QObject, public QEnableSharedFromThis<View>
 
  public:
 
-  View(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool info, const QResource* arial, const bool showsaveimagemenu, const bool showcopymenu, const bool showinfomenu);
+  View(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool showinfo, const bool showobjects, const QResource* arial, const bool showsaveimagemenu, const bool showcopymenu, const bool showinfomenu, const bool showobjectsmenu);
   virtual ~View();
 
   virtual VIEWTYPE GetViewType() const = 0;
@@ -194,7 +194,8 @@ class View : public QObject, public QEnableSharedFromThis<View>
   inline ROTATION GetRotation() const { return rotation_; }
   inline bool GetMirror() const { return mirror_; }
   inline bool GetStretch() const { return stretch_; }
-  inline bool GetInfo() const { return info_; }
+  inline bool GetShowInfo() const { return showinfo_; }
+  inline bool GetShowObjects() const { return showobjects_; }
   inline void SetSelected(bool selected) { selected_ = selected; }
   inline bool GetSelected() const { return selected_; }
   void SetPaused(const bool paused);
@@ -236,6 +237,7 @@ class View : public QObject, public QEnableSharedFromThis<View>
   QAction* actionmirror_;
   QAction* actionstretch_;
   QAction* actioninfo_;
+  QAction* actionobjects_;
 
   FT_Library freetype_;
   FT_Face arial_;
@@ -269,7 +271,8 @@ class View : public QObject, public QEnableSharedFromThis<View>
   ROTATION rotation_;
   bool mirror_;
   bool stretch_;
-  bool info_;
+  bool showinfo_;
+  bool showobjects_;
 
   bool selected_;
 
@@ -298,9 +301,10 @@ class View : public QObject, public QEnableSharedFromThis<View>
   void Rotate90(bool);
   void Rotate180(bool);
   void Rotate270(bool);
-  void Mirror(bool);
-  void Stretch(bool);
-  void Info(bool);
+  void ToggleMirror(bool);
+  void ToggleStretch(bool);
+  void ToggleShowInfo(bool);
+  void ToggleShowObjects(bool);
 
 };
 

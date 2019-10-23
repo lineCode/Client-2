@@ -31,6 +31,7 @@ static const QString CHECKHIDEMAINWINDOWCLOSEDIALOG("checkhidemainwindowclosedia
 
 static const QString INFOTEXTFORMAT("infotextformat");
 static const QString SHOWINFO("showinfo");
+static const QString SHOWOBJECTS("showobjects");
 static const QString STRETCHVIDEO("stretchvideo");
 static const QString MAXCUDADECODERSPERDEVICE("maxcudadecodersperdevice");
 
@@ -55,6 +56,7 @@ Options::Options() :
   hidemainwindowclosedialog_(false),
   infotextformat_("%a %b %d %T.%f %Y %k %q"),
   showinfo_(true),
+  showobjects_(true),
   stretchvideo_(true),
   maxcudadecodersperdevice_(0),
   minimisetotray_(true),
@@ -88,6 +90,7 @@ void Options::Load()
   // Streaming
   infotextformat_ = settings.value(INFOTEXTFORMAT, QString::fromStdString(infotextformat_)).toString().toStdString();
   showinfo_ = settings.value(SHOWINFO, showinfo_).toBool();
+  showobjects_ = settings.value(SHOWOBJECTS, showobjects_).toBool();
   stretchvideo_ = settings.value(STRETCHVIDEO, stretchvideo_).toBool();
   maxcudadecodersperdevice_ = std::max(0u, std::min(100u, settings.value(MAXCUDADECODERSPERDEVICE, maxcudadecodersperdevice_).toUInt()));
 
@@ -118,6 +121,7 @@ void Options::Save()
   // Streaming
   settings.setValue(INFOTEXTFORMAT, QString::fromStdString(infotextformat_));
   settings.setValue(SHOWINFO, showinfo_);
+  settings.setValue(SHOWOBJECTS, showobjects_);
   settings.setValue(STRETCHVIDEO, stretchvideo_);
   settings.setValue(MAXCUDADECODERSPERDEVICE, maxcudadecodersperdevice_);
 

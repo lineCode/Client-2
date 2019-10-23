@@ -63,6 +63,9 @@ public:
   inline void SetShowInfo(const bool showinfo) { showinfo_ = showinfo; }
   inline bool GetShowInfo() const { return showinfo_; }
 
+  inline void SetShowObjects(const bool showobjects) { showobjects_ = showobjects; }
+  inline bool GetShowObjects() const { return showobjects_; }
+
   inline void SetStretchVideo(const bool stretchvideo) { stretchvideo_ = stretchvideo; }
   inline bool GetStretchVideo() const { return stretchvideo_; }
 
@@ -95,6 +98,7 @@ public:
 
   std::string infotextformat_;
   bool showinfo_;
+  bool showobjects_;
   bool stretchvideo_;
   unsigned int maxcudadecodersperdevice_;
 
