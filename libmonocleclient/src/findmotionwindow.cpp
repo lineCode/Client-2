@@ -183,39 +183,15 @@ void FindMotionWindow::Play(const uint64_t time, const boost::optional<uint64_t>
         return;
       }
     
-      ui_.videowidget->imagequeue_.consume_all([this](const ImageBuffer& imagebuffer) { ui_.videowidget->cache_.push_back(imagebuffer); });
+      ui_.videowidget->imagequeue_.consume_all([this](const ImageBuffer& imagebuffer) { ui_.videowidget->cache_.AddImage(imagebuffer); });
     
-      std::vector<ImageBuffer>::const_iterator imagebuffer = ui_.videowidget->cache_.end();
-      for (std::vector<ImageBuffer>::const_iterator i = ui_.videowidget->cache_.begin(); i != ui_.videowidget->cache_.end(); ++i)
-      {
-        if (i->playrequestindex_ != playrequestindex)
-        {
-    
-          continue;
-        }
-    
-        if (imagebuffer == ui_.videowidget->cache_.end())
-        {
-          imagebuffer = i;
-    
-        }
-        else
-        {
-          if (i->sequencenum_ > imagebuffer->sequencenum_)
-          {
-            imagebuffer = i;
-    
-          }
-        }
-      }
-    
-      if (imagebuffer == ui_.videowidget->cache_.end())
+      ImageBuffer imagebuffer = ui_.videowidget->cache_.GetLatestImageBySequence(playrequestindex);
+      if (imagebuffer.type_ == IMAGEBUFFERTYPE_INVALID)
       {
         LOG_GUI_THREAD_WARNING_SOURCE(device_, "ControlStream Unable to find frame");
         return;
       }
-    
-      ui_.videowidget->WriteFrame(*imagebuffer);
+      ui_.videowidget->WriteFrame(imagebuffer);
     };
     ui_.videowidget->paused_ = true;
   }
@@ -242,34 +218,8 @@ void FindMotionWindow::Stop()
 void FindMotionWindow::FrameStep(const bool forwards)
 {
   ui_.videowidget->paused_ = true;
-  std::vector<ImageBuffer>::iterator imagebuffer = ui_.videowidget->cache_.end();
-  for (std::vector<ImageBuffer>::iterator i = ui_.videowidget->cache_.begin(); i != ui_.videowidget->cache_.end(); ++i)
-  {
-    if (i->playrequestindex_ != ui_.videowidget->GetPlayRequestIndex())
-    {
-
-      continue;
-    }
-
-    if (forwards)
-    {
-      if ((i->sequencenum_ > ui_.videowidget->sequencenum_) && ((imagebuffer == ui_.videowidget->cache_.end()) || ((imagebuffer != ui_.videowidget->cache_.end()) && (i->sequencenum_ < imagebuffer->sequencenum_))))
-      {
-        imagebuffer = i;
-
-      }
-    }
-    else
-    {
-      if ((i->sequencenum_ < ui_.videowidget->sequencenum_) && ((imagebuffer == ui_.videowidget->cache_.end()) || ((imagebuffer != ui_.videowidget->cache_.end()) && (i->sequencenum_ > imagebuffer->sequencenum_))))
-      {
-        imagebuffer = i;
-
-      }
-    }
-  }
-
-  if (imagebuffer == ui_.videowidget->cache_.end())
+  ImageBuffer imagebuffer = ui_.videowidget->cache_.GetImage(forwards, ui_.videowidget->GetPlayRequestIndex(), ui_.videowidget->sequencenum_);
+  if (imagebuffer.type_ == IMAGEBUFFERTYPE_INVALID)
   {
     controlstreamendcallback_ = [this, forwards](const uint64_t playrequestindex, const monocle::ErrorCode error)
     {
@@ -285,69 +235,17 @@ void FindMotionWindow::FrameStep(const bool forwards)
         return;
       }
 
-      ui_.videowidget->imagequeue_.consume_all([this](const ImageBuffer& imagebuffer) { ui_.videowidget->cache_.push_back(imagebuffer); });
+      ui_.videowidget->imagequeue_.consume_all([this](const ImageBuffer& imagebuffer) { ui_.videowidget->cache_.AddImage(imagebuffer); });
 
       // Find the previous/next frame to go to
-      std::vector<ImageBuffer>::const_iterator imagebuffer = ui_.videowidget->cache_.end();
-      for (std::vector<ImageBuffer>::const_iterator i = ui_.videowidget->cache_.begin(); i != ui_.videowidget->cache_.end(); ++i)
-      {
-        if (i->playrequestindex_ != playrequestindex)
-        {
-
-          continue;
-        }
-
-        // Ignore all frames after or before in the opposite direction to what we are looking for
-        if (forwards)
-        {
-          if (i->sequencenum_ <= ui_.videowidget->sequencenum_)
-          {
-
-            continue;
-          }
-        }
-        else
-        {
-          if (i->sequencenum_ >= ui_.videowidget->sequencenum_)
-          {
-
-            continue;
-          }
-        }
-
-        if (imagebuffer == ui_.videowidget->cache_.end())
-        {
-          imagebuffer = i;
-
-        }
-        else
-        {
-          if (forwards)
-          {
-            if (i->sequencenum_ < imagebuffer->sequencenum_)
-            {
-              imagebuffer = i;
-
-            }
-          }
-          else
-          {
-            if (i->sequencenum_ > imagebuffer->sequencenum_)
-            {
-              imagebuffer = i;
-
-            }
-          }
-        }
-      }
-
-      if (imagebuffer == ui_.videowidget->cache_.end())
+      ImageBuffer imagebuffer = ui_.videowidget->cache_.GetImage(forwards, playrequestindex, ui_.videowidget->sequencenum_);
+      if (imagebuffer.type_ == IMAGEBUFFERTYPE_INVALID)
       {
         LOG_GUI_THREAD_WARNING_SOURCE(device_, "ControlStream Unable to find frame");
         return;
       }
 
-      ui_.videowidget->WriteFrame(*imagebuffer);
+      ui_.videowidget->WriteFrame(imagebuffer);
     };
 
     if (streamtoken_.is_initialized())
@@ -358,7 +256,7 @@ void FindMotionWindow::FrameStep(const bool forwards)
   }
   else
   {
-    ui_.videowidget->WriteFrame(*imagebuffer);
+    ui_.videowidget->WriteFrame(imagebuffer);
 
   }
 }

@@ -31,6 +31,7 @@
 
 #include "connection.h"
 #include "decoder.h"
+#include "imagecache.h"
 #include "options.h"
 
 ///// Declarations /////
@@ -282,7 +283,7 @@ class View : public QObject, public QEnableSharedFromThis<View>
 
   mutable std::mutex mutex_;
 
-  std::vector<ImageBuffer> cache_; // This stores the most recent GOP so we can framestep without having to request the entire GOP. It is cleared every keyframe
+  ImageCache cache_; // Stores up frames so we can framestep and do things without requesting from the server
 
   int imagewidth_;
   int imageheight_;

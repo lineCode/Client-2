@@ -39,6 +39,8 @@ include/monocleclient/findmotionwindow.h
 include/monocleclient/group.h
 include/monocleclient/h265decoder.h
 include/monocleclient/h264decoder.h
+include/monocleclient/imagebuffer.h
+include/monocleclient/imagecache.h
 include/monocleclient/infoformatwindow.h
 include/monocleclient/locationtree.h
 include/monocleclient/locationtreemapitem.h
@@ -163,6 +165,8 @@ src/findmotionwindow.cpp
 src/group.cpp
 src/h265decoder.cpp
 src/h264decoder.cpp
+src/imagebuffer.cpp
+src/imagecache.cpp
 src/infoformatwindow.cpp
 src/locationtree.cpp
 src/locationtreemapitem.cpp

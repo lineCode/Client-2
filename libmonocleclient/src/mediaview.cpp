@@ -404,7 +404,7 @@ bool MediaView::GetImage(ImageBuffer& imagebuffer)
       {
         if (paused_)
         {
-          cache_.push_back(previmagebuffer);
+          cache_.AddImage(previmagebuffer);
 
         }
         else
@@ -432,41 +432,15 @@ bool MediaView::GetImage(ImageBuffer& imagebuffer)
 void MediaView::FrameStep(const bool forwards)
 {
   paused_ = true;
-  std::vector<ImageBuffer>::iterator imagebuffer = cache_.end();
-  for (std::vector<ImageBuffer>::iterator i = cache_.begin(); i != cache_.end(); ++i)
-  {
-    if (i->playrequestindex_ != GetPlayRequestIndex())
-    {
-
-      continue;
-    }
-
-    if (forwards)
-    {
-      if ((i->sequencenum_ > sequencenum_) && (imagebuffer == cache_.end() || ((imagebuffer != cache_.end()) && (i->sequencenum_ < imagebuffer->sequencenum_))))
-      {
-        imagebuffer = i;
-
-      }
-    }
-    else
-    {
-      if ((i->sequencenum_ < sequencenum_) && (imagebuffer == cache_.end() || ((imagebuffer != cache_.end()) && (i->sequencenum_ > imagebuffer->sequencenum_))))
-      {
-        imagebuffer = i;
-
-      }
-    }
-  }
-
-  if (imagebuffer == cache_.end())
+  ImageBuffer imagebuffer = cache_.GetImage(forwards, GetPlayRequestIndex(), sequencenum_);
+  if (imagebuffer.type_ == IMAGEBUFFERTYPE_INVALID)
   {
     videostream_->SendControlRequest<PlaybackControlFrameStepRequest>(GetPlayRequestIndex(), forwards, sequencenum_);
 
   }
   else
   {
-    WriteFrame(*imagebuffer);
+    WriteFrame(imagebuffer);
     
   }
 
@@ -895,16 +869,14 @@ void MediaView::FrameStepForwards(const bool mainstream, const uint64_t playrequ
       return;
     }
 
-    imagequeue_.consume_all([this](const ImageBuffer& imagebuffer) { cache_.push_back(imagebuffer); });
-
-    std::vector<ImageBuffer>::const_iterator imagebuffer = std::find_if(cache_.cbegin(), cache_.cend(), [playrequestindex, nextframe](const ImageBuffer& imagebuffer) { return ((imagebuffer.playrequestindex_ == playrequestindex) && (imagebuffer.sequencenum_ == nextframe)); });
-    if (imagebuffer == cache_.cend())
+    imagequeue_.consume_all([this](const ImageBuffer& imagebuffer) { cache_.AddImage(imagebuffer); });
+    ImageBuffer imagebuffer = cache_.GetImage(playrequestindex, nextframe);
+    if (imagebuffer.type_ == IMAGEBUFFERTYPE_INVALID)
     {
 
       return;
     }
-
-    WriteFrame(*imagebuffer);
+    WriteFrame(imagebuffer);
   }, Qt::QueuedConnection);
 }
 
@@ -980,15 +952,14 @@ void MediaView::FrameStepBackwards(const bool mainstream, const uint64_t playreq
       return;
     }
 
-    imagequeue_.consume_all([this](const ImageBuffer& imagebuffer) { cache_.push_back(imagebuffer); });
-
-    std::vector<ImageBuffer>::const_iterator imagebuffer = std::find_if(cache_.cbegin(), cache_.cend(), [playrequestindex, nextframe](const ImageBuffer& imagebuffer) { return ((imagebuffer.playrequestindex_ == playrequestindex) && (imagebuffer.sequencenum_ == nextframe)); });
-    if (imagebuffer == cache_.cend())
+    imagequeue_.consume_all([this](const ImageBuffer& imagebuffer) { cache_.AddImage(imagebuffer); });
+    ImageBuffer imagebuffer = cache_.GetImage(playrequestindex, nextframe);
+    if (imagebuffer.type_ == IMAGEBUFFERTYPE_INVALID)
     {
 
       return;
     }
-    WriteFrame(*imagebuffer);
+    WriteFrame(imagebuffer);
   }, Qt::QueuedConnection);
 }
 
@@ -1214,71 +1185,26 @@ void MediaView::PlayThread(boost::shared_ptr<MediaStream> stream, const bool mai
     {
       QMetaObject::invokeMethod(this, [this, scrub, playrequestindex]()
       {
-        imagequeue_.consume_all([this](const ImageBuffer& imagebuffer) { cache_.push_back(imagebuffer); });
-        std::vector<ImageBuffer>::const_iterator imagebuffer = cache_.end();
+        imagequeue_.consume_all([this](const ImageBuffer& imagebuffer) { cache_.AddImage(imagebuffer); });
+        ImageBuffer imagebuffer;
         if (scrub)
         {
-          // Find the latest play request
-          if (cache_.size())
-          {
-            std::sort(cache_.begin(), cache_.end(), [](const ImageBuffer& lhs, const ImageBuffer& rhs)
-            {
-              if (lhs.playrequestindex_ == rhs.playrequestindex_)
-              {
+          imagebuffer = cache_.GetLatestImage(playrequestindex);
 
-                return (lhs.time_ < rhs.time_);
-              }
-              else
-              {
-
-                return (lhs.playrequestindex_ < rhs.playrequestindex_);
-              }
-            });
-
-            imagebuffer = cache_.end() - 1;
-          }
         }
         else
         {
-          if (GetPlayRequestIndex() != playrequestindex)
-          {
-              
-            return;
-          }
+          imagebuffer = cache_.GetLatestImageBySequence(playrequestindex);
 
-          for (std::vector<ImageBuffer>::const_iterator i = cache_.begin(); i != cache_.end(); ++i)
-          {
-            if (i->playrequestindex_ != playrequestindex)
-            {
-
-              continue;
-            }
-
-            if (imagebuffer == cache_.end())
-            {
-              imagebuffer = i;
-
-            }
-            else
-            {
-              if (i->sequencenum_ > imagebuffer->sequencenum_)
-              {
-                imagebuffer = i;
-
-              }
-            }
-          }
         }
 
-        if (imagebuffer == cache_.end())
+        if (imagebuffer.type_ == IMAGEBUFFERTYPE_INVALID)
         {
 
           return;
         }
-
-        WriteFrame(*imagebuffer);
-        std::for_each(cache_.begin(), cache_.end(), [](ImageBuffer& imagebuffer) { imagebuffer.Destroy(); });
-        cache_.clear();
+        WriteFrame(imagebuffer);
+        cache_.Clear();
       }, Qt::QueuedConnection);
       playing = false;
     }

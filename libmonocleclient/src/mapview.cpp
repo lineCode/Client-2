@@ -109,7 +109,7 @@ bool MapView::GetImage(ImageBuffer& imagebuffer)
       {
         if (paused_)
         {
-          cache_.push_back(previmagebuffer);
+          cache_.AddImage(previmagebuffer);
   
         }
         else

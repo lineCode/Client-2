@@ -24,6 +24,8 @@ extern "C"
   #include <libavutil/imgutils.h>
 }
 
+#include "imagebuffer.h"
+
 ///// Defines /////
 
 #define IMAGEQUEUESIZE 50
@@ -63,41 +65,6 @@ enum DECODERERROR
   DECODERERROR_INVALIDSPROPPARAMETERSETS,
   DECODERERROR_INVALIDCONFIG,
   DECODERERROR_OPENCODEC
-};
-
-enum IMAGEBUFFERTYPE
-{
-  IMAGEBUFFERTYPE_INVALID,
-  IMAGEBUFFERTYPE_TEXT,
-  IMAGEBUFFERTYPE_RGBA,
-  IMAGEBUFFERTYPE_YUV,
-  IMAGEBUFFERTYPE_NV12
-};
-
-///// Structures /////
-
-struct ImageBuffer // Image buffers are used to store the output from decoding and passed to VideoWidget for displaying
-{
-  ImageBuffer();
-  ImageBuffer(const ImageBuffer& imagebuffer);
-
-  void Destroy();
-
-  uint64_t playrequestindex_;
-  monocle::Codec codec_;
-  IMAGEBUFFERTYPE type_;
-  std::array<uint8_t*, 3> data_;
-  uint8_t* buffer_;
-  std::array<int, 3> widths_;
-  std::array<int, 3> heights_;
-  std::array<int, 3> strides_;
-  size_t originalsize_; // The size received down the pipe
-  uint64_t time_;
-  int64_t sequencenum_;
-  boost::optional<bool> digitallysigned_; // boost::none represents no attempt at a digital signature, true is verified, false has failed verification
-  bool marker_;
-  CUcontext cudacontext_;
-
 };
 
 ///// Prototypes /////

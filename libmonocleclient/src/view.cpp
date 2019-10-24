@@ -360,7 +360,7 @@ View::~View()
   }
 
   imagequeue_.consume_all([this](const ImageBuffer& imagebuffer) { const_cast<ImageBuffer&>(imagebuffer).Destroy(); });
-  std::for_each(cache_.begin(), cache_.end(), [](ImageBuffer& imagebuffer) { imagebuffer.Destroy(); });
+  cache_.Clear();
 }
 
 void View::GetMenu(QMenu& parent)
@@ -520,7 +520,7 @@ void View::SetPosition(VideoWidget* videowidget, const unsigned int x, const uns
 
 void View::AddCacheImage(ImageBuffer& imagebuffer)
 {
-  cache_.push_back(imagebuffer);
+  cache_.AddImage(imagebuffer);
 
 }
 
@@ -751,8 +751,7 @@ QColor View::GetPixelColour(const int x, const int y) const
 void View::SetPaused(const bool paused)
 {
   ++playrequestindex_;
-  std::for_each(cache_.begin(), cache_.end(), [](ImageBuffer& imagebuffer) { imagebuffer.Destroy(); });
-  cache_.clear();
+  cache_.Clear();
   paused_ = paused;
 }
 
@@ -830,8 +829,8 @@ uint64_t View::GetNextPlayRequestIndex(const bool clearcache)
 {
   if (clearcache)
   {
-    std::for_each(cache_.begin(), cache_.end(), [](ImageBuffer& imagebuffer) { imagebuffer.Destroy(); });
-    cache_.clear();
+    cache_.Clear();
+
   }
   return ++playrequestindex_;
 }
@@ -1062,8 +1061,7 @@ void View::WriteFrame(const ImageBuffer& imagebuffer)
       CUgraphicsResource resource = nullptr;
       if (resetresources)
       {
-        videowidget_->glTexImage2D(GL_TEXTURE_2D, 0, (texture == 0) ? GL_RED : GL_RG, imagebuffer.widths_.at(texture), (texture == 0) ? imagebuffer.heights_.at(texture) : (imagebuffer.heights_.at(texture) / 2), 0, (texture == 0) ? GL_RED : GL_RG, GL_UNSIGNED_BYTE, imagebuffer.data_[texture]);
-        glTexImage2D(GL_TEXTURE_2D, 0, (texture == 0) ? GL_RED : GL_RG, imagebuffer.widths_[texture], imagebuffer.heights_[texture], 0, (texture == 0) ? GL_RED : GL_RG, GL_UNSIGNED_BYTE, nullptr);
+        videowidget_->glTexImage2D(GL_TEXTURE_2D, 0, (texture == 0) ? GL_RED : GL_RG, imagebuffer.widths_[texture], imagebuffer.heights_[texture], 0, (texture == 0) ? GL_RED : GL_RG, GL_UNSIGNED_BYTE, nullptr);
         cuGraphicsGLRegisterImage(&resource, textures_[texture], GL_TEXTURE_2D, CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD);
         cudaresources_[texture] = resource;
       }

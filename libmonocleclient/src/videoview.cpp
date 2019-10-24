@@ -337,7 +337,7 @@ bool VideoView::GetImage(ImageBuffer& imagebuffer)
       {
         if (paused_)
         {
-          cache_.push_back(previmagebuffer);
+          cache_.AddImage(previmagebuffer);
 
         }
         else
@@ -365,34 +365,8 @@ int64_t VideoView::GetTimeOffset() const
 void VideoView::FrameStep(const bool forwards)
 {
   paused_ = true;
-  std::vector<ImageBuffer>::iterator imagebuffer = cache_.end();
-  for (std::vector<ImageBuffer>::iterator i = cache_.begin(); i != cache_.end(); ++i)
-  {
-    if (i->playrequestindex_ != GetPlayRequestIndex())
-    {
-
-      continue;
-    }
-
-    if (forwards)
-    {
-      if ((i->sequencenum_ > sequencenum_) && ((imagebuffer == cache_.end()) || ((imagebuffer != cache_.end()) && (i->sequencenum_ < imagebuffer->sequencenum_))))
-      {
-        imagebuffer = i;
-
-      }
-    }
-    else
-    {
-      if ((i->sequencenum_ < sequencenum_) && ((imagebuffer == cache_.end()) || ((imagebuffer != cache_.end()) && (i->sequencenum_ > imagebuffer->sequencenum_))))
-      {
-        imagebuffer = i;
-
-      }
-    }
-  }
-
-  if (imagebuffer == cache_.end())
+  ImageBuffer imagebuffer = cache_.GetImage(forwards, GetPlayRequestIndex(), sequencenum_);
+  if (imagebuffer.type_ == IMAGEBUFFERTYPE_INVALID)
   {
     {
       std::lock_guard<std::mutex> lock(mutex_);
@@ -413,76 +387,23 @@ void VideoView::FrameStep(const bool forwards)
         return;
       }
 
-      imagequeue_.consume_all([this](const ImageBuffer& imagebuffer){ cache_.push_back(imagebuffer); });
+      imagequeue_.consume_all([this](const ImageBuffer& imagebuffer){ cache_.AddImage(imagebuffer); });
 
       // Find the previous/next frame to go to
-      std::vector<ImageBuffer>::const_iterator imagebuffer = cache_.end();
-      for (std::vector<ImageBuffer>::const_iterator i = cache_.begin(); i != cache_.end(); ++i)
-      {
-        if (i->playrequestindex_ != playrequestindex)
-        {
-
-          continue;
-        }
-
-        // Ignore all frames after or before in the opposite direction to what we are looking for
-        if (forwards)
-        {
-          if (i->sequencenum_ <= sequencenum_)
-          {
-
-            continue;
-          }
-        }
-        else
-        {
-          if (i->sequencenum_ >= sequencenum_)
-          {
-
-            continue;
-          }
-        }
-
-        if (imagebuffer == cache_.end())
-        {
-          imagebuffer = i;
-
-        }
-        else
-        {
-          if (forwards)
-          {
-            if (i->sequencenum_ < imagebuffer->sequencenum_)
-            {
-              imagebuffer = i;
-
-            }
-          }
-          else
-          {
-            if (i->sequencenum_ > imagebuffer->sequencenum_)
-            {
-              imagebuffer = i;
-
-            }
-          }
-        }
-      }
-
-      if (imagebuffer == cache_.end())
+      ImageBuffer imagebuffer = cache_.GetImage(forwards, playrequestindex, sequencenum_);
+      if (imagebuffer.type_ == IMAGEBUFFERTYPE_INVALID)
       {
         LOG_GUI_THREAD_WARNING_SOURCE(device_, "ControlStream Unable to find frame");
         return;
       }
-
-      WriteFrame(*imagebuffer);
+      WriteFrame(imagebuffer);
     };
 
     connection_->ControlStreamFrameStep(streamtoken_, GetNextPlayRequestIndex(true), forwards, sequencenum_);
   }
   else
   {
-    WriteFrame(*imagebuffer);
+    WriteFrame(imagebuffer);
     
   }
 
@@ -517,39 +438,14 @@ void VideoView::Play(const uint64_t time, const boost::optional<uint64_t>& numfr
         return;
       }
 
-      imagequeue_.consume_all([this](const ImageBuffer& imagebuffer) { cache_.push_back(imagebuffer); });
-
-      std::vector<ImageBuffer>::const_iterator imagebuffer = cache_.end();
-      for (std::vector<ImageBuffer>::const_iterator i = cache_.begin(); i != cache_.end(); ++i)
-      {
-        if (i->playrequestindex_ != playrequestindex)
-        {
-
-          continue;
-        }
-
-        if (imagebuffer == cache_.end())
-        {
-          imagebuffer = i;
-
-        }
-        else
-        {
-          if (i->sequencenum_ > imagebuffer->sequencenum_)
-          {
-            imagebuffer = i;
-
-          }
-        }
-      }
-
-      if (imagebuffer == cache_.end())
+      imagequeue_.consume_all([this](const ImageBuffer& imagebuffer) { cache_.AddImage(imagebuffer); });
+      ImageBuffer imagebuffer = cache_.GetLatestImageBySequence(playrequestindex);
+      if (imagebuffer.type_ == IMAGEBUFFERTYPE_INVALID)
       {
         LOG_GUI_THREAD_WARNING_SOURCE(device_, "ControlStream Unable to find frame");
         return;
       }
-
-      WriteFrame(*imagebuffer);
+      WriteFrame(imagebuffer);
     };
     paused_ = true;
   }
@@ -604,31 +500,16 @@ void VideoView::Scrub(const uint64_t time)
       return;
     }
 
-    imagequeue_.consume_all([this](const ImageBuffer& imagebuffer) { cache_.push_back(imagebuffer); });
+    imagequeue_.consume_all([this](const ImageBuffer& imagebuffer) { cache_.AddImage(imagebuffer); });
 
-    if (cache_.empty())
+    ImageBuffer imagebuffer = cache_.GetLatestImage(playrequestindex);
+    if (imagebuffer.type_ == IMAGEBUFFERTYPE_INVALID)
     {
       LOG_GUI_THREAD_WARNING_SOURCE(device_, "Scrub failed to find frames");
       return;
     }
-
-    std::sort(cache_.begin(), cache_.end(), [](const ImageBuffer& lhs, const ImageBuffer& rhs)
-    {
-      if (lhs.playrequestindex_ == rhs.playrequestindex_)
-      {
-
-        return (lhs.time_ < rhs.time_);
-      }
-      else
-      {
-
-        return (lhs.playrequestindex_ < rhs.playrequestindex_);
-      }
-    });
-
-    WriteFrame(cache_.back());
-    std::for_each(cache_.begin(), cache_.end(), [](ImageBuffer& imagebuffer) { imagebuffer.Destroy(); });
-    cache_.clear();
+    WriteFrame(imagebuffer);
+    cache_.Clear();
   };
 
   for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
@@ -1102,7 +983,7 @@ void VideoView::DestroyDecoders()
 {
   // We destroy the imagequeue preemptively here because we need the cuda context stored inside ffmpeg
   imagequeue_.consume_all([this](const ImageBuffer& imagebuffer) { const_cast<ImageBuffer&>(imagebuffer).Destroy(); });
-  std::for_each(cache_.begin(), cache_.end(), [](ImageBuffer& imagebuffer) { imagebuffer.Destroy(); });
+  cache_.Clear();
 
   if (mjpegdecoder_)
   {

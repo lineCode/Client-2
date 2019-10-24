@@ -17,6 +17,7 @@
 #include <QRectF>
 
 #include "monocleclient/decoder.h"
+#include "monocleclient/imagecache.h"
 #include "monocleclient/view.h"
 
 ///// Declarations /////
@@ -73,7 +74,7 @@ class FindMotionVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   void SetPaused(const bool paused);
   bool IsPaused() const;
 
-  inline std::vector<ImageBuffer>& GetCache() { return cache_; }
+  inline ImageCache& GetCache() { return cache_; }//TODO remove this
 
  protected:
 
@@ -119,7 +120,7 @@ class FindMotionVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   uint64_t playrequestindex_;
   bool paused_;
 
-  std::vector<ImageBuffer> cache_; // This stores the most recent GOP so we can framestep without having to request the entire GOP. It is cleared every keyframe
+  ImageCache cache_;
 
   IMAGEBUFFERTYPE type_; // What the previous texture type was
   uint64_t time_;
