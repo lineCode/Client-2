@@ -29,6 +29,7 @@ const std::array<float, 8> FindMotionVideoWidget::texturecoords_ =
 
 FindMotionVideoWidget::FindMotionVideoWidget(QWidget* parent) :
   QOpenGLWidget(parent),
+  actionmirror_(new QAction(tr("Mirror"), this)),
   playrequestindex_(0),
   paused_(false),
   type_(IMAGEBUFFERTYPE_INVALID),
@@ -44,6 +45,11 @@ FindMotionVideoWidget::FindMotionVideoWidget(QWidget* parent) :
   imageheight_(0),
   state_(FINDMOTIONSTATE_SELECT)
 {
+  actionmirror_->setCheckable(true);
+  //TODO actionmirror_->setChecked(mirror_);
+
+  connect(actionmirror_, &QAction::triggered, this, &FindMotionVideoWidget::ToggleMirror);
+
   setCursor(Qt::CrossCursor);
 
   startTimer(std::chrono::milliseconds(40));
@@ -118,6 +124,14 @@ bool FindMotionVideoWidget::IsPaused() const
   return paused_;
 }
 
+void FindMotionVideoWidget::contextMenuEvent(QContextMenuEvent* event)
+{
+  QMenu menu;
+  menu.addAction(actionmirror_);
+//TODO rotation now too
+  menu.exec(event->globalPos());
+}
+
 void FindMotionVideoWidget::initializeGL()
 {
   initializeOpenGLFunctions();
@@ -143,14 +157,10 @@ void FindMotionVideoWidget::initializeGL()
   texturebuffer_.allocate(texturecoords_.data(), static_cast<int>(texturecoords_.size() * sizeof(float)));
   texturebuffer_.release();
 
-  const std::array<float, 12> vertices = GetVertices(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), ROTATION::_0, false);
-
   // Setup the vertex buffers
   vertexbuffer_.create();
   vertexbuffer_.setUsagePattern(QOpenGLBuffer::StaticDraw);
-  vertexbuffer_.bind();
-  vertexbuffer_.allocate(vertices.data(), static_cast<int>(vertices.size() * sizeof(float)));
-  vertexbuffer_.release();
+  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), GetFindMotionWindow()->rotation_, GetFindMotionWindow()->mirror_);//TODO rect confusion
 
   // RGB shader
   if (!viewrgbshader_.addShaderFromSourceCode(QOpenGLShader::Vertex,
@@ -703,7 +713,58 @@ void FindMotionVideoWidget::paintGL()
   vertexbuffer.create();
   vertexbuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
   vertexbuffer.bind();
-  const QRectF rectf(QPointF((selectedrect_.x() - 0.5f) * 2.0f, (selectedrect_.y() - 0.5f) * -2.0f), QPointF((selectedrect_.right() - 0.5f) * 2.0f, (selectedrect_.bottom() - 0.5f) * -2.0f));
+
+  //TODO I think we need GetImageRect() which deals with stretched_
+  QRectF rectf;
+  if (GetFindMotionWindow()->mirror_)
+  {
+    if (GetFindMotionWindow()->rotation_ == ROTATION::_90)
+    {
+      //TODO rectf = QRectF(QPointF((selectedrect_.x() - 0.5f) * 2.0f, (selectedrect_.y() - 0.5f) * -2.0f), QPointF((selectedrect_.right() - 0.5f) * 2.0f, (selectedrect_.bottom() - 0.5f) * -2.0f));
+
+    }
+    else if (GetFindMotionWindow()->rotation_ == ROTATION::_180)
+    {
+      rectf = QRectF(QPointF((selectedrect_.x() - 0.5f) * 2.0f, (selectedrect_.y() - 0.5f) * 2.0f), QPointF((selectedrect_.right() - 0.5f) * 2.0f, (selectedrect_.bottom() - 0.5f) * 2.0f));
+
+    }
+    else if (GetFindMotionWindow()->rotation_ == ROTATION::_270)
+    {
+      //TODO rectf = QRectF(QPointF((selectedrect_.x() - 0.5f) * 2.0f, (selectedrect_.y() - 0.5f) * -2.0f), QPointF((selectedrect_.right() - 0.5f) * 2.0f, (selectedrect_.bottom() - 0.5f) * -2.0f));
+
+    }
+    else
+    {
+      rectf = QRectF(QPointF((selectedrect_.x() - 0.5f) * -2.0f, (selectedrect_.y() - 0.5f) * -2.0f), QPointF((selectedrect_.right() - 0.5f) * -2.0f, (selectedrect_.bottom() - 0.5f) * -2.0f));
+
+    }
+  }
+  else
+  {
+    if (GetFindMotionWindow()->rotation_ == ROTATION::_90)
+    {
+      //TODO rectf = QRectF(QPointF((selectedrect_.x() - 0.5f) * 2.0f, (selectedrect_.y() - 0.5f) * -2.0f), QPointF((selectedrect_.right() - 0.5f) * 2.0f, (selectedrect_.bottom() - 0.5f) * -2.0f));
+
+    }
+    else if (GetFindMotionWindow()->rotation_ == ROTATION::_180)
+    {
+      rectf = QRectF(QPointF((selectedrect_.x() - 0.5f) * -2.0f, (selectedrect_.y() - 0.5f) * 2.0f), QPointF((selectedrect_.right() - 0.5f) * -2.0f, (selectedrect_.bottom() - 0.5f) * 2.0f));
+
+    }
+    else if (GetFindMotionWindow()->rotation_ == ROTATION::_270)
+    {
+      //TODO rectf = QRectF(QPointF((selectedrect_.x() - 0.5f) * 2.0f, (selectedrect_.y() - 0.5f) * -2.0f), QPointF((selectedrect_.right() - 0.5f) * 2.0f, (selectedrect_.bottom() - 0.5f) * -2.0f));
+
+    }
+    else
+    {
+      rectf = QRectF(QPointF((selectedrect_.x() - 0.5f) * 2.0f, (selectedrect_.y() - 0.5f) * -2.0f), QPointF((selectedrect_.right() - 0.5f) * 2.0f, (selectedrect_.bottom() - 0.5f) * -2.0f));
+
+    }
+  }
+//TODO I think we need a method which calculates points based on mirrored,rotated and stretched every time...
+  //TODO I think we need this for objects too
+//TODO if we are stretched...
   const std::array<float, 10> selectvertices =
   {
     static_cast<float>(rectf.right()), static_cast<float>(rectf.bottom()),
@@ -924,7 +985,6 @@ void FindMotionVideoWidget::WriteFrame(const ImageBuffer& imagebuffer)
   }
   else if (imagebuffer.type_ == IMAGEBUFFERTYPE_NV12)
   {
-//TODO look around... make a quick check this works
     cuCtxPushCurrent_v2(imagebuffer.cudacontext_);
     bool resetresources = false; // Do we need to reinitialise the cuda stuff if dimensions and format have changed
     if ((imagebuffer.type_ != type_) || (imagebuffer.widths_[0] != imagewidth_) || (imagebuffer.heights_[0] != imageheight_) || !cudaresources_[0] || !cudaresources_[1])
@@ -986,6 +1046,24 @@ void FindMotionVideoWidget::WriteFrame(const ImageBuffer& imagebuffer)
   }
   doneCurrent();
   update();
+}
+
+void FindMotionVideoWidget::SetPosition(const QRectF& rect, const ROTATION rotation, const bool mirror)
+{
+  GetFindMotionWindow()->rotation_ = rotation;
+  GetFindMotionWindow()->mirror_ = mirror;
+
+  const std::array<float, 12> vertices = GetVertices(rect, rotation, mirror);//TODO rect confusion
+  vertexbuffer_.bind();
+  vertexbuffer_.allocate(vertices.data(), static_cast<int>(vertices.size() * sizeof(float)));
+  vertexbuffer_.release();
+}
+
+void FindMotionVideoWidget::ToggleMirror(bool)
+{
+  makeCurrent();
+  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), GetFindMotionWindow()->rotation_, !GetFindMotionWindow()->mirror_);
+  doneCurrent();
 }
 
 }

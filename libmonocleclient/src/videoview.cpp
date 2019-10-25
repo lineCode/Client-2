@@ -63,7 +63,7 @@ VideoView::VideoView(VideoWidget* videowidget, CUcontext cudacontext, const QCol
   connect(recording_.get(), &Recording::TrackRemoved, this, &VideoView::TrackRemoved);
   connect(recording_.get(), &Recording::ActiveJobChanged, this, &VideoView::ActiveJobChanged);
 
-  rotation_ = GetRotation();
+  rotation_ = GetActiveRotation();
   SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), rotation_, mirror_, stretch_, true);
 
   updatetimer_ = startTimer(std::chrono::milliseconds(150));
@@ -1053,7 +1053,7 @@ void VideoView::Keepalive()
   });
 }
 
-ROTATION VideoView::GetRotation() const
+ROTATION VideoView::GetActiveRotation() const
 {
   const std::vector<ROTATION> rotations = recording_->GetActiveRotations(track_);
   if (rotations.empty())
@@ -1181,7 +1181,7 @@ void VideoView::TrackRemoved(const uint32_t token)
 
 void VideoView::ActiveJobChanged(const QSharedPointer<client::RecordingJob>& activejob)
 {
-  rotation_ = GetRotation();
+  rotation_ = GetActiveRotation();
   SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), rotation_, mirror_, stretch_, true);
   Connect();
 }

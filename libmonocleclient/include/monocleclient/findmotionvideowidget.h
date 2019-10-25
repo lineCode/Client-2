@@ -10,6 +10,7 @@
 
 #include <array>
 #include <boost/lockfree/spsc_queue.hpp>
+#include <QAction>
 #include <QOpenGLBuffer>
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
@@ -78,6 +79,7 @@ class FindMotionVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
 
  protected:
 
+  virtual void contextMenuEvent(QContextMenuEvent* event) override;
   virtual void initializeGL() override;
   virtual void mouseMoveEvent(QMouseEvent* event) override;
   virtual void mousePressEvent(QMouseEvent* event) override;
@@ -91,8 +93,11 @@ class FindMotionVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   bool GetImage(ImageBuffer& imagebuffer);
   std::array<float, 12> GetVertices(const QRectF& rect, const ROTATION rotation, const bool mirror) const;
   void WriteFrame(const ImageBuffer& imagebuffer);
+  void SetPosition(const QRectF& rect, const ROTATION rotation, const bool mirror);
 
   static const std::array<float, 8> texturecoords_;
+
+  QAction* actionmirror_;
 
   QOpenGLShaderProgram viewrgbshader_;
   int rgbpositionlocation_;
@@ -137,6 +142,10 @@ class FindMotionVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
 
   FINDMOTIONSTATE state_;
   QPoint selectionpoint_;
+
+ public slots:
+
+  void ToggleMirror(bool);
 
 };
 

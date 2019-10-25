@@ -138,7 +138,7 @@ class VideoView : public View
   void AddCodecIndex(const monocle::CODECINDEX& codecindex);
   void DestroyDecoders();
   void Keepalive();
-  ROTATION GetRotation() const;
+  ROTATION GetActiveRotation() const;
   void ResetDecoders();
   uint64_t GetNextMetadataPlayRequestIndex();
   void AddMetadataTrack(const QSharedPointer<RecordingTrack>& metadatatrack);
