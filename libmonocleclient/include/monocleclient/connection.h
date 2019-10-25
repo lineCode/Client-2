@@ -46,6 +46,9 @@ class Connection : public QObject, public monocle::client::Client
   virtual void FindMotionEnd(const uint64_t token, const uint64_t ret) override;
   virtual void FindMotionProgress(const uint64_t token, const float progress) override;
   virtual void FindMotionResult(const uint64_t token, const uint64_t start, const uint64_t end) override;
+  virtual void FindObjectEnd(const uint64_t token, const uint64_t ret) override;
+  virtual void FindObjectProgress(const uint64_t token, const float progress) override;
+  virtual void FindObjectResult(const uint64_t token, const uint64_t start, const uint64_t end, const monocle::ObjectClass objectclass, const uint64_t id, const uint64_t largesttime, const float largestx, const float largesty, const float largestwidth, const float largestheight) override;
   virtual void Goodbye() override;
   virtual void GroupAdded(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings) override;
   virtual void GroupChanged(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings) override;
@@ -85,11 +88,13 @@ class Connection : public QObject, public monocle::client::Client
   virtual void RecordingJobSourceTrackRemoved(const uint64_t recordingtoken, const uint64_t recordingjobtoken, const uint64_t recordingjobsourcetoken, const uint64_t token) override;
   virtual void RecordingJobSourceTrackStateChanged(const uint64_t recording, const uint64_t recordingjob, const uint64_t recordingjobsource, const uint64_t recordingjobsourcetrack, const uint64_t time, const monocle::RecordingJobState state, const std::string& error) override;
   virtual void RecordingLogMessage(const uint64_t token, const uint64_t time, const monocle::Severity severity, const std::string& message) override;
+  virtual void RecordingTrackCodecAdded(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp) override;
+  virtual void RecordingTrackCodecRemoved(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id) override;
   virtual void RecordingTrackLogMessage(const uint64_t recordingtoken, const uint32_t id, const uint64_t time, const monocle::Severity severity, const std::string& message) override;
   virtual void RecordingRemoved(const uint64_t token) override;
   virtual void ServerLogMessage(const uint64_t time, const monocle::Severity severity, const std::string& message) override;
-  virtual void TrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files) override;
-  virtual void TrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files) override;
+  virtual void TrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices) override;
+  virtual void TrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices) override;
   virtual void TrackDeleteData(const uint64_t recording, const uint32_t trackid, const boost::optional<uint64_t>& start, const boost::optional<uint64_t>& end) override;
   virtual void TrackRemoved(const uint64_t recordingtoken, const uint32_t token) override;
   virtual void TrackSetData(const uint64_t recording, const uint32_t trackid, const std::vector<monocle::INDEX>& times) override;
@@ -132,6 +137,9 @@ class Connection : public QObject, public monocle::client::Client
   void SignalFindMotionEnd(const uint64_t token, const uint64_t ret);
   void SignalFindMotionProgress(const uint64_t token, const float progress);
   void SignalFindMotionResult(const uint64_t token, const uint64_t start, const uint64_t end);
+  void SignalFindObjectEnd(const uint64_t token, const uint64_t ret);
+  void SignalFindObjectProgress(const uint64_t token, const float progress);
+  void SignalFindObjectResult(const uint64_t token, const uint64_t start, const uint64_t end, const monocle::ObjectClass objectclass, const uint64_t id, const uint64_t largesttime, const float largestx, const float largesty, const float largestwidth, const float largestheight);
   void SignalGroupAdded(const uint64_t token, const QString& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
   void SignalGroupChanged(const uint64_t token, const QString& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
   void SignalGroupRemoved(const uint64_t token);
@@ -165,17 +173,18 @@ class Connection : public QObject, public monocle::client::Client
   void SignalRecordingJobSourceTrackStateChanged(const uint64_t recording, const uint64_t recordingjob, const uint64_t recordingjobsource, const uint64_t recordingjobsourcetrack, const uint64_t time, const monocle::RecordingJobState state, const QString& error);
   void SignalRecordingRemoved(const uint64_t token);
   void SignalRecordingLogMessage(const uint64_t token, const uint64_t time, const monocle::Severity severity, const QString& message);
+  void SignalRecordingTrackCodecAdded(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp);
+  void SignalRecordingTrackCodecRemoved(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id);
   void SignalRecordingTrackLogMessage(const uint64_t recordingtoken, const uint32_t id, const uint64_t time, const monocle::Severity severity, const QString& message);
   void SignalServerLogMessage(const uint64_t time, const monocle::Severity severity, const QString& message);
-  void SignalTrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files);
-  void SignalTrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files);
+  void SignalTrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices);
+  void SignalTrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices);
   void SignalTrackDeleteData(const uint64_t recording, const uint32_t trackid, const boost::optional<uint64_t>& start, const boost::optional<uint64_t>& end);
   void SignalTrackRemoved(const uint64_t recordingtoken, const uint32_t id);
   void SignalTrackSetData(const uint64_t recording, const uint32_t trackid, const std::vector<monocle::INDEX>& indices);
   void SignalUserAdded(const uint64_t token, const QString& username, const uint64_t group);
   void SignalUserChanged(const uint64_t token, const uint64_t group);
   void SignalUserRemoved(const uint64_t token);
-
 
 };
 

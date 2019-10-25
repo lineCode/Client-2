@@ -83,12 +83,12 @@ QSharedPointer<client::RecordingTrack> Recording::AddTrack(const monocle::RECORD
 
   }
 
-  tracks_.push_back(QSharedPointer<client::RecordingTrack>::create(track.id_, QString::fromStdString(track.token_), track.tracktype_, QString::fromStdString(track.description_), track.fixedfiles_, track.digitalsignature_, track.encrypt_, track.flushfrequency_, track.files_, indices));
+  tracks_.push_back(QSharedPointer<client::RecordingTrack>::create(track.id_, QString::fromStdString(track.token_), track.tracktype_, QString::fromStdString(track.description_), track.fixedfiles_, track.digitalsignature_, track.encrypt_, track.flushfrequency_, track.files_, indices, track.codecindices_));
   emit TrackAdded(tracks_.back());
   return tracks_.back();
 }
 
-QSharedPointer<client::RecordingTrack> Recording::ChangeTrack(const uint32_t id, const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files)
+QSharedPointer<client::RecordingTrack> Recording::ChangeTrack(const uint32_t id, const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices)
 {
   auto track = std::find_if(tracks_.begin(), tracks_.end(), [id](const QSharedPointer<client::RecordingTrack>& track) { return (track->GetId() == id); });
   if (track == tracks_.end())
@@ -97,7 +97,7 @@ QSharedPointer<client::RecordingTrack> Recording::ChangeTrack(const uint32_t id,
     return nullptr;
   }
 
-  (*track)->ChangeTrack(token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files);
+  (*track)->ChangeTrack(token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files, codecindices);
   emit TrackChanged(*track);
   return *track;
 }

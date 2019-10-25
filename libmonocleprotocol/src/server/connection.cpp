@@ -37,9 +37,12 @@
 #include "monocleprotocol/controlstreamplayrequest_generated.h"
 #include "monocleprotocol/createfindmotionrequest_generated.h"
 #include "monocleprotocol/createfindmotionresponse_generated.h"
+#include "monocleprotocol/createfindobjectrequest_generated.h"
+#include "monocleprotocol/createfindobjectresponse_generated.h"
 #include "monocleprotocol/createstreamrequest_generated.h"
 #include "monocleprotocol/createstreamresponse_generated.h"
 #include "monocleprotocol/destroyfindmotionrequest_generated.h"
+#include "monocleprotocol/destroyfindobjectrequest_generated.h"
 #include "monocleprotocol/destroystreamrequest_generated.h"
 #include "monocleprotocol/discoveryhello_generated.h"
 #include "monocleprotocol/errorresponse_generated.h"
@@ -49,6 +52,9 @@
 #include "monocleprotocol/findmotionend_generated.h"
 #include "monocleprotocol/findmotionprogress_generated.h"
 #include "monocleprotocol/findmotionresult_generated.h"
+#include "monocleprotocol/findobjectend_generated.h"
+#include "monocleprotocol/findobjectprogress_generated.h"
+#include "monocleprotocol/findobjectresult_generated.h"
 #include "monocleprotocol/getauthenticationnonceresponse_generated.h"
 #include "monocleprotocol/getchildfoldersrequest_generated.h"
 #include "monocleprotocol/getchildfoldersresponse_generated.h"
@@ -101,6 +107,8 @@
 #include "monocleprotocol/recordinglogmessage_generated.h"
 #include "monocleprotocol/recordingremoved_generated.h"
 #include "monocleprotocol/recordingtracklogmessage_generated.h"
+#include "monocleprotocol/recordingtrackcodecadded_generated.h"
+#include "monocleprotocol/recordingtrackcodecremoved_generated.h"
 #include "monocleprotocol/removefilerequest_generated.h"
 #include "monocleprotocol/removegrouprequest_generated.h"
 #include "monocleprotocol/removemaprequest_generated.h"
@@ -367,6 +375,57 @@ boost::system::error_code Connection::SendFindMotionResult(const uint64_t token,
   fbb_.Finish(CreateFindMotionResult(fbb_, token, start, end));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::FINDMOTIONRESULT, ++sequence_);
+  const std::array<boost::asio::const_buffer, 2> buffers =
+  {
+    boost::asio::const_buffer(&header, sizeof(HEADER)),
+    boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
+  };
+  boost::system::error_code err;
+  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
+  return err;
+}
+
+boost::system::error_code Connection::SendFindObjectEnd(const uint64_t token, const uint64_t ret)
+{
+  std::lock_guard<std::mutex> lock(writemutex_);
+  fbb_.Clear();
+  fbb_.Finish(CreateFindObjectEnd(fbb_, token, ret));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::FINDOBJECTEND, ++sequence_);
+  const std::array<boost::asio::const_buffer, 2> buffers =
+  {
+    boost::asio::const_buffer(&header, sizeof(HEADER)),
+    boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
+  };
+  boost::system::error_code err;
+  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
+  return err;
+}
+
+boost::system::error_code Connection::SendFindObjectProgress(const uint64_t token, const float progress)
+{
+  std::lock_guard<std::mutex> lock(writemutex_);
+  fbb_.Clear();
+  fbb_.Finish(CreateFindObjectProgress(fbb_, token, progress));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::FINDOBJECTPROGRESS, ++sequence_);
+  const std::array<boost::asio::const_buffer, 2> buffers =
+  {
+    boost::asio::const_buffer(&header, sizeof(HEADER)),
+    boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
+  };
+  boost::system::error_code err;
+  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
+  return err;
+}
+
+boost::system::error_code Connection::SendFindObjectResult(const uint64_t token, const uint64_t start, const uint64_t end, const monocle::ObjectClass objectclass, const uint64_t id, const uint64_t largesttime, const float largestx, const float largesty, const float largestwidth, const float largestheight)
+{
+  std::lock_guard<std::mutex> lock(writemutex_);
+  fbb_.Clear();
+  fbb_.Finish(CreateFindObjectResult(fbb_, token, start, end, objectclass, id, largesttime, largestx, largesty, largestwidth, largestheight));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::FINDOBJECTRESULT, ++sequence_);
   const std::array<boost::asio::const_buffer, 2> buffers =
   {
     boost::asio::const_buffer(&header, sizeof(HEADER)),
@@ -1004,6 +1063,40 @@ boost::system::error_code Connection::SendRecordingJobSourceTrackAdded(const uin
   fbb_.Finish(CreateRecordingJobSourceTrackAdded(fbb_, recordingtoken, recordingjobtoken, recordingjobsourcetoken, token, recordingtrackid, fbb_.CreateVectorOfStrings(parameters), state, fbb_.CreateString(error), fbb_.CreateVectorOfStrings(activeparameters)));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::RECORDINGJOBSOURCETRACKADDED, ++sequence_);
+  const std::array<boost::asio::const_buffer, 2> buffers =
+  {
+    boost::asio::const_buffer(&header, sizeof(HEADER)),
+    boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
+  };
+  boost::system::error_code err;
+  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
+  return err;
+}
+
+boost::system::error_code Connection::SendRecordingTrackCodecAdded(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp)
+{
+  std::lock_guard<std::mutex> lock(writemutex_);
+  fbb_.Clear();
+  fbb_.Finish(CreateRecordingTrackCodecAdded(fbb_, recordingtoken, recordingtrackid, id, codec, fbb_.CreateString(parameters), timestamp));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::RECORDINGTRACKCODECADDED, ++sequence_);
+  const std::array<boost::asio::const_buffer, 2> buffers =
+  {
+    boost::asio::const_buffer(&header, sizeof(HEADER)),
+    boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
+  };
+  boost::system::error_code err;
+  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
+  return err;
+}
+
+boost::system::error_code Connection::SendRecordingTrackCodecRemoved(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id)
+{
+  std::lock_guard<std::mutex> lock(writemutex_);
+  fbb_.Clear();
+  fbb_.Finish(CreateRecordingTrackCodecRemoved(fbb_, recordingtoken, recordingtrackid, id));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::RECORDINGTRACKCODECREMOVED, ++sequence_);
   const std::array<boost::asio::const_buffer, 2> buffers =
   {
     boost::asio::const_buffer(&header, sizeof(HEADER)),
@@ -2365,7 +2458,7 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
         return SendErrorResponse(Message::CONTROLSTREAM, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
       }
 
-      const Error error = ControlStream(controlstreamplayrequest->token(), controlstreamplayrequest->playrequestindex(), controlstreamplayrequest->fetchmarker(), controlstreamplayrequest->ratecontrol(), controlstreamplayrequest->forwards() ? boost::optional<bool>(controlstreamplayrequest->forwards()) : boost::none, controlstreamplayrequest->starttime() ? boost::optional<uint64_t>(controlstreamplayrequest->starttime()) : boost::none, controlstreamplayrequest->endtime() ? boost::optional<uint64_t>(controlstreamplayrequest->endtime()) : boost::none, controlstreamplayrequest->numframes() ? boost::optional<uint64_t>(controlstreamplayrequest->numframes()) : boost::none, controlstreamplayrequest->iframes());
+      const Error error = ControlStream(controlstreamplayrequest->token(), controlstreamplayrequest->playrequestindex(), controlstreamplayrequest->fetchmarker(), controlstreamplayrequest->ratecontrol(), controlstreamplayrequest->forwards(), controlstreamplayrequest->starttime() ? boost::optional<uint64_t>(controlstreamplayrequest->starttime()) : boost::none, controlstreamplayrequest->endtime() ? boost::optional<uint64_t>(controlstreamplayrequest->endtime()) : boost::none, controlstreamplayrequest->numframes() ? boost::optional<uint64_t>(controlstreamplayrequest->numframes()) : boost::none, controlstreamplayrequest->iframes());
       if (error.code_ != ErrorCode::Success)
       {
 
@@ -2473,6 +2566,33 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       fbb_.Finish(CreateCreateFindMotionResponse(fbb_, findmotion.second));
       return SendResponse(true, Message::CREATEFINDMOTION, sequence);
     }
+    case Message::CREATEFINDOBJECT:
+    {
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<CreateFindObjectRequest>(nullptr))
+      {
+
+        return SendErrorResponse(Message::CREATEFINDOBJECT, sequence, Error(ErrorCode::InvalidMessage, "Invalid CreateFindObjectRequest message"));
+      }
+
+      const CreateFindObjectRequest* createfindobjectrequest = flatbuffers::GetRoot<CreateFindObjectRequest>(data);
+      if (createfindobjectrequest == nullptr)
+      {
+
+        return SendErrorResponse(Message::CREATEFINDOBJECT, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
+      }
+
+      const std::pair<Error, uint64_t> findobject = CreateFindObject(createfindobjectrequest->recordingtoken(), createfindobjectrequest->trackid(), createfindobjectrequest->starttime(), createfindobjectrequest->endtime(), createfindobjectrequest->x(), createfindobjectrequest->y(), createfindobjectrequest->width(), createfindobjectrequest->height());
+      if (findobject.first.code_ != ErrorCode::Success)
+      {
+
+        return SendErrorResponse(Message::CREATEFINDOBJECT, sequence, findobject.first);
+      }
+
+      std::lock_guard<std::mutex> lock(writemutex_);
+      fbb_.Clear();
+      fbb_.Finish(CreateCreateFindObjectResponse(fbb_, findobject.second));
+      return SendResponse(true, Message::CREATEFINDOBJECT, sequence);
+    }
     case Message::CREATESTREAM:
     {
       if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<CreateStreamRequest>(nullptr))
@@ -2525,11 +2645,36 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       if (error.code_ != ErrorCode::Success)
       {
 
-        return SendErrorResponse(Message::DESTROYSTREAM, sequence, error);
+        return SendErrorResponse(Message::DESTROYFINDMOTION, sequence, error);
       }
 
       std::lock_guard<std::mutex> lock(writemutex_);
-      return SendResponse(true, Message::DESTROYSTREAM, sequence);
+      return SendResponse(true, Message::DESTROYFINDMOTION, sequence);
+    }
+    case Message::DESTROYFINDOBJECT:
+    {
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<DestroyFindObjectRequest>(nullptr))
+      {
+
+        return SendErrorResponse(Message::DESTROYFINDOBJECT, sequence, Error(ErrorCode::InvalidMessage, "Invalid DestroyFindObjectRequest message"));
+      }
+
+      const DestroyFindObjectRequest* destroyfindobjectrequest = flatbuffers::GetRoot<DestroyFindObjectRequest>(data);
+      if (destroyfindobjectrequest == nullptr)
+      {
+
+        return SendErrorResponse(Message::DESTROYFINDOBJECT, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
+      }
+
+      const Error error = DestroyFindObject(destroyfindobjectrequest->token());
+      if (error.code_ != ErrorCode::Success)
+      {
+
+        return SendErrorResponse(Message::DESTROYFINDOBJECT, sequence, error);
+      }
+
+      std::lock_guard<std::mutex> lock(writemutex_);
+      return SendResponse(true, Message::DESTROYFINDOBJECT, sequence);
     }
     case Message::DESTROYSTREAM:
     {
@@ -2668,8 +2813,14 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       tracks.reserve(recording.second.tracks_.size());
       for (const monocle::RECORDINGTRACK& track : recording.second.tracks_)
       {
-        tracks.push_back(CreateRecordingTrack(fbb_, track.id_, fbb_.CreateString(track.token_), track.tracktype_, fbb_.CreateString(track.description_), track.fixedfiles_, track.digitalsignature_, track.encrypt_, track.flushfrequency_, fbb_.CreateVector(track.files_), fbb_.CreateVectorOfStructs(track.indices_)));
+        std::vector< flatbuffers::Offset<monocle::CodecIndex> > codecindices;
+        codecindices.reserve(track.codecindices_.size());
+        for (const monocle::CODECINDEX& codecindex : track.codecindices_)
+        {
+          codecindices.push_back(CreateCodecIndex(fbb_, codecindex.id_, codecindex.codec_, fbb_.CreateString(codecindex.parameters_), codecindex.timestamp_));
 
+        }
+        tracks.push_back(CreateRecordingTrack(fbb_, track.id_, fbb_.CreateString(track.token_), track.tracktype_, fbb_.CreateString(track.description_), track.fixedfiles_, track.digitalsignature_, track.encrypt_, track.flushfrequency_, fbb_.CreateVector(track.files_), fbb_.CreateVectorOfStructs(track.indices_), fbb_.CreateVector(codecindices)));
       }
 
       std::unique_ptr<monocle::TOKEN> activejobtoken;
@@ -2708,7 +2859,7 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
         return SendErrorResponse(Message::GETSNAPSHOT, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
       }
 
-      const std::pair<Error, SNAPSHOT> getsnapshot = GetSnapshot(getsnapshotrequest->recordingtoken(), getsnapshotrequest->recordingtrackid(), getsnapshotrequest->time());
+      const std::pair<Error, SNAPSHOT> getsnapshot = GetSnapshot(getsnapshotrequest->recordingtoken(), getsnapshotrequest->recordingtrackid(), getsnapshotrequest->time(), getsnapshotrequest->x(), getsnapshotrequest->y(), getsnapshotrequest->width(), getsnapshotrequest->height());
       if (getsnapshot.first.code_ != ErrorCode::Success)
       {
 

@@ -1,0 +1,6 @@
+namespace monocle;
+
+table DestroyFindObjectRequest
+{
+  token:uint64 (id:0);
+}

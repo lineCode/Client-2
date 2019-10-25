@@ -23,6 +23,7 @@
 #include "monocleclient/mapview.h"
 #include "monocleclient/mediaview.h"
 #include "monocleclient/recording.h"
+#include "monocleclient/shaders.h"
 #include "monocleclient/videoview.h"
 
 ///// Globals /////
@@ -213,7 +214,7 @@ void ToInfoText(const QDateTime& datetime, const std::string& format, const mono
         }
         case 'a':
         {
-          MainWindow::Instance()->ShortWeekDayName(date.dayOfWeek(), buffer);
+          MainWindow::Instance()->ShortWeekDayName(date.dayOfWeek() - 1, buffer);
           break;
         }
         case 'b':
@@ -336,6 +337,52 @@ void ToInfoText(const QDateTime& datetime, const std::string& format, const mono
   }
 }
 
+QImage InfoTexture(const std::vector<char>& text, const FT_Face font)
+{
+  QImage infotexture(INFO_WIDTH, INFO_HEIGHT, QImage::Format_RGBA8888);
+  infotexture.fill(QColor(0, 0, 0));
+  QPainter painter(&infotexture);
+  int x = INFO_BORDER;
+  const int maxfontheight = static_cast<int>(INFO_FONT_HEIGHT * (static_cast<float>(font->bbox.yMax) / static_cast<float>(font->bbox.yMax - font->bbox.yMin)));
+  const int y = INFO_BORDER + (INFO_FONT_HEIGHT - maxfontheight) - 1;
+  for (int i = 0; i < text.size(); ++i)
+  {
+    if (text.at(i) == '\0')
+    {
+
+      break;
+    }
+
+    if (FT_Load_Char(font, text.at(i), FT_LOAD_RENDER))
+    {
+
+      continue; // Ignore errors
+    }
+
+    const QImage character = QImage(font->glyph->bitmap.buffer, font->glyph->bitmap.width, font->glyph->bitmap.rows, font->glyph->bitmap.pitch, QImage::Format_Grayscale8);
+    painter.drawImage(QRectF(x + font->glyph->bitmap_left, y + (maxfontheight - font->glyph->bitmap_top), font->glyph->bitmap.width, font->glyph->bitmap.rows), character);
+    x += font->glyph->advance.x >> 6;
+  }
+  x += INFO_BORDER; // End border
+
+  // Set the alpha to chop off the erroneous end and fade the middle
+  for (int i = 0; i < infotexture.height(); ++i)
+  {
+    QRgb* line = reinterpret_cast<QRgb*>(infotexture.scanLine(i));
+    for (int j = 0; j < infotexture.width(); ++j)
+    {
+      int alpha = 0;
+      if (j <= x)
+      {
+        alpha = 122;
+
+      }
+      line[j] = qRgba(qRed(line[j]), qGreen(line[j]), qBlue(line[j]), alpha);
+    }
+  }
+  return infotexture;
+}
+
 ///// Methods /////
 
 VideoWidget::VideoWidget(QWidget* parent) :
@@ -378,7 +425,7 @@ VideoWidget::VideoWidget(QWidget* parent) :
   
   setMouseTracking(true);
 
-  if ((MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDMOTION) || (MainWindow::Instance()->GetMouseState() == MOUSESTATE_COLOURPICKER))
+  if ((MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDMOTION) || (MainWindow::Instance()->GetMouseState() == MOUSESTATE_COLOURPICKER) || (MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDOBJECT))
   {
     parentWidget()->setCursor(Qt::CrossCursor);
 
@@ -1430,25 +1477,13 @@ void VideoWidget::initializeGL()
   }
 
   // Selected
-  if (!viewselectedshader_.addShaderFromSourceCode(QOpenGLShader::Vertex,
-    "#version 130\n"
-    "in vec2 position;\n"
-    "void main()\n"
-    "{\n"
-    "  gl_Position = vec4(position, 1.0, 1.0);\n"
-    "}\n"))
+  if (!viewselectedshader_.addShaderFromSourceCode(QOpenGLShader::Vertex, SELECTED_VERTEX_SHADER))
   {
     LOG_GUI_WARNING(QString("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
     return;
   }
   
-  if (!viewselectedshader_.addShaderFromSourceCode(QOpenGLShader::Fragment,
-    "#version 130\n"
-    "uniform vec4 colour;\n"
-    "void main()\n"
-    "{\n"
-    "  gl_FragColor = colour;\n"
-    "}\n"))
+  if (!viewselectedshader_.addShaderFromSourceCode(QOpenGLShader::Fragment, SELECTED_PIXEL_SHADER))
   {
     LOG_GUI_WARNING(QString("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
     return;
@@ -1464,30 +1499,13 @@ void VideoWidget::initializeGL()
   selectedcolourlocation_ = viewselectedshader_.uniformLocation("colour");
 
   // Info
-  if (!viewinfoshader_.addShaderFromSourceCode(QOpenGLShader::Vertex,
-    "#version 130\n"
-    "in vec2 texcoord;\n"
-    "in vec3 position;\n"
-    "out vec2 out_texcoord;\n"
-    "void main()\n"
-    "{\n"
-    "  gl_Position = vec4(position, 1.0);\n"
-    "  out_texcoord = texcoord\n;"
-    "}\n"))
+  if (!viewinfoshader_.addShaderFromSourceCode(QOpenGLShader::Vertex, INFO_VERTEX_SHADER))
   {
     LOG_GUI_WARNING(QString("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
     return;
   }
 
-  if (!viewinfoshader_.addShaderFromSourceCode(QOpenGLShader::Fragment,
-    "#version 130\n"
-    "in vec2 out_texcoord;\n"
-    "uniform sampler2D sampler;\n"
-    "out vec4 colour;\n"
-    "void main()\n"
-    "{\n"
-    "  colour = texture(sampler, out_texcoord);\n"
-    "}\n"))
+  if (!viewinfoshader_.addShaderFromSourceCode(QOpenGLShader::Fragment, INFO_PIXEL_SHADER))
   {
     LOG_GUI_WARNING(QString("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
     return;
@@ -1958,50 +1976,9 @@ void VideoWidget::paintGL()
         continue;
       }
 
-      QImage texture(INFO_WIDTH, INFO_HEIGHT, QImage::Format_RGBA8888);
-      QPainter painter(&texture);
-      texture.fill(QColor(0, 0, 0));
-      int x = INFO_BORDER;
-      const int maxfontheight = static_cast<int>(INFO_FONT_HEIGHT * (static_cast<float>(freetypearial_->bbox.yMax) / static_cast<float>(freetypearial_->bbox.yMax - freetypearial_->bbox.yMin)));
-      const int y = INFO_BORDER + (INFO_FONT_HEIGHT - maxfontheight) - 1;
-      for (int i = 0; i < infotextformatbuffer_.size(); ++i)
-      {
-        if (infotextformatbuffer_.at(i) == '\0')
-        {
-
-          break;
-        }
-
-        if (FT_Load_Char(freetypearial_, infotextformatbuffer_.at(i), FT_LOAD_RENDER))
-        {
-
-          continue; // Ignore errors
-        }
-
-        const QImage character = QImage(freetypearial_->glyph->bitmap.buffer, freetypearial_->glyph->bitmap.width, freetypearial_->glyph->bitmap.rows, freetypearial_->glyph->bitmap.pitch, QImage::Format_Grayscale8);
-        painter.drawImage(QRectF(x + freetypearial_->glyph->bitmap_left, y + (maxfontheight - freetypearial_->glyph->bitmap_top), freetypearial_->glyph->bitmap.width, freetypearial_->glyph->bitmap.rows), character);
-        x += freetypearial_->glyph->advance.x >> 6;
-      }
-      x += INFO_BORDER; // End border
-
-      // Set the alpha to chop off the erroneous end and fade the middle
-      for (int i = 0; i < texture.height(); ++i)
-      {
-        QRgb* line = reinterpret_cast<QRgb*>(texture.scanLine(i));
-        for (int j = 0; j < texture.width(); ++j)
-        {
-          int alpha = 0;
-          if (j <= x)
-          {
-            alpha = 122;
-
-          }
-          line[j] = qRgba(qRed(line[j]), qGreen(line[j]), qBlue(line[j]), alpha);
-        }
-      }
-
+      const QImage infotexture = InfoTexture(infotextformatbuffer_, freetypearial_);
       glBindTexture(GL_TEXTURE_2D, view->GetInfoTexture());
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture.width(), texture.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, texture.bits());
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, infotexture.width(), infotexture.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, infotexture.bits());
       glBindTexture(GL_TEXTURE_2D, 0);
 
       view->SetInfoTime(view->GetTime());
@@ -2046,7 +2023,6 @@ void VideoWidget::paintGL()
     }
     else
     {
-
       digitalsignredpadlock_.bind();
 
     }
@@ -2095,7 +2071,7 @@ void VideoWidget::paintGL()
     }
   }
 
-  if ((MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDMOTION) && MainWindow::Instance()->GetVideoWidgetsMgr().GetSelectionView())
+  if (((MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDMOTION) || (MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDOBJECT)) && MainWindow::Instance()->GetVideoWidgetsMgr().GetSelectionView())
   {
     const QSharedPointer<View> view = MainWindow::Instance()->GetVideoWidgetsMgr().GetSelectionView().lock();
     if (view)
@@ -2175,7 +2151,7 @@ void VideoWidget::paintGL()
     }
   }
 
-  // Text
+  // Object text
   QPainter painter(this);
   for (QSharedPointer<View>& view : views_)
   {
@@ -2197,7 +2173,7 @@ void VideoWidget::paintGL()
       continue;
     }
 
-    const QRectF imagepixelrect = view->GetImagePixelRect();
+    const QRectF imagepixelrect = view->GetImagePixelRectF();
     for (std::pair< const std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> >& objects : view->GetObjects())
     {
       const uint64_t time = view->GetTime();
@@ -2207,10 +2183,7 @@ void VideoWidget::paintGL()
 
         continue;
       }
-
-      const int left = imagepixelrect.left() + (object->x_ * imagepixelrect.width());
-      const int top = imagepixelrect.top() + (object->y_ * imagepixelrect.height()) - object->text_.size().height();
-      painter.drawStaticText(QPoint(left, top), object->text_);
+      object->DrawObjectText(imagepixelrect, width(), height(), view->GetMirror(), view->GetRotation(), painter);
     }
   }
 

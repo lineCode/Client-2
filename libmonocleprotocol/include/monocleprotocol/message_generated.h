@@ -72,6 +72,8 @@ enum class Message : uint16_t {
   CREATEFINDMOTION = 60,
   DESTROYFINDMOTION = 61,
   GETSNAPSHOT = 62,
+  CREATEFINDOBJECT = 63,
+  DESTROYFINDOBJECT = 64,
   CONTROLSTREAMEND = 8000,
   DISCOVERYHELLO = 8001,
   FILEADDED = 8002,
@@ -132,11 +134,16 @@ enum class Message : uint16_t {
   FINDMOTIONEND = 8058,
   FINDMOTIONRESULT = 8059,
   FINDMOTIONPROGRESS = 8060,
+  FINDOBJECTEND = 8061,
+  FINDOBJECTRESULT = 8062,
+  FINDOBJECTPROGRESS = 8063,
+  RECORDINGTRACKCODECADDED = 8064,
+  RECORDINGTRACKCODECREMOVED = 8065,
   MIN = ADDFILE,
-  MAX = FINDMOTIONPROGRESS
+  MAX = RECORDINGTRACKCODECREMOVED
 };
 
-inline const Message (&EnumValuesMessage())[123] {
+inline const Message (&EnumValuesMessage())[130] {
   static const Message values[] = {
     Message::ADDFILE,
     Message::ADDGROUP,
@@ -201,6 +208,8 @@ inline const Message (&EnumValuesMessage())[123] {
     Message::CREATEFINDMOTION,
     Message::DESTROYFINDMOTION,
     Message::GETSNAPSHOT,
+    Message::CREATEFINDOBJECT,
+    Message::DESTROYFINDOBJECT,
     Message::CONTROLSTREAMEND,
     Message::DISCOVERYHELLO,
     Message::FILEADDED,
@@ -260,7 +269,12 @@ inline const Message (&EnumValuesMessage())[123] {
     Message::LOCATIONCHANGED,
     Message::FINDMOTIONEND,
     Message::FINDMOTIONRESULT,
-    Message::FINDMOTIONPROGRESS
+    Message::FINDMOTIONPROGRESS,
+    Message::FINDOBJECTEND,
+    Message::FINDOBJECTRESULT,
+    Message::FINDOBJECTPROGRESS,
+    Message::RECORDINGTRACKCODECADDED,
+    Message::RECORDINGTRACKCODECREMOVED
   };
   return values;
 }
@@ -330,6 +344,8 @@ inline const char *EnumNameMessage(Message e) {
     case Message::CREATEFINDMOTION: return "CREATEFINDMOTION";
     case Message::DESTROYFINDMOTION: return "DESTROYFINDMOTION";
     case Message::GETSNAPSHOT: return "GETSNAPSHOT";
+    case Message::CREATEFINDOBJECT: return "CREATEFINDOBJECT";
+    case Message::DESTROYFINDOBJECT: return "DESTROYFINDOBJECT";
     case Message::CONTROLSTREAMEND: return "CONTROLSTREAMEND";
     case Message::DISCOVERYHELLO: return "DISCOVERYHELLO";
     case Message::FILEADDED: return "FILEADDED";
@@ -390,6 +406,11 @@ inline const char *EnumNameMessage(Message e) {
     case Message::FINDMOTIONEND: return "FINDMOTIONEND";
     case Message::FINDMOTIONRESULT: return "FINDMOTIONRESULT";
     case Message::FINDMOTIONPROGRESS: return "FINDMOTIONPROGRESS";
+    case Message::FINDOBJECTEND: return "FINDOBJECTEND";
+    case Message::FINDOBJECTRESULT: return "FINDOBJECTRESULT";
+    case Message::FINDOBJECTPROGRESS: return "FINDOBJECTPROGRESS";
+    case Message::RECORDINGTRACKCODECADDED: return "RECORDINGTRACKCODECADDED";
+    case Message::RECORDINGTRACKCODECREMOVED: return "RECORDINGTRACKCODECREMOVED";
     default: return "";
   }
 }

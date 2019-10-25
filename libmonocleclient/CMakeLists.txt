@@ -36,6 +36,9 @@ include/monocleclient/filterlineedit.h
 include/monocleclient/findmotionplaybackwidget.h
 include/monocleclient/findmotionvideowidget.h
 include/monocleclient/findmotionwindow.h
+include/monocleclient/findobjectplaybackwidget.h
+include/monocleclient/findobjectvideowidget.h
+include/monocleclient/findobjectwindow.h
 include/monocleclient/group.h
 include/monocleclient/h265decoder.h
 include/monocleclient/h264decoder.h
@@ -98,6 +101,7 @@ include/monocleclient/mediapropertieswindow.h
 include/monocleclient/mediaview.h
 include/monocleclient/mjpegdecoder.h
 include/monocleclient/mpeg4decoder.h
+include/monocleclient/objects.h
 include/monocleclient/onvifuser.h
 include/monocleclient/options.h
 include/monocleclient/optionswindow.h
@@ -114,6 +118,7 @@ include/monocleclient/recordinglogwindow.h
 include/monocleclient/recordingtrack.h
 include/monocleclient/runguard.h
 include/monocleclient/savevideo.h
+include/monocleclient/shaders.h
 include/monocleclient/shortcut.h
 include/monocleclient/shortcutmgr.h
 include/monocleclient/singleton.h
@@ -162,6 +167,9 @@ src/filterlineedit.cpp
 src/findmotionplaybackwidget.cpp
 src/findmotionvideowidget.cpp
 src/findmotionwindow.cpp
+src/findobjectplaybackwidget.cpp
+src/findobjectvideowidget.cpp
+src/findobjectwindow.cpp
 src/group.cpp
 src/h265decoder.cpp
 src/h264decoder.cpp
@@ -224,6 +232,7 @@ src/mediapropertieswindow.cpp
 src/mediaview.cpp
 src/mjpegdecoder.cpp
 src/mpeg4decoder.cpp
+src/objects.cpp
 src/onvifuser.cpp
 src/options.cpp
 src/optionswindow.cpp
@@ -240,6 +249,7 @@ src/recordinglogwindow.cpp
 src/recordingtrack.cpp
 src/runguard.cpp
 src/savevideo.cpp
+src/shaders.cpp
 src/shortcut.cpp
 src/shortcutmgr.cpp
 src/stream.cpp
@@ -264,6 +274,7 @@ editdevicewindow.ui
 exportprogresswindow.ui
 exportwindow.ui
 findmotionwindow.ui
+findobjectwindow.ui
 infoformatwindow.ui
 mainwindow.ui
 managedevicewindow.ui

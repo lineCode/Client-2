@@ -18,19 +18,32 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QPainter>
+#include <QPointF>
 #include <QResource>
 #include <QStandardPaths>
 #include <utility/utility.hpp>
 
 #include "monocleclient/device.h"
 #include "monocleclient/mainwindow.h"
+#include "monocleclient/mediaview.h"
 #include "monocleclient/recording.h"
+#include "monocleclient/videoview.h"
 #include "monocleclient/videowidget.h"
 
 ///// Namespaces /////
 
 namespace client
 {
+
+///// Declarations /////
+
+const std::array<float, 8> View::texturecoords_ =
+{
+  1.0f, 1.0f,
+  1.0f, 0.0f,
+  0.0f, 1.0f,
+  0.0f, 0.0f
+};
 
 ///// Functions /////
 
@@ -63,81 +76,351 @@ QString ToString(const ROTATION rotation)
   }
 }
 
-///// Declarations /////
-
-const std::array<float, 8> View::texturecoords_ =
+std::array<float, 12> GetVertices(const QRectF& rect, const ROTATION rotation, const bool mirror)
 {
-  1.0f, 1.0f,
-  1.0f, 0.0f,
-  0.0f, 1.0f,
-  0.0f, 0.0f
-};
+  if (mirror)
+  {
+    switch (rotation)
+    {
+      case ROTATION::_90:
+      {
+        return std::array<float, 12>(
+        {{
+          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f
+        }});
+      }
+      case ROTATION::_180:
+      {
+        return std::array<float, 12>(
+        {{
+          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f
+        }});
+      }
+      case ROTATION::_270:
+      {
+        return std::array<float, 12>(
+        {{
+          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f
+        }});
+      }
+      case ROTATION::_0:
+      default:
+      {
+        return std::array<float, 12>(
+        {{
+          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f
+        }});
+      }
+    }
+  }
+  else
+  {
+    switch (rotation)
+    {
+      case ROTATION::_90:
+      {
+        return std::array<float, 12>(
+        {{
+          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f
+        }});
+      }
+      case ROTATION::_180:
+      {
+        return std::array<float, 12>(
+        {{
+          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f
+        }});
+      }
+      case ROTATION::_270:
+      {
+        return std::array<float, 12>(
+        {{
+          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f
+        }});
+      }
+      case ROTATION::_0:
+      default:
+      {
+        return std::array<float, 12>(
+        {{
+          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f
+        }});
+      }
+    }
+  }
+}
+
+QPointF ImageRectToOpenGL(const QRectF& rect, const bool mirror, const ROTATION rotation, const float x, const float y)
+{
+  if (mirror)
+  {
+    if (rotation == ROTATION::_90)
+    {
+      const float pointx = ((rect.right() - (y * rect.width())) * 2.0f) - 1.0f;
+      const float pointy = 1.0f - ((rect.bottom() - (x * rect.height())) * 2.0f);
+      return QPointF(pointx, pointy);
+    }
+    else if (rotation == ROTATION::_180)
+    {
+      const float pointx = ((rect.left() + (x * rect.width())) * 2.0f) - 1.0f;
+      const float pointy = 1.0f - ((rect.bottom() - (y * rect.height())) * 2.0f);
+      return QPointF(pointx, pointy);
+    }
+    else if (rotation == ROTATION::_270)
+    {
+      const float pointx = ((rect.left() + (y * rect.width())) * 2.0f) - 1.0f;
+      const float pointy = 1.0f - ((rect.top() + (x * rect.height())) * 2.0f);
+      return QPointF(pointx, pointy);
+    }
+    else // (rotation == ROTATION::_0)
+    {
+      const float pointx = ((rect.right() - (x * rect.width())) * 2.0f) - 1.0f;
+      const float pointy = 1.0f - ((rect.top() + (y * rect.height())) * 2.0f);
+      return QPointF(pointx, pointy);
+    }
+  }
+  else
+  {
+    if (rotation == ROTATION::_90)
+    {
+      const float pointx = ((rect.right() - (y * rect.width())) * 2.0f) - 1.0f;
+      const float pointy = 1.0f - ((rect.top() + (x * rect.height())) * 2.0f);
+      return QPointF(pointx, pointy);
+    }
+    else if (rotation == ROTATION::_180)
+    {
+      const float pointx = ((rect.right() - (x * rect.width())) * 2.0f) - 1.0f;
+      const float pointy = 1.0f - ((rect.bottom() - (y * rect.height())) * 2.0f);
+      return QPointF(pointx, pointy);
+    }
+    else if (rotation == ROTATION::_270)
+    {
+      const float pointx = ((rect.left() + (y * rect.width())) * 2.0f) - 1.0f;
+      const float pointy = 1.0f - ((rect.bottom() - (x * rect.height())) * 2.0f);
+      return QPointF(pointx, pointy);
+    }
+    else // (rotation == ROTATION::_0)
+    {
+      const float pointx = ((rect.left() + (x * rect.width())) * 2.0f) - 1.0f;
+      const float pointy = 1.0f - ((rect.top() + (y * rect.height())) * 2.0f);
+      return QPointF(pointx, pointy);
+    }
+  }
+}
+
+QRectF ImageToRect(const QRect& imagepixelrect, const QRect& rect, const bool mirror, const ROTATION rotation)
+{
+  QRectF selectedrectf(static_cast<float>(rect.left()) / static_cast<float>(imagepixelrect.width()),
+                       static_cast<float>(rect.top()) / static_cast<float>(imagepixelrect.height()),
+                       static_cast<float>(rect.width()) / static_cast<float>(imagepixelrect.width()),
+                       static_cast<float>(rect.height()) / static_cast<float>(imagepixelrect.height()));
+
+  if (mirror)
+  {
+    if (rotation == ROTATION::_90)
+    {
+      selectedrectf = QRectF(selectedrectf.left(), 1.0f - selectedrectf.bottom(), selectedrectf.width(), selectedrectf.height());
+      QTransform transform;
+      transform.rotate(270.0f);
+      selectedrectf = transform.mapRect(selectedrectf);
+      selectedrectf.adjust(0.0f, 1.0f, 0.0f, 1.0f);
+      return selectedrectf;
+    }
+    else if (rotation == ROTATION::_180)
+    {
+      selectedrectf = QRectF(1.0f - selectedrectf.right(), selectedrectf.top(), selectedrectf.width(), selectedrectf.height());
+      QTransform transform;
+      transform.rotate(180.0f);
+      selectedrectf = transform.mapRect(selectedrectf);
+      selectedrectf.adjust(1.0f, 1.0f, 1.0f, 1.0f);
+      return selectedrectf;
+    }
+    else if (rotation == ROTATION::_270)
+    {
+      selectedrectf = QRectF(selectedrectf.left(), 1.0f - selectedrectf.bottom(), selectedrectf.width(), selectedrectf.height());
+      QTransform transform;
+      transform.rotate(90.0f);
+      selectedrectf = transform.mapRect(selectedrectf);
+      selectedrectf.adjust(1.0f, 0.0f, 1.0f, 0.0f);
+      return selectedrectf;
+    }
+    else // (rotation == ROTATION::_0)
+    {
+      return QRectF(1.0f - selectedrectf.right(), selectedrectf.top(), selectedrectf.width(), selectedrectf.height());
+
+    }
+  }
+  else
+  {
+    if (rotation == ROTATION::_90)
+    {
+      QTransform transform;
+      transform.rotate(270.0f);
+      selectedrectf = transform.mapRect(selectedrectf);
+      selectedrectf.adjust(0.0f, 1.0f, 0.0f, 1.0f);
+      return selectedrectf;
+    }
+    else if (rotation == ROTATION::_180)
+    {
+      QTransform transform;
+      transform.rotate(180.0f);
+      selectedrectf = transform.mapRect(selectedrectf);
+      selectedrectf.adjust(1.0f, 1.0f, 1.0f, 1.0f);
+      return selectedrectf;
+    }
+    else if (rotation == ROTATION::_270)
+    {
+      QTransform transform;
+      transform.rotate(90.0f);
+      selectedrectf = transform.mapRect(selectedrectf);
+      selectedrectf.adjust(1.0f, 0.0f, 1.0f, 0.0f);
+      return selectedrectf;
+    }
+    else // (rotation == ROTATION::_0)
+    {
+
+      return selectedrectf;
+    }
+  }
+}
+
+void WriteImageBuffer(QOpenGLFunctions* ogl, const IMAGEBUFFERTYPE currenttype, const int currentimagewidth, const int currentimageheight, const ImageBuffer& imagebuffer, const std::array<GLuint, 3>& textures, std::array<CUgraphicsResource, 3>& cudaresources)
+{
+  if ((imagebuffer.type_ == IMAGEBUFFERTYPE_TEXT) || (imagebuffer.type_ == IMAGEBUFFERTYPE_RGBA))
+  {
+    ogl->glActiveTexture(GL_TEXTURE0);
+    ogl->glBindTexture(GL_TEXTURE_2D, textures.at(0));
+    ogl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imagebuffer.widths_[0], imagebuffer.heights_[0], 0, GL_RGBA, GL_UNSIGNED_BYTE, imagebuffer.data_[0]);
+    ogl->glBindTexture(GL_TEXTURE_2D, 0);
+  }
+  else if (imagebuffer.type_ == IMAGEBUFFERTYPE_YUV)
+  {
+    for (GLuint texture = 0; texture < 3; ++texture)
+    {
+      ogl->glActiveTexture(GL_TEXTURE0 + texture);
+      ogl->glBindTexture(GL_TEXTURE_2D, textures.at(texture));
+      ogl->glPixelStorei(GL_UNPACK_ROW_LENGTH, imagebuffer.strides_[texture]);
+      ogl->glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, imagebuffer.widths_[texture], imagebuffer.heights_[texture], 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, imagebuffer.data_[texture]);
+      ogl->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+      ogl->glBindTexture(GL_TEXTURE_2D, 0);
+    }
+  }
+  else if (imagebuffer.type_ == IMAGEBUFFERTYPE_NV12)
+  {
+    cuCtxPushCurrent_v2(imagebuffer.cudacontext_);
+    bool resetresources = false; // Do we need to reinitialise the cuda stuff if dimensions and format have changed
+    if ((imagebuffer.type_ != currenttype) || (imagebuffer.widths_[0] != currentimagewidth) || (imagebuffer.heights_[0] != currentimageheight) || !cudaresources[0] || !cudaresources[1])
+    {
+      // Destroy any old CUDA stuff we had laying around
+      for (CUgraphicsResource& resource : cudaresources)
+      {
+        if (resource)
+        {
+          cuGraphicsUnregisterResource(resource);
+          resource = nullptr;
+        }
+      }
+      resetresources = true;
+    }
+
+    for (GLuint texture = 0; texture < 2; ++texture)
+    {
+      ogl->glActiveTexture(GL_TEXTURE0 + texture);
+      ogl->glPixelStorei(GL_UNPACK_ROW_LENGTH, imagebuffer.strides_[texture]);
+      ogl->glBindTexture(GL_TEXTURE_2D, textures.at(texture));
+
+      CUgraphicsResource resource = nullptr;
+      if (resetresources)
+      {
+        ogl->glTexImage2D(GL_TEXTURE_2D, 0, (texture == 0) ? GL_RED : GL_RG, imagebuffer.widths_[texture], imagebuffer.heights_[texture], 0, (texture == 0) ? GL_RED : GL_RG, GL_UNSIGNED_BYTE, nullptr);
+        cuGraphicsGLRegisterImage(&resource, textures[texture], GL_TEXTURE_2D, CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD);
+        cudaresources[texture] = resource;
+      }
+      else
+      {
+        resource = cudaresources[texture];
+
+      }
+
+      cuGraphicsMapResources(1, &resource, 0);
+      CUarray resourceptr;
+      cuGraphicsSubResourceGetMappedArray(&resourceptr, resource, 0, 0);
+
+      CUDA_MEMCPY2D copy;
+      memset(&copy, 0, sizeof(copy));
+      copy.srcMemoryType = CU_MEMORYTYPE_DEVICE;
+      copy.dstMemoryType = CU_MEMORYTYPE_ARRAY;
+      copy.srcDevice = (CUdeviceptr)imagebuffer.data_[texture];
+      copy.dstArray = resourceptr;
+      copy.srcPitch = imagebuffer.strides_[texture];
+      copy.dstPitch = imagebuffer.strides_[texture];
+      copy.WidthInBytes = (texture == 0) ? imagebuffer.widths_[texture] : (imagebuffer.widths_[texture] * 2);
+      copy.Height = imagebuffer.heights_[texture];
+      cuMemcpy2D(&copy);
+      cuGraphicsUnmapResources(1, &resource, 0);
+
+      ogl->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+      ogl->glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    CUcontext dummy;
+    cuCtxPopCurrent_v2(&dummy);
+  }
+}
+
+QString HTMLColour(const int r, const int g, const int b)
+{
+  QString red = QString::number(r, 16).toUpper();
+  if (red.size() == 1)
+  {
+    red = QString("0") + red;
+
+  }
+  QString green = QString::number(g, 16).toUpper();
+  if (green.size() == 1)
+  {
+    green = QString("0") + green;
+
+  }
+  QString blue = QString::number(b, 16).toUpper();
+  if (blue.size() == 1)
+  {
+    blue = QString("0") + blue;
+
+  }
+  return (red + green + blue);
+}
+
+QString FontText(const QVector4D& colour, const QString& text)
+{
+  return (QString("<b><font color=#") + HTMLColour(colour.x() * 255, colour.y() * 255, colour.z() * 255) + ">" + text + "</font></b>");
+}
 
 ///// Methods /////
-
-Object::Object(const uint64_t id, const  monocle::ObjectClass classid, const uint64_t time, const float x, const float y, const float width, const float height) :
-  id_(id),
-  classid_(classid),
-  time_(time),
-  x_(x),
-  y_(y),
-  width_(width),
-  height_(height),
-  age_(std::chrono::steady_clock::now())
-{
-
-}
-
-Object::Object(Object&& rhs) :
-  id_(rhs.id_),
-  classid_(rhs.classid_),
-  time_(rhs.time_),
-  x_(rhs.x_),
-  y_(rhs.y_),
-  width_(rhs.width_),
-  height_(rhs.height_),
-  vertexbuffer_(std::move(rhs.vertexbuffer_)),
-  text_(std::move(rhs.text_)),
-  age_(rhs.age_)
-{
-
-}
-
-void Object::Allocate(const QRect& imagepixelrect, const int videowidgetwidth, const int videowidgetheight)
-{
-  // Allocate the sort out the bufferbuffer
-  const float left = (((imagepixelrect.left() + (x_ * imagepixelrect.width())) / videowidgetwidth) * 2.0f) - 1.0f;
-  const float top = 1.0f - (((imagepixelrect.top() + (y_ * imagepixelrect.height())) / videowidgetheight) * 2.0f);
-  const float right = (((imagepixelrect.left() + ((x_ + width_) * imagepixelrect.width())) / videowidgetwidth) * 2.0f) - 1.0f;
-  const float bottom = 1.0f - (((imagepixelrect.top() + ((y_ + height_) * imagepixelrect.height())) / videowidgetheight) * 2.0f);
-  vertexbuffer_.bind();
-  const std::array<float, 10> vertices =
-  {
-    static_cast<float>(right), static_cast<float>(bottom),
-    static_cast<float>(right), static_cast<float>(top),
-    static_cast<float>(left), static_cast<float>(top),
-    static_cast<float>(left), static_cast<float>(bottom),
-    static_cast<float>(right), static_cast<float>(bottom)
-  };
-  vertexbuffer_.allocate(vertices.data(), static_cast<int>(vertices.size() * sizeof(float)));
-  vertexbuffer_.release();
-
-}
-
-Object& Object::operator=(Object&& rhs)
-{
-  id_ = rhs.id_;
-  classid_ = rhs.classid_;
-  time_ = rhs.time_;
-  x_ = rhs.x_;
-  y_ = rhs.y_;
-  width_ = rhs.width_;
-  height_ = rhs.height_;
-  vertexbuffer_ = std::move(rhs.vertexbuffer_);
-  text_ = std::move(rhs.text_);
-  age_ = rhs.age_;
-  return *this;
-}
 
 View::View(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool showinfo, const bool showobjects, const QResource* arial, const bool showsaveimagemenu, const bool showcopymenu, const bool showinfomenu, const bool showobjectsmenu) :
   videowidget_(videowidget),
@@ -308,9 +591,6 @@ View::View(VideoWidget* videowidget, CUcontext cudacontext, const QColor& select
   digitalsigntexturebuffer_.allocate(texturecoords_.data(), static_cast<int>(texturecoords_.size() * sizeof(float)));
   digitalsigntexturebuffer_.release();
 
-  infovertexbuffer_.create();
-  infovertexbuffer_.setUsagePattern(QOpenGLBuffer::StaticDraw);
-
   videowidget->doneCurrent();
 }
 
@@ -394,8 +674,44 @@ void View::GetMenu(QMenu& parent)
   }
   if (actionobjects_)
   {
-    parent.addAction(actionobjects_);
+    if (GetViewType() == VIEWTYPE_MEDIA)
+    {
+      MediaView* mediaview = static_cast<MediaView*>(this);
+      bool added = false;
+      for (const file::TRACK& metadatatrack : mediaview->GetMetadataTracks())
+      {
+        for (const file::CODEC& codec : metadatatrack.codecs_)
+        {
+          if (codec.codec_ == static_cast<int>(monocle::Codec::OBJECTDETECTOR))
+          {
+            added = true;
+            parent.addAction(actionobjects_);
+            break;
+          }
+        }
+        if (added)
+        {
+          break;
+        }
+      }
+    }
+    else if (GetViewType() == VIEWTYPE_MONOCLE)
+    {
+      VideoView* videoview = static_cast<VideoView*>(this);
+      if (videoview->GetDevice()->SupportsTrackCodec())
+      {
+        if (videoview->GetRecording()->GetNumObjectDetectors())
+        {
+          parent.addAction(actionobjects_);
 
+        }
+      }
+      else
+      {
+        parent.addAction(actionobjects_);
+
+      }
+    }
   }
   parent.addAction(actionclose_);
 }
@@ -498,17 +814,8 @@ void View::SetPosition(VideoWidget* videowidget, const unsigned int x, const uns
   digitalsignvertexbuffer_.allocate(digitalsignvertices.data(), static_cast<int>(digitalsignvertices.size() * sizeof(float)));
   digitalsignvertexbuffer_.release();
 
-  const QRect imagepixelrect = GetImagePixelRect();
-  for (std::pair< const std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> >& objects : objects_)
-  {
-    for (Object& object : objects.second)
-    {
-      object.Allocate(imagepixelrect, videowidget_->width(), videowidget_->height());
+  objects_.Update(GetImagePixelRectF(), mirror_, rotation_);
 
-    }
-  }
-
-  // Update the objects
   if (makecurrent)
   {
     videowidget_->doneCurrent();
@@ -527,7 +834,7 @@ void View::AddCacheImage(ImageBuffer& imagebuffer)
 QRect View::GetPixelRect() const
 {
   const QRectF rect = GetOpenglRect(rect_.x(), rect_.y(), rect_.width(), rect_.height());
-  return QRect(QPoint(((rect.x() + 1.0f) / 2.0f) * videowidget_->width(), videowidget_->height() - (((rect.y() + 1.0f) / 2.0f) * videowidget_->height())), QPoint(((rect.right() + 1) / 2.0f) * videowidget_->width(), videowidget_->height() - (((rect.bottom() + 1.0f) / 2.0f) * videowidget_->height()))); // Move the origin, normalise and invert the y axis between 0.0 and 1.0f
+  return QRect(QPoint(((rect.x() + 1.0f) / 2.0f) * videowidget_->width(), videowidget_->height() - (((rect.y() + 1.0f) / 2.0f) * videowidget_->height())), QPoint(((rect.right() + 1.0f) / 2.0f) * videowidget_->width(), videowidget_->height() - (((rect.bottom() + 1.0f) / 2.0f) * videowidget_->height()))); // Move the origin, normalise and invert the y axis between 0.0 and 1.0f
 }
 
 QRectF View::GetImageRect() const
@@ -541,9 +848,9 @@ QRectF View::GetImageRect() const
   }
   else // Maintain aspect ratio
   {
+    const float frameaspectratio = static_cast<float>(videowidget_->width() / static_cast<float>(videowidget_->GetWidth())) / static_cast<float>(videowidget_->height() / static_cast<float>(videowidget_->GetHeight()));
     if ((rotation_ == ROTATION::_0) || (rotation_ == ROTATION::_180))
     {
-      const float frameaspectratio = static_cast<float>(videowidget_->width() / static_cast<float>(videowidget_->GetWidth())) / static_cast<float>(videowidget_->height() / static_cast<float>(videowidget_->GetHeight()));
       if (aspectratio > frameaspectratio) // Black bars at top and bottom
       {
         const float blackbarheight = (rect.height() - ((frameaspectratio / aspectratio) * rect.height())) * 0.5f;
@@ -557,8 +864,7 @@ QRectF View::GetImageRect() const
     }
     else // ((rotation == ROTATION::_90) || (rotation == ROTATION::_270))
     {
-      aspectratio = 1.0 / aspectratio;
-      const float frameaspectratio = static_cast<float>(videowidget_->width() / static_cast<float>(videowidget_->GetWidth())) / static_cast<float>(videowidget_->height() / static_cast<float>(videowidget_->GetHeight()));
+      aspectratio = 1.0f / aspectratio;
       if (aspectratio > frameaspectratio) // Black bars at top and bottom
       {
         const float blackbarheight = (rect.height() - ((frameaspectratio / aspectratio) * rect.height())) * 0.5f;
@@ -577,6 +883,12 @@ QRect View::GetImagePixelRect() const
 {
   const QRectF imagerect = GetImageRect();
   return QRect(QPoint(((imagerect.left() + 1.0f) / 2.0f) * videowidget_->width(), (1.0f - ((imagerect.top() + 1.0f) / 2.0f)) * videowidget_->height()), QPoint(((imagerect.right() + 1.0f) / 2.0f) * videowidget_->width(), (1.0f - ((imagerect.bottom() + 1.0f) / 2.0f)) * videowidget_->height()));
+}
+
+QRectF View::GetImagePixelRectF() const
+{
+  const QRectF imagerect = GetImageRect();
+  return QRectF(QPointF(((imagerect.left() + 1.0f) / 2.0f), (1.0f - (imagerect.top() + 1.0f) / 2.0f)), QPointF(((imagerect.right() + 1.0f) / 2.0f), (1.0f - (imagerect.bottom() + 1.0f) / 2.0f)));
 }
 
 QImage View::GetQImage(const boost::optional<QRect>& rect) const
@@ -760,34 +1072,6 @@ void View::timerEvent(QTimerEvent* event)
 
 }
 
-QString View::HTMLColour(const int r, const int g, const int b)
-{
-  QString red = QString::number(r, 16).toUpper();
-  if (red.size() == 1)
-  {
-    red = QString("0") + red;
-
-  }
-  QString green = QString::number(g, 16).toUpper();
-  if (green.size() == 1)
-  {
-    green = QString("0") + green;
-
-  }
-  QString blue = QString::number(b, 16).toUpper();
-  if (blue.size() == 1)
-  {
-    blue = QString("0") + blue;
-
-  }
-  return (red + green + blue);
-}
-
-QString View::FontText(const QVector4D& colour, const QString& text)
-{
-  return (QString("<b><font color=#") + HTMLColour(colour.x() * 255, colour.y() * 255, colour.z() * 255) + ">" + text + "</font></b>");
-}
-
 QRectF View::GetOpenglRect(unsigned int x, unsigned int y, unsigned int width, unsigned int height) const
 {
   const float pixelwidth = 1.0f / videowidget_->width();
@@ -907,104 +1191,6 @@ void View::SetMessage(const uint64_t playrequestindex, bool error, const QString
   }
 }
 
-std::array<float, 12> View::GetVertices(const QRectF& rect, const ROTATION rotation, const bool mirror) const
-{
-  if (mirror)
-  {
-    switch (rotation)
-    {
-      case ROTATION::_90:
-      {
-        return std::array<float, 12>(
-        {{
-          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f
-        }});
-      }
-      case ROTATION::_180:
-      {
-        return std::array<float, 12>(
-        {{
-          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f
-        }});
-      }
-      case ROTATION::_270:
-      {
-        return std::array<float, 12>(
-        {{
-          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f
-        }});
-      }
-      case ROTATION::_0:
-      default:
-      {
-        return std::array<float, 12>(
-        {{
-          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f
-        }});
-      }
-    }
-  }
-  else
-  {
-    switch (rotation)
-    {
-      case ROTATION::_90:
-      {
-        return std::array<float, 12>(
-        {{
-          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f
-        }});
-      }
-      case ROTATION::_180:
-      {
-        return std::array<float, 12>(
-        {{
-          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f
-        }});
-      }
-      case ROTATION::_270:
-      {
-        return std::array<float, 12>(
-        {{
-          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f
-        }});
-      }
-      case ROTATION::_0:
-      default:
-      {
-        return std::array<float, 12>(
-        {{
-          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f
-        }});
-      }
-    }
-  }
-}
-
 void View::WriteFrame(const ImageBuffer& imagebuffer)
 {
   time_ = imagebuffer.time_;
@@ -1015,140 +1201,15 @@ void View::WriteFrame(const ImageBuffer& imagebuffer)
   digitallysigned_ = imagebuffer.digitallysigned_;
 
   videowidget_->makeCurrent();
-  if ((imagebuffer.type_ == IMAGEBUFFERTYPE_TEXT) || (imagebuffer.type_ == IMAGEBUFFERTYPE_RGBA))
-  {
-    videowidget_->glActiveTexture(GL_TEXTURE0);
-    videowidget_->glBindTexture(GL_TEXTURE_2D, textures_.at(0));
-    videowidget_->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imagebuffer.widths_[0], imagebuffer.heights_[0], 0, GL_RGBA, GL_UNSIGNED_BYTE, imagebuffer.data_[0]);
-    videowidget_->glBindTexture(GL_TEXTURE_2D, 0);
-  }
-  else if (imagebuffer.type_ == IMAGEBUFFERTYPE_YUV)
-  {
-    for (GLuint texture = 0; texture < 3; ++texture)
-    {
-      videowidget_->glActiveTexture(GL_TEXTURE0 + texture);
-      videowidget_->glBindTexture(GL_TEXTURE_2D, textures_.at(texture));
-      videowidget_->glPixelStorei(GL_UNPACK_ROW_LENGTH, imagebuffer.strides_[texture]);
-      videowidget_->glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, imagebuffer.widths_[texture], imagebuffer.heights_[texture], 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, imagebuffer.data_[texture]);
-      videowidget_->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-      videowidget_->glBindTexture(GL_TEXTURE_2D, 0);
-    }
-  }
-  else if (imagebuffer.type_ == IMAGEBUFFERTYPE_NV12)
-  {
-    cuCtxPushCurrent_v2(imagebuffer.cudacontext_);
-    bool resetresources = false; // Do we need to reinitialise the cuda stuff if dimensions and format have changed
-    if ((imagebuffer.type_ != type_) || (imagebuffer.widths_[0] != imagewidth_) || (imagebuffer.heights_[0] != imageheight_) || !cudaresources_[0] || !cudaresources_[1])
-    {
-      // Destroy any old CUDA stuff we had laying around
-      for (CUgraphicsResource& resource : cudaresources_)
-      {
-        if (resource)
-        {
-          cuGraphicsUnregisterResource(resource);
-          resource = nullptr;
-        }
-      }
-      resetresources = true;
-    }
-
-    for (GLuint texture = 0; texture < 2; ++texture)
-    {
-      videowidget_->glActiveTexture(GL_TEXTURE0 + texture);
-      videowidget_->glPixelStorei(GL_UNPACK_ROW_LENGTH, imagebuffer.strides_[texture]);
-      videowidget_->glBindTexture(GL_TEXTURE_2D, textures_.at(texture));
-
-      CUgraphicsResource resource = nullptr;
-      if (resetresources)
-      {
-        videowidget_->glTexImage2D(GL_TEXTURE_2D, 0, (texture == 0) ? GL_RED : GL_RG, imagebuffer.widths_[texture], imagebuffer.heights_[texture], 0, (texture == 0) ? GL_RED : GL_RG, GL_UNSIGNED_BYTE, nullptr);
-        cuGraphicsGLRegisterImage(&resource, textures_[texture], GL_TEXTURE_2D, CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD);
-        cudaresources_[texture] = resource;
-      }
-      else
-      {
-        resource = cudaresources_[texture];
-
-      }
-
-      cuGraphicsMapResources(1, &resource, 0);
-      CUarray resourceptr;
-      cuGraphicsSubResourceGetMappedArray(&resourceptr, resource, 0, 0);
-
-      CUDA_MEMCPY2D copy;
-      memset(&copy, 0, sizeof(copy));
-      copy.srcMemoryType = CU_MEMORYTYPE_DEVICE;
-      copy.dstMemoryType = CU_MEMORYTYPE_ARRAY;
-      copy.srcDevice = (CUdeviceptr)imagebuffer.data_[texture];
-      copy.dstArray = resourceptr;
-      copy.srcPitch = imagebuffer.strides_[texture];
-      copy.dstPitch = imagebuffer.strides_[texture];
-      copy.WidthInBytes = (texture == 0) ? imagebuffer.widths_[texture] : (imagebuffer.widths_[texture] * 2);
-      copy.Height = imagebuffer.heights_[texture];
-      cuMemcpy2D(&copy);
-      cuGraphicsUnmapResources(1, &resource, 0);
-
-      videowidget_->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-      videowidget_->glBindTexture(GL_TEXTURE_2D, 0);
-    }
-
-    CUcontext dummy;
-    cuCtxPopCurrent_v2(&dummy);
-  }
+  WriteImageBuffer(videowidget_, type_, imagewidth_, imageheight_, imagebuffer, textures_, cudaresources_);
   videowidget_->doneCurrent();
   videowidget_->update();
 }
 
 void View::UpdateObjects(const monocle::Objects* objects, const uint64_t time)
 {
-  const QRect imagepixelrect = GetImagePixelRect();
-  for (const monocle::Object* object : *objects->objects())
-  {
-    Object o(object->id(), object->classid(), time, object->x(), object->y(), object->width(), object->height());
-    if (static_cast<size_t>(o.classid_) > static_cast<size_t>(monocle::ObjectClass::Suitcase))
-    {
-      // Ignore unknown types
-      continue;
-    }
-    o.text_.setPerformanceHint(QStaticText::PerformanceHint::AggressiveCaching);
-    o.text_.setTextFormat(Qt::TextFormat::RichText);
-    o.vertexbuffer_.create();
-    o.vertexbuffer_.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    o.Allocate(imagepixelrect, videowidget_->width(), videowidget_->height());
+  objects_.Update(GetImagePixelRectF(), mirror_, rotation_, objects, time, time_);
 
-    auto i = std::find_if(objects_.begin(), objects_.end(), [object](const std::pair< const std::pair<monocle::ObjectClass, uint64_t>, const std::vector<Object>& >& o) { return ((o.first.first == object->classid()) && (o.first.second == object->id())); });
-    if (i == objects_.end())
-    {
-      o.text_.setText(FontText(OBJECT_COLOURS[static_cast<size_t>(o.classid_)], QString(monocle::EnumNameObjectClass(object->classid())) + ": " + QString::number(o.id_)));
-      std::vector<Object> objects;
-      objects.emplace_back(std::move(o));
-      objects_.insert({ std::make_pair(object->classid(), object->id()), std::move(objects) });
-    }
-    else
-    {
-      o.text_.setText(FontText(OBJECT_COLOURS[static_cast<size_t>(o.classid_)], QString(monocle::EnumNameObjectClass(object->classid())) + ": " + QString::number(o.id_)));
-      auto j = std::find_if(i->second.begin(), i->second.end(), [time](const Object& object) { return (object.time_ == time); });
-      if (j == i->second.end())
-      {
-        utility::EmplaceSorted(i->second, std::move(o), [](const Object& lhs, const Object& rhs) { return (lhs.time_ < rhs.time_); });
-
-      }
-      else
-      {
-        *j = std::move(o);
-
-      }
-
-      // Clear up any old objects while we're here...
-      const std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
-      i->second.erase(std::remove_if(i->second.begin(), i->second.end(), [this, now](const Object& object) { return ((time_ > object.time_) && ((time_ - object.time_) > OBJECT_KILL_DELAY) && ((now - object.age_) > OBJECT_KILL_AGE)); }), i->second.end());
-      if (i->second.empty())
-      {
-        objects_.erase(i);
-      
-      }
-    }
-  }
 }
 
 void View::SaveImage(bool)

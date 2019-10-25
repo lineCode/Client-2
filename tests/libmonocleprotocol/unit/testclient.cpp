@@ -98,6 +98,21 @@ void TestClient::FindMotionResult(const uint64_t token, const uint64_t start, co
 
 }
 
+void TestClient::FindObjectEnd(const uint64_t token, const uint64_t ret)
+{
+
+}
+
+void TestClient::FindObjectProgress(const uint64_t token, const float progress)
+{
+
+}
+
+void TestClient::FindObjectResult(const uint64_t token, const uint64_t start, const uint64_t end, const monocle::ObjectClass objectclass, const uint64_t id, const uint64_t largesttime, const float largestx, const float largesty, const float largestwidth, const float largestheight)
+{
+
+}
+
 void TestClient::Goodbye()
 {
 
@@ -290,6 +305,16 @@ void TestClient::RecordingJobSourceTrackAdded(const uint64_t recordingtoken, con
 
 }
 
+void TestClient::RecordingTrackCodecAdded(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp)
+{
+
+}
+
+void TestClient::RecordingTrackCodecRemoved(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id)
+{
+
+}
+
 void TestClient::RecordingJobSourceTrackLogMessage(const uint64_t recordingtoken, const uint64_t recordingjobtoken, const uint64_t recordingjobsourcetoken, const uint64_t token, const uint64_t time, const monocle::Severity severity, const std::string& message)
 {
 
@@ -332,12 +357,12 @@ void TestClient::NameChanged(const std::string& name)
 
 }
 
-void TestClient::TrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files)
+void TestClient::TrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<CODECINDEX>& codecindices)
 {
 
 }
 
-void TestClient::TrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files)
+void TestClient::TrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<CODECINDEX>& codecindices)
 {
 
 }

@@ -6,6 +6,8 @@
 
 #include "flatbuffers/flatbuffers.h"
 
+#include "codec_generated.h"
+#include "codecindex_generated.h"
 #include "index_generated.h"
 #include "recording_generated.h"
 #include "recordingjob_generated.h"

@@ -6,9 +6,13 @@
 #include "monocleclient/videowidgetsmgr.h"
 
 #include <algorithm>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/lexical_cast.hpp>
 #include <QMessageBox>
 
 #include "monocleclient/findmotionwindow.h"
+#include "monocleclient/findobjectwindow.h"
 #include "monocleclient/mainwindow.h"
 #include "monocleclient/recording.h"
 #include "monocleclient/recordingtrack.h"
@@ -229,7 +233,7 @@ void VideoWidgetsMgr::MousePressEvent(QMouseEvent* event)
 
   const QPoint pos = videowidget->mapFromGlobal(event->globalPos());
   QSharedPointer<View> view = videowidget->GetView(pos);
-  if (MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDMOTION)
+  if ((MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDMOTION) || (MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDOBJECT))
   {
     if (!view || (view->GetViewType() != VIEWTYPE_MONOCLE)) // Find motion only works on video
     {
@@ -302,7 +306,7 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
   selectionview_.clear();
   VideoWidget* videowidget = GetVideoWidget(event->globalPos());
 
-  if (MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDMOTION)
+  if ((MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDMOTION) || (MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDOBJECT))
   {
     if (!selectionview)
     {
@@ -336,86 +340,17 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
         const QPoint selectionpoint = MainWindow::Instance()->GetVideoWidgetsMgr().GetSelectionPoint();
         const QPoint cursor = videowidget->mapFromGlobal(QCursor::pos());
         const QRect imagepixelrect = selectionview->GetImagePixelRect();
-        const QRect rect(QPoint(std::max(imagepixelrect.x(), std::min(selectionpoint.x(), cursor.x())) - imagepixelrect.x(),
-                                std::max(imagepixelrect.y(), std::min(selectionpoint.y(), cursor.y())) - imagepixelrect.y()),
-                         QPoint(std::min(imagepixelrect.right(), std::max(selectionpoint.x(), cursor.x())) - imagepixelrect.x(), std::min(imagepixelrect.bottom(),
-                                std::max(selectionpoint.y(), cursor.y())) - imagepixelrect.y()));
-        if ((rect.width() < 0) || (rect.height() < 0))
-        {
-          // Ignore this, because the user has made a selection that does not intersect the image
-          return;
-        }
-
-        if ((rect.width() < 8) || (rect.height() < 8))
+        const QRect selectedrect(QPoint(std::max(imagepixelrect.x(), std::min(selectionpoint.x(), cursor.x())) - imagepixelrect.x(),
+                                        std::max(imagepixelrect.y(), std::min(selectionpoint.y(), cursor.y())) - imagepixelrect.y()),
+                                 QPoint(std::min(imagepixelrect.right(), std::max(selectionpoint.x(), cursor.x())) - imagepixelrect.x(), std::min(imagepixelrect.bottom(),
+                                        std::max(selectionpoint.y(), cursor.y())) - imagepixelrect.y()));
+        if ((selectedrect.width() < 6) || (selectedrect.height() < 6))
         {
           // Ignore this, because the user has made too small of a selection
           return;
         }
-
-        QRectF rectf(static_cast<float>(rect.left()) / static_cast<float>(imagepixelrect.width()),
-                     static_cast<float>(rect.top()) / static_cast<float>(imagepixelrect.height()),
-                     static_cast<float>(rect.width()) / static_cast<float>(imagepixelrect.width()),
-                     static_cast<float>(rect.height()) / static_cast<float>(imagepixelrect.height()));
-
-        if (selectionview->GetMirror())
-        {
-          if (selectionview->GetRotation() == ROTATION::_0)
-          {
-            rectf = QRectF(1.0f - rectf.right(), rectf.top(), rectf.width(), rectf.height());
-
-          }
-          else if (selectionview->GetRotation() == ROTATION::_90)
-          {
-            rectf = QRectF(rectf.left(), 1.0f - rectf.bottom(), rectf.width(), rectf.height());
-            QTransform transform;
-            transform.rotate(270.0f);
-            rectf = transform.mapRect(rectf);
-            rectf.adjust(0.0f, 1.0f, 0.0f, 1.0f);
-          }
-          else if (selectionview->GetRotation() == ROTATION::_180)
-          {
-            rectf = QRectF(1.0f - rectf.right(), rectf.top(), rectf.width(), rectf.height());
-            QTransform transform;
-            transform.rotate(180.0f);
-            rectf = transform.mapRect(rectf);
-            rectf.adjust(1.0f, 1.0f, 1.0f, 1.0f);
-          }
-          else if (selectionview->GetRotation() == ROTATION::_270)
-          {
-            rectf = QRectF(rectf.left(), 1.0f - rectf.bottom(), rectf.width(), rectf.height());
-            QTransform transform;
-            transform.rotate(90.0f);
-            rectf = transform.mapRect(rectf);
-            rectf.adjust(1.0f, 0.0f, 1.0f, 0.0f);
-          }
-        }
-        else
-        {
-          if (selectionview->GetRotation() == ROTATION::_90)
-          {
-            QTransform transform;
-            transform.rotate(270.0f);
-            rectf = transform.mapRect(rectf);
-            rectf.adjust(0.0f, 1.0f, 0.0f, 1.0f);
-          }
-          else if (selectionview->GetRotation() == ROTATION::_180)
-          {
-            QTransform transform;
-            transform.rotate(180.0f);
-            rectf = transform.mapRect(rectf);
-            rectf.adjust(1.0f, 1.0f, 1.0f, 1.0f);
-          }
-          else if (selectionview->GetRotation() == ROTATION::_270)
-          {
-            QTransform transform;
-            transform.rotate(90.0f);
-            rectf = transform.mapRect(rectf);
-            rectf.adjust(1.0f, 0.0f, 1.0f, 0.0f);
-          }
-        }
-
+        const QRectF selectedrectf = ImageToRect(imagepixelrect, selectedrect, selectionview->GetMirror(), selectionview->GetRotation());
         MainWindow::Instance()->ResetMouseState();
-
         const QSharedPointer<VideoView> videoview = selectionview.staticCast<VideoView>();
         if (!videoview->GetDevice()->SupportsFindMotion())
         {
@@ -423,7 +358,61 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
           return;
         }
 
-        FindMotionWindow(videowidget, videoview->GetQImage(boost::none), videoview->GetDevice(), videoview->GetRecording(), videoview->GetTrack(), videoview->GetSelectedColour(), *starttime, *endtime, rectf).exec();
+        if (MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDMOTION)
+        {
+          FindMotionWindow(videowidget, videoview->GetQImage(boost::none), videoview->GetDevice(), videoview->GetRecording(), videoview->GetTrack(), videoview->GetSelectedColour(), *starttime, *endtime, selectedrectf, videoview->GetImageWidth(), videoview->GetImageHeight(), videoview->GetMirror(), videoview->GetRotation(), videoview->GetStretch()).exec();
+
+        }
+        else // (MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDOBJECT)
+        {
+          if (!videoview->GetDevice()->SupportsFindObject())
+          {
+            QMessageBox(QMessageBox::Warning, tr("Error"), tr("Device does not support find object, please upgrade"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+            return;
+          }
+          
+          // Make sure this recording has some object detectors, and it corresponds to a valid video track
+          bool foundobjectdetector = false;
+          for (QSharedPointer<RecordingTrack> metadatatrack : videoview->GetRecording()->GetMetadataTracks())
+          {
+            const std::vector<monocle::CODECINDEX> codecindices = metadatatrack->GetCodecIndices(monocle::Codec::OBJECTDETECTOR);
+            for (const monocle::CODECINDEX& codecindex : codecindices)
+            {
+              std::vector<std::string> parameters;
+              boost::split(parameters, codecindex.parameters_, boost::is_any_of(";"), boost::algorithm::token_compress_on);
+
+              std::vector<std::string>::const_iterator videotrackidparameter = std::find_if(parameters.cbegin(), parameters.cend(), [](const std::string& parameter) { return (boost::istarts_with(parameter, "VideoTrackId")); });
+              if (videotrackidparameter == parameters.cend())
+              {
+
+                continue;
+              }
+
+              const std::string videotrackid = videotrackidparameter->substr(13, std::string::npos);
+              try
+              {
+                if (videoview->GetRecording()->GetTrack(boost::lexical_cast<uint32_t>(videotrackid)))
+                {
+                  foundobjectdetector = true;
+                  break;
+                }
+              }
+              catch (...)
+              {
+                // Ignore and continue
+
+              }
+            }
+          }
+
+          if (!foundobjectdetector)
+          {
+            QMessageBox(QMessageBox::Warning, tr("Error"), tr("Recording does not contain any object detectors"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+            return;
+          }
+
+          FindObjectWindow(videowidget, videoview->GetQImage(boost::none), videoview->GetDevice(), videoview->GetRecording(), videoview->GetTrack(), videoview->GetSelectedColour(), *starttime, *endtime, selectedrectf, videoview->GetImageWidth(), videoview->GetImageHeight(), videoview->GetMirror(), videoview->GetRotation(), videoview->GetStretch(), videoview->GetShowInfo(), videoview->GetShowObjects()).exec();
+        }
       }
     }
   }
@@ -435,8 +424,8 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
       {
         if (videowidget)
         {
-          const auto pos = videowidget->mapFromGlobal(event->globalPos());
-          auto view = videowidget->GetView(pos);
+          const QPoint pos = videowidget->mapFromGlobal(event->globalPos());
+          QSharedPointer<View> view = videowidget->GetView(pos);
           if (view) // We released the left mouse button on top of a video view
           {
             if (selectionview == view) // If we pressed left click on the same video view as we released

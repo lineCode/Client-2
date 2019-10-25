@@ -63,7 +63,7 @@ Date built: </source>
 <context>
     <name>DevicePropertiesWindow</name>
     <message>
-        <location filename="../src/devicepropertieswindow.cpp" line="179"/>
+        <location filename="../src/devicepropertieswindow.cpp" line="184"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
@@ -138,7 +138,7 @@ Date built: </source>
     </message>
     <message>
         <location filename="../src/devicetreemediarecordingitem.cpp" line="78"/>
-        <source>No tracks available</source>
+        <source>No video track available</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -292,15 +292,15 @@ Date built: </source>
 <context>
     <name>ExportProgressWindow</name>
     <message>
-        <location filename="../src/exportprogresswindow.cpp" line="206"/>
-        <location filename="../src/exportprogresswindow.cpp" line="212"/>
-        <location filename="../src/exportprogresswindow.cpp" line="399"/>
+        <location filename="../src/exportprogresswindow.cpp" line="208"/>
+        <location filename="../src/exportprogresswindow.cpp" line="214"/>
+        <location filename="../src/exportprogresswindow.cpp" line="415"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/exportprogresswindow.cpp" line="402"/>
-        <location filename="../src/exportprogresswindow.cpp" line="422"/>
+        <location filename="../src/exportprogresswindow.cpp" line="418"/>
+        <location filename="../src/exportprogresswindow.cpp" line="438"/>
         <source>Complete</source>
         <translation type="unfinished"></translation>
     </message>
@@ -597,112 +597,112 @@ Date built: </source>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/mainwindow.cpp" line="100"/>
+        <location filename="../src/mainwindow.cpp" line="102"/>
         <source>Failed to load font: IBMPlexMono-Bold.ttf</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="107"/>
+        <location filename="../src/mainwindow.cpp" line="109"/>
         <source>Failed to load font: IBMPlexMono-Regular.ttf</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="114"/>
+        <location filename="../src/mainwindow.cpp" line="116"/>
         <source>Failed to load font: IBMPlexSans-Italic.ttf</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="121"/>
+        <location filename="../src/mainwindow.cpp" line="123"/>
         <source>Failed to load font: IBMPlexSans-Regular.ttf</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="180"/>
+        <location filename="../src/mainwindow.cpp" line="182"/>
         <source>Could not locate or create: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="186"/>
+        <location filename="../src/mainwindow.cpp" line="188"/>
         <source>Could not open log.txt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="192"/>
+        <location filename="../src/mainwindow.cpp" line="194"/>
         <source>Error retrieving Arial resource</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="200"/>
+        <location filename="../src/mainwindow.cpp" line="202"/>
         <source>Unable to load public key: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="206"/>
+        <location filename="../src/mainwindow.cpp" line="208"/>
         <source>Unable to initialise public key: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="254"/>
+        <location filename="../src/mainwindow.cpp" line="256"/>
         <source>Could not find any translations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="266"/>
+        <location filename="../src/mainwindow.cpp" line="268"/>
         <source>Language did not match regular expression: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="273"/>
+        <location filename="../src/mainwindow.cpp" line="275"/>
         <source>Could not match locale: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="297"/>
+        <location filename="../src/mainwindow.cpp" line="299"/>
         <source>Error loading translation: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="305"/>
+        <location filename="../src/mainwindow.cpp" line="307"/>
         <source>&amp;Restore</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="308"/>
+        <location filename="../src/mainwindow.cpp" line="310"/>
         <source>&amp;Maximize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="311"/>
+        <location filename="../src/mainwindow.cpp" line="313"/>
         <source>&amp;Quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="320"/>
+        <location filename="../src/mainwindow.cpp" line="322"/>
         <source>Monocle Client</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="702"/>
+        <location filename="../src/mainwindow.cpp" line="715"/>
         <source>MainWindow::SelectLanguage Failed to select language: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="783"/>
+        <location filename="../src/mainwindow.cpp" line="796"/>
         <source>MainWindow::LanguageChanged Failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="789"/>
+        <location filename="../src/mainwindow.cpp" line="802"/>
         <source>Error loading language: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="864"/>
+        <location filename="../src/mainwindow.cpp" line="877"/>
         <source>Import File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="864"/>
+        <location filename="../src/mainwindow.cpp" line="877"/>
         <source>Monocle File (*.mon);;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1529,6 +1529,51 @@ Date built: </source>
     </message>
 </context>
 <context>
+    <name>ManageRecordingJobSourceObjectDetectorWindow</name>
+    <message>
+        <location filename="../src/managerecordingjobsourceobjectdetectorwindow.cpp" line="135"/>
+        <location filename="../src/managerecordingjobsourceobjectdetectorwindow.cpp" line="147"/>
+        <location filename="../src/managerecordingjobsourceobjectdetectorwindow.cpp" line="154"/>
+        <location filename="../src/managerecordingjobsourceobjectdetectorwindow.cpp" line="233"/>
+        <location filename="../src/managerecordingjobsourceobjectdetectorwindow.cpp" line="261"/>
+        <location filename="../src/managerecordingjobsourceobjectdetectorwindow.cpp" line="324"/>
+        <location filename="../src/managerecordingjobsourceobjectdetectorwindow.cpp" line="330"/>
+        <source>Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/managerecordingjobsourceobjectdetectorwindow.cpp" line="135"/>
+        <location filename="../src/managerecordingjobsourceobjectdetectorwindow.cpp" line="330"/>
+        <source>No video tracks available for this recording, please add a video track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/managerecordingjobsourceobjectdetectorwindow.cpp" line="147"/>
+        <source>Unable to find track: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/managerecordingjobsourceobjectdetectorwindow.cpp" line="154"/>
+        <source>Invalid track type: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/managerecordingjobsourceobjectdetectorwindow.cpp" line="233"/>
+        <source>Failed to parse video track id: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/managerecordingjobsourceobjectdetectorwindow.cpp" line="261"/>
+        <source>Recording Job Source has been removed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/managerecordingjobsourceobjectdetectorwindow.cpp" line="324"/>
+        <source>No metadata tracks available for this recording, please add a metadata track</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ManageRecordingJobSourceRTSPWindow</name>
     <message>
         <location filename="../src/managerecordingjobsourcertspwindow.cpp" line="75"/>
@@ -1555,90 +1600,134 @@ Date built: </source>
 <context>
     <name>ManageRecordingJobWindow</name>
     <message>
-        <location filename="../src/managerecordingjobwindow.cpp" line="78"/>
-        <location filename="../src/managerecordingjobwindow.cpp" line="124"/>
-        <location filename="../src/managerecordingjobwindow.cpp" line="191"/>
-        <location filename="../src/managerecordingjobwindow.cpp" line="218"/>
-        <location filename="../src/managerecordingjobwindow.cpp" line="279"/>
-        <location filename="../src/managerecordingjobwindow.cpp" line="329"/>
-        <location filename="../src/managerecordingjobwindow.cpp" line="343"/>
-        <location filename="../src/managerecordingjobwindow.cpp" line="349"/>
-        <location filename="../src/managerecordingjobwindow.cpp" line="375"/>
-        <location filename="../src/managerecordingjobwindow.cpp" line="435"/>
-        <location filename="../src/managerecordingjobwindow.cpp" line="469"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="112"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="158"/>
         <location filename="../src/managerecordingjobwindow.cpp" line="479"/>
-        <location filename="../src/managerecordingjobwindow.cpp" line="497"/>
-        <location filename="../src/managerecordingjobwindow.cpp" line="541"/>
-        <location filename="../src/managerecordingjobwindow.cpp" line="586"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="506"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="567"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="616"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="622"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="628"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="634"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="640"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="691"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="697"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="775"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="789"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="795"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="848"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="939"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="999"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="1033"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="1043"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="1061"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="1086"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="1112"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/managerecordingjobwindow.cpp" line="78"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="112"/>
         <source>Can not find Source: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/managerecordingjobwindow.cpp" line="124"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="158"/>
         <source>Can not find Receiver: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/managerecordingjobwindow.cpp" line="191"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="479"/>
         <source>Recording Job has been removed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/managerecordingjobwindow.cpp" line="218"/>
-        <location filename="../src/managerecordingjobwindow.cpp" line="279"/>
-        <location filename="../src/managerecordingjobwindow.cpp" line="375"/>
-        <location filename="../src/managerecordingjobwindow.cpp" line="435"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="506"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="567"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="848"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="939"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="999"/>
         <source>Unable to find track: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/managerecordingjobwindow.cpp" line="329"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="616"/>
+        <source>Server does not support object detection, please upgrade server to the latest version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/managerecordingjobwindow.cpp" line="622"/>
+        <source>Server does not have any CUDA Devices, please install a CUDA device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/managerecordingjobwindow.cpp" line="628"/>
+        <source>Max object detectors reached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/managerecordingjobwindow.cpp" line="634"/>
+        <source>No metadata tracks available for this recording, please add a metadata track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/managerecordingjobwindow.cpp" line="640"/>
+        <source>No video tracks available for this recording, please add a video track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/managerecordingjobwindow.cpp" line="691"/>
+        <source>Unable to find metadata track: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/managerecordingjobwindow.cpp" line="697"/>
+        <source>Metadata track is not of metadata type: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/managerecordingjobwindow.cpp" line="775"/>
         <source>No recording job source selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/managerecordingjobwindow.cpp" line="343"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="789"/>
         <source>Invalid URI: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/managerecordingjobwindow.cpp" line="349"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="795"/>
         <source>No schema found: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/managerecordingjobwindow.cpp" line="469"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="1033"/>
         <source>Unknown schema: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/managerecordingjobwindow.cpp" line="479"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="1043"/>
         <source>No recording job selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/managerecordingjobwindow.cpp" line="484"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="1048"/>
         <source>Remove Recording Job</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/managerecordingjobwindow.cpp" line="484"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="1048"/>
         <source>Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/managerecordingjobwindow.cpp" line="497"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="1061"/>
         <source>Please enter a name for this Recording Job</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/managerecordingjobwindow.cpp" line="541"/>
-        <location filename="../src/managerecordingjobwindow.cpp" line="586"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="1086"/>
+        <location filename="../src/managerecordingjobwindow.cpp" line="1112"/>
         <source>Error: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -1767,42 +1856,42 @@ Date built: </source>
 <context>
     <name>ManageRecordingWindow</name>
     <message>
-        <location filename="../src/managerecordingwindow.cpp" line="95"/>
+        <location filename="../src/managerecordingwindow.cpp" line="103"/>
         <source>Recording Changed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/managerecordingwindow.cpp" line="95"/>
+        <location filename="../src/managerecordingwindow.cpp" line="103"/>
         <source>Recording has been changed, Would you like to update with new values?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/managerecordingwindow.cpp" line="108"/>
-        <location filename="../src/managerecordingwindow.cpp" line="117"/>
-        <location filename="../src/managerecordingwindow.cpp" line="128"/>
-        <location filename="../src/managerecordingwindow.cpp" line="137"/>
-        <location filename="../src/managerecordingwindow.cpp" line="150"/>
+        <location filename="../src/managerecordingwindow.cpp" line="116"/>
+        <location filename="../src/managerecordingwindow.cpp" line="125"/>
+        <location filename="../src/managerecordingwindow.cpp" line="136"/>
+        <location filename="../src/managerecordingwindow.cpp" line="145"/>
+        <location filename="../src/managerecordingwindow.cpp" line="158"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/managerecordingwindow.cpp" line="108"/>
+        <location filename="../src/managerecordingwindow.cpp" line="116"/>
         <source>Recording has been removed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/managerecordingwindow.cpp" line="117"/>
+        <location filename="../src/managerecordingwindow.cpp" line="125"/>
         <source>Please enter a name for this Recording</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/managerecordingwindow.cpp" line="128"/>
+        <location filename="../src/managerecordingwindow.cpp" line="136"/>
         <source>Error unable to retrieve recording: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/managerecordingwindow.cpp" line="137"/>
-        <location filename="../src/managerecordingwindow.cpp" line="150"/>
+        <location filename="../src/managerecordingwindow.cpp" line="145"/>
+        <location filename="../src/managerecordingwindow.cpp" line="158"/>
         <source>Error: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -1965,39 +2054,39 @@ Date built: </source>
 <context>
     <name>MapView</name>
     <message>
-        <location filename="../src/mapview.cpp" line="173"/>
+        <location filename="../src/mapview.cpp" line="168"/>
         <source>Failed to load map from server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mapview.cpp" line="219"/>
-        <location filename="../src/mapview.cpp" line="227"/>
-        <location filename="../src/mapview.cpp" line="235"/>
+        <location filename="../src/mapview.cpp" line="214"/>
+        <location filename="../src/mapview.cpp" line="222"/>
+        <location filename="../src/mapview.cpp" line="230"/>
         <source>Failed to retrieve map from server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mapview.cpp" line="241"/>
+        <location filename="../src/mapview.cpp" line="236"/>
         <source>Map MD5 does not match</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mapview.cpp" line="252"/>
+        <location filename="../src/mapview.cpp" line="247"/>
         <source>Unable to remove map file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mapview.cpp" line="259"/>
+        <location filename="../src/mapview.cpp" line="254"/>
         <source>Unable to open map file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mapview.cpp" line="266"/>
+        <location filename="../src/mapview.cpp" line="261"/>
         <source>Failed to write map file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mapview.cpp" line="288"/>
+        <location filename="../src/mapview.cpp" line="283"/>
         <source>Downloading... </source>
         <translation type="unfinished"></translation>
     </message>
@@ -2186,12 +2275,12 @@ Date built: </source>
 <context>
     <name>VideoView</name>
     <message>
-        <location filename="../src/videoview.cpp" line="50"/>
+        <location filename="../src/videoview.cpp" line="52"/>
         <source>Reconnect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/videoview.cpp" line="51"/>
+        <location filename="../src/videoview.cpp" line="53"/>
         <source>Properties</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2199,37 +2288,37 @@ Date built: </source>
 <context>
     <name>VideoWidget</name>
     <message>
-        <location filename="../src/videowidget.cpp" line="327"/>
+        <location filename="../src/videowidget.cpp" line="359"/>
         <source>Show Toolbar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/videowidget.cpp" line="328"/>
+        <location filename="../src/videowidget.cpp" line="360"/>
         <source>Hide Toolbar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/videowidget.cpp" line="367"/>
+        <location filename="../src/videowidget.cpp" line="399"/>
         <source>Error initialising FreeType</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/videowidget.cpp" line="373"/>
+        <location filename="../src/videowidget.cpp" line="405"/>
         <source>Error loading Arial resource</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/videowidget.cpp" line="379"/>
+        <location filename="../src/videowidget.cpp" line="411"/>
         <source>Error initialising Arial resource</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/videowidget.cpp" line="414"/>
+        <location filename="../src/videowidget.cpp" line="446"/>
         <source>Error destroying arial face</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/videowidget.cpp" line="424"/>
+        <location filename="../src/videowidget.cpp" line="456"/>
         <source>Error destroying FreeType</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2245,12 +2334,12 @@ Date built: </source>
 <context>
     <name>VideoWidgetsMgr</name>
     <message>
-        <location filename="../src/videowidgetsmgr.cpp" line="407"/>
+        <location filename="../src/videowidgetsmgr.cpp" line="422"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/videowidgetsmgr.cpp" line="407"/>
+        <location filename="../src/videowidgetsmgr.cpp" line="422"/>
         <source>Server does not support find motion</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2258,116 +2347,116 @@ Date built: </source>
 <context>
     <name>View</name>
     <message>
-        <location filename="../src/view.cpp" line="79"/>
+        <location filename="../src/view.cpp" line="144"/>
         <source>Save Image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/view.cpp" line="80"/>
+        <location filename="../src/view.cpp" line="145"/>
         <source>Copy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/view.cpp" line="81"/>
+        <location filename="../src/view.cpp" line="146"/>
         <source>Rotate 0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/view.cpp" line="82"/>
+        <location filename="../src/view.cpp" line="147"/>
         <source>Rotate 90</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/view.cpp" line="83"/>
+        <location filename="../src/view.cpp" line="148"/>
         <source>Rotate 180</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/view.cpp" line="84"/>
+        <location filename="../src/view.cpp" line="149"/>
         <source>Rotate 270</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/view.cpp" line="85"/>
+        <location filename="../src/view.cpp" line="150"/>
         <source>Mirror</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/view.cpp" line="86"/>
+        <location filename="../src/view.cpp" line="151"/>
         <source>Stretch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/view.cpp" line="87"/>
+        <location filename="../src/view.cpp" line="152"/>
         <source>Info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/view.cpp" line="112"/>
+        <location filename="../src/view.cpp" line="177"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/view.cpp" line="156"/>
+        <location filename="../src/view.cpp" line="221"/>
         <source>Error initialising FreeType</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/view.cpp" line="162"/>
+        <location filename="../src/view.cpp" line="227"/>
         <source>Error loading Arial resource</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/view.cpp" line="168"/>
+        <location filename="../src/view.cpp" line="233"/>
         <source>Error initialising Arial resource</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/view.cpp" line="186"/>
+        <location filename="../src/view.cpp" line="251"/>
         <source>Error creating texture buffer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/view.cpp" line="197"/>
-        <location filename="../src/view.cpp" line="204"/>
+        <location filename="../src/view.cpp" line="262"/>
+        <location filename="../src/view.cpp" line="269"/>
         <source>Error creating vertex buffer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/view.cpp" line="243"/>
+        <location filename="../src/view.cpp" line="308"/>
         <source>Error destroying arial face</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/view.cpp" line="250"/>
+        <location filename="../src/view.cpp" line="315"/>
         <source>Error destroying FreeType</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/view.cpp" line="918"/>
-        <location filename="../src/view.cpp" line="932"/>
-        <location filename="../src/view.cpp" line="938"/>
-        <location filename="../src/view.cpp" line="948"/>
+        <location filename="../src/view.cpp" line="1081"/>
+        <location filename="../src/view.cpp" line="1095"/>
+        <location filename="../src/view.cpp" line="1101"/>
+        <location filename="../src/view.cpp" line="1111"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/view.cpp" line="918"/>
+        <location filename="../src/view.cpp" line="1081"/>
         <source>Invalid Image buffer type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/view.cpp" line="932"/>
+        <location filename="../src/view.cpp" line="1095"/>
         <source>Failed to retrieve image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/view.cpp" line="938"/>
+        <location filename="../src/view.cpp" line="1101"/>
         <source>Failed to save image: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/view.cpp" line="948"/>
+        <location filename="../src/view.cpp" line="1111"/>
         <source>Failed to copy image</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4813,6 +4902,155 @@ Date built: </source>
     </message>
 </context>
 <context>
+    <name>client::ManageRecordingJobSourceObjectDetectorWindow</name>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="20"/>
+        <source>Add Object Detector Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="28"/>
+        <source>OK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="35"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="42"/>
+        <source>Object Detector</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="53"/>
+        <source>Accuracy:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="60"/>
+        <source>Objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="85"/>
+        <source>Handbags</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="106"/>
+        <source>Motorbikes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="113"/>
+        <source>Aeroplanes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="134"/>
+        <source>Dogs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="141"/>
+        <source>Humans</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="176"/>
+        <source>Trains</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="183"/>
+        <source>Boats</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="197"/>
+        <source>Cats</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="204"/>
+        <source>Trucks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="211"/>
+        <source>Suitcases</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="218"/>
+        <source>Backpacks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="239"/>
+        <source>Bicycles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="253"/>
+        <source>Cars</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="260"/>
+        <source>Buses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="281"/>
+        <source>Umbrellas</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="288"/>
+        <source>Horses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="307"/>
+        <source>Enabled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="317"/>
+        <source>Video Track:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="324"/>
+        <source>Metadata Track:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="331"/>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="335"/>
+        <source>Low</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="340"/>
+        <source>Medium</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="345"/>
+        <source>High</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobsourceobjectdetectorwindow.ui" line="350"/>
+        <source>Very High</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>client::ManageRecordingJobSourceRTSPWindow</name>
     <message>
         <location filename="../managerecordingjobsourcertspwindow.ui" line="20"/>
@@ -4924,17 +5162,17 @@ Date built: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingjobwindow.ui" line="74"/>
+        <location filename="../managerecordingjobwindow.ui" line="81"/>
         <source>Add RTSP Source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingjobwindow.ui" line="81"/>
+        <location filename="../managerecordingjobwindow.ui" line="88"/>
         <source>Add ONVIF Source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingjobwindow.ui" line="88"/>
+        <location filename="../managerecordingjobwindow.ui" line="74"/>
         <source>Edit</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4944,43 +5182,48 @@ Date built: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingjobwindow.ui" line="119"/>
+        <location filename="../managerecordingjobwindow.ui" line="102"/>
+        <source>Add Object Detector</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingjobwindow.ui" line="126"/>
         <source>Token</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingjobwindow.ui" line="124"/>
-        <location filename="../managerecordingjobwindow.ui" line="157"/>
+        <location filename="../managerecordingjobwindow.ui" line="131"/>
+        <location filename="../managerecordingjobwindow.ui" line="164"/>
         <source>Enabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingjobwindow.ui" line="129"/>
+        <location filename="../managerecordingjobwindow.ui" line="136"/>
         <source>Track</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingjobwindow.ui" line="134"/>
+        <location filename="../managerecordingjobwindow.ui" line="141"/>
         <source>URI</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingjobwindow.ui" line="139"/>
+        <location filename="../managerecordingjobwindow.ui" line="146"/>
         <source>Username</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingjobwindow.ui" line="144"/>
+        <location filename="../managerecordingjobwindow.ui" line="151"/>
         <source>Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingjobwindow.ui" line="167"/>
+        <location filename="../managerecordingjobwindow.ui" line="174"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingjobwindow.ui" line="174"/>
+        <location filename="../managerecordingjobwindow.ui" line="181"/>
         <source>OK</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5046,67 +5289,67 @@ Date built: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingtrackwindow.ui" line="58"/>
+        <location filename="../managerecordingtrackwindow.ui" line="42"/>
         <source>Encrypt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingtrackwindow.ui" line="80"/>
+        <location filename="../managerecordingtrackwindow.ui" line="64"/>
         <source>&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingtrackwindow.ui" line="99"/>
+        <location filename="../managerecordingtrackwindow.ui" line="248"/>
         <source>&lt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingtrackwindow.ui" line="125"/>
+        <location filename="../managerecordingtrackwindow.ui" line="123"/>
         <source>Use all available files or use the selected files below</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingtrackwindow.ui" line="128"/>
+        <location filename="../managerecordingtrackwindow.ui" line="126"/>
         <source>Fixed Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingtrackwindow.ui" line="135"/>
+        <location filename="../managerecordingtrackwindow.ui" line="133"/>
         <source>Flush Frequency(seconds):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingtrackwindow.ui" line="142"/>
+        <location filename="../managerecordingtrackwindow.ui" line="140"/>
         <source>Digital Signing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingtrackwindow.ui" line="158"/>
+        <location filename="../managerecordingtrackwindow.ui" line="194"/>
         <source>Description:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingtrackwindow.ui" line="171"/>
+        <location filename="../managerecordingtrackwindow.ui" line="159"/>
         <source>Selected Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingtrackwindow.ui" line="212"/>
+        <location filename="../managerecordingtrackwindow.ui" line="207"/>
         <source>Available Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingtrackwindow.ui" line="241"/>
+        <location filename="../managerecordingtrackwindow.ui" line="97"/>
         <source>Type:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingtrackwindow.ui" line="253"/>
+        <location filename="../managerecordingtrackwindow.ui" line="260"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingtrackwindow.ui" line="260"/>
+        <location filename="../managerecordingtrackwindow.ui" line="267"/>
         <source>OK</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5187,42 +5430,47 @@ Date built: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingwindow.ui" line="34"/>
+        <location filename="../managerecordingwindow.ui" line="55"/>
         <source>Retention Time(days):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingwindow.ui" line="41"/>
+        <location filename="../managerecordingwindow.ui" line="65"/>
         <source>Create Default Tracks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingwindow.ui" line="51"/>
+        <location filename="../managerecordingwindow.ui" line="75"/>
         <source>Zero represents no forced retention time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingwindow.ui" line="61"/>
+        <location filename="../managerecordingwindow.ui" line="100"/>
+        <source>Create Default Job</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../managerecordingwindow.ui" line="34"/>
         <source>Name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingwindow.ui" line="70"/>
+        <location filename="../managerecordingwindow.ui" line="84"/>
         <source>OK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingwindow.ui" line="77"/>
+        <location filename="../managerecordingwindow.ui" line="91"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingwindow.ui" line="86"/>
+        <location filename="../managerecordingwindow.ui" line="41"/>
         <source>Location:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../managerecordingwindow.ui" line="93"/>
+        <location filename="../managerecordingwindow.ui" line="48"/>
         <source>Example: Building/Basement/Kitchen</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5407,47 +5655,47 @@ Date built: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../optionswindow.ui" line="85"/>
+        <location filename="../optionswindow.ui" line="160"/>
         <source>Double Click Action:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../optionswindow.ui" line="92"/>
+        <location filename="../optionswindow.ui" line="132"/>
         <source>Default Video Window Width:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../optionswindow.ui" line="99"/>
+        <location filename="../optionswindow.ui" line="139"/>
         <source>Show Token Columns</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../optionswindow.ui" line="106"/>
+        <location filename="../optionswindow.ui" line="85"/>
         <source>Check for update on startup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../optionswindow.ui" line="126"/>
+        <location filename="../optionswindow.ui" line="112"/>
         <source>Toolbar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../optionswindow.ui" line="133"/>
+        <location filename="../optionswindow.ui" line="153"/>
         <source>Default Video Window Height:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../optionswindow.ui" line="140"/>
+        <location filename="../optionswindow.ui" line="146"/>
         <source>Update Frequency:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../optionswindow.ui" line="147"/>
+        <location filename="../optionswindow.ui" line="51"/>
         <source>ms</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../optionswindow.ui" line="160"/>
+        <location filename="../optionswindow.ui" line="64"/>
         <source>Hide media close confirmation dialog</source>
         <translation type="unfinished"></translation>
     </message>

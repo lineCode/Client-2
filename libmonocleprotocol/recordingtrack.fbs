@@ -1,3 +1,4 @@
+include "codecindex.fbs";
 include "index.fbs";
 include "tracktype.fbs";
 
@@ -15,4 +16,5 @@ table RecordingTrack
   flushfrequency:uint32 (id:7);
   files:[uint64] (id:8);
   indices:[INDEX] (id:9);
+  codecindices:[CodecIndex] (id:10);
 }

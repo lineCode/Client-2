@@ -54,12 +54,17 @@ boost::optional<int> sensitivity;
 
 ///// Methods /////
 
-FindMotionWindow::FindMotionWindow(QWidget* parent, const QImage& image, const boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingTrack>& track, const QVector4D& colour, const uint64_t starttime, const uint64_t endtime, const QRectF& rect) :
+FindMotionWindow::FindMotionWindow(QWidget* parent, const QImage& image, const boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingTrack>& track, const QVector4D& colour, const uint64_t starttime, const uint64_t endtime, const QRectF& rect, const int imagewidth, const int imageheight, const bool mirror, const ROTATION rotation, const bool stretch) :
   QDialog(parent),
   cudacontext_(MainWindow::Instance()->GetNextCUDAContext()),
   device_(device),
   recording_(recording),
-  track_(track)
+  track_(track),
+  imagewidth_(imagewidth),
+  imageheight_(imageheight),
+  mirror_(mirror),
+  rotation_(rotation),
+  stretch_(stretch)
 {
   ui_.setupUi(this);
 
@@ -572,7 +577,7 @@ void FindMotionWindow::FindMotionResult(const uint64_t token, const uint64_t sta
     return;
   }
 
-  getsnapshotconnections_.emplace_back(connection_->GetSnapshot(recording_->GetToken(), track_->GetId(), start, [this, start](const std::chrono::steady_clock::duration latency, const monocle::client::GETSNAPSHOTRESPONSE& getsnapshotresponse)
+  getsnapshotconnections_.emplace_back(connection_->GetSnapshot(recording_->GetToken(), track_->GetId(), start, 0.0f, 0.0f, 0.0f, 0.0f, [this, start](const std::chrono::steady_clock::duration latency, const monocle::client::GETSNAPSHOTRESPONSE& getsnapshotresponse)
   {
     if (getsnapshotresponse.GetErrorCode() != monocle::ErrorCode::Success)
     {

@@ -75,6 +75,24 @@ void Connection::FindMotionResult(const uint64_t token, const uint64_t start, co
 
 }
 
+void Connection::FindObjectEnd(const uint64_t token, const uint64_t ret)
+{
+  emit SignalFindObjectEnd(token, ret);
+
+}
+
+void Connection::FindObjectProgress(const uint64_t token, const float progress)
+{
+  emit SignalFindObjectProgress(token, progress);
+
+}
+
+void Connection::FindObjectResult(const uint64_t token, const uint64_t start, const uint64_t end, const monocle::ObjectClass objectclass, const uint64_t id, const uint64_t largesttime, const float largestx, const float largesty, const float largestwidth, const float largestheight)
+{
+  emit SignalFindObjectResult(token, start, end, objectclass, id, largesttime, largestx, largesty, largestwidth, largestheight);
+
+}
+
 void Connection::Goodbye()
 {
   Disconnected();
@@ -374,6 +392,18 @@ void Connection::RecordingLogMessage(const uint64_t token, const uint64_t time, 
 
 }
 
+void Connection::RecordingTrackCodecAdded(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp)
+{
+  emit SignalRecordingTrackCodecAdded(recordingtoken, recordingtrackid, id, codec, parameters, timestamp);
+
+}
+
+void Connection::RecordingTrackCodecRemoved(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id)
+{
+  emit SignalRecordingTrackCodecRemoved(recordingtoken, recordingtrackid, id);
+
+}
+
 void Connection::RecordingTrackLogMessage(const uint64_t recordingtoken, const uint32_t id, const uint64_t time, const monocle::Severity severity, const std::string& message)
 {
   emit SignalRecordingTrackLogMessage(recordingtoken, id, time, severity, QString::fromStdString(message));
@@ -386,15 +416,15 @@ void Connection::ServerLogMessage(const uint64_t time, const monocle::Severity s
 
 }
 
-void Connection::TrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files)
+void Connection::TrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices)
 {
-  emit SignalTrackAdded(recordingtoken, id, token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files);
+  emit SignalTrackAdded(recordingtoken, id, token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files, codecindices);
 
 }
 
-void Connection::TrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files)
+void Connection::TrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices)
 {
-  emit SignalTrackChanged(recordingtoken, id, token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files);
+  emit SignalTrackChanged(recordingtoken, id, token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files, codecindices);
 
 }
 

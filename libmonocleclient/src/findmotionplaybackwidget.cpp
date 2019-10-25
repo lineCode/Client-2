@@ -16,6 +16,7 @@
 #include "monocleclient/recordingjobsourcetrack.h"
 #include "monocleclient/recordingblock.h"
 #include "monocleclient/recordingtrack.h"
+#include "monocleclient/shaders.h"
 
 ///// Namespaces /////
 
@@ -563,24 +564,12 @@ void FindMotionPlaybackWidget::initializeGL()
   glClearColor(backgroundcolor.redF(), backgroundcolor.greenF(), backgroundcolor.blueF(), 0.0f);
 
   // Recordings blocks shader
-  if (!recordingsblocksshader_.addShaderFromSourceCode(QOpenGLShader::Vertex,
-    "#version 130\n"
-    "in vec2 position;\n"
-    "void main()\n"
-    "{\n"
-    "  gl_Position = vec4(position, 1.0, 1.0);\n"
-    "}\n"))
+  if (!recordingsblocksshader_.addShaderFromSourceCode(QOpenGLShader::Vertex, RECORDINGBLOCKS_VERTEX_SHADER))
   {
     LOG_GUI_WARNING(tr("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
     return;
   }
-  if (!recordingsblocksshader_.addShaderFromSourceCode(QOpenGLShader::Fragment,
-    "#version 130\n"
-    "uniform vec4 colour;\n"
-    "void main()\n"
-    "{\n"
-    "  gl_FragColor = colour;\n"
-    "}\n"))
+  if (!recordingsblocksshader_.addShaderFromSourceCode(QOpenGLShader::Fragment, RECORDINGBLOCKS_PIXEL_SHADER))
   {
     LOG_GUI_WARNING(tr("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
     return;
@@ -596,25 +585,13 @@ void FindMotionPlaybackWidget::initializeGL()
   recordingsblockscolourlocation_ = recordingsblocksshader_.uniformLocation("colour");
 
   // Play marker shader
-  if (!markershader_.addShaderFromSourceCode(QOpenGLShader::Vertex,
-    "#version 130\n"
-    "in vec2 position;\n"
-    "void main()\n"
-    "{\n"
-    "  gl_Position = vec4(position, 1.0, 1.0);\n"
-    "}\n"))
+  if (!markershader_.addShaderFromSourceCode(QOpenGLShader::Vertex, MARKER_VERTEX_SHADER))
   {
     LOG_GUI_WARNING(tr("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
     return;
   }
 
-  if (!markershader_.addShaderFromSourceCode(QOpenGLShader::Fragment,
-    "#version 130\n"
-    "uniform vec4 colour;\n"
-    "void main()\n"
-    "{\n"
-    "  gl_FragColor = colour;\n"
-    "}\n"))
+  if (!markershader_.addShaderFromSourceCode(QOpenGLShader::Fragment, MARKER_PIXEL_SHADER))
   {
     LOG_GUI_WARNING(tr("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
     return;
@@ -630,30 +607,13 @@ void FindMotionPlaybackWidget::initializeGL()
   markercolourlocation_ = markershader_.uniformLocation("colour");
 
   // Text shader
-  if (!textshader_.addShaderFromSourceCode(QOpenGLShader::Vertex,
-    "#version 130\n"
-    "in vec2 texcoord;\n"
-    "in vec3 position;\n"
-    "out vec2 out_texcoord;\n"
-    "void main()\n"
-    "{\n"
-    "  gl_Position = vec4(position, 1.0);\n"
-    "  out_texcoord = texcoord\n;"
-    "}\n"))
+  if (!textshader_.addShaderFromSourceCode(QOpenGLShader::Vertex, TEXT_VERTEX_SHADER))
   {
     LOG_GUI_WARNING(tr("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
     return;
   }
 
-  if (!textshader_.addShaderFromSourceCode(QOpenGLShader::Fragment,
-    "#version 130\n"
-    "in vec2 out_texcoord;\n"
-    "uniform sampler2D sampler;\n"
-    "out vec4 colour;\n"
-    "void main()\n"
-    "{\n"
-    "  colour = texture(sampler, out_texcoord);\n"
-    "}\n"))
+  if (!textshader_.addShaderFromSourceCode(QOpenGLShader::Fragment, TEXT_PIXEL_SHADER))
   {
     LOG_GUI_WARNING(tr("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
     return;

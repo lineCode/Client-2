@@ -7,5 +7,6 @@ enum Codec : byte
   MJPEG = 1,
   MPEG4 = 2,
   H264 = 3,
-  H265 = 4
+  H265 = 4,
+  OBJECTDETECTOR = 5
 }

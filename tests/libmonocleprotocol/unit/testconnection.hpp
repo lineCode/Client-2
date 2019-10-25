@@ -83,8 +83,10 @@ class TestConnection : public server::Connection
   virtual Error ControlStreamLive(const uint64_t streamtoken, const uint64_t playrequestindex) override;
   virtual Error ControlStreamPause(const uint64_t streamtoken, const boost::optional<uint64_t>& time) override;
   virtual std::pair<Error, uint64_t> CreateFindMotion(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height, const float sensitivity, const bool fast) override;
+  virtual std::pair<Error, uint64_t> CreateFindObject(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height) override;
   virtual std::pair<Error, STREAM> CreateStream(const uint64_t recordingtoken, const uint64_t tracktoken) override;
   virtual Error DestroyFindMotion(const uint64_t token) override;
+  virtual Error DestroyFindObject(const uint64_t token) override;
   virtual Error DestroyStream(const uint64_t streamtoken) override;
   virtual Error DiscoveryBroadcast() override;
   virtual std::string GetAuthenticationNonce() override;
@@ -93,7 +95,7 @@ class TestConnection : public server::Connection
   virtual std::pair< Error, std::vector<RECEIVER> > GetReceivers() override;
   virtual std::pair<Error, monocle::RECORDING> GetRecording(const uint64_t token) override;
   virtual std::pair< Error, std::vector<RECORDING> > GetRecordings() override;
-  virtual std::pair<Error, SNAPSHOT> GetSnapshot(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time) override;
+  virtual std::pair<Error, SNAPSHOT> GetSnapshot(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time, const float x, const float y, const float width, const float height) override;
   virtual std::pair<Error, GETSTATE> GetState() override;
   virtual uint64_t GetTime() override;
   virtual Error SetLocation(const std::string& latitude, const std::string& longitude) override;

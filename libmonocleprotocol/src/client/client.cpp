@@ -43,9 +43,12 @@
 #include "monocleprotocol/controlstreampauserequest_generated.h"
 #include "monocleprotocol/createfindmotionrequest_generated.h"
 #include "monocleprotocol/createfindmotionresponse_generated.h"
+#include "monocleprotocol/createfindobjectrequest_generated.h"
+#include "monocleprotocol/createfindobjectresponse_generated.h"
 #include "monocleprotocol/createstreamrequest_generated.h"
 #include "monocleprotocol/createstreamresponse_generated.h"
 #include "monocleprotocol/destroyfindmotionrequest_generated.h"
+#include "monocleprotocol/destroyfindobjectrequest_generated.h"
 #include "monocleprotocol/destroystreamrequest_generated.h"
 #include "monocleprotocol/discoveryhello_generated.h"
 #include "monocleprotocol/filemonitorstatechanged_generated.h"
@@ -54,6 +57,9 @@
 #include "monocleprotocol/findmotionend_generated.h"
 #include "monocleprotocol/findmotionprogress_generated.h"
 #include "monocleprotocol/findmotionresult_generated.h"
+#include "monocleprotocol/findobjectend_generated.h"
+#include "monocleprotocol/findobjectprogress_generated.h"
+#include "monocleprotocol/findobjectresult_generated.h"
 #include "monocleprotocol/getauthenticationnonceresponse_generated.h"
 #include "monocleprotocol/getchildfoldersrequest_generated.h"
 #include "monocleprotocol/getchildfoldersresponse_generated.h"
@@ -103,6 +109,8 @@
 #include "monocleprotocol/recordingremoved_generated.h"
 #include "monocleprotocol/recordingjoblogmessage_generated.h"
 #include "monocleprotocol/recordinglogmessage_generated.h"
+#include "monocleprotocol/recordingtrackcodecadded_generated.h"
+#include "monocleprotocol/recordingtrackcodecremoved_generated.h"
 #include "monocleprotocol/recordingtracklogmessage_generated.h"
 #include "monocleprotocol/removefilerequest_generated.h"
 #include "monocleprotocol/removegrouprequest_generated.h"
@@ -193,8 +201,10 @@ Client::Client(boost::asio::io_service& io) :
   controlstreamlive_(DEFAULT_TIMEOUT, this),
   controlstreampause_(DEFAULT_TIMEOUT, this),
   createfindmotion_(DEFAULT_TIMEOUT, this),
+  createfindobject_(DEFAULT_TIMEOUT, this),
   createstream_(DEFAULT_TIMEOUT, this),
   destroyfindmotion_(DEFAULT_TIMEOUT, this),
+  destroyfindobject_(DEFAULT_TIMEOUT, this),
   destroystream_(DEFAULT_TIMEOUT, this),
   discoverybroadcast_(DEFAULT_TIMEOUT, this),
   getauthenticationnonce_(DEFAULT_TIMEOUT, this),
@@ -327,8 +337,10 @@ void Client::Destroy()
     controlstreamlive_.Destroy();
     controlstreampause_.Destroy();
     createfindmotion_.Destroy();
+    createfindobject_.Destroy();
     createstream_.Destroy();
     destroyfindmotion_.Destroy();
+    destroyfindobject_.Destroy();
     destroystream_.Destroy();
     discoverybroadcast_.Destroy();
     getauthenticationnonce_.Destroy();
@@ -621,6 +633,17 @@ boost::unique_future<CREATEFINDMOTIONRESPONSE> Client::CreateFindMotion(const ui
   return createfindmotion_.CreateFuture(sequence_);
 }
 
+boost::unique_future<CREATEFINDOBJECTRESPONSE> Client::CreateFindObject(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (CreateFindObjectSend(recordingtoken, tracktoken, starttime, endtime, x, y, width, height))
+  {
+
+    return boost::make_ready_future(CREATEFINDOBJECTRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+  }
+  return createfindobject_.CreateFuture(sequence_);
+}
+
 boost::unique_future<CREATESTREAMRESPONSE> Client::CreateStream(const uint64_t recordingtoken, const uint32_t tracktoken)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
@@ -641,6 +664,17 @@ boost::unique_future<DESTROYFINDMOTIONRESPONSE> Client::DestroyFindMotion(const 
     return boost::make_ready_future(DESTROYFINDMOTIONRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
   }
   return destroyfindmotion_.CreateFuture(sequence_);
+}
+
+boost::unique_future<DESTROYFINDOBJECTRESPONSE> Client::DestroyFindObject(const uint64_t token)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (DestroyFindObjectSend(token))
+  {
+
+    return boost::make_ready_future(DESTROYFINDOBJECTRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+  }
+  return destroyfindobject_.CreateFuture(sequence_);
 }
 
 boost::unique_future<DESTROYSTREAMRESPONSE> Client::DestroyStream(const uint64_t streamtoken)
@@ -718,10 +752,10 @@ boost::unique_future<GETRECORDINGSRESPONSE> Client::GetRecordings()
   return getrecordings_.CreateFuture(sequence_);
 }
 
-boost::unique_future<GETSNAPSHOTRESPONSE> Client::GetSnapshot(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time)
+boost::unique_future<GETSNAPSHOTRESPONSE> Client::GetSnapshot(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time, const float x, const float y, const float width, const float height)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  if (GetSnapshotSend(recordingtoken, recordingtrackid, time))
+  if (GetSnapshotSend(recordingtoken, recordingtrackid, time, x, y, width, height))
   {
 
     return boost::make_ready_future(GETSNAPSHOTRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
@@ -1315,6 +1349,17 @@ Connection Client::CreateFindMotion(const uint64_t recordingtoken, const uint32_
   return createfindmotion_.CreateCallback(sequence_, callback);
 }
 
+Connection Client::CreateFindObject(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height, boost::function<void(const std::chrono::steady_clock::duration, const CREATEFINDOBJECTRESPONSE&)> callback)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (CreateFindObjectSend(recordingtoken, tracktoken, starttime, endtime, x, y, width, height))
+  {
+    callback(std::chrono::steady_clock::duration(), CREATEFINDOBJECTRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+    return Connection();
+  }
+  return createfindobject_.CreateCallback(sequence_, callback);
+}
+
 Connection Client::CreateStream(const uint64_t recordingtoken, const uint32_t tracktoken, boost::function<void(const std::chrono::steady_clock::duration latency, const CREATESTREAMRESPONSE&)> callback)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
@@ -1335,6 +1380,17 @@ Connection Client::DestroyFindMotion(const uint64_t streamtoken, boost::function
     return Connection();
   }
   return destroyfindmotion_.CreateCallback(sequence_, callback);
+}
+
+Connection Client::DestroyFindObject(const uint64_t streamtoken, boost::function<void(const std::chrono::steady_clock::duration latency, const DESTROYFINDOBJECTRESPONSE&)> callback)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (DestroyFindObjectSend(streamtoken))
+  {
+    callback(std::chrono::steady_clock::duration(), DESTROYFINDOBJECTRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+    return Connection();
+  }
+  return destroyfindobject_.CreateCallback(sequence_, callback);
 }
 
 Connection Client::DestroyStream(const uint64_t streamtoken, boost::function<void(const std::chrono::steady_clock::duration latency, const DESTROYSTREAMRESPONSE&)> callback)
@@ -1414,10 +1470,10 @@ Connection Client::GetRecordings(boost::function<void(const std::chrono::steady_
   return getrecordings_.CreateCallback(sequence_, callback);
 }
 
-Connection Client::GetSnapshot(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time, boost::function<void(const std::chrono::steady_clock::duration latency, const GETSNAPSHOTRESPONSE&)> callback)
+Connection Client::GetSnapshot(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time, const float x, const float y, const float width, const float height, boost::function<void(const std::chrono::steady_clock::duration latency, const GETSNAPSHOTRESPONSE&)> callback)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  if (GetSnapshotSend(recordingtoken, recordingtrackid, time))
+  if (GetSnapshotSend(recordingtoken, recordingtrackid, time, x, y, width, height))
   {
     callback(std::chrono::steady_clock::duration(), GETSNAPSHOTRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
     return Connection();
@@ -2328,6 +2384,28 @@ boost::system::error_code Client::CreateFindMotionSend(const uint64_t recordingt
   return err;
 }
 
+boost::system::error_code Client::CreateFindObjectSend(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height)
+{
+  fbb_.Clear();
+  fbb_.Finish(CreateCreateFindObjectRequest(fbb_, recordingtoken, tracktoken, starttime, endtime, x, y, width, height));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::CREATEFINDOBJECT, ++sequence_);
+  boost::system::error_code err;
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(fbb_.GetBufferPointer(), messagesize), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  return err;
+}
+
 boost::system::error_code Client::CreateStreamSend(const uint64_t recordingtoken, const uint32_t tracktoken)
 {
   fbb_.Clear();
@@ -2356,6 +2434,28 @@ boost::system::error_code Client::DestroyFindMotionSend(const uint64_t streamtok
   fbb_.Finish(CreateDestroyFindMotionRequest(fbb_, streamtoken));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::DESTROYFINDMOTION, ++sequence_);
+  boost::system::error_code err;
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(fbb_.GetBufferPointer(), messagesize), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  return err;
+}
+
+boost::system::error_code Client::DestroyFindObjectSend(const uint64_t streamtoken)
+{
+  fbb_.Clear();
+  fbb_.Finish(CreateDestroyFindObjectRequest(fbb_, streamtoken));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::DESTROYFINDOBJECT, ++sequence_);
   boost::system::error_code err;
   boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
   if (err)
@@ -2481,10 +2581,10 @@ boost::system::error_code Client::GetRecordingsSend()
   return err;
 }
 
-boost::system::error_code Client::GetSnapshotSend(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time)
+boost::system::error_code Client::GetSnapshotSend(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time, const float x, const float y, const float width, const float height)
 {
   fbb_.Clear();
-  fbb_.Finish(CreateGetSnapshotRequest(fbb_, recordingtoken, recordingtrackid, time));
+  fbb_.Finish(CreateGetSnapshotRequest(fbb_, recordingtoken, recordingtrackid, time, x, y, width, height));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::GETSNAPSHOT, ++sequence_);
   boost::system::error_code err;
@@ -3524,6 +3624,30 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       createfindmotion_.Response(sequence, CREATEFINDMOTIONRESPONSE(createfindmotionresponse->token()));
       break;
     }
+    case Message::CREATEFINDOBJECT:
+    {
+      if (error)
+      {
+        HandleError(createfindobject_, sequence, data, datasize);
+        return;
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<CreateFindObjectResponse>(nullptr))
+      {
+        createfindobject_.Response(sequence, CREATEFINDOBJECTRESPONSE(Error(ErrorCode::InvalidMessage, "CreateFindObjectResponse verification failed")));
+        return;
+      }
+
+      const CreateFindObjectResponse* createfindobjectresponse = flatbuffers::GetRoot<CreateFindObjectResponse>(data);
+      if (!createfindobjectresponse)
+      {
+        createfindobject_.Response(sequence, CREATEFINDOBJECTRESPONSE(Error(ErrorCode::MissingParameter, "CreateFindObjectResponse missing parameter")));
+        return;
+      }
+
+      createfindobject_.Response(sequence, CREATEFINDOBJECTRESPONSE(createfindobjectresponse->token()));
+      break;
+    }
     case Message::CREATESTREAM:
     {
       if (error)
@@ -3564,6 +3688,16 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         return;
       }
       destroyfindmotion_.Response(sequence, DESTROYFINDMOTIONRESPONSE());
+      break;
+    }
+    case Message::DESTROYFINDOBJECT:
+    {
+      if (error)
+      {
+        HandleError(destroyfindobject_, sequence, data, datasize);
+        return;
+      }
+      destroyfindobject_.Response(sequence, DESTROYFINDOBJECTRESPONSE());
       break;
     }
     case Message::DESTROYSTREAM:
@@ -4253,6 +4387,78 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       }
 
       FindMotionResult(findmotionresult->token(), findmotionresult->start(), findmotionresult->end());
+      break;
+    }
+    case Message::FINDOBJECTEND:
+    {
+      if (error)
+      {
+        // Ignore this because it can't really happen...
+        return;
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<monocle::FindObjectEnd>(nullptr))
+      {
+
+        return;
+      }
+
+      const monocle::FindObjectEnd* findobjectend = flatbuffers::GetRoot<monocle::FindObjectEnd>(data);
+      if (!findobjectend)
+      {
+
+        return;
+      }
+
+      FindObjectEnd(findobjectend->token(), findobjectend->ret());
+      break;
+    }
+    case Message::FINDOBJECTPROGRESS:
+    {
+      if (error)
+      {
+        // Ignore this because it can't really happen...
+        return;
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<monocle::FindObjectProgress>(nullptr))
+      {
+
+        return;
+      }
+
+      const monocle::FindObjectProgress* findobjectprogress = flatbuffers::GetRoot<monocle::FindObjectProgress>(data);
+      if (!findobjectprogress)
+      {
+
+        return;
+      }
+
+      FindObjectProgress(findobjectprogress->token(), findobjectprogress->progress());
+      break;
+    }
+    case Message::FINDOBJECTRESULT:
+    {
+      if (error)
+      {
+        // Ignore this because it can't really happen...
+        return;
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<monocle::FindObjectResult>(nullptr))
+      {
+
+        return;
+      }
+
+      const monocle::FindObjectResult* findobjectresult = flatbuffers::GetRoot<monocle::FindObjectResult>(data);
+      if (!findobjectresult)
+      {
+
+        return;
+      }
+
+      FindObjectResult(findobjectresult->token(), findobjectresult->start(), findobjectresult->end(), findobjectresult->objectclass(), findobjectresult->id(), findobjectresult->largesttime(), findobjectresult->largestx(), findobjectresult->largesty(), findobjectresult->largestwidth(), findobjectresult->largestheight());
       break;
     }
     case Message::GETCHILDFOLDERS:
@@ -5657,6 +5863,54 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       RecordingLogMessage(recordinglogmessage->token(), recordinglogmessage->message()->time(), recordinglogmessage->message()->severity(), recordinglogmessage->message()->message()->str());
       break;
     }
+    case Message::RECORDINGTRACKCODECADDED:
+    {
+      if (error)
+      {
+        // Ignore this because it can't really happen...
+        return;
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<monocle::RecordingTrackCodecAdded>(nullptr))
+      {
+
+        return;
+      }
+
+      const monocle::RecordingTrackCodecAdded* recordingtrackcodecadded = flatbuffers::GetRoot<monocle::RecordingTrackCodecAdded>(data);
+      if (!recordingtrackcodecadded)
+      {
+
+        return;
+      }
+
+      RecordingTrackCodecAdded(recordingtrackcodecadded->recordingtoken(), recordingtrackcodecadded->trackid(), recordingtrackcodecadded->id(), recordingtrackcodecadded->codec(), recordingtrackcodecadded->parameters() ? recordingtrackcodecadded->parameters()->str() : std::string(), recordingtrackcodecadded->timestamp());
+      break;
+    }
+    case Message::RECORDINGTRACKCODECREMOVED:
+    {
+      if (error)
+      {
+        // Ignore this because it can't really happen...
+        return;
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<monocle::RecordingTrackCodecRemoved>(nullptr))
+      {
+
+        return;
+      }
+
+      const monocle::RecordingTrackCodecRemoved* recordingtrackcodecremoved = flatbuffers::GetRoot<monocle::RecordingTrackCodecRemoved>(data);
+      if (!recordingtrackcodecremoved)
+      {
+
+        return;
+      }
+
+      RecordingTrackCodecRemoved(recordingtrackcodecremoved->recordingtoken(), recordingtrackcodecremoved->trackid(), recordingtrackcodecremoved->id());
+      break;
+    }
     case Message::RECORDINGTRACKLOGMESSAGE:
     {
       if (error)
@@ -6326,7 +6580,18 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         }
       }
 
-      TrackAdded(trackadded->recordingtoken(), trackadded->id(), token, trackadded->tracktype(), description, trackadded->fixedfiles(), trackadded->digitalsigning(), trackadded->encrypt(), trackadded->flushfrequency(), files);
+      std::vector<monocle::CODECINDEX> codecindices;
+      if (trackadded->codecindices())
+      {
+        codecindices.reserve(trackadded->codecindices()->size());
+        for (const CodecIndex* codecindex : *trackadded->codecindices())
+        {
+          codecindices.push_back(monocle::CODECINDEX(codecindex->id(), codecindex->codec(), codecindex->parameters() ? codecindex->parameters()->str() : std::string(), codecindex->timestamp()));
+
+        }
+      }
+
+      TrackAdded(trackadded->recordingtoken(), trackadded->id(), token, trackadded->tracktype(), description, trackadded->fixedfiles(), trackadded->digitalsigning(), trackadded->encrypt(), trackadded->flushfrequency(), files, codecindices);
       break;
     }
     case Message::TRACKCHANGED:
@@ -6375,7 +6640,18 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         }
       }
 
-      TrackChanged(trackchanged->recordingtoken(), trackchanged->id(), token, trackchanged->tracktype(), description, trackchanged->fixedfiles(), trackchanged->digitalsigning(), trackchanged->encrypt(), trackchanged->flushfrequency(), files);
+      std::vector<monocle::CODECINDEX> codecindices;
+      if (trackchanged->codecindices())
+      {
+        codecindices.reserve(trackchanged->codecindices()->size());
+        for (const CodecIndex* codecindex : *trackchanged->codecindices())
+        {
+          codecindices.push_back(monocle::CODECINDEX(codecindex->id(), codecindex->codec(), codecindex->parameters() ? codecindex->parameters()->str() : std::string(), codecindex->timestamp()));
+
+        }
+      }
+
+      TrackChanged(trackchanged->recordingtoken(), trackchanged->id(), token, trackchanged->tracktype(), description, trackchanged->fixedfiles(), trackchanged->digitalsigning(), trackchanged->encrypt(), trackchanged->flushfrequency(), files, codecindices);
       break;
     }
     case Message::TRACKREMOVED:
@@ -6859,7 +7135,7 @@ std::pair< Error, std::vector<RECORDING> > Client::GetRecordingsBuffer(const fla
 
         return std::make_pair(Error(ErrorCode::InvalidMessage, "GetRecordingsResponse invalid RecordingTrack(video)"), std::vector<RECORDING>());
       }
-      tracks.push_back(RECORDINGTRACK(track->id(), track->token()->str(), track->tracktype(), track->description()->str(), track->fixedfiles(), track->digitalsigning(), track->encrypt(), track->flushfrequency(), ToVector(*track->files()), ToVector(*track->indices())));
+      tracks.push_back(RECORDINGTRACK(track->id(), track->token()->str(), track->tracktype(), track->description()->str(), track->fixedfiles(), track->digitalsigning(), track->encrypt(), track->flushfrequency(), ToVector(*track->files()), ToVector(*track->indices()), ToVector(track->codecindices())));
     }
 
     recordings.push_back(RECORDING(recording->token(), recording->sourceid()->str(), recording->name()->str(), recording->location()->str(), recording->description()->str(), recording->address()->str(), recording->content()->str(), recording->retentiontime(), jobs, tracks, recording->activejob() ? boost::optional<uint64_t>(recording->activejob()->token()) : boost::none));
@@ -6871,10 +7147,25 @@ std::vector<monocle::INDEX> Client::ToVector(const flatbuffers::Vector<const mon
 {
   std::vector<INDEX> result;
   result.reserve(indices.size());
-  for (const auto& index : indices)
+  for (const monocle::INDEX* index : indices)
   {
     result.push_back(*index);
 
+  }
+  return result;
+}
+
+std::vector<monocle::CODECINDEX> Client::ToVector(const flatbuffers::Vector< flatbuffers::Offset<monocle::CodecIndex> >* codecindices) const
+{
+  std::vector<CODECINDEX> result;
+  if (codecindices)
+  {
+    result.reserve(codecindices->size());
+    for (const monocle::CodecIndex* codecindex : *codecindices)
+    {
+      result.push_back(CODECINDEX(codecindex->id(), codecindex->codec(), codecindex->parameters() ? codecindex->parameters()->str() : std::string(), codecindex->timestamp()));
+
+    }
   }
   return result;
 }

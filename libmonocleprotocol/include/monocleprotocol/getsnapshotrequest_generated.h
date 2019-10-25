@@ -14,7 +14,11 @@ struct GetSnapshotRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDINGTOKEN = 4,
     VT_RECORDINGTRACKID = 6,
-    VT_TIME = 8
+    VT_TIME = 8,
+    VT_X = 10,
+    VT_Y = 12,
+    VT_WIDTH = 14,
+    VT_HEIGHT = 16
   };
   uint64_t recordingtoken() const {
     return GetField<uint64_t>(VT_RECORDINGTOKEN, 0);
@@ -25,11 +29,27 @@ struct GetSnapshotRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint64_t time() const {
     return GetField<uint64_t>(VT_TIME, 0);
   }
+  float x() const {
+    return GetField<float>(VT_X, 0.0f);
+  }
+  float y() const {
+    return GetField<float>(VT_Y, 0.0f);
+  }
+  float width() const {
+    return GetField<float>(VT_WIDTH, 0.0f);
+  }
+  float height() const {
+    return GetField<float>(VT_HEIGHT, 0.0f);
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_RECORDINGTOKEN) &&
            VerifyField<uint32_t>(verifier, VT_RECORDINGTRACKID) &&
            VerifyField<uint64_t>(verifier, VT_TIME) &&
+           VerifyField<float>(verifier, VT_X) &&
+           VerifyField<float>(verifier, VT_Y) &&
+           VerifyField<float>(verifier, VT_WIDTH) &&
+           VerifyField<float>(verifier, VT_HEIGHT) &&
            verifier.EndTable();
   }
 };
@@ -45,6 +65,18 @@ struct GetSnapshotRequestBuilder {
   }
   void add_time(uint64_t time) {
     fbb_.AddElement<uint64_t>(GetSnapshotRequest::VT_TIME, time, 0);
+  }
+  void add_x(float x) {
+    fbb_.AddElement<float>(GetSnapshotRequest::VT_X, x, 0.0f);
+  }
+  void add_y(float y) {
+    fbb_.AddElement<float>(GetSnapshotRequest::VT_Y, y, 0.0f);
+  }
+  void add_width(float width) {
+    fbb_.AddElement<float>(GetSnapshotRequest::VT_WIDTH, width, 0.0f);
+  }
+  void add_height(float height) {
+    fbb_.AddElement<float>(GetSnapshotRequest::VT_HEIGHT, height, 0.0f);
   }
   explicit GetSnapshotRequestBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -62,10 +94,18 @@ inline flatbuffers::Offset<GetSnapshotRequest> CreateGetSnapshotRequest(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t recordingtoken = 0,
     uint32_t recordingtrackid = 0,
-    uint64_t time = 0) {
+    uint64_t time = 0,
+    float x = 0.0f,
+    float y = 0.0f,
+    float width = 0.0f,
+    float height = 0.0f) {
   GetSnapshotRequestBuilder builder_(_fbb);
   builder_.add_time(time);
   builder_.add_recordingtoken(recordingtoken);
+  builder_.add_height(height);
+  builder_.add_width(width);
+  builder_.add_y(y);
+  builder_.add_x(x);
   builder_.add_recordingtrackid(recordingtrackid);
   return builder_.Finish();
 }

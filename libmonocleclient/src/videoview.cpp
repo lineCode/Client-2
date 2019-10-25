@@ -63,7 +63,7 @@ VideoView::VideoView(VideoWidget* videowidget, CUcontext cudacontext, const QCol
   connect(recording_.get(), &Recording::TrackRemoved, this, &VideoView::TrackRemoved);
   connect(recording_.get(), &Recording::ActiveJobChanged, this, &VideoView::ActiveJobChanged);
 
-  rotation_ = GetRotation();
+  rotation_ = GetActiveRotation();
   SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), rotation_, mirror_, stretch_, true);
 
   updatetimer_ = startTimer(std::chrono::milliseconds(150));
@@ -409,7 +409,7 @@ void VideoView::FrameStep(const bool forwards)
 
   for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
   {
-    metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, false, forwards, time_, boost::none, 2, false); // This request a couple of additional frame just in case
+    metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, false, forwards, time_, boost::none, 4, false); // Request some additional frames just in case
 
   }
 }
@@ -514,7 +514,7 @@ void VideoView::Scrub(const uint64_t time)
 
   for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
   {
-    metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, false, false, time + GetTimeOffset(), boost::none, 5, false);
+    metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, false, false, time + GetTimeOffset(), boost::none, 30, false);
 
   }
   paused_ = true;
@@ -607,7 +607,7 @@ void VideoView::H265Callback(const uint64_t streamtoken, const uint64_t playrequ
   }
 
   ImageBuffer imagebuffer = (*h265decoder)->Decode(playrequestindex, marker, timestamp, sequencenum, signature, signaturesize, signaturedata, signaturedatasize, reinterpret_cast<const uint8_t*>(framedata), static_cast<unsigned int>(size), &videoview->freeimagequeue_);
-  if (imagebuffer.buffer_)
+  if (imagebuffer.buffer_ || imagebuffer.cudacontext_)
   {
     if (videoview->imagequeue_.write_available())
     {
@@ -677,7 +677,6 @@ void VideoView::MetadataCallback(const uint64_t streamtoken, const uint64_t play
 
       return;
     }
-
     videoview->videowidget_->makeCurrent();
     videoview->UpdateObjects(objects, timestamp);
     videoview->videowidget_->doneCurrent();
@@ -707,7 +706,7 @@ void VideoView::JPEGCallback(const uint64_t streamtoken, const uint64_t playrequ
   }
 
   ImageBuffer imagebuffer = videoview->mjpegdecoder_->Decode(playrequestindex, timestamp, sequencenum, signature, signaturesize, signaturedata, signaturedatasize, reinterpret_cast<const uint8_t*>(framedata), static_cast<unsigned int>(size), &videoview->freeimagequeue_);
-  if (imagebuffer.buffer_)
+  if (imagebuffer.buffer_ || imagebuffer.cudacontext_)
   {
     if (videoview->imagequeue_.write_available())
     {
@@ -740,7 +739,7 @@ void VideoView::MPEG4Callback(const uint64_t streamtoken, const uint64_t playreq
   }
 
   ImageBuffer imagebuffer = (*mpeg4decoder)->Decode(playrequestindex, timestamp, sequencenum, signature, signaturesize, signaturedata, signaturedatasize, reinterpret_cast<const uint8_t*>(framedata), static_cast<unsigned int>(size), &videoview->freeimagequeue_);
-  if (imagebuffer.buffer_)
+  if (imagebuffer.buffer_ || imagebuffer.cudacontext_)
   {
     if (videoview->imagequeue_.write_available())
     {
@@ -1053,7 +1052,7 @@ void VideoView::Keepalive()
   });
 }
 
-ROTATION VideoView::GetRotation() const
+ROTATION VideoView::GetActiveRotation() const
 {
   const std::vector<ROTATION> rotations = recording_->GetActiveRotations(track_);
   if (rotations.empty())
@@ -1088,7 +1087,7 @@ void VideoView::ResetDecoders()
 uint64_t VideoView::GetNextMetadataPlayRequestIndex()
 {
   videowidget_->makeCurrent();
-  objects_.clear();
+  objects_.Clear();
   videowidget_->doneCurrent();
   return ++metadataplayrequestindex_;
 }
@@ -1181,7 +1180,7 @@ void VideoView::TrackRemoved(const uint32_t token)
 
 void VideoView::ActiveJobChanged(const QSharedPointer<client::RecordingJob>& activejob)
 {
-  rotation_ = GetRotation();
+  rotation_ = GetActiveRotation();
   SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), rotation_, mirror_, stretch_, true);
   Connect();
 }

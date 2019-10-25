@@ -22,6 +22,7 @@
 #include <QMenu>
 #include <QObject>
 #include <QOpenGLBuffer>
+#include <QOpenGLFunctions>
 #include <QOpenGLVertexArrayObject>
 #include <QRectF>
 #include <QResource>
@@ -32,6 +33,7 @@
 #include "connection.h"
 #include "decoder.h"
 #include "imagecache.h"
+#include "objects.h"
 #include "options.h"
 
 ///// Declarations /////
@@ -72,31 +74,12 @@ enum VIEWTYPE
 ///// Prototypes /////
 
 QString ToString(const ROTATION rotation);
-
-///// Structures /////
-
-struct Object
-{
-  Object(const uint64_t id, const monocle::ObjectClass classid, const uint64_t time, const float x, const float y, const float width, const float height);
-  Object(Object&& rhs);
-
-  void Allocate(const QRect& imagepixelrect, const int videowidgetwidth, const int videowidgetheight);
-
-  Object& operator=(Object&& rhs);
-
-  uint64_t id_;
-  monocle::ObjectClass classid_;
-  uint64_t time_;
-  float x_;
-  float y_;
-  float width_;
-  float height_;
-  std::chrono::steady_clock::time_point age_;
-
-  QOpenGLBuffer vertexbuffer_;
-  QStaticText text_;
-
-};
+std::array<float, 12> GetVertices(const QRectF& rect, const ROTATION rotation, const bool mirror);
+QPointF ImageRectToOpenGL(const QRectF& rect, const bool mirror, const ROTATION rotation, const float x, const float y);
+QRectF ImageToRect(const QRect& imagepixelrect, const QRect& rect, const bool mirror, const ROTATION rotation);
+void WriteImageBuffer(QOpenGLFunctions* ogl, const IMAGEBUFFERTYPE currenttype, const int currentimagewidth, const int currentimageheight, const ImageBuffer& imagebuffer, const std::array<GLuint, 3>& textures, std::array<CUgraphicsResource, 3>& cudaresources);
+QString HTMLColour(const int r, const int g, const int b);
+QString FontText(const QVector4D& colour, const QString& text);
 
 ///// Globals /////
 
@@ -146,6 +129,7 @@ class View : public QObject, public QEnableSharedFromThis<View>
   QRect GetPixelRect() const;
   QRectF GetImageRect() const;
   QRect GetImagePixelRect() const;
+  QRectF GetImagePixelRectF() const;
 
   QImage GetQImage(const boost::optional<QRect>& rect) const;
 
@@ -178,7 +162,7 @@ class View : public QObject, public QEnableSharedFromThis<View>
   inline QOpenGLBuffer& GetTextVertexBuffer() { return textvertexbuffer_; }
   inline QOpenGLBuffer& GetVertexBuffer() { return vertexbuffer_; }
   inline QOpenGLBuffer& GetSelectedVertexBuffer() { return selectvertexbuffer_; }
-  inline std::map< std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> >& GetObjects() { return objects_; }
+  inline std::map< std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> >& GetObjects() { return objects_.GetObjects(); }
   std::array<GLuint, 3>& GetTextures() { return textures_; }
   void SetCUDAResource(const size_t index, const CUgraphicsResource cudaresource) { cudaresources_[index] = cudaresource; }
   CUgraphicsResource GetCUDAResource(const size_t index) const { return cudaresources_[index]; }
@@ -211,15 +195,11 @@ class View : public QObject, public QEnableSharedFromThis<View>
 
  protected:
 
-  static QString HTMLColour(const int r, const int g, const int b);
-  static QString FontText(const QVector4D& colour, const QString& text);
-
   static const std::array<float, 8> texturecoords_;
 
   virtual void timerEvent(QTimerEvent* event) override;
   QRectF GetOpenglRect(unsigned int x, unsigned int y, unsigned int width, unsigned int height) const;
   void SetMessage(const uint64_t playrequestindex, bool error, const QString& text);
-  std::array<float, 12> GetVertices(const QRectF& rect, const ROTATION rotation, const bool mirror) const;
   void WriteFrame(const ImageBuffer& imagebuffer);
   void UpdateObjects(const monocle::Objects* objects, const uint64_t time);
 
@@ -259,7 +239,7 @@ class View : public QObject, public QEnableSharedFromThis<View>
   QOpenGLBuffer textvertexbuffer_;
   QOpenGLBuffer vertexbuffer_;
   QOpenGLBuffer selectvertexbuffer_; // Represents the selection box
-  std::map< std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> > objects_;
+  Objects objects_;
   std::array<GLuint, 3> textures_;
   std::array<CUgraphicsResource, 3> cudaresources_; // Lazily initialised
   GLuint infotexture_;

@@ -14,35 +14,38 @@ enum class Codec : int8_t {
   MPEG4 = 2,
   H264 = 3,
   H265 = 4,
+  OBJECTDETECTOR = 5,
   MIN = METADATA,
-  MAX = H265
+  MAX = OBJECTDETECTOR
 };
 
-inline const Codec (&EnumValuesCodec())[5] {
+inline const Codec (&EnumValuesCodec())[6] {
   static const Codec values[] = {
     Codec::METADATA,
     Codec::MJPEG,
     Codec::MPEG4,
     Codec::H264,
-    Codec::H265
+    Codec::H265,
+    Codec::OBJECTDETECTOR
   };
   return values;
 }
 
 inline const char * const *EnumNamesCodec() {
-  static const char * const names[6] = {
+  static const char * const names[7] = {
     "METADATA",
     "MJPEG",
     "MPEG4",
     "H264",
     "H265",
+    "OBJECTDETECTOR",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameCodec(Codec e) {
-  if (e < Codec::METADATA || e > Codec::H265) return "";
+  if (e < Codec::METADATA || e > Codec::OBJECTDETECTOR) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesCodec()[index];
 }

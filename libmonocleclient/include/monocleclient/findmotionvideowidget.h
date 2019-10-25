@@ -10,6 +10,7 @@
 
 #include <array>
 #include <boost/lockfree/spsc_queue.hpp>
+#include <QAction>
 #include <QOpenGLBuffer>
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
@@ -58,7 +59,9 @@ class FindMotionVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   ~FindMotionVideoWidget();
 
   FindMotionWindow* GetFindMotionWindow();
+  FindMotionWindow* GetFindMotionWindow() const;
   FindMotionPlaybackWidget* GetFindMotionPlaybackWidget();
+  FindMotionPlaybackWidget* GetFindMotionPlaybackWidget() const;
 
   inline boost::lockfree::spsc_queue<ImageBuffer, boost::lockfree::capacity<IMAGEQUEUESIZE> >& GetImageQueue() { return imagequeue_; }
   inline VectorFreeFrameBuffer& GetFreeImageQueue() { return freeimagequeue_; }
@@ -74,10 +77,9 @@ class FindMotionVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   void SetPaused(const bool paused);
   bool IsPaused() const;
 
-  inline ImageCache& GetCache() { return cache_; }//TODO remove this
-
  protected:
 
+  virtual void contextMenuEvent(QContextMenuEvent* event) override;
   virtual void initializeGL() override;
   virtual void mouseMoveEvent(QMouseEvent* event) override;
   virtual void mousePressEvent(QMouseEvent* event) override;
@@ -89,10 +91,20 @@ class FindMotionVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
  private:
 
   bool GetImage(ImageBuffer& imagebuffer);
-  std::array<float, 12> GetVertices(const QRectF& rect, const ROTATION rotation, const bool mirror) const;
   void WriteFrame(const ImageBuffer& imagebuffer);
+  QRectF GetImageRect() const;
+  QRect GetImagePixelRect() const;
+  QRectF GetImagePixelRectF() const;
+  void SetPosition(const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent);
 
   static const std::array<float, 8> texturecoords_;
+
+  QAction* actionrotate0_;
+  QAction* actionrotate90_;
+  QAction* actionrotate180_;
+  QAction* actionrotate270_;
+  QAction* actionmirror_;
+  QAction* actionstretch_;
 
   QOpenGLShaderProgram viewrgbshader_;
   int rgbpositionlocation_;
@@ -115,7 +127,7 @@ class FindMotionVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   boost::lockfree::spsc_queue<ImageBuffer, boost::lockfree::capacity<IMAGEQUEUESIZE> > imagequeue_;
   VectorFreeFrameBuffer freeimagequeue_;
 
-  QRectF selectedrect_;
+  QRectF selectedrect_; // This is the rect before any transformations of stretched, mirrored or rotated
 
   uint64_t playrequestindex_;
   bool paused_;
@@ -132,11 +144,17 @@ class FindMotionVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   std::array<GLuint, 3> textures_;
   std::array<CUgraphicsResource, 3> cudaresources_; // Lazily initialised
 
-  int imagewidth_;
-  int imageheight_;
-
   FINDMOTIONSTATE state_;
   QPoint selectionpoint_;
+
+ public slots:
+
+  void Rotate0(bool);
+  void Rotate90(bool);
+  void Rotate180(bool);
+  void Rotate270(bool);
+  void ToggleMirror(bool);
+  void ToggleStretch(bool);
 
 };
 
