@@ -733,7 +733,7 @@ void FindMotionVideoWidget::paintGL()
       //TODO rectf = QRectF(QPointF((selectedrect_.x() - 0.5f) * 2.0f, (selectedrect_.y() - 0.5f) * -2.0f), QPointF((selectedrect_.right() - 0.5f) * 2.0f, (selectedrect_.bottom() - 0.5f) * -2.0f));
 
     }
-    else
+    else // (GetFindMotionWindow()->rotation_ == ROTATION::_0)
     {
       rectf = QRectF(QPointF((selectedrect_.x() - 0.5f) * -2.0f, (selectedrect_.y() - 0.5f) * -2.0f), QPointF((selectedrect_.right() - 0.5f) * -2.0f, (selectedrect_.bottom() - 0.5f) * -2.0f));
 
@@ -743,7 +743,7 @@ void FindMotionVideoWidget::paintGL()
   {
     if (GetFindMotionWindow()->rotation_ == ROTATION::_90)
     {
-      //TODO rectf = QRectF(QPointF((selectedrect_.x() - 0.5f) * 2.0f, (selectedrect_.y() - 0.5f) * -2.0f), QPointF((selectedrect_.right() - 0.5f) * 2.0f, (selectedrect_.bottom() - 0.5f) * -2.0f));
+      rectf = QRectF(QPointF((selectedrect_.x() - 0.5f) * 2.0f, (selectedrect_.y() - 0.5f) * -2.0f), QPointF((selectedrect_.right() - 0.5f) * 2.0f, (selectedrect_.bottom() - 0.5f) * -2.0f));//TODO
 
     }
     else if (GetFindMotionWindow()->rotation_ == ROTATION::_180)
@@ -756,7 +756,7 @@ void FindMotionVideoWidget::paintGL()
       //TODO rectf = QRectF(QPointF((selectedrect_.x() - 0.5f) * 2.0f, (selectedrect_.y() - 0.5f) * -2.0f), QPointF((selectedrect_.right() - 0.5f) * 2.0f, (selectedrect_.bottom() - 0.5f) * -2.0f));
 
     }
-    else
+    else // (GetFindMotionWindow()->rotation_ == ROTATION::_0)
     {
       rectf = QRectF(QPointF((selectedrect_.x() - 0.5f) * 2.0f, (selectedrect_.y() - 0.5f) * -2.0f), QPointF((selectedrect_.right() - 0.5f) * 2.0f, (selectedrect_.bottom() - 0.5f) * -2.0f));
 
@@ -764,6 +764,7 @@ void FindMotionVideoWidget::paintGL()
   }
 //TODO I think we need a method which calculates points based on mirrored,rotated and stretched every time...
   //TODO I think we need this for objects too
+  //TODO try to use the function/method inside view.h class as well if possible
 //TODO if we are stretched...
   const std::array<float, 10> selectvertices =
   {
