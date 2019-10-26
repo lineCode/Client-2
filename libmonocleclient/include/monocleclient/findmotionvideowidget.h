@@ -75,8 +75,6 @@ class FindMotionVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   void SetPaused(const bool paused);
   bool IsPaused() const;
 
-  inline ImageCache& GetCache() { return cache_; }//TODO remove this
-
  protected:
 
   virtual void contextMenuEvent(QContextMenuEvent* event) override;

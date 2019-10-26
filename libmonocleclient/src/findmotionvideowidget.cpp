@@ -160,7 +160,7 @@ void FindMotionVideoWidget::initializeGL()
   // Setup the vertex buffers
   vertexbuffer_.create();
   vertexbuffer_.setUsagePattern(QOpenGLBuffer::StaticDraw);
-  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), GetFindMotionWindow()->rotation_, GetFindMotionWindow()->mirror_);//TODO rect confusion
+  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), GetFindMotionWindow()->rotation_, GetFindMotionWindow()->mirror_);//TODO rect confusion... need GetImageRect() I think?
 
   // RGB shader
   if (!viewrgbshader_.addShaderFromSourceCode(QOpenGLShader::Vertex,
@@ -715,12 +715,13 @@ void FindMotionVideoWidget::paintGL()
   vertexbuffer.bind();
 
   //TODO I think we need GetImageRect() which deals with stretched_
+//TODO make a method for all this bajunky so it can be used by the red rectangle thing too...
   QRectF rectf;
   if (GetFindMotionWindow()->mirror_)
   {
     if (GetFindMotionWindow()->rotation_ == ROTATION::_90)
     {
-      //TODO rectf = QRectF(QPointF((selectedrect_.x() - 0.5f) * 2.0f, (selectedrect_.y() - 0.5f) * -2.0f), QPointF((selectedrect_.right() - 0.5f) * 2.0f, (selectedrect_.bottom() - 0.5f) * -2.0f));
+      rectf = QRectF(QPointF((selectedrect_.bottom() - 0.5f) * -2.0f, (selectedrect_.x() - 0.5f) * 2.0f), QPointF((selectedrect_.y() - 0.5f) * -2.0f, (selectedrect_.right() - 0.5f) * 2.0f));
 
     }
     else if (GetFindMotionWindow()->rotation_ == ROTATION::_180)
@@ -730,7 +731,7 @@ void FindMotionVideoWidget::paintGL()
     }
     else if (GetFindMotionWindow()->rotation_ == ROTATION::_270)
     {
-      //TODO rectf = QRectF(QPointF((selectedrect_.x() - 0.5f) * 2.0f, (selectedrect_.y() - 0.5f) * -2.0f), QPointF((selectedrect_.right() - 0.5f) * 2.0f, (selectedrect_.bottom() - 0.5f) * -2.0f));
+      rectf = QRectF(QPointF((selectedrect_.bottom() - 0.5f) * 2.0f, (selectedrect_.right() - 0.5f) * -2.0f), QPointF((selectedrect_.y() - 0.5f) * 2.0f, (selectedrect_.x() - 0.5f) * -2.0f));
 
     }
     else // (GetFindMotionWindow()->rotation_ == ROTATION::_0)
@@ -743,7 +744,7 @@ void FindMotionVideoWidget::paintGL()
   {
     if (GetFindMotionWindow()->rotation_ == ROTATION::_90)
     {
-      rectf = QRectF(QPointF((selectedrect_.x() - 0.5f) * 2.0f, (selectedrect_.y() - 0.5f) * -2.0f), QPointF((selectedrect_.right() - 0.5f) * 2.0f, (selectedrect_.bottom() - 0.5f) * -2.0f));//TODO
+      rectf = QRectF(QPointF((selectedrect_.bottom() - 0.5f) * -2.0f, (selectedrect_.x() - 0.5f) * -2.0f), QPointF((selectedrect_.y() - 0.5f) * -2.0f, (selectedrect_.right() - 0.5f) * -2.0f));
 
     }
     else if (GetFindMotionWindow()->rotation_ == ROTATION::_180)
@@ -753,7 +754,7 @@ void FindMotionVideoWidget::paintGL()
     }
     else if (GetFindMotionWindow()->rotation_ == ROTATION::_270)
     {
-      //TODO rectf = QRectF(QPointF((selectedrect_.x() - 0.5f) * 2.0f, (selectedrect_.y() - 0.5f) * -2.0f), QPointF((selectedrect_.right() - 0.5f) * 2.0f, (selectedrect_.bottom() - 0.5f) * -2.0f));
+      rectf = QRectF(QPointF((selectedrect_.bottom() - 0.5f) * 2.0f, (selectedrect_.right() - 0.5f) * 2.0f), QPointF((selectedrect_.y() - 0.5f) * 2.0f, (selectedrect_.x() - 0.5f) * 2.0f));
 
     }
     else // (GetFindMotionWindow()->rotation_ == ROTATION::_0)
