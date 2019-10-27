@@ -762,6 +762,7 @@ void FindMotionVideoWidget::paintGL()
 
   //TODO I think we need GetImageRect() which deals with stretched_
 //TODO stretched makes this different too...
+  //TODO 2.0f is no good... how do we get the imagerect?
   QRectF rectf;
   if (GetFindMotionWindow()->mirror_)
   {

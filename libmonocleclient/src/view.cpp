@@ -106,6 +106,7 @@ Object::Object(Object&& rhs) :
 void Object::Allocate(const QRect& imagepixelrect, const int videowidgetwidth, const int videowidgetheight)
 {
 //TODO this needs to be sorted for rotation, stretched and mirror
+  //TODO and use a nice method... I think we pass them in here...
   // Allocate the sort out the bufferbuffer
   const float left = (((imagepixelrect.left() + (x_ * imagepixelrect.width())) / videowidgetwidth) * 2.0f) - 1.0f;
   const float top = 1.0f - (((imagepixelrect.top() + (y_ * imagepixelrect.height())) / videowidgetheight) * 2.0f);
