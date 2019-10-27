@@ -118,7 +118,7 @@ class FindMotionVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   boost::lockfree::spsc_queue<ImageBuffer, boost::lockfree::capacity<IMAGEQUEUESIZE> > imagequeue_;
   VectorFreeFrameBuffer freeimagequeue_;
 
-  QRectF selectedrect_;
+  QRectF selectedrect_; // This is the rect before any transformations of stretched, mirrored or rotated
 
   uint64_t playrequestindex_;
   bool paused_;

@@ -431,7 +431,6 @@ void FindMotionVideoWidget::mouseReleaseEvent(QMouseEvent* event)
                             std::max(0, std::min(event->pos().y(), selectionpoint_.y()))),
                      QPoint(std::min(width(), std::max(event->pos().x(), selectionpoint_.x())),
                             std::min(height(), std::max(event->pos().y(), selectionpoint_.y()))));
-
     if ((rect.width() < 3) || (rect.height() < 3))
     {
       // Ignore rectangles that are too small to do analysis in
@@ -439,8 +438,55 @@ void FindMotionVideoWidget::mouseReleaseEvent(QMouseEvent* event)
     }
     else
     {
-      selectedrect_ = QRectF(QPointF(static_cast<float>(rect.x()) / static_cast<float>(width()), static_cast<float>(rect.y()) / static_cast<float>(height())),
-                             QPointF(static_cast<float>(rect.right()) / static_cast<float>(width()), static_cast<float>(rect.bottom()) / static_cast<float>(height())));
+//TODO create a method for all this junk
+//TODO stretched... almost certain this is important...
+  //TODO we need to know the pixel rect we are operating inside I think... and then use width() and height() of *that*, and then add on imagepixelrect.x()
+      if (GetFindMotionWindow()->mirror_)
+      {
+        if (GetFindMotionWindow()->rotation_ == ROTATION::_90)
+        {
+          selectedrect_ = QRectF(QPointF(static_cast<float>(height() - rect.bottom()) / static_cast<float>(height()), static_cast<float>(width() - rect.x()) / static_cast<float>(width())),
+                                 QPointF(static_cast<float>(height() - rect.top()) / static_cast<float>(height()), static_cast<float>(width() - rect.right()) / static_cast<float>(width())));
+        }
+        else if (GetFindMotionWindow()->rotation_ == ROTATION::_180)
+        {
+          selectedrect_ = QRectF(QPointF(static_cast<float>(rect.x()) / static_cast<float>(width()), static_cast<float>(height() - rect.y()) / static_cast<float>(height())),
+                                 QPointF(static_cast<float>(rect.right()) / static_cast<float>(width()), static_cast<float>(height() - rect.bottom()) / static_cast<float>(height())));
+        }
+        else if (GetFindMotionWindow()->rotation_ == ROTATION::_270)
+        {
+          selectedrect_ = QRectF(QPointF(static_cast<float>(rect.bottom()) / static_cast<float>(height()), static_cast<float>(rect.right()) / static_cast<float>(width())),
+                                 QPointF(static_cast<float>(rect.top()) / static_cast<float>(height()), static_cast<float>(rect.x()) / static_cast<float>(width())));
+        }
+        else // (GetFindMotionWindow()->rotation_ == ROTATION::_0)
+        {
+          selectedrect_ = QRectF(QPointF(static_cast<float>(width() - rect.right()) / static_cast<float>(width()), static_cast<float>(rect.y()) / static_cast<float>(height())),
+                                 QPointF(static_cast<float>(width() - rect.x()) / static_cast<float>(width()), static_cast<float>(rect.bottom()) / static_cast<float>(height())));
+        }
+      }
+      else
+      {
+        if (GetFindMotionWindow()->rotation_ == ROTATION::_90)
+        {
+          selectedrect_ = QRectF(QPointF(static_cast<float>(rect.bottom()) / static_cast<float>(height()), static_cast<float>(width() - rect.x()) / static_cast<float>(width())),
+                                 QPointF(static_cast<float>(rect.top()) / static_cast<float>(height()), static_cast<float>(width() - rect.right()) / static_cast<float>(width())));
+        }
+        else if (GetFindMotionWindow()->rotation_ == ROTATION::_180)
+        {
+          selectedrect_ = QRectF(QPointF(static_cast<float>(width() - rect.x()) / static_cast<float>(width()), static_cast<float>(height() - rect.y()) / static_cast<float>(height())),
+                                 QPointF(static_cast<float>(width() - rect.right()) / static_cast<float>(width()), static_cast<float>(height() - rect.bottom()) / static_cast<float>(height())));
+        }
+        else if (GetFindMotionWindow()->rotation_ == ROTATION::_270)
+        {
+          selectedrect_ = QRectF(QPointF(static_cast<float>(height() - rect.bottom()) / static_cast<float>(height()), static_cast<float>(rect.right()) / static_cast<float>(width())),
+                                 QPointF(static_cast<float>(height() - rect.top()) / static_cast<float>(height()), static_cast<float>(rect.x()) / static_cast<float>(width())));
+        }
+        else // (GetFindMotionWindow()->rotation_ == ROTATION::_0)
+        {
+          selectedrect_ = QRectF(QPointF(static_cast<float>(rect.x()) / static_cast<float>(width()), static_cast<float>(rect.y()) / static_cast<float>(height())),
+                                 QPointF(static_cast<float>(rect.right()) / static_cast<float>(width()), static_cast<float>(rect.bottom()) / static_cast<float>(height())));
+        }
+      }
     }
     update();
   }
@@ -715,7 +761,7 @@ void FindMotionVideoWidget::paintGL()
   vertexbuffer.bind();
 
   //TODO I think we need GetImageRect() which deals with stretched_
-//TODO make a method for all this bajunky so it can be used by the red rectangle thing too...
+//TODO stretched makes this different too...
   QRectF rectf;
   if (GetFindMotionWindow()->mirror_)
   {
@@ -766,7 +812,6 @@ void FindMotionVideoWidget::paintGL()
 //TODO I think we need a method which calculates points based on mirrored,rotated and stretched every time...
   //TODO I think we need this for objects too
   //TODO try to use the function/method inside view.h class as well if possible
-//TODO if we are stretched...
   const std::array<float, 10> selectvertices =
   {
     static_cast<float>(rectf.right()), static_cast<float>(rectf.bottom()),
