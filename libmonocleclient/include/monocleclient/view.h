@@ -81,6 +81,7 @@ struct Object
   Object(Object&& rhs);
 
   void Allocate(const QRectF& imagepixelrect, const bool mirror, const ROTATION rotation);
+  void DrawObjectText(const QRectF& imagepixelrect, const int width, const int height, const bool mirror, const ROTATION rotation, QPainter& painter);
 
   Object& operator=(Object&& rhs);
 

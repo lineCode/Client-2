@@ -2197,7 +2197,7 @@ void VideoWidget::paintGL()
       continue;
     }
 
-    const QRectF imagepixelrect = view->GetImagePixelRect();
+    const QRectF imagepixelrect = view->GetImagePixelRectF();
     for (std::pair< const std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> >& objects : view->GetObjects())
     {
       const uint64_t time = view->GetTime();
@@ -2207,10 +2207,7 @@ void VideoWidget::paintGL()
 
         continue;
       }
-
-      const int left = imagepixelrect.left() + (object->x_ * imagepixelrect.width());
-      const int top = imagepixelrect.top() + (object->y_ * imagepixelrect.height()) - object->text_.size().height();
-      painter.drawStaticText(QPoint(left, top), object->text_);
+      object->DrawObjectText(imagepixelrect, width(), height(), view->GetMirror(), view->GetRotation(), painter);
     }
   }
 

@@ -75,8 +75,8 @@ const std::array<float, 8> View::texturecoords_ =
 };
 
 ///// Functions /////
-//TODO ImageRectToOpenGL() ?
-QPointF Something(const QRectF& rect, const bool mirror, const ROTATION rotation, const float x, const float y)//TODO rename SomethingToOpengl
+
+QPointF ImageRectToOpenGL(const QRectF& rect, const bool mirror, const ROTATION rotation, const float x, const float y)
 {
   if (mirror)
   {
@@ -166,8 +166,8 @@ Object::Object(Object&& rhs) :
 
 void Object::Allocate(const QRectF& imagepixelrect, const bool mirror, const ROTATION rotation)
 {
-  const QPointF topleft = Something(imagepixelrect, mirror, rotation, x_, y_);
-  const QPointF bottomright = Something(imagepixelrect, mirror, rotation, x_ + width_, y_ + height_);
+  const QPointF topleft = ImageRectToOpenGL(imagepixelrect, mirror, rotation, x_, y_);
+  const QPointF bottomright = ImageRectToOpenGL(imagepixelrect, mirror, rotation, x_ + width_, y_ + height_);
   std::array<float, 10> vertices =
   {
     static_cast<float>(bottomright.x()), static_cast<float>(bottomright.y()),
@@ -181,6 +181,62 @@ void Object::Allocate(const QRectF& imagepixelrect, const bool mirror, const ROT
   vertexbuffer_.bind();
   vertexbuffer_.allocate(vertices.data(), static_cast<int>(vertices.size() * sizeof(float)));
   vertexbuffer_.release();
+}
+
+void Object::DrawObjectText(const QRectF& imagepixelrect, const int width, const int height, const bool mirror, const ROTATION rotation, QPainter& painter)
+{
+  QPointF point;
+  if (mirror)
+  {
+    if (rotation == ROTATION::_90)
+    {
+      point = ImageRectToOpenGL(imagepixelrect, mirror, rotation, x_ + width_, y_ + height_);
+
+    }
+    else if (rotation == ROTATION::_180)
+    {
+      point = ImageRectToOpenGL(imagepixelrect, mirror, rotation, x_, y_ + height_);
+
+    }
+    else if (rotation == ROTATION::_270)
+    {
+      point = ImageRectToOpenGL(imagepixelrect, mirror, rotation, x_, y_);
+
+    }
+    else // (rotation == ROTATION::_0)
+    {
+      point = ImageRectToOpenGL(imagepixelrect, mirror, rotation, x_ + width_, y_);
+
+    }
+  }
+  else
+  {
+    if (rotation == ROTATION::_90)
+    {
+      point = ImageRectToOpenGL(imagepixelrect, mirror, rotation, x_, y_ + height_);
+
+    }
+    else if (rotation == ROTATION::_180)
+    {
+      point = ImageRectToOpenGL(imagepixelrect, mirror, rotation, x_ + width_, y_ + height_);
+
+    }
+    else if (rotation == ROTATION::_270)
+    {
+      point = ImageRectToOpenGL(imagepixelrect, mirror, rotation, x_ + width_, y_);
+
+    }
+    else // (rotation == ROTATION::_0)
+    {
+      point = ImageRectToOpenGL(imagepixelrect, mirror, rotation, x_, y_);
+
+    }
+  }
+  point.setX((point.x() + 1.0f) / 2.0f);
+  point.setY((point.y() + 1.0f) / 2.0f);
+  point.setX(point.x() * width);
+  point.setY(height - ((point.y() * height) + text_.size().height()));
+  painter.drawStaticText(point, text_);
 }
 
 Object& Object::operator=(Object&& rhs)
