@@ -91,10 +91,14 @@ class FindMotionVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   bool GetImage(ImageBuffer& imagebuffer);
   std::array<float, 12> GetVertices(const QRectF& rect, const ROTATION rotation, const bool mirror) const;
   void WriteFrame(const ImageBuffer& imagebuffer);
-  void SetPosition(const QRectF& rect, const ROTATION rotation, const bool mirror);
+  void SetPosition(const QRectF& rect, const ROTATION rotation, const bool mirror, const bool makecurrent);
 
   static const std::array<float, 8> texturecoords_;
 
+  QAction* actionrotate0_;
+  QAction* actionrotate90_;
+  QAction* actionrotate180_;
+  QAction* actionrotate270_;
   QAction* actionmirror_;
 
   QOpenGLShaderProgram viewrgbshader_;
@@ -143,6 +147,10 @@ class FindMotionVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
 
  public slots:
 
+  void Rotate0(bool);
+  void Rotate90(bool);
+  void Rotate180(bool);
+  void Rotate270(bool);
   void ToggleMirror(bool);
 
 };
