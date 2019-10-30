@@ -34,6 +34,7 @@ FindMotionVideoWidget::FindMotionVideoWidget(QWidget* parent) :
   actionrotate180_(new QAction(tr("Rotate 180"), this)),
   actionrotate270_(new QAction(tr("Rotate 270"), this)),
   actionmirror_(new QAction(tr("Mirror"), this)),
+  actionstretch_(new QAction(tr("Stretch"), this)),
   playrequestindex_(0),
   paused_(false),
   type_(IMAGEBUFFERTYPE_INVALID),
@@ -54,13 +55,16 @@ FindMotionVideoWidget::FindMotionVideoWidget(QWidget* parent) :
   actionrotate180_->setCheckable(true);
   actionrotate270_->setCheckable(true);
   actionmirror_->setCheckable(true);
-  //TODO actionmirror_->setChecked(mirror_);
+  actionmirror_->setChecked(GetFindMotionWindow()->mirror_);
+  actionstretch_->setCheckable(true);
+  actionstretch_->setChecked(GetFindMotionWindow()->stretch_);
 
   connect(actionrotate0_, &QAction::triggered, this, &FindMotionVideoWidget::Rotate0);
   connect(actionrotate90_, &QAction::triggered, this, &FindMotionVideoWidget::Rotate90);
   connect(actionrotate180_, &QAction::triggered, this, &FindMotionVideoWidget::Rotate180);
   connect(actionrotate270_, &QAction::triggered, this, &FindMotionVideoWidget::Rotate270);
   connect(actionmirror_, &QAction::triggered, this, &FindMotionVideoWidget::ToggleMirror);
+  connect(actionstretch_, &QAction::triggered, this, &FindMotionVideoWidget::ToggleStretch);
 
   setCursor(Qt::CrossCursor);
 
@@ -147,7 +151,7 @@ void FindMotionVideoWidget::contextMenuEvent(QContextMenuEvent* event)
   rotation->addActions({ actionrotate0_, actionrotate90_, actionrotate180_, actionrotate270_ });
   menu.addMenu(rotation);
   menu.addAction(actionmirror_);
-  //TODO stretched please
+  menu.addAction(actionstretch_);
   menu.exec(event->globalPos());
 }
 
@@ -179,7 +183,7 @@ void FindMotionVideoWidget::initializeGL()
   // Setup the vertex buffers
   vertexbuffer_.create();
   vertexbuffer_.setUsagePattern(QOpenGLBuffer::StaticDraw);
-  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), GetFindMotionWindow()->rotation_, GetFindMotionWindow()->mirror_, false);//TODO rect confusion... need GetImageRect() I think?
+  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), GetFindMotionWindow()->rotation_, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, false);//TODO rect confusion... need GetImageRect() I think?
 
   // RGB shader
   if (!viewrgbshader_.addShaderFromSourceCode(QOpenGLShader::Vertex,
@@ -923,7 +927,6 @@ bool FindMotionVideoWidget::GetImage(ImageBuffer& imagebuffer)
   }
 }
 
-
 std::array<float, 12> FindMotionVideoWidget::GetVertices(const QRectF& rect, const ROTATION rotation, const bool mirror) const
 {
   if (mirror)
@@ -1115,7 +1118,7 @@ void FindMotionVideoWidget::WriteFrame(const ImageBuffer& imagebuffer)
   update();
 }
 
-void FindMotionVideoWidget::SetPosition(const QRectF& rect, const ROTATION rotation, const bool mirror, const bool makecurrent)
+void FindMotionVideoWidget::SetPosition(const QRectF& rect, const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent)
 {
   if (makecurrent)
   {
@@ -1125,6 +1128,7 @@ void FindMotionVideoWidget::SetPosition(const QRectF& rect, const ROTATION rotat
 
   GetFindMotionWindow()->rotation_ = rotation;
   GetFindMotionWindow()->mirror_ = mirror;
+  GetFindMotionWindow()->stretch_ = stretch;
 
   const std::array<float, 12> vertices = GetVertices(rect, rotation, mirror);//TODO rect confusion
   vertexbuffer_.bind();
@@ -1136,41 +1140,47 @@ void FindMotionVideoWidget::SetPosition(const QRectF& rect, const ROTATION rotat
     doneCurrent();
 
   }
-
 }
 
 void FindMotionVideoWidget::Rotate0(bool)
 {
   //TODO rect pass through
-  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), ROTATION::_0, GetFindMotionWindow()->mirror_, true);
+  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), ROTATION::_0, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, true);
 
 }
 
 void FindMotionVideoWidget::Rotate90(bool)
 {
   //TODO rect pass through
-  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), ROTATION::_90, GetFindMotionWindow()->mirror_, true);
+  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), ROTATION::_90, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, true);
 
 }
 
 void FindMotionVideoWidget::Rotate180(bool)
 {
   //TODO rect pass through
-  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), ROTATION::_180, GetFindMotionWindow()->mirror_, true);
+  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), ROTATION::_180, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, true);
 
 }
 
 void FindMotionVideoWidget::Rotate270(bool)
 {
   //TODO rect pass through
-  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), ROTATION::_270, GetFindMotionWindow()->mirror_, true);
+  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), ROTATION::_270, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, true);
 
 }
 
 void FindMotionVideoWidget::ToggleMirror(bool)
 {
   //TODO rect pass through
-  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), GetFindMotionWindow()->rotation_, !GetFindMotionWindow()->mirror_, true);
+  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), GetFindMotionWindow()->rotation_, !GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, true);
+}
+
+void FindMotionVideoWidget::ToggleStretch(bool)
+{
+  //TODO rect pass through
+  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), GetFindMotionWindow()->rotation_, GetFindMotionWindow()->mirror_, !GetFindMotionWindow()->stretch_, true);
+
 }
 
 }

@@ -58,7 +58,7 @@ class FindMotionWindow : public QDialog
 
  public:
 
-  FindMotionWindow(QWidget* parent, const QImage& image, const boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingTrack>& track, const QVector4D& colour, const uint64_t starttime, const uint64_t endtime, const QRectF& rect, const bool mirror, const ROTATION rotation);
+  FindMotionWindow(QWidget* parent, const QImage& image, const boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingTrack>& track, const QVector4D& colour, const uint64_t starttime, const uint64_t endtime, const QRectF& rect, const bool mirror, const ROTATION rotation, const bool stretch);
   virtual ~FindMotionWindow();
 
   inline const boost::shared_ptr<Connection>& GetConnection() const { return connection_; }
@@ -109,6 +109,7 @@ class FindMotionWindow : public QDialog
 
   bool mirror_;
   ROTATION rotation_;
+  bool stretch_;
 
   boost::shared_ptr<Connection> connection_;
 

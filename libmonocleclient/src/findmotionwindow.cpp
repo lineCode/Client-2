@@ -54,14 +54,15 @@ boost::optional<int> sensitivity;
 
 ///// Methods /////
 
-FindMotionWindow::FindMotionWindow(QWidget* parent, const QImage& image, const boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingTrack>& track, const QVector4D& colour, const uint64_t starttime, const uint64_t endtime, const QRectF& rect, const bool mirror, const ROTATION rotation) :
+FindMotionWindow::FindMotionWindow(QWidget* parent, const QImage& image, const boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingTrack>& track, const QVector4D& colour, const uint64_t starttime, const uint64_t endtime, const QRectF& rect, const bool mirror, const ROTATION rotation, const bool stretch) :
   QDialog(parent),
   cudacontext_(MainWindow::Instance()->GetNextCUDAContext()),
   device_(device),
   recording_(recording),
   track_(track),
   mirror_(mirror),
-  rotation_(rotation)
+  rotation_(rotation),
+  stretch_(stretch)
 {
   ui_.setupUi(this);
 
