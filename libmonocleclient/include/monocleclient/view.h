@@ -80,7 +80,7 @@ struct Object
   Object(const uint64_t id, const monocle::ObjectClass classid, const uint64_t time, const float x, const float y, const float width, const float height);
   Object(Object&& rhs);
 
-  void Allocate(const QRect& imagepixelrect, const int videowidgetwidth, const int videowidgetheight);
+  void Allocate(const QRectF& imagepixelrect, const bool mirror, const ROTATION rotation);
 
   Object& operator=(Object&& rhs);
 
@@ -146,6 +146,7 @@ class View : public QObject, public QEnableSharedFromThis<View>
   QRect GetPixelRect() const;
   QRectF GetImageRect() const;
   QRect GetImagePixelRect() const;
+  QRectF GetImagePixelRectF() const;
 
   QImage GetQImage(const boost::optional<QRect>& rect) const;
 

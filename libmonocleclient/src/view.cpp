@@ -18,6 +18,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QPainter>
+#include <QPointF>
 #include <QResource>
 #include <QStandardPaths>
 #include <utility/utility.hpp>
@@ -73,9 +74,69 @@ const std::array<float, 8> View::texturecoords_ =
   0.0f, 0.0f
 };
 
+///// Functions /////
+//TODO ImageRectToOpenGL() ?
+QPointF Something(const QRectF& rect, const bool mirror, const ROTATION rotation, const float x, const float y)//TODO rename SomethingToOpengl
+{
+  if (mirror)
+  {
+    if (rotation == ROTATION::_90)
+    {
+      const float pointx = ((rect.right() - (y * rect.width())) * 2.0f) - 1.0f;
+      const float pointy = 1.0f - ((rect.bottom() - (x * rect.height())) * 2.0f);
+      return QPointF(pointx, pointy);
+    }
+    else if (rotation == ROTATION::_180)
+    {
+      const float pointx = ((rect.left() + (x * rect.width())) * 2.0f) - 1.0f;
+      const float pointy = 1.0f - ((rect.bottom() - (y * rect.height())) * 2.0f);
+      return QPointF(pointx, pointy);
+    }
+    else if (rotation == ROTATION::_270)
+    {
+      const float pointx = ((rect.left() + (y * rect.width())) * 2.0f) - 1.0f;
+      const float pointy = 1.0f - ((rect.top() + (x * rect.height())) * 2.0f);
+      return QPointF(pointx, pointy);
+    }
+    else // (rotation == ROTATION::_0)
+    {
+      const float pointx = ((rect.right() - (x * rect.width())) * 2.0f) - 1.0f;
+      const float pointy = 1.0f - ((rect.top() + (y * rect.height())) * 2.0f);
+      return QPointF(pointx, pointy);
+    }
+  }
+  else
+  {
+    if (rotation == ROTATION::_90)
+    {
+      const float pointx = ((rect.right() - (y * rect.width())) * 2.0f) - 1.0f;
+      const float pointy = 1.0f - ((rect.top() + (x * rect.height())) * 2.0f);
+      return QPointF(pointx, pointy);
+    }
+    else if (rotation == ROTATION::_180)
+    {
+      const float pointx = ((rect.right() - (x * rect.width())) * 2.0f) - 1.0f;
+      const float pointy = 1.0f - ((rect.bottom() - (y * rect.height())) * 2.0f);
+      return QPointF(pointx, pointy);
+    }
+    else if (rotation == ROTATION::_270)
+    {
+      const float pointx = ((rect.left() + (y * rect.width())) * 2.0f) - 1.0f;
+      const float pointy = 1.0f - ((rect.bottom() - (x * rect.height())) * 2.0f);
+      return QPointF(pointx, pointy);
+    }
+    else // (rotation == ROTATION::_0)
+    {
+      const float pointx = ((rect.left() + (x * rect.width())) * 2.0f) - 1.0f;
+      const float pointy = 1.0f - ((rect.top() + (y * rect.height())) * 2.0f);
+      return QPointF(pointx, pointy);
+    }
+  }
+}
+
 ///// Methods /////
 
-Object::Object(const uint64_t id, const  monocle::ObjectClass classid, const uint64_t time, const float x, const float y, const float width, const float height) :
+Object::Object(const uint64_t id, const monocle::ObjectClass classid, const uint64_t time, const float x, const float y, const float width, const float height) :
   id_(id),
   classid_(classid),
   time_(time),
@@ -103,27 +164,23 @@ Object::Object(Object&& rhs) :
 
 }
 
-void Object::Allocate(const QRect& imagepixelrect, const int videowidgetwidth, const int videowidgetheight)
+void Object::Allocate(const QRectF& imagepixelrect, const bool mirror, const ROTATION rotation)
 {
-//TODO this needs to be sorted for rotation, stretched and mirror
-  //TODO and use a nice method... I think we pass them in here...
-  // Allocate the sort out the bufferbuffer
-  const float left = (((imagepixelrect.left() + (x_ * imagepixelrect.width())) / videowidgetwidth) * 2.0f) - 1.0f;
-  const float top = 1.0f - (((imagepixelrect.top() + (y_ * imagepixelrect.height())) / videowidgetheight) * 2.0f);
-  const float right = (((imagepixelrect.left() + ((x_ + width_) * imagepixelrect.width())) / videowidgetwidth) * 2.0f) - 1.0f;
-  const float bottom = 1.0f - (((imagepixelrect.top() + ((y_ + height_) * imagepixelrect.height())) / videowidgetheight) * 2.0f);
-  vertexbuffer_.bind();
-  const std::array<float, 10> vertices =
+  const QPointF topleft = Something(imagepixelrect, mirror, rotation, x_, y_);
+  const QPointF bottomright = Something(imagepixelrect, mirror, rotation, x_ + width_, y_ + height_);
+  std::array<float, 10> vertices =
   {
-    static_cast<float>(right), static_cast<float>(bottom),
-    static_cast<float>(right), static_cast<float>(top),
-    static_cast<float>(left), static_cast<float>(top),
-    static_cast<float>(left), static_cast<float>(bottom),
-    static_cast<float>(right), static_cast<float>(bottom)
+    static_cast<float>(bottomright.x()), static_cast<float>(bottomright.y()),
+    static_cast<float>(bottomright.x()), static_cast<float>(topleft.y()),
+    static_cast<float>(topleft.x()), static_cast<float>(topleft.y()),
+    static_cast<float>(topleft.x()), static_cast<float>(bottomright.y()),
+    static_cast<float>(bottomright.x()), static_cast<float>(bottomright.y())
   };
+
+  // Allocate the sort out the bufferbuffer
+  vertexbuffer_.bind();
   vertexbuffer_.allocate(vertices.data(), static_cast<int>(vertices.size() * sizeof(float)));
   vertexbuffer_.release();
-
 }
 
 Object& Object::operator=(Object&& rhs)
@@ -500,13 +557,12 @@ void View::SetPosition(VideoWidget* videowidget, const unsigned int x, const uns
   digitalsignvertexbuffer_.allocate(digitalsignvertices.data(), static_cast<int>(digitalsignvertices.size() * sizeof(float)));
   digitalsignvertexbuffer_.release();
 
-  const QRect imagepixelrect = GetImagePixelRect();
+  const QRectF imagepixelrect = GetImagePixelRectF();
   for (std::pair< const std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> >& objects : objects_)
   {
     for (Object& object : objects.second)
     {
-//TODO pass in rotation, stretched and mirrored here I think?
-      object.Allocate(imagepixelrect, videowidget_->width(), videowidget_->height());
+      object.Allocate(imagepixelrect, mirror_, rotation_);
 
     }
   }
@@ -580,6 +636,12 @@ QRect View::GetImagePixelRect() const
 {
   const QRectF imagerect = GetImageRect();
   return QRect(QPoint(((imagerect.left() + 1.0f) / 2.0f) * videowidget_->width(), (1.0f - ((imagerect.top() + 1.0f) / 2.0f)) * videowidget_->height()), QPoint(((imagerect.right() + 1.0f) / 2.0f) * videowidget_->width(), (1.0f - ((imagerect.bottom() + 1.0f) / 2.0f)) * videowidget_->height()));
+}
+
+QRectF View::GetImagePixelRectF() const
+{
+  const QRectF imagerect = GetImageRect();
+  return QRectF(QPointF(((imagerect.left() + 1.0f) / 2.0f), (1.0f - (imagerect.top() + 1.0f) / 2.0f)), QPointF(((imagerect.right() + 1.0f) / 2.0f), (1.0f - (imagerect.bottom() + 1.0f) / 2.0f)));
 }
 
 QImage View::GetQImage(const boost::optional<QRect>& rect) const
@@ -1104,7 +1166,7 @@ void View::WriteFrame(const ImageBuffer& imagebuffer)
 
 void View::UpdateObjects(const monocle::Objects* objects, const uint64_t time)
 {
-  const QRect imagepixelrect = GetImagePixelRect();
+  const QRectF imagepixelrect = GetImagePixelRectF();
   for (const monocle::Object* object : *objects->objects())
   {
     Object o(object->id(), object->classid(), time, object->x(), object->y(), object->width(), object->height());
@@ -1117,7 +1179,7 @@ void View::UpdateObjects(const monocle::Objects* objects, const uint64_t time)
     o.text_.setTextFormat(Qt::TextFormat::RichText);
     o.vertexbuffer_.create();
     o.vertexbuffer_.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    o.Allocate(imagepixelrect, videowidget_->width(), videowidget_->height());
+    o.Allocate(imagepixelrect, mirror_, rotation_);
 
     auto i = std::find_if(objects_.begin(), objects_.end(), [object](const std::pair< const std::pair<monocle::ObjectClass, uint64_t>, const std::vector<Object>& >& o) { return ((o.first.first == object->classid()) && (o.first.second == object->id())); });
     if (i == objects_.end())
