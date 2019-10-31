@@ -46,8 +46,6 @@ FindMotionVideoWidget::FindMotionVideoWidget(QWidget* parent) :
   vertexbuffer_(QOpenGLBuffer::VertexBuffer),
   textures_({ 0, 0, 0 }),
   cudaresources_({ nullptr, nullptr, nullptr }),
-  imagewidth_(0),
-  imageheight_(0),
   state_(FINDMOTIONSTATE_SELECT)
 {
   actionrotate0_->setCheckable(true);
@@ -183,7 +181,7 @@ void FindMotionVideoWidget::initializeGL()
   // Setup the vertex buffers
   vertexbuffer_.create();
   vertexbuffer_.setUsagePattern(QOpenGLBuffer::StaticDraw);
-  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), GetFindMotionWindow()->rotation_, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, false);//TODO rect confusion... need GetImageRect() I think?
+  SetPosition(GetFindMotionWindow()->rotation_, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, false);//TODO rect confusion... need GetImageRect() I think?
 
   // RGB shader
   if (!viewrgbshader_.addShaderFromSourceCode(QOpenGLShader::Vertex,
@@ -517,6 +515,7 @@ void FindMotionVideoWidget::mouseReleaseEvent(QMouseEvent* event)
 
 void FindMotionVideoWidget::resizeGL(int width, int height)
 {
+  SetPosition(GetFindMotionWindow()->rotation_, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, true);
 
 }
 
@@ -572,8 +571,8 @@ void FindMotionVideoWidget::paintGL()
       if ((type_ != imagebuffer.type_) || (type_ != imagebuffer.widths_[0]) || (type_ != imagebuffer.heights_[0]))
       {
         type_ = imagebuffer.type_;
-        imagewidth_ = imagebuffer.widths_[0];
-        imageheight_ = imagebuffer.heights_[0];
+        GetFindMotionWindow()->imagewidth_ = imagebuffer.widths_[0];
+        GetFindMotionWindow()->imageheight_ = imagebuffer.heights_[0];
       }
 
       time_ = imagebuffer.time_;
@@ -605,7 +604,7 @@ void FindMotionVideoWidget::paintGL()
       {
         cuCtxPushCurrent_v2(imagebuffer.cudacontext_);
         bool resetresources = false; // Do we need to reinitialise the cuda stuff if dimensions and format have changed
-        if ((imagebuffer.type_ != type_) || (imagebuffer.widths_[0] != imagewidth_) || (imagebuffer.heights_[0] != imageheight_) || !cudaresources_[0] || !cudaresources_[1])
+        if ((imagebuffer.type_ != type_) || (imagebuffer.widths_[0] != GetFindMotionWindow()->imagewidth_) || (imagebuffer.heights_[0] != GetFindMotionWindow()->imageheight_) || !cudaresources_[0] || !cudaresources_[1])
         {
           // Destroy any old CUDA stuff we had laying around
           if (GetFindMotionWindow()->cudacontext_)
@@ -929,6 +928,7 @@ bool FindMotionVideoWidget::GetImage(ImageBuffer& imagebuffer)
 
 std::array<float, 12> FindMotionVideoWidget::GetVertices(const QRectF& rect, const ROTATION rotation, const bool mirror) const
 {
+  //TODO don't need to pass in rect, cos it is always "RectF rect = QRectF(-1.0f, 1.0f, 2.0f, -2.0f);"
   if (mirror)
   {
     switch (rotation)
@@ -1057,7 +1057,7 @@ void FindMotionVideoWidget::WriteFrame(const ImageBuffer& imagebuffer)
   {
     cuCtxPushCurrent_v2(imagebuffer.cudacontext_);
     bool resetresources = false; // Do we need to reinitialise the cuda stuff if dimensions and format have changed
-    if ((imagebuffer.type_ != type_) || (imagebuffer.widths_[0] != imagewidth_) || (imagebuffer.heights_[0] != imageheight_) || !cudaresources_[0] || !cudaresources_[1])
+    if ((imagebuffer.type_ != type_) || (imagebuffer.widths_[0] != GetFindMotionWindow()->imagewidth_) || (imagebuffer.heights_[0] != GetFindMotionWindow()->imageheight_) || !cudaresources_[0] || !cudaresources_[1])
     {
       // Destroy any old CUDA stuff we had laying around
       for (CUgraphicsResource& resource : cudaresources_)
@@ -1118,7 +1118,7 @@ void FindMotionVideoWidget::WriteFrame(const ImageBuffer& imagebuffer)
   update();
 }
 
-void FindMotionVideoWidget::SetPosition(const QRectF& rect, const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent)
+void FindMotionVideoWidget::SetPosition(const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent)
 {
   if (makecurrent)
   {
@@ -1130,7 +1130,52 @@ void FindMotionVideoWidget::SetPosition(const QRectF& rect, const ROTATION rotat
   GetFindMotionWindow()->mirror_ = mirror;
   GetFindMotionWindow()->stretch_ = stretch;
 
-  const std::array<float, 12> vertices = GetVertices(rect, rotation, mirror);//TODO rect confusion
+  QRectF rect = QRectF(-1.0f, 1.0f, 2.0f, -2.0f);
+  float aspectratio = 0.0f;
+  if (GetFindMotionWindow()->imagewidth_ && GetFindMotionWindow()->imageheight_)
+  {
+    aspectratio = static_cast<double>(GetFindMotionWindow()->imagewidth_) / static_cast<double>(GetFindMotionWindow()->imageheight_);
+
+  }
+
+  if ((aspectratio == 0.0) || GetFindMotionWindow()->stretch_) // If we don't have the aspect ratio of the video yet, we can't place the black bars yet
+  {
+    // Don't need to do anything...
+
+  }
+  else // Maintain aspect ratio
+  {
+    const float frameaspectratio = static_cast<float>(width()) / static_cast<float>(height());
+    if ((GetFindMotionWindow()->rotation_ == ROTATION::_0) || (GetFindMotionWindow()->rotation_ == ROTATION::_180))
+    {
+      if (aspectratio > frameaspectratio) // Black bars at top and bottom
+      {
+        const float blackbarheight = (2.0f - ((frameaspectratio / aspectratio) * 2.0f)) * 0.5f;
+        rect = QRectF(QPointF(rect.left(), rect.top() - blackbarheight), QPointF(rect.right(), rect.bottom() + blackbarheight));
+      }
+      else // Black bars on left and right
+      {
+        const float blackbarwidth = (2.0f - ((aspectratio / frameaspectratio) * 2.0f)) * 0.5f;
+        rect = QRectF(QPointF(rect.left() + blackbarwidth, rect.top()), QPointF(rect.right() - blackbarwidth, rect.bottom()));
+      }
+    }
+    else // ((rotation == ROTATION::_90) || (rotation == ROTATION::_270))
+    {
+      aspectratio = 1.0 / aspectratio;
+      if (aspectratio > frameaspectratio) // Black bars at top and bottom
+      {
+        const float blackbarheight = (2.0f - ((frameaspectratio / aspectratio) * 2.0f)) * 0.5f;
+        rect = QRectF(QPointF(rect.left(), rect.top() - blackbarheight), QPointF(rect.right(), rect.bottom() + blackbarheight));
+      }
+      else // Black bars on left and right
+      {
+        const float blackbarwidth = (2.0f - ((aspectratio / frameaspectratio) * 2.0f)) * 0.5f;
+        rect = QRectF(QPointF(rect.left() + blackbarwidth, rect.top()), QPointF(rect.right() - blackbarwidth, rect.bottom()));
+      }
+    }
+  }
+
+  const std::array<float, 12> vertices = GetVertices(rect, rotation, mirror);
   vertexbuffer_.bind();
   vertexbuffer_.allocate(vertices.data(), static_cast<int>(vertices.size() * sizeof(float)));
   vertexbuffer_.release();
@@ -1144,42 +1189,36 @@ void FindMotionVideoWidget::SetPosition(const QRectF& rect, const ROTATION rotat
 
 void FindMotionVideoWidget::Rotate0(bool)
 {
-  //TODO rect pass through
-  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), ROTATION::_0, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, true);
+  SetPosition(ROTATION::_0, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, true);
 
 }
 
 void FindMotionVideoWidget::Rotate90(bool)
 {
-  //TODO rect pass through
-  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), ROTATION::_90, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, true);
+  SetPosition(ROTATION::_90, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, true);
 
 }
 
 void FindMotionVideoWidget::Rotate180(bool)
 {
-  //TODO rect pass through
-  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), ROTATION::_180, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, true);
+  SetPosition(ROTATION::_180, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, true);
 
 }
 
 void FindMotionVideoWidget::Rotate270(bool)
 {
-  //TODO rect pass through
-  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), ROTATION::_270, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, true);
+  SetPosition(ROTATION::_270, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, true);
 
 }
 
 void FindMotionVideoWidget::ToggleMirror(bool)
 {
-  //TODO rect pass through
-  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), GetFindMotionWindow()->rotation_, !GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, true);
+  SetPosition(GetFindMotionWindow()->rotation_, !GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, true);
 }
 
 void FindMotionVideoWidget::ToggleStretch(bool)
 {
-  //TODO rect pass through
-  SetPosition(QRectF(-1.0f, 1.0f, 2.0f, -2.0f), GetFindMotionWindow()->rotation_, GetFindMotionWindow()->mirror_, !GetFindMotionWindow()->stretch_, true);
+  SetPosition(GetFindMotionWindow()->rotation_, GetFindMotionWindow()->mirror_, !GetFindMotionWindow()->stretch_, true);
 
 }
 

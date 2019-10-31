@@ -91,7 +91,7 @@ class FindMotionVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   bool GetImage(ImageBuffer& imagebuffer);
   std::array<float, 12> GetVertices(const QRectF& rect, const ROTATION rotation, const bool mirror) const;
   void WriteFrame(const ImageBuffer& imagebuffer);
-  void SetPosition(const QRectF& rect, const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent);
+  void SetPosition(const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent);
 
   static const std::array<float, 8> texturecoords_;
 
@@ -139,9 +139,6 @@ class FindMotionVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   QOpenGLBuffer vertexbuffer_;
   std::array<GLuint, 3> textures_;
   std::array<CUgraphicsResource, 3> cudaresources_; // Lazily initialised
-
-  int imagewidth_;
-  int imageheight_;
 
   FINDMOTIONSTATE state_;
   QPoint selectionpoint_;

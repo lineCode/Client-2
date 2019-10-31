@@ -656,9 +656,9 @@ QRectF View::GetImageRect() const
   }
   else // Maintain aspect ratio
   {
+    const float frameaspectratio = static_cast<float>(videowidget_->width() / static_cast<float>(videowidget_->GetWidth())) / static_cast<float>(videowidget_->height() / static_cast<float>(videowidget_->GetHeight()));
     if ((rotation_ == ROTATION::_0) || (rotation_ == ROTATION::_180))
     {
-      const float frameaspectratio = static_cast<float>(videowidget_->width() / static_cast<float>(videowidget_->GetWidth())) / static_cast<float>(videowidget_->height() / static_cast<float>(videowidget_->GetHeight()));
       if (aspectratio > frameaspectratio) // Black bars at top and bottom
       {
         const float blackbarheight = (rect.height() - ((frameaspectratio / aspectratio) * rect.height())) * 0.5f;
@@ -672,8 +672,7 @@ QRectF View::GetImageRect() const
     }
     else // ((rotation == ROTATION::_90) || (rotation == ROTATION::_270))
     {
-      aspectratio = 1.0 / aspectratio;
-      const float frameaspectratio = static_cast<float>(videowidget_->width() / static_cast<float>(videowidget_->GetWidth())) / static_cast<float>(videowidget_->height() / static_cast<float>(videowidget_->GetHeight()));
+      aspectratio = 1.0f / aspectratio;
       if (aspectratio > frameaspectratio) // Black bars at top and bottom
       {
         const float blackbarheight = (rect.height() - ((frameaspectratio / aspectratio) * rect.height())) * 0.5f;
