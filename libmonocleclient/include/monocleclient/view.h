@@ -72,6 +72,7 @@ enum VIEWTYPE
 ///// Prototypes /////
 
 QString ToString(const ROTATION rotation);
+QPointF ImageRectToOpenGL(const QRectF& rect, const bool mirror, const ROTATION rotation, const float x, const float y);
 
 ///// Structures /////
 

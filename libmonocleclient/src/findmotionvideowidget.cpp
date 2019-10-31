@@ -92,7 +92,19 @@ FindMotionWindow* FindMotionVideoWidget::GetFindMotionWindow()
   return static_cast<FindMotionWindow*>(parent());
 }
 
+FindMotionWindow* FindMotionVideoWidget::GetFindMotionWindow() const
+{
+
+  return static_cast<FindMotionWindow*>(parent());
+}
+
 FindMotionPlaybackWidget* FindMotionVideoWidget::GetFindMotionPlaybackWidget()
+{
+
+  return static_cast<FindMotionWindow*>(parent())->GetPlaybackWidget();
+}
+
+FindMotionPlaybackWidget* FindMotionVideoWidget::GetFindMotionPlaybackWidget() const
 {
 
   return static_cast<FindMotionWindow*>(parent())->GetPlaybackWidget();
@@ -774,7 +786,7 @@ void FindMotionVideoWidget::paintGL()
     viewnv12shader_.release();
   }
 
-  // Rects
+  // Selected rect
   viewselectedshader_.bind();
 
   QOpenGLBuffer vertexbuffer;
@@ -782,59 +794,11 @@ void FindMotionVideoWidget::paintGL()
   vertexbuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
   vertexbuffer.bind();
 
-  //TODO I think we need GetImageRect() which deals with stretched_
-//TODO stretched makes this different too...
-  //TODO 2.0f is no good... how do we get the imagerect?
-  QRectF rectf;
-  if (GetFindMotionWindow()->mirror_)
-  {
-    if (GetFindMotionWindow()->rotation_ == ROTATION::_90)
-    {
-      rectf = QRectF(QPointF((selectedrect_.bottom() - 0.5f) * -2.0f, (selectedrect_.x() - 0.5f) * 2.0f), QPointF((selectedrect_.y() - 0.5f) * -2.0f, (selectedrect_.right() - 0.5f) * 2.0f));
+  const QRectF imagerect = GetImagePixelRectF();
+  const QPointF topleft = ImageRectToOpenGL(imagerect, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->rotation_, selectedrect_.left(), selectedrect_.top());
+  const QPointF bottomright = ImageRectToOpenGL(imagerect, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->rotation_, selectedrect_.right(), selectedrect_.bottom());
+  const QRectF rectf = QRectF(topleft, bottomright);
 
-    }
-    else if (GetFindMotionWindow()->rotation_ == ROTATION::_180)
-    {
-      rectf = QRectF(QPointF((selectedrect_.x() - 0.5f) * 2.0f, (selectedrect_.y() - 0.5f) * 2.0f), QPointF((selectedrect_.right() - 0.5f) * 2.0f, (selectedrect_.bottom() - 0.5f) * 2.0f));
-
-    }
-    else if (GetFindMotionWindow()->rotation_ == ROTATION::_270)
-    {
-      rectf = QRectF(QPointF((selectedrect_.bottom() - 0.5f) * 2.0f, (selectedrect_.right() - 0.5f) * -2.0f), QPointF((selectedrect_.y() - 0.5f) * 2.0f, (selectedrect_.x() - 0.5f) * -2.0f));
-
-    }
-    else // (GetFindMotionWindow()->rotation_ == ROTATION::_0)
-    {
-      rectf = QRectF(QPointF((selectedrect_.x() - 0.5f) * -2.0f, (selectedrect_.y() - 0.5f) * -2.0f), QPointF((selectedrect_.right() - 0.5f) * -2.0f, (selectedrect_.bottom() - 0.5f) * -2.0f));
-
-    }
-  }
-  else
-  {
-    if (GetFindMotionWindow()->rotation_ == ROTATION::_90)
-    {
-      rectf = QRectF(QPointF((selectedrect_.bottom() - 0.5f) * -2.0f, (selectedrect_.x() - 0.5f) * -2.0f), QPointF((selectedrect_.y() - 0.5f) * -2.0f, (selectedrect_.right() - 0.5f) * -2.0f));
-
-    }
-    else if (GetFindMotionWindow()->rotation_ == ROTATION::_180)
-    {
-      rectf = QRectF(QPointF((selectedrect_.x() - 0.5f) * -2.0f, (selectedrect_.y() - 0.5f) * 2.0f), QPointF((selectedrect_.right() - 0.5f) * -2.0f, (selectedrect_.bottom() - 0.5f) * 2.0f));
-
-    }
-    else if (GetFindMotionWindow()->rotation_ == ROTATION::_270)
-    {
-      rectf = QRectF(QPointF((selectedrect_.bottom() - 0.5f) * 2.0f, (selectedrect_.right() - 0.5f) * 2.0f), QPointF((selectedrect_.y() - 0.5f) * 2.0f, (selectedrect_.x() - 0.5f) * 2.0f));
-
-    }
-    else // (GetFindMotionWindow()->rotation_ == ROTATION::_0)
-    {
-      rectf = QRectF(QPointF((selectedrect_.x() - 0.5f) * 2.0f, (selectedrect_.y() - 0.5f) * -2.0f), QPointF((selectedrect_.right() - 0.5f) * 2.0f, (selectedrect_.bottom() - 0.5f) * -2.0f));
-
-    }
-  }
-//TODO I think we need a method which calculates points based on mirrored,rotated and stretched every time...
-  //TODO I think we need this for objects too
-  //TODO try to use the function/method inside view.h class as well if possible
   const std::array<float, 10> selectvertices =
   {
     static_cast<float>(rectf.right()), static_cast<float>(rectf.bottom()),
@@ -860,7 +824,7 @@ void FindMotionVideoWidget::paintGL()
     const QRect rect(QPoint(std::min(cursor.x(), selectionpoint_.x()), std::min(cursor.y(), selectionpoint_.y())), QPoint(std::max(cursor.x(), selectionpoint_.x()), std::max(cursor.y(), selectionpoint_.y())));
     const QRectF selectedrect(QPointF(((static_cast<float>(rect.x()) / static_cast<float>(width())) * 2.0f) - 1.0f,
                                         1.0f - ((static_cast<float>(rect.y()) / static_cast<float>(height())) * 2.0f)),
-                              QPointF(((static_cast<float>(rect.right()) / static_cast<float>(width())) * 2.0f) - 1.0f,
+                                        QPointF(((static_cast<float>(rect.right()) / static_cast<float>(width())) * 2.0f) - 1.0f,
                                         1.0f - ((static_cast<float>(rect.bottom()) / static_cast<float>(height())) * 2.0f)));
     
     vertexbuffer.create();
@@ -1118,6 +1082,60 @@ void FindMotionVideoWidget::WriteFrame(const ImageBuffer& imagebuffer)
   update();
 }
 
+QRectF FindMotionVideoWidget::GetImageRect() const
+{
+  const QRectF rect(-1.0f, 1.0f, 2.0f, -2.0f);
+  float aspectratio = 0.0f;
+  if (GetFindMotionWindow()->imagewidth_ && GetFindMotionWindow()->imageheight_)
+  {
+    aspectratio = static_cast<double>(GetFindMotionWindow()->imagewidth_) / static_cast<double>(GetFindMotionWindow()->imageheight_);
+
+  }
+
+  if ((aspectratio == 0.0) || GetFindMotionWindow()->stretch_) // If we don't have the aspect ratio of the video yet, we can't place the black bars yet
+  {
+    // Don't need to do anything...
+    return rect;
+  }
+  else // Maintain aspect ratio
+  {
+    const float frameaspectratio = static_cast<float>(width()) / static_cast<float>(height());
+    if ((GetFindMotionWindow()->rotation_ == ROTATION::_0) || (GetFindMotionWindow()->rotation_ == ROTATION::_180))
+    {
+      if (aspectratio > frameaspectratio) // Black bars at top and bottom
+      {
+        const float blackbarheight = (2.0f - ((frameaspectratio / aspectratio) * 2.0f)) * 0.5f;
+        return QRectF(QPointF(rect.left(), rect.top() - blackbarheight), QPointF(rect.right(), rect.bottom() + blackbarheight));
+      }
+      else // Black bars on left and right
+      {
+        const float blackbarwidth = (2.0f - ((aspectratio / frameaspectratio) * 2.0f)) * 0.5f;
+        return QRectF(QPointF(rect.left() + blackbarwidth, rect.top()), QPointF(rect.right() - blackbarwidth, rect.bottom()));
+      }
+    }
+    else // ((rotation == ROTATION::_90) || (rotation == ROTATION::_270))
+    {
+      aspectratio = 1.0 / aspectratio;
+      if (aspectratio > frameaspectratio) // Black bars at top and bottom
+      {
+        const float blackbarheight = (2.0f - ((frameaspectratio / aspectratio) * 2.0f)) * 0.5f;
+        return QRectF(QPointF(rect.left(), rect.top() - blackbarheight), QPointF(rect.right(), rect.bottom() + blackbarheight));
+      }
+      else // Black bars on left and right
+      {
+        const float blackbarwidth = (2.0f - ((aspectratio / frameaspectratio) * 2.0f)) * 0.5f;
+        return QRectF(QPointF(rect.left() + blackbarwidth, rect.top()), QPointF(rect.right() - blackbarwidth, rect.bottom()));
+      }
+    }
+  }
+}
+
+QRectF FindMotionVideoWidget::GetImagePixelRectF() const
+{
+  const QRectF imagerect = GetImageRect();
+  return QRectF(QPointF(((imagerect.left() + 1.0f) / 2.0f), (1.0f - (imagerect.top() + 1.0f) / 2.0f)), QPointF(((imagerect.right() + 1.0f) / 2.0f), (1.0f - (imagerect.bottom() + 1.0f) / 2.0f)));
+}
+
 void FindMotionVideoWidget::SetPosition(const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent)
 {
   if (makecurrent)
@@ -1130,52 +1148,7 @@ void FindMotionVideoWidget::SetPosition(const ROTATION rotation, const bool mirr
   GetFindMotionWindow()->mirror_ = mirror;
   GetFindMotionWindow()->stretch_ = stretch;
 
-  QRectF rect = QRectF(-1.0f, 1.0f, 2.0f, -2.0f);
-  float aspectratio = 0.0f;
-  if (GetFindMotionWindow()->imagewidth_ && GetFindMotionWindow()->imageheight_)
-  {
-    aspectratio = static_cast<double>(GetFindMotionWindow()->imagewidth_) / static_cast<double>(GetFindMotionWindow()->imageheight_);
-
-  }
-
-  if ((aspectratio == 0.0) || GetFindMotionWindow()->stretch_) // If we don't have the aspect ratio of the video yet, we can't place the black bars yet
-  {
-    // Don't need to do anything...
-
-  }
-  else // Maintain aspect ratio
-  {
-    const float frameaspectratio = static_cast<float>(width()) / static_cast<float>(height());
-    if ((GetFindMotionWindow()->rotation_ == ROTATION::_0) || (GetFindMotionWindow()->rotation_ == ROTATION::_180))
-    {
-      if (aspectratio > frameaspectratio) // Black bars at top and bottom
-      {
-        const float blackbarheight = (2.0f - ((frameaspectratio / aspectratio) * 2.0f)) * 0.5f;
-        rect = QRectF(QPointF(rect.left(), rect.top() - blackbarheight), QPointF(rect.right(), rect.bottom() + blackbarheight));
-      }
-      else // Black bars on left and right
-      {
-        const float blackbarwidth = (2.0f - ((aspectratio / frameaspectratio) * 2.0f)) * 0.5f;
-        rect = QRectF(QPointF(rect.left() + blackbarwidth, rect.top()), QPointF(rect.right() - blackbarwidth, rect.bottom()));
-      }
-    }
-    else // ((rotation == ROTATION::_90) || (rotation == ROTATION::_270))
-    {
-      aspectratio = 1.0 / aspectratio;
-      if (aspectratio > frameaspectratio) // Black bars at top and bottom
-      {
-        const float blackbarheight = (2.0f - ((frameaspectratio / aspectratio) * 2.0f)) * 0.5f;
-        rect = QRectF(QPointF(rect.left(), rect.top() - blackbarheight), QPointF(rect.right(), rect.bottom() + blackbarheight));
-      }
-      else // Black bars on left and right
-      {
-        const float blackbarwidth = (2.0f - ((aspectratio / frameaspectratio) * 2.0f)) * 0.5f;
-        rect = QRectF(QPointF(rect.left() + blackbarwidth, rect.top()), QPointF(rect.right() - blackbarwidth, rect.bottom()));
-      }
-    }
-  }
-
-  const std::array<float, 12> vertices = GetVertices(rect, rotation, mirror);
+  const std::array<float, 12> vertices = GetVertices(GetImageRect(), rotation, mirror);
   vertexbuffer_.bind();
   vertexbuffer_.allocate(vertices.data(), static_cast<int>(vertices.size() * sizeof(float)));
   vertexbuffer_.release();

@@ -33,6 +33,16 @@
 namespace client
 {
 
+///// Declarations /////
+
+const std::array<float, 8> View::texturecoords_ =
+{
+  1.0f, 1.0f,
+  1.0f, 0.0f,
+  0.0f, 1.0f,
+  0.0f, 0.0f
+};
+
 ///// Functions /////
 
 QString ToString(const ROTATION rotation)
@@ -63,18 +73,6 @@ QString ToString(const ROTATION rotation)
     return "0"; // Shouldn't happen, but lets just be normal
   }
 }
-
-///// Declarations /////
-
-const std::array<float, 8> View::texturecoords_ =
-{
-  1.0f, 1.0f,
-  1.0f, 0.0f,
-  0.0f, 1.0f,
-  0.0f, 0.0f
-};
-
-///// Functions /////
 
 QPointF ImageRectToOpenGL(const QRectF& rect, const bool mirror, const ROTATION rotation, const float x, const float y)
 {

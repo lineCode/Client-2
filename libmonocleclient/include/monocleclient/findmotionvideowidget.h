@@ -59,7 +59,9 @@ class FindMotionVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   ~FindMotionVideoWidget();
 
   FindMotionWindow* GetFindMotionWindow();
+  FindMotionWindow* GetFindMotionWindow() const;
   FindMotionPlaybackWidget* GetFindMotionPlaybackWidget();
+  FindMotionPlaybackWidget* GetFindMotionPlaybackWidget() const;
 
   inline boost::lockfree::spsc_queue<ImageBuffer, boost::lockfree::capacity<IMAGEQUEUESIZE> >& GetImageQueue() { return imagequeue_; }
   inline VectorFreeFrameBuffer& GetFreeImageQueue() { return freeimagequeue_; }
@@ -91,6 +93,8 @@ class FindMotionVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   bool GetImage(ImageBuffer& imagebuffer);
   std::array<float, 12> GetVertices(const QRectF& rect, const ROTATION rotation, const bool mirror) const;
   void WriteFrame(const ImageBuffer& imagebuffer);
+  QRectF GetImageRect() const;
+  QRectF GetImagePixelRectF() const;
   void SetPosition(const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent);
 
   static const std::array<float, 8> texturecoords_;
