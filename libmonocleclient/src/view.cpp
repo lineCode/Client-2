@@ -640,7 +640,7 @@ void View::AddCacheImage(ImageBuffer& imagebuffer)
 QRect View::GetPixelRect() const
 {
   const QRectF rect = GetOpenglRect(rect_.x(), rect_.y(), rect_.width(), rect_.height());
-  return QRect(QPoint(((rect.x() + 1.0f) / 2.0f) * videowidget_->width(), videowidget_->height() - (((rect.y() + 1.0f) / 2.0f) * videowidget_->height())), QPoint(((rect.right() + 1) / 2.0f) * videowidget_->width(), videowidget_->height() - (((rect.bottom() + 1.0f) / 2.0f) * videowidget_->height()))); // Move the origin, normalise and invert the y axis between 0.0 and 1.0f
+  return QRect(QPoint(((rect.x() + 1.0f) / 2.0f) * videowidget_->width(), videowidget_->height() - (((rect.y() + 1.0f) / 2.0f) * videowidget_->height())), QPoint(((rect.right() + 1.0f) / 2.0f) * videowidget_->width(), videowidget_->height() - (((rect.bottom() + 1.0f) / 2.0f) * videowidget_->height()))); // Move the origin, normalise and invert the y axis between 0.0 and 1.0f
 }
 
 QRectF View::GetImageRect() const
