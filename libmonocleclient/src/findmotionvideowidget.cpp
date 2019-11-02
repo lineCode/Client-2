@@ -458,108 +458,90 @@ void FindMotionVideoWidget::mouseReleaseEvent(QMouseEvent* event)
   if (state_ == FINDMOTIONSTATE_DRAWING)
   {
     state_ = FINDMOTIONSTATE_SELECT;
+    
+    //TODO tidy up... can we make a nice method?
+    const QRect imagepixelrect = GetImagePixelRect();
+    const QRect selectedrect(QPoint(std::max(imagepixelrect.x(), std::min(selectionpoint_.x(), event->pos().x())) - imagepixelrect.x(),
+                                    std::max(imagepixelrect.y(), std::min(selectionpoint_.y(), event->pos().y())) - imagepixelrect.y()),
+                             QPoint(std::min(imagepixelrect.right(), std::max(selectionpoint_.x(), event->pos().x())) - imagepixelrect.x(), std::min(imagepixelrect.bottom(),
+                                    std::max(selectionpoint_.y(), event->pos().y())) - imagepixelrect.y()));
+          
+    QRectF selectedrectf(static_cast<float>(selectedrect.left()) / static_cast<float>(imagepixelrect.width()),
+                         static_cast<float>(selectedrect.top()) / static_cast<float>(imagepixelrect.height()),
+                         static_cast<float>(selectedrect.width()) / static_cast<float>(imagepixelrect.width()),
+                         static_cast<float>(selectedrect.height()) / static_cast<float>(imagepixelrect.height()));
 
-    // Clamp the rect to within the bounds of the widget
-    const QRectF imagepixelrect = GetImagePixelRectF();
-    //TODO const QRectF selectedrect(QPointF((std::max(static_cast<float>(imagepixelrect.x()), static_cast<float>(std::min(event->pos().x(), selectionpoint_.x())) / static_cast<float>(width())) - imagepixelrect.x()) / imagepixelrect.width(),
-    //TODO                                   (std::max(static_cast<float>(imagepixelrect.y()), static_cast<float>(std::min(event->pos().y(), selectionpoint_.y())) / static_cast<float>(height())) - imagepixelrect.y()) / imagepixelrect.height()),
-    //TODO                           QPointF((std::min(static_cast<float>(imagepixelrect.x() + imagepixelrect.width()), static_cast<float>(std::max(event->pos().x(), selectionpoint_.x())) / static_cast<float>(width())) - imagepixelrect.x()) / imagepixelrect.width(),
-    //TODO                                   (std::min(static_cast<float>(imagepixelrect.y() + imagepixelrect.height()), static_cast<float>(std::max(event->pos().y(), selectionpoint_.y())) / static_cast<float>(height())) - imagepixelrect.y()) / imagepixelrect.height()));
-    QRectF selectedrect(QPointF((std::max(static_cast<float>(imagepixelrect.x()), static_cast<float>(std::min(event->pos().x(), selectionpoint_.x())) / static_cast<float>(width())) - imagepixelrect.x()) / imagepixelrect.width(),
-                                      (std::max(static_cast<float>(imagepixelrect.y()), static_cast<float>(std::min(event->pos().y(), selectionpoint_.y())) / static_cast<float>(height())) - imagepixelrect.y()) / imagepixelrect.height()),
-                              QPointF((std::min(static_cast<float>(imagepixelrect.x() + imagepixelrect.width()), static_cast<float>(std::max(event->pos().x(), selectionpoint_.x())) / static_cast<float>(width())) - imagepixelrect.x()) / imagepixelrect.width(),
-                                      (std::min(static_cast<float>(imagepixelrect.y() + imagepixelrect.height()), static_cast<float>(std::max(event->pos().y(), selectionpoint_.y())) / static_cast<float>(height())) - imagepixelrect.y()) / imagepixelrect.height()));
-    if ((selectedrect.width() < (3.0f / static_cast<float>(width()))) || (selectedrect.height() < (3.0f / static_cast<float>(height())))) // If the selection is smaller than a few pixels, ignore it
+    if ((selectedrectf.width() < (4.0f / static_cast<float>(width()))) || (selectedrectf.height() < (4.0f / static_cast<float>(height())))) // If the selection is smaller than a few pixels, ignore it
     {
       // Ignore rectangles that are too small to do analysis in
 
     }
     else
-    {//TODO can I just rotate selected rect
+    {
       if (GetFindMotionWindow()->mirror_)
       {
         if (GetFindMotionWindow()->rotation_ == ROTATION::_90)
         {
-          selectedrect_ = QRectF(QPointF(static_cast<float>(height() - selectedrect.bottom()) / static_cast<float>(height()), static_cast<float>(width() - selectedrect.x()) / static_cast<float>(width())),
-                                 QPointF(static_cast<float>(height() - selectedrect.top()) / static_cast<float>(height()), static_cast<float>(width() - selectedrect.right()) / static_cast<float>(width())));
+          selectedrectf = QRectF(selectedrectf.left(), 1.0f - selectedrectf.bottom(), selectedrectf.width(), selectedrectf.height());
+          QTransform transform;
+          transform.rotate(270.0f);
+          selectedrectf = transform.mapRect(selectedrectf);
+          selectedrectf.adjust(0.0f, 1.0f, 0.0f, 1.0f);
+          selectedrect_ = selectedrectf;
         }
         else if (GetFindMotionWindow()->rotation_ == ROTATION::_180)
         {
-          selectedrect_ = QRectF(QPointF(static_cast<float>(selectedrect.x()) / static_cast<float>(width()), static_cast<float>(height() - selectedrect.y()) / static_cast<float>(height())),
-                                 QPointF(static_cast<float>(selectedrect.right()) / static_cast<float>(width()), static_cast<float>(height() - selectedrect.bottom()) / static_cast<float>(height())));
+          selectedrectf = QRectF(1.0f - selectedrectf.right(), selectedrectf.top(), selectedrectf.width(), selectedrectf.height());
+          QTransform transform;
+          transform.rotate(180.0f);
+          selectedrectf = transform.mapRect(selectedrectf);
+          selectedrectf.adjust(1.0f, 1.0f, 1.0f, 1.0f);
+          selectedrect_ = selectedrectf;
         }
         else if (GetFindMotionWindow()->rotation_ == ROTATION::_270)
         {
-          selectedrect_ = QRectF(QPointF(static_cast<float>(selectedrect.bottom()) / static_cast<float>(height()), static_cast<float>(selectedrect.right()) / static_cast<float>(width())),
-                                 QPointF(static_cast<float>(selectedrect.top()) / static_cast<float>(height()), static_cast<float>(selectedrect.x()) / static_cast<float>(width())));
+          selectedrectf = QRectF(selectedrectf.left(), 1.0f - selectedrectf.bottom(), selectedrectf.width(), selectedrectf.height());
+          QTransform transform;
+          transform.rotate(90.0f);
+          selectedrectf = transform.mapRect(selectedrectf);
+          selectedrectf.adjust(1.0f, 0.0f, 1.0f, 0.0f);
+          selectedrect_ = selectedrectf;
         }
         else // (GetFindMotionWindow()->rotation_ == ROTATION::_0)
         {
-          selectedrect_ = selectedrect;
-          //TODO selectedrect_ = QRectF(QPointF(static_cast<float>(width() - selectedrect.right()) / static_cast<float>(width()), static_cast<float>(selectedrect.y()) / static_cast<float>(height())),
-          //TODO                        QPointF(static_cast<float>(width() - selectedrect.x()) / static_cast<float>(width()), static_cast<float>(selectedrect.bottom()) / static_cast<float>(height())));
+          selectedrect_ = QRectF(1.0f - selectedrectf.right(), selectedrectf.top(), selectedrectf.width(), selectedrectf.height());
+
         }
       }
       else
       {
         if (GetFindMotionWindow()->rotation_ == ROTATION::_90)
         {
-          //TODO this works... expand it to the rest and copy from videowidgetsmgr.cpp
-            //TODO make a nice method!
-          const QRect imagepixelrect2 = GetImagePixelRect();
-          const QRect rect(QPoint(std::max(imagepixelrect2.x(), std::min(selectionpoint_.x(), event->pos().x())) - imagepixelrect2.x(),
-                                  std::max(imagepixelrect2.y(), std::min(selectionpoint_.y(), event->pos().y())) - imagepixelrect2.y()),
-                           QPoint(std::min(imagepixelrect2.right(), std::max(selectionpoint_.x(), event->pos().x())) - imagepixelrect2.x(), std::min(imagepixelrect2.bottom(),
-                                  std::max(selectionpoint_.y(), event->pos().y())) - imagepixelrect2.y()));
-          
-          
-          QRectF rectf(static_cast<float>(rect.left()) / static_cast<float>(imagepixelrect2.width()),
-                       static_cast<float>(rect.top()) / static_cast<float>(imagepixelrect2.height()),
-                       static_cast<float>(rect.width()) / static_cast<float>(imagepixelrect2.width()),
-                       static_cast<float>(rect.height()) / static_cast<float>(imagepixelrect2.height()));
-
           QTransform transform;
           transform.rotate(270.0f);
-          rectf = transform.mapRect(rectf);
-          rectf.adjust(0.0f, 1.0f, 0.0f, 1.0f);
-
-
-
-          selectedrect_ = rectf;
-
-
-
-          //TODO we don't want opengl coords...
-
-          //TODO bring this to the top if possible...
-            //TODO this deals with stretched internally.. we 
-          //TODO auto a = ImageRectToOpenGL(imagepixelrect, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->rotation_, selectedrect.x(), selectedrect.y());
-          //TODO auto b = ImageRectToOpenGL(imagepixelrect, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->rotation_, selectedrect.x() + selectedrect.width(), selectedrect.y() + selectedrect.height());
-          //TODO it is half and inverted...
-          //TODO a.setX(((a.x() + 1.0f) / 2.0f));
-          //TODO a.setY((a.y() + 1.0f) / 2.0f);
-          //TODO b.setX(((b.x() + 1.0f) / 2.0f));
-          //TODO b.setY((b.y() + 1.0f) / 2.0f);
-          //TODO QRectF test(a, b);
-          //TODO selectedrect_ = test;
-
-          //TODO selectedrect_ = selectedrect;
-          //TODO selectedrect_ = QRectF(QPointF(static_cast<float>(selectedrect.bottom()) / static_cast<float>(height()), static_cast<float>(width() - selectedrect.x()) / static_cast<float>(width())),
-          //TODO                        QPointF(static_cast<float>(selectedrect.top()) / static_cast<float>(height()), static_cast<float>(width() - selectedrect.right()) / static_cast<float>(width())));
+          selectedrectf = transform.mapRect(selectedrectf);
+          selectedrectf.adjust(0.0f, 1.0f, 0.0f, 1.0f);
+          selectedrect_ = selectedrectf;
         }
         else if (GetFindMotionWindow()->rotation_ == ROTATION::_180)
         {
-          selectedrect_ = QRectF(QPointF(static_cast<float>(width() - selectedrect.x()) / static_cast<float>(width()), static_cast<float>(height() - selectedrect.y()) / static_cast<float>(height())),
-                                 QPointF(static_cast<float>(width() - selectedrect.right()) / static_cast<float>(width()), static_cast<float>(height() - selectedrect.bottom()) / static_cast<float>(height())));
+          QTransform transform;
+          transform.rotate(180.0f);
+          selectedrectf = transform.mapRect(selectedrectf);
+          selectedrectf.adjust(1.0f, 1.0f, 1.0f, 1.0f);
+          selectedrect_ = selectedrectf;
         }
         else if (GetFindMotionWindow()->rotation_ == ROTATION::_270)
         {
-          selectedrect_ = QRectF(QPointF(static_cast<float>(height() - selectedrect.bottom()) / static_cast<float>(height()), static_cast<float>(selectedrect.right()) / static_cast<float>(width())),
-                                 QPointF(static_cast<float>(height() - selectedrect.top()) / static_cast<float>(height()), static_cast<float>(selectedrect.x()) / static_cast<float>(width())));
+          QTransform transform;
+          transform.rotate(90.0f);
+          selectedrectf = transform.mapRect(selectedrectf);
+          selectedrectf.adjust(1.0f, 0.0f, 1.0f, 0.0f);
+          selectedrect_ = selectedrectf;
         }
         else // (GetFindMotionWindow()->rotation_ == ROTATION::_0)
         {
-          selectedrect_ = selectedrect;
+          selectedrect_ = selectedrectf;
 
         }
       }
