@@ -132,6 +132,83 @@ QPointF ImageRectToOpenGL(const QRectF& rect, const bool mirror, const ROTATION 
   }
 }
 
+QRectF ImageToRect(const QRect& imagepixelrect, const QRect& rect, const bool mirror, const ROTATION rotation)
+{
+  QRectF selectedrectf(static_cast<float>(rect.left()) / static_cast<float>(imagepixelrect.width()),
+                       static_cast<float>(rect.top()) / static_cast<float>(imagepixelrect.height()),
+                       static_cast<float>(rect.width()) / static_cast<float>(imagepixelrect.width()),
+                       static_cast<float>(rect.height()) / static_cast<float>(imagepixelrect.height()));
+
+  if (mirror)
+  {
+    if (rotation == ROTATION::_90)
+    {
+      selectedrectf = QRectF(selectedrectf.left(), 1.0f - selectedrectf.bottom(), selectedrectf.width(), selectedrectf.height());
+      QTransform transform;
+      transform.rotate(270.0f);
+      selectedrectf = transform.mapRect(selectedrectf);
+      selectedrectf.adjust(0.0f, 1.0f, 0.0f, 1.0f);
+      return selectedrectf;
+    }
+    else if (rotation == ROTATION::_180)
+    {
+      selectedrectf = QRectF(1.0f - selectedrectf.right(), selectedrectf.top(), selectedrectf.width(), selectedrectf.height());
+      QTransform transform;
+      transform.rotate(180.0f);
+      selectedrectf = transform.mapRect(selectedrectf);
+      selectedrectf.adjust(1.0f, 1.0f, 1.0f, 1.0f);
+      return selectedrectf;
+    }
+    else if (rotation == ROTATION::_270)
+    {
+      selectedrectf = QRectF(selectedrectf.left(), 1.0f - selectedrectf.bottom(), selectedrectf.width(), selectedrectf.height());
+      QTransform transform;
+      transform.rotate(90.0f);
+      selectedrectf = transform.mapRect(selectedrectf);
+      selectedrectf.adjust(1.0f, 0.0f, 1.0f, 0.0f);
+      return selectedrectf;
+    }
+    else // (rotation == ROTATION::_0)
+    {
+      return QRectF(1.0f - selectedrectf.right(), selectedrectf.top(), selectedrectf.width(), selectedrectf.height());
+
+    }
+  }
+  else
+  {
+    if (rotation == ROTATION::_90)
+    {
+      QTransform transform;
+      transform.rotate(270.0f);
+      selectedrectf = transform.mapRect(selectedrectf);
+      selectedrectf.adjust(0.0f, 1.0f, 0.0f, 1.0f);
+      return selectedrectf;
+    }
+    else if (rotation == ROTATION::_180)
+    {
+      QTransform transform;
+      transform.rotate(180.0f);
+      selectedrectf = transform.mapRect(selectedrectf);
+      selectedrectf.adjust(1.0f, 1.0f, 1.0f, 1.0f);
+      return selectedrectf;
+    }
+    else if (rotation == ROTATION::_270)
+    {
+      QTransform transform;
+      transform.rotate(90.0f);
+      selectedrectf = transform.mapRect(selectedrectf);
+      selectedrectf.adjust(1.0f, 0.0f, 1.0f, 0.0f);
+      return selectedrectf;
+    }
+    else // (rotation == ROTATION::_0)
+    {
+
+      return selectedrectf;
+    }
+  }
+
+}
+
 ///// Methods /////
 
 Object::Object(const uint64_t id, const monocle::ObjectClass classid, const uint64_t time, const float x, const float y, const float width, const float height) :

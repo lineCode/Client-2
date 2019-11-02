@@ -459,93 +459,17 @@ void FindMotionVideoWidget::mouseReleaseEvent(QMouseEvent* event)
   {
     state_ = FINDMOTIONSTATE_SELECT;
     
-    //TODO tidy up... can we make a nice method?
     const QRect imagepixelrect = GetImagePixelRect();
     const QRect selectedrect(QPoint(std::max(imagepixelrect.x(), std::min(selectionpoint_.x(), event->pos().x())) - imagepixelrect.x(),
                                     std::max(imagepixelrect.y(), std::min(selectionpoint_.y(), event->pos().y())) - imagepixelrect.y()),
                              QPoint(std::min(imagepixelrect.right(), std::max(selectionpoint_.x(), event->pos().x())) - imagepixelrect.x(), std::min(imagepixelrect.bottom(),
                                     std::max(selectionpoint_.y(), event->pos().y())) - imagepixelrect.y()));
-          
-    QRectF selectedrectf(static_cast<float>(selectedrect.left()) / static_cast<float>(imagepixelrect.width()),
-                         static_cast<float>(selectedrect.top()) / static_cast<float>(imagepixelrect.height()),
-                         static_cast<float>(selectedrect.width()) / static_cast<float>(imagepixelrect.width()),
-                         static_cast<float>(selectedrect.height()) / static_cast<float>(imagepixelrect.height()));
-
-    if ((selectedrectf.width() < (4.0f / static_cast<float>(width()))) || (selectedrectf.height() < (4.0f / static_cast<float>(height())))) // If the selection is smaller than a few pixels, ignore it
+    if ((selectedrect.width() < 4) || (selectedrect.height() < 4)) // If the selection is smaller than a few pixels, ignore it
     {
-      // Ignore rectangles that are too small to do analysis in
 
+      return;
     }
-    else
-    {
-      if (GetFindMotionWindow()->mirror_)
-      {
-        if (GetFindMotionWindow()->rotation_ == ROTATION::_90)
-        {
-          selectedrectf = QRectF(selectedrectf.left(), 1.0f - selectedrectf.bottom(), selectedrectf.width(), selectedrectf.height());
-          QTransform transform;
-          transform.rotate(270.0f);
-          selectedrectf = transform.mapRect(selectedrectf);
-          selectedrectf.adjust(0.0f, 1.0f, 0.0f, 1.0f);
-          selectedrect_ = selectedrectf;
-        }
-        else if (GetFindMotionWindow()->rotation_ == ROTATION::_180)
-        {
-          selectedrectf = QRectF(1.0f - selectedrectf.right(), selectedrectf.top(), selectedrectf.width(), selectedrectf.height());
-          QTransform transform;
-          transform.rotate(180.0f);
-          selectedrectf = transform.mapRect(selectedrectf);
-          selectedrectf.adjust(1.0f, 1.0f, 1.0f, 1.0f);
-          selectedrect_ = selectedrectf;
-        }
-        else if (GetFindMotionWindow()->rotation_ == ROTATION::_270)
-        {
-          selectedrectf = QRectF(selectedrectf.left(), 1.0f - selectedrectf.bottom(), selectedrectf.width(), selectedrectf.height());
-          QTransform transform;
-          transform.rotate(90.0f);
-          selectedrectf = transform.mapRect(selectedrectf);
-          selectedrectf.adjust(1.0f, 0.0f, 1.0f, 0.0f);
-          selectedrect_ = selectedrectf;
-        }
-        else // (GetFindMotionWindow()->rotation_ == ROTATION::_0)
-        {
-          selectedrect_ = QRectF(1.0f - selectedrectf.right(), selectedrectf.top(), selectedrectf.width(), selectedrectf.height());
-
-        }
-      }
-      else
-      {
-        if (GetFindMotionWindow()->rotation_ == ROTATION::_90)
-        {
-          QTransform transform;
-          transform.rotate(270.0f);
-          selectedrectf = transform.mapRect(selectedrectf);
-          selectedrectf.adjust(0.0f, 1.0f, 0.0f, 1.0f);
-          selectedrect_ = selectedrectf;
-        }
-        else if (GetFindMotionWindow()->rotation_ == ROTATION::_180)
-        {
-          QTransform transform;
-          transform.rotate(180.0f);
-          selectedrectf = transform.mapRect(selectedrectf);
-          selectedrectf.adjust(1.0f, 1.0f, 1.0f, 1.0f);
-          selectedrect_ = selectedrectf;
-        }
-        else if (GetFindMotionWindow()->rotation_ == ROTATION::_270)
-        {
-          QTransform transform;
-          transform.rotate(90.0f);
-          selectedrectf = transform.mapRect(selectedrectf);
-          selectedrectf.adjust(1.0f, 0.0f, 1.0f, 0.0f);
-          selectedrect_ = selectedrectf;
-        }
-        else // (GetFindMotionWindow()->rotation_ == ROTATION::_0)
-        {
-          selectedrect_ = selectedrectf;
-
-        }
-      }
-    }
+    selectedrect_ = ImageToRect(imagepixelrect, selectedrect, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->rotation_);
     update();
   }
 }

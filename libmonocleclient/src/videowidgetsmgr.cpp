@@ -336,86 +336,17 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
         const QPoint selectionpoint = MainWindow::Instance()->GetVideoWidgetsMgr().GetSelectionPoint();
         const QPoint cursor = videowidget->mapFromGlobal(QCursor::pos());
         const QRect imagepixelrect = selectionview->GetImagePixelRect();
-        const QRect rect(QPoint(std::max(imagepixelrect.x(), std::min(selectionpoint.x(), cursor.x())) - imagepixelrect.x(),
-                                std::max(imagepixelrect.y(), std::min(selectionpoint.y(), cursor.y())) - imagepixelrect.y()),
-                         QPoint(std::min(imagepixelrect.right(), std::max(selectionpoint.x(), cursor.x())) - imagepixelrect.x(), std::min(imagepixelrect.bottom(),
-                                std::max(selectionpoint.y(), cursor.y())) - imagepixelrect.y()));
-        if ((rect.width() < 0) || (rect.height() < 0))
-        {
-          // Ignore this, because the user has made a selection that does not intersect the image
-          return;
-        }
-
-        if ((rect.width() < 6) || (rect.height() < 6))
+        const QRect selectedrect(QPoint(std::max(imagepixelrect.x(), std::min(selectionpoint.x(), cursor.x())) - imagepixelrect.x(),
+                                        std::max(imagepixelrect.y(), std::min(selectionpoint.y(), cursor.y())) - imagepixelrect.y()),
+                                 QPoint(std::min(imagepixelrect.right(), std::max(selectionpoint.x(), cursor.x())) - imagepixelrect.x(), std::min(imagepixelrect.bottom(),
+                                        std::max(selectionpoint.y(), cursor.y())) - imagepixelrect.y()));
+        if ((selectedrect.width() < 6) || (selectedrect.height() < 6))
         {
           // Ignore this, because the user has made too small of a selection
           return;
         }
-
-        QRectF selectedrectf(static_cast<float>(rect.left()) / static_cast<float>(imagepixelrect.width()),
-                             static_cast<float>(rect.top()) / static_cast<float>(imagepixelrect.height()),
-                             static_cast<float>(rect.width()) / static_cast<float>(imagepixelrect.width()),
-                             static_cast<float>(rect.height()) / static_cast<float>(imagepixelrect.height()));
-
-        if (selectionview->GetMirror())
-        {
-          if (selectionview->GetRotation() == ROTATION::_0)
-          {
-            selectedrectf = QRectF(1.0f - selectedrectf.right(), selectedrectf.top(), selectedrectf.width(), selectedrectf.height());
-
-          }
-          else if (selectionview->GetRotation() == ROTATION::_90)
-          {
-            selectedrectf = QRectF(selectedrectf.left(), 1.0f - selectedrectf.bottom(), selectedrectf.width(), selectedrectf.height());
-            QTransform transform;
-            transform.rotate(270.0f);
-            selectedrectf = transform.mapRect(selectedrectf);
-            selectedrectf.adjust(0.0f, 1.0f, 0.0f, 1.0f);
-          }
-          else if (selectionview->GetRotation() == ROTATION::_180)
-          {
-            selectedrectf = QRectF(1.0f - selectedrectf.right(), selectedrectf.top(), selectedrectf.width(), selectedrectf.height());
-            QTransform transform;
-            transform.rotate(180.0f);
-            selectedrectf = transform.mapRect(selectedrectf);
-            selectedrectf.adjust(1.0f, 1.0f, 1.0f, 1.0f);
-          }
-          else if (selectionview->GetRotation() == ROTATION::_270)
-          {
-            selectedrectf = QRectF(selectedrectf.left(), 1.0f - selectedrectf.bottom(), selectedrectf.width(), selectedrectf.height());
-            QTransform transform;
-            transform.rotate(90.0f);
-            selectedrectf = transform.mapRect(selectedrectf);
-            selectedrectf.adjust(1.0f, 0.0f, 1.0f, 0.0f);
-          }
-        }
-        else
-        {
-          if (selectionview->GetRotation() == ROTATION::_90)
-          {
-            QTransform transform;
-            transform.rotate(270.0f);
-            selectedrectf = transform.mapRect(selectedrectf);
-            selectedrectf.adjust(0.0f, 1.0f, 0.0f, 1.0f);
-          }
-          else if (selectionview->GetRotation() == ROTATION::_180)
-          {
-            QTransform transform;
-            transform.rotate(180.0f);
-            selectedrectf = transform.mapRect(selectedrectf);
-            selectedrectf.adjust(1.0f, 1.0f, 1.0f, 1.0f);
-          }
-          else if (selectionview->GetRotation() == ROTATION::_270)
-          {
-            QTransform transform;
-            transform.rotate(90.0f);
-            selectedrectf = transform.mapRect(selectedrectf);
-            selectedrectf.adjust(1.0f, 0.0f, 1.0f, 0.0f);
-          }
-        }
-
+        const QRectF selectedrectf = ImageToRect(imagepixelrect, selectedrect, selectionview->GetMirror(), selectionview->GetRotation());
         MainWindow::Instance()->ResetMouseState();
-
         const QSharedPointer<VideoView> videoview = selectionview.staticCast<VideoView>();
         if (!videoview->GetDevice()->SupportsFindMotion())
         {
