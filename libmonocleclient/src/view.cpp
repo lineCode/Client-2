@@ -688,6 +688,7 @@ void View::SetPosition(VideoWidget* videowidget, const unsigned int x, const uns
   digitalsignvertexbuffer_.allocate(digitalsignvertices.data(), static_cast<int>(digitalsignvertices.size() * sizeof(float)));
   digitalsignvertexbuffer_.release();
 
+  // Update the objects
   const QRectF imagepixelrect = GetImagePixelRectF();
   for (std::pair< const std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> >& objects : objects_)
   {
@@ -698,7 +699,6 @@ void View::SetPosition(VideoWidget* videowidget, const unsigned int x, const uns
     }
   }
 
-  // Update the objects
   if (makecurrent)
   {
     videowidget_->doneCurrent();
