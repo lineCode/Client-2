@@ -2175,7 +2175,7 @@ void VideoWidget::paintGL()
     }
   }
 
-  // Text
+  // Object text
   QPainter painter(this);
   for (QSharedPointer<View>& view : views_)
   {

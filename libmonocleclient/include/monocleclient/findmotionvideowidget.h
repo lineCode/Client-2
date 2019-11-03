@@ -91,7 +91,6 @@ class FindMotionVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
  private:
 
   bool GetImage(ImageBuffer& imagebuffer);
-  std::array<float, 12> GetVertices(const QRectF& rect, const ROTATION rotation, const bool mirror) const;
   void WriteFrame(const ImageBuffer& imagebuffer);
   QRectF GetImageRect() const;
   QRect GetImagePixelRect() const;

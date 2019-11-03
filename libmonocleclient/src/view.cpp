@@ -74,6 +74,104 @@ QString ToString(const ROTATION rotation)
   }
 }
 
+std::array<float, 12> GetVertices(const QRectF& rect, const ROTATION rotation, const bool mirror)
+{
+  if (mirror)
+  {
+    switch (rotation)
+    {
+      case ROTATION::_90:
+      {
+        return std::array<float, 12>(
+        {{
+          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f
+        }});
+      }
+      case ROTATION::_180:
+      {
+        return std::array<float, 12>(
+        {{
+          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f
+        }});
+      }
+      case ROTATION::_270:
+      {
+        return std::array<float, 12>(
+        {{
+          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f
+        }});
+      }
+      case ROTATION::_0:
+      default:
+      {
+        return std::array<float, 12>(
+        {{
+          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f
+        }});
+      }
+    }
+  }
+  else
+  {
+    switch (rotation)
+    {
+      case ROTATION::_90:
+      {
+        return std::array<float, 12>(
+        {{
+          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f
+        }});
+      }
+      case ROTATION::_180:
+      {
+        return std::array<float, 12>(
+        {{
+          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f
+        }});
+      }
+      case ROTATION::_270:
+      {
+        return std::array<float, 12>(
+        {{
+          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f
+        }});
+      }
+      case ROTATION::_0:
+      default:
+      {
+        return std::array<float, 12>(
+        {{
+          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
+          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f
+        }});
+      }
+    }
+  }
+}
+
 QPointF ImageRectToOpenGL(const QRectF& rect, const bool mirror, const ROTATION rotation, const float x, const float y)
 {
   if (mirror)
@@ -1099,104 +1197,6 @@ void View::SetMessage(const uint64_t playrequestindex, bool error, const QString
   {
     imagebuffer.Destroy();
   
-  }
-}
-
-std::array<float, 12> View::GetVertices(const QRectF& rect, const ROTATION rotation, const bool mirror) const
-{
-  if (mirror)
-  {
-    switch (rotation)
-    {
-      case ROTATION::_90:
-      {
-        return std::array<float, 12>(
-        {{
-          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f
-        }});
-      }
-      case ROTATION::_180:
-      {
-        return std::array<float, 12>(
-        {{
-          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f
-        }});
-      }
-      case ROTATION::_270:
-      {
-        return std::array<float, 12>(
-        {{
-          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f
-        }});
-      }
-      case ROTATION::_0:
-      default:
-      {
-        return std::array<float, 12>(
-        {{
-          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f
-        }});
-      }
-    }
-  }
-  else
-  {
-    switch (rotation)
-    {
-      case ROTATION::_90:
-      {
-        return std::array<float, 12>(
-        {{
-          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f
-        }});
-      }
-      case ROTATION::_180:
-      {
-        return std::array<float, 12>(
-        {{
-          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f
-        }});
-      }
-      case ROTATION::_270:
-      {
-        return std::array<float, 12>(
-        {{
-          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f
-        }});
-      }
-      case ROTATION::_0:
-      default:
-      {
-        return std::array<float, 12>(
-        {{
-          static_cast<float>(rect.right()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.right()), static_cast<float>(rect.top()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.bottom()), 0.0f,
-          static_cast<float>(rect.left()), static_cast<float>(rect.top()), 0.0f
-        }});
-      }
-    }
   }
 }
 

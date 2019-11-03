@@ -72,6 +72,7 @@ enum VIEWTYPE
 ///// Prototypes /////
 
 QString ToString(const ROTATION rotation);
+std::array<float, 12> GetVertices(const QRectF& rect, const ROTATION rotation, const bool mirror);
 QPointF ImageRectToOpenGL(const QRectF& rect, const bool mirror, const ROTATION rotation, const float x, const float y);
 QRectF ImageToRect(const QRect& imagepixelrect, const QRect& rect, const bool mirror, const ROTATION rotation);
 
@@ -223,7 +224,6 @@ class View : public QObject, public QEnableSharedFromThis<View>
   virtual void timerEvent(QTimerEvent* event) override;
   QRectF GetOpenglRect(unsigned int x, unsigned int y, unsigned int width, unsigned int height) const;
   void SetMessage(const uint64_t playrequestindex, bool error, const QString& text);
-  std::array<float, 12> GetVertices(const QRectF& rect, const ROTATION rotation, const bool mirror) const;
   void WriteFrame(const ImageBuffer& imagebuffer);
   void UpdateObjects(const monocle::Objects* objects, const uint64_t time);
 
