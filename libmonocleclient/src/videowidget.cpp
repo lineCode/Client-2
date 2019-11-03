@@ -23,6 +23,7 @@
 #include "monocleclient/mapview.h"
 #include "monocleclient/mediaview.h"
 #include "monocleclient/recording.h"
+#include "monocleclient/shaders.h"
 #include "monocleclient/videoview.h"
 
 ///// Globals /////
@@ -1464,30 +1465,13 @@ void VideoWidget::initializeGL()
   selectedcolourlocation_ = viewselectedshader_.uniformLocation("colour");
 
   // Info
-  if (!viewinfoshader_.addShaderFromSourceCode(QOpenGLShader::Vertex,
-    "#version 130\n"
-    "in vec2 texcoord;\n"
-    "in vec3 position;\n"
-    "out vec2 out_texcoord;\n"
-    "void main()\n"
-    "{\n"
-    "  gl_Position = vec4(position, 1.0);\n"
-    "  out_texcoord = texcoord\n;"
-    "}\n"))
+  if (!viewinfoshader_.addShaderFromSourceCode(QOpenGLShader::Vertex, INFO_VERTEX_SHADER))
   {
     LOG_GUI_WARNING(QString("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
     return;
   }
 
-  if (!viewinfoshader_.addShaderFromSourceCode(QOpenGLShader::Fragment,
-    "#version 130\n"
-    "in vec2 out_texcoord;\n"
-    "uniform sampler2D sampler;\n"
-    "out vec4 colour;\n"
-    "void main()\n"
-    "{\n"
-    "  colour = texture(sampler, out_texcoord);\n"
-    "}\n"))
+  if (!viewinfoshader_.addShaderFromSourceCode(QOpenGLShader::Fragment, INFO_PIXEL_SHADER))
   {
     LOG_GUI_WARNING(QString("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
     return;

@@ -114,6 +114,7 @@ include/monocleclient/recordinglogwindow.h
 include/monocleclient/recordingtrack.h
 include/monocleclient/runguard.h
 include/monocleclient/savevideo.h
+include/monocleclient/shaders.h
 include/monocleclient/shortcut.h
 include/monocleclient/shortcutmgr.h
 include/monocleclient/singleton.h
@@ -240,6 +241,7 @@ src/recordinglogwindow.cpp
 src/recordingtrack.cpp
 src/runguard.cpp
 src/savevideo.cpp
+src/shaders.cpp
 src/shortcut.cpp
 src/shortcutmgr.cpp
 src/stream.cpp

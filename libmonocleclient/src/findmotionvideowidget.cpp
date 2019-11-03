@@ -11,6 +11,7 @@
 #include "monocleclient/decoder.h"
 #include "monocleclient/findmotionwindow.h"
 #include "monocleclient/mainwindow.h"
+#include "monocleclient/shaders.h"
 
 ///// Namespaces /////
 
@@ -196,30 +197,13 @@ void FindMotionVideoWidget::initializeGL()
   SetPosition(GetFindMotionWindow()->rotation_, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, false);
 
   // RGB shader
-  if (!viewrgbshader_.addShaderFromSourceCode(QOpenGLShader::Vertex,
-    "#version 130\n"
-    "in vec2 texcoord;\n"
-    "in vec3 position;\n"
-    "out vec2 out_texcoord;\n"
-    "void main()\n"
-    "{\n"
-    "  gl_Position = vec4(position, 1.0);\n"
-    "  out_texcoord = texcoord\n;"
-    "}\n"))
+  if (!viewrgbshader_.addShaderFromSourceCode(QOpenGLShader::Vertex, RGB_VERTEX_SHADER))
   {
     LOG_GUI_WARNING(QString("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
     return;
   }
 
-  if (!viewrgbshader_.addShaderFromSourceCode(QOpenGLShader::Fragment,
-    "#version 130\n"
-    "in vec2 out_texcoord;\n"
-    "uniform sampler2D sampler;\n"
-    "out vec4 colour;\n"
-    "void main()\n"
-    "{\n"
-    "  colour = texture(sampler, out_texcoord);\n"
-    "}\n"))
+  if (!viewrgbshader_.addShaderFromSourceCode(QOpenGLShader::Fragment, RGB_PIXEL_SHADER))
   {
     LOG_GUI_WARNING(QString("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
     return;
@@ -256,38 +240,13 @@ void FindMotionVideoWidget::initializeGL()
   }
 
   // YUV shader
-  if (!viewyuvshader_.addShaderFromSourceCode(QOpenGLShader::Vertex,
-    "#version 130\n"
-    "in vec2 texcoord;\n"
-    "in vec3 position;\n"
-    "out vec2 out_texcoord;\n"
-    "void main()\n"
-    "{\n"
-    "  gl_Position = vec4(position, 1.0);\n"
-    "  out_texcoord = texcoord\n;"
-    "}\n"))
+  if (!viewyuvshader_.addShaderFromSourceCode(QOpenGLShader::Vertex, YUV_VERTEX_SHADER))
   {
     LOG_GUI_WARNING(QString("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
     return;
   }
 
-  if (!viewyuvshader_.addShaderFromSourceCode(QOpenGLShader::Fragment,
-    "#version 130\n"
-    "in vec2 out_texcoord;\n"
-    "uniform sampler2D texY;\n"
-    "uniform sampler2D texU;\n"
-    "uniform sampler2D texV;\n"
-    "out vec4 colour;\n"
-    "void main()\n"
-    "{\n"
-    "  float y = 1.1643 * (texture2D(texY, out_texcoord.st).r - 0.0625);\n"
-    "  float u = texture2D(texU, out_texcoord.st).r - 0.5;\n"
-    "  float v = texture2D(texV, out_texcoord.st).r - 0.5;\n"
-    "  float r = y + 1.5958 * v;\n"
-    "  float g = y - 0.39173 * u - 0.81290 * v;\n"
-    "  float b = y + 2.017 * u;\n"
-    "  colour = vec4(r, g, b, 1.0);\n"
-    "}\n"))
+  if (!viewyuvshader_.addShaderFromSourceCode(QOpenGLShader::Fragment, YUV_PIXEL_SHADER))
   {
     LOG_GUI_WARNING(QString("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
     return;
@@ -335,37 +294,13 @@ void FindMotionVideoWidget::initializeGL()
   }
 
   // NV12 shader
-  if (!viewnv12shader_.addShaderFromSourceCode(QOpenGLShader::Vertex,
-    "#version 130\n"
-    "in vec2 texcoord;\n"
-    "in vec3 position;\n"
-    "out vec2 out_texcoord;\n"
-    "void main()\n"
-    "{\n"
-    "  gl_Position = vec4(position, 1.0);\n"
-    "  out_texcoord = texcoord\n;"
-    "}\n"))
+  if (!viewnv12shader_.addShaderFromSourceCode(QOpenGLShader::Vertex, NV12_VERTEX_SHADER))
   {
     LOG_GUI_WARNING(QString("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
     return;
   }
 
-  if (!viewnv12shader_.addShaderFromSourceCode(QOpenGLShader::Fragment,
-    "#version 130\n"
-    "in vec2 out_texcoord;\n"
-    "uniform sampler2D texY;\n"
-    "uniform sampler2D texUV;\n"
-    "out vec4 colour;\n"
-    "void main()\n"
-    "{\n"
-    "  float y = texture2D(texY, out_texcoord.st).r;\n"
-    "  float u = texture2D(texUV, out_texcoord.st).r - 0.5;\n"
-    "  float v = texture2D(texUV, out_texcoord.st).g - 0.5;\n"
-    "  float r = y + (1.13983 * v);\n"
-    "  float g = y - ((0.39465 * u) + (0.58060 * v));\n"
-    "  float b = y + (2.03211 * u);\n"
-    "  colour = vec4(r, g, b, 1.0);\n"
-    "}\n"))
+  if (!viewnv12shader_.addShaderFromSourceCode(QOpenGLShader::Fragment, NV12_PIXEL_SHADER))
   {
     LOG_GUI_WARNING(QString("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
     return;
@@ -406,24 +341,13 @@ void FindMotionVideoWidget::initializeGL()
   }
 
   // Select Rect
-  if (!viewselectedshader_.addShaderFromSourceCode(QOpenGLShader::Vertex,
-    "#version 130\n"
-    "in vec2 position;\n"
-    "void main()\n"
-    "{\n"
-    "  gl_Position = vec4(position, 1.0, 1.0);\n"
-    "}\n"))
+  if (!viewselectedshader_.addShaderFromSourceCode(QOpenGLShader::Vertex, SELECTED_VERTEX_SHADER))
   {
     LOG_GUI_WARNING(QString("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
     return;
   }
 
-  if (!viewselectedshader_.addShaderFromSourceCode(QOpenGLShader::Fragment,
-    "#version 130\n"
-    "void main()\n"
-    "{\n"
-    "  gl_FragColor = vec4(1.0, 0.0, 0.0, 0.0);\n"
-    "}\n"))
+  if (!viewselectedshader_.addShaderFromSourceCode(QOpenGLShader::Fragment, SELECTED_PIXEL_SHADER))
   {
     LOG_GUI_WARNING(QString("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
     return;
