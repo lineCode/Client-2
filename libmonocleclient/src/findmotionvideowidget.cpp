@@ -772,7 +772,7 @@ void FindMotionVideoWidget::WriteFrame(const ImageBuffer& imagebuffer)
   sequencenum_ = imagebuffer.sequencenum_;
 
   makeCurrent();
-  if (imagebuffer.type_ == IMAGEBUFFERTYPE_RGBA)
+  if ((imagebuffer.type_ == IMAGEBUFFERTYPE_TEXT) || (imagebuffer.type_ == IMAGEBUFFERTYPE_RGBA))
   {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textures_.at(0));

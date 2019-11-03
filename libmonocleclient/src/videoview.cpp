@@ -607,7 +607,7 @@ void VideoView::H265Callback(const uint64_t streamtoken, const uint64_t playrequ
   }
 
   ImageBuffer imagebuffer = (*h265decoder)->Decode(playrequestindex, marker, timestamp, sequencenum, signature, signaturesize, signaturedata, signaturedatasize, reinterpret_cast<const uint8_t*>(framedata), static_cast<unsigned int>(size), &videoview->freeimagequeue_);
-  if (imagebuffer.buffer_)
+  if (imagebuffer.buffer_ || imagebuffer.cudacontext_)
   {
     if (videoview->imagequeue_.write_available())
     {
@@ -707,7 +707,7 @@ void VideoView::JPEGCallback(const uint64_t streamtoken, const uint64_t playrequ
   }
 
   ImageBuffer imagebuffer = videoview->mjpegdecoder_->Decode(playrequestindex, timestamp, sequencenum, signature, signaturesize, signaturedata, signaturedatasize, reinterpret_cast<const uint8_t*>(framedata), static_cast<unsigned int>(size), &videoview->freeimagequeue_);
-  if (imagebuffer.buffer_)
+  if (imagebuffer.buffer_ || imagebuffer.cudacontext_)
   {
     if (videoview->imagequeue_.write_available())
     {
@@ -740,7 +740,7 @@ void VideoView::MPEG4Callback(const uint64_t streamtoken, const uint64_t playreq
   }
 
   ImageBuffer imagebuffer = (*mpeg4decoder)->Decode(playrequestindex, timestamp, sequencenum, signature, signaturesize, signaturedata, signaturedatasize, reinterpret_cast<const uint8_t*>(framedata), static_cast<unsigned int>(size), &videoview->freeimagequeue_);
-  if (imagebuffer.buffer_)
+  if (imagebuffer.buffer_ || imagebuffer.cudacontext_)
   {
     if (videoview->imagequeue_.write_available())
     {
