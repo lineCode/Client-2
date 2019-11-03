@@ -214,7 +214,7 @@ void ToInfoText(const QDateTime& datetime, const std::string& format, const mono
         }
         case 'a':
         {
-          MainWindow::Instance()->ShortWeekDayName(date.dayOfWeek(), buffer);
+          MainWindow::Instance()->ShortWeekDayName(date.dayOfWeek() - 1, buffer);
           break;
         }
         case 'b':
