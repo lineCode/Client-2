@@ -1,0 +1,7 @@
+namespace monocle;
+
+table FindObjectProgress
+{
+  token:uint64 (id:0);
+  progress:float (id:1);
+}

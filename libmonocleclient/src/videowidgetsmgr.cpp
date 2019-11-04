@@ -365,9 +365,10 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
           //TODO loop through the tracks and find all the tracks with object detectors
             //TODO if there are none, QMessageBox
             //TODO if there are many, pass them all in
-          std::vector< QSharedPointer<RecordingTrack> > objectdetectortracks;
+          std::vector< QSharedPointer<RecordingTrack> > objectdetectortracks;//TODO maybe just count them, we don't need to pass them in, the FindObjectWindow can figure it out
           for (QSharedPointer<RecordingTrack> metadatatrack : videoview->GetRecording()->GetMetadataTracks())
           {
+            //TODO objectdetectortracks.push_back(metadatatrack);
             //TODO we currently don't store the codec indices with the track and only retrieve them on CreateStream...
               //TODO I think we change this and do it in SUSBCRIBE, and then keep clients updated on new codecs coming in(if the index matches any old ones it always overrides it)
             //TODO metadatatrack->getcod

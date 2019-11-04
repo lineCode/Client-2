@@ -134,6 +134,7 @@ class Device : public Connection
   bool SupportsManageDevice() const;
   bool SupportsDeviceLocation() const;
   bool SupportsFindMotion() const;
+  bool SupportsFindObject() const;
   bool SupportsObjectDetection() const;
   bool SupportsCreateDefaultJob() const;
 

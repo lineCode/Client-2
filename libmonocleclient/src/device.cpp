@@ -1187,6 +1187,16 @@ bool Device::SupportsFindMotion() const
   return true;
 }
 
+bool Device::SupportsFindObject() const
+{
+  if (version_ < utility::Version(1, 11, 0))
+  {
+
+    return false;
+  }
+  return true;
+}
+
 bool Device::SupportsObjectDetection() const
 {
   if (version_ < utility::Version(1, 10, 0))

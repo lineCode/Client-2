@@ -37,9 +37,12 @@
 #include "monocleprotocol/controlstreamplayrequest_generated.h"
 #include "monocleprotocol/createfindmotionrequest_generated.h"
 #include "monocleprotocol/createfindmotionresponse_generated.h"
+#include "monocleprotocol/createfindobjectrequest_generated.h"
+#include "monocleprotocol/createfindobjectresponse_generated.h"
 #include "monocleprotocol/createstreamrequest_generated.h"
 #include "monocleprotocol/createstreamresponse_generated.h"
 #include "monocleprotocol/destroyfindmotionrequest_generated.h"
+#include "monocleprotocol/destroyfindobjectrequest_generated.h"
 #include "monocleprotocol/destroystreamrequest_generated.h"
 #include "monocleprotocol/discoveryhello_generated.h"
 #include "monocleprotocol/errorresponse_generated.h"
@@ -49,6 +52,9 @@
 #include "monocleprotocol/findmotionend_generated.h"
 #include "monocleprotocol/findmotionprogress_generated.h"
 #include "monocleprotocol/findmotionresult_generated.h"
+#include "monocleprotocol/findobjectend_generated.h"
+#include "monocleprotocol/findobjectprogress_generated.h"
+#include "monocleprotocol/findobjectresult_generated.h"
 #include "monocleprotocol/getauthenticationnonceresponse_generated.h"
 #include "monocleprotocol/getchildfoldersrequest_generated.h"
 #include "monocleprotocol/getchildfoldersresponse_generated.h"
@@ -367,6 +373,57 @@ boost::system::error_code Connection::SendFindMotionResult(const uint64_t token,
   fbb_.Finish(CreateFindMotionResult(fbb_, token, start, end));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::FINDMOTIONRESULT, ++sequence_);
+  const std::array<boost::asio::const_buffer, 2> buffers =
+  {
+    boost::asio::const_buffer(&header, sizeof(HEADER)),
+    boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
+  };
+  boost::system::error_code err;
+  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
+  return err;
+}
+
+boost::system::error_code Connection::SendFindObjectEnd(const uint64_t token, const uint64_t ret)
+{
+  std::lock_guard<std::mutex> lock(writemutex_);
+  fbb_.Clear();
+  fbb_.Finish(CreateFindObjectEnd(fbb_, token, ret));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::FINDOBJECTEND, ++sequence_);
+  const std::array<boost::asio::const_buffer, 2> buffers =
+  {
+    boost::asio::const_buffer(&header, sizeof(HEADER)),
+    boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
+  };
+  boost::system::error_code err;
+  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
+  return err;
+}
+
+boost::system::error_code Connection::SendFindObjectProgress(const uint64_t token, const float progress)
+{
+  std::lock_guard<std::mutex> lock(writemutex_);
+  fbb_.Clear();
+  fbb_.Finish(CreateFindObjectProgress(fbb_, token, progress));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::FINDOBJECTPROGRESS, ++sequence_);
+  const std::array<boost::asio::const_buffer, 2> buffers =
+  {
+    boost::asio::const_buffer(&header, sizeof(HEADER)),
+    boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
+  };
+  boost::system::error_code err;
+  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
+  return err;
+}
+
+boost::system::error_code Connection::SendFindObjectResult(const uint64_t token, const uint64_t start, const uint64_t end)
+{
+  std::lock_guard<std::mutex> lock(writemutex_);
+  fbb_.Clear();
+  fbb_.Finish(CreateFindObjectResult(fbb_, token, start, end));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::FINDOBJECTRESULT, ++sequence_);
   const std::array<boost::asio::const_buffer, 2> buffers =
   {
     boost::asio::const_buffer(&header, sizeof(HEADER)),
@@ -2473,6 +2530,33 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       fbb_.Finish(CreateCreateFindMotionResponse(fbb_, findmotion.second));
       return SendResponse(true, Message::CREATEFINDMOTION, sequence);
     }
+    case Message::CREATEFINDOBJECT:
+    {
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<CreateFindObjectRequest>(nullptr))
+      {
+
+        return SendErrorResponse(Message::CREATEFINDOBJECT, sequence, Error(ErrorCode::InvalidMessage, "Invalid CreateFindObjectRequest message"));
+      }
+
+      const CreateFindObjectRequest* createfindobjectrequest = flatbuffers::GetRoot<CreateFindObjectRequest>(data);
+      if (createfindobjectrequest == nullptr)
+      {
+
+        return SendErrorResponse(Message::CREATEFINDOBJECT, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
+      }
+
+      const std::pair<Error, uint64_t> findobject = CreateFindObject(createfindobjectrequest->recordingtoken(), createfindobjectrequest->trackid(), createfindobjectrequest->starttime(), createfindobjectrequest->endtime(), createfindobjectrequest->x(), createfindobjectrequest->y(), createfindobjectrequest->width(), createfindobjectrequest->height());
+      if (findobject.first.code_ != ErrorCode::Success)
+      {
+
+        return SendErrorResponse(Message::CREATEFINDOBJECT, sequence, findobject.first);
+      }
+
+      std::lock_guard<std::mutex> lock(writemutex_);
+      fbb_.Clear();
+      fbb_.Finish(CreateCreateFindObjectResponse(fbb_, findobject.second));
+      return SendResponse(true, Message::CREATEFINDOBJECT, sequence);
+    }
     case Message::CREATESTREAM:
     {
       if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<CreateStreamRequest>(nullptr))
@@ -2525,11 +2609,36 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       if (error.code_ != ErrorCode::Success)
       {
 
-        return SendErrorResponse(Message::DESTROYSTREAM, sequence, error);
+        return SendErrorResponse(Message::DESTROYFINDMOTION, sequence, error);
       }
 
       std::lock_guard<std::mutex> lock(writemutex_);
-      return SendResponse(true, Message::DESTROYSTREAM, sequence);
+      return SendResponse(true, Message::DESTROYFINDMOTION, sequence);
+    }
+    case Message::DESTROYFINDOBJECT:
+    {
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<DestroyFindObjectRequest>(nullptr))
+      {
+
+        return SendErrorResponse(Message::DESTROYFINDOBJECT, sequence, Error(ErrorCode::InvalidMessage, "Invalid DestroyFindObjectRequest message"));
+      }
+
+      const DestroyFindObjectRequest* destroyfindobjectrequest = flatbuffers::GetRoot<DestroyFindObjectRequest>(data);
+      if (destroyfindobjectrequest == nullptr)
+      {
+
+        return SendErrorResponse(Message::DESTROYFINDOBJECT, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
+      }
+
+      const Error error = DestroyFindObject(destroyfindobjectrequest->token());
+      if (error.code_ != ErrorCode::Success)
+      {
+
+        return SendErrorResponse(Message::DESTROYFINDOBJECT, sequence, error);
+      }
+
+      std::lock_guard<std::mutex> lock(writemutex_);
+      return SendResponse(true, Message::DESTROYFINDOBJECT, sequence);
     }
     case Message::DESTROYSTREAM:
     {

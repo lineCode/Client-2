@@ -29,7 +29,7 @@ namespace client
 FindObjectPlaybackWidget::FindObjectPlaybackWidget(QWidget* parent) :
   QOpenGLWidget(parent),
   actionvideo_(new QAction(tr("Video"), this)),
-  actionmotion_(new QAction(tr("Motion"), this)),
+  actionobject_(new QAction(tr("Object"), this)),
   colour_(0.5f, 0.5f, 0.5f, 0.5f),
   recordingsblockspositionlocation_(-1),
   recordingsblockscolourlocation_(-1),
@@ -45,12 +45,12 @@ FindObjectPlaybackWidget::FindObjectPlaybackWidget(QWidget* parent) :
 {
   actionvideo_->setCheckable(true);
   actionvideo_->setChecked(true);
-  actionmotion_->setCheckable(true);
-  actionmotion_->setChecked(true);
+  actionobject_->setCheckable(true);
+  actionobject_->setChecked(true);
 
   connect(&MainWindow::Instance()->GetDeviceMgr(), &DeviceMgr::TimeOffsetChanged, this, &FindObjectPlaybackWidget::TimeOffsetChanged);
   connect(actionvideo_, &QAction::triggered, this, &FindObjectPlaybackWidget::ShowVideo);
-  connect(actionmotion_, &QAction::triggered, this, &FindObjectPlaybackWidget::ShowMotion);
+  connect(actionobject_, &QAction::triggered, this, &FindObjectPlaybackWidget::ShowObject);
 
   setMouseTracking(true);
 
@@ -796,7 +796,7 @@ void FindObjectPlaybackWidget::paintGL()
     recordingblockvertices_.release();
   }
 
-  if (actionmotion_->isChecked())
+  if (actionobject_->isChecked())
   {
     metadatarecordingblockvertices_.bind();
     recordingsblocksshader_.enableAttributeArray(recordingsblockspositionlocation_);
@@ -1148,7 +1148,7 @@ void FindObjectPlaybackWidget::contextMenuEvent(QContextMenuEvent* event)
 {
   QMenu* menu = new QMenu(GetFindObjectWindow());
   menu->addAction(actionvideo_);
-  menu->addAction(actionmotion_);
+  menu->addAction(actionobject_);
   menu->exec(event->globalPos());
 }
 
@@ -1166,9 +1166,9 @@ boost::optional<uint64_t> FindObjectPlaybackWidget::GetStartTime() const
     starttime = std::min(starttime, recordingblock->GetStartTime());
 
   }
-  for (const std::unique_ptr<RecordingBlock>& motionrecordingblock : objectrecordingblocks_)
+  for (const std::unique_ptr<RecordingBlock>& objectrecordingblock : objectrecordingblocks_)
   {
-    starttime = std::min(starttime, motionrecordingblock->GetStartTime());
+    starttime = std::min(starttime, objectrecordingblock->GetStartTime());
 
   }
   return starttime;
@@ -1269,7 +1269,7 @@ void FindObjectPlaybackWidget::ShowVideo(bool)
 
 }
 
-void FindObjectPlaybackWidget::ShowMotion(bool)
+void FindObjectPlaybackWidget::ShowObject(bool)
 {
 
 }

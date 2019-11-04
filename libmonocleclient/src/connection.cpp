@@ -75,6 +75,24 @@ void Connection::FindMotionResult(const uint64_t token, const uint64_t start, co
 
 }
 
+void Connection::FindObjectEnd(const uint64_t token, const uint64_t ret)
+{
+  emit SignalFindObjectEnd(token, ret);
+
+}
+
+void Connection::FindObjectProgress(const uint64_t token, const float progress)
+{
+  emit SignalFindObjectProgress(token, progress);
+
+}
+
+void Connection::FindObjectResult(const uint64_t token, const uint64_t start, const uint64_t end)
+{
+  emit SignalFindObjectResult(token, start, end);
+
+}
+
 void Connection::Goodbye()
 {
   Disconnected();

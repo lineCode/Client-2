@@ -64,7 +64,7 @@ FindObjectWindow::FindObjectWindow(QWidget* parent, const QImage& image, const b
 {
   ui_.setupUi(this);
 
-  // We do this out of order because otherwise we come before FindMotionPlaybackWidget::initialiseGL
+  // We do this out of order because otherwise we come before FindObjectPlaybackWidget::initialiseGL
   ui_.datetimestart->setDateTime(QDateTime::fromMSecsSinceEpoch(starttime, Qt::UTC));
   ui_.datetimeend->setDateTime(QDateTime::fromMSecsSinceEpoch(endtime, Qt::UTC));
 
@@ -534,19 +534,19 @@ void FindObjectWindow::EndDateTimeChanged(const QDateTime& datetime)
 
 void FindObjectWindow::FindObjectEnd(const uint64_t token, const uint64_t ret)
 {
-  //TODO if (!findobjecttoken_.is_initialized() || (*findobjecttoken_ != token))
-  //TODO {
-  //TODO 
-  //TODO   return;
-  //TODO }
-  //TODO 
-  //TODO ui_.progressbar->setValue(100);
-  //TODO 
-  //TODO if (ret)
-  //TODO {
-  //TODO   QMessageBox(QMessageBox::Warning, tr("Error"), tr("Find Motion failed: ") + QString::number(ret), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-  //TODO 
-  //TODO }
+  if (!findobjecttoken_.is_initialized() || (*findobjecttoken_ != token))
+  {
+  
+    return;
+  }
+  
+  ui_.progressbar->setValue(100);
+  
+  if (ret)
+  {
+    QMessageBox(QMessageBox::Warning, tr("Error"), tr("Find Object failed: ") + QString::number(ret), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+  
+  }
 }
 
 void FindObjectWindow::FindObjectProgress(const uint64_t token, const float progress)
@@ -557,47 +557,47 @@ void FindObjectWindow::FindObjectProgress(const uint64_t token, const float prog
 
 void FindObjectWindow::FindObjectResult(const uint64_t token, const uint64_t start, const uint64_t end)
 {
-  //TODO if (!findobjecttoken_.is_initialized() || (*findobjecttoken_ != token))
-  //TODO {
-  //TODO 
-  //TODO   return;
-  //TODO }
-  //TODO 
-  //TODO getsnapshotconnections_.emplace_back(connection_->GetSnapshot(recording_->GetToken(), track_->GetId(), start, [this, start](const std::chrono::steady_clock::duration latency, const monocle::client::GETSNAPSHOTRESPONSE& getsnapshotresponse)
-  //TODO {
-  //TODO   if (getsnapshotresponse.GetErrorCode() != monocle::ErrorCode::Success)
-  //TODO   {
-  //TODO     LOG_GUI_THREAD_WARNING_SOURCE(device_, "Failed to get snapshot: " + QString::fromStdString(getsnapshotresponse.GetErrorText()));
-  //TODO     return;
-  //TODO   }
-  //TODO 
-  //TODO   QImage image;
-  //TODO   if (!image.loadFromData(getsnapshotresponse.data_.data(), static_cast<int>(getsnapshotresponse.data_.size()), "png"))
-  //TODO   {
-  //TODO     LOG_GUI_THREAD_WARNING_SOURCE(device_, "Failed to load snapshot");
-  //TODO     return;
-  //TODO   }
-  //TODO 
-  //TODO   for (int i = 0; i < ui_.tableresults->rowCount(); ++i)
-  //TODO   {
-  //TODO     if (ui_.tableresults->item(i, 1)->data(Qt::UserRole).toULongLong() == start)
-  //TODO     {
-  //TODO       QTableWidgetItem* item = new QTableWidgetItem();
-  //TODO       item->setData(Qt::DecorationRole, QPixmap::fromImage(image));
-  //TODO       ui_.tableresults->setItem(i, 0, item);
-  //TODO       break;
-  //TODO     }
-  //TODO   }
-  //TODO }));
-  //TODO 
-  //TODO const int row = ui_.tableresults->rowCount();
-  //TODO ui_.tableresults->insertRow(row);
-  //TODO 
-  //TODO QTableWidgetItem* item = new QTableWidgetItem(QDateTime::fromMSecsSinceEpoch(start, Qt::UTC).toString());
-  //TODO item->setData(Qt::UserRole, static_cast<qulonglong>(start)); // The start time is assume to be unique, which is a guarantee by the server
-  //TODO ui_.tableresults->setItem(row, 1, item);
-  //TODO 
-  //TODO ui_.playbackwidget->FindMotionResult(start, end);
+  if (!findobjecttoken_.is_initialized() || (*findobjecttoken_ != token))
+  {
+  
+    return;
+  }
+  
+  getsnapshotconnections_.emplace_back(connection_->GetSnapshot(recording_->GetToken(), track_->GetId(), start, [this, start](const std::chrono::steady_clock::duration latency, const monocle::client::GETSNAPSHOTRESPONSE& getsnapshotresponse)
+  {
+    if (getsnapshotresponse.GetErrorCode() != monocle::ErrorCode::Success)
+    {
+      LOG_GUI_THREAD_WARNING_SOURCE(device_, "Failed to get snapshot: " + QString::fromStdString(getsnapshotresponse.GetErrorText()));
+      return;
+    }
+  
+    QImage image;
+    if (!image.loadFromData(getsnapshotresponse.data_.data(), static_cast<int>(getsnapshotresponse.data_.size()), "png"))
+    {
+      LOG_GUI_THREAD_WARNING_SOURCE(device_, "Failed to load snapshot");
+      return;
+    }
+  
+    for (int i = 0; i < ui_.tableresults->rowCount(); ++i)
+    {
+      if (ui_.tableresults->item(i, 1)->data(Qt::UserRole).toULongLong() == start)
+      {
+        QTableWidgetItem* item = new QTableWidgetItem();
+        item->setData(Qt::DecorationRole, QPixmap::fromImage(image));
+        ui_.tableresults->setItem(i, 0, item);
+        break;
+      }
+    }
+  }));
+  
+  const int row = ui_.tableresults->rowCount();
+  ui_.tableresults->insertRow(row);
+  
+  QTableWidgetItem* item = new QTableWidgetItem(QDateTime::fromMSecsSinceEpoch(start, Qt::UTC).toString());
+  item->setData(Qt::UserRole, static_cast<qulonglong>(start)); // The start time is assume to be unique, which is a guarantee by the server
+  ui_.tableresults->setItem(row, 1, item);
+  
+  ui_.playbackwidget->FindObjectResult(start, end);
 }
 
 void FindObjectWindow::on_buttonsearch_clicked()
@@ -632,9 +632,9 @@ void FindObjectWindow::on_buttonsearch_clicked()
   const std::string username = device_->GetUsername().toStdString();
   const std::string password = device_->GetPassword().toStdString();
   connection_ = boost::make_shared<Connection>(MainWindow::Instance()->GetGUIIOService(), device_->GetProxyParams(), device_->GetAddress(), device_->GetPort());
-  connect(connection_.get(), &Connection::SignalFindMotionEnd, this, &FindObjectWindow::FindObjectEnd);
-  connect(connection_.get(), &Connection::SignalFindMotionProgress, this, &FindObjectWindow::FindObjectProgress);
-  connect(connection_.get(), &Connection::SignalFindMotionResult, this, &FindObjectWindow::FindObjectResult);
+  connect(connection_.get(), &Connection::SignalFindObjectEnd, this, &FindObjectWindow::FindObjectEnd);
+  connect(connection_.get(), &Connection::SignalFindObjectProgress, this, &FindObjectWindow::FindObjectProgress);
+  connect(connection_.get(), &Connection::SignalFindObjectResult, this, &FindObjectWindow::FindObjectResult);
   streamtoken_.reset();
   findobjecttoken_.reset();
   connect_ = connection_->Connect([this, username, password](const boost::system::error_code& err)
@@ -680,18 +680,18 @@ void FindObjectWindow::on_buttonsearch_clicked()
           }
   
           const QRectF selectedrect = ui_.videowidget->GetSelectedRect();
-          //TODO createfindobject_ = connection_->CreateFindObject(recording_->GetToken(), track_->GetId(), ui_.datetimestart->dateTime().toMSecsSinceEpoch(), ui_.datetimeend->dateTime().toMSecsSinceEpoch(), selectedrect.x(), selectedrect.y(), selectedrect.width(), selectedrect.height(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::CREATEFINDMOTIONRESPONSE& createfindobjectresponse)
-          //TODO {
-          //TODO   if (createfindobjectresponse.GetErrorCode() != monocle::ErrorCode::Success)
-          //TODO   {
-          //TODO     QMessageBox(QMessageBox::Warning, tr("Error"), tr("Failed to create find object detector: ") + QString::fromStdString(createfindobjectresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-          //TODO     return;
-          //TODO   }
-          //TODO 
-          //TODO   std::for_each(getsnapshotconnections_.begin(), getsnapshotconnections_.end(), [](monocle::client::Connection& connection) { connection.Close(); });
-          //TODO   getsnapshotconnections_.clear();
-          //TODO   findobjecttoken_ = createfindobjectresponse.token_;
-          //TODO });
+          createfindobject_ = connection_->CreateFindObject(recording_->GetToken(), track_->GetId(), ui_.datetimestart->dateTime().toMSecsSinceEpoch(), ui_.datetimeend->dateTime().toMSecsSinceEpoch(), selectedrect.x(), selectedrect.y(), selectedrect.width(), selectedrect.height(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::CREATEFINDOBJECTRESPONSE& createfindobjectresponse)
+          {
+            if (createfindobjectresponse.GetErrorCode() != monocle::ErrorCode::Success)
+            {
+              QMessageBox(QMessageBox::Warning, tr("Error"), tr("Failed to create find object detector: ") + QString::fromStdString(createfindobjectresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+              return;
+            }
+          
+            std::for_each(getsnapshotconnections_.begin(), getsnapshotconnections_.end(), [](monocle::client::Connection& connection) { connection.Close(); });
+            getsnapshotconnections_.clear();
+            findobjecttoken_ = createfindobjectresponse.token_;
+          });
         }, FindObjectWindow::ControlStreamEnd, FindObjectWindow::H265Callback, FindObjectWindow::H264Callback, FindObjectWindow::MetadataCallback, FindObjectWindow::JPEGCallback, FindObjectWindow::MPEG4Callback, FindObjectWindow::NewCodecIndexCallback, this);
       });
     });

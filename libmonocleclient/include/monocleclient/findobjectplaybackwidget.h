@@ -101,7 +101,7 @@ class FindObjectPlaybackWidget : public QOpenGLWidget, protected QOpenGLFunction
   void SetState(const PLAYBACKMOUSESTATE state);
 
   QAction* actionvideo_;
-  QAction* actionmotion_;
+  QAction* actionobject_;
 
   FT_Library freetype_;
   FT_Face freetypearial_;
@@ -162,7 +162,7 @@ class FindObjectPlaybackWidget : public QOpenGLWidget, protected QOpenGLFunction
  private slots:
 
   void ShowVideo(bool);
-  void ShowMotion(bool);
+  void ShowObject(bool);
   void TimeOffsetChanged(const boost::shared_ptr<Device>& device);
   void JobSourceTrackStateChanged(const QSharedPointer<client::RecordingJob>& job, const QSharedPointer<client::RecordingJobSource>& source, const QSharedPointer<client::RecordingJobSourceTrack>& track, uint64_t time, const monocle::RecordingJobState state, const QString& error, const monocle::RecordingJobState prevstate);
   void TrackSetData(const QSharedPointer<client::RecordingTrack>& track, const std::vector<monocle::INDEX>& indices);
