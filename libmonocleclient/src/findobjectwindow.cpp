@@ -83,7 +83,9 @@ FindObjectWindow::FindObjectWindow(QWidget* parent, const QImage& image, const b
   // Track
   for (const QSharedPointer<RecordingTrack>& track : recording->GetTracks())
   {
-    if (track->GetTrackType() != monocle::TrackType::Video)
+//TODO we need to do some checks here to see whether they have object detectors in them(by checking the new codec indices)
+  //TODO then we see which video track those object detectors are attached too, and then display those
+    if (track->GetTrackType() != monocle::TrackType::Metadata)
     {
 
       continue;
@@ -109,7 +111,7 @@ FindObjectWindow::~FindObjectWindow()
   {
     if (findobjecttoken_.is_initialized())
     {
-      //TODO connection_->DestroyFindObject(*findobjecttoken_);
+      connection_->DestroyFindObject(*findobjecttoken_);
       findobjecttoken_.reset();
     }
 
@@ -604,14 +606,14 @@ void FindObjectWindow::on_buttonsearch_clicked()
 {
   // Swap out the track playbackwidget indices
   const uint32_t trackid = ui_.combotracks->currentData().toUInt();
-  const QSharedPointer<RecordingTrack> track = recording_->GetTrack(trackid);
-  if ((track == nullptr) || (track->GetTrackType() != monocle::TrackType::Video))
+  const QSharedPointer<RecordingTrack> metadatatrack = recording_->GetTrack(trackid);
+  if ((metadatatrack == nullptr) || (metadatatrack->GetTrackType() != monocle::TrackType::Metadata))//TODO umm video now please or something?
   {
 
     return;
   }
 
-  ui_.playbackwidget->SetTrack(track);
+  //TODO ui_.playbackwidget->SetTrack(track);
 
   // Clear up previous attempts
   connect_.Close();
@@ -637,7 +639,7 @@ void FindObjectWindow::on_buttonsearch_clicked()
   connect(connection_.get(), &Connection::SignalFindObjectResult, this, &FindObjectWindow::FindObjectResult);
   streamtoken_.reset();
   findobjecttoken_.reset();
-  connect_ = connection_->Connect([this, username, password](const boost::system::error_code& err)
+  connect_ = connection_->Connect([this, metadatatrack, username, password](const boost::system::error_code& err)
   {
     if (err)
     {
@@ -645,7 +647,7 @@ void FindObjectWindow::on_buttonsearch_clicked()
       return;
     }
   
-    getauthenticatenonce_ = connection_->GetAuthenticationNonce([this, username, password](const std::chrono::steady_clock::duration latency, const monocle::client::GETAUTHENTICATIONNONCERESPONSE& getauthenticationnonceresponse)
+    getauthenticatenonce_ = connection_->GetAuthenticationNonce([this, metadatatrack, username, password](const std::chrono::steady_clock::duration latency, const monocle::client::GETAUTHENTICATIONNONCERESPONSE& getauthenticationnonceresponse)
     {
       if (getauthenticationnonceresponse.GetErrorCode() != monocle::ErrorCode::Success)
       {
@@ -654,7 +656,7 @@ void FindObjectWindow::on_buttonsearch_clicked()
       }
   
       const std::string clientnonce = utility::GenerateRandomString(32);
-      authenticate_ = connection_->Authenticate(username, clientnonce, monocle::AuthenticateDigest(username, password, getauthenticationnonceresponse.authenticatenonce_, clientnonce), [this](const std::chrono::steady_clock::duration latency, const monocle::client::AUTHENTICATERESPONSE& authenticateresponse)
+      authenticate_ = connection_->Authenticate(username, clientnonce, monocle::AuthenticateDigest(username, password, getauthenticationnonceresponse.authenticatenonce_, clientnonce), [this, metadatatrack](const std::chrono::steady_clock::duration latency, const monocle::client::AUTHENTICATERESPONSE& authenticateresponse)
       {
         if (authenticateresponse.GetErrorCode() != monocle::ErrorCode::Success)
         {
@@ -662,7 +664,7 @@ void FindObjectWindow::on_buttonsearch_clicked()
           return;
         }
   
-        createstream_ = connection_->CreateStream(recording_->GetToken(), track_->GetId(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
+        createstream_ = connection_->CreateStream(recording_->GetToken(), track_->GetId(), [this, metadatatrack](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
         {
           if (createstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
           {
@@ -678,9 +680,9 @@ void FindObjectWindow::on_buttonsearch_clicked()
             AddCodecIndex(codecindex);
   
           }
-  
+
           const QRectF selectedrect = ui_.videowidget->GetSelectedRect();
-          createfindobject_ = connection_->CreateFindObject(recording_->GetToken(), track_->GetId(), ui_.datetimestart->dateTime().toMSecsSinceEpoch(), ui_.datetimeend->dateTime().toMSecsSinceEpoch(), selectedrect.x(), selectedrect.y(), selectedrect.width(), selectedrect.height(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::CREATEFINDOBJECTRESPONSE& createfindobjectresponse)
+          createfindobject_ = connection_->CreateFindObject(recording_->GetToken(), metadatatrack->GetId(), ui_.datetimestart->dateTime().toMSecsSinceEpoch(), ui_.datetimeend->dateTime().toMSecsSinceEpoch(), selectedrect.x(), selectedrect.y(), selectedrect.width(), selectedrect.height(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::CREATEFINDOBJECTRESPONSE& createfindobjectresponse)
           {
             if (createfindobjectresponse.GetErrorCode() != monocle::ErrorCode::Success)
             {
