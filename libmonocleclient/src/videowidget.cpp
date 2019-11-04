@@ -379,7 +379,7 @@ VideoWidget::VideoWidget(QWidget* parent) :
   
   setMouseTracking(true);
 
-  if ((MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDMOTION) || (MainWindow::Instance()->GetMouseState() == MOUSESTATE_COLOURPICKER))
+  if ((MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDMOTION) || (MainWindow::Instance()->GetMouseState() == MOUSESTATE_COLOURPICKER) || (MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDOBJECT))
   {
     parentWidget()->setCursor(Qt::CrossCursor);
 
@@ -2079,7 +2079,7 @@ void VideoWidget::paintGL()
     }
   }
 
-  if ((MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDMOTION) && MainWindow::Instance()->GetVideoWidgetsMgr().GetSelectionView())
+  if (((MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDMOTION) || (MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDOBJECT)) && MainWindow::Instance()->GetVideoWidgetsMgr().GetSelectionView())
   {
     const QSharedPointer<View> view = MainWindow::Instance()->GetVideoWidgetsMgr().GetSelectionView().lock();
     if (view)

@@ -792,6 +792,7 @@
    </attribute>
    <addaction name="actionfindmotion"/>
    <addaction name="actioncolourpicker"/>
+   <addaction name="actionfindobject"/>
   </widget>
   <action name="actionabout">
    <property name="enabled">
@@ -906,6 +907,21 @@
    </property>
    <property name="toolTip">
     <string>Colour Picker</string>
+   </property>
+  </action>
+  <action name="actionfindobject">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../monocleclient/resources/resources.qrc">
+     <normaloff>:/findobject.png</normaloff>:/findobject.png</iconset>
+   </property>
+   <property name="text">
+    <string>Find Object</string>
+   </property>
+   <property name="toolTip">
+    <string>Find Object</string>
    </property>
   </action>
  </widget>

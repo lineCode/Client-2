@@ -97,7 +97,7 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   connect(ui_.dockdevices, &QDockWidget::visibilityChanged, [this](bool visible) { ui_.actiondevices->setChecked(visible); });
   connect(ui_.docklog, &QDockWidget::visibilityChanged, [this](bool visible) { ui_.actionlog->setChecked(visible); });
   connect(ui_.dockplayback, &QDockWidget::visibilityChanged, [this](bool visible) { ui_.actionplayback->setChecked(visible); });
-  connect(ui_.toolbar, &QToolBar::visibilityChanged, [this](bool visible) { ui_.actiontoolbar->setChecked(visible); ui_.actionfindmotion->setChecked(false); ui_.actioncolourpicker->setChecked(false); });
+  connect(ui_.toolbar, &QToolBar::visibilityChanged, [this](bool visible) { ui_.actiontoolbar->setChecked(visible); ui_.actionfindmotion->setChecked(false); ui_.actioncolourpicker->setChecked(false); ui_.actionfindobject->setChecked(false); });
 
   const int ibmplexmonobold = QFontDatabase::addApplicationFont(":/IBMPlexMono-Bold.ttf");
   if (ibmplexmonobold == -1)
@@ -521,7 +521,7 @@ void MainWindow::ShowLocationTreeFilter(const bool show)
 void MainWindow::ResetMouseState()
 {
   ui_.actionfindmotion->setChecked(false);
-
+  ui_.actionfindobject->setChecked(false);
 }
 
 MOUSESTATE MainWindow::GetMouseState() const
@@ -535,6 +535,11 @@ MOUSESTATE MainWindow::GetMouseState() const
   {
 
     return MOUSESTATE_COLOURPICKER;
+  }
+  else if (ui_.actionfindobject->isChecked())
+  {
+
+    return MOUSESTATE_FINDOBJECT;
   }
   else
   {
@@ -793,7 +798,7 @@ void MainWindow::ToolbarUpdated()
 {
   for (VideoWidget* videowidget : videowidgetsmgr_.GetVideoWidgets())
   {
-    if (ui_.actionfindmotion->isChecked() || ui_.actioncolourpicker->isChecked())
+    if (ui_.actionfindmotion->isChecked() || ui_.actioncolourpicker->isChecked() || ui_.actionfindobject->isChecked())
     {
       videowidget->parentWidget()->setCursor(Qt::CrossCursor);
 
@@ -955,7 +960,7 @@ void MainWindow::on_actionfindmotion_toggled()
   if (ui_.actionfindmotion->isChecked()) // Disable other tools
   {
     ui_.actioncolourpicker->setChecked(false);
-
+    ui_.actionfindobject->setChecked(false);
   }
 }
 
@@ -966,7 +971,18 @@ void MainWindow::on_actioncolourpicker_toggled()
   if (ui_.actioncolourpicker->isChecked()) // Disable other tools
   {
     ui_.actionfindmotion->setChecked(false);
+    ui_.actionfindobject->setChecked(false);
+  }
+}
 
+void MainWindow::on_actionfindobject_toggled()
+{
+  ToolbarUpdated();
+
+  if (ui_.actionfindobject->isChecked()) // Disable other tools
+  {
+    ui_.actioncolourpicker->setChecked(false);
+    ui_.actionfindmotion->setChecked(false);
   }
 }
 

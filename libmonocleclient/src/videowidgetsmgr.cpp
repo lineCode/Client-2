@@ -9,6 +9,7 @@
 #include <QMessageBox>
 
 #include "monocleclient/findmotionwindow.h"
+#include "monocleclient/findobjectwindow.h"
 #include "monocleclient/mainwindow.h"
 #include "monocleclient/recording.h"
 #include "monocleclient/recordingtrack.h"
@@ -302,7 +303,7 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
   selectionview_.clear();
   VideoWidget* videowidget = GetVideoWidget(event->globalPos());
 
-  if (MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDMOTION)
+  if ((MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDMOTION) || (MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDOBJECT))
   {
     if (!selectionview)
     {
@@ -354,7 +355,16 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
           return;
         }
 
-        FindMotionWindow(videowidget, videoview->GetQImage(boost::none), videoview->GetDevice(), videoview->GetRecording(), videoview->GetTrack(), videoview->GetSelectedColour(), *starttime, *endtime, selectedrectf, videoview->GetImageWidth(), videoview->GetImageHeight(), videoview->GetMirror(), videoview->GetRotation(), videoview->GetStretch()).exec();
+        if (MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDMOTION)
+        {
+          FindMotionWindow(videowidget, videoview->GetQImage(boost::none), videoview->GetDevice(), videoview->GetRecording(), videoview->GetTrack(), videoview->GetSelectedColour(), *starttime, *endtime, selectedrectf, videoview->GetImageWidth(), videoview->GetImageHeight(), videoview->GetMirror(), videoview->GetRotation(), videoview->GetStretch()).exec();
+
+        }
+        else // (MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDOBJECT)
+        {
+          FindObjectWindow(videowidget, videoview->GetQImage(boost::none), videoview->GetDevice(), videoview->GetRecording(), videoview->GetTrack(), videoview->GetSelectedColour(), *starttime, *endtime, selectedrectf, videoview->GetImageWidth(), videoview->GetImageHeight(), videoview->GetMirror(), videoview->GetRotation(), videoview->GetStretch()).exec();
+
+        }
       }
     }
   }

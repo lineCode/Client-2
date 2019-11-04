@@ -103,6 +103,7 @@ enum MOUSESTATE
 {
   MOUSESTATE_SELECT,
   MOUSESTATE_FINDMOTION,
+  MOUSESTATE_FINDOBJECT,
   MOUSESTATE_COLOURPICKER
 };
 
@@ -267,6 +268,7 @@ class MainWindow : public QMainWindow
   void on_actionplayback_triggered();
   void on_actiontoolbar_triggered();
   void on_actionfindmotion_toggled();
+  void on_actionfindobject_toggled();
   void on_actioncolourpicker_toggled();
   void on_editdevicetreefilter_textChanged(const QString& text);
   void on_editlocationtreefilter_textChanged(const QString& text);
