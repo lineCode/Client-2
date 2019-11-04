@@ -230,7 +230,7 @@ void VideoWidgetsMgr::MousePressEvent(QMouseEvent* event)
 
   const QPoint pos = videowidget->mapFromGlobal(event->globalPos());
   QSharedPointer<View> view = videowidget->GetView(pos);
-  if (MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDMOTION)
+  if ((MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDMOTION) || (MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDOBJECT))
   {
     if (!view || (view->GetViewType() != VIEWTYPE_MONOCLE)) // Find motion only works on video
     {
@@ -362,6 +362,9 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
         }
         else // (MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDOBJECT)
         {
+          //TODO look to see if any codec indices contains objectdetector thing
+            //TODO if not, QMessageBox
+
           FindObjectWindow(videowidget, videoview->GetQImage(boost::none), videoview->GetDevice(), videoview->GetRecording(), videoview->GetTrack(), videoview->GetSelectedColour(), *starttime, *endtime, selectedrectf, videoview->GetImageWidth(), videoview->GetImageHeight(), videoview->GetMirror(), videoview->GetRotation(), videoview->GetStretch()).exec();
 
         }
