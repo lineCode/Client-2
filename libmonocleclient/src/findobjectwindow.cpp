@@ -637,65 +637,65 @@ void FindObjectWindow::on_buttonsearch_clicked()
   connect(connection_.get(), &Connection::SignalFindMotionResult, this, &FindObjectWindow::FindObjectResult);
   streamtoken_.reset();
   findobjecttoken_.reset();
-  //TODO connect_ = connection_->Connect([this, username, password](const boost::system::error_code& err)
-  //TODO {
-  //TODO   if (err)
-  //TODO   {
-  //TODO     QMessageBox(QMessageBox::Warning, tr("Error"), tr("Failed to connect"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-  //TODO     return;
-  //TODO   }
-  //TODO 
-  //TODO   getauthenticatenonce_ = connection_->GetAuthenticationNonce([this, username, password](const std::chrono::steady_clock::duration latency, const monocle::client::GETAUTHENTICATIONNONCERESPONSE& getauthenticationnonceresponse)
-  //TODO   {
-  //TODO     if (getauthenticationnonceresponse.GetErrorCode() != monocle::ErrorCode::Success)
-  //TODO     {
-  //TODO       QMessageBox(QMessageBox::Warning, tr("Error"), tr("Failed to get authentication nonce: ") + QString::fromStdString(getauthenticationnonceresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-  //TODO       return;
-  //TODO     }
-  //TODO 
-  //TODO     const std::string clientnonce = utility::GenerateRandomString(32);
-  //TODO     authenticate_ = connection_->Authenticate(username, clientnonce, monocle::AuthenticateDigest(username, password, getauthenticationnonceresponse.authenticatenonce_, clientnonce), [this](const std::chrono::steady_clock::duration latency, const monocle::client::AUTHENTICATERESPONSE& authenticateresponse)
-  //TODO     {
-  //TODO       if (authenticateresponse.GetErrorCode() != monocle::ErrorCode::Success)
-  //TODO       {
-  //TODO         QMessageBox(QMessageBox::Warning, tr("Error"), tr("Failed to authenticate: ") + QString::fromStdString(authenticateresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-  //TODO         return;
-  //TODO       }
-  //TODO 
-  //TODO       createstream_ = connection_->CreateStream(recording_->GetToken(), track_->GetId(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
-  //TODO       {
-  //TODO         if (createstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
-  //TODO         {
-  //TODO           QMessageBox(QMessageBox::Warning, tr("Error"), tr("Failed to create stream: ") + QString::fromStdString(createstreamresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-  //TODO           return;
-  //TODO         }
-  //TODO 
-  //TODO         streamtoken_ = createstreamresponse.token_;
-  //TODO 
-  //TODO         DestroyDecoders();
-  //TODO         for (const monocle::CODECINDEX& codecindex : createstreamresponse.codecindices_)
-  //TODO         {
-  //TODO           AddCodecIndex(codecindex);
-  //TODO 
-  //TODO         }
-  //TODO 
-  //TODO         const QRectF selectedrect = ui_.videowidget->GetSelectedRect();
-  //TODO         createfindobject_ = connection_->CreateFindObject(recording_->GetToken(), track_->GetId(), ui_.datetimestart->dateTime().toMSecsSinceEpoch(), ui_.datetimeend->dateTime().toMSecsSinceEpoch(), selectedrect.x(), selectedrect.y(), selectedrect.width(), selectedrect.height(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::CREATEFINDMOTIONRESPONSE& createfindobjectresponse)
-  //TODO         {
-  //TODO           if (createfindobjectresponse.GetErrorCode() != monocle::ErrorCode::Success)
-  //TODO           {
-  //TODO             QMessageBox(QMessageBox::Warning, tr("Error"), tr("Failed to create find object detector: ") + QString::fromStdString(createfindobjectresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-  //TODO             return;
-  //TODO           }
-  //TODO 
-  //TODO           std::for_each(getsnapshotconnections_.begin(), getsnapshotconnections_.end(), [](monocle::client::Connection& connection) { connection.Close(); });
-  //TODO           getsnapshotconnections_.clear();
-  //TODO           findobjecttoken_ = createfindobjectresponse.token_;
-  //TODO         });
-  //TODO       }, FindObjectWindow::ControlStreamEnd, FindObjectWindow::H265Callback, FindObjectWindow::H264Callback, FindObjectWindow::MetadataCallback, FindObjectWindow::JPEGCallback, FindObjectWindow::MPEG4Callback, FindObjectWindow::NewCodecIndexCallback, this);
-  //TODO     });
-  //TODO   });
-  //TODO });
+  connect_ = connection_->Connect([this, username, password](const boost::system::error_code& err)
+  {
+    if (err)
+    {
+      QMessageBox(QMessageBox::Warning, tr("Error"), tr("Failed to connect"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+      return;
+    }
+  
+    getauthenticatenonce_ = connection_->GetAuthenticationNonce([this, username, password](const std::chrono::steady_clock::duration latency, const monocle::client::GETAUTHENTICATIONNONCERESPONSE& getauthenticationnonceresponse)
+    {
+      if (getauthenticationnonceresponse.GetErrorCode() != monocle::ErrorCode::Success)
+      {
+        QMessageBox(QMessageBox::Warning, tr("Error"), tr("Failed to get authentication nonce: ") + QString::fromStdString(getauthenticationnonceresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+        return;
+      }
+  
+      const std::string clientnonce = utility::GenerateRandomString(32);
+      authenticate_ = connection_->Authenticate(username, clientnonce, monocle::AuthenticateDigest(username, password, getauthenticationnonceresponse.authenticatenonce_, clientnonce), [this](const std::chrono::steady_clock::duration latency, const monocle::client::AUTHENTICATERESPONSE& authenticateresponse)
+      {
+        if (authenticateresponse.GetErrorCode() != monocle::ErrorCode::Success)
+        {
+          QMessageBox(QMessageBox::Warning, tr("Error"), tr("Failed to authenticate: ") + QString::fromStdString(authenticateresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+          return;
+        }
+  
+        createstream_ = connection_->CreateStream(recording_->GetToken(), track_->GetId(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
+        {
+          if (createstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
+          {
+            QMessageBox(QMessageBox::Warning, tr("Error"), tr("Failed to create stream: ") + QString::fromStdString(createstreamresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+            return;
+          }
+  
+          streamtoken_ = createstreamresponse.token_;
+  
+          DestroyDecoders();
+          for (const monocle::CODECINDEX& codecindex : createstreamresponse.codecindices_)
+          {
+            AddCodecIndex(codecindex);
+  
+          }
+  
+          const QRectF selectedrect = ui_.videowidget->GetSelectedRect();
+          //TODO createfindobject_ = connection_->CreateFindObject(recording_->GetToken(), track_->GetId(), ui_.datetimestart->dateTime().toMSecsSinceEpoch(), ui_.datetimeend->dateTime().toMSecsSinceEpoch(), selectedrect.x(), selectedrect.y(), selectedrect.width(), selectedrect.height(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::CREATEFINDMOTIONRESPONSE& createfindobjectresponse)
+          //TODO {
+          //TODO   if (createfindobjectresponse.GetErrorCode() != monocle::ErrorCode::Success)
+          //TODO   {
+          //TODO     QMessageBox(QMessageBox::Warning, tr("Error"), tr("Failed to create find object detector: ") + QString::fromStdString(createfindobjectresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+          //TODO     return;
+          //TODO   }
+          //TODO 
+          //TODO   std::for_each(getsnapshotconnections_.begin(), getsnapshotconnections_.end(), [](monocle::client::Connection& connection) { connection.Close(); });
+          //TODO   getsnapshotconnections_.clear();
+          //TODO   findobjecttoken_ = createfindobjectresponse.token_;
+          //TODO });
+        }, FindObjectWindow::ControlStreamEnd, FindObjectWindow::H265Callback, FindObjectWindow::H264Callback, FindObjectWindow::MetadataCallback, FindObjectWindow::JPEGCallback, FindObjectWindow::MPEG4Callback, FindObjectWindow::NewCodecIndexCallback, this);
+      });
+    });
+  });
 }
 
 void FindObjectWindow::on_tableresults_clicked(QModelIndex)
