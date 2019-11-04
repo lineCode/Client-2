@@ -25,6 +25,12 @@ extern const QString INFO_VERTEX_SHADER;
 extern const QString INFO_PIXEL_SHADER;
 extern const QString SELECTED_VERTEX_SHADER;
 extern const QString SELECTED_PIXEL_SHADER;
+extern const QString RECORDINGBLOCKS_VERTEX_SHADER;
+extern const QString RECORDINGBLOCKS_PIXEL_SHADER;
+extern const QString MARKER_VERTEX_SHADER;
+extern const QString MARKER_PIXEL_SHADER;
+extern const QString TEXT_VERTEX_SHADER;
+extern const QString TEXT_PIXEL_SHADER;
 
 }
 

@@ -1,15 +1,15 @@
-// findmotionvideowidget.cpp
+// findobjectvideowidget.cpp
 //
 
 ///// Includes /////
 
-#include "monocleclient/findmotionvideowidget.h"
+#include "monocleclient/findobjectvideowidget.h"
 
 #include <cuda.h>
 #include <cudaGL.h>
 
 #include "monocleclient/decoder.h"
-#include "monocleclient/findmotionwindow.h"
+#include "monocleclient/findobjectwindow.h"
 #include "monocleclient/mainwindow.h"
 #include "monocleclient/shaders.h"
 
@@ -18,7 +18,7 @@
 namespace client
 {
 
-const std::array<float, 8> FindMotionVideoWidget::texturecoords_ =
+const std::array<float, 8> FindObjectVideoWidget::texturecoords_ =
 {
   1.0f, 1.0f,
   1.0f, 0.0f,
@@ -28,7 +28,7 @@ const std::array<float, 8> FindMotionVideoWidget::texturecoords_ =
 
 ///// Methods /////
 
-FindMotionVideoWidget::FindMotionVideoWidget(QWidget* parent) :
+FindObjectVideoWidget::FindObjectVideoWidget(QWidget* parent) :
   QOpenGLWidget(parent),
   actionrotate0_(new QAction(tr("Rotate 0"), this)),
   actionrotate90_(new QAction(tr("Rotate 90"), this)),
@@ -47,30 +47,30 @@ FindMotionVideoWidget::FindMotionVideoWidget(QWidget* parent) :
   vertexbuffer_(QOpenGLBuffer::VertexBuffer),
   textures_({ 0, 0, 0 }),
   cudaresources_({ nullptr, nullptr, nullptr }),
-  state_(FINDMOTIONSTATE_SELECT)
+  state_(FINDOBJECTSTATE_SELECT)
 {
   actionrotate0_->setCheckable(true);
   actionrotate90_->setCheckable(true);
   actionrotate180_->setCheckable(true);
   actionrotate270_->setCheckable(true);
   actionmirror_->setCheckable(true);
-  actionmirror_->setChecked(GetFindMotionWindow()->mirror_);
+  actionmirror_->setChecked(GetFindObjectWindow()->mirror_);
   actionstretch_->setCheckable(true);
-  actionstretch_->setChecked(GetFindMotionWindow()->stretch_);
+  actionstretch_->setChecked(GetFindObjectWindow()->stretch_);
 
-  connect(actionrotate0_, &QAction::triggered, this, &FindMotionVideoWidget::Rotate0);
-  connect(actionrotate90_, &QAction::triggered, this, &FindMotionVideoWidget::Rotate90);
-  connect(actionrotate180_, &QAction::triggered, this, &FindMotionVideoWidget::Rotate180);
-  connect(actionrotate270_, &QAction::triggered, this, &FindMotionVideoWidget::Rotate270);
-  connect(actionmirror_, &QAction::triggered, this, &FindMotionVideoWidget::ToggleMirror);
-  connect(actionstretch_, &QAction::triggered, this, &FindMotionVideoWidget::ToggleStretch);
+  connect(actionrotate0_, &QAction::triggered, this, &FindObjectVideoWidget::Rotate0);
+  connect(actionrotate90_, &QAction::triggered, this, &FindObjectVideoWidget::Rotate90);
+  connect(actionrotate180_, &QAction::triggered, this, &FindObjectVideoWidget::Rotate180);
+  connect(actionrotate270_, &QAction::triggered, this, &FindObjectVideoWidget::Rotate270);
+  connect(actionmirror_, &QAction::triggered, this, &FindObjectVideoWidget::ToggleMirror);
+  connect(actionstretch_, &QAction::triggered, this, &FindObjectVideoWidget::ToggleStretch);
 
   setCursor(Qt::CrossCursor);
 
   startTimer(std::chrono::milliseconds(40));
 }
 
-FindMotionVideoWidget::~FindMotionVideoWidget()
+FindObjectVideoWidget::~FindObjectVideoWidget()
 {
   unsetCursor();
 
@@ -87,37 +87,37 @@ FindMotionVideoWidget::~FindMotionVideoWidget()
   cache_.Clear();
 }
 
-FindMotionWindow* FindMotionVideoWidget::GetFindMotionWindow()
+FindObjectWindow* FindObjectVideoWidget::GetFindObjectWindow()
 {
 
-  return static_cast<FindMotionWindow*>(parent());
+  return static_cast<FindObjectWindow*>(parent());
 }
 
-FindMotionWindow* FindMotionVideoWidget::GetFindMotionWindow() const
+FindObjectWindow* FindObjectVideoWidget::GetFindObjectWindow() const
 {
 
-  return static_cast<FindMotionWindow*>(parent());
+  return static_cast<FindObjectWindow*>(parent());
 }
 
-FindMotionPlaybackWidget* FindMotionVideoWidget::GetFindMotionPlaybackWidget()
+FindObjectPlaybackWidget* FindObjectVideoWidget::GetFindObjectPlaybackWidget()
 {
 
-  return static_cast<FindMotionWindow*>(parent())->GetPlaybackWidget();
+  return static_cast<FindObjectWindow*>(parent())->GetPlaybackWidget();
 }
 
-FindMotionPlaybackWidget* FindMotionVideoWidget::GetFindMotionPlaybackWidget() const
+FindObjectPlaybackWidget* FindObjectVideoWidget::GetFindObjectPlaybackWidget() const
 {
 
-  return static_cast<FindMotionWindow*>(parent())->GetPlaybackWidget();
+  return static_cast<FindObjectWindow*>(parent())->GetPlaybackWidget();
 }
 
-uint64_t FindMotionVideoWidget::GetNextPlayRequestIndex()
+uint64_t FindObjectVideoWidget::GetNextPlayRequestIndex()
 {
   cache_.Clear();
   return ++playrequestindex_;
 }
 
-void FindMotionVideoWidget::SetImage(const QImage& image)
+void FindObjectVideoWidget::SetImage(const QImage& image)
 {
   const QImage tmp = image.convertToFormat(QImage::Format_RGBA8888);
   ImageBuffer imagebuffer;
@@ -132,33 +132,33 @@ void FindMotionVideoWidget::SetImage(const QImage& image)
   imagequeue_.push(imagebuffer);
 }
 
-void FindMotionVideoWidget::SetSelectedRect(const QRectF& selectedrect)
+void FindObjectVideoWidget::SetSelectedRect(const QRectF& selectedrect)
 {
   selectedrect_ = selectedrect;
   update();
 }
 
-void FindMotionVideoWidget::SetPaused(const bool paused)
+void FindObjectVideoWidget::SetPaused(const bool paused)
 {
   ++playrequestindex_;
   cache_.Clear();
   paused_ = paused;
 }
 
-bool FindMotionVideoWidget::IsPaused() const
+bool FindObjectVideoWidget::IsPaused() const
 {
 
   return paused_;
 }
 
-void FindMotionVideoWidget::contextMenuEvent(QContextMenuEvent* event)
+void FindObjectVideoWidget::contextMenuEvent(QContextMenuEvent* event)
 {
   QMenu menu;
   QMenu* rotation = new QMenu(QString("Rotation"), &menu);
-  actionrotate0_->setChecked(GetFindMotionWindow()->rotation_ == ROTATION::_0);
-  actionrotate90_->setChecked(GetFindMotionWindow()->rotation_ == ROTATION::_90);
-  actionrotate180_->setChecked(GetFindMotionWindow()->rotation_ == ROTATION::_180);
-  actionrotate270_->setChecked(GetFindMotionWindow()->rotation_ == ROTATION::_270);
+  actionrotate0_->setChecked(GetFindObjectWindow()->rotation_ == ROTATION::_0);
+  actionrotate90_->setChecked(GetFindObjectWindow()->rotation_ == ROTATION::_90);
+  actionrotate180_->setChecked(GetFindObjectWindow()->rotation_ == ROTATION::_180);
+  actionrotate270_->setChecked(GetFindObjectWindow()->rotation_ == ROTATION::_270);
   rotation->addActions({ actionrotate0_, actionrotate90_, actionrotate180_, actionrotate270_ });
   menu.addMenu(rotation);
   menu.addAction(actionmirror_);
@@ -166,7 +166,7 @@ void FindMotionVideoWidget::contextMenuEvent(QContextMenuEvent* event)
   menu.exec(event->globalPos());
 }
 
-void FindMotionVideoWidget::initializeGL()
+void FindObjectVideoWidget::initializeGL()
 {
   initializeOpenGLFunctions();
 
@@ -194,7 +194,7 @@ void FindMotionVideoWidget::initializeGL()
   // Setup the vertex buffers
   vertexbuffer_.create();
   vertexbuffer_.setUsagePattern(QOpenGLBuffer::StaticDraw);
-  SetPosition(GetFindMotionWindow()->rotation_, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, false);
+  SetPosition(GetFindObjectWindow()->rotation_, GetFindObjectWindow()->mirror_, GetFindObjectWindow()->stretch_, false);
 
   // RGB shader
   if (!viewrgbshader_.addShaderFromSourceCode(QOpenGLShader::Vertex, RGB_VERTEX_SHADER))
@@ -362,26 +362,26 @@ void FindMotionVideoWidget::initializeGL()
   selectedpositionlocation_ = viewselectedshader_.attributeLocation("position");
 }
 
-void FindMotionVideoWidget::mouseMoveEvent(QMouseEvent* event)
+void FindObjectVideoWidget::mouseMoveEvent(QMouseEvent* event)
 {
-  if (state_ == FINDMOTIONSTATE_DRAWING)
+  if (state_ == FINDOBJECTSTATE_DRAWING)
   {
     update();
 
   }
 }
 
-void FindMotionVideoWidget::mousePressEvent(QMouseEvent* event)
+void FindObjectVideoWidget::mousePressEvent(QMouseEvent* event)
 {
-  state_ = FINDMOTIONSTATE_DRAWING;
+  state_ = FINDOBJECTSTATE_DRAWING;
   selectionpoint_ = event->pos();
 }
 
-void FindMotionVideoWidget::mouseReleaseEvent(QMouseEvent* event)
+void FindObjectVideoWidget::mouseReleaseEvent(QMouseEvent* event)
 {
-  if (state_ == FINDMOTIONSTATE_DRAWING)
+  if (state_ == FINDOBJECTSTATE_DRAWING)
   {
-    state_ = FINDMOTIONSTATE_SELECT;
+    state_ = FINDOBJECTSTATE_SELECT;
     
     const QRect imagepixelrect = GetImagePixelRect();
     const QRect selectedrect(QPoint(std::max(imagepixelrect.x(), std::min(selectionpoint_.x(), event->pos().x())) - imagepixelrect.x(),
@@ -393,18 +393,18 @@ void FindMotionVideoWidget::mouseReleaseEvent(QMouseEvent* event)
 
       return;
     }
-    selectedrect_ = ImageToRect(imagepixelrect, selectedrect, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->rotation_);
+    selectedrect_ = ImageToRect(imagepixelrect, selectedrect, GetFindObjectWindow()->mirror_, GetFindObjectWindow()->rotation_);
     update();
   }
 }
 
-void FindMotionVideoWidget::resizeGL(int width, int height)
+void FindObjectVideoWidget::resizeGL(int width, int height)
 {
-  SetPosition(GetFindMotionWindow()->rotation_, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, true);
+  SetPosition(GetFindObjectWindow()->rotation_, GetFindObjectWindow()->mirror_, GetFindObjectWindow()->stretch_, true);
 
 }
 
-void FindMotionVideoWidget::paintGL()
+void FindObjectVideoWidget::paintGL()
 {
   ImageBuffer imagebuffer;
   if (GetImage(imagebuffer))
@@ -456,8 +456,8 @@ void FindMotionVideoWidget::paintGL()
       if ((type_ != imagebuffer.type_) || (type_ != imagebuffer.widths_[0]) || (type_ != imagebuffer.heights_[0]))
       {
         type_ = imagebuffer.type_;
-        GetFindMotionWindow()->imagewidth_ = imagebuffer.widths_[0];
-        GetFindMotionWindow()->imageheight_ = imagebuffer.heights_[0];
+        GetFindObjectWindow()->imagewidth_ = imagebuffer.widths_[0];
+        GetFindObjectWindow()->imageheight_ = imagebuffer.heights_[0];
       }
 
       time_ = imagebuffer.time_;
@@ -489,10 +489,10 @@ void FindMotionVideoWidget::paintGL()
       {
         cuCtxPushCurrent_v2(imagebuffer.cudacontext_);
         bool resetresources = false; // Do we need to reinitialise the cuda stuff if dimensions and format have changed
-        if ((imagebuffer.type_ != type_) || (imagebuffer.widths_[0] != GetFindMotionWindow()->imagewidth_) || (imagebuffer.heights_[0] != GetFindMotionWindow()->imageheight_) || !cudaresources_[0] || !cudaresources_[1])
+        if ((imagebuffer.type_ != type_) || (imagebuffer.widths_[0] != GetFindObjectWindow()->imagewidth_) || (imagebuffer.heights_[0] != GetFindObjectWindow()->imageheight_) || !cudaresources_[0] || !cudaresources_[1])
         {
           // Destroy any old CUDA stuff we had laying around
-          if (GetFindMotionWindow()->cudacontext_)
+          if (GetFindObjectWindow()->cudacontext_)
           {
             for (CUgraphicsResource& resource : cudaresources_)
             {
@@ -668,8 +668,8 @@ void FindMotionVideoWidget::paintGL()
   vertexbuffer.bind();
 
   const QRectF imagerect = GetImagePixelRectF();
-  const QPointF topleft = ImageRectToOpenGL(imagerect, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->rotation_, selectedrect_.left(), selectedrect_.top());
-  const QPointF bottomright = ImageRectToOpenGL(imagerect, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->rotation_, selectedrect_.right(), selectedrect_.bottom());
+  const QPointF topleft = ImageRectToOpenGL(imagerect, GetFindObjectWindow()->mirror_, GetFindObjectWindow()->rotation_, selectedrect_.left(), selectedrect_.top());
+  const QPointF bottomright = ImageRectToOpenGL(imagerect, GetFindObjectWindow()->mirror_, GetFindObjectWindow()->rotation_, selectedrect_.right(), selectedrect_.bottom());
   const QRectF rectf = QRectF(topleft, bottomright);
 
   const std::array<float, 10> selectvertices =
@@ -690,7 +690,7 @@ void FindMotionVideoWidget::paintGL()
   vertexbuffer.destroy();
 
   // Drawing rect
-  if (state_ == FINDMOTIONSTATE_DRAWING)
+  if (state_ == FINDOBJECTSTATE_DRAWING)
   {
     // Calcuate Opengl coords for the new rect
     const QPoint cursor = mapFromGlobal(QCursor::pos());
@@ -724,13 +724,13 @@ void FindMotionVideoWidget::paintGL()
   viewselectedshader_.release();
 }
 
-void FindMotionVideoWidget::timerEvent(QTimerEvent* event)
+void FindObjectVideoWidget::timerEvent(QTimerEvent* event)
 {
   update();
 
 }
 
-bool FindMotionVideoWidget::GetImage(ImageBuffer& imagebuffer)
+bool FindObjectVideoWidget::GetImage(ImageBuffer& imagebuffer)
 {
   bool hasimage = false;
   ImageBuffer previmagebuffer;
@@ -763,7 +763,7 @@ bool FindMotionVideoWidget::GetImage(ImageBuffer& imagebuffer)
   }
 }
 
-void FindMotionVideoWidget::WriteFrame(const ImageBuffer& imagebuffer)
+void FindObjectVideoWidget::WriteFrame(const ImageBuffer& imagebuffer)
 {
   time_ = imagebuffer.time_;
   playmarkertime_ = imagebuffer.time_;
@@ -772,22 +772,22 @@ void FindMotionVideoWidget::WriteFrame(const ImageBuffer& imagebuffer)
   sequencenum_ = imagebuffer.sequencenum_;
 
   makeCurrent();
-  WriteImageBuffer(this, type_, GetFindMotionWindow()->imagewidth_, GetFindMotionWindow()->imageheight_, imagebuffer, textures_, cudaresources_);
+  WriteImageBuffer(this, type_, GetFindObjectWindow()->imagewidth_, GetFindObjectWindow()->imageheight_, imagebuffer, textures_, cudaresources_);
   doneCurrent();
   update();
 }
 
-QRectF FindMotionVideoWidget::GetImageRect() const
+QRectF FindObjectVideoWidget::GetImageRect() const
 {
   const QRectF rect(-1.0f, 1.0f, 2.0f, -2.0f);
   float aspectratio = 0.0f;
-  if (GetFindMotionWindow()->imagewidth_ && GetFindMotionWindow()->imageheight_)
+  if (GetFindObjectWindow()->imagewidth_ && GetFindObjectWindow()->imageheight_)
   {
-    aspectratio = static_cast<double>(GetFindMotionWindow()->imagewidth_) / static_cast<double>(GetFindMotionWindow()->imageheight_);
+    aspectratio = static_cast<double>(GetFindObjectWindow()->imagewidth_) / static_cast<double>(GetFindObjectWindow()->imageheight_);
 
   }
 
-  if ((aspectratio == 0.0) || GetFindMotionWindow()->stretch_) // If we don't have the aspect ratio of the video yet, we can't place the black bars yet
+  if ((aspectratio == 0.0) || GetFindObjectWindow()->stretch_) // If we don't have the aspect ratio of the video yet, we can't place the black bars yet
   {
     // Don't need to do anything...
     return rect;
@@ -795,7 +795,7 @@ QRectF FindMotionVideoWidget::GetImageRect() const
   else // Maintain aspect ratio
   {
     const float frameaspectratio = static_cast<float>(width()) / static_cast<float>(height());
-    if ((GetFindMotionWindow()->rotation_ == ROTATION::_0) || (GetFindMotionWindow()->rotation_ == ROTATION::_180))
+    if ((GetFindObjectWindow()->rotation_ == ROTATION::_0) || (GetFindObjectWindow()->rotation_ == ROTATION::_180))
     {
       if (aspectratio > frameaspectratio) // Black bars at top and bottom
       {
@@ -825,19 +825,19 @@ QRectF FindMotionVideoWidget::GetImageRect() const
   }
 }
 
-QRect FindMotionVideoWidget::GetImagePixelRect() const
+QRect FindObjectVideoWidget::GetImagePixelRect() const
 {
   const QRectF imagerect = GetImageRect();
   return QRect(QPoint(((imagerect.left() + 1.0f) / 2.0f) * width(), (1.0f - ((imagerect.top() + 1.0f) / 2.0f)) * height()), QPoint(((imagerect.right() + 1.0f) / 2.0f) * width(), (1.0f - ((imagerect.bottom() + 1.0f) / 2.0f)) * height()));
 }
 
-QRectF FindMotionVideoWidget::GetImagePixelRectF() const
+QRectF FindObjectVideoWidget::GetImagePixelRectF() const
 {
   const QRectF imagerect = GetImageRect();
   return QRectF(QPointF(((imagerect.left() + 1.0f) / 2.0f), (1.0f - (imagerect.top() + 1.0f) / 2.0f)), QPointF(((imagerect.right() + 1.0f) / 2.0f), (1.0f - (imagerect.bottom() + 1.0f) / 2.0f)));
 }
 
-void FindMotionVideoWidget::SetPosition(const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent)
+void FindObjectVideoWidget::SetPosition(const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent)
 {
   if (makecurrent)
   {
@@ -845,9 +845,9 @@ void FindMotionVideoWidget::SetPosition(const ROTATION rotation, const bool mirr
 
   }
 
-  GetFindMotionWindow()->rotation_ = rotation;
-  GetFindMotionWindow()->mirror_ = mirror;
-  GetFindMotionWindow()->stretch_ = stretch;
+  GetFindObjectWindow()->rotation_ = rotation;
+  GetFindObjectWindow()->mirror_ = mirror;
+  GetFindObjectWindow()->stretch_ = stretch;
 
   const std::array<float, 12> vertices = GetVertices(GetImageRect(), rotation, mirror);
   vertexbuffer_.bind();
@@ -861,38 +861,38 @@ void FindMotionVideoWidget::SetPosition(const ROTATION rotation, const bool mirr
   }
 }
 
-void FindMotionVideoWidget::Rotate0(bool)
+void FindObjectVideoWidget::Rotate0(bool)
 {
-  SetPosition(ROTATION::_0, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, true);
+  SetPosition(ROTATION::_0, GetFindObjectWindow()->mirror_, GetFindObjectWindow()->stretch_, true);
 
 }
 
-void FindMotionVideoWidget::Rotate90(bool)
+void FindObjectVideoWidget::Rotate90(bool)
 {
-  SetPosition(ROTATION::_90, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, true);
+  SetPosition(ROTATION::_90, GetFindObjectWindow()->mirror_, GetFindObjectWindow()->stretch_, true);
 
 }
 
-void FindMotionVideoWidget::Rotate180(bool)
+void FindObjectVideoWidget::Rotate180(bool)
 {
-  SetPosition(ROTATION::_180, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, true);
+  SetPosition(ROTATION::_180, GetFindObjectWindow()->mirror_, GetFindObjectWindow()->stretch_, true);
 
 }
 
-void FindMotionVideoWidget::Rotate270(bool)
+void FindObjectVideoWidget::Rotate270(bool)
 {
-  SetPosition(ROTATION::_270, GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, true);
+  SetPosition(ROTATION::_270, GetFindObjectWindow()->mirror_, GetFindObjectWindow()->stretch_, true);
 
 }
 
-void FindMotionVideoWidget::ToggleMirror(bool)
+void FindObjectVideoWidget::ToggleMirror(bool)
 {
-  SetPosition(GetFindMotionWindow()->rotation_, !GetFindMotionWindow()->mirror_, GetFindMotionWindow()->stretch_, true);
+  SetPosition(GetFindObjectWindow()->rotation_, !GetFindObjectWindow()->mirror_, GetFindObjectWindow()->stretch_, true);
 }
 
-void FindMotionVideoWidget::ToggleStretch(bool)
+void FindObjectVideoWidget::ToggleStretch(bool)
 {
-  SetPosition(GetFindMotionWindow()->rotation_, GetFindMotionWindow()->mirror_, !GetFindMotionWindow()->stretch_, true);
+  SetPosition(GetFindObjectWindow()->rotation_, GetFindObjectWindow()->mirror_, !GetFindObjectWindow()->stretch_, true);
 
 }
 

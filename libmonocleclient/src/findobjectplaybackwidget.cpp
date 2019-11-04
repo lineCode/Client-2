@@ -1,14 +1,15 @@
-// findmotionplaybackwidget.cpp
+// findobjectplaybackwidget.cpp
 //
 
 ///// Includes /////
 
-#include "monocleclient/findmotionplaybackwidget.h"
+#include "monocleclient/findobjectplaybackwidget.h"
 
 #include <QPainter>
 
 #include "monocleclient/devicemgr.h"
-#include "monocleclient/findmotionwindow.h"
+#include "monocleclient/findobjectvideowidget.h"
+#include "monocleclient/findobjectwindow.h"
 #include "monocleclient/mainwindow.h"
 #include "monocleclient/recording.h"
 #include "monocleclient/recordingjob.h"
@@ -25,7 +26,7 @@ namespace client
 
 ///// Methods /////
 
-FindMotionPlaybackWidget::FindMotionPlaybackWidget(QWidget* parent) :
+FindObjectPlaybackWidget::FindObjectPlaybackWidget(QWidget* parent) :
   QOpenGLWidget(parent),
   actionvideo_(new QAction(tr("Video"), this)),
   actionmotion_(new QAction(tr("Motion"), this)),
@@ -47,9 +48,9 @@ FindMotionPlaybackWidget::FindMotionPlaybackWidget(QWidget* parent) :
   actionmotion_->setCheckable(true);
   actionmotion_->setChecked(true);
 
-  connect(&MainWindow::Instance()->GetDeviceMgr(), &DeviceMgr::TimeOffsetChanged, this, &FindMotionPlaybackWidget::TimeOffsetChanged);
-  connect(actionvideo_, &QAction::triggered, this, &FindMotionPlaybackWidget::ShowVideo);
-  connect(actionmotion_, &QAction::triggered, this, &FindMotionPlaybackWidget::ShowMotion);
+  connect(&MainWindow::Instance()->GetDeviceMgr(), &DeviceMgr::TimeOffsetChanged, this, &FindObjectPlaybackWidget::TimeOffsetChanged);
+  connect(actionvideo_, &QAction::triggered, this, &FindObjectPlaybackWidget::ShowVideo);
+  connect(actionmotion_, &QAction::triggered, this, &FindObjectPlaybackWidget::ShowMotion);
 
   setMouseTracking(true);
 
@@ -74,7 +75,7 @@ FindMotionPlaybackWidget::FindMotionPlaybackWidget(QWidget* parent) :
   }
 }
 
-FindMotionPlaybackWidget::~FindMotionPlaybackWidget()
+FindObjectPlaybackWidget::~FindObjectPlaybackWidget()
 {
   makeCurrent();
 
@@ -109,7 +110,7 @@ FindMotionPlaybackWidget::~FindMotionPlaybackWidget()
   doneCurrent();
 }
 
-void FindMotionPlaybackWidget::SetTrack(const QSharedPointer<RecordingTrack>& track)
+void FindObjectPlaybackWidget::SetTrack(const QSharedPointer<RecordingTrack>& track)
 {
   track_ = track;
   
@@ -119,16 +120,16 @@ void FindMotionPlaybackWidget::SetTrack(const QSharedPointer<RecordingTrack>& tr
     recordingblocks_.emplace_back(std::make_unique<RecordingBlock>(false, indices.first, indices.second));
 
   }
-  motionrecordingblocks_.clear();
+  objectrecordingblocks_.clear();
 }
 
-void FindMotionPlaybackWidget::SetColour(const QVector4D& colour)
+void FindObjectPlaybackWidget::SetColour(const QVector4D& colour)
 {
   colour_ = colour;
 
 }
 
-void FindMotionPlaybackWidget::UpdateRecordingBlocks()
+void FindObjectPlaybackWidget::UpdateRecordingBlocks()
 {
   starttime_ = GetStartTime();
   if (!starttime_.is_initialized())
@@ -287,12 +288,12 @@ void FindMotionPlaybackWidget::UpdateRecordingBlocks()
   UpdateGUIHorizontalLines();
 
   // Marker
-  if (GetFindMotionVideoWidget()->frametime_ != std::chrono::steady_clock::time_point())
+  if (GetFindObjectVideoWidget()->frametime_ != std::chrono::steady_clock::time_point())
   {
-    uint64_t time = GetFindMotionVideoWidget()->playmarkertime_ - GetDevice()->GetTimeOffset();
+    uint64_t time = GetFindObjectVideoWidget()->playmarkertime_ - GetDevice()->GetTimeOffset();
     if (!IsPaused())
     {
-      time += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - GetFindMotionVideoWidget()->frametime_).count();
+      time += std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - GetFindObjectVideoWidget()->frametime_).count();
 
     }
 
@@ -311,7 +312,7 @@ void FindMotionPlaybackWidget::UpdateRecordingBlocks()
   }
 
   // If a track is active, update the final recording block with the new time
-  if (GetFindMotionWindow()->GetRecording()->GetState(GetFindMotionWindow()->GetTrack()) == monocle::RecordingJobState::Active)
+  if (GetFindObjectWindow()->GetRecording()->GetState(GetFindObjectWindow()->GetTrack()) == monocle::RecordingJobState::Active)
   {
     recordingblocks_.back()->SetEndTime(endtime_);
 
@@ -331,9 +332,9 @@ void FindMotionPlaybackWidget::UpdateRecordingBlocks()
   recordingblockvertices_.release();
 
   metadatarecordingblockverticesdata_.clear();
-  for (std::unique_ptr<RecordingBlock>& motionrecordingblock : motionrecordingblocks_)
+  for (std::unique_ptr<RecordingBlock>& objectrecordingblock : objectrecordingblocks_)
   {
-    motionrecordingblock->Update(top, bottom, pixelwidth, startendtime->first, startendtime->second, metadatarecordingblockverticesdata_);
+    objectrecordingblock->Update(top, bottom, pixelwidth, startendtime->first, startendtime->second, metadatarecordingblockverticesdata_);
 
   }
   metadatarecordingblockvertices_.bind();
@@ -402,7 +403,7 @@ void FindMotionPlaybackWidget::UpdateRecordingBlocks()
   update(); // Schedule redraw
 }
 
-void FindMotionPlaybackWidget::ZoomIn(const int x)
+void FindObjectPlaybackWidget::ZoomIn(const int x)
 {
   const boost::optional< std::pair<uint64_t, uint64_t> > startendtime = GetStartEndTime();
   if (!startendtime.is_initialized())
@@ -426,7 +427,7 @@ void FindMotionPlaybackWidget::ZoomIn(const int x)
   doneCurrent();
 }
 
-void FindMotionPlaybackWidget::ZoomOut(const int x)
+void FindObjectPlaybackWidget::ZoomOut(const int x)
 {
   const boost::optional< std::pair<uint64_t, uint64_t> > startendtime = GetStartEndTime();
   if (!startendtime.is_initialized())
@@ -452,61 +453,61 @@ void FindMotionPlaybackWidget::ZoomOut(const int x)
   doneCurrent();
 }
 
-void FindMotionPlaybackWidget::FindMotionResult(const uint64_t start, const uint64_t end)
+void FindObjectPlaybackWidget::FindObjectResult(const uint64_t start, const uint64_t end)
 {
-  motionrecordingblocks_.emplace_back(std::make_unique<RecordingBlock>(true, start, end));
+  objectrecordingblocks_.emplace_back(std::make_unique<RecordingBlock>(true, start, end));
   UpdateRecordingBlocks();
 }
 
-void FindMotionPlaybackWidget::SetPaused(const bool paused)
+void FindObjectPlaybackWidget::SetPaused(const bool paused)
 {
 
-  return static_cast<FindMotionWindow*>(parent()->parent()->parent()->parent())->GetVideoWidget()->SetPaused(paused);
+  return static_cast<FindObjectWindow*>(parent()->parent()->parent()->parent())->GetVideoWidget()->SetPaused(paused);
 }
 
-void FindMotionPlaybackWidget::SetPlayMarkerTime(const uint64_t time)
+void FindObjectPlaybackWidget::SetPlayMarkerTime(const uint64_t time)
 {
-  GetFindMotionVideoWidget()->playmarkertime_ = time;
+  GetFindObjectVideoWidget()->playmarkertime_ = time;
   update();
 }
 
-void FindMotionPlaybackWidget::SetFrameTime(const std::chrono::steady_clock::time_point time)
+void FindObjectPlaybackWidget::SetFrameTime(const std::chrono::steady_clock::time_point time)
 {
-  GetFindMotionVideoWidget()->frametime_ = time;
+  GetFindObjectVideoWidget()->frametime_ = time;
   update();
 }
 
-bool FindMotionPlaybackWidget::IsPaused()
+bool FindObjectPlaybackWidget::IsPaused()
 {
 
-  return static_cast<FindMotionWindow*>(parent()->parent()->parent()->parent())->GetVideoWidget()->IsPaused();
+  return static_cast<FindObjectWindow*>(parent()->parent()->parent()->parent())->GetVideoWidget()->IsPaused();
 }
 
-const boost::shared_ptr<Connection>& FindMotionPlaybackWidget::GetConnection() const
+const boost::shared_ptr<Connection>& FindObjectPlaybackWidget::GetConnection() const
 {
 
-  return static_cast<FindMotionWindow*>(parent()->parent()->parent()->parent())->GetConnection();
+  return static_cast<FindObjectWindow*>(parent()->parent()->parent()->parent())->GetConnection();
 }
 
-const boost::shared_ptr<Device>& FindMotionPlaybackWidget::GetDevice() const
+const boost::shared_ptr<Device>& FindObjectPlaybackWidget::GetDevice() const
 {
 
-  return static_cast<FindMotionWindow*>(parent()->parent()->parent()->parent())->GetDevice();
+  return static_cast<FindObjectWindow*>(parent()->parent()->parent()->parent())->GetDevice();
 }
 
-FindMotionWindow* FindMotionPlaybackWidget::GetFindMotionWindow()
+FindObjectWindow* FindObjectPlaybackWidget::GetFindObjectWindow()
 {
 
-  return static_cast<FindMotionWindow*>(parent()->parent()->parent()->parent());
+  return static_cast<FindObjectWindow*>(parent()->parent()->parent()->parent());
 }
 
-FindMotionVideoWidget* FindMotionPlaybackWidget::GetFindMotionVideoWidget()
+FindObjectVideoWidget* FindObjectPlaybackWidget::GetFindObjectVideoWidget()
 {
 
-  return GetFindMotionWindow()->GetVideoWidget();
+  return GetFindObjectWindow()->GetVideoWidget();
 }
 
-void FindMotionPlaybackWidget::SetExportStartTime(const uint64_t exportstarttime, const bool makecurrent)
+void FindObjectPlaybackWidget::SetExportStartTime(const uint64_t exportstarttime, const bool makecurrent)
 {
   exportstarttime_ = exportstarttime;
   const QImage text = GetTextureTime(freetypearial_, exportstarttime, 0.0f, 1.0f, 0.0f);
@@ -528,7 +529,7 @@ void FindMotionPlaybackWidget::SetExportStartTime(const uint64_t exportstarttime
   }
 }
 
-void FindMotionPlaybackWidget::SetExportEndTime(const uint64_t exportendtime, const bool makecurrent)
+void FindObjectPlaybackWidget::SetExportEndTime(const uint64_t exportendtime, const bool makecurrent)
 {
   exportendtime_ = exportendtime;
   const QImage text = GetTextureTime(freetypearial_, exportendtime, 0.0f, 0.0f, 1.0f);
@@ -550,11 +551,11 @@ void FindMotionPlaybackWidget::SetExportEndTime(const uint64_t exportendtime, co
   }
 }
 
-void FindMotionPlaybackWidget::initializeGL()
+void FindObjectPlaybackWidget::initializeGL()
 {
-  connect(GetFindMotionWindow()->GetRecording().data(), &Recording::JobSourceTrackStateChanged, this, &FindMotionPlaybackWidget::JobSourceTrackStateChanged, Qt::UniqueConnection);
-  connect(GetFindMotionWindow()->GetRecording().data(), &Recording::TrackSetData, this, &FindMotionPlaybackWidget::TrackSetData, Qt::UniqueConnection);
-  connect(GetFindMotionWindow()->GetRecording().data(), &Recording::TrackDeleteData, this, &FindMotionPlaybackWidget::TrackDeleteData, Qt::UniqueConnection);
+  connect(GetFindObjectWindow()->GetRecording().data(), &Recording::JobSourceTrackStateChanged, this, &FindObjectPlaybackWidget::JobSourceTrackStateChanged, Qt::UniqueConnection);
+  connect(GetFindObjectWindow()->GetRecording().data(), &Recording::TrackSetData, this, &FindObjectPlaybackWidget::TrackSetData, Qt::UniqueConnection);
+  connect(GetFindObjectWindow()->GetRecording().data(), &Recording::TrackDeleteData, this, &FindObjectPlaybackWidget::TrackDeleteData, Qt::UniqueConnection);
 
   initializeOpenGLFunctions();
 
@@ -708,8 +709,8 @@ void FindMotionPlaybackWidget::initializeGL()
   playmarkervertices_.setUsagePattern(QOpenGLBuffer::DynamicDraw);
 
   // Set the default export timers
-  SetExportStartTime(GetFindMotionWindow()->GetStartTime().toMSecsSinceEpoch(), false);
-  SetExportEndTime(GetFindMotionWindow()->GetEndTime().toMSecsSinceEpoch(), false);
+  SetExportStartTime(GetFindObjectWindow()->GetStartTime().toMSecsSinceEpoch(), false);
+  SetExportEndTime(GetFindObjectWindow()->GetEndTime().toMSecsSinceEpoch(), false);
 
   UpdateRecordingBlocks();
 
@@ -720,13 +721,13 @@ void FindMotionPlaybackWidget::initializeGL()
   }
 }
 
-void FindMotionPlaybackWidget::resizeGL(int width, int height)
+void FindObjectPlaybackWidget::resizeGL(int width, int height)
 {
   UpdateRecordingBlocks();
 
 }
 
-void FindMotionPlaybackWidget::paintGL()
+void FindObjectPlaybackWidget::paintGL()
 {
   glClear(GL_COLOR_BUFFER_BIT);
 
@@ -808,7 +809,7 @@ void FindMotionPlaybackWidget::paintGL()
 
   // Play markers
   markershader_.bind();
-  if (starttime_.is_initialized() && (GetFindMotionVideoWidget()->frametime_ != std::chrono::steady_clock::time_point()))
+  if (starttime_.is_initialized() && (GetFindObjectVideoWidget()->frametime_ != std::chrono::steady_clock::time_point()))
   {
     playmarkervertices_.bind();
     markershader_.enableAttributeArray(markerpositionlocation_);
@@ -896,14 +897,14 @@ void FindMotionPlaybackWidget::paintGL()
   glDisable(GL_BLEND);
 }
 
-void FindMotionPlaybackWidget::timerEvent(QTimerEvent*)
+void FindObjectPlaybackWidget::timerEvent(QTimerEvent*)
 {
   makeCurrent();
   UpdateRecordingBlocks();
   doneCurrent();
 }
 
-void FindMotionPlaybackWidget::mouseMoveEvent(QMouseEvent* event)
+void FindObjectPlaybackWidget::mouseMoveEvent(QMouseEvent* event)
 {
   const boost::optional< std::pair<uint64_t, uint64_t> > startendtime = GetStartEndTime();
   if (!startendtime.is_initialized())
@@ -927,7 +928,7 @@ void FindMotionPlaybackWidget::mouseMoveEvent(QMouseEvent* event)
     }
 
     const uint64_t newtime = std::min(static_cast<uint64_t>(((static_cast<double>(event->pos().x()) / static_cast<double>(width())) * (startendtime->second - startendtime->first)) + startendtime->first), exportendtime_.is_initialized() ? *exportendtime_ : std::numeric_limits<uint64_t>::max());
-    GetFindMotionWindow()->SetStartTime(newtime);
+    GetFindObjectWindow()->SetStartTime(newtime);
     makeCurrent();
     SetExportStartTime(newtime, false);
     UpdateRecordingBlocks();
@@ -948,7 +949,7 @@ void FindMotionPlaybackWidget::mouseMoveEvent(QMouseEvent* event)
     }
 
     const uint64_t newtime = std::max(static_cast<uint64_t>(((static_cast<double>(event->pos().x()) / static_cast<double>(width())) * (startendtime->second - startendtime->first)) + startendtime->first), exportstarttime_.is_initialized() ? *exportstarttime_ : std::numeric_limits<uint64_t>::max());
-    GetFindMotionWindow()->SetEndTime(newtime);
+    GetFindObjectWindow()->SetEndTime(newtime);
     makeCurrent();
     SetExportEndTime(newtime, false); // Cap at the start time
     UpdateRecordingBlocks();
@@ -1010,7 +1011,7 @@ void FindMotionPlaybackWidget::mouseMoveEvent(QMouseEvent* event)
   }
 }
 
-void FindMotionPlaybackWidget::mousePressEvent(QMouseEvent* event)
+void FindObjectPlaybackWidget::mousePressEvent(QMouseEvent* event)
 {
   if (event->pos().x() < (width() / 2)) // Prioritise grabbing the end marker
   {
@@ -1057,7 +1058,7 @@ void FindMotionPlaybackWidget::mousePressEvent(QMouseEvent* event)
   clickedpos_ = event->pos().x();
 }
 
-void FindMotionPlaybackWidget::mouseReleaseEvent(QMouseEvent* event)
+void FindObjectPlaybackWidget::mouseReleaseEvent(QMouseEvent* event)
 {
   if (state_ == PLAYBACKMOUSESTATE_CLICKED) // View the currently selected time
   {
@@ -1076,17 +1077,17 @@ void FindMotionPlaybackWidget::mouseReleaseEvent(QMouseEvent* event)
         const uint64_t time = startendtime->first + (static_cast<double>(event->pos().x()) / static_cast<double>(width()) * static_cast<double>(startendtime->second - startendtime->first));
         if (!exportstarttime_.is_initialized())
         {
-          GetFindMotionWindow()->SetStartTime(time);
+          GetFindObjectWindow()->SetStartTime(time);
           SetExportStartTime(time, false);
         }
         else if (exportstarttime_.is_initialized() && !exportendtime_.is_initialized() && (time < *exportstarttime_))
         {
-          GetFindMotionWindow()->SetStartTime(time);
+          GetFindObjectWindow()->SetStartTime(time);
           SetExportStartTime(time, false);
         }
         else if (!exportendtime_.is_initialized())
         {
-          GetFindMotionWindow()->SetEndTime(time);
+          GetFindObjectWindow()->SetEndTime(time);
           SetExportEndTime(time, false);
         }
         else
@@ -1101,24 +1102,24 @@ void FindMotionPlaybackWidget::mouseReleaseEvent(QMouseEvent* event)
         const uint64_t time = startendtime->first + ((static_cast<double>(event->pos().x()) / static_cast<double>(width())) * static_cast<double>(startendtime->second - startendtime->first));
         if (IsPaused())
         {
-          GetFindMotionWindow()->Play(time, 1);
-          GetFindMotionVideoWidget()->playmarkertime_ = time + GetDevice()->GetTimeOffset();
-          GetFindMotionVideoWidget()->frametime_ = std::chrono::steady_clock::now();
+          GetFindObjectWindow()->Play(time, 1);
+          GetFindObjectVideoWidget()->playmarkertime_ = time + GetDevice()->GetTimeOffset();
+          GetFindObjectVideoWidget()->frametime_ = std::chrono::steady_clock::now();
         }
         else
         {
           if (time >= endtime_)
           {
             // User has selected a time beyond its latest time, so just go live
-            GetFindMotionVideoWidget()->playmarkertime_ = endtime_;
-            GetFindMotionVideoWidget()->frametime_ = std::chrono::steady_clock::now();
-            GetFindMotionWindow()->Stop();
+            GetFindObjectVideoWidget()->playmarkertime_ = endtime_;
+            GetFindObjectVideoWidget()->frametime_ = std::chrono::steady_clock::now();
+            GetFindObjectWindow()->Stop();
           }
           else
           {
-            GetFindMotionWindow()->Play(time, boost::none);
-            GetFindMotionVideoWidget()->playmarkertime_ = time + GetDevice()->GetTimeOffset();
-            GetFindMotionVideoWidget()->frametime_ = std::chrono::steady_clock::now();
+            GetFindObjectWindow()->Play(time, boost::none);
+            GetFindObjectVideoWidget()->playmarkertime_ = time + GetDevice()->GetTimeOffset();
+            GetFindObjectVideoWidget()->frametime_ = std::chrono::steady_clock::now();
           }
         }
       }
@@ -1129,7 +1130,7 @@ void FindMotionPlaybackWidget::mouseReleaseEvent(QMouseEvent* event)
   SetState(PLAYBACKMOUSESTATE_IDLE);
 }
 
-void FindMotionPlaybackWidget::wheelEvent(QWheelEvent* event)
+void FindObjectPlaybackWidget::wheelEvent(QWheelEvent* event)
 {
   if (event->delta() > 0)
   {
@@ -1143,15 +1144,15 @@ void FindMotionPlaybackWidget::wheelEvent(QWheelEvent* event)
   }
 }
 
-void FindMotionPlaybackWidget::contextMenuEvent(QContextMenuEvent* event)
+void FindObjectPlaybackWidget::contextMenuEvent(QContextMenuEvent* event)
 {
-  QMenu* menu = new QMenu(GetFindMotionWindow());
+  QMenu* menu = new QMenu(GetFindObjectWindow());
   menu->addAction(actionvideo_);
   menu->addAction(actionmotion_);
   menu->exec(event->globalPos());
 }
 
-boost::optional<uint64_t> FindMotionPlaybackWidget::GetStartTime() const
+boost::optional<uint64_t> FindObjectPlaybackWidget::GetStartTime() const
 {
   if (recordingblocks_.empty())
   {
@@ -1165,7 +1166,7 @@ boost::optional<uint64_t> FindMotionPlaybackWidget::GetStartTime() const
     starttime = std::min(starttime, recordingblock->GetStartTime());
 
   }
-  for (const std::unique_ptr<RecordingBlock>& motionrecordingblock : motionrecordingblocks_)
+  for (const std::unique_ptr<RecordingBlock>& motionrecordingblock : objectrecordingblocks_)
   {
     starttime = std::min(starttime, motionrecordingblock->GetStartTime());
 
@@ -1173,7 +1174,7 @@ boost::optional<uint64_t> FindMotionPlaybackWidget::GetStartTime() const
   return starttime;
 }
 
-boost::optional< std::pair<uint64_t, uint64_t> > FindMotionPlaybackWidget::GetStartEndTime() const
+boost::optional< std::pair<uint64_t, uint64_t> > FindObjectPlaybackWidget::GetStartEndTime() const
 {
   if (!starttime_.is_initialized())
   {
@@ -1193,7 +1194,7 @@ boost::optional< std::pair<uint64_t, uint64_t> > FindMotionPlaybackWidget::GetSt
   }
 }
 
-float FindMotionPlaybackWidget::GetRecordingBlocksTop() const
+float FindObjectPlaybackWidget::GetRecordingBlocksTop() const
 {
   if (guitimelinetexts_.size())
   {
@@ -1208,7 +1209,7 @@ float FindMotionPlaybackWidget::GetRecordingBlocksTop() const
   }
 }
 
-void FindMotionPlaybackWidget::UpdateGUIHorizontalLines()
+void FindObjectPlaybackWidget::UpdateGUIHorizontalLines()
 {
   const float pixelheight = 2.0f / static_cast<float>(height());
   std::vector<float> guihorizontalvertices;
@@ -1230,7 +1231,7 @@ void FindMotionPlaybackWidget::UpdateGUIHorizontalLines()
   guihorizontalvertices_.release();
 }
 
-bool FindMotionPlaybackWidget::Hit(const uint64_t time, const int x)
+bool FindObjectPlaybackWidget::Hit(const uint64_t time, const int x)
 {
   const boost::optional< std::pair<uint64_t, uint64_t> > startendtime = GetStartEndTime();
   if (!startendtime.is_initialized())
@@ -1243,7 +1244,7 @@ bool FindMotionPlaybackWidget::Hit(const uint64_t time, const int x)
   return ((x == timex) || ((x - 1) == timex) || ((x + 1) == timex));
 }
 
-void FindMotionPlaybackWidget::SetState(const PLAYBACKMOUSESTATE state)
+void FindObjectPlaybackWidget::SetState(const PLAYBACKMOUSESTATE state)
 {
   if ((state == PLAYBACKMOUSESTATE_IDLE) || state == (PLAYBACKMOUSESTATE_CLICKED))
   {
@@ -1263,26 +1264,26 @@ void FindMotionPlaybackWidget::SetState(const PLAYBACKMOUSESTATE state)
   state_ = state;
 }
 
-void FindMotionPlaybackWidget::ShowVideo(bool)
+void FindObjectPlaybackWidget::ShowVideo(bool)
 {
 
 }
 
-void FindMotionPlaybackWidget::ShowMotion(bool)
+void FindObjectPlaybackWidget::ShowMotion(bool)
 {
 
 }
 
-void FindMotionPlaybackWidget::TimeOffsetChanged(const boost::shared_ptr<Device>& device)
+void FindObjectPlaybackWidget::TimeOffsetChanged(const boost::shared_ptr<Device>& device)
 {
   makeCurrent();
   UpdateRecordingBlocks();
   doneCurrent();
 }
 
-void FindMotionPlaybackWidget::JobSourceTrackStateChanged(const QSharedPointer<client::RecordingJob>& job, const QSharedPointer<client::RecordingJobSource>& source, const QSharedPointer<client::RecordingJobSourceTrack>& track, uint64_t time, const monocle::RecordingJobState state, const QString& error, const monocle::RecordingJobState prevstate)
+void FindObjectPlaybackWidget::JobSourceTrackStateChanged(const QSharedPointer<client::RecordingJob>& job, const QSharedPointer<client::RecordingJobSource>& source, const QSharedPointer<client::RecordingJobSourceTrack>& track, uint64_t time, const monocle::RecordingJobState state, const QString& error, const monocle::RecordingJobState prevstate)
 {
-  if (GetFindMotionWindow()->GetTrack() != track->GetTrack())
+  if (GetFindObjectWindow()->GetTrack() != track->GetTrack())
   {
 
     return;
@@ -1333,9 +1334,9 @@ void FindMotionPlaybackWidget::JobSourceTrackStateChanged(const QSharedPointer<c
   doneCurrent();
 }
 
-void FindMotionPlaybackWidget::TrackSetData(const QSharedPointer<client::RecordingTrack>& track, const std::vector<monocle::INDEX>& indices)
+void FindObjectPlaybackWidget::TrackSetData(const QSharedPointer<client::RecordingTrack>& track, const std::vector<monocle::INDEX>& indices)
 {
-  if (GetFindMotionWindow()->GetTrack() != track)
+  if (GetFindObjectWindow()->GetTrack() != track)
   {
 
     return;
@@ -1347,9 +1348,9 @@ void FindMotionPlaybackWidget::TrackSetData(const QSharedPointer<client::Recordi
   update();
 }
 
-void FindMotionPlaybackWidget::TrackDeleteData(const QSharedPointer<client::RecordingTrack>& track, const monocle::RecordingJobState state, const boost::optional<uint64_t>& start, const boost::optional<uint64_t>& end)
+void FindObjectPlaybackWidget::TrackDeleteData(const QSharedPointer<client::RecordingTrack>& track, const monocle::RecordingJobState state, const boost::optional<uint64_t>& start, const boost::optional<uint64_t>& end)
 {
-  if (GetFindMotionWindow()->GetTrack() != track)
+  if (GetFindObjectWindow()->GetTrack() != track)
   {
 
     return;

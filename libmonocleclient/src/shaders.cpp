@@ -126,4 +126,57 @@ const QString SELECTED_PIXEL_SHADER =
   "  gl_FragColor = vec4(1.0, 0.0, 0.0, 0.0);\n"
   "}\n";
 
+const QString RECORDINGBLOCKS_VERTEX_SHADER =
+  "#version 130\n"
+  "in vec2 position;\n"
+  "void main()\n"
+  "{\n"
+  "  gl_Position = vec4(position, 1.0, 1.0);\n"
+  "}\n";
+
+const QString RECORDINGBLOCKS_PIXEL_SHADER =
+  "#version 130\n"
+  "uniform vec4 colour;\n"
+  "void main()\n"
+  "{\n"
+  "  gl_FragColor = colour;\n"
+  "}\n";
+
+const QString MARKER_VERTEX_SHADER =
+"#version 130\n"
+"in vec2 position;\n"
+"void main()\n"
+"{\n"
+"  gl_Position = vec4(position, 1.0, 1.0);\n"
+"}\n";
+
+const QString MARKER_PIXEL_SHADER =
+  "#version 130\n"
+  "uniform vec4 colour;\n"
+  "void main()\n"
+  "{\n"
+  "  gl_FragColor = colour;\n"
+  "}\n";
+
+const QString TEXT_VERTEX_SHADER =
+  "#version 130\n"
+  "in vec2 texcoord;\n"
+  "in vec3 position;\n"
+  "out vec2 out_texcoord;\n"
+  "void main()\n"
+  "{\n"
+  "  gl_Position = vec4(position, 1.0);\n"
+  "  out_texcoord = texcoord\n;"
+  "}\n";
+
+const QString TEXT_PIXEL_SHADER =
+  "#version 130\n"
+  "in vec2 out_texcoord;\n"
+  "uniform sampler2D sampler;\n"
+  "out vec4 colour;\n"
+  "void main()\n"
+  "{\n"
+  "  colour = texture(sampler, out_texcoord);\n"
+  "}\n";
+
 }

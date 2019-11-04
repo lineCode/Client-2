@@ -304,7 +304,90 @@ QRectF ImageToRect(const QRect& imagepixelrect, const QRect& rect, const bool mi
       return selectedrectf;
     }
   }
+}
 
+void WriteImageBuffer(QOpenGLFunctions* ogl, const IMAGEBUFFERTYPE currenttype, const int currentimagewidth, const int currentimageheight, const ImageBuffer& imagebuffer, const std::array<GLuint, 3>& textures, std::array<CUgraphicsResource, 3>& cudaresources)
+{
+  if ((imagebuffer.type_ == IMAGEBUFFERTYPE_TEXT) || (imagebuffer.type_ == IMAGEBUFFERTYPE_RGBA))
+  {
+    ogl->glActiveTexture(GL_TEXTURE0);
+    ogl->glBindTexture(GL_TEXTURE_2D, textures.at(0));
+    ogl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imagebuffer.widths_[0], imagebuffer.heights_[0], 0, GL_RGBA, GL_UNSIGNED_BYTE, imagebuffer.data_[0]);
+    ogl->glBindTexture(GL_TEXTURE_2D, 0);
+  }
+  else if (imagebuffer.type_ == IMAGEBUFFERTYPE_YUV)
+  {
+    for (GLuint texture = 0; texture < 3; ++texture)
+    {
+      ogl->glActiveTexture(GL_TEXTURE0 + texture);
+      ogl->glBindTexture(GL_TEXTURE_2D, textures.at(texture));
+      ogl->glPixelStorei(GL_UNPACK_ROW_LENGTH, imagebuffer.strides_[texture]);
+      ogl->glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, imagebuffer.widths_[texture], imagebuffer.heights_[texture], 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, imagebuffer.data_[texture]);
+      ogl->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+      ogl->glBindTexture(GL_TEXTURE_2D, 0);
+    }
+  }
+  else if (imagebuffer.type_ == IMAGEBUFFERTYPE_NV12)
+  {
+    cuCtxPushCurrent_v2(imagebuffer.cudacontext_);
+    bool resetresources = false; // Do we need to reinitialise the cuda stuff if dimensions and format have changed
+    if ((imagebuffer.type_ != currenttype) || (imagebuffer.widths_[0] != currentimagewidth) || (imagebuffer.heights_[0] != currentimageheight) || !cudaresources[0] || !cudaresources[1])
+    {
+      // Destroy any old CUDA stuff we had laying around
+      for (CUgraphicsResource& resource : cudaresources)
+      {
+        if (resource)
+        {
+          cuGraphicsUnregisterResource(resource);
+          resource = nullptr;
+        }
+      }
+      resetresources = true;
+    }
+
+    for (GLuint texture = 0; texture < 2; ++texture)
+    {
+      ogl->glActiveTexture(GL_TEXTURE0 + texture);
+      ogl->glPixelStorei(GL_UNPACK_ROW_LENGTH, imagebuffer.strides_[texture]);
+      ogl->glBindTexture(GL_TEXTURE_2D, textures.at(texture));
+
+      CUgraphicsResource resource = nullptr;
+      if (resetresources)
+      {
+        ogl->glTexImage2D(GL_TEXTURE_2D, 0, (texture == 0) ? GL_RED : GL_RG, imagebuffer.widths_[texture], imagebuffer.heights_[texture], 0, (texture == 0) ? GL_RED : GL_RG, GL_UNSIGNED_BYTE, nullptr);
+        cuGraphicsGLRegisterImage(&resource, textures[texture], GL_TEXTURE_2D, CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD);
+        cudaresources[texture] = resource;
+      }
+      else
+      {
+        resource = cudaresources[texture];
+
+      }
+
+      cuGraphicsMapResources(1, &resource, 0);
+      CUarray resourceptr;
+      cuGraphicsSubResourceGetMappedArray(&resourceptr, resource, 0, 0);
+
+      CUDA_MEMCPY2D copy;
+      memset(&copy, 0, sizeof(copy));
+      copy.srcMemoryType = CU_MEMORYTYPE_DEVICE;
+      copy.dstMemoryType = CU_MEMORYTYPE_ARRAY;
+      copy.srcDevice = (CUdeviceptr)imagebuffer.data_[texture];
+      copy.dstArray = resourceptr;
+      copy.srcPitch = imagebuffer.strides_[texture];
+      copy.dstPitch = imagebuffer.strides_[texture];
+      copy.WidthInBytes = (texture == 0) ? imagebuffer.widths_[texture] : (imagebuffer.widths_[texture] * 2);
+      copy.Height = imagebuffer.heights_[texture];
+      cuMemcpy2D(&copy);
+      cuGraphicsUnmapResources(1, &resource, 0);
+
+      ogl->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+      ogl->glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    CUcontext dummy;
+    cuCtxPopCurrent_v2(&dummy);
+  }
 }
 
 ///// Methods /////
@@ -1210,86 +1293,7 @@ void View::WriteFrame(const ImageBuffer& imagebuffer)
   digitallysigned_ = imagebuffer.digitallysigned_;
 
   videowidget_->makeCurrent();
-  if ((imagebuffer.type_ == IMAGEBUFFERTYPE_TEXT) || (imagebuffer.type_ == IMAGEBUFFERTYPE_RGBA))
-  {
-    videowidget_->glActiveTexture(GL_TEXTURE0);
-    videowidget_->glBindTexture(GL_TEXTURE_2D, textures_.at(0));
-    videowidget_->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imagebuffer.widths_[0], imagebuffer.heights_[0], 0, GL_RGBA, GL_UNSIGNED_BYTE, imagebuffer.data_[0]);
-    videowidget_->glBindTexture(GL_TEXTURE_2D, 0);
-  }
-  else if (imagebuffer.type_ == IMAGEBUFFERTYPE_YUV)
-  {
-    for (GLuint texture = 0; texture < 3; ++texture)
-    {
-      videowidget_->glActiveTexture(GL_TEXTURE0 + texture);
-      videowidget_->glBindTexture(GL_TEXTURE_2D, textures_.at(texture));
-      videowidget_->glPixelStorei(GL_UNPACK_ROW_LENGTH, imagebuffer.strides_[texture]);
-      videowidget_->glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, imagebuffer.widths_[texture], imagebuffer.heights_[texture], 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, imagebuffer.data_[texture]);
-      videowidget_->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-      videowidget_->glBindTexture(GL_TEXTURE_2D, 0);
-    }
-  }
-  else if (imagebuffer.type_ == IMAGEBUFFERTYPE_NV12)
-  {
-    cuCtxPushCurrent_v2(imagebuffer.cudacontext_);
-    bool resetresources = false; // Do we need to reinitialise the cuda stuff if dimensions and format have changed
-    if ((imagebuffer.type_ != type_) || (imagebuffer.widths_[0] != imagewidth_) || (imagebuffer.heights_[0] != imageheight_) || !cudaresources_[0] || !cudaresources_[1])
-    {
-      // Destroy any old CUDA stuff we had laying around
-      for (CUgraphicsResource& resource : cudaresources_)
-      {
-        if (resource)
-        {
-          cuGraphicsUnregisterResource(resource);
-          resource = nullptr;
-        }
-      }
-      resetresources = true;
-    }
-
-    for (GLuint texture = 0; texture < 2; ++texture)
-    {
-      videowidget_->glActiveTexture(GL_TEXTURE0 + texture);
-      videowidget_->glPixelStorei(GL_UNPACK_ROW_LENGTH, imagebuffer.strides_[texture]);
-      videowidget_->glBindTexture(GL_TEXTURE_2D, textures_.at(texture));
-
-      CUgraphicsResource resource = nullptr;
-      if (resetresources)
-      {
-        videowidget_->glTexImage2D(GL_TEXTURE_2D, 0, (texture == 0) ? GL_RED : GL_RG, imagebuffer.widths_[texture], imagebuffer.heights_[texture], 0, (texture == 0) ? GL_RED : GL_RG, GL_UNSIGNED_BYTE, nullptr);
-        cuGraphicsGLRegisterImage(&resource, textures_[texture], GL_TEXTURE_2D, CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD);
-        cudaresources_[texture] = resource;
-      }
-      else
-      {
-        resource = cudaresources_[texture];
-
-      }
-
-      cuGraphicsMapResources(1, &resource, 0);
-      CUarray resourceptr;
-      cuGraphicsSubResourceGetMappedArray(&resourceptr, resource, 0, 0);
-
-      CUDA_MEMCPY2D copy;
-      memset(&copy, 0, sizeof(copy));
-      copy.srcMemoryType = CU_MEMORYTYPE_DEVICE;
-      copy.dstMemoryType = CU_MEMORYTYPE_ARRAY;
-      copy.srcDevice = (CUdeviceptr)imagebuffer.data_[texture];
-      copy.dstArray = resourceptr;
-      copy.srcPitch = imagebuffer.strides_[texture];
-      copy.dstPitch = imagebuffer.strides_[texture];
-      copy.WidthInBytes = (texture == 0) ? imagebuffer.widths_[texture] : (imagebuffer.widths_[texture] * 2);
-      copy.Height = imagebuffer.heights_[texture];
-      cuMemcpy2D(&copy);
-      cuGraphicsUnmapResources(1, &resource, 0);
-
-      videowidget_->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-      videowidget_->glBindTexture(GL_TEXTURE_2D, 0);
-    }
-
-    CUcontext dummy;
-    cuCtxPopCurrent_v2(&dummy);
-  }
+  WriteImageBuffer(videowidget_, type_, imagewidth_, imageheight_, imagebuffer, textures_, cudaresources_);
   videowidget_->doneCurrent();
   videowidget_->update();
 }

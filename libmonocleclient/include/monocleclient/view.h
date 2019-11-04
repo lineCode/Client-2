@@ -22,6 +22,7 @@
 #include <QMenu>
 #include <QObject>
 #include <QOpenGLBuffer>
+#include <QOpenGLFunctions>
 #include <QOpenGLVertexArrayObject>
 #include <QRectF>
 #include <QResource>
@@ -75,6 +76,7 @@ QString ToString(const ROTATION rotation);
 std::array<float, 12> GetVertices(const QRectF& rect, const ROTATION rotation, const bool mirror);
 QPointF ImageRectToOpenGL(const QRectF& rect, const bool mirror, const ROTATION rotation, const float x, const float y);
 QRectF ImageToRect(const QRect& imagepixelrect, const QRect& rect, const bool mirror, const ROTATION rotation);
+void WriteImageBuffer(QOpenGLFunctions* ogl, const IMAGEBUFFERTYPE currenttype, const int currentimagewidth, const int currentimageheight, const ImageBuffer& imagebuffer, const std::array<GLuint, 3>& textures, std::array<CUgraphicsResource, 3>& cudaresources);
 
 ///// Structures /////
 

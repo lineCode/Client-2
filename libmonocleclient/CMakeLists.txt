@@ -36,6 +36,9 @@ include/monocleclient/filterlineedit.h
 include/monocleclient/findmotionplaybackwidget.h
 include/monocleclient/findmotionvideowidget.h
 include/monocleclient/findmotionwindow.h
+include/monocleclient/findobjectplaybackwidget.h
+include/monocleclient/findobjectvideowidget.h
+include/monocleclient/findobjectwindow.h
 include/monocleclient/group.h
 include/monocleclient/h265decoder.h
 include/monocleclient/h264decoder.h
@@ -163,6 +166,9 @@ src/filterlineedit.cpp
 src/findmotionplaybackwidget.cpp
 src/findmotionvideowidget.cpp
 src/findmotionwindow.cpp
+src/findobjectplaybackwidget.cpp
+src/findobjectvideowidget.cpp
+src/findobjectwindow.cpp
 src/group.cpp
 src/h265decoder.cpp
 src/h264decoder.cpp
@@ -266,6 +272,7 @@ editdevicewindow.ui
 exportprogresswindow.ui
 exportwindow.ui
 findmotionwindow.ui
+findobjectwindow.ui
 infoformatwindow.ui
 mainwindow.ui
 managedevicewindow.ui
