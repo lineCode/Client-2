@@ -1304,7 +1304,7 @@ void View::UpdateObjects(const monocle::Objects* objects, const uint64_t time)
   for (const monocle::Object* object : *objects->objects())
   {
     Object o(object->id(), object->classid(), time, object->x(), object->y(), object->width(), object->height());
-    if (static_cast<size_t>(o.classid_) > static_cast<size_t>(monocle::ObjectClass::Suitcase))
+    if (static_cast<size_t>(o.classid_) > static_cast<size_t>(monocle::ObjectClass::MAX))
     {
       // Ignore unknown types
       continue;
