@@ -750,10 +750,10 @@ boost::unique_future<GETRECORDINGSRESPONSE> Client::GetRecordings()
   return getrecordings_.CreateFuture(sequence_);
 }
 
-boost::unique_future<GETSNAPSHOTRESPONSE> Client::GetSnapshot(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time)
+boost::unique_future<GETSNAPSHOTRESPONSE> Client::GetSnapshot(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time, const float x, const float y, const float width, const float height)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  if (GetSnapshotSend(recordingtoken, recordingtrackid, time))
+  if (GetSnapshotSend(recordingtoken, recordingtrackid, time, x, y, width, height))
   {
 
     return boost::make_ready_future(GETSNAPSHOTRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
@@ -1468,10 +1468,10 @@ Connection Client::GetRecordings(boost::function<void(const std::chrono::steady_
   return getrecordings_.CreateCallback(sequence_, callback);
 }
 
-Connection Client::GetSnapshot(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time, boost::function<void(const std::chrono::steady_clock::duration latency, const GETSNAPSHOTRESPONSE&)> callback)
+Connection Client::GetSnapshot(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time, const float x, const float y, const float width, const float height, boost::function<void(const std::chrono::steady_clock::duration latency, const GETSNAPSHOTRESPONSE&)> callback)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  if (GetSnapshotSend(recordingtoken, recordingtrackid, time))
+  if (GetSnapshotSend(recordingtoken, recordingtrackid, time, x, y, width, height))
   {
     callback(std::chrono::steady_clock::duration(), GETSNAPSHOTRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
     return Connection();
@@ -2579,10 +2579,10 @@ boost::system::error_code Client::GetRecordingsSend()
   return err;
 }
 
-boost::system::error_code Client::GetSnapshotSend(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time)
+boost::system::error_code Client::GetSnapshotSend(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time, const float x, const float y, const float width, const float height)
 {
   fbb_.Clear();
-  fbb_.Finish(CreateGetSnapshotRequest(fbb_, recordingtoken, recordingtrackid, time));
+  fbb_.Finish(CreateGetSnapshotRequest(fbb_, recordingtoken, recordingtrackid, time, x, y, width, height));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::GETSNAPSHOT, ++sequence_);
   boost::system::error_code err;

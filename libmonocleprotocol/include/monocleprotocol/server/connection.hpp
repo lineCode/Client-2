@@ -110,7 +110,7 @@ class Connection : public boost::enable_shared_from_this<Connection>
   virtual std::pair< Error, std::vector<RECEIVER> > GetReceivers() = 0;
   virtual std::pair<Error, RECORDING> GetRecording(const uint64_t token) = 0;
   virtual std::pair< Error, std::vector<RECORDING> > GetRecordings() = 0;
-  virtual std::pair<Error, SNAPSHOT> GetSnapshot(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time) = 0;
+  virtual std::pair<Error, SNAPSHOT> GetSnapshot(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time, const float x, const float y, const float width, const float height) = 0;
   virtual std::pair<Error, GETSTATE> GetState() = 0;
   virtual uint64_t GetTime() = 0;
   virtual Error MountFile(const uint64_t token) = 0;

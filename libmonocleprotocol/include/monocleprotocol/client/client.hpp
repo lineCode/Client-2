@@ -215,7 +215,7 @@ class Client : public boost::enable_shared_from_this<Client>
   boost::unique_future<GETFILESRESPONSE> GetFiles();
   boost::unique_future<GETRECEIVERSRESPONSE> GetReceivers();
   boost::unique_future<GETRECORDINGSRESPONSE> GetRecordings();
-  boost::unique_future<GETSNAPSHOTRESPONSE> GetSnapshot(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time);
+  boost::unique_future<GETSNAPSHOTRESPONSE> GetSnapshot(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time, const float x, const float y, const float width, const float height);
   boost::unique_future<GETSTATERESPONSE> GetState();
   boost::unique_future<GETTIMERESPONSE> GetTime();
   boost::unique_future<KEEPALIVERESPONSE> Keepalive();
@@ -281,7 +281,7 @@ class Client : public boost::enable_shared_from_this<Client>
   Connection GetFiles(boost::function<void(const std::chrono::steady_clock::duration, const GETFILESRESPONSE&)> callback);
   Connection GetReceivers(boost::function<void(const std::chrono::steady_clock::duration, const GETRECEIVERSRESPONSE&)> callback);
   Connection GetRecordings(boost::function<void(const std::chrono::steady_clock::duration, const GETRECORDINGSRESPONSE&)> callback);
-  Connection GetSnapshot(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time, boost::function<void(const std::chrono::steady_clock::duration, const GETSNAPSHOTRESPONSE&)> callback);
+  Connection GetSnapshot(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time, const float x, const float y, const float width, const float height, boost::function<void(const std::chrono::steady_clock::duration, const GETSNAPSHOTRESPONSE&)> callback);
   Connection GetState(boost::function<void(const std::chrono::steady_clock::duration, const GETSTATERESPONSE&)> callback);
   Connection GetTime(boost::function<void(const std::chrono::steady_clock::duration, const GETTIMERESPONSE&)> callback);
   Connection Keepalive(boost::function<void(const std::chrono::steady_clock::duration, const KEEPALIVERESPONSE&)> callback);
@@ -355,7 +355,7 @@ class Client : public boost::enable_shared_from_this<Client>
   boost::system::error_code GetFilesSend();
   boost::system::error_code GetReceiversSend();
   boost::system::error_code GetRecordingsSend();
-  boost::system::error_code GetSnapshotSend(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time);
+  boost::system::error_code GetSnapshotSend(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time, const float x, const float y, const float width, const float height);
   boost::system::error_code GetStateSend();
   boost::system::error_code GetTimeSend();
   boost::system::error_code MountFileSend(const uint64_t token);

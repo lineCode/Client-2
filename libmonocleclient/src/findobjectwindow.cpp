@@ -31,6 +31,10 @@
 namespace client
 {
 
+///// Globals /////
+
+const float THUMBNAIL_EXPANSION = 0.5f;
+
 ///// Classes /////
 
 class ImageItemDelegate : public QItemDelegate
@@ -564,10 +568,16 @@ void FindObjectWindow::FindObjectResult(const uint64_t token, const uint64_t sta
   
     return;
   }
+
+  const float x = std::max(0.0f, largestx - (largestwidth * THUMBNAIL_EXPANSION));
+  const float y = std::max(0.0f, largesty - (largestheight * THUMBNAIL_EXPANSION));
+  const float width = std::min(1.0f, largestwidth + (2 * largestwidth * THUMBNAIL_EXPANSION));
+  const float height = std::min(1.0f, largestheight + (2 * largestheight * THUMBNAIL_EXPANSION));
+
   //TODO this should request in a queue... one after the other
     //TODO do it inside itself I guess?
       //TODO unfortunately it just spanks it as it is at the moment and doesn't allow anyone else in
-  getsnapshotconnections_.emplace_back(connection_->GetSnapshot(recording_->GetToken(), track_->GetId(), largesttime, [this, start, largesttime, largestx, largesty, largestwidth, largestheight](const std::chrono::steady_clock::duration latency, const monocle::client::GETSNAPSHOTRESPONSE& getsnapshotresponse)
+  getsnapshotconnections_.emplace_back(connection_->GetSnapshot(recording_->GetToken(), track_->GetId(), largesttime, x, y, width, height, [this, start](const std::chrono::steady_clock::duration latency, const monocle::client::GETSNAPSHOTRESPONSE& getsnapshotresponse)
   {
     if (getsnapshotresponse.GetErrorCode() != monocle::ErrorCode::Success)
     {
@@ -581,43 +591,6 @@ void FindObjectWindow::FindObjectResult(const uint64_t token, const uint64_t sta
       LOG_GUI_THREAD_WARNING_SOURCE(device_, "Failed to load snapshot");
       return;
     }
-    int x = largestx * image.width();
-    int width = largestwidth * image.width();
-    if (width < 32)//TODO THUMBNAIL_MIN_SIZE make it 64 I think
-    {
-      const int diff = (32 - width) / 2;
-      if ((x + width + diff) > image.width())
-      {
-        width = width + (image.width() - (x + width));
-
-      }
-      else
-      {
-        width += (diff * 2);
-
-      }
-      x -= diff;
-      x = std::max(0, x);
-    }
-    int y = largesty * image.height();
-    int height = largestheight * image.height();
-    if (height < 32)
-    {
-      const int diff = (32 - height) / 2;
-      if ((y + height + diff) > image.height())
-      {
-        height = height + (image.height() - (y + height));
-
-      }
-      else
-      {
-        height += (diff * 2);
-
-      }
-      y -= diff;
-      y = std::max(0, y);
-    }
-    image = image.copy(x, y, width, height);
   
     for (int i = 0; i < ui_.tableresults->rowCount(); ++i)
     {

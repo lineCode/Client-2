@@ -2817,7 +2817,7 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
         return SendErrorResponse(Message::GETSNAPSHOT, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
       }
 
-      const std::pair<Error, SNAPSHOT> getsnapshot = GetSnapshot(getsnapshotrequest->recordingtoken(), getsnapshotrequest->recordingtrackid(), getsnapshotrequest->time());
+      const std::pair<Error, SNAPSHOT> getsnapshot = GetSnapshot(getsnapshotrequest->recordingtoken(), getsnapshotrequest->recordingtrackid(), getsnapshotrequest->time(), getsnapshotrequest->x(), getsnapshotrequest->y(), getsnapshotrequest->width(), getsnapshotrequest->height());
       if (getsnapshot.first.code_ != ErrorCode::Success)
       {
 

@@ -5,4 +5,8 @@ table GetSnapshotRequest
   recordingtoken:uint64 (id:0);
   recordingtrackid:uint32 (id:1);
   time:uint64 (id:2);
+  x:float (id:3);
+  y:float (id:4);
+  width:float (id:5);
+  height:float (id:6);
 }

@@ -577,7 +577,7 @@ void FindMotionWindow::FindMotionResult(const uint64_t token, const uint64_t sta
     return;
   }
 
-  getsnapshotconnections_.emplace_back(connection_->GetSnapshot(recording_->GetToken(), track_->GetId(), start, [this, start](const std::chrono::steady_clock::duration latency, const monocle::client::GETSNAPSHOTRESPONSE& getsnapshotresponse)
+  getsnapshotconnections_.emplace_back(connection_->GetSnapshot(recording_->GetToken(), track_->GetId(), start, 0.0f, 0.0f, 0.0f, 0.0f, [this, start](const std::chrono::steady_clock::duration latency, const monocle::client::GETSNAPSHOTRESPONSE& getsnapshotresponse)
   {
     if (getsnapshotresponse.GetErrorCode() != monocle::ErrorCode::Success)
     {
