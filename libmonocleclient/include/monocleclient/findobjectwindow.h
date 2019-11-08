@@ -47,6 +47,25 @@ class MPEG4Decoder;
 class Recording;
 class RecordingTrack;
 
+///// Structures /////
+
+struct FINDOBJECTRESULT
+{
+  FINDOBJECTRESULT(const uint64_t token, const uint64_t start, const uint64_t end, const monocle::ObjectClass objectclass, const uint64_t id, const uint64_t largesttime, const float largestx, const float largesty, const float largestwidth, const float largestheight);
+
+  uint64_t token_;
+  uint64_t start_;
+  uint64_t end_;
+  monocle::ObjectClass objectclass_;
+  uint64_t id_;
+  uint64_t largesttime_;
+  float largestx_;
+  float largesty_;
+  float largestwidth_;
+  float largestheight_;
+
+};
+
 ///// Classes /////
 
 class FindObjectWindow : public QDialog
@@ -82,6 +101,7 @@ class FindObjectWindow : public QDialog
 
  protected:
 
+  virtual void timerEvent(QTimerEvent*) override;
 
  private:
 
@@ -125,7 +145,7 @@ class FindObjectWindow : public QDialog
   boost::optional<uint64_t> streamtoken_;
   boost::optional<uint64_t> findobjecttoken_;
 
-  std::vector<monocle::client::Connection> getsnapshotconnections_;
+  monocle::client::Connection getsnapshotconnection_;
 
   std::unique_ptr<MJpegDecoder> mjpegdecoder_; // We only ever need one MJPEG decoder because there are never any worthwhile parameters and frames are discrete
   std::vector< std::unique_ptr<H265Decoder> > h265decoders_;
@@ -133,6 +153,8 @@ class FindObjectWindow : public QDialog
   std::vector< std::unique_ptr<MPEG4Decoder> > mpeg4decoders_;
 
   std::function<void(const uint64_t, const monocle::ErrorCode)> controlstreamendcallback_;
+
+  std::vector<FINDOBJECTRESULT> retrievethumbnails_;
 
  private slots:
 

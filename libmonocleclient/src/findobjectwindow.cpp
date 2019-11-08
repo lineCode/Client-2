@@ -54,6 +54,21 @@ class ImageItemDelegate : public QItemDelegate
 
 ///// Methods /////
 
+FINDOBJECTRESULT::FINDOBJECTRESULT(const uint64_t token, const uint64_t start, const uint64_t end, const monocle::ObjectClass objectclass, const uint64_t id, const uint64_t largesttime, const float largestx, const float largesty, const float largestwidth, const float largestheight) :
+  token_(token),
+  start_(start),
+  end_(end),
+  objectclass_(objectclass),
+  id_(id),
+  largesttime_(largesttime),
+  largestx_(largestx),
+  largesty_(largesty),
+  largestwidth_(largestwidth),
+  largestheight_(largestheight)
+{
+
+}
+
 FindObjectWindow::FindObjectWindow(QWidget* parent, const QImage& image, const boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingTrack>& track, const QVector4D& colour, const uint64_t starttime, const uint64_t endtime, const QRectF& rect, const int imagewidth, const int imageheight, const bool mirror, const ROTATION rotation, const bool stretch) :
   QDialog(parent),
   cudacontext_(MainWindow::Instance()->GetNextCUDAContext()),
@@ -106,11 +121,22 @@ FindObjectWindow::FindObjectWindow(QWidget* parent, const QImage& image, const b
     }
   }
 
+  startTimer(std::chrono::milliseconds(100));
+
   on_buttonsearch_clicked();
 }
 
 FindObjectWindow::~FindObjectWindow()
 {
+  connect_.Close();
+  getauthenticatenonce_.Close();
+  authenticate_.Close();
+  createstream_.Close();
+  createfindobject_.Close();
+
+  retrievethumbnails_.clear();
+  getsnapshotconnection_.Close();
+
   if (connection_)
   {
     if (findobjecttoken_.is_initialized())
@@ -210,6 +236,44 @@ void FindObjectWindow::Stop()
   ui_.videowidget->SetPaused(false);
   ResetDecoders();
   connection_->ControlStreamLive(*streamtoken_, ui_.videowidget->GetNextPlayRequestIndex());
+}
+
+void FindObjectWindow::timerEvent(QTimerEvent*)
+{
+  if (retrievethumbnails_.size() && !getsnapshotconnection_.IsConnected())
+  {
+    const FINDOBJECTRESULT retrievethumbnail = retrievethumbnails_.front();
+    retrievethumbnails_.erase(retrievethumbnails_.begin());
+
+    getsnapshotconnection_ = connection_->GetSnapshot(recording_->GetToken(), track_->GetId(), retrievethumbnail.largesttime_, retrievethumbnail.largestx_, retrievethumbnail.largesty_, retrievethumbnail.largestwidth_, retrievethumbnail.largestheight_, [this, retrievethumbnail](const std::chrono::steady_clock::duration latency, const monocle::client::GETSNAPSHOTRESPONSE& getsnapshotresponse)
+    {
+      if (getsnapshotresponse.GetErrorCode() != monocle::ErrorCode::Success)
+      {
+        LOG_GUI_THREAD_WARNING_SOURCE(device_, "Failed to get snapshot: " + QString::fromStdString(getsnapshotresponse.GetErrorText()));
+        return;
+      }
+
+      QImage image;
+      if (!image.loadFromData(getsnapshotresponse.data_.data(), static_cast<int>(getsnapshotresponse.data_.size()), "png"))
+      {
+        LOG_GUI_THREAD_WARNING_SOURCE(device_, "Failed to load snapshot");
+
+      }
+      else
+      {
+        for (int i = 0; i < ui_.tableresults->rowCount(); ++i)
+        {
+          if (ui_.tableresults->item(i, 1)->data(Qt::UserRole).toULongLong() == retrievethumbnail.start_)//TODO this needs to include objectclass,id,start
+          {
+            QTableWidgetItem* item = new QTableWidgetItem();
+            item->setData(Qt::DecorationRole, QPixmap::fromImage(image));
+            ui_.tableresults->setItem(i, 0, item);
+            break;
+          }
+        }
+      }
+    });
+  }
 }
 
 void FindObjectWindow::FrameStep(const bool forwards)
@@ -565,7 +629,7 @@ void FindObjectWindow::FindObjectResult(const uint64_t token, const uint64_t sta
 {
   if (!findobjecttoken_.is_initialized() || (*findobjecttoken_ != token))
   {
-  
+    
     return;
   }
 
@@ -573,36 +637,7 @@ void FindObjectWindow::FindObjectResult(const uint64_t token, const uint64_t sta
   const float y = std::max(0.0f, largesty - (largestheight * THUMBNAIL_EXPANSION));
   const float width = std::min(1.0f, largestwidth + (2 * largestwidth * THUMBNAIL_EXPANSION));
   const float height = std::min(1.0f, largestheight + (2 * largestheight * THUMBNAIL_EXPANSION));
-
-  //TODO this should request in a queue... one after the other
-    //TODO do it inside itself I guess?
-      //TODO unfortunately it just spanks it as it is at the moment and doesn't allow anyone else in
-  getsnapshotconnections_.emplace_back(connection_->GetSnapshot(recording_->GetToken(), track_->GetId(), largesttime, x, y, width, height, [this, start](const std::chrono::steady_clock::duration latency, const monocle::client::GETSNAPSHOTRESPONSE& getsnapshotresponse)
-  {
-    if (getsnapshotresponse.GetErrorCode() != monocle::ErrorCode::Success)
-    {
-      LOG_GUI_THREAD_WARNING_SOURCE(device_, "Failed to get snapshot: " + QString::fromStdString(getsnapshotresponse.GetErrorText()));
-      return;
-    }
-  
-    QImage image;
-    if (!image.loadFromData(getsnapshotresponse.data_.data(), static_cast<int>(getsnapshotresponse.data_.size()), "png"))
-    {
-      LOG_GUI_THREAD_WARNING_SOURCE(device_, "Failed to load snapshot");
-      return;
-    }
-  
-    for (int i = 0; i < ui_.tableresults->rowCount(); ++i)
-    {
-      if (ui_.tableresults->item(i, 1)->data(Qt::UserRole).toULongLong() == start)
-      {
-        QTableWidgetItem* item = new QTableWidgetItem();
-        item->setData(Qt::DecorationRole, QPixmap::fromImage(image));
-        ui_.tableresults->setItem(i, 0, item);
-        break;
-      }
-    }
-  }));
+  retrievethumbnails_.push_back(FINDOBJECTRESULT(token, start, end, objectclass, id, largesttime, x, y, width, height));
   
   const int row = ui_.tableresults->rowCount();
   ui_.tableresults->insertRow(row);
@@ -651,6 +686,8 @@ void FindObjectWindow::on_buttonsearch_clicked()
   connect(connection_.get(), &Connection::SignalFindObjectResult, this, &FindObjectWindow::FindObjectResult);
   streamtoken_.reset();
   findobjecttoken_.reset();
+  getsnapshotconnection_.Close();
+  retrievethumbnails_.clear();
   connect_ = connection_->Connect([this, metadatatrack, username, password](const boost::system::error_code& err)
   {
     if (err)
@@ -701,9 +738,6 @@ void FindObjectWindow::on_buttonsearch_clicked()
               QMessageBox(QMessageBox::Warning, tr("Error"), tr("Failed to create find object detector: ") + QString::fromStdString(createfindobjectresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
               return;
             }
-          
-            std::for_each(getsnapshotconnections_.begin(), getsnapshotconnections_.end(), [](monocle::client::Connection& connection) { connection.Close(); });
-            getsnapshotconnections_.clear();
             findobjecttoken_ = createfindobjectresponse.token_;
           });
         }, FindObjectWindow::ControlStreamEnd, FindObjectWindow::H265Callback, FindObjectWindow::H264Callback, FindObjectWindow::MetadataCallback, FindObjectWindow::JPEGCallback, FindObjectWindow::MPEG4Callback, FindObjectWindow::NewCodecIndexCallback, this);
