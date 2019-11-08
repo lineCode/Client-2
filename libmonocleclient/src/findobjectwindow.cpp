@@ -33,6 +33,9 @@ namespace client
 
 ///// Globals /////
 
+const int STARTTIME_ROLE = Qt::UserRole;
+const int OBJECTCLASS_ROLE = Qt::UserRole + 1;
+const int OBJECTID_ROLE = Qt::UserRole + 2;
 const float THUMBNAIL_EXPANSION = 0.5f;
 
 ///// Classes /////
@@ -263,7 +266,7 @@ void FindObjectWindow::timerEvent(QTimerEvent*)
       {
         for (int i = 0; i < ui_.tableresults->rowCount(); ++i)
         {
-          if (ui_.tableresults->item(i, 1)->data(Qt::UserRole).toULongLong() == retrievethumbnail.start_)//TODO this needs to include objectclass,id,start
+          if ((ui_.tableresults->item(i, 1)->data(STARTTIME_ROLE).toULongLong() == retrievethumbnail.start_) && (ui_.tableresults->item(i, 1)->data(OBJECTCLASS_ROLE).toULongLong() == static_cast<qulonglong>(retrievethumbnail.objectclass_)) && (ui_.tableresults->item(i, 1)->data(OBJECTID_ROLE).toULongLong() == retrievethumbnail.id_))//TODO this needs to include objectclass,id,start
           {
             QTableWidgetItem* item = new QTableWidgetItem();
             item->setData(Qt::DecorationRole, QPixmap::fromImage(image));
@@ -643,7 +646,9 @@ void FindObjectWindow::FindObjectResult(const uint64_t token, const uint64_t sta
   ui_.tableresults->insertRow(row);
   
   QTableWidgetItem* item = new QTableWidgetItem(QDateTime::fromMSecsSinceEpoch(start, Qt::UTC).toString());
-  item->setData(Qt::UserRole, static_cast<qulonglong>(start)); // The start time is assume to be unique, which is a guarantee by the server
+  item->setData(STARTTIME_ROLE, static_cast<qulonglong>(start));
+  item->setData(OBJECTCLASS_ROLE, static_cast<qulonglong>(objectclass));
+  item->setData(OBJECTID_ROLE, static_cast<qulonglong>(id));
   ui_.tableresults->setItem(row, 1, item);
   
   ui_.playbackwidget->FindObjectResult(start, end);
@@ -769,7 +774,7 @@ void FindObjectWindow::on_tableresults_clicked(QModelIndex)
     return;
   }
 
-  const uint64_t time = item->data(Qt::UserRole).toULongLong();
+  const uint64_t time = item->data(STARTTIME_ROLE).toULongLong();
   if (ui_.playbackwidget->IsPaused())
   {
     Play(time, 1);
