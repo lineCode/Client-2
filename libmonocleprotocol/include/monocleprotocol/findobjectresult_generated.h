@@ -6,6 +6,8 @@
 
 #include "flatbuffers/flatbuffers.h"
 
+#include "objects_generated.h"
+
 namespace monocle {
 
 struct FindObjectResult;
@@ -14,7 +16,14 @@ struct FindObjectResult FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_START = 6,
-    VT_END = 8
+    VT_END = 8,
+    VT_OBJECTCLASS = 10,
+    VT_ID = 12,
+    VT_LARGESTTIME = 14,
+    VT_LARGESTX = 16,
+    VT_LARGESTY = 18,
+    VT_LARGESTWIDTH = 20,
+    VT_LARGESTHEIGHT = 22
   };
   uint64_t token() const {
     return GetField<uint64_t>(VT_TOKEN, 0);
@@ -25,11 +34,39 @@ struct FindObjectResult FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint64_t end() const {
     return GetField<uint64_t>(VT_END, 0);
   }
+  monocle::ObjectClass objectclass() const {
+    return static_cast<monocle::ObjectClass>(GetField<uint16_t>(VT_OBJECTCLASS, 0));
+  }
+  uint64_t id() const {
+    return GetField<uint64_t>(VT_ID, 0);
+  }
+  uint64_t largesttime() const {
+    return GetField<uint64_t>(VT_LARGESTTIME, 0);
+  }
+  float largestx() const {
+    return GetField<float>(VT_LARGESTX, 0.0f);
+  }
+  float largesty() const {
+    return GetField<float>(VT_LARGESTY, 0.0f);
+  }
+  float largestwidth() const {
+    return GetField<float>(VT_LARGESTWIDTH, 0.0f);
+  }
+  float largestheight() const {
+    return GetField<float>(VT_LARGESTHEIGHT, 0.0f);
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_TOKEN) &&
            VerifyField<uint64_t>(verifier, VT_START) &&
            VerifyField<uint64_t>(verifier, VT_END) &&
+           VerifyField<uint16_t>(verifier, VT_OBJECTCLASS) &&
+           VerifyField<uint64_t>(verifier, VT_ID) &&
+           VerifyField<uint64_t>(verifier, VT_LARGESTTIME) &&
+           VerifyField<float>(verifier, VT_LARGESTX) &&
+           VerifyField<float>(verifier, VT_LARGESTY) &&
+           VerifyField<float>(verifier, VT_LARGESTWIDTH) &&
+           VerifyField<float>(verifier, VT_LARGESTHEIGHT) &&
            verifier.EndTable();
   }
 };
@@ -45,6 +82,27 @@ struct FindObjectResultBuilder {
   }
   void add_end(uint64_t end) {
     fbb_.AddElement<uint64_t>(FindObjectResult::VT_END, end, 0);
+  }
+  void add_objectclass(monocle::ObjectClass objectclass) {
+    fbb_.AddElement<uint16_t>(FindObjectResult::VT_OBJECTCLASS, static_cast<uint16_t>(objectclass), 0);
+  }
+  void add_id(uint64_t id) {
+    fbb_.AddElement<uint64_t>(FindObjectResult::VT_ID, id, 0);
+  }
+  void add_largesttime(uint64_t largesttime) {
+    fbb_.AddElement<uint64_t>(FindObjectResult::VT_LARGESTTIME, largesttime, 0);
+  }
+  void add_largestx(float largestx) {
+    fbb_.AddElement<float>(FindObjectResult::VT_LARGESTX, largestx, 0.0f);
+  }
+  void add_largesty(float largesty) {
+    fbb_.AddElement<float>(FindObjectResult::VT_LARGESTY, largesty, 0.0f);
+  }
+  void add_largestwidth(float largestwidth) {
+    fbb_.AddElement<float>(FindObjectResult::VT_LARGESTWIDTH, largestwidth, 0.0f);
+  }
+  void add_largestheight(float largestheight) {
+    fbb_.AddElement<float>(FindObjectResult::VT_LARGESTHEIGHT, largestheight, 0.0f);
   }
   explicit FindObjectResultBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -62,11 +120,25 @@ inline flatbuffers::Offset<FindObjectResult> CreateFindObjectResult(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t token = 0,
     uint64_t start = 0,
-    uint64_t end = 0) {
+    uint64_t end = 0,
+    monocle::ObjectClass objectclass = monocle::ObjectClass::Human,
+    uint64_t id = 0,
+    uint64_t largesttime = 0,
+    float largestx = 0.0f,
+    float largesty = 0.0f,
+    float largestwidth = 0.0f,
+    float largestheight = 0.0f) {
   FindObjectResultBuilder builder_(_fbb);
+  builder_.add_largesttime(largesttime);
+  builder_.add_id(id);
   builder_.add_end(end);
   builder_.add_start(start);
   builder_.add_token(token);
+  builder_.add_largestheight(largestheight);
+  builder_.add_largestwidth(largestwidth);
+  builder_.add_largesty(largesty);
+  builder_.add_largestx(largestx);
+  builder_.add_objectclass(objectclass);
   return builder_.Finish();
 }
 

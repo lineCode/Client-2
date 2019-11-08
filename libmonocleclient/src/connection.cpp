@@ -87,9 +87,9 @@ void Connection::FindObjectProgress(const uint64_t token, const float progress)
 
 }
 
-void Connection::FindObjectResult(const uint64_t token, const uint64_t start, const uint64_t end)
+void Connection::FindObjectResult(const uint64_t token, const uint64_t start, const uint64_t end, const monocle::ObjectClass objectclass, const uint64_t id, const uint64_t largesttime, const float largestx, const float largesty, const float largestwidth, const float largestheight)
 {
-  emit SignalFindObjectResult(token, start, end);
+  emit SignalFindObjectResult(token, start, end, objectclass, id, largesttime, largestx, largesty, largestwidth, largestheight);
 
 }
 

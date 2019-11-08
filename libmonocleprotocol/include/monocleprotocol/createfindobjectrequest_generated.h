@@ -16,10 +16,11 @@ struct CreateFindObjectRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Ta
     VT_TRACKID = 6,
     VT_STARTTIME = 8,
     VT_ENDTIME = 10,
-    VT_X = 12,
-    VT_Y = 14,
-    VT_WIDTH = 16,
-    VT_HEIGHT = 18
+    VT_MINIMUMDURATION = 12,
+    VT_X = 14,
+    VT_Y = 16,
+    VT_WIDTH = 18,
+    VT_HEIGHT = 20
   };
   uint64_t recordingtoken() const {
     return GetField<uint64_t>(VT_RECORDINGTOKEN, 0);
@@ -32,6 +33,9 @@ struct CreateFindObjectRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Ta
   }
   uint64_t endtime() const {
     return GetField<uint64_t>(VT_ENDTIME, 0);
+  }
+  uint32_t minimumduration() const {
+    return GetField<uint32_t>(VT_MINIMUMDURATION, 0);
   }
   float x() const {
     return GetField<float>(VT_X, 0.0f);
@@ -51,6 +55,7 @@ struct CreateFindObjectRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Ta
            VerifyField<uint32_t>(verifier, VT_TRACKID) &&
            VerifyField<uint64_t>(verifier, VT_STARTTIME) &&
            VerifyField<uint64_t>(verifier, VT_ENDTIME) &&
+           VerifyField<uint32_t>(verifier, VT_MINIMUMDURATION) &&
            VerifyField<float>(verifier, VT_X) &&
            VerifyField<float>(verifier, VT_Y) &&
            VerifyField<float>(verifier, VT_WIDTH) &&
@@ -73,6 +78,9 @@ struct CreateFindObjectRequestBuilder {
   }
   void add_endtime(uint64_t endtime) {
     fbb_.AddElement<uint64_t>(CreateFindObjectRequest::VT_ENDTIME, endtime, 0);
+  }
+  void add_minimumduration(uint32_t minimumduration) {
+    fbb_.AddElement<uint32_t>(CreateFindObjectRequest::VT_MINIMUMDURATION, minimumduration, 0);
   }
   void add_x(float x) {
     fbb_.AddElement<float>(CreateFindObjectRequest::VT_X, x, 0.0f);
@@ -104,6 +112,7 @@ inline flatbuffers::Offset<CreateFindObjectRequest> CreateCreateFindObjectReques
     uint32_t trackid = 0,
     uint64_t starttime = 0,
     uint64_t endtime = 0,
+    uint32_t minimumduration = 0,
     float x = 0.0f,
     float y = 0.0f,
     float width = 0.0f,
@@ -116,6 +125,7 @@ inline flatbuffers::Offset<CreateFindObjectRequest> CreateCreateFindObjectReques
   builder_.add_width(width);
   builder_.add_y(y);
   builder_.add_x(x);
+  builder_.add_minimumduration(minimumduration);
   builder_.add_trackid(trackid);
   return builder_.Finish();
 }

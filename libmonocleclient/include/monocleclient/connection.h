@@ -48,7 +48,7 @@ class Connection : public QObject, public monocle::client::Client
   virtual void FindMotionResult(const uint64_t token, const uint64_t start, const uint64_t end) override;
   virtual void FindObjectEnd(const uint64_t token, const uint64_t ret) override;
   virtual void FindObjectProgress(const uint64_t token, const float progress) override;
-  virtual void FindObjectResult(const uint64_t token, const uint64_t start, const uint64_t end) override;
+  virtual void FindObjectResult(const uint64_t token, const uint64_t start, const uint64_t end, const monocle::ObjectClass objectclass, const uint64_t id, const uint64_t largesttime, const float largestx, const float largesty, const float largestwidth, const float largestheight) override;
   virtual void Goodbye() override;
   virtual void GroupAdded(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings) override;
   virtual void GroupChanged(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings) override;
@@ -137,7 +137,7 @@ class Connection : public QObject, public monocle::client::Client
   void SignalFindMotionResult(const uint64_t token, const uint64_t start, const uint64_t end);
   void SignalFindObjectEnd(const uint64_t token, const uint64_t ret);
   void SignalFindObjectProgress(const uint64_t token, const float progress);
-  void SignalFindObjectResult(const uint64_t token, const uint64_t start, const uint64_t end);
+  void SignalFindObjectResult(const uint64_t token, const uint64_t start, const uint64_t end, const monocle::ObjectClass objectclass, const uint64_t id, const uint64_t largesttime, const float largestx, const float largesty, const float largestwidth, const float largestheight);
   void SignalGroupAdded(const uint64_t token, const QString& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
   void SignalGroupChanged(const uint64_t token, const QString& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
   void SignalGroupRemoved(const uint64_t token);

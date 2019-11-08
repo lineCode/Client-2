@@ -557,15 +557,17 @@ void FindObjectWindow::FindObjectProgress(const uint64_t token, const float prog
 
 }
 
-void FindObjectWindow::FindObjectResult(const uint64_t token, const uint64_t start, const uint64_t end)
+void FindObjectWindow::FindObjectResult(const uint64_t token, const uint64_t start, const uint64_t end, const monocle::ObjectClass objectclass, const uint64_t id, const uint64_t largesttime, const float largestx, const float largesty, const float largestwidth, const float largestheight)
 {
   if (!findobjecttoken_.is_initialized() || (*findobjecttoken_ != token))
   {
   
     return;
   }
-  
-  getsnapshotconnections_.emplace_back(connection_->GetSnapshot(recording_->GetToken(), track_->GetId(), start, [this, start](const std::chrono::steady_clock::duration latency, const monocle::client::GETSNAPSHOTRESPONSE& getsnapshotresponse)
+  //TODO this should request in a queue... one after the other
+    //TODO do it inside itself I guess?
+      //TODO unfortunately it just spanks it as it is at the moment and doesn't allow anyone else in
+  getsnapshotconnections_.emplace_back(connection_->GetSnapshot(recording_->GetToken(), track_->GetId(), largesttime, [this, start, largesttime, largestx, largesty, largestwidth, largestheight](const std::chrono::steady_clock::duration latency, const monocle::client::GETSNAPSHOTRESPONSE& getsnapshotresponse)
   {
     if (getsnapshotresponse.GetErrorCode() != monocle::ErrorCode::Success)
     {
@@ -579,6 +581,43 @@ void FindObjectWindow::FindObjectResult(const uint64_t token, const uint64_t sta
       LOG_GUI_THREAD_WARNING_SOURCE(device_, "Failed to load snapshot");
       return;
     }
+    int x = largestx * image.width();
+    int width = largestwidth * image.width();
+    if (width < 32)//TODO THUMBNAIL_MIN_SIZE make it 64 I think
+    {
+      const int diff = (32 - width) / 2;
+      if ((x + width + diff) > image.width())
+      {
+        width = width + (image.width() - (x + width));
+
+      }
+      else
+      {
+        width += (diff * 2);
+
+      }
+      x -= diff;
+      x = std::max(0, x);
+    }
+    int y = largesty * image.height();
+    int height = largestheight * image.height();
+    if (height < 32)
+    {
+      const int diff = (32 - height) / 2;
+      if ((y + height + diff) > image.height())
+      {
+        height = height + (image.height() - (y + height));
+
+      }
+      else
+      {
+        height += (diff * 2);
+
+      }
+      y -= diff;
+      y = std::max(0, y);
+    }
+    image = image.copy(x, y, width, height);
   
     for (int i = 0; i < ui_.tableresults->rowCount(); ++i)
     {
@@ -682,7 +721,7 @@ void FindObjectWindow::on_buttonsearch_clicked()
           }
 
           const QRectF selectedrect = ui_.videowidget->GetSelectedRect();
-          createfindobject_ = connection_->CreateFindObject(recording_->GetToken(), metadatatrack->GetId(), ui_.datetimestart->dateTime().toMSecsSinceEpoch(), ui_.datetimeend->dateTime().toMSecsSinceEpoch(), selectedrect.x(), selectedrect.y(), selectedrect.width(), selectedrect.height(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::CREATEFINDOBJECTRESPONSE& createfindobjectresponse)
+          createfindobject_ = connection_->CreateFindObject(recording_->GetToken(), metadatatrack->GetId(), ui_.datetimestart->dateTime().toMSecsSinceEpoch(), ui_.datetimeend->dateTime().toMSecsSinceEpoch(), ui_.spinminimumduration->value() * 1000, selectedrect.x(), selectedrect.y(), selectedrect.width(), selectedrect.height(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::CREATEFINDOBJECTRESPONSE& createfindobjectresponse)
           {
             if (createfindobjectresponse.GetErrorCode() != monocle::ErrorCode::Success)
             {

@@ -417,11 +417,11 @@ boost::system::error_code Connection::SendFindObjectProgress(const uint64_t toke
   return err;
 }
 
-boost::system::error_code Connection::SendFindObjectResult(const uint64_t token, const uint64_t start, const uint64_t end)
+boost::system::error_code Connection::SendFindObjectResult(const uint64_t token, const uint64_t start, const uint64_t end, const monocle::ObjectClass objectclass, const uint64_t id, const uint64_t largesttime, const float largestx, const float largesty, const float largestwidth, const float largestheight)
 {
   std::lock_guard<std::mutex> lock(writemutex_);
   fbb_.Clear();
-  fbb_.Finish(CreateFindObjectResult(fbb_, token, start, end));
+  fbb_.Finish(CreateFindObjectResult(fbb_, token, start, end, objectclass, id, largesttime, largestx, largesty, largestwidth, largestheight));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::FINDOBJECTRESULT, ++sequence_);
   const std::array<boost::asio::const_buffer, 2> buffers =
@@ -2545,7 +2545,7 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
         return SendErrorResponse(Message::CREATEFINDOBJECT, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
       }
 
-      const std::pair<Error, uint64_t> findobject = CreateFindObject(createfindobjectrequest->recordingtoken(), createfindobjectrequest->trackid(), createfindobjectrequest->starttime(), createfindobjectrequest->endtime(), createfindobjectrequest->x(), createfindobjectrequest->y(), createfindobjectrequest->width(), createfindobjectrequest->height());
+      const std::pair<Error, uint64_t> findobject = CreateFindObject(createfindobjectrequest->recordingtoken(), createfindobjectrequest->trackid(), createfindobjectrequest->starttime(), createfindobjectrequest->endtime(), createfindobjectrequest->minimumduration(), createfindobjectrequest->x(), createfindobjectrequest->y(), createfindobjectrequest->width(), createfindobjectrequest->height());
       if (findobject.first.code_ != ErrorCode::Success)
       {
 

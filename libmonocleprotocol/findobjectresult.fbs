@@ -1,3 +1,5 @@
+include "objects.fbs";
+
 namespace monocle;
 
 table FindObjectResult
@@ -5,4 +7,11 @@ table FindObjectResult
   token:uint64 (id:0);
   start:uint64 (id:1);
   end:uint64 (id:2);
+  objectclass:ObjectClass (id:3);
+  id:uint64 (id:4);
+  largesttime:uint64 (id:5);
+  largestx:float (id:6);
+  largesty:float (id:7);
+  largestwidth:float (id:8);
+  largestheight:float (id:9);
 }

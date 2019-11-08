@@ -18,6 +18,7 @@
 #include <zlib.h>
 
 #include "monocleprotocol/monocleprotocol.hpp"
+#include "monocleprotocol/objects_generated.h"
 
 ///// Namespaces /////
 
@@ -97,7 +98,7 @@ class Connection : public boost::enable_shared_from_this<Connection>
   virtual Error ControlStreamLive(const uint64_t streamtoken, const uint64_t playrequestindex) = 0;
   virtual Error ControlStreamPause(const uint64_t streamtoken, const boost::optional<uint64_t>& time) = 0;
   virtual std::pair<Error, uint64_t> CreateFindMotion(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height, const float sensitivity, const bool fast) = 0;
-  virtual std::pair<Error, uint64_t> CreateFindObject(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height) = 0;
+  virtual std::pair<Error, uint64_t> CreateFindObject(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const uint32_t minimumduration, const float x, const float y, const float width, const float height) = 0;
   virtual std::pair<Error, STREAM> CreateStream(const uint64_t recordingtoken, const uint64_t tracktoken) = 0;
   virtual Error DestroyFindMotion(const uint64_t token) = 0;
   virtual Error DestroyFindObject(const uint64_t token) = 0;
@@ -153,7 +154,7 @@ class Connection : public boost::enable_shared_from_this<Connection>
   boost::system::error_code SendFindMotionResult(const uint64_t token, const uint64_t start, const uint64_t end);
   boost::system::error_code SendFindObjectEnd(const uint64_t token, const uint64_t ret);
   boost::system::error_code SendFindObjectProgress(const uint64_t token, const float progress);
-  boost::system::error_code SendFindObjectResult(const uint64_t token, const uint64_t start, const uint64_t end);
+  boost::system::error_code SendFindObjectResult(const uint64_t token, const uint64_t start, const uint64_t end, const monocle::ObjectClass objectclass, const uint64_t id, const uint64_t largesttime, const float largestx, const float largesty, const float largestwidth, const float largestheight);
   boost::system::error_code SendGoodbye();
   boost::system::error_code SendGroupAdded(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
   boost::system::error_code SendGroupChanged(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
