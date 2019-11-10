@@ -125,8 +125,8 @@ Device::Device(const sock::ProxyParams& proxyparams, const QString& address, con
   connect(this, &Connection::SignalRecordingLogMessage, this, QOverload<const uint64_t, const uint64_t, const monocle::Severity, const QString&>::of(&Device::SlotRecordingLogMessage), Qt::QueuedConnection);
   connect(this, &Connection::SignalRecordingTrackLogMessage, this, QOverload<const uint64_t, const uint32_t, const uint64_t, const monocle::Severity, const QString&>::of(&Device::SlotRecordingTrackLogMessage), Qt::QueuedConnection);
   connect(this, &Connection::SignalServerLogMessage, this, QOverload<const uint64_t, const monocle::Severity, const QString&>::of(&Device::SlotServerLogMessage), Qt::QueuedConnection);
-  connect(this, &Connection::SignalTrackAdded, this, QOverload<const uint64_t, const uint32_t, const std::string&, const monocle::TrackType, const std::string&, const bool, const bool, const bool, const uint32_t, const std::vector<uint64_t>&>::of(&Device::SlotTrackAdded), Qt::QueuedConnection);
-  connect(this, &Connection::SignalTrackChanged, this, QOverload<const uint64_t, const uint32_t, const std::string&, const monocle::TrackType, const std::string&, const bool, const bool, const bool, const uint32_t, const std::vector<uint64_t>&>::of(&Device::SlotTrackChanged), Qt::QueuedConnection);
+  connect(this, &Connection::SignalTrackAdded, this, QOverload<const uint64_t, const uint32_t, const std::string&, const monocle::TrackType, const std::string&, const bool, const bool, const bool, const uint32_t, const std::vector<uint64_t>&, const std::vector<monocle::CODECINDEX>&>::of(&Device::SlotTrackAdded), Qt::QueuedConnection);
+  connect(this, &Connection::SignalTrackChanged, this, QOverload<const uint64_t, const uint32_t, const std::string&, const monocle::TrackType, const std::string&, const bool, const bool, const bool, const uint32_t, const std::vector<uint64_t>&, const std::vector<monocle::CODECINDEX>&>::of(&Device::SlotTrackChanged), Qt::QueuedConnection);
   connect(this, &Connection::SignalTrackDeleteData, this, QOverload<const uint64_t, const uint32_t, const boost::optional<uint64_t>&, const boost::optional<uint64_t>&>::of(&Device::SlotTrackDeleteData), Qt::QueuedConnection);
   connect(this, &Connection::SignalTrackRemoved, this, QOverload<const uint64_t, const uint32_t>::of(&Device::SlotTrackRemoved), Qt::QueuedConnection);
   connect(this, &Connection::SignalTrackSetData, this, QOverload<const uint64_t, const uint32_t, const std::vector<monocle::INDEX>&>::of(&Device::SlotTrackSetData), Qt::QueuedConnection);
@@ -2345,7 +2345,7 @@ void Device::SlotServerLogMessage(const uint64_t time, const monocle::Severity s
 
 }
 
-void Device::SlotTrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& filetokens)
+void Device::SlotTrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& filetokens, const std::vector<monocle::CODECINDEX>& codecindices)
 {
   if (state_ != DEVICESTATE::SUBSCRIBED)
   {
@@ -2363,7 +2363,7 @@ void Device::SlotTrackAdded(const uint64_t recordingtoken, const uint32_t id, co
   const QSharedPointer<RecordingTrack> recordingtrack = (*recording)->GetTrack(id);
   if (recordingtrack)
   {
-    const QSharedPointer<client::RecordingTrack> track = (*recording)->ChangeTrack(id, QString::fromStdString(token), tracktype, QString::fromStdString(description), fixedfiles, digitalsigning, encrypt, flushfrequency, filetokens);
+    const QSharedPointer<client::RecordingTrack> track = (*recording)->ChangeTrack(id, QString::fromStdString(token), tracktype, QString::fromStdString(description), fixedfiles, digitalsigning, encrypt, flushfrequency, filetokens, codecindices);
     if (!track)
     {
       LOG_GUI_WARNING_SOURCE(boost::static_pointer_cast<Device>(shared_from_this()), QString("Unable to find recording track: ") + QString::number(id));
@@ -2372,12 +2372,12 @@ void Device::SlotTrackAdded(const uint64_t recordingtoken, const uint32_t id, co
   }
   else
   {
-    const QSharedPointer<client::RecordingTrack> track = (*recording)->AddTrack(monocle::RECORDINGTRACK(id, token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, filetokens, std::vector<monocle::INDEX>()));
+    const QSharedPointer<client::RecordingTrack> track = (*recording)->AddTrack(monocle::RECORDINGTRACK(id, token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, filetokens, std::vector<monocle::INDEX>(), codecindices));
     emit SignalRecordingTrackAdded(*recording, track);
   }
 }
 
-void Device::SlotTrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& filetokens)
+void Device::SlotTrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& filetokens, const std::vector<monocle::CODECINDEX>& codecindices)
 {
   if (state_ != DEVICESTATE::SUBSCRIBED)
   {
@@ -2392,7 +2392,7 @@ void Device::SlotTrackChanged(const uint64_t recordingtoken, const uint32_t id, 
     return;
   }
 
-  const QSharedPointer<client::RecordingTrack> track = (*recording)->ChangeTrack(id, QString::fromStdString(token), tracktype, QString::fromStdString(description), fixedfiles, digitalsigning, encrypt, flushfrequency, filetokens);
+  const QSharedPointer<client::RecordingTrack> track = (*recording)->ChangeTrack(id, QString::fromStdString(token), tracktype, QString::fromStdString(description), fixedfiles, digitalsigning, encrypt, flushfrequency, filetokens, codecindices);
   if (!track)
   {
     LOG_GUI_WARNING_SOURCE(boost::static_pointer_cast<Device>(shared_from_this()), QString("Unable to find recording track: ") + QString::number(id));

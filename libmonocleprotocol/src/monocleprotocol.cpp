@@ -494,6 +494,27 @@ bool RECORDINGJOB::operator==(const RECORDINGJOB& rhs) const
   return ((token_ == rhs.token_) && (enabled_ == rhs.enabled_) && (priority_ == rhs.priority_) && std::is_permutation(sources_.cbegin(), sources_.cend(), rhs.sources_.cbegin(), rhs.sources_.cend()));
 }
 
+CODECINDEX::CODECINDEX(const uint64_t id, const Codec codec, const std::string& parameters, const uint64_t timestamp) :
+  id_(id),
+  codec_(codec),
+  parameters_(parameters),
+  timestamp_(timestamp)
+{
+
+}
+
+std::vector<std::string> CODECINDEX::GetParameters() const
+{
+  std::vector<std::string> parameters;
+  boost::split(parameters, parameters_, boost::is_any_of(";"), boost::algorithm::token_compress_on);
+  return parameters;
+}
+
+bool CODECINDEX::operator==(const CODECINDEX& rhs) const
+{
+  return ((id_ == rhs.id_) && (codec_ == rhs.codec_) && (parameters_ == rhs.parameters_) && (timestamp_ == rhs.timestamp_));
+}
+
 RECORDINGTRACK::RECORDINGTRACK() :
   id_(-1),
   tracktype_(TrackType::Video),
@@ -505,7 +526,7 @@ RECORDINGTRACK::RECORDINGTRACK() :
 
 }
 
-RECORDINGTRACK::RECORDINGTRACK(const uint32_t id, const std::string& token, const TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsignature, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<INDEX>& indices) :
+RECORDINGTRACK::RECORDINGTRACK(const uint32_t id, const std::string& token, const TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsignature, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<INDEX>& indices, const std::vector<CODECINDEX>& codecindices) :
   id_(id),
   token_(token),
   tracktype_(tracktype),
@@ -515,14 +536,15 @@ RECORDINGTRACK::RECORDINGTRACK(const uint32_t id, const std::string& token, cons
   encrypt_(encrypt),
   flushfrequency_(flushfrequency),
   files_(files),
-  indices_(indices)
+  indices_(indices),
+  codecindices_(codecindices)
 {
 
 }
 
 bool RECORDINGTRACK::operator==(const RECORDINGTRACK& rhs) const
 {
-  return ((id_ == rhs.id_) && (token_ == rhs.token_) && (tracktype_ == rhs.tracktype_) && (description_ == rhs.description_) && (fixedfiles_ == rhs.fixedfiles_) && (digitalsignature_ == rhs.digitalsignature_) && (encrypt_ == rhs.encrypt_) && (flushfrequency_ == rhs.flushfrequency_) && std::is_permutation(files_.cbegin(), files_.cend(), rhs.files_.cbegin(), rhs.files_.cend()));
+  return ((id_ == rhs.id_) && (token_ == rhs.token_) && (tracktype_ == rhs.tracktype_) && (description_ == rhs.description_) && (fixedfiles_ == rhs.fixedfiles_) && (digitalsignature_ == rhs.digitalsignature_) && (encrypt_ == rhs.encrypt_) && (flushfrequency_ == rhs.flushfrequency_) && std::is_permutation(files_.cbegin(), files_.cend(), rhs.files_.cbegin(), rhs.files_.cend()) && std::is_permutation(codecindices_.cbegin(), codecindices_.cend(), rhs.codecindices_.cbegin(), rhs.codecindices_.cend()));
 }
 
 RECORDING::RECORDING() :
@@ -551,21 +573,6 @@ RECORDING::RECORDING(const uint64_t token, const std::string& sourceid, const st
 bool RECORDING::operator==(const RECORDING& rhs) const
 {
   return ((token_ == rhs.token_) && (sourceid_ == rhs.sourceid_) && (name_ == rhs.name_) && (location_ == rhs.location_) && (description_ == rhs.description_) && (address_ == rhs.address_) && (content_ == rhs.content_) && (retentiontime_ == rhs.retentiontime_) && std::is_permutation(jobs_.cbegin(), jobs_.cend(), rhs.jobs_.cbegin(), rhs.jobs_.cend()) && (tracks_ == rhs.tracks_));
-}
-
-CODECINDEX::CODECINDEX(const uint64_t id, const Codec codec, const std::string& parameters, const uint64_t timestamp) :
-  id_(id),
-  codec_(codec),
-  parameters_(parameters),
-  timestamp_(timestamp)
-{
-
-}
-std::vector<std::string> CODECINDEX::GetParameters() const
-{
-  std::vector<std::string> parameters;
-  boost::split(parameters, parameters_, boost::is_any_of(";"), boost::algorithm::token_compress_on);
-  return parameters;
 }
 
 RECORDINGLOGMESSAGE::RECORDINGLOGMESSAGE(const uint64_t token, const LOGMESSAGE& logmessage) :

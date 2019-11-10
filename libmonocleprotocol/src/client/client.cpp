@@ -6530,7 +6530,18 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         }
       }
 
-      TrackAdded(trackadded->recordingtoken(), trackadded->id(), token, trackadded->tracktype(), description, trackadded->fixedfiles(), trackadded->digitalsigning(), trackadded->encrypt(), trackadded->flushfrequency(), files);
+      std::vector<monocle::CODECINDEX> codecindices;
+      if (trackadded->codecindices())
+      {
+        codecindices.reserve(trackadded->codecindices()->size());
+        for (const CodecIndex* codecindex : *trackadded->codecindices())
+        {
+          codecindices.push_back(monocle::CODECINDEX(codecindex->id(), codecindex->codec(), codecindex->parameters() ? codecindex->parameters()->str() : std::string(), codecindex->timestamp()));
+
+        }
+      }
+
+      TrackAdded(trackadded->recordingtoken(), trackadded->id(), token, trackadded->tracktype(), description, trackadded->fixedfiles(), trackadded->digitalsigning(), trackadded->encrypt(), trackadded->flushfrequency(), files, codecindices);
       break;
     }
     case Message::TRACKCHANGED:
@@ -6579,7 +6590,18 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         }
       }
 
-      TrackChanged(trackchanged->recordingtoken(), trackchanged->id(), token, trackchanged->tracktype(), description, trackchanged->fixedfiles(), trackchanged->digitalsigning(), trackchanged->encrypt(), trackchanged->flushfrequency(), files);
+      std::vector<monocle::CODECINDEX> codecindices;
+      if (trackchanged->codecindices())
+      {
+        codecindices.reserve(trackchanged->codecindices()->size());
+        for (const CodecIndex* codecindex : *trackchanged->codecindices())
+        {
+          codecindices.push_back(monocle::CODECINDEX(codecindex->id(), codecindex->codec(), codecindex->parameters() ? codecindex->parameters()->str() : std::string(), codecindex->timestamp()));
+
+        }
+      }
+
+      TrackChanged(trackchanged->recordingtoken(), trackchanged->id(), token, trackchanged->tracktype(), description, trackchanged->fixedfiles(), trackchanged->digitalsigning(), trackchanged->encrypt(), trackchanged->flushfrequency(), files, codecindices);
       break;
     }
     case Message::TRACKREMOVED:
@@ -7063,7 +7085,7 @@ std::pair< Error, std::vector<RECORDING> > Client::GetRecordingsBuffer(const fla
 
         return std::make_pair(Error(ErrorCode::InvalidMessage, "GetRecordingsResponse invalid RecordingTrack(video)"), std::vector<RECORDING>());
       }
-      tracks.push_back(RECORDINGTRACK(track->id(), track->token()->str(), track->tracktype(), track->description()->str(), track->fixedfiles(), track->digitalsigning(), track->encrypt(), track->flushfrequency(), ToVector(*track->files()), ToVector(*track->indices())));
+      tracks.push_back(RECORDINGTRACK(track->id(), track->token()->str(), track->tracktype(), track->description()->str(), track->fixedfiles(), track->digitalsigning(), track->encrypt(), track->flushfrequency(), ToVector(*track->files()), ToVector(*track->indices()), ToVector(*track->codecindices())));
     }
 
     recordings.push_back(RECORDING(recording->token(), recording->sourceid()->str(), recording->name()->str(), recording->location()->str(), recording->description()->str(), recording->address()->str(), recording->content()->str(), recording->retentiontime(), jobs, tracks, recording->activejob() ? boost::optional<uint64_t>(recording->activejob()->token()) : boost::none));
@@ -7075,9 +7097,21 @@ std::vector<monocle::INDEX> Client::ToVector(const flatbuffers::Vector<const mon
 {
   std::vector<INDEX> result;
   result.reserve(indices.size());
-  for (const auto& index : indices)
+  for (const monocle::INDEX* index : indices)
   {
     result.push_back(*index);
+
+  }
+  return result;
+}
+
+std::vector<monocle::CODECINDEX> Client::ToVector(const flatbuffers::Vector< flatbuffers::Offset<monocle::CodecIndex> >& codecindices) const
+{
+  std::vector<CODECINDEX> result;
+  result.reserve(codecindices.size());
+  for (const monocle::CodecIndex* codecindex : codecindices)
+  {
+    result.push_back(CODECINDEX(codecindex->id(), codecindex->codec(), codecindex->parameters() ? codecindex->parameters()->str() : std::string(), codecindex->timestamp()));
 
   }
   return result;

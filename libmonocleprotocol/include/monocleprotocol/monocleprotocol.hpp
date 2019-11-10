@@ -275,10 +275,25 @@ struct RECORDINGJOB
 
 };
 
+struct CODECINDEX
+{
+  CODECINDEX(const uint64_t id, const Codec codec, const std::string& parameters, const uint64_t timestamp);
+
+  std::vector<std::string> GetParameters() const;
+
+  bool operator==(const CODECINDEX& rhs) const;
+
+  uint64_t id_;
+  Codec codec_;
+  std::string parameters_;
+  uint64_t timestamp_;
+
+};
+
 struct RECORDINGTRACK
 {
   RECORDINGTRACK();
-  RECORDINGTRACK(const uint32_t id, const std::string& token, const TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsignature, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<INDEX>& indices);
+  RECORDINGTRACK(const uint32_t id, const std::string& token, const TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsignature, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<INDEX>& indices, const std::vector<CODECINDEX>& codecindices);
 
   bool operator==(const RECORDINGTRACK& rhs) const;
 
@@ -292,6 +307,7 @@ struct RECORDINGTRACK
   uint32_t flushfrequency_;
   std::vector<uint64_t> files_;
   std::vector<INDEX> indices_; // <starttime, endtime>
+  std::vector<CODECINDEX> codecindices_;
 
 };
 
@@ -313,19 +329,6 @@ struct RECORDING
   std::vector<RECORDINGJOB> jobs_;
   std::vector<RECORDINGTRACK> tracks_;
   boost::optional<uint64_t> activejob_;
-
-};
-
-struct CODECINDEX
-{
-  CODECINDEX(const uint64_t id, const Codec codec, const std::string& parameters, const uint64_t timestamp);
-
-  std::vector<std::string> GetParameters() const;
-
-  uint64_t id_;
-  Codec codec_;
-  std::string parameters_;
-  uint64_t timestamp_;
 
 };
 

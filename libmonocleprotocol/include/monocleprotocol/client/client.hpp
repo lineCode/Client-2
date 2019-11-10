@@ -172,8 +172,8 @@ class Client : public boost::enable_shared_from_this<Client>
   virtual void RecordingLogMessage(const uint64_t token, const uint64_t time, const monocle::Severity severity, const std::string& message) = 0;
   virtual void RecordingTrackLogMessage(const uint64_t recordingtoken, const uint32_t id, const uint64_t time, const monocle::Severity severity, const std::string& message) = 0;
   virtual void ServerLogMessage(const uint64_t time, const monocle::Severity severity, const std::string& message) = 0;
-  virtual void TrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files) = 0;
-  virtual void TrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files) = 0;
+  virtual void TrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices) = 0;
+  virtual void TrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices) = 0;
   virtual void TrackDeleteData(const uint64_t recording, const uint32_t trackid, const boost::optional<uint64_t>& start, const boost::optional<uint64_t>& end) = 0;
   virtual void TrackRemoved(const uint64_t recordingtoken, const uint32_t id) = 0;
   virtual void TrackSetData(const uint64_t recording, const uint32_t trackid, const std::vector<monocle::INDEX>& indices) = 0;
@@ -425,6 +425,7 @@ class Client : public boost::enable_shared_from_this<Client>
   }
 
   std::vector<INDEX> ToVector(const flatbuffers::Vector<const INDEX*>& indices) const;
+  std::vector<CODECINDEX> ToVector(const flatbuffers::Vector< flatbuffers::Offset<CodecIndex> >& codecindices) const;
 
   boost::asio::io_service& io_;
   boost::asio::io_service::strand strand_;

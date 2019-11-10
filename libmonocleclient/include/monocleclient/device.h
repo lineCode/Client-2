@@ -290,8 +290,8 @@ class Device : public Connection
   void SlotRecordingLogMessage(const uint64_t token, const uint64_t time, const monocle::Severity severity, const QString& message);
   void SlotRecordingTrackLogMessage(const uint64_t recordingtoken, const uint32_t id, const uint64_t time, const monocle::Severity severity, const QString& message);
   void SlotServerLogMessage(const uint64_t time, const monocle::Severity severity, const QString& message);
-  void SlotTrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& filetokens);
-  void SlotTrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& filetokens);
+  void SlotTrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& filetokens, const std::vector<monocle::CODECINDEX>& codecindices);
+  void SlotTrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& filetokens, const std::vector<monocle::CODECINDEX>& codecindices);
   void SlotTrackDeleteData(const uint64_t recordingtoken, const uint32_t trackid, const boost::optional<uint64_t>& start, const boost::optional<uint64_t>& end);
   void SlotTrackRemoved(const uint64_t recordingtoken, const uint32_t id);
   void SlotTrackSetData(const uint64_t recordingtoken, const uint32_t trackid, const std::vector<monocle::INDEX>& indices);

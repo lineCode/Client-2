@@ -16,7 +16,7 @@ namespace client
 
 ///// Methods /////
 
-RecordingTrack::RecordingTrack(const uint32_t id, const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector< std::pair<uint64_t, uint64_t> >& indices) :
+RecordingTrack::RecordingTrack(const uint32_t id, const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector< std::pair<uint64_t, uint64_t> >& indices, const std::vector<monocle::CODECINDEX>& codecindices) :
   id_(id),
   token_(token),
   tracktype_(tracktype),
@@ -26,7 +26,8 @@ RecordingTrack::RecordingTrack(const uint32_t id, const QString& token, const mo
   encrypt_(encrypt),
   flushfrequency_(flushfrequency),
   files_(files),
-  indices_(indices)
+  indices_(indices),
+  codecindices_(codecindices)
 {
 
 }
@@ -36,7 +37,7 @@ RecordingTrack::~RecordingTrack()
 
 }
 
-void RecordingTrack::ChangeTrack(const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files)
+void RecordingTrack::ChangeTrack(const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices)
 {
   token_ = token;
   tracktype_ = tracktype;
@@ -46,6 +47,7 @@ void RecordingTrack::ChangeTrack(const QString& token, const monocle::TrackType 
   encrypt_ = encrypt;
   flushfrequency_ = flushfrequency;
   files_ = files;
+  codecindices_ = codecindices;
 }
 
 void RecordingTrack::SetData(const std::vector<monocle::INDEX>& indices)

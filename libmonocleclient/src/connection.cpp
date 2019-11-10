@@ -404,15 +404,15 @@ void Connection::ServerLogMessage(const uint64_t time, const monocle::Severity s
 
 }
 
-void Connection::TrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files)
+void Connection::TrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices)
 {
-  emit SignalTrackAdded(recordingtoken, id, token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files);
+  emit SignalTrackAdded(recordingtoken, id, token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files, codecindices);
 
 }
 
-void Connection::TrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files)
+void Connection::TrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices)
 {
-  emit SignalTrackChanged(recordingtoken, id, token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files);
+  emit SignalTrackChanged(recordingtoken, id, token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files, codecindices);
 
 }
 

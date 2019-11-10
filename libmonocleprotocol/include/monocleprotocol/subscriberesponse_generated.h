@@ -6,6 +6,8 @@
 
 #include "flatbuffers/flatbuffers.h"
 
+#include "codec_generated.h"
+#include "codecindex_generated.h"
 #include "file_generated.h"
 #include "filemonitorstate_generated.h"
 #include "filestate_generated.h"

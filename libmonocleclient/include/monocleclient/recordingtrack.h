@@ -8,6 +8,7 @@
 
 #include <boost/optional.hpp>
 #include <monocleprotocol/index_generated.h>
+#include <monocleprotocol/monocleprotocol.hpp>
 #include <QObject>
 #include <QSharedPointer>
 #include <vector>
@@ -41,10 +42,10 @@ class RecordingTrack : public QObject
 
  public:
 
-  RecordingTrack(const uint32_t id, const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector< std::pair<uint64_t, uint64_t> >& indices);
+  RecordingTrack(const uint32_t id, const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector< std::pair<uint64_t, uint64_t> >& indices, const std::vector<monocle::CODECINDEX>& codecindices);
   ~RecordingTrack();
 
-  void ChangeTrack(const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files);
+  void ChangeTrack(const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices);
   void SetData(const std::vector<monocle::INDEX>& indices);
   void DeleteData(const monocle::RecordingJobState state, const boost::optional<uint64_t>& start, const boost::optional<uint64_t>& end);
   void SetState(const uint64_t time, const monocle::RecordingJobState state, const monocle::RecordingJobState prevstate);
@@ -84,6 +85,7 @@ class RecordingTrack : public QObject
   uint32_t flushfrequency_;
   std::vector<uint64_t> files_;
   std::vector< std::pair<uint64_t, uint64_t> > indices_;
+  std::vector<monocle::CODECINDEX> codecindices_;
  
  signals:
 
