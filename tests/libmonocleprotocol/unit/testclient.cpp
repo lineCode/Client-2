@@ -98,6 +98,21 @@ void TestClient::FindMotionResult(const uint64_t token, const uint64_t start, co
 
 }
 
+void TestClient::FindObjectEnd(const uint64_t token, const uint64_t ret)
+{
+
+}
+
+void TestClient::FindObjectProgress(const uint64_t token, const float progress)
+{
+
+}
+
+void TestClient::FindObjectResult(const uint64_t token, const uint64_t start, const uint64_t end, const monocle::ObjectClass objectclass, const uint64_t id, const uint64_t largesttime, const float largestx, const float largesty, const float largestwidth, const float largestheight)
+{
+
+}
+
 void TestClient::Goodbye()
 {
 

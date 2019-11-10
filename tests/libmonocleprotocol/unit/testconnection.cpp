@@ -259,12 +259,22 @@ std::pair<Error, uint64_t> TestConnection::CreateFindMotion(const uint64_t recor
   return std::make_pair(Error(), 0);
 }
 
+std::pair<Error, uint64_t> TestConnection::CreateFindObject(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const uint32_t minimumduration, const float x, const float y, const float width, const float height)
+{
+  return std::make_pair(Error(), 0);
+}
+
 std::pair<Error, STREAM> TestConnection::CreateStream(const uint64_t recordingtoken, const uint64_t tracktoken)
 {
   return std::make_pair(Error(), teststream_);
 }
 
 Error TestConnection::DestroyFindMotion(const uint64_t token)
+{
+  return Error();
+}
+
+Error TestConnection::DestroyFindObject(const uint64_t token)
 {
   return Error();
 }
@@ -304,7 +314,7 @@ std::pair< Error, std::vector<RECORDING> > TestConnection::GetRecordings()
   return std::make_pair(Error(), testrecordings_);
 }
 
-std::pair<Error, SNAPSHOT> TestConnection::GetSnapshot(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time)
+std::pair<Error, SNAPSHOT> TestConnection::GetSnapshot(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time, const float x, const float y, const float width, const float height)
 {
   return std::make_pair(Error(), SNAPSHOT());
 }
