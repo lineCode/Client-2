@@ -456,7 +456,9 @@ void FindObjectPlaybackWidget::ZoomOut(const int x)
 void FindObjectPlaybackWidget::FindObjectResult(const uint64_t start, const uint64_t end)
 {
   objectrecordingblocks_.emplace_back(std::make_unique<RecordingBlock>(true, start, end));
+  makeCurrent();
   UpdateRecordingBlocks();
+  doneCurrent();
 }
 
 void FindObjectPlaybackWidget::SetPaused(const bool paused)

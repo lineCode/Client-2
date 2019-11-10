@@ -118,6 +118,8 @@ class FindObjectWindow : public QDialog
   void AddCodecIndex(const monocle::CODECINDEX& codecindex);
   void DestroyDecoders();
   void ResetDecoders();
+  bool Filter(const monocle::ObjectClass objectclass);
+  void UpdateFilter();
 
   Ui::FindObjectWindow ui_;
 
@@ -166,6 +168,22 @@ class FindObjectWindow : public QDialog
   void StartDateTimeChanged(const QDateTime& datetime);
   void EndDateTimeChanged(const QDateTime& datetime);
   void on_buttonsearch_clicked();
+  void on_checkfilterhumans_clicked();
+  void on_checkfilterbicycles_clicked();
+  void on_checkfiltercars_clicked();
+  void on_checkfiltermotorbikes_clicked();
+  void on_checkfilteraeroplanes_clicked();
+  void on_checkfilterbuses_clicked();
+  void on_checkfiltertrains_clicked();
+  void on_checkfiltertrucks_clicked();
+  void on_checkfilterboats_clicked();
+  void on_checkfiltercats_clicked();
+  void on_checkfilterdogs_clicked();
+  void on_checkfilterhorses_clicked();
+  void on_checkfilterbackpacks_clicked();
+  void on_checkfilterumbrellas_clicked();
+  void on_checkfilterhandbags_clicked();
+  void on_checkfiltersuitcases_clicked();
   void on_tableresults_clicked(QModelIndex);
   void on_buttonframestepbackwards_clicked();
   void on_buttonplay_clicked();

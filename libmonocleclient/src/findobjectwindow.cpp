@@ -572,6 +572,52 @@ void FindObjectWindow::ResetDecoders()
   }
 }
 
+bool FindObjectWindow::Filter(const monocle::ObjectClass objectclass)
+{
+  if (((objectclass == monocle::ObjectClass::Human)     && ui_.checkfilterhumans->isChecked()) ||
+      ((objectclass == monocle::ObjectClass::Bicycle)   && ui_.checkfilterbicycles->isChecked()) ||
+      ((objectclass == monocle::ObjectClass::Car)       && ui_.checkfiltercars->isChecked()) ||
+      ((objectclass == monocle::ObjectClass::Bicycle)   && ui_.checkfiltermotorbikes->isChecked()) ||
+      ((objectclass == monocle::ObjectClass::Aeroplane) && ui_.checkfilteraeroplanes->isChecked()) ||
+      ((objectclass == monocle::ObjectClass::Bus)       && ui_.checkfilterbuses->isChecked()) ||
+      ((objectclass == monocle::ObjectClass::Train)     && ui_.checkfiltertrains->isChecked()) ||
+      ((objectclass == monocle::ObjectClass::Truck)     && ui_.checkfiltertrucks->isChecked()) ||
+      ((objectclass == monocle::ObjectClass::Boat)      && ui_.checkfilterboats->isChecked()) ||
+      ((objectclass == monocle::ObjectClass::Cat)       && ui_.checkfiltercats->isChecked()) ||
+      ((objectclass == monocle::ObjectClass::Dog)       && ui_.checkfilterdogs->isChecked()) ||
+      ((objectclass == monocle::ObjectClass::Horse)     && ui_.checkfilterhorses->isChecked()) ||
+      ((objectclass == monocle::ObjectClass::Backpack)  && ui_.checkfilterbackpacks->isChecked()) ||
+      ((objectclass == monocle::ObjectClass::Umbrella)  && ui_.checkfilterumbrellas->isChecked()) ||
+      ((objectclass == monocle::ObjectClass::Handbag)   && ui_.checkfilterhandbags->isChecked()) ||
+      ((objectclass == monocle::ObjectClass::Suitcase)  && ui_.checkfiltersuitcases->isChecked()))
+  {
+
+    return true;
+  }
+  else
+  {
+
+    return false;
+  }
+}
+
+void FindObjectWindow::UpdateFilter()
+{
+  for (int i = 0; i < ui_.tableresults->rowCount(); ++i)
+  {
+    if (Filter(static_cast<monocle::ObjectClass>(ui_.tableresults->item(i, 1)->data(OBJECTCLASS_ROLE).toULongLong())))
+    {
+      ui_.tableresults->showRow(i);
+
+    }
+    else
+    {
+      ui_.tableresults->hideRow(i);
+
+    }
+  }
+}
+
 void FindObjectWindow::TrackAdded(const QSharedPointer<RecordingTrack>& track)
 {
   if (track->GetTrackType() != monocle::TrackType::Video)
@@ -650,7 +696,11 @@ void FindObjectWindow::FindObjectResult(const uint64_t token, const uint64_t sta
   item->setData(OBJECTCLASS_ROLE, static_cast<qulonglong>(objectclass));
   item->setData(OBJECTID_ROLE, static_cast<qulonglong>(id));
   ui_.tableresults->setItem(row, 1, item);
-  
+  if (!Filter(objectclass))
+  {
+    ui_.tableresults->hideRow(row);
+
+  }
   ui_.playbackwidget->FindObjectResult(start, end);
 }
 
@@ -749,6 +799,102 @@ void FindObjectWindow::on_buttonsearch_clicked()
       });
     });
   });
+}
+
+void FindObjectWindow::on_checkfilterhumans_clicked()
+{
+  UpdateFilter();
+
+}
+
+void FindObjectWindow::on_checkfilterbicycles_clicked()
+{
+  UpdateFilter();
+
+}
+
+void FindObjectWindow::on_checkfiltercars_clicked()
+{
+  UpdateFilter();
+
+}
+
+void FindObjectWindow::on_checkfiltermotorbikes_clicked()
+{
+  UpdateFilter();
+
+}
+
+void FindObjectWindow::on_checkfilteraeroplanes_clicked()
+{
+  UpdateFilter();
+
+}
+
+void FindObjectWindow::on_checkfilterbuses_clicked()
+{
+  UpdateFilter();
+
+}
+
+void FindObjectWindow::on_checkfiltertrains_clicked()
+{
+  UpdateFilter();
+
+}
+
+void FindObjectWindow::on_checkfiltertrucks_clicked()
+{
+  UpdateFilter();
+
+}
+
+void FindObjectWindow::on_checkfilterboats_clicked()
+{
+  UpdateFilter();
+
+}
+
+void FindObjectWindow::on_checkfiltercats_clicked()
+{
+  UpdateFilter();
+
+}
+
+void FindObjectWindow::on_checkfilterdogs_clicked()
+{
+  UpdateFilter();
+
+}
+
+void FindObjectWindow::on_checkfilterhorses_clicked()
+{
+  UpdateFilter();
+
+}
+
+void FindObjectWindow::on_checkfilterbackpacks_clicked()
+{
+  UpdateFilter();
+
+}
+
+void FindObjectWindow::on_checkfilterumbrellas_clicked()
+{
+  UpdateFilter();
+
+}
+
+void FindObjectWindow::on_checkfilterhandbags_clicked()
+{
+  UpdateFilter();
+
+}
+
+void FindObjectWindow::on_checkfiltersuitcases_clicked()
+{
+  UpdateFilter();
+
 }
 
 void FindObjectWindow::on_tableresults_clicked(QModelIndex)
