@@ -425,7 +425,7 @@ class Client : public boost::enable_shared_from_this<Client>
   }
 
   std::vector<INDEX> ToVector(const flatbuffers::Vector<const INDEX*>& indices) const;
-  std::vector<CODECINDEX> ToVector(const flatbuffers::Vector< flatbuffers::Offset<CodecIndex> >& codecindices) const;
+  std::vector<CODECINDEX> ToVector(const flatbuffers::Vector< flatbuffers::Offset<CodecIndex> >* codecindices) const;
 
   boost::asio::io_service& io_;
   boost::asio::io_service::strand strand_;

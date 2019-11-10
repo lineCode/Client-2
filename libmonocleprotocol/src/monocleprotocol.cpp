@@ -148,8 +148,14 @@ std::vector< flatbuffers::Offset<Recording> > GetRecordingBuffers(const std::vec
     tracks.reserve(recording.tracks_.size());
     for (const monocle::RECORDINGTRACK& track : recording.tracks_)
     {
-      tracks.push_back(CreateRecordingTrack(fbb, track.id_, fbb.CreateString(track.token_), track.tracktype_, fbb.CreateString(track.description_), track.fixedfiles_, track.digitalsignature_, track.encrypt_, track.flushfrequency_, fbb.CreateVector(track.files_), fbb.CreateVectorOfStructs(track.indices_)));
+      std::vector< flatbuffers::Offset<monocle::CodecIndex> > codecindices;
+      codecindices.reserve(track.codecindices_.size());
+      for (const monocle::CODECINDEX& codecindex : track.codecindices_)
+      {
+        codecindices.push_back(CreateCodecIndex(fbb, codecindex.id_, codecindex.codec_, fbb.CreateString(codecindex.parameters_), codecindex.timestamp_));
 
+      }
+      tracks.push_back(CreateRecordingTrack(fbb, track.id_, fbb.CreateString(track.token_), track.tracktype_, fbb.CreateString(track.description_), track.fixedfiles_, track.digitalsignature_, track.encrypt_, track.flushfrequency_, fbb.CreateVector(track.files_), fbb.CreateVectorOfStructs(track.indices_), fbb.CreateVector(codecindices)));
     }
 
     std::unique_ptr<monocle::TOKEN> activejob;

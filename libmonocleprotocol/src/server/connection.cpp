@@ -2777,8 +2777,14 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       tracks.reserve(recording.second.tracks_.size());
       for (const monocle::RECORDINGTRACK& track : recording.second.tracks_)
       {
-        tracks.push_back(CreateRecordingTrack(fbb_, track.id_, fbb_.CreateString(track.token_), track.tracktype_, fbb_.CreateString(track.description_), track.fixedfiles_, track.digitalsignature_, track.encrypt_, track.flushfrequency_, fbb_.CreateVector(track.files_), fbb_.CreateVectorOfStructs(track.indices_)));
+        std::vector< flatbuffers::Offset<monocle::CodecIndex> > codecindices;
+        codecindices.reserve(track.codecindices_.size());
+        for (const monocle::CODECINDEX& codecindex : track.codecindices_)
+        {
+          codecindices.push_back(CreateCodecIndex(fbb_, codecindex.id_, codecindex.codec_, fbb_.CreateString(codecindex.parameters_), codecindex.timestamp_));
 
+        }
+        tracks.push_back(CreateRecordingTrack(fbb_, track.id_, fbb_.CreateString(track.token_), track.tracktype_, fbb_.CreateString(track.description_), track.fixedfiles_, track.digitalsignature_, track.encrypt_, track.flushfrequency_, fbb_.CreateVector(track.files_), fbb_.CreateVectorOfStructs(track.indices_), fbb_.CreateVector(codecindices)));
       }
 
       std::unique_ptr<monocle::TOKEN> activejobtoken;

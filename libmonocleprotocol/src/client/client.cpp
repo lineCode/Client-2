@@ -7085,7 +7085,7 @@ std::pair< Error, std::vector<RECORDING> > Client::GetRecordingsBuffer(const fla
 
         return std::make_pair(Error(ErrorCode::InvalidMessage, "GetRecordingsResponse invalid RecordingTrack(video)"), std::vector<RECORDING>());
       }
-      tracks.push_back(RECORDINGTRACK(track->id(), track->token()->str(), track->tracktype(), track->description()->str(), track->fixedfiles(), track->digitalsigning(), track->encrypt(), track->flushfrequency(), ToVector(*track->files()), ToVector(*track->indices()), ToVector(*track->codecindices())));
+      tracks.push_back(RECORDINGTRACK(track->id(), track->token()->str(), track->tracktype(), track->description()->str(), track->fixedfiles(), track->digitalsigning(), track->encrypt(), track->flushfrequency(), ToVector(*track->files()), ToVector(*track->indices()), ToVector(track->codecindices())));
     }
 
     recordings.push_back(RECORDING(recording->token(), recording->sourceid()->str(), recording->name()->str(), recording->location()->str(), recording->description()->str(), recording->address()->str(), recording->content()->str(), recording->retentiontime(), jobs, tracks, recording->activejob() ? boost::optional<uint64_t>(recording->activejob()->token()) : boost::none));
@@ -7105,14 +7105,17 @@ std::vector<monocle::INDEX> Client::ToVector(const flatbuffers::Vector<const mon
   return result;
 }
 
-std::vector<monocle::CODECINDEX> Client::ToVector(const flatbuffers::Vector< flatbuffers::Offset<monocle::CodecIndex> >& codecindices) const
+std::vector<monocle::CODECINDEX> Client::ToVector(const flatbuffers::Vector< flatbuffers::Offset<monocle::CodecIndex> >* codecindices) const
 {
   std::vector<CODECINDEX> result;
-  result.reserve(codecindices.size());
-  for (const monocle::CodecIndex* codecindex : codecindices)
+  if (codecindices)
   {
-    result.push_back(CODECINDEX(codecindex->id(), codecindex->codec(), codecindex->parameters() ? codecindex->parameters()->str() : std::string(), codecindex->timestamp()));
+    result.reserve(codecindices->size());
+    for (const monocle::CodecIndex* codecindex : *codecindices)
+    {
+      result.push_back(CODECINDEX(codecindex->id(), codecindex->codec(), codecindex->parameters() ? codecindex->parameters()->str() : std::string(), codecindex->timestamp()));
 
+    }
   }
   return result;
 }
