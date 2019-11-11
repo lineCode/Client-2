@@ -362,19 +362,28 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
         }
         else // (MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDOBJECT)
         {
-          //TODO loop through the tracks and find all the tracks with object detectors
-            //TODO if there are none, QMessageBox
-            //TODO if there are many, pass them all in
-          std::vector< QSharedPointer<RecordingTrack> > objectdetectortracks;//TODO maybe just count them, we don't need to pass them in, the FindObjectWindow can figure it out
+          if (!videoview->GetDevice()->SupportsFindObject())
+          {
+            QMessageBox(QMessageBox::Warning, tr("Error"), tr("Device does not support find object, please upgrade"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+            return;
+          }
+          
+          // Make sure this recording has some object detectors
+          bool foundobjectdetector = false;
           for (QSharedPointer<RecordingTrack> metadatatrack : videoview->GetRecording()->GetMetadataTracks())
           {
-            //TODO objectdetectortracks.push_back(metadatatrack);
-            //TODO we currently don't store the codec indices with the track and only retrieve them on CreateStream...
-              //TODO I think we change this and do it in SUSBCRIBE, and then keep clients updated on new codecs coming in(if the index matches any old ones it always overrides it)
-            //TODO metadatatrack->getcod
+            if (metadatatrack->GetCodecIndices(monocle::Codec::OBJECTDETECTOR).size())
+            {
+              foundobjectdetector = true;
+              break;
+            }
           }
-          //TODO look to see if any codec indices contains objectdetector thing
-            //TODO if not, QMessageBox
+
+          if (!foundobjectdetector)
+          {
+            QMessageBox(QMessageBox::Warning, tr("Error"), tr("Recording does not contain any object detectors"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+            return;
+          }
 
           FindObjectWindow(videowidget, videoview->GetQImage(boost::none), videoview->GetDevice(), videoview->GetRecording(), videoview->GetTrack(), videoview->GetSelectedColour(), *starttime, *endtime, selectedrectf, videoview->GetImageWidth(), videoview->GetImageHeight(), videoview->GetMirror(), videoview->GetRotation(), videoview->GetStretch()).exec();
         }

@@ -102,17 +102,13 @@ FindObjectWindow::FindObjectWindow(QWidget* parent, const QImage& image, const b
 
   ui_.tableresults->setItemDelegateForColumn(0, new ImageItemDelegate());
 
-  // Track
-  for (const QSharedPointer<RecordingTrack>& track : recording->GetTracks())
+  // Tracks
+  for (const QSharedPointer<RecordingTrack>& track : recording->GetMetadataTracks())
   {
-//TODO we need to do some checks here to see whether they have object detectors in them(by checking the new codec indices)
-  //TODO then we see which video track those object detectors are attached too, and then display those
-    if (track->GetTrackType() != monocle::TrackType::Metadata)
-    {
-
-      continue;
-    }
     ui_.combotracks->addItem(track->GetDescription(), track->GetId());
+    //TODO we need to get the corresponding video track it is pointing to
+      //TODO if it isn't pointing to one, then ignore it
+
   }
 
   for (int i = 0; i < ui_.combotracks->count(); ++i)
