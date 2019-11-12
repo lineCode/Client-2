@@ -6,6 +6,9 @@
 #include "monocleclient/videowidgetsmgr.h"
 
 #include <algorithm>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/lexical_cast.hpp>
 #include <QMessageBox>
 
 #include "monocleclient/findmotionwindow.h"
@@ -368,14 +371,37 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
             return;
           }
           
-          // Make sure this recording has some object detectors
+          // Make sure this recording has some object detectors, and it corresponds to a valid video track
           bool foundobjectdetector = false;
           for (QSharedPointer<RecordingTrack> metadatatrack : videoview->GetRecording()->GetMetadataTracks())
           {
-            if (metadatatrack->GetCodecIndices(monocle::Codec::OBJECTDETECTOR).size())
+            const std::vector<monocle::CODECINDEX> codecindices = metadatatrack->GetCodecIndices(monocle::Codec::OBJECTDETECTOR);
+            for (const monocle::CODECINDEX& codecindex : codecindices)
             {
-              foundobjectdetector = true;
-              break;
+              std::vector<std::string> parameters;
+              boost::split(parameters, codecindex.parameters_, boost::is_any_of(";"), boost::algorithm::token_compress_on);
+
+              std::vector<std::string>::const_iterator videotrackidparameter = std::find_if(parameters.cbegin(), parameters.cend(), [](const std::string& parameter) { return (boost::istarts_with(parameter, "VideoTrackId")); });
+              if (videotrackidparameter == parameters.cend())
+              {
+
+                continue;
+              }
+
+              const std::string videotrackid = videotrackidparameter->substr(13, std::string::npos);
+              try
+              {
+                if (videoview->GetRecording()->GetTrack(boost::lexical_cast<uint32_t>(videotrackid)))
+                {
+                  foundobjectdetector = true;
+                  break;
+                }
+              }
+              catch (...)
+              {
+                // Ignore and continue
+
+              }
             }
           }
 
@@ -398,8 +424,8 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
       {
         if (videowidget)
         {
-          const auto pos = videowidget->mapFromGlobal(event->globalPos());
-          auto view = videowidget->GetView(pos);
+          const QPoint pos = videowidget->mapFromGlobal(event->globalPos());
+          QSharedPointer<View> view = videowidget->GetView(pos);
           if (view) // We released the left mouse button on top of a video view
           {
             if (selectionview == view) // If we pressed left click on the same video view as we released

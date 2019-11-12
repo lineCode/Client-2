@@ -6,6 +6,7 @@
 #include "monocleclient/findobjectwindow.h"
 
 #include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 #include <monocleprotocol/monocleprotocol.hpp>
 #include <QImage>
 #include <QItemDelegate>
@@ -103,26 +104,61 @@ FindObjectWindow::FindObjectWindow(QWidget* parent, const QImage& image, const b
   ui_.tableresults->setItemDelegateForColumn(0, new ImageItemDelegate());
 
   // Tracks
-  for (const QSharedPointer<RecordingTrack>& track : recording->GetMetadataTracks())
+  for (const QSharedPointer<RecordingTrack>& metadatatrack : recording->GetMetadataTracks())
   {
-    ui_.combotracks->addItem(track->GetDescription(), track->GetId());
-    //TODO we need to get the corresponding video track it is pointing to
-      //TODO if it isn't pointing to one, then ignore it
-
-  }
-
-  for (int i = 0; i < ui_.combotracks->count(); ++i)
-  {
-    if (ui_.combotracks->itemData(0, Qt::UserRole) == track->GetId())
+    const std::vector<monocle::CODECINDEX> codecindices = metadatatrack->GetCodecIndices(monocle::Codec::OBJECTDETECTOR);
+    for (const monocle::CODECINDEX& codecindex : codecindices)
     {
-      ui_.combotracks->setCurrentIndex(i);
-      break;
+      std::vector<std::string> parameters;
+      boost::split(parameters, codecindex.parameters_, boost::is_any_of(";"), boost::algorithm::token_compress_on);
+
+      std::vector<std::string>::const_iterator videotrackidparameter = std::find_if(parameters.cbegin(), parameters.cend(), [](const std::string& parameter) { return (boost::istarts_with(parameter, "VideoTrackId")); });
+      if (videotrackidparameter == parameters.cend())
+      {
+
+        continue;
+      }
+
+      const std::string videotrackparametervalue = videotrackidparameter->substr(13, std::string::npos);
+      try
+      {
+        const uint32_t videotrackid = boost::lexical_cast<uint32_t>(videotrackparametervalue);
+        if (recording->GetTrack(videotrackid))
+        {
+          ui_.combotracks->addItem(metadatatrack->GetDescription(), videotrackid);//TODO description should be the combination of video and metadata tracks...
+          ui_.combotracks->setItemData(ui_.combotracks->count() - 1, metadatatrack->GetId(), Qt::UserRole + 1);
+          break;
+        }
+      }
+      catch (...)
+      {
+        // Ignore and continue
+
+      }
     }
   }
 
-  startTimer(std::chrono::milliseconds(100));
+  if (ui_.combotracks->count() == 0)
+  {
+    // This shouldn't happen because we checked before opening this window it should be ok, but just in case provide user with a nice error...
+    //TODO qmessagebox and reject in 1ms
+    return;
+  }
+  else
+  {
+    // Select the appropriate drop down
+    for (int i = 0; i < ui_.combotracks->count(); ++i)
+    {
+      if (ui_.combotracks->itemData(0, Qt::UserRole) == track->GetId())//TODO we look for one where the video track matches
+      {
+        ui_.combotracks->setCurrentIndex(i);
+        break;
+      }
+    }
 
-  on_buttonsearch_clicked();
+    startTimer(std::chrono::milliseconds(100));
+    on_buttonsearch_clicked();
+  }
 }
 
 FindObjectWindow::~FindObjectWindow()
@@ -703,15 +739,22 @@ void FindObjectWindow::FindObjectResult(const uint64_t token, const uint64_t sta
 void FindObjectWindow::on_buttonsearch_clicked()
 {
   // Swap out the track playbackwidget indices
-  const uint32_t trackid = ui_.combotracks->currentData().toUInt();
-  const QSharedPointer<RecordingTrack> metadatatrack = recording_->GetTrack(trackid);
-  if ((metadatatrack == nullptr) || (metadatatrack->GetTrackType() != monocle::TrackType::Metadata))//TODO umm video now please or something?
+  const uint32_t videotrackid = ui_.combotracks->currentData(Qt::UserRole).toUInt();
+  const uint32_t metadatatrackid = ui_.combotracks->currentData(Qt::UserRole + 1).toUInt();
+  const QSharedPointer<RecordingTrack> videotrack = recording_->GetTrack(videotrackid);
+  const QSharedPointer<RecordingTrack> metadatatrack = recording_->GetTrack(metadatatrackid);
+  if ((videotrack == nullptr) || (videotrack->GetTrackType() != monocle::TrackType::Video))
   {
-
+    QMessageBox(QMessageBox::Warning, tr("Error"), tr("Unable to find video track: ") + QString::number(metadatatrackid), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
     return;
   }
-
-  //TODO ui_.playbackwidget->SetTrack(track);
+  if ((metadatatrack == nullptr) || (metadatatrack->GetTrackType() != monocle::TrackType::Metadata))
+  {
+    QMessageBox(QMessageBox::Warning, tr("Error"), tr("Unable to find metadata track: ") + QString::number(metadatatrackid), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+    return;
+  }
+  ui_.playbackwidget->SetTrack(videotrack);
+  track_ = videotrack;
 
   // Clear up previous attempts
   connect_.Close();
