@@ -109,6 +109,8 @@
 #include "monocleprotocol/recordingremoved_generated.h"
 #include "monocleprotocol/recordingjoblogmessage_generated.h"
 #include "monocleprotocol/recordinglogmessage_generated.h"
+#include "monocleprotocol/recordingtrackcodecadded_generated.h"
+#include "monocleprotocol/recordingtrackcodecremoved_generated.h"
 #include "monocleprotocol/recordingtracklogmessage_generated.h"
 #include "monocleprotocol/removefilerequest_generated.h"
 #include "monocleprotocol/removegrouprequest_generated.h"
@@ -5859,6 +5861,54 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       }
 
       RecordingLogMessage(recordinglogmessage->token(), recordinglogmessage->message()->time(), recordinglogmessage->message()->severity(), recordinglogmessage->message()->message()->str());
+      break;
+    }
+    case Message::RECORDINGTRACKCODECADDED:
+    {
+      if (error)
+      {
+        // Ignore this because it can't really happen...
+        return;
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<monocle::RecordingTrackCodecAdded>(nullptr))
+      {
+
+        return;
+      }
+
+      const monocle::RecordingTrackCodecAdded* recordingtrackcodecadded = flatbuffers::GetRoot<monocle::RecordingTrackCodecAdded>(data);
+      if (!recordingtrackcodecadded)
+      {
+
+        return;
+      }
+
+      RecordingTrackCodecAdded(recordingtrackcodecadded->recordingtoken(), recordingtrackcodecadded->trackid(), recordingtrackcodecadded->id(), recordingtrackcodecadded->codec(), recordingtrackcodecadded->parameters() ? recordingtrackcodecadded->parameters()->str() : std::string(), recordingtrackcodecadded->timestamp());
+      break;
+    }
+    case Message::RECORDINGTRACKCODECREMOVED:
+    {
+      if (error)
+      {
+        // Ignore this because it can't really happen...
+        return;
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<monocle::RecordingTrackCodecRemoved>(nullptr))
+      {
+
+        return;
+      }
+
+      const monocle::RecordingTrackCodecRemoved* recordingtrackcodecremoved = flatbuffers::GetRoot<monocle::RecordingTrackCodecRemoved>(data);
+      if (!recordingtrackcodecremoved)
+      {
+
+        return;
+      }
+
+      RecordingTrackCodecRemoved(recordingtrackcodecremoved->recordingtoken(), recordingtrackcodecremoved->trackid(), recordingtrackcodecremoved->id());
       break;
     }
     case Message::RECORDINGTRACKLOGMESSAGE:

@@ -69,6 +69,8 @@ class RecordingTrack : public QObject
   inline const std::vector< std::pair<uint64_t, uint64_t> >& GetIndices() const { return indices_; } // If any RecordingJobSourceTrack is actively recording to this track, the final index in this list should be extended to the current time by the caller. The value stored here is the one that was retrieved at a single point
   inline const std::vector<monocle::CODECINDEX>& GetCodecIndices() const { return codecindices_; }
   const std::vector<monocle::CODECINDEX> GetCodecIndices(const monocle::Codec id) const;
+  void AddCodec(const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp);
+  void RemoveCodec(const uint64_t id);
   bool HasFile(const uint64_t file) const;
   
  protected:

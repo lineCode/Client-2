@@ -195,6 +195,8 @@ class Connection : public boost::enable_shared_from_this<Connection>
   boost::system::error_code SendRecordingJobSourceTrackStateChanged(const uint64_t recording, const uint64_t recordingjob, const uint64_t recordingjobsource, const uint64_t recordingjobsourcetrack, const uint64_t time, const RecordingJobState state, const std::string& error);
   boost::system::error_code SendRecordingLogMessage(const uint64_t token, const std::chrono::system_clock::time_point time, const monocle::Severity severity, const std::string& message);
   boost::system::error_code SendRecordingRemoved(const uint64_t token);
+  boost::system::error_code SendRecordingTrackCodecAdded(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp);
+  boost::system::error_code SendRecordingTrackCodecRemoved(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id);
   boost::system::error_code SendRecordingTrackLogMessage(const uint64_t recordingtoken, const uint32_t id, const std::chrono::system_clock::time_point time, const monocle::Severity severity, const std::string& message);
   boost::system::error_code SendServerLogMessage(const std::chrono::system_clock::time_point time, const monocle::Severity severity, const std::string& message);
   boost::system::error_code SendTrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency);

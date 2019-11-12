@@ -392,6 +392,18 @@ void Connection::RecordingLogMessage(const uint64_t token, const uint64_t time, 
 
 }
 
+void Connection::RecordingTrackCodecAdded(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp)
+{
+  emit SignalRecordingTrackCodecAdded(recordingtoken, recordingtrackid, id, codec, parameters, timestamp);
+
+}
+
+void Connection::RecordingTrackCodecRemoved(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id)
+{
+  emit SignalRecordingTrackCodecRemoved(recordingtoken, recordingtrackid, id);
+
+}
+
 void Connection::RecordingTrackLogMessage(const uint64_t recordingtoken, const uint32_t id, const uint64_t time, const monocle::Severity severity, const std::string& message)
 {
   emit SignalRecordingTrackLogMessage(recordingtoken, id, time, severity, QString::fromStdString(message));

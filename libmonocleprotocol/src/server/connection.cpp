@@ -107,6 +107,8 @@
 #include "monocleprotocol/recordinglogmessage_generated.h"
 #include "monocleprotocol/recordingremoved_generated.h"
 #include "monocleprotocol/recordingtracklogmessage_generated.h"
+#include "monocleprotocol/recordingtrackcodecadded_generated.h"
+#include "monocleprotocol/recordingtrackcodecremoved_generated.h"
 #include "monocleprotocol/removefilerequest_generated.h"
 #include "monocleprotocol/removegrouprequest_generated.h"
 #include "monocleprotocol/removemaprequest_generated.h"
@@ -1061,6 +1063,40 @@ boost::system::error_code Connection::SendRecordingJobSourceTrackAdded(const uin
   fbb_.Finish(CreateRecordingJobSourceTrackAdded(fbb_, recordingtoken, recordingjobtoken, recordingjobsourcetoken, token, recordingtrackid, fbb_.CreateVectorOfStrings(parameters), state, fbb_.CreateString(error), fbb_.CreateVectorOfStrings(activeparameters)));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::RECORDINGJOBSOURCETRACKADDED, ++sequence_);
+  const std::array<boost::asio::const_buffer, 2> buffers =
+  {
+    boost::asio::const_buffer(&header, sizeof(HEADER)),
+    boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
+  };
+  boost::system::error_code err;
+  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
+  return err;
+}
+
+boost::system::error_code Connection::SendRecordingTrackCodecAdded(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp)
+{
+  std::lock_guard<std::mutex> lock(writemutex_);
+  fbb_.Clear();
+  fbb_.Finish(CreateRecordingTrackCodecAdded(fbb_, recordingtoken, recordingtrackid, id, codec, fbb_.CreateString(parameters), timestamp));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::RECORDINGTRACKCODECADDED, ++sequence_);
+  const std::array<boost::asio::const_buffer, 2> buffers =
+  {
+    boost::asio::const_buffer(&header, sizeof(HEADER)),
+    boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
+  };
+  boost::system::error_code err;
+  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
+  return err;
+}
+
+boost::system::error_code Connection::SendRecordingTrackCodecRemoved(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id)
+{
+  std::lock_guard<std::mutex> lock(writemutex_);
+  fbb_.Clear();
+  fbb_.Finish(CreateRecordingTrackCodecRemoved(fbb_, recordingtoken, recordingtrackid, id));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::RECORDINGTRACKCODECREMOVED, ++sequence_);
   const std::array<boost::asio::const_buffer, 2> buffers =
   {
     boost::asio::const_buffer(&header, sizeof(HEADER)),

@@ -88,6 +88,8 @@ class Connection : public QObject, public monocle::client::Client
   virtual void RecordingJobSourceTrackRemoved(const uint64_t recordingtoken, const uint64_t recordingjobtoken, const uint64_t recordingjobsourcetoken, const uint64_t token) override;
   virtual void RecordingJobSourceTrackStateChanged(const uint64_t recording, const uint64_t recordingjob, const uint64_t recordingjobsource, const uint64_t recordingjobsourcetrack, const uint64_t time, const monocle::RecordingJobState state, const std::string& error) override;
   virtual void RecordingLogMessage(const uint64_t token, const uint64_t time, const monocle::Severity severity, const std::string& message) override;
+  virtual void RecordingTrackCodecAdded(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp) override;
+  virtual void RecordingTrackCodecRemoved(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id) override;
   virtual void RecordingTrackLogMessage(const uint64_t recordingtoken, const uint32_t id, const uint64_t time, const monocle::Severity severity, const std::string& message) override;
   virtual void RecordingRemoved(const uint64_t token) override;
   virtual void ServerLogMessage(const uint64_t time, const monocle::Severity severity, const std::string& message) override;
@@ -171,6 +173,8 @@ class Connection : public QObject, public monocle::client::Client
   void SignalRecordingJobSourceTrackStateChanged(const uint64_t recording, const uint64_t recordingjob, const uint64_t recordingjobsource, const uint64_t recordingjobsourcetrack, const uint64_t time, const monocle::RecordingJobState state, const QString& error);
   void SignalRecordingRemoved(const uint64_t token);
   void SignalRecordingLogMessage(const uint64_t token, const uint64_t time, const monocle::Severity severity, const QString& message);
+  void SignalRecordingTrackCodecAdded(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp);
+  void SignalRecordingTrackCodecRemoved(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id);
   void SignalRecordingTrackLogMessage(const uint64_t recordingtoken, const uint32_t id, const uint64_t time, const monocle::Severity severity, const QString& message);
   void SignalServerLogMessage(const uint64_t time, const monocle::Severity severity, const QString& message);
   void SignalTrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices);
@@ -181,7 +185,6 @@ class Connection : public QObject, public monocle::client::Client
   void SignalUserAdded(const uint64_t token, const QString& username, const uint64_t group);
   void SignalUserChanged(const uint64_t token, const uint64_t group);
   void SignalUserRemoved(const uint64_t token);
-
 
 };
 

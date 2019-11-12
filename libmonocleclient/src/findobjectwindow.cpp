@@ -125,7 +125,7 @@ FindObjectWindow::FindObjectWindow(QWidget* parent, const QImage& image, const b
         const uint32_t videotrackid = boost::lexical_cast<uint32_t>(videotrackparametervalue);
         if (recording->GetTrack(videotrackid))
         {
-          ui_.combotracks->addItem(metadatatrack->GetDescription(), videotrackid);//TODO description should be the combination of video and metadata tracks...
+          ui_.combotracks->addItem(track_->GetDescription() + "->" + metadatatrack->GetDescription(), videotrackid);
           ui_.combotracks->setItemData(ui_.combotracks->count() - 1, metadatatrack->GetId(), Qt::UserRole + 1);
           break;
         }

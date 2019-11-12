@@ -149,6 +149,18 @@ void RecordingTrack::SetState(const uint64_t time, const monocle::RecordingJobSt
   }
 }
 
+void RecordingTrack::AddCodec(const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp)
+{
+  codecindices_.push_back(monocle::CODECINDEX(id, codec, parameters, timestamp));
+
+}
+
+void RecordingTrack::RemoveCodec(const uint64_t id)
+{
+  codecindices_.erase(std::remove_if(codecindices_.begin(), codecindices_.end(), [id](const monocle::CODECINDEX& codecindex) { return (codecindex.id_ == id); }), codecindices_.end());
+
+}
+
 bool RecordingTrack::HasFile(const uint64_t file) const
 {
   return (std::find(files_.cbegin(), files_.cend(), file) != files_.cend());

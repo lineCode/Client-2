@@ -2290,6 +2290,44 @@ void Device::SlotRecordingJobSourceTrackStateChanged(const uint64_t recordingtok
   emit (*recording)->JobSourceTrackStateChanged(recordingjob, recordingjobsource, recordingjobsourcetrack, time, state, error, prevstate);
 }
 
+void Device::SlotRecordingTrackCodecAdded(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp)
+{
+  std::vector< QSharedPointer<client::Recording> >::iterator recording = std::find_if(recordings_.begin(), recordings_.end(), [recordingtoken](const QSharedPointer<client::Recording>& recording) { return (recording->GetToken() == recordingtoken); });
+  if (recording == recordings_.end())
+  {
+    LOG_GUI_WARNING_SOURCE(boost::static_pointer_cast<Device>(shared_from_this()), QString("Unable to find recording: ") + QString::number(recordingtoken));
+    return;
+  }
+
+  const QSharedPointer<RecordingTrack> track = (*recording)->GetTrack(recordingtrackid);
+  if (!track)
+  {
+    LOG_GUI_WARNING_SOURCE(boost::static_pointer_cast<Device>(shared_from_this()), QString("Unable to find recording track: ") + QString::number(recordingtrackid));
+    return;
+  }
+  
+  track->AddCodec(id, codec, parameters, timestamp);
+}
+
+void Device::SlotRecordingTrackCodecRemoved(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id)
+{
+  std::vector< QSharedPointer<client::Recording> >::iterator recording = std::find_if(recordings_.begin(), recordings_.end(), [recordingtoken](const QSharedPointer<client::Recording>& recording) { return (recording->GetToken() == recordingtoken); });
+  if (recording == recordings_.end())
+  {
+    LOG_GUI_WARNING_SOURCE(boost::static_pointer_cast<Device>(shared_from_this()), QString("Unable to find recording: ") + QString::number(recordingtoken));
+    return;
+  }
+
+  const QSharedPointer<RecordingTrack> track = (*recording)->GetTrack(recordingtrackid);
+  if (!track)
+  {
+    LOG_GUI_WARNING_SOURCE(boost::static_pointer_cast<Device>(shared_from_this()), QString("Unable to find recording track: ") + QString::number(recordingtrackid));
+    return;
+  }
+
+  track->RemoveCodec(id);
+}
+
 void Device::SlotRecordingTrackLogMessage(const uint64_t recordingtoken, const uint32_t id, const uint64_t time, const monocle::Severity severity, const QString& message)
 {
   if (state_ != DEVICESTATE::SUBSCRIBED)
