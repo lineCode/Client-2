@@ -731,8 +731,17 @@ void FindObjectWindow::FindObjectResult(const uint64_t token, const uint64_t sta
   const float height = std::min(1.0f, largestheight + (2 * largestheight * THUMBNAIL_EXPANSION));
   retrievethumbnails_.push_back(FINDOBJECTRESULT(token, start, end, objectclass, id, largesttime, x, y, width, height));
   
-  const int row = ui_.tableresults->rowCount();
-  ui_.tableresults->insertRow(row);
+  // Insert at the correct location...
+  int row = ui_.tableresults->rowCount();
+  for (int i = (ui_.tableresults->rowCount() - 1); i >= 0; --i)
+  {
+    if (ui_.tableresults->item(i, 1)->data(STARTTIME_ROLE).toULongLong() < start)
+    {
+      row = i;
+      break;
+    }
+  }
+  ui_.tableresults->insertRow(row);//TODO insert at the correct location...
   
   QTableWidgetItem* item = new QTableWidgetItem(QDateTime::fromMSecsSinceEpoch(start, Qt::UTC).toString());
   item->setData(STARTTIME_ROLE, static_cast<qulonglong>(start));
