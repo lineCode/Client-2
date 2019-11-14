@@ -206,7 +206,7 @@ class Client : public boost::enable_shared_from_this<Client>
   boost::unique_future<CONTROLSTREAMRESPONSE> ControlStreamLive(const uint64_t streamtoken, const uint64_t playrequestindex);
   boost::unique_future<CONTROLSTREAMRESPONSE> ControlStreamPause(const uint64_t streamtoken, const boost::optional<uint64_t>& time);
   boost::unique_future<CREATEFINDMOTIONRESPONSE> CreateFindMotion(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height, const float sensitivity, const bool fast);
-  boost::unique_future<CREATEFINDOBJECTRESPONSE> CreateFindObject(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const uint32_t minimumduration, const float x, const float y, const float width, const float height);
+  boost::unique_future<CREATEFINDOBJECTRESPONSE> CreateFindObject(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height);
   boost::unique_future<CREATESTREAMRESPONSE> CreateStream(const uint64_t recordingtoken, const uint32_t tracktoken);
   boost::unique_future<DESTROYFINDMOTIONRESPONSE> DestroyFindMotion(const uint64_t token);
   boost::unique_future<DESTROYFINDOBJECTRESPONSE> DestroyFindObject(const uint64_t token);
@@ -272,7 +272,7 @@ class Client : public boost::enable_shared_from_this<Client>
   Connection ControlStreamLive(const uint64_t streamtoken, const uint64_t playrequestindex, boost::function<void(const std::chrono::steady_clock::duration, const CONTROLSTREAMRESPONSE&)> callback);
   Connection ControlStreamPause(const uint64_t streamtoken, const boost::optional<uint64_t>& time, boost::function<void(const std::chrono::steady_clock::duration, const CONTROLSTREAMRESPONSE&)> callback);
   Connection CreateFindMotion(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height, const float sensitivity, const bool fast, boost::function<void(const std::chrono::steady_clock::duration, const CREATEFINDMOTIONRESPONSE&)> callback);
-  Connection CreateFindObject(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const uint32_t minimumduration, const float x, const float y, const float width, const float height, boost::function<void(const std::chrono::steady_clock::duration, const CREATEFINDOBJECTRESPONSE&)> callback);
+  Connection CreateFindObject(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height, boost::function<void(const std::chrono::steady_clock::duration, const CREATEFINDOBJECTRESPONSE&)> callback);
   Connection CreateStream(const uint64_t recordingtoken, const uint32_t tracktoken, boost::function<void(const std::chrono::steady_clock::duration, const CREATESTREAMRESPONSE&)> callback);
   Connection DestroyFindMotion(const uint64_t token, boost::function<void(const std::chrono::steady_clock::duration, const DESTROYFINDMOTIONRESPONSE&)> callback);
   Connection DestroyFindObject(const uint64_t token, boost::function<void(const std::chrono::steady_clock::duration, const DESTROYFINDOBJECTRESPONSE&)> callback);
@@ -346,7 +346,7 @@ class Client : public boost::enable_shared_from_this<Client>
   boost::system::error_code ControlStreamLiveSend(const uint64_t streamtoken, const uint64_t playrequest);
   boost::system::error_code ControlStreamPauseSend(const uint64_t streamtoken, const boost::optional<uint64_t>& time);
   boost::system::error_code CreateFindMotionSend(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height, const float sensitivity, const bool fast);
-  boost::system::error_code CreateFindObjectSend(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const uint32_t minimumduration, const float x, const float y, const float width, const float height);
+  boost::system::error_code CreateFindObjectSend(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height);
   boost::system::error_code CreateStreamSend(const uint64_t recordingtoken, const uint32_t tracktoken);
   boost::system::error_code DestroyFindMotionSend(const uint64_t token);
   boost::system::error_code DestroyFindObjectSend(const uint64_t token);

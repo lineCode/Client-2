@@ -2581,7 +2581,7 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
         return SendErrorResponse(Message::CREATEFINDOBJECT, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
       }
 
-      const std::pair<Error, uint64_t> findobject = CreateFindObject(createfindobjectrequest->recordingtoken(), createfindobjectrequest->trackid(), createfindobjectrequest->starttime(), createfindobjectrequest->endtime(), createfindobjectrequest->minimumduration(), createfindobjectrequest->x(), createfindobjectrequest->y(), createfindobjectrequest->width(), createfindobjectrequest->height());
+      const std::pair<Error, uint64_t> findobject = CreateFindObject(createfindobjectrequest->recordingtoken(), createfindobjectrequest->trackid(), createfindobjectrequest->starttime(), createfindobjectrequest->endtime(), createfindobjectrequest->x(), createfindobjectrequest->y(), createfindobjectrequest->width(), createfindobjectrequest->height());
       if (findobject.first.code_ != ErrorCode::Success)
       {
 

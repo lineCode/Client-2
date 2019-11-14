@@ -607,7 +607,7 @@ void FindObjectWindow::ResetDecoders()
   }
 }
 
-bool FindObjectWindow::Filter(const monocle::ObjectClass objectclass)
+bool FindObjectWindow::Filter(const monocle::ObjectClass objectclass, const uint64_t start, const uint64_t end)
 {
   if (((objectclass == monocle::ObjectClass::Human)     && ui_.checkfilterhumans->isChecked()) ||
       ((objectclass == monocle::ObjectClass::Bicycle)   && ui_.checkfilterbicycles->isChecked()) ||
@@ -626,8 +626,16 @@ bool FindObjectWindow::Filter(const monocle::ObjectClass objectclass)
       ((objectclass == monocle::ObjectClass::Handbag)   && ui_.checkfilterhandbags->isChecked()) ||
       ((objectclass == monocle::ObjectClass::Suitcase)  && ui_.checkfiltersuitcases->isChecked()))
   {
+    if ((end - start) >= (ui_.spinminimumduration->value() * 1000))
+    {
 
-    return true;
+      return true;
+    }
+    else
+    {
+
+      return false;
+    }
   }
   else
   {
@@ -640,7 +648,7 @@ void FindObjectWindow::UpdateFilter()
 {
   for (int i = 0; i < ui_.tableresults->rowCount(); ++i)
   {
-    if (Filter(static_cast<monocle::ObjectClass>(ui_.tableresults->item(i, 1)->data(OBJECTCLASS_ROLE).toULongLong())))
+    if (Filter(static_cast<monocle::ObjectClass>(ui_.tableresults->item(i, 1)->data(OBJECTCLASS_ROLE).toULongLong()), ui_.tableresults->item(i, 1)->data(STARTTIME_ROLE).toULongLong(), ui_.tableresults->item(i, 1)->data(ENDTIME_ROLE).toULongLong()))
     {
       ui_.tableresults->showRow(i);
 
@@ -732,12 +740,14 @@ void FindObjectWindow::FindObjectResult(const uint64_t token, const uint64_t sta
   item->setData(OBJECTCLASS_ROLE, static_cast<qulonglong>(objectclass));
   item->setData(OBJECTID_ROLE, static_cast<qulonglong>(id));
   ui_.tableresults->setItem(row, 1, item);
-  QString duration;
   const uint64_t durationseconds = (end - start) / 1000;
   const uint64_t durationminutes = durationseconds / 60;
   const uint64_t durationhours = durationminutes / 60;
-  ui_.tableresults->setItem(row, 2, new QTableWidgetItem(QString::number(durationhours) + ":" + QString::number(durationminutes) + ":" + QString::number(durationseconds % 60)));
-  if (!Filter(objectclass))
+  const QString seconds = durationseconds < 10 ? ("0" + QString::number(durationseconds % 60)) : QString::number(durationseconds % 60);
+  const QString minutes = durationminutes < 10 ? ("0" + QString::number(durationminutes)) : QString::number(durationminutes);
+  const QString hours = durationhours < 10 ? ("0" + QString::number(durationhours)) : QString::number(durationhours);
+  ui_.tableresults->setItem(row, 2, new QTableWidgetItem(hours + ":" + minutes + ":" + seconds));
+  if (!Filter(objectclass, end, start))
   {
     ui_.tableresults->hideRow(row);
 
@@ -834,7 +844,7 @@ void FindObjectWindow::on_buttonsearch_clicked()
           }
 
           const QRectF selectedrect = ui_.videowidget->GetSelectedRect();
-          createfindobject_ = connection_->CreateFindObject(recording_->GetToken(), metadatatrack->GetId(), ui_.datetimestart->dateTime().toMSecsSinceEpoch(), ui_.datetimeend->dateTime().toMSecsSinceEpoch(), ui_.spinminimumduration->value() * 1000, selectedrect.x(), selectedrect.y(), selectedrect.width(), selectedrect.height(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::CREATEFINDOBJECTRESPONSE& createfindobjectresponse)
+          createfindobject_ = connection_->CreateFindObject(recording_->GetToken(), metadatatrack->GetId(), ui_.datetimestart->dateTime().toMSecsSinceEpoch(), ui_.datetimeend->dateTime().toMSecsSinceEpoch(), selectedrect.x(), selectedrect.y(), selectedrect.width(), selectedrect.height(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::CREATEFINDOBJECTRESPONSE& createfindobjectresponse)
           {
             if (createfindobjectresponse.GetErrorCode() != monocle::ErrorCode::Success)
             {
@@ -940,6 +950,12 @@ void FindObjectWindow::on_checkfilterhandbags_clicked()
 }
 
 void FindObjectWindow::on_checkfiltersuitcases_clicked()
+{
+  UpdateFilter();
+
+}
+
+void FindObjectWindow::on_spinminimumduration_valueChanged(int)
 {
   UpdateFilter();
 

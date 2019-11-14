@@ -633,10 +633,10 @@ boost::unique_future<CREATEFINDMOTIONRESPONSE> Client::CreateFindMotion(const ui
   return createfindmotion_.CreateFuture(sequence_);
 }
 
-boost::unique_future<CREATEFINDOBJECTRESPONSE> Client::CreateFindObject(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const uint32_t minimumduration, const float x, const float y, const float width, const float height)
+boost::unique_future<CREATEFINDOBJECTRESPONSE> Client::CreateFindObject(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  if (CreateFindObjectSend(recordingtoken, tracktoken, starttime, endtime, minimumduration, x, y, width, height))
+  if (CreateFindObjectSend(recordingtoken, tracktoken, starttime, endtime, x, y, width, height))
   {
 
     return boost::make_ready_future(CREATEFINDOBJECTRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
@@ -1349,10 +1349,10 @@ Connection Client::CreateFindMotion(const uint64_t recordingtoken, const uint32_
   return createfindmotion_.CreateCallback(sequence_, callback);
 }
 
-Connection Client::CreateFindObject(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const uint32_t minimumduration, const float x, const float y, const float width, const float height, boost::function<void(const std::chrono::steady_clock::duration, const CREATEFINDOBJECTRESPONSE&)> callback)
+Connection Client::CreateFindObject(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height, boost::function<void(const std::chrono::steady_clock::duration, const CREATEFINDOBJECTRESPONSE&)> callback)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  if (CreateFindObjectSend(recordingtoken, tracktoken, starttime, endtime, minimumduration, x, y, width, height))
+  if (CreateFindObjectSend(recordingtoken, tracktoken, starttime, endtime, x, y, width, height))
   {
     callback(std::chrono::steady_clock::duration(), CREATEFINDOBJECTRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
     return Connection();
@@ -2384,10 +2384,10 @@ boost::system::error_code Client::CreateFindMotionSend(const uint64_t recordingt
   return err;
 }
 
-boost::system::error_code Client::CreateFindObjectSend(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const uint32_t minimumduration, const float x, const float y, const float width, const float height)
+boost::system::error_code Client::CreateFindObjectSend(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height)
 {
   fbb_.Clear();
-  fbb_.Finish(CreateCreateFindObjectRequest(fbb_, recordingtoken, tracktoken, starttime, endtime, minimumduration, x, y, width, height));
+  fbb_.Finish(CreateCreateFindObjectRequest(fbb_, recordingtoken, tracktoken, starttime, endtime, x, y, width, height));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::CREATEFINDOBJECT, ++sequence_);
   boost::system::error_code err;
