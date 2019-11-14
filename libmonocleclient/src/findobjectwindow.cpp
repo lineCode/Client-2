@@ -35,8 +35,9 @@ namespace client
 ///// Globals /////
 
 const int STARTTIME_ROLE = Qt::UserRole;
-const int OBJECTCLASS_ROLE = Qt::UserRole + 1;
-const int OBJECTID_ROLE = Qt::UserRole + 2;
+const int ENDTIME_ROLE = Qt::UserRole + 1;
+const int OBJECTCLASS_ROLE = Qt::UserRole + 2;
+const int OBJECTID_ROLE = Qt::UserRole + 3;
 const float THUMBNAIL_EXPANSION = 0.5f;
 
 ///// Classes /////
@@ -87,6 +88,8 @@ FindObjectWindow::FindObjectWindow(QWidget* parent, const QImage& image, const b
 {
   ui_.setupUi(this);
 
+  ui_.tableresults->setColumnWidth(1, 240);
+
   // We do this out of order because otherwise we come before FindObjectPlaybackWidget::initialiseGL
   ui_.datetimestart->setDateTime(QDateTime::fromMSecsSinceEpoch(starttime, Qt::UTC));
   ui_.datetimeend->setDateTime(QDateTime::fromMSecsSinceEpoch(endtime, Qt::UTC));
@@ -96,7 +99,7 @@ FindObjectWindow::FindObjectWindow(QWidget* parent, const QImage& image, const b
   connect(ui_.datetimestart, &QDateTimeEdit::dateTimeChanged, this, &FindObjectWindow::StartDateTimeChanged);
   connect(ui_.datetimeend, &QDateTimeEdit::dateTimeChanged, this, &FindObjectWindow::EndDateTimeChanged);
 
-  ui_.videowidget->SetImage(image);
+  ui_.videowidget->SetImage(image);//TODO these are a problem too...
   ui_.videowidget->SetSelectedRect(rect);
   ui_.playbackwidget->SetTrack(track);
   ui_.playbackwidget->SetColour(colour);
@@ -725,9 +728,15 @@ void FindObjectWindow::FindObjectResult(const uint64_t token, const uint64_t sta
   
   QTableWidgetItem* item = new QTableWidgetItem(QDateTime::fromMSecsSinceEpoch(start, Qt::UTC).toString());
   item->setData(STARTTIME_ROLE, static_cast<qulonglong>(start));
+  item->setData(ENDTIME_ROLE, static_cast<qulonglong>(end));
   item->setData(OBJECTCLASS_ROLE, static_cast<qulonglong>(objectclass));
   item->setData(OBJECTID_ROLE, static_cast<qulonglong>(id));
   ui_.tableresults->setItem(row, 1, item);
+  QString duration;
+  const uint64_t durationseconds = (end - start) / 1000;
+  const uint64_t durationminutes = durationseconds / 60;
+  const uint64_t durationhours = durationminutes / 60;
+  ui_.tableresults->setItem(row, 2, new QTableWidgetItem(QString::number(durationhours) + ":" + QString::number(durationminutes) + ":" + QString::number(durationseconds % 60)));
   if (!Filter(objectclass))
   {
     ui_.tableresults->hideRow(row);
@@ -959,7 +968,7 @@ void FindObjectWindow::on_tableresults_clicked(QModelIndex)
     return;
   }
 
-  const uint64_t time = item->data(STARTTIME_ROLE).toULongLong();
+  const uint64_t time = item->data(STARTTIME_ROLE).toULongLong() - 1500;
   if (ui_.playbackwidget->IsPaused())
   {
     Play(time, 1);
