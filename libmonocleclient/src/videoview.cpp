@@ -514,7 +514,7 @@ void VideoView::Scrub(const uint64_t time)
 
   for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
   {
-    metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, false, false, time + GetTimeOffset(), boost::none, 5, false);
+    metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, false, false, time + GetTimeOffset(), boost::none, 30, false);
 
   }
   paused_ = true;
@@ -677,7 +677,7 @@ void VideoView::MetadataCallback(const uint64_t streamtoken, const uint64_t play
 
       return;
     }
-
+    std::cout << playrequestindex << " " << timestamp << std::endl;//TODO remove
     videoview->videowidget_->makeCurrent();
     videoview->UpdateObjects(objects, timestamp);
     videoview->videowidget_->doneCurrent();

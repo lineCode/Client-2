@@ -38,7 +38,7 @@ const int STARTTIME_ROLE = Qt::UserRole;
 const int ENDTIME_ROLE = Qt::UserRole + 1;
 const int OBJECTCLASS_ROLE = Qt::UserRole + 2;
 const int OBJECTID_ROLE = Qt::UserRole + 3;
-const float THUMBNAIL_EXPANSION = 0.5f;
+const float THUMBNAIL_EXPANSION = 0.3f;
 
 ///// Classes /////
 
