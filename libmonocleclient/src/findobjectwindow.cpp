@@ -733,15 +733,15 @@ void FindObjectWindow::FindObjectResult(const uint64_t token, const uint64_t sta
   
   // Insert at the correct location...
   int row = ui_.tableresults->rowCount();
-  for (int i = (ui_.tableresults->rowCount() - 1); i >= 0; --i)
+  for (int i = 0; i < ui_.tableresults->rowCount(); ++i)
   {
-    if (ui_.tableresults->item(i, 1)->data(STARTTIME_ROLE).toULongLong() < start)
+    if (ui_.tableresults->item(i, 1)->data(STARTTIME_ROLE).toULongLong() > start)
     {
       row = i;
       break;
     }
   }
-  ui_.tableresults->insertRow(row);//TODO insert at the correct location...
+  ui_.tableresults->insertRow(row);
   
   QTableWidgetItem* item = new QTableWidgetItem(QDateTime::fromMSecsSinceEpoch(start, Qt::UTC).toString());
   item->setData(STARTTIME_ROLE, static_cast<qulonglong>(start));
