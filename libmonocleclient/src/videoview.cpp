@@ -677,7 +677,6 @@ void VideoView::MetadataCallback(const uint64_t streamtoken, const uint64_t play
 
       return;
     }
-    std::cout << playrequestindex << " " << timestamp << std::endl;//TODO remove
     videoview->videowidget_->makeCurrent();
     videoview->UpdateObjects(objects, timestamp);
     videoview->videowidget_->doneCurrent();

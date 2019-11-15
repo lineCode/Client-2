@@ -68,7 +68,7 @@ class RecordingTrack : public QObject
   inline const std::vector<uint64_t>& GetFiles() const { return files_; }
   inline const std::vector< std::pair<uint64_t, uint64_t> >& GetIndices() const { return indices_; } // If any RecordingJobSourceTrack is actively recording to this track, the final index in this list should be extended to the current time by the caller. The value stored here is the one that was retrieved at a single point
   inline const std::vector<monocle::CODECINDEX>& GetCodecIndices() const { return codecindices_; }
-  const std::vector<monocle::CODECINDEX> GetCodecIndices(const monocle::Codec id) const;
+  std::vector<monocle::CODECINDEX> GetCodecIndices(const monocle::Codec id) const;
   void AddCodec(const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp);
   void RemoveCodec(const uint64_t id);
   bool HasFile(const uint64_t file) const;
@@ -89,7 +89,7 @@ class RecordingTrack : public QObject
   uint32_t flushfrequency_;
   std::vector<uint64_t> files_;
   std::vector< std::pair<uint64_t, uint64_t> > indices_;
-  std::vector<monocle::CODECINDEX> codecindices_;
+  std::vector<monocle::CODECINDEX> codecindices_; // This only gets filled in at version 1.11.0
  
  signals:
 

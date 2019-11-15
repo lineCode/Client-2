@@ -166,7 +166,7 @@ bool RecordingTrack::HasFile(const uint64_t file) const
   return (std::find(files_.cbegin(), files_.cend(), file) != files_.cend());
 }
 
-const std::vector<monocle::CODECINDEX> RecordingTrack::GetCodecIndices(const monocle::Codec codec) const
+std::vector<monocle::CODECINDEX> RecordingTrack::GetCodecIndices(const monocle::Codec codec) const
 {
   std::vector<monocle::CODECINDEX> codecindices;
   for (const monocle::CODECINDEX& codecindex : codecindices_)

@@ -99,7 +99,7 @@ FindObjectWindow::FindObjectWindow(QWidget* parent, const QImage& image, const b
   connect(ui_.datetimestart, &QDateTimeEdit::dateTimeChanged, this, &FindObjectWindow::StartDateTimeChanged);
   connect(ui_.datetimeend, &QDateTimeEdit::dateTimeChanged, this, &FindObjectWindow::EndDateTimeChanged);
 
-  ui_.videowidget->SetImage(image);//TODO these are a problem too...
+  ui_.videowidget->SetImage(image);
   ui_.videowidget->SetSelectedRect(rect);
   ui_.playbackwidget->SetTrack(track);
   ui_.playbackwidget->SetColour(colour);
@@ -152,7 +152,7 @@ FindObjectWindow::FindObjectWindow(QWidget* parent, const QImage& image, const b
     // Select the appropriate drop down
     for (int i = 0; i < ui_.combotracks->count(); ++i)
     {
-      if (ui_.combotracks->itemData(0, Qt::UserRole) == track->GetId())//TODO we look for one where the video track matches
+      if (ui_.combotracks->itemData(0, Qt::UserRole) == track->GetId())
       {
         ui_.combotracks->setCurrentIndex(i);
         break;
@@ -169,7 +169,8 @@ FindObjectWindow::~FindObjectWindow()
   connect_.Close();
   getauthenticatenonce_.Close();
   authenticate_.Close();
-  createstream_.Close();
+  videocreatestream_.Close();
+  metadatacreatestream_.Close();
   createfindobject_.Close();
 
   retrievethumbnails_.clear();
@@ -183,11 +184,18 @@ FindObjectWindow::~FindObjectWindow()
       findobjecttoken_.reset();
     }
 
-    if (streamtoken_.is_initialized())
+    if (videostreamtoken_.is_initialized())
     {
-      connection_->DestroyStream(*streamtoken_, [](const std::chrono::steady_clock::duration latency, const monocle::client::DESTROYSTREAMRESPONSE&) {});
-      streamtoken_.reset();
+      connection_->DestroyStream(*videostreamtoken_, [](const std::chrono::steady_clock::duration latency, const monocle::client::DESTROYSTREAMRESPONSE&) {});
+      videostreamtoken_.reset();
     }
+
+    if (metadatastreamtoken_.is_initialized())
+    {
+      connection_->DestroyStream(*metadatastreamtoken_, [](const std::chrono::steady_clock::duration latency, const monocle::client::DESTROYSTREAMRESPONSE&) {});
+      metadatastreamtoken_.reset();
+    }
+
     connection_->Destroy();
     connection_.reset();
   }
@@ -211,23 +219,28 @@ void FindObjectWindow::SetPaused(const bool paused)
 void FindObjectWindow::Pause(const boost::optional<uint64_t>& time)
 {
   SetPaused(true);
-  if (streamtoken_.is_initialized())
+  if (videostreamtoken_.is_initialized())
   {
-    connection_->ControlStreamPause(*streamtoken_, time);
+    connection_->ControlStreamPause(*videostreamtoken_, time);
+
+  }
+  if (metadatastreamtoken_.is_initialized())
+  {
+    connection_->ControlStreamPause(*metadatastreamtoken_, time);
 
   }
 }
 
 void FindObjectWindow::Play(const uint64_t time, const boost::optional<uint64_t>& numframes)
 {
-  if (!streamtoken_.is_initialized())
+  if (!videostreamtoken_.is_initialized())
   {
 
     return;
   }
 
   ResetDecoders();
-  connection_->ControlStream(*streamtoken_, ui_.videowidget->GetNextPlayRequestIndex(), true, true, true, time + device_->GetTimeOffset(), boost::none, numframes, false);
+  connection_->ControlStream(*videostreamtoken_, ui_.videowidget->GetNextPlayRequestIndex(), true, true, true, time + device_->GetTimeOffset(), boost::none, numframes, false);
   if (numframes.is_initialized() && ((*numframes == 0) || (*numframes == 1))) // Is this an effectively pause request...
   {
     controlstreamendcallback_ = [this](const uint64_t playrequestindex, const monocle::ErrorCode err)
@@ -261,19 +274,21 @@ void FindObjectWindow::Play(const uint64_t time, const boost::optional<uint64_t>
     ui_.videowidget->paused_ = false;
 
   }
+
+  //TODO copy main window stream for this
+
 }
 
 void FindObjectWindow::Stop()
 {
-  if (!streamtoken_.is_initialized())
+  if (videostreamtoken_.is_initialized())
   {
-
-    return;
+    ui_.videowidget->SetPaused(false);
+    ResetDecoders();
+    connection_->ControlStreamLive(*videostreamtoken_, ui_.videowidget->GetNextPlayRequestIndex());
   }
 
-  ui_.videowidget->SetPaused(false);
-  ResetDecoders();
-  connection_->ControlStreamLive(*streamtoken_, ui_.videowidget->GetNextPlayRequestIndex());
+  //TODO metadatastream thing copy main window...
 }
 
 void FindObjectWindow::timerEvent(QTimerEvent*)
@@ -301,7 +316,7 @@ void FindObjectWindow::timerEvent(QTimerEvent*)
       {
         for (int i = 0; i < ui_.tableresults->rowCount(); ++i)
         {
-          if ((ui_.tableresults->item(i, 1)->data(STARTTIME_ROLE).toULongLong() == retrievethumbnail.start_) && (ui_.tableresults->item(i, 1)->data(OBJECTCLASS_ROLE).toULongLong() == static_cast<qulonglong>(retrievethumbnail.objectclass_)) && (ui_.tableresults->item(i, 1)->data(OBJECTID_ROLE).toULongLong() == retrievethumbnail.id_))//TODO this needs to include objectclass,id,start
+          if ((ui_.tableresults->item(i, 1)->data(STARTTIME_ROLE).toULongLong() == retrievethumbnail.start_) && (ui_.tableresults->item(i, 1)->data(OBJECTCLASS_ROLE).toULongLong() == static_cast<qulonglong>(retrievethumbnail.objectclass_)) && (ui_.tableresults->item(i, 1)->data(OBJECTID_ROLE).toULongLong() == retrievethumbnail.id_))
           {
             QTableWidgetItem* item = new QTableWidgetItem();
             item->setData(Qt::DecorationRole, QPixmap::fromImage(image));
@@ -347,10 +362,10 @@ void FindObjectWindow::FrameStep(const bool forwards)
       ui_.videowidget->WriteFrame(imagebuffer);
     };
 
-    if (streamtoken_.is_initialized())
+    if (videostreamtoken_.is_initialized())
     {
       ResetDecoders();
-      connection_->ControlStreamFrameStep(*streamtoken_, ui_.videowidget->GetNextPlayRequestIndex(), forwards, ui_.videowidget->sequencenum_);
+      connection_->ControlStreamFrameStep(*videostreamtoken_, ui_.videowidget->GetNextPlayRequestIndex(), forwards, ui_.videowidget->sequencenum_);
     }
   }
   else
@@ -358,6 +373,9 @@ void FindObjectWindow::FrameStep(const bool forwards)
     ui_.videowidget->WriteFrame(imagebuffer);
 
   }
+
+  //TODO metadatastreamtoken_ stuff, copy main window
+
 }
 
 void FindObjectWindow::ControlStreamEnd(const uint64_t streamtoken, const uint64_t playrequestindex, const monocle::ErrorCode error, void* callbackdata)
@@ -436,6 +454,7 @@ void FindObjectWindow::H264Callback(const uint64_t streamtoken, const uint64_t p
 
 void FindObjectWindow::MetadataCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::MetadataFrameType metadataframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
 {
+  //TODO do object stuff...
 
 }
 
@@ -752,7 +771,7 @@ void FindObjectWindow::FindObjectResult(const uint64_t token, const uint64_t sta
   const uint64_t durationseconds = (end - start) / 1000;
   const uint64_t durationminutes = durationseconds / 60;
   const uint64_t durationhours = durationminutes / 60;
-  const QString seconds = durationseconds < 10 ? ("0" + QString::number(durationseconds % 60)) : QString::number(durationseconds % 60);
+  const QString seconds = (durationseconds % 60) < 10 ? ("0" + QString::number(durationseconds % 60)) : QString::number(durationseconds % 60);
   const QString minutes = durationminutes < 10 ? ("0" + QString::number(durationminutes)) : QString::number(durationminutes);
   const QString hours = durationhours < 10 ? ("0" + QString::number(durationhours)) : QString::number(durationhours);
   ui_.tableresults->setItem(row, 2, new QTableWidgetItem(hours + ":" + minutes + ":" + seconds));
@@ -788,7 +807,8 @@ void FindObjectWindow::on_buttonsearch_clicked()
   connect_.Close();
   getauthenticatenonce_.Close();
   authenticate_.Close();
-  createstream_.Close();
+  videocreatestream_.Close();
+  metadatacreatestream_.Close();
   createfindobject_.Close();
   if (connection_)
   {
@@ -806,7 +826,8 @@ void FindObjectWindow::on_buttonsearch_clicked()
   connect(connection_.get(), &Connection::SignalFindObjectEnd, this, &FindObjectWindow::FindObjectEnd);
   connect(connection_.get(), &Connection::SignalFindObjectProgress, this, &FindObjectWindow::FindObjectProgress);
   connect(connection_.get(), &Connection::SignalFindObjectResult, this, &FindObjectWindow::FindObjectResult);
-  streamtoken_.reset();
+  videostreamtoken_.reset();
+  metadatastreamtoken_.reset();
   findobjecttoken_.reset();
   getsnapshotconnection_.Close();
   retrievethumbnails_.clear();
@@ -835,15 +856,15 @@ void FindObjectWindow::on_buttonsearch_clicked()
           return;
         }
   
-        createstream_ = connection_->CreateStream(recording_->GetToken(), track_->GetId(), [this, metadatatrack](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
+        videocreatestream_ = connection_->CreateStream(recording_->GetToken(), track_->GetId(), [this, metadatatrack](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
         {
           if (createstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
           {
-            QMessageBox(QMessageBox::Warning, tr("Error"), tr("Failed to create stream: ") + QString::fromStdString(createstreamresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+            QMessageBox(QMessageBox::Warning, tr("Error"), tr("Failed to create video stream: ") + QString::fromStdString(createstreamresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
             return;
           }
   
-          streamtoken_ = createstreamresponse.token_;
+          videostreamtoken_ = createstreamresponse.token_;
   
           DestroyDecoders();
           for (const monocle::CODECINDEX& codecindex : createstreamresponse.codecindices_)
@@ -852,16 +873,27 @@ void FindObjectWindow::on_buttonsearch_clicked()
   
           }
 
-          const QRectF selectedrect = ui_.videowidget->GetSelectedRect();
-          createfindobject_ = connection_->CreateFindObject(recording_->GetToken(), metadatatrack->GetId(), ui_.datetimestart->dateTime().toMSecsSinceEpoch(), ui_.datetimeend->dateTime().toMSecsSinceEpoch(), selectedrect.x(), selectedrect.y(), selectedrect.width(), selectedrect.height(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::CREATEFINDOBJECTRESPONSE& createfindobjectresponse)
+          metadatacreatestream_ = connection_->CreateStream(recording_->GetToken(), metadatatrack->GetId(), [this, metadatatrack](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
           {
-            if (createfindobjectresponse.GetErrorCode() != monocle::ErrorCode::Success)
+            if (createstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
             {
-              QMessageBox(QMessageBox::Warning, tr("Error"), tr("Failed to create find object detector: ") + QString::fromStdString(createfindobjectresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+              QMessageBox(QMessageBox::Warning, tr("Error"), tr("Failed to create metadata stream: ") + QString::fromStdString(createstreamresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
               return;
             }
-            findobjecttoken_ = createfindobjectresponse.token_;
-          });
+
+            metadatastreamtoken_ = createstreamresponse.token_;
+
+            const QRectF selectedrect = ui_.videowidget->GetSelectedRect();
+            createfindobject_ = connection_->CreateFindObject(recording_->GetToken(), metadatatrack->GetId(), ui_.datetimestart->dateTime().toMSecsSinceEpoch(), ui_.datetimeend->dateTime().toMSecsSinceEpoch(), selectedrect.x(), selectedrect.y(), selectedrect.width(), selectedrect.height(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::CREATEFINDOBJECTRESPONSE& createfindobjectresponse)
+            {
+              if (createfindobjectresponse.GetErrorCode() != monocle::ErrorCode::Success)
+              {
+                QMessageBox(QMessageBox::Warning, tr("Error"), tr("Failed to create find object detector: ") + QString::fromStdString(createfindobjectresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+                return;
+              }
+              findobjecttoken_ = createfindobjectresponse.token_;
+            });
+          }, FindObjectWindow::ControlStreamEnd, FindObjectWindow::H265Callback, FindObjectWindow::H264Callback, FindObjectWindow::MetadataCallback, FindObjectWindow::JPEGCallback, FindObjectWindow::MPEG4Callback, FindObjectWindow::NewCodecIndexCallback, this);
         }, FindObjectWindow::ControlStreamEnd, FindObjectWindow::H265Callback, FindObjectWindow::H264Callback, FindObjectWindow::MetadataCallback, FindObjectWindow::JPEGCallback, FindObjectWindow::MPEG4Callback, FindObjectWindow::NewCodecIndexCallback, this);
       });
     });
@@ -972,7 +1004,7 @@ void FindObjectWindow::on_spinminimumduration_valueChanged(int)
 
 void FindObjectWindow::on_tableresults_clicked(QModelIndex)
 {
-  if (!connection_ || !streamtoken_.is_initialized())
+  if (!connection_ || !videostreamtoken_.is_initialized() || !metadatastreamtoken_.is_initialized())
   {
 
     return;
@@ -1032,23 +1064,27 @@ void FindObjectWindow::on_buttonplay_clicked()
 void FindObjectWindow::on_buttonpause_clicked()
 {
   ui_.videowidget->SetPaused(true);
-  if (streamtoken_.is_initialized() && connection_)
+  if (videostreamtoken_.is_initialized() && metadatastreamtoken_.is_initialized() && connection_)
   {
-    connection_->ControlStreamPause(*streamtoken_, ui_.videowidget->time_);
-    
+    connection_->ControlStreamPause(*videostreamtoken_, ui_.videowidget->time_);
+    //TODO metadata...
   }
 }
 
 void FindObjectWindow::on_buttonstop_clicked()
 {
-  ui_.videowidget->playmarkertime_ = ui_.playbackwidget->endtime_ + device_->GetTimeOffset();
-  ui_.videowidget->frametime_ = std::chrono::steady_clock::now();
-  ui_.videowidget->SetPaused(false);
-  connection_->ControlStreamLive(*streamtoken_, ui_.videowidget->GetNextPlayRequestIndex());
+  if (videostreamtoken_.is_initialized() && metadatastreamtoken_.is_initialized() && connection_)
+  {
+    ui_.videowidget->playmarkertime_ = ui_.playbackwidget->endtime_ + device_->GetTimeOffset();
+    ui_.videowidget->frametime_ = std::chrono::steady_clock::now();
+    ui_.videowidget->SetPaused(false);
+    connection_->ControlStreamLive(*videostreamtoken_, ui_.videowidget->GetNextPlayRequestIndex());
+    connection_->ControlStreamLive(*metadatastreamtoken_, ui_.videowidget->GetNextPlayRequestIndex());
 
-  ui_.playbackwidget->makeCurrent();
-  ui_.playbackwidget->UpdateRecordingBlocks();
-  ui_.playbackwidget->doneCurrent();
+    ui_.playbackwidget->makeCurrent();
+    ui_.playbackwidget->UpdateRecordingBlocks();
+    ui_.playbackwidget->doneCurrent();
+  }
 }
 
 void FindObjectWindow::on_buttonframestepforwards_clicked()

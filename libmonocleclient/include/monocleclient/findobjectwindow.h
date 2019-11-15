@@ -141,10 +141,12 @@ class FindObjectWindow : public QDialog
   sock::Connection connect_;
   monocle::client::Connection getauthenticatenonce_;
   monocle::client::Connection authenticate_;
-  monocle::client::Connection createstream_;
+  monocle::client::Connection videocreatestream_;
+  monocle::client::Connection metadatacreatestream_;
   monocle::client::Connection createfindobject_;
 
-  boost::optional<uint64_t> streamtoken_;
+  boost::optional<uint64_t> videostreamtoken_;
+  boost::optional<uint64_t> metadatastreamtoken_;
   boost::optional<uint64_t> findobjecttoken_;
 
   monocle::client::Connection getsnapshotconnection_;
