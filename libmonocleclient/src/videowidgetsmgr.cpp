@@ -411,7 +411,7 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
             return;
           }
 
-          FindObjectWindow(videowidget, videoview->GetQImage(boost::none), videoview->GetDevice(), videoview->GetRecording(), videoview->GetTrack(), videoview->GetSelectedColour(), *starttime, *endtime, selectedrectf, videoview->GetImageWidth(), videoview->GetImageHeight(), videoview->GetMirror(), videoview->GetRotation(), videoview->GetStretch()).exec();
+          FindObjectWindow(videowidget, videoview->GetQImage(boost::none), videoview->GetDevice(), videoview->GetRecording(), videoview->GetTrack(), videoview->GetSelectedColour(), *starttime, *endtime, selectedrectf, videoview->GetImageWidth(), videoview->GetImageHeight(), videoview->GetMirror(), videoview->GetRotation(), videoview->GetStretch(), videoview->GetShowObjects()).exec();
         }
       }
     }

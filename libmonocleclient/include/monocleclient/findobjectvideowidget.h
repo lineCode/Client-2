@@ -19,6 +19,7 @@
 
 #include "monocleclient/decoder.h"
 #include "monocleclient/imagecache.h"
+#include "monocleclient/objects.h"
 #include "monocleclient/view.h"
 
 ///// Declarations /////
@@ -66,8 +67,11 @@ class FindObjectVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   inline boost::lockfree::spsc_queue<ImageBuffer, boost::lockfree::capacity<IMAGEQUEUESIZE> >& GetImageQueue() { return imagequeue_; }
   inline VectorFreeFrameBuffer& GetFreeImageQueue() { return freeimagequeue_; }
 
-  uint64_t GetNextPlayRequestIndex();
-  inline uint64_t GetPlayRequestIndex() const { return playrequestindex_; }
+  uint64_t GetNextVideoPlayRequestIndex();
+  inline uint64_t GetVideoPlayRequestIndex() const { return videoplayrequestindex_; }
+
+  uint64_t GetNextMetadataPlayRequestIndex();
+  inline uint64_t GetMetadataPlayRequestIndex() const { return metadataplayrequestindex_; }
 
   inline const QRectF& GetSelectedRect() const { return selectedrect_; }
 
@@ -105,6 +109,7 @@ class FindObjectVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   QAction* actionrotate270_;
   QAction* actionmirror_;
   QAction* actionstretch_;
+  QAction* actionobjects_;
 
   QOpenGLShaderProgram viewrgbshader_;
   int rgbpositionlocation_;
@@ -123,13 +128,15 @@ class FindObjectVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
 
   QOpenGLShaderProgram viewselectedshader_;
   int selectedpositionlocation_;
+  int selectedcolourlocation_;
 
   boost::lockfree::spsc_queue<ImageBuffer, boost::lockfree::capacity<IMAGEQUEUESIZE> > imagequeue_;
   VectorFreeFrameBuffer freeimagequeue_;
 
   QRectF selectedrect_; // This is the rect before any transformations of stretched, mirrored or rotated
 
-  uint64_t playrequestindex_;
+  uint64_t videoplayrequestindex_;
+  uint64_t metadataplayrequestindex_;
   bool paused_;
 
   ImageCache cache_;
@@ -144,6 +151,8 @@ class FindObjectVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   std::array<GLuint, 3> textures_;
   std::array<CUgraphicsResource, 3> cudaresources_; // Lazily initialised
 
+  Objects objects_;
+
   FINDOBJECTSTATE state_;
   QPoint selectionpoint_;
 
@@ -155,6 +164,7 @@ class FindObjectVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   void Rotate270(bool);
   void ToggleMirror(bool);
   void ToggleStretch(bool);
+  void ToggleShowObjects(bool);
 
 };
 

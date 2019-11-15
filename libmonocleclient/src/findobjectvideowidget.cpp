@@ -36,7 +36,9 @@ FindObjectVideoWidget::FindObjectVideoWidget(QWidget* parent) :
   actionrotate270_(new QAction(tr("Rotate 270"), this)),
   actionmirror_(new QAction(tr("Mirror"), this)),
   actionstretch_(new QAction(tr("Stretch"), this)),
-  playrequestindex_(0),
+  actionobjects_(new QAction(tr("Objects"), this)),
+  videoplayrequestindex_(0),
+  metadataplayrequestindex_(0),
   paused_(false),
   type_(IMAGEBUFFERTYPE_INVALID),
   time_(0),
@@ -57,6 +59,8 @@ FindObjectVideoWidget::FindObjectVideoWidget(QWidget* parent) :
   actionmirror_->setChecked(GetFindObjectWindow()->mirror_);
   actionstretch_->setCheckable(true);
   actionstretch_->setChecked(GetFindObjectWindow()->stretch_);
+  actionobjects_->setCheckable(true);
+  actionobjects_->setChecked(GetFindObjectWindow()->showobjects_);
 
   connect(actionrotate0_, &QAction::triggered, this, &FindObjectVideoWidget::Rotate0);
   connect(actionrotate90_, &QAction::triggered, this, &FindObjectVideoWidget::Rotate90);
@@ -64,6 +68,7 @@ FindObjectVideoWidget::FindObjectVideoWidget(QWidget* parent) :
   connect(actionrotate270_, &QAction::triggered, this, &FindObjectVideoWidget::Rotate270);
   connect(actionmirror_, &QAction::triggered, this, &FindObjectVideoWidget::ToggleMirror);
   connect(actionstretch_, &QAction::triggered, this, &FindObjectVideoWidget::ToggleStretch);
+  connect(actionobjects_, &QAction::triggered, this, &FindObjectVideoWidget::ToggleShowObjects);
 
   setCursor(Qt::CrossCursor);
 
@@ -111,10 +116,15 @@ FindObjectPlaybackWidget* FindObjectVideoWidget::GetFindObjectPlaybackWidget() c
   return static_cast<FindObjectWindow*>(parent())->GetPlaybackWidget();
 }
 
-uint64_t FindObjectVideoWidget::GetNextPlayRequestIndex()
+uint64_t FindObjectVideoWidget::GetNextVideoPlayRequestIndex()
 {
   cache_.Clear();
-  return ++playrequestindex_;
+  return ++videoplayrequestindex_;
+}
+
+uint64_t FindObjectVideoWidget::GetNextMetadataPlayRequestIndex()
+{
+  return ++metadataplayrequestindex_;
 }
 
 void FindObjectVideoWidget::SetImage(const QImage& image)
@@ -140,7 +150,8 @@ void FindObjectVideoWidget::SetSelectedRect(const QRectF& selectedrect)
 
 void FindObjectVideoWidget::SetPaused(const bool paused)
 {
-  ++playrequestindex_;
+  ++videoplayrequestindex_;
+  //TODO metadata
   cache_.Clear();
   paused_ = paused;
 }
@@ -163,6 +174,7 @@ void FindObjectVideoWidget::contextMenuEvent(QContextMenuEvent* event)
   menu.addMenu(rotation);
   menu.addAction(actionmirror_);
   menu.addAction(actionstretch_);
+  menu.addAction(actionobjects_);
   menu.exec(event->globalPos());
 }
 
@@ -360,6 +372,7 @@ void FindObjectVideoWidget::initializeGL()
     return;
   }
   selectedpositionlocation_ = viewselectedshader_.attributeLocation("position");
+  selectedcolourlocation_ = viewselectedshader_.attributeLocation("position");
 }
 
 void FindObjectVideoWidget::mouseMoveEvent(QMouseEvent* event)
@@ -409,7 +422,7 @@ void FindObjectVideoWidget::paintGL()
   ImageBuffer imagebuffer;
   if (GetImage(imagebuffer))
   {
-    if (paused_ || (imagebuffer.playrequestindex_ != playrequestindex_)) // Are we paused or getting frames from a request we don't care about, use the old frame
+    if (paused_ || (imagebuffer.playrequestindex_ != videoplayrequestindex_)) // Are we paused or getting frames from a request we don't care about, use the old frame
     {
       if (type_ == IMAGEBUFFERTYPE_RGBA)
       {
@@ -440,7 +453,7 @@ void FindObjectVideoWidget::paintGL()
         }
       }
 
-      if (imagebuffer.playrequestindex_ == playrequestindex_)
+      if (imagebuffer.playrequestindex_ == videoplayrequestindex_)
       {
         cache_.AddImage(imagebuffer); // Collect the frames because we might be stepping through them soon
 
@@ -684,6 +697,7 @@ void FindObjectVideoWidget::paintGL()
 
   viewselectedshader_.enableAttributeArray(selectedpositionlocation_);
   viewselectedshader_.setAttributeBuffer(selectedpositionlocation_, GL_FLOAT, 0, 2);
+  viewselectedshader_.setUniformValue(selectedcolourlocation_, QVector4D(1.0f, 0.0f, 0.0f, 1.0f));
   glDrawArrays(GL_LINE_STRIP, 0, 5);
   viewselectedshader_.disableAttributeArray(selectedpositionlocation_);
   vertexbuffer.release();
@@ -715,12 +729,58 @@ void FindObjectVideoWidget::paintGL()
 
     viewselectedshader_.enableAttributeArray(selectedpositionlocation_);
     viewselectedshader_.setAttributeBuffer(selectedpositionlocation_, GL_FLOAT, 0, 2);
+    viewselectedshader_.setUniformValue(selectedcolourlocation_, QVector4D(1.0f, 0.0f, 0.0f, 1.0f));
     glDrawArrays(GL_LINE_STRIP, 0, 5);
     viewselectedshader_.disableAttributeArray(selectedpositionlocation_);
     vertexbuffer.release();
     vertexbuffer.destroy();
   }
   
+  // Objects
+  //TODO if (view->GetShowObjects() && ((type_ == IMAGEBUFFERTYPE_RGBA) || (type_ == IMAGEBUFFERTYPE_NV12) || (type_ == IMAGEBUFFERTYPE_YUV)))
+  {
+    const QRectF imagepixelrect = GetImagePixelRect();
+    for (std::pair< const std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> >& objects : objects_.GetObjects())
+    {
+      auto object = std::find_if(objects.second.rbegin(), objects.second.rend(), [this](const Object& object) { return ((object.time_ <= time_) && ((time_ - object.time_) < OBJECT_KILL_DELAY)); });
+      if (object == objects.second.rend())
+      {
+
+        continue;
+      }
+
+      //TODO check filter here
+
+      object->vertexbuffer_.bind();
+      viewselectedshader_.enableAttributeArray(selectedpositionlocation_);
+      viewselectedshader_.setAttributeBuffer(selectedpositionlocation_, GL_FLOAT, 0, 2);
+      viewselectedshader_.setUniformValue(selectedcolourlocation_, OBJECT_COLOURS[static_cast<size_t>(object->classid_)]);
+      glDrawArrays(GL_LINE_STRIP, 0, 5);
+      viewselectedshader_.disableAttributeArray(selectedpositionlocation_);
+      object->vertexbuffer_.release();
+    }
+  }
+
+  // Object text
+  QPainter painter(this);
+  //TODO if (view->GetShowObjects() && ((type_ == IMAGEBUFFERTYPE_RGBA) || (type_ == IMAGEBUFFERTYPE_NV12) || (type_ == IMAGEBUFFERTYPE_YUV)))
+  {
+    const QRectF imagepixelrect = GetImagePixelRectF();
+    for (std::pair< const std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> >& objects : objects_.GetObjects())
+    {
+      auto object = std::find_if(objects.second.rbegin(), objects.second.rend(), [this](const Object& object) { return ((object.time_ <= time_) && ((time_ - object.time_) < OBJECT_KILL_DELAY)); });
+      if (object == objects.second.rend())
+      {
+  
+        continue;
+      }
+      
+      //TODO check filter here...
+
+      object->DrawObjectText(imagepixelrect, width(), height(), GetFindObjectWindow()->mirror_, GetFindObjectWindow()->rotation_, painter);
+    }
+  }
+
   viewselectedshader_.release();
 }
 
@@ -854,6 +914,8 @@ void FindObjectVideoWidget::SetPosition(const ROTATION rotation, const bool mirr
   vertexbuffer_.allocate(vertices.data(), static_cast<int>(vertices.size() * sizeof(float)));
   vertexbuffer_.release();
 
+  objects_.Update(GetImagePixelRectF(), GetFindObjectWindow()->mirror_, GetFindObjectWindow()->rotation_);
+
   if (makecurrent)
   {
     doneCurrent();
@@ -894,6 +956,12 @@ void FindObjectVideoWidget::ToggleStretch(bool)
 {
   SetPosition(GetFindObjectWindow()->rotation_, GetFindObjectWindow()->mirror_, !GetFindObjectWindow()->stretch_, true);
 
+}
+
+void FindObjectVideoWidget::ToggleShowObjects(bool)
+{
+  GetFindObjectWindow()->showobjects_ = !GetFindObjectWindow()->showobjects_;
+  update();
 }
 
 }

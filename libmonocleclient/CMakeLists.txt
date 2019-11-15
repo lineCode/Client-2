@@ -101,6 +101,7 @@ include/monocleclient/mediapropertieswindow.h
 include/monocleclient/mediaview.h
 include/monocleclient/mjpegdecoder.h
 include/monocleclient/mpeg4decoder.h
+include/monocleclient/objects.h
 include/monocleclient/onvifuser.h
 include/monocleclient/options.h
 include/monocleclient/optionswindow.h
@@ -231,6 +232,7 @@ src/mediapropertieswindow.cpp
 src/mediaview.cpp
 src/mjpegdecoder.cpp
 src/mpeg4decoder.cpp
+src/objects.cpp
 src/onvifuser.cpp
 src/options.cpp
 src/optionswindow.cpp

@@ -33,6 +33,7 @@
 #include "connection.h"
 #include "decoder.h"
 #include "imagecache.h"
+#include "objects.h"
 #include "options.h"
 
 ///// Declarations /////
@@ -77,32 +78,8 @@ std::array<float, 12> GetVertices(const QRectF& rect, const ROTATION rotation, c
 QPointF ImageRectToOpenGL(const QRectF& rect, const bool mirror, const ROTATION rotation, const float x, const float y);
 QRectF ImageToRect(const QRect& imagepixelrect, const QRect& rect, const bool mirror, const ROTATION rotation);
 void WriteImageBuffer(QOpenGLFunctions* ogl, const IMAGEBUFFERTYPE currenttype, const int currentimagewidth, const int currentimageheight, const ImageBuffer& imagebuffer, const std::array<GLuint, 3>& textures, std::array<CUgraphicsResource, 3>& cudaresources);
-
-///// Structures /////
-
-struct Object
-{
-  Object(const uint64_t id, const monocle::ObjectClass classid, const uint64_t time, const float x, const float y, const float width, const float height);
-  Object(Object&& rhs);
-
-  void Allocate(const QRectF& imagepixelrect, const bool mirror, const ROTATION rotation);
-  void DrawObjectText(const QRectF& imagepixelrect, const int width, const int height, const bool mirror, const ROTATION rotation, QPainter& painter);
-
-  Object& operator=(Object&& rhs);
-
-  uint64_t id_;
-  monocle::ObjectClass classid_;
-  uint64_t time_;
-  float x_;
-  float y_;
-  float width_;
-  float height_;
-  std::chrono::steady_clock::time_point age_;
-
-  QOpenGLBuffer vertexbuffer_;
-  QStaticText text_;
-
-};
+QString HTMLColour(const int r, const int g, const int b);
+QString FontText(const QVector4D& colour, const QString& text);
 
 ///// Globals /////
 
@@ -185,7 +162,7 @@ class View : public QObject, public QEnableSharedFromThis<View>
   inline QOpenGLBuffer& GetTextVertexBuffer() { return textvertexbuffer_; }
   inline QOpenGLBuffer& GetVertexBuffer() { return vertexbuffer_; }
   inline QOpenGLBuffer& GetSelectedVertexBuffer() { return selectvertexbuffer_; }
-  inline std::map< std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> >& GetObjects() { return objects_; }
+  inline std::map< std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> >& GetObjects() { return objects_.GetObjects(); }
   std::array<GLuint, 3>& GetTextures() { return textures_; }
   void SetCUDAResource(const size_t index, const CUgraphicsResource cudaresource) { cudaresources_[index] = cudaresource; }
   CUgraphicsResource GetCUDAResource(const size_t index) const { return cudaresources_[index]; }
@@ -217,9 +194,6 @@ class View : public QObject, public QEnableSharedFromThis<View>
   uint64_t GetNextPlayRequestIndex(const bool clearcache);
 
  protected:
-
-  static QString HTMLColour(const int r, const int g, const int b);
-  static QString FontText(const QVector4D& colour, const QString& text);
 
   static const std::array<float, 8> texturecoords_;
 
@@ -265,7 +239,7 @@ class View : public QObject, public QEnableSharedFromThis<View>
   QOpenGLBuffer textvertexbuffer_;
   QOpenGLBuffer vertexbuffer_;
   QOpenGLBuffer selectvertexbuffer_; // Represents the selection box
-  std::map< std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> > objects_;
+  Objects objects_;
   std::array<GLuint, 3> textures_;
   std::array<CUgraphicsResource, 3> cudaresources_; // Lazily initialised
   GLuint infotexture_;

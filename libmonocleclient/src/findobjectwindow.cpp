@@ -8,6 +8,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <monocleprotocol/monocleprotocol.hpp>
+#include <monocleprotocol/metadataframetype_generated.h>
 #include <QImage>
 #include <QItemDelegate>
 #include <QMessageBox>
@@ -74,7 +75,7 @@ FINDOBJECTRESULT::FINDOBJECTRESULT(const uint64_t token, const uint64_t start, c
 
 }
 
-FindObjectWindow::FindObjectWindow(QWidget* parent, const QImage& image, const boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingTrack>& track, const QVector4D& colour, const uint64_t starttime, const uint64_t endtime, const QRectF& rect, const int imagewidth, const int imageheight, const bool mirror, const ROTATION rotation, const bool stretch) :
+FindObjectWindow::FindObjectWindow(QWidget* parent, const QImage& image, const boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingTrack>& track, const QVector4D& colour, const uint64_t starttime, const uint64_t endtime, const QRectF& rect, const int imagewidth, const int imageheight, const bool mirror, const ROTATION rotation, const bool stretch, const bool showobjects) :
   QDialog(parent),
   cudacontext_(MainWindow::Instance()->GetNextCUDAContext()),
   device_(device),
@@ -84,7 +85,8 @@ FindObjectWindow::FindObjectWindow(QWidget* parent, const QImage& image, const b
   imageheight_(imageheight),
   mirror_(mirror),
   rotation_(rotation),
-  stretch_(stretch)
+  stretch_(stretch),
+  showobjects_(showobjects)
 {
   ui_.setupUi(this);
 
@@ -233,19 +235,19 @@ void FindObjectWindow::Pause(const boost::optional<uint64_t>& time)
 
 void FindObjectWindow::Play(const uint64_t time, const boost::optional<uint64_t>& numframes)
 {
-  if (!videostreamtoken_.is_initialized())
+  if (!videostreamtoken_.is_initialized() || !metadatastreamtoken_.is_initialized())
   {
 
     return;
   }
 
   ResetDecoders();
-  connection_->ControlStream(*videostreamtoken_, ui_.videowidget->GetNextPlayRequestIndex(), true, true, true, time + device_->GetTimeOffset(), boost::none, numframes, false);
+  connection_->ControlStream(*videostreamtoken_, ui_.videowidget->GetNextVideoPlayRequestIndex(), true, true, true, time + device_->GetTimeOffset(), boost::none, numframes, false);
   if (numframes.is_initialized() && ((*numframes == 0) || (*numframes == 1))) // Is this an effectively pause request...
   {
     controlstreamendcallback_ = [this](const uint64_t playrequestindex, const monocle::ErrorCode err)
     {
-      if (ui_.videowidget->GetPlayRequestIndex() != playrequestindex)
+      if (ui_.videowidget->GetVideoPlayRequestIndex() != playrequestindex)
       {
     
         return;
@@ -274,9 +276,8 @@ void FindObjectWindow::Play(const uint64_t time, const boost::optional<uint64_t>
     ui_.videowidget->paused_ = false;
 
   }
-
-  //TODO copy main window stream for this
-
+  //TODO test this works by clicking around
+  connection_->ControlStream(*metadatastreamtoken_, ui_.videowidget->GetNextMetadataPlayRequestIndex(), true, !numframes.is_initialized(), true, time + device_->GetTimeOffset(), boost::none, numframes, false);
 }
 
 void FindObjectWindow::Stop()
@@ -285,7 +286,7 @@ void FindObjectWindow::Stop()
   {
     ui_.videowidget->SetPaused(false);
     ResetDecoders();
-    connection_->ControlStreamLive(*videostreamtoken_, ui_.videowidget->GetNextPlayRequestIndex());
+    connection_->ControlStreamLive(*videostreamtoken_, ui_.videowidget->GetNextVideoPlayRequestIndex());
   }
 
   //TODO metadatastream thing copy main window...
@@ -332,12 +333,12 @@ void FindObjectWindow::timerEvent(QTimerEvent*)
 void FindObjectWindow::FrameStep(const bool forwards)
 {
   ui_.videowidget->paused_ = true;
-  ImageBuffer imagebuffer = ui_.videowidget->cache_.GetImage(forwards, ui_.videowidget->GetPlayRequestIndex(), ui_.videowidget->sequencenum_);
+  ImageBuffer imagebuffer = ui_.videowidget->cache_.GetImage(forwards, ui_.videowidget->GetVideoPlayRequestIndex(), ui_.videowidget->sequencenum_);
   if (imagebuffer.type_ == IMAGEBUFFERTYPE_INVALID)
   {
     controlstreamendcallback_ = [this, forwards](const uint64_t playrequestindex, const monocle::ErrorCode error)
     {
-      if (ui_.videowidget->GetPlayRequestIndex() != playrequestindex)
+      if (ui_.videowidget->GetVideoPlayRequestIndex() != playrequestindex)
       {
 
         return;
@@ -365,7 +366,7 @@ void FindObjectWindow::FrameStep(const bool forwards)
     if (videostreamtoken_.is_initialized())
     {
       ResetDecoders();
-      connection_->ControlStreamFrameStep(*videostreamtoken_, ui_.videowidget->GetNextPlayRequestIndex(), forwards, ui_.videowidget->sequencenum_);
+      connection_->ControlStreamFrameStep(*videostreamtoken_, ui_.videowidget->GetNextVideoPlayRequestIndex(), forwards, ui_.videowidget->sequencenum_);
     }
   }
   else
@@ -391,7 +392,7 @@ void FindObjectWindow::ControlStreamEnd(const uint64_t streamtoken, const uint64
 void FindObjectWindow::H265Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const bool donlfield, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata)
 {
   FindObjectWindow* findobjectwindow = reinterpret_cast<FindObjectWindow*>(callbackdata);
-  if (findobjectwindow->GetVideoWidget()->GetPlayRequestIndex() != playrequestindex)
+  if (findobjectwindow->GetVideoWidget()->GetVideoPlayRequestIndex() != playrequestindex)
   {
 
     return;
@@ -423,7 +424,7 @@ void FindObjectWindow::H265Callback(const uint64_t streamtoken, const uint64_t p
 void FindObjectWindow::H264Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata)
 {
   FindObjectWindow* findobjectwindow = reinterpret_cast<FindObjectWindow*>(callbackdata);
-  if (findobjectwindow->GetVideoWidget()->GetPlayRequestIndex() != playrequestindex)
+  if (findobjectwindow->GetVideoWidget()->GetVideoPlayRequestIndex() != playrequestindex)
   {
 
     return;
@@ -454,14 +455,36 @@ void FindObjectWindow::H264Callback(const uint64_t streamtoken, const uint64_t p
 
 void FindObjectWindow::MetadataCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::MetadataFrameType metadataframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
 {
-  //TODO do object stuff...
+  FindObjectWindow* findobjectwindow = reinterpret_cast<FindObjectWindow*>(callbackdata);
+  if (findobjectwindow->ui_.videowidget->metadataplayrequestindex_ != playrequestindex)
+  {
 
+    return;
+  }
+  if (metadataframetype == monocle::MetadataFrameType::OBJECT_DETECTION)
+  {
+    if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(signaturedata), signaturedatasize).VerifyBuffer<monocle::Objects>(nullptr))
+    {
+      // Ignore illegal packets
+      return;
+    }
+
+    const monocle::Objects* objects = flatbuffers::GetRoot<monocle::Objects>(signaturedata);
+    if ((objects == nullptr) || (objects->objects() == nullptr))
+    {
+
+      return;
+    }
+    findobjectwindow->ui_.videowidget->makeCurrent();
+    findobjectwindow->ui_.videowidget->objects_.Update(findobjectwindow->ui_.videowidget->GetImagePixelRectF(), findobjectwindow->mirror_, findobjectwindow->rotation_, objects, timestamp, findobjectwindow->ui_.videowidget->time_);
+    findobjectwindow->ui_.videowidget->doneCurrent();
+  }
 }
 
 void FindObjectWindow::JPEGCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const uint8_t* lqt, const uint8_t* cqt, const char* framedata, const size_t size, void* callbackdata)
 {
   FindObjectWindow* findobjectwindow = reinterpret_cast<FindObjectWindow*>(callbackdata);
-  if (findobjectwindow->GetVideoWidget()->GetPlayRequestIndex() != playrequestindex)
+  if (findobjectwindow->GetVideoWidget()->GetVideoPlayRequestIndex() != playrequestindex)
   {
 
     return;
@@ -496,7 +519,7 @@ void FindObjectWindow::JPEGCallback(const uint64_t streamtoken, const uint64_t p
 void FindObjectWindow::MPEG4Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
 {
   FindObjectWindow* findobjectwindow = reinterpret_cast<FindObjectWindow*>(callbackdata);
-  if (findobjectwindow->GetVideoWidget()->GetPlayRequestIndex() != playrequestindex)
+  if (findobjectwindow->GetVideoWidget()->GetVideoPlayRequestIndex() != playrequestindex)
   {
 
     return;
@@ -1078,8 +1101,8 @@ void FindObjectWindow::on_buttonstop_clicked()
     ui_.videowidget->playmarkertime_ = ui_.playbackwidget->endtime_ + device_->GetTimeOffset();
     ui_.videowidget->frametime_ = std::chrono::steady_clock::now();
     ui_.videowidget->SetPaused(false);
-    connection_->ControlStreamLive(*videostreamtoken_, ui_.videowidget->GetNextPlayRequestIndex());
-    connection_->ControlStreamLive(*metadatastreamtoken_, ui_.videowidget->GetNextPlayRequestIndex());
+    connection_->ControlStreamLive(*videostreamtoken_, ui_.videowidget->GetNextVideoPlayRequestIndex());
+    connection_->ControlStreamLive(*metadatastreamtoken_, ui_.videowidget->GetNextMetadataPlayRequestIndex());
 
     ui_.playbackwidget->makeCurrent();
     ui_.playbackwidget->UpdateRecordingBlocks();

@@ -1431,25 +1431,13 @@ void VideoWidget::initializeGL()
   }
 
   // Selected
-  if (!viewselectedshader_.addShaderFromSourceCode(QOpenGLShader::Vertex,
-    "#version 130\n"
-    "in vec2 position;\n"
-    "void main()\n"
-    "{\n"
-    "  gl_Position = vec4(position, 1.0, 1.0);\n"
-    "}\n"))
+  if (!viewselectedshader_.addShaderFromSourceCode(QOpenGLShader::Vertex, SELECTED_VERTEX_SHADER))
   {
     LOG_GUI_WARNING(QString("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
     return;
   }
   
-  if (!viewselectedshader_.addShaderFromSourceCode(QOpenGLShader::Fragment,
-    "#version 130\n"
-    "uniform vec4 colour;\n"
-    "void main()\n"
-    "{\n"
-    "  gl_FragColor = colour;\n"
-    "}\n"))
+  if (!viewselectedshader_.addShaderFromSourceCode(QOpenGLShader::Fragment, SELECTED_PIXEL_SHADER))
   {
     LOG_GUI_WARNING(QString("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
     return;

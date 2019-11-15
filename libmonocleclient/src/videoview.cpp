@@ -1087,7 +1087,7 @@ void VideoView::ResetDecoders()
 uint64_t VideoView::GetNextMetadataPlayRequestIndex()
 {
   videowidget_->makeCurrent();
-  objects_.clear();
+  objects_.Clear();
   videowidget_->doneCurrent();
   return ++metadataplayrequestindex_;
 }

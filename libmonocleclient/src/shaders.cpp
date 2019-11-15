@@ -121,9 +121,10 @@ const QString SELECTED_VERTEX_SHADER =
 
 const QString SELECTED_PIXEL_SHADER =
   "#version 130\n"
+  "uniform vec4 colour;\n"
   "void main()\n"
   "{\n"
-  "  gl_FragColor = vec4(1.0, 0.0, 0.0, 0.0);\n"
+    "gl_FragColor = colour;\n"
   "}\n";
 
 const QString RECORDINGBLOCKS_VERTEX_SHADER =
