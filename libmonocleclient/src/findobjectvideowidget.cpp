@@ -737,7 +737,7 @@ void FindObjectVideoWidget::paintGL()
   }
   
   // Objects
-  //TODO if (view->GetShowObjects() && ((type_ == IMAGEBUFFERTYPE_RGBA) || (type_ == IMAGEBUFFERTYPE_NV12) || (type_ == IMAGEBUFFERTYPE_YUV)))
+  if (GetFindObjectWindow()->showobjects_ && ((type_ == IMAGEBUFFERTYPE_RGBA) || (type_ == IMAGEBUFFERTYPE_NV12) || (type_ == IMAGEBUFFERTYPE_YUV)))
   {
     const QRectF imagepixelrect = GetImagePixelRect();
     for (std::pair< const std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> >& objects : objects_.GetObjects())
@@ -763,7 +763,7 @@ void FindObjectVideoWidget::paintGL()
 
   // Object text
   QPainter painter(this);
-  //TODO if (view->GetShowObjects() && ((type_ == IMAGEBUFFERTYPE_RGBA) || (type_ == IMAGEBUFFERTYPE_NV12) || (type_ == IMAGEBUFFERTYPE_YUV)))
+  if (GetFindObjectWindow()->showobjects_ && ((type_ == IMAGEBUFFERTYPE_RGBA) || (type_ == IMAGEBUFFERTYPE_NV12) || (type_ == IMAGEBUFFERTYPE_YUV)))
   {
     const QRectF imagepixelrect = GetImagePixelRectF();
     for (std::pair< const std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> >& objects : objects_.GetObjects())
