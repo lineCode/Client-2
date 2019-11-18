@@ -749,6 +749,10 @@ void FindObjectVideoWidget::paintGL()
         continue;
       }
 
+      //TODO I think we need starttime and endtime
+      //TODO we need start and end time to be remembered here...
+      //TODO GetFindObjectWindow()->Filter(object->classid_, object->time_)
+
       //TODO check filter here
 
       object->vertexbuffer_.bind();
