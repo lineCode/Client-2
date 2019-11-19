@@ -192,6 +192,7 @@ void Objects::Update(const QRectF& imagepixelrect, const bool mirror, const ROTA
       }
       else
       {
+        //TODO update the endtime here instead of creaeting a new Object
         *j = std::move(o);
 
       }
