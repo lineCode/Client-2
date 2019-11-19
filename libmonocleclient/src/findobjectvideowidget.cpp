@@ -11,6 +11,7 @@
 #include "monocleclient/decoder.h"
 #include "monocleclient/findobjectwindow.h"
 #include "monocleclient/mainwindow.h"
+#include "monocleclient/recording.h"
 #include "monocleclient/shaders.h"
 
 ///// Namespaces /////
@@ -37,6 +38,8 @@ FindObjectVideoWidget::FindObjectVideoWidget(QWidget* parent) :
   actionmirror_(new QAction(tr("Mirror"), this)),
   actionstretch_(new QAction(tr("Stretch"), this)),
   actionobjects_(new QAction(tr("Objects"), this)),
+  freetype_(nullptr),
+  freetypearial_(nullptr),
   videoplayrequestindex_(0),
   metadataplayrequestindex_(0),
   paused_(false),
@@ -49,6 +52,9 @@ FindObjectVideoWidget::FindObjectVideoWidget(QWidget* parent) :
   vertexbuffer_(QOpenGLBuffer::VertexBuffer),
   textures_({ 0, 0, 0 }),
   cudaresources_({ nullptr, nullptr, nullptr }),
+  infotexture_(0),
+  infotime_(0),
+  bandwidthsizes_(150),
   state_(FINDOBJECTSTATE_SELECT)
 {
   actionrotate0_->setCheckable(true);
@@ -70,6 +76,26 @@ FindObjectVideoWidget::FindObjectVideoWidget(QWidget* parent) :
   connect(actionstretch_, &QAction::triggered, this, &FindObjectVideoWidget::ToggleStretch);
   connect(actionobjects_, &QAction::triggered, this, &FindObjectVideoWidget::ToggleShowObjects);
 
+  // Freetype
+  if (FT_Init_FreeType(&freetype_))
+  {
+    LOG_GUI_WARNING(tr("Error initialising FreeType"));
+    return;
+  }
+
+  const QResource arial(":/arial.ttf");
+  if (FT_New_Memory_Face(freetype_, arial.data(), arial.size(), 0, &freetypearial_))
+  {
+    LOG_GUI_WARNING(tr("Error loading Arial resource"));
+    return;
+  }
+
+  if (FT_Set_Pixel_Sizes(freetypearial_, PLAYBACK_TEXT_FONT_HEIGHT, 0))
+  {
+    LOG_GUI_WARNING(tr("Error initialising Arial resource"));
+    return;
+  }
+
   setCursor(Qt::CrossCursor);
 
   startTimer(std::chrono::milliseconds(40));
@@ -90,6 +116,41 @@ FindObjectVideoWidget::~FindObjectVideoWidget()
 
   imagequeue_.consume_all([this](const ImageBuffer& imagebuffer) { const_cast<ImageBuffer&>(imagebuffer).Destroy(); });
   cache_.Clear();
+
+  // GL stuff
+  makeCurrent();
+  glDeleteTextures(3, textures_.data());
+  textures_.fill(0);
+  texturebuffer_.destroy();
+  //TODO textvertexbuffer_.destroy();
+  vertexbuffer_.destroy();
+  glDeleteTextures(1, &infotexture_);
+  infotexture_ = 0;
+  infotexturebuffer_.destroy();
+  infovertexbuffer_.destroy();
+  doneCurrent();
+
+  // Freetype
+  if (freetypearial_)
+  {
+    if (FT_Done_Face(freetypearial_))
+    {
+      LOG_GUI_WARNING(tr("Error destroying arial face"));
+
+    }
+    freetypearial_ = nullptr;
+  }
+
+  if (freetype_)
+  {
+    if (FT_Done_FreeType(freetype_))
+    {
+      LOG_GUI_WARNING(tr("Error destroying FreeType"));
+
+    }
+    freetype_ = nullptr;
+  }
+
 }
 
 FindObjectWindow* FindObjectVideoWidget::GetFindObjectWindow()
@@ -207,6 +268,21 @@ void FindObjectVideoWidget::initializeGL()
   vertexbuffer_.create();
   vertexbuffer_.setUsagePattern(QOpenGLBuffer::StaticDraw);
   SetPosition(GetFindObjectWindow()->rotation_, GetFindObjectWindow()->mirror_, GetFindObjectWindow()->stretch_, false);
+
+  // Info
+  infotexturebuffer_.create();
+  infotexturebuffer_.setUsagePattern(QOpenGLBuffer::StaticDraw);
+  infotexturebuffer_.bind();
+  infotexturebuffer_.allocate(texturecoords_.data(), static_cast<int>(texturecoords_.size() * sizeof(float)));
+  infotexturebuffer_.release();
+
+  glGenTextures(1, &infotexture_);
+  glBindTexture(GL_TEXTURE_2D, infotexture_);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+  infovertexbuffer_.create();
+  infovertexbuffer_.setUsagePattern(QOpenGLBuffer::StaticDraw);
 
   // RGB shader
   if (!viewrgbshader_.addShaderFromSourceCode(QOpenGLShader::Vertex, RGB_VERTEX_SHADER))
@@ -373,6 +449,50 @@ void FindObjectVideoWidget::initializeGL()
   }
   selectedpositionlocation_ = viewselectedshader_.attributeLocation("position");
   selectedcolourlocation_ = viewselectedshader_.attributeLocation("position");
+
+  // Info
+  if (!viewinfoshader_.addShaderFromSourceCode(QOpenGLShader::Vertex, INFO_VERTEX_SHADER))
+  {
+    LOG_GUI_WARNING(QString("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
+    return;
+  }
+
+  if (!viewinfoshader_.addShaderFromSourceCode(QOpenGLShader::Fragment, INFO_PIXEL_SHADER))
+  {
+    LOG_GUI_WARNING(QString("QOpenGLShaderProgram::addShaderFromSourceCode failed"));
+    return;
+  }
+
+  viewinfoshader_.bindAttributeLocation("position", 0);
+  viewinfoshader_.bindAttributeLocation("texcoord", 1);
+
+  if (!viewinfoshader_.link())
+  {
+    LOG_GUI_WARNING(QString("QOpenGLShaderProgram::link failed"));
+    return;
+  }
+
+  infotexturecoordlocation_ = viewinfoshader_.attributeLocation("texcoord");
+  if (infotexturecoordlocation_ == -1)
+  {
+    LOG_GUI_WARNING(QString("QOpenGLShaderProgram::attributeLocation failed"));
+    return;
+  }
+
+  infopositionlocation_ = viewinfoshader_.attributeLocation("position");
+  if (infopositionlocation_ == -1)
+  {
+    LOG_GUI_WARNING(QString("QOpenGLShaderProgram::attributeLocation failed"));
+    return;
+  }
+
+  infotexturesamplerlocation_ = viewinfoshader_.uniformLocation("sampler");
+  if (infotexturesamplerlocation_ == -1)
+  {
+    LOG_GUI_WARNING(QString("QOpenGLShaderProgram::uniformLocation failed"));
+    return;
+  }
+
 }
 
 void FindObjectVideoWidget::mouseMoveEvent(QMouseEvent* event)
@@ -473,6 +593,7 @@ void FindObjectVideoWidget::paintGL()
         GetFindObjectWindow()->imageheight_ = imagebuffer.heights_[0];
       }
 
+      codec_ = imagebuffer.codec_;
       time_ = imagebuffer.time_;
       playmarkertime_ = std::max(imagebuffer.time_, playmarkertime_);
       frametime_ = std::chrono::steady_clock::now();
@@ -785,6 +906,89 @@ void FindObjectVideoWidget::paintGL()
   }
 
   viewselectedshader_.release();
+
+  // Info boxes
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glActiveTexture(GL_TEXTURE0);
+  viewinfoshader_.bind();
+  //TODO if ((view->GetImageType() == IMAGEBUFFERTYPE_TEXT) || (!view->GetShowInfo()))//TODO add these in
+  if (infotime_ != time_) // Do we need to refresh the time
+  {
+    std::vector<char> infotextformatbuffer;
+    ToInfoText(QDateTime::fromMSecsSinceEpoch(time_, Qt::UTC), Options::Instance().GetInfoTextFormat(), codec_, bandwidthsizes_, std::make_pair<const std::string&, const QString&>(std::string(), GetFindObjectWindow()->recording_->GetLocation()), std::make_pair<const std::string&, const QString&>(std::string(), GetFindObjectWindow()->recording_->GetName()), GetFindObjectWindow()->imagewidth_, GetFindObjectWindow()->imageheight_, infotextformatbuffer);
+
+    QImage texture(INFO_WIDTH, INFO_HEIGHT, QImage::Format_RGBA8888);
+    QPainter painter(&texture);
+    texture.fill(QColor(0, 0, 0));
+    int x = INFO_BORDER;
+    const int maxfontheight = static_cast<int>(INFO_FONT_HEIGHT * (static_cast<float>(freetypearial_->bbox.yMax) / static_cast<float>(freetypearial_->bbox.yMax - freetypearial_->bbox.yMin)));
+    const int y = INFO_BORDER + (INFO_FONT_HEIGHT - maxfontheight) - 1;
+    for (int i = 0; i < infotextformatbuffer.size(); ++i)
+    {
+      if (infotextformatbuffer.at(i) == '\0')
+      {
+
+        break;
+      }
+
+      if (FT_Load_Char(freetypearial_, infotextformatbuffer.at(i), FT_LOAD_RENDER))
+      {
+
+        continue; // Ignore errors
+      }
+
+      const QImage character = QImage(freetypearial_->glyph->bitmap.buffer, freetypearial_->glyph->bitmap.width, freetypearial_->glyph->bitmap.rows, freetypearial_->glyph->bitmap.pitch, QImage::Format_Grayscale8);
+      painter.drawImage(QRectF(x + freetypearial_->glyph->bitmap_left, y + (maxfontheight - freetypearial_->glyph->bitmap_top), freetypearial_->glyph->bitmap.width, freetypearial_->glyph->bitmap.rows), character);
+      x += freetypearial_->glyph->advance.x >> 6;
+    }
+    x += INFO_BORDER; // End border
+
+    // Set the alpha to chop off the erroneous end and fade the middle
+    for (int i = 0; i < texture.height(); ++i)
+    {
+      QRgb* line = reinterpret_cast<QRgb*>(texture.scanLine(i));
+      for (int j = 0; j < texture.width(); ++j)
+      {
+        int alpha = 0;
+        if (j <= x)
+        {
+          alpha = 122;
+
+        }
+        line[j] = qRgba(qRed(line[j]), qGreen(line[j]), qBlue(line[j]), alpha);
+      }
+    }
+
+    glBindTexture(GL_TEXTURE_2D, infotexture_);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture.width(), texture.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, texture.bits());
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    infotime_ = time_;
+  }
+
+  // Draw info
+  viewinfoshader_.setUniformValue(infotexturesamplerlocation_, 0);
+  glBindTexture(GL_TEXTURE_2D, infotexture_);
+
+  infotexturebuffer_.bind();
+  viewinfoshader_.enableAttributeArray(infotexturecoordlocation_);
+  viewinfoshader_.setAttributeBuffer(infotexturecoordlocation_, GL_FLOAT, 0, 2);
+  infovertexbuffer_.bind();
+  viewinfoshader_.enableAttributeArray(infopositionlocation_);
+  viewinfoshader_.setAttributeBuffer(infopositionlocation_, GL_FLOAT, 0, 3);
+
+  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+  viewinfoshader_.disableAttributeArray(infopositionlocation_);
+  infovertexbuffer_.release();
+  viewinfoshader_.disableAttributeArray(infotexturecoordlocation_);
+  infotexturebuffer_.release();
+  glBindTexture(GL_TEXTURE_2D, 0);
+  viewinfoshader_.release();
+
+  glDisable(GL_BLEND);
+
 }
 
 void FindObjectVideoWidget::timerEvent(QTimerEvent* event)
@@ -801,6 +1005,8 @@ bool FindObjectVideoWidget::GetImage(ImageBuffer& imagebuffer)
   {
     if (imagequeue_.pop(imagebuffer))
     {
+      bandwidthsizes_.push_back(std::make_pair(std::chrono::steady_clock::now(), imagebuffer.originalsize_));
+
       // If we have skipped frames, we should place them back into the temporary list, or destroy them if there is no room
       if (previmagebuffer.buffer_ || previmagebuffer.cudacontext_)
       {
@@ -918,6 +1124,26 @@ void FindObjectVideoWidget::SetPosition(const ROTATION rotation, const bool mirr
   vertexbuffer_.release();
 
   objects_.Update(GetImagePixelRectF(), GetFindObjectWindow()->mirror_, GetFindObjectWindow()->rotation_);
+
+  // Info
+  const QRectF imagerect = GetImageRect();
+  infovertexbuffer_.destroy();
+  infovertexbuffer_.create();
+  infovertexbuffer_.setUsagePattern(QOpenGLBuffer::StaticDraw);
+  infovertexbuffer_.bind();
+  static const float heightpixels = 50.0f;
+  const float infoheight = (2.0f / static_cast<float>(height())) * heightpixels;
+  const float infowidth = (2.0f / static_cast<float>(width())) * (heightpixels / (static_cast<float>(INFO_HEIGHT) / static_cast<float>(INFO_WIDTH)));
+  const float right = std::min(imagerect.left() + infowidth, imagerect.right());
+  const std::array<float, 12> infovertices =
+  {
+    static_cast<float>(right), static_cast<float>(imagerect.bottom()), 0.0f,
+    static_cast<float>(right), std::min(static_cast<float>(imagerect.bottom()) + infoheight, static_cast<float>(imagerect.top())), 0.0f,
+    static_cast<float>(imagerect.left()), static_cast<float>(imagerect.bottom()), 0.0f,
+    static_cast<float>(imagerect.left()), std::min(static_cast<float>(imagerect.bottom()) + infoheight, static_cast<float>(imagerect.top())), 0.0f
+  };
+  infovertexbuffer_.allocate(infovertices.data(), static_cast<int>(infovertices.size() * sizeof(float)));
+  infovertexbuffer_.release();
 
   if (makecurrent)
   {

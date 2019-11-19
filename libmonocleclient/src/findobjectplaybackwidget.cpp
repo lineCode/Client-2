@@ -30,6 +30,8 @@ FindObjectPlaybackWidget::FindObjectPlaybackWidget(QWidget* parent) :
   QOpenGLWidget(parent),
   actionvideo_(new QAction(tr("Video"), this)),
   actionobject_(new QAction(tr("Object"), this)),
+  freetype_(nullptr),
+  freetypearial_(nullptr),
   colour_(0.5f, 0.5f, 0.5f, 0.5f),
   recordingsblockspositionlocation_(-1),
   recordingsblockscolourlocation_(-1),

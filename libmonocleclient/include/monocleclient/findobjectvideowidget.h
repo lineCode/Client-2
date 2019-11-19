@@ -111,6 +111,9 @@ class FindObjectVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   QAction* actionstretch_;
   QAction* actionobjects_;
 
+  FT_Library freetype_;
+  FT_Face freetypearial_;
+
   QOpenGLShaderProgram viewrgbshader_;
   int rgbpositionlocation_;
   int rgbtexturecoordlocation_;
@@ -130,6 +133,11 @@ class FindObjectVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   int selectedpositionlocation_;
   int selectedcolourlocation_;
 
+  QOpenGLShaderProgram viewinfoshader_;
+  int infopositionlocation_;
+  int infotexturecoordlocation_;
+  int infotexturesamplerlocation_;
+
   boost::lockfree::spsc_queue<ImageBuffer, boost::lockfree::capacity<IMAGEQUEUESIZE> > imagequeue_;
   VectorFreeFrameBuffer freeimagequeue_;
 
@@ -139,9 +147,8 @@ class FindObjectVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   uint64_t metadataplayrequestindex_;
   bool paused_;
 
-  ImageCache cache_;
-
   IMAGEBUFFERTYPE type_; // What the previous texture type was
+  monocle::Codec codec_;
   uint64_t time_;
   uint64_t playmarkertime_;
   int64_t sequencenum_;
@@ -150,6 +157,14 @@ class FindObjectVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   QOpenGLBuffer vertexbuffer_;
   std::array<GLuint, 3> textures_;
   std::array<CUgraphicsResource, 3> cudaresources_; // Lazily initialised
+  GLuint infotexture_;
+  QOpenGLBuffer infotexturebuffer_;
+  QOpenGLBuffer infovertexbuffer_;
+  uint64_t infotime_; // This is used so we know if we need to generate a new info buffer or not
+
+  ImageCache cache_;
+
+  boost::circular_buffer< std::pair<std::chrono::steady_clock::time_point, size_t> > bandwidthsizes_; // <time, size>
 
   Objects objects_;
 
