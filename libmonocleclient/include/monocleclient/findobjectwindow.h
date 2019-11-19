@@ -118,6 +118,7 @@ class FindObjectWindow : public QDialog
   void AddCodecIndex(const monocle::CODECINDEX& codecindex);
   void DestroyDecoders();
   void ResetDecoders();
+  bool Filter(const monocle::ObjectClass objectclass);
   bool Filter(const monocle::ObjectClass objectclass, const uint64_t start, const uint64_t end);
   void UpdateFilter();
 

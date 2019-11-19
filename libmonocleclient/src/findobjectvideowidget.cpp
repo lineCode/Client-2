@@ -749,19 +749,16 @@ void FindObjectVideoWidget::paintGL()
         continue;
       }
 
-      //TODO I think we need starttime and endtime
-      //TODO we need start and end time to be remembered here...
-      //TODO GetFindObjectWindow()->Filter(object->classid_, object->time_)
-
-      //TODO check filter here
-
-      object->vertexbuffer_.bind();
-      viewselectedshader_.enableAttributeArray(selectedpositionlocation_);
-      viewselectedshader_.setAttributeBuffer(selectedpositionlocation_, GL_FLOAT, 0, 2);
-      viewselectedshader_.setUniformValue(selectedcolourlocation_, OBJECT_COLOURS[static_cast<size_t>(object->classid_)]);
-      glDrawArrays(GL_LINE_STRIP, 0, 5);
-      viewselectedshader_.disableAttributeArray(selectedpositionlocation_);
-      object->vertexbuffer_.release();
+      if (GetFindObjectWindow()->Filter(object->classid_))
+      {
+        object->vertexbuffer_.bind();
+        viewselectedshader_.enableAttributeArray(selectedpositionlocation_);
+        viewselectedshader_.setAttributeBuffer(selectedpositionlocation_, GL_FLOAT, 0, 2);
+        viewselectedshader_.setUniformValue(selectedcolourlocation_, OBJECT_COLOURS[static_cast<size_t>(object->classid_)]);
+        glDrawArrays(GL_LINE_STRIP, 0, 5);
+        viewselectedshader_.disableAttributeArray(selectedpositionlocation_);
+        object->vertexbuffer_.release();
+      }
     }
   }
 
@@ -778,10 +775,12 @@ void FindObjectVideoWidget::paintGL()
   
         continue;
       }
-      
-      //TODO check filter here...
 
-      object->DrawObjectText(imagepixelrect, width(), height(), GetFindObjectWindow()->mirror_, GetFindObjectWindow()->rotation_, painter);
+      if (GetFindObjectWindow()->Filter(object->classid_))
+      {
+        object->DrawObjectText(imagepixelrect, width(), height(), GetFindObjectWindow()->mirror_, GetFindObjectWindow()->rotation_, painter);
+
+      }
     }
   }
 

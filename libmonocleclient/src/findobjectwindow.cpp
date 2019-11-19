@@ -649,7 +649,7 @@ void FindObjectWindow::ResetDecoders()
   }
 }
 
-bool FindObjectWindow::Filter(const monocle::ObjectClass objectclass, const uint64_t start, const uint64_t end)
+bool FindObjectWindow::Filter(const monocle::ObjectClass objectclass)
 {
   if (((objectclass == monocle::ObjectClass::Human)     && ui_.checkfilterhumans->isChecked()) ||
       ((objectclass == monocle::ObjectClass::Bicycle)   && ui_.checkfilterbicycles->isChecked()) ||
@@ -667,6 +667,20 @@ bool FindObjectWindow::Filter(const monocle::ObjectClass objectclass, const uint
       ((objectclass == monocle::ObjectClass::Umbrella)  && ui_.checkfilterumbrellas->isChecked()) ||
       ((objectclass == monocle::ObjectClass::Handbag)   && ui_.checkfilterhandbags->isChecked()) ||
       ((objectclass == monocle::ObjectClass::Suitcase)  && ui_.checkfiltersuitcases->isChecked()))
+  {
+
+    return true;
+  }
+  else
+  {
+
+    return false;
+  }
+}
+
+bool FindObjectWindow::Filter(const monocle::ObjectClass objectclass, const uint64_t start, const uint64_t end)
+{
+  if (Filter(objectclass))
   {
     if ((end - start) >= (ui_.spinminimumduration->value() * 1000))
     {
