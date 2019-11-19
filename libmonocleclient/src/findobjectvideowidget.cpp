@@ -151,7 +151,7 @@ void FindObjectVideoWidget::SetSelectedRect(const QRectF& selectedrect)
 void FindObjectVideoWidget::SetPaused(const bool paused)
 {
   ++videoplayrequestindex_;
-  //TODO metadata
+  ++metadataplayrequestindex_;
   cache_.Clear();
   paused_ = paused;
 }

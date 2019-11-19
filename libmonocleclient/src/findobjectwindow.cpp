@@ -146,7 +146,7 @@ FindObjectWindow::FindObjectWindow(QWidget* parent, const QImage& image, const b
   if (ui_.combotracks->count() == 0)
   {
     // This shouldn't happen because we checked before opening this window it should be ok, but just in case provide user with a nice error...
-    //TODO qmessagebox and reject in 1ms
+    QMessageBox(QMessageBox::Warning, tr("Error"), tr("No valid tracks found"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
     return;
   }
   else
@@ -276,20 +276,23 @@ void FindObjectWindow::Play(const uint64_t time, const boost::optional<uint64_t>
     ui_.videowidget->paused_ = false;
 
   }
-  //TODO test this works by clicking around
-  connection_->ControlStream(*metadatastreamtoken_, ui_.videowidget->GetNextMetadataPlayRequestIndex(), true, !numframes.is_initialized(), true, time + device_->GetTimeOffset(), boost::none, numframes, false);
+
+  if (metadatastreamtoken_.is_initialized())
+  {
+    connection_->ControlStream(*metadatastreamtoken_, ui_.videowidget->GetNextMetadataPlayRequestIndex(), true, !numframes.is_initialized(), true, time + device_->GetTimeOffset(), boost::none, numframes, false);
+
+  }
 }
 
 void FindObjectWindow::Stop()
 {
-  if (videostreamtoken_.is_initialized())
+  if (videostreamtoken_.is_initialized() && metadatastreamtoken_.is_initialized())
   {
     ui_.videowidget->SetPaused(false);
     ResetDecoders();
     connection_->ControlStreamLive(*videostreamtoken_, ui_.videowidget->GetNextVideoPlayRequestIndex());
+    connection_->ControlStreamLive(*metadatastreamtoken_, ui_.videowidget->GetNextMetadataPlayRequestIndex());
   }
-
-  //TODO metadatastream thing copy main window...
 }
 
 void FindObjectWindow::timerEvent(QTimerEvent*)
@@ -375,8 +378,11 @@ void FindObjectWindow::FrameStep(const bool forwards)
 
   }
 
-  //TODO metadatastreamtoken_ stuff, copy main window
+  if (metadatastreamtoken_.is_initialized())
+  {
+    connection_->ControlStream(*metadatastreamtoken_, ui_.videowidget->GetNextMetadataPlayRequestIndex(), true, false, forwards, ui_.videowidget->time_, boost::none, 4, false); // Request some additional frames just in case
 
+  }
 }
 
 void FindObjectWindow::ControlStreamEnd(const uint64_t streamtoken, const uint64_t playrequestindex, const monocle::ErrorCode error, void* callbackdata)
@@ -1104,7 +1110,7 @@ void FindObjectWindow::on_buttonpause_clicked()
   if (videostreamtoken_.is_initialized() && metadatastreamtoken_.is_initialized() && connection_)
   {
     connection_->ControlStreamPause(*videostreamtoken_, ui_.videowidget->time_);
-    //TODO metadata...
+    connection_->ControlStreamPause(*metadatastreamtoken_, ui_.videowidget->time_);
   }
 }
 

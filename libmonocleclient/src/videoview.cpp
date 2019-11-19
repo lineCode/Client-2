@@ -409,7 +409,7 @@ void VideoView::FrameStep(const bool forwards)
 
   for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
   {
-    metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, false, forwards, time_, boost::none, 2, false); // This request a couple of additional frame just in case
+    metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, false, forwards, time_, boost::none, 4, false); // Request some additional frames just in case
 
   }
 }
