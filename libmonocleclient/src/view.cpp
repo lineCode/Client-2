@@ -589,9 +589,6 @@ View::View(VideoWidget* videowidget, CUcontext cudacontext, const QColor& select
   digitalsigntexturebuffer_.allocate(texturecoords_.data(), static_cast<int>(texturecoords_.size() * sizeof(float)));
   digitalsigntexturebuffer_.release();
 
-  infovertexbuffer_.create();
-  infovertexbuffer_.setUsagePattern(QOpenGLBuffer::StaticDraw);
-
   videowidget->doneCurrent();
 }
 
