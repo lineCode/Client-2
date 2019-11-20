@@ -916,51 +916,9 @@ void FindObjectVideoWidget::paintGL()
   if (infotime_ != time_)
   {
     ToInfoText(QDateTime::fromMSecsSinceEpoch(time_, Qt::UTC), Options::Instance().GetInfoTextFormat(), codec_, bandwidthsizes_, std::make_pair<const std::string&, const QString&>(std::string(), GetFindObjectWindow()->recording_->GetLocation()), std::make_pair<const std::string&, const QString&>(std::string(), GetFindObjectWindow()->recording_->GetName()), GetFindObjectWindow()->imagewidth_, GetFindObjectWindow()->imageheight_, infotextformatbuffer_);
-
-    QImage texture(INFO_WIDTH, INFO_HEIGHT, QImage::Format_RGBA8888);
-    QPainter painter(&texture);
-    texture.fill(QColor(0, 0, 0));
-    int x = INFO_BORDER;
-    const int maxfontheight = static_cast<int>(INFO_FONT_HEIGHT * (static_cast<float>(freetypearial_->bbox.yMax) / static_cast<float>(freetypearial_->bbox.yMax - freetypearial_->bbox.yMin)));
-    const int y = INFO_BORDER + (INFO_FONT_HEIGHT - maxfontheight) - 1;
-    for (int i = 0; i < infotextformatbuffer_.size(); ++i)
-    {
-      if (infotextformatbuffer_.at(i) == '\0')
-      {
-
-        break;
-      }
-
-      if (FT_Load_Char(freetypearial_, infotextformatbuffer_.at(i), FT_LOAD_RENDER))
-      {
-
-        continue; // Ignore errors
-      }
-
-      const QImage character = QImage(freetypearial_->glyph->bitmap.buffer, freetypearial_->glyph->bitmap.width, freetypearial_->glyph->bitmap.rows, freetypearial_->glyph->bitmap.pitch, QImage::Format_Grayscale8);
-      painter.drawImage(QRectF(x + freetypearial_->glyph->bitmap_left, y + (maxfontheight - freetypearial_->glyph->bitmap_top), freetypearial_->glyph->bitmap.width, freetypearial_->glyph->bitmap.rows), character);
-      x += freetypearial_->glyph->advance.x >> 6;
-    }
-    x += INFO_BORDER; // End border
-
-    // Set the alpha to chop off the erroneous end and fade the middle
-    for (int i = 0; i < texture.height(); ++i)
-    {
-      QRgb* line = reinterpret_cast<QRgb*>(texture.scanLine(i));
-      for (int j = 0; j < texture.width(); ++j)
-      {
-        int alpha = 0;
-        if (j <= x)
-        {
-          alpha = 122;
-
-        }
-        line[j] = qRgba(qRed(line[j]), qGreen(line[j]), qBlue(line[j]), alpha);
-      }
-    }
-
+    const QImage infotexture = InfoTexture(infotextformatbuffer_, freetypearial_);
     glBindTexture(GL_TEXTURE_2D, infotexture_);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture.width(), texture.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, texture.bits());
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, infotexture.width(), infotexture.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, infotexture.bits());
     glBindTexture(GL_TEXTURE_2D, 0);
 
     infotime_ = time_;

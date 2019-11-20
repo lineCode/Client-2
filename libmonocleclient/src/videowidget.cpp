@@ -337,6 +337,52 @@ void ToInfoText(const QDateTime& datetime, const std::string& format, const mono
   }
 }
 
+QImage InfoTexture(const std::vector<char>& text, const FT_Face font)
+{
+  QImage infotexture(INFO_WIDTH, INFO_HEIGHT, QImage::Format_RGBA8888);
+  infotexture.fill(QColor(0, 0, 0));
+  QPainter painter(&infotexture);
+  int x = INFO_BORDER;
+  const int maxfontheight = static_cast<int>(INFO_FONT_HEIGHT * (static_cast<float>(font->bbox.yMax) / static_cast<float>(font->bbox.yMax - font->bbox.yMin)));
+  const int y = INFO_BORDER + (INFO_FONT_HEIGHT - maxfontheight) - 1;
+  for (int i = 0; i < text.size(); ++i)
+  {
+    if (text.at(i) == '\0')
+    {
+
+      break;
+    }
+
+    if (FT_Load_Char(font, text.at(i), FT_LOAD_RENDER))
+    {
+
+      continue; // Ignore errors
+    }
+
+    const QImage character = QImage(font->glyph->bitmap.buffer, font->glyph->bitmap.width, font->glyph->bitmap.rows, font->glyph->bitmap.pitch, QImage::Format_Grayscale8);
+    painter.drawImage(QRectF(x + font->glyph->bitmap_left, y + (maxfontheight - font->glyph->bitmap_top), font->glyph->bitmap.width, font->glyph->bitmap.rows), character);
+    x += font->glyph->advance.x >> 6;
+  }
+  x += INFO_BORDER; // End border
+
+  // Set the alpha to chop off the erroneous end and fade the middle
+  for (int i = 0; i < infotexture.height(); ++i)
+  {
+    QRgb* line = reinterpret_cast<QRgb*>(infotexture.scanLine(i));
+    for (int j = 0; j < infotexture.width(); ++j)
+    {
+      int alpha = 0;
+      if (j <= x)
+      {
+        alpha = 122;
+
+      }
+      line[j] = qRgba(qRed(line[j]), qGreen(line[j]), qBlue(line[j]), alpha);
+    }
+  }
+  return infotexture;
+}
+
 ///// Methods /////
 
 VideoWidget::VideoWidget(QWidget* parent) :
@@ -1930,50 +1976,9 @@ void VideoWidget::paintGL()
         continue;
       }
 
-      QImage texture(INFO_WIDTH, INFO_HEIGHT, QImage::Format_RGBA8888);
-      QPainter painter(&texture);
-      texture.fill(QColor(0, 0, 0));
-      int x = INFO_BORDER;
-      const int maxfontheight = static_cast<int>(INFO_FONT_HEIGHT * (static_cast<float>(freetypearial_->bbox.yMax) / static_cast<float>(freetypearial_->bbox.yMax - freetypearial_->bbox.yMin)));
-      const int y = INFO_BORDER + (INFO_FONT_HEIGHT - maxfontheight) - 1;
-      for (int i = 0; i < infotextformatbuffer_.size(); ++i)
-      {
-        if (infotextformatbuffer_.at(i) == '\0')
-        {
-
-          break;
-        }
-
-        if (FT_Load_Char(freetypearial_, infotextformatbuffer_.at(i), FT_LOAD_RENDER))
-        {
-
-          continue; // Ignore errors
-        }
-
-        const QImage character = QImage(freetypearial_->glyph->bitmap.buffer, freetypearial_->glyph->bitmap.width, freetypearial_->glyph->bitmap.rows, freetypearial_->glyph->bitmap.pitch, QImage::Format_Grayscale8);
-        painter.drawImage(QRectF(x + freetypearial_->glyph->bitmap_left, y + (maxfontheight - freetypearial_->glyph->bitmap_top), freetypearial_->glyph->bitmap.width, freetypearial_->glyph->bitmap.rows), character);
-        x += freetypearial_->glyph->advance.x >> 6;
-      }
-      x += INFO_BORDER; // End border
-
-      // Set the alpha to chop off the erroneous end and fade the middle
-      for (int i = 0; i < texture.height(); ++i)
-      {
-        QRgb* line = reinterpret_cast<QRgb*>(texture.scanLine(i));
-        for (int j = 0; j < texture.width(); ++j)
-        {
-          int alpha = 0;
-          if (j <= x)
-          {
-            alpha = 122;
-
-          }
-          line[j] = qRgba(qRed(line[j]), qGreen(line[j]), qBlue(line[j]), alpha);
-        }
-      }
-
+      const QImage infotexture = InfoTexture(infotextformatbuffer_, freetypearial_);
       glBindTexture(GL_TEXTURE_2D, view->GetInfoTexture());
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture.width(), texture.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, texture.bits());
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, infotexture.width(), infotexture.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, infotexture.bits());
       glBindTexture(GL_TEXTURE_2D, 0);
 
       view->SetInfoTime(view->GetTime());
@@ -2018,7 +2023,6 @@ void VideoWidget::paintGL()
     }
     else
     {
-
       digitalsignredpadlock_.bind();
 
     }

@@ -73,6 +73,7 @@ class View;
 ///// Prototypes /////
 
 void ToInfoText(const QDateTime& datetime, const std::string& format, const monocle::Codec codec, const boost::circular_buffer< std::pair<std::chrono::steady_clock::time_point, size_t> >& bandwidthsizes, const std::pair<const std::string&, const QString&>& location, const std::pair<const std::string&, const QString&>& recordingname, const int width, const int height, std::vector<char>& buffer);
+QImage InfoTexture(const std::vector<char>& text, const FT_Face font);
 
 ///// Classes /////
 
