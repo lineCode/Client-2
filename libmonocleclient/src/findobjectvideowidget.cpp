@@ -913,10 +913,11 @@ void FindObjectVideoWidget::paintGL()
   viewselectedshader_.release();
 
   // Info boxes
-  ToInfoText(QDateTime::fromMSecsSinceEpoch(time_, Qt::UTC), Options::Instance().GetInfoTextFormat(), codec_, bandwidthsizes_, std::make_pair<const std::string&, const QString&>(std::string(), GetFindObjectWindow()->recording_->GetLocation()), std::make_pair<const std::string&, const QString&>(std::string(), GetFindObjectWindow()->recording_->GetName()), GetFindObjectWindow()->imagewidth_, GetFindObjectWindow()->imageheight_, infotextformatbuffer_);
-
+  glActiveTexture(GL_TEXTURE0);
   if (infotime_ != time_)
   {
+    ToInfoText(QDateTime::fromMSecsSinceEpoch(time_, Qt::UTC), Options::Instance().GetInfoTextFormat(), codec_, bandwidthsizes_, std::make_pair<const std::string&, const QString&>(std::string(), GetFindObjectWindow()->recording_->GetLocation()), std::make_pair<const std::string&, const QString&>(std::string(), GetFindObjectWindow()->recording_->GetName()), GetFindObjectWindow()->imagewidth_, GetFindObjectWindow()->imageheight_, infotextformatbuffer_);
+
     QImage texture(INFO_WIDTH, INFO_HEIGHT, QImage::Format_RGBA8888);
     QPainter painter(&texture);
     texture.fill(QColor(0, 0, 0));
@@ -959,7 +960,6 @@ void FindObjectVideoWidget::paintGL()
       }
     }
 
-    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, infotexture_);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture.width(), texture.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, texture.bits());
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -972,7 +972,6 @@ void FindObjectVideoWidget::paintGL()
   {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glActiveTexture(GL_TEXTURE0);
 
     viewinfoshader_.bind();
     viewinfoshader_.setUniformValue(infotexturesamplerlocation_, 0);
@@ -996,7 +995,6 @@ void FindObjectVideoWidget::paintGL()
 
     glDisable(GL_BLEND);
   }
-
 }
 
 void FindObjectVideoWidget::timerEvent(QTimerEvent* event)
