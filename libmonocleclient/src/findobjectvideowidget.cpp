@@ -126,7 +126,6 @@ FindObjectVideoWidget::~FindObjectVideoWidget()
   glDeleteTextures(3, textures_.data());
   textures_.fill(0);
   texturebuffer_.destroy();
-  //TODO textvertexbuffer_.destroy();
   vertexbuffer_.destroy();
   glDeleteTextures(1, &infotexture_);
   infotexture_ = 0;
@@ -968,7 +967,7 @@ void FindObjectVideoWidget::paintGL()
   }
 
   // Draw Info
-  if (((type_ == IMAGEBUFFERTYPE_NV12) || (type_ == IMAGEBUFFERTYPE_RGBA) || (type_ == IMAGEBUFFERTYPE_YUV)) && GetFindObjectWindow()->showinfo_)
+  if (((type_ == IMAGEBUFFERTYPE_NV12) || (type_ == IMAGEBUFFERTYPE_RGBA) || (type_ == IMAGEBUFFERTYPE_YUV)) && GetFindObjectWindow()->showinfo_ && infotime_)
   {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
