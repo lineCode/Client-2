@@ -75,7 +75,7 @@ FINDOBJECTRESULT::FINDOBJECTRESULT(const uint64_t token, const uint64_t start, c
 
 }
 
-FindObjectWindow::FindObjectWindow(QWidget* parent, const QImage& image, const boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingTrack>& track, const QVector4D& colour, const uint64_t starttime, const uint64_t endtime, const QRectF& rect, const int imagewidth, const int imageheight, const bool mirror, const ROTATION rotation, const bool stretch, const bool showobjects) :
+FindObjectWindow::FindObjectWindow(QWidget* parent, const QImage& image, const boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingTrack>& track, const QVector4D& colour, const uint64_t starttime, const uint64_t endtime, const QRectF& rect, const int imagewidth, const int imageheight, const bool mirror, const ROTATION rotation, const bool stretch, const bool showinfo, const bool showobjects) :
   QDialog(parent),
   cudacontext_(MainWindow::Instance()->GetNextCUDAContext()),
   device_(device),
@@ -86,6 +86,7 @@ FindObjectWindow::FindObjectWindow(QWidget* parent, const QImage& image, const b
   mirror_(mirror),
   rotation_(rotation),
   stretch_(stretch),
+  showinfo_(showinfo),
   showobjects_(showobjects)
 {
   ui_.setupUi(this);

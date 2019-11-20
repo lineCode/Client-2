@@ -109,6 +109,7 @@ class FindObjectVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   QAction* actionrotate270_;
   QAction* actionmirror_;
   QAction* actionstretch_;
+  QAction* actioninfo_;
   QAction* actionobjects_;
 
   FT_Library freetype_;
@@ -171,6 +172,8 @@ class FindObjectVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   FINDOBJECTSTATE state_;
   QPoint selectionpoint_;
 
+  std::vector<char> infotextformatbuffer_; // Buffer for characters
+
  public slots:
 
   void Rotate0(bool);
@@ -179,7 +182,8 @@ class FindObjectVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   void Rotate270(bool);
   void ToggleMirror(bool);
   void ToggleStretch(bool);
-  void ToggleShowObjects(bool);
+  void ToggleInfo(bool);
+  void ToggleObjects(bool);
 
 };
 

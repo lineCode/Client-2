@@ -37,6 +37,7 @@ FindObjectVideoWidget::FindObjectVideoWidget(QWidget* parent) :
   actionrotate270_(new QAction(tr("Rotate 270"), this)),
   actionmirror_(new QAction(tr("Mirror"), this)),
   actionstretch_(new QAction(tr("Stretch"), this)),
+  actioninfo_(new QAction(tr("Info"), this)),
   actionobjects_(new QAction(tr("Objects"), this)),
   freetype_(nullptr),
   freetypearial_(nullptr),
@@ -65,6 +66,8 @@ FindObjectVideoWidget::FindObjectVideoWidget(QWidget* parent) :
   actionmirror_->setChecked(GetFindObjectWindow()->mirror_);
   actionstretch_->setCheckable(true);
   actionstretch_->setChecked(GetFindObjectWindow()->stretch_);
+  actioninfo_->setCheckable(true);
+  actioninfo_->setChecked(GetFindObjectWindow()->showinfo_);
   actionobjects_->setCheckable(true);
   actionobjects_->setChecked(GetFindObjectWindow()->showobjects_);
 
@@ -74,7 +77,8 @@ FindObjectVideoWidget::FindObjectVideoWidget(QWidget* parent) :
   connect(actionrotate270_, &QAction::triggered, this, &FindObjectVideoWidget::Rotate270);
   connect(actionmirror_, &QAction::triggered, this, &FindObjectVideoWidget::ToggleMirror);
   connect(actionstretch_, &QAction::triggered, this, &FindObjectVideoWidget::ToggleStretch);
-  connect(actionobjects_, &QAction::triggered, this, &FindObjectVideoWidget::ToggleShowObjects);
+  connect(actioninfo_, &QAction::triggered, this, &FindObjectVideoWidget::ToggleInfo);
+  connect(actionobjects_, &QAction::triggered, this, &FindObjectVideoWidget::ToggleObjects);
 
   // Freetype
   if (FT_Init_FreeType(&freetype_))
@@ -235,6 +239,7 @@ void FindObjectVideoWidget::contextMenuEvent(QContextMenuEvent* event)
   menu.addMenu(rotation);
   menu.addAction(actionmirror_);
   menu.addAction(actionstretch_);
+  menu.addAction(actioninfo_);
   menu.addAction(actionobjects_);
   menu.exec(event->globalPos());
 }
@@ -908,31 +913,25 @@ void FindObjectVideoWidget::paintGL()
   viewselectedshader_.release();
 
   // Info boxes
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glActiveTexture(GL_TEXTURE0);
-  viewinfoshader_.bind();
-  //TODO if ((view->GetImageType() == IMAGEBUFFERTYPE_TEXT) || (!view->GetShowInfo()))//TODO add these in
-  if (infotime_ != time_) // Do we need to refresh the time
-  {
-    std::vector<char> infotextformatbuffer;//TODO may as well store this around as a member
-    ToInfoText(QDateTime::fromMSecsSinceEpoch(time_, Qt::UTC), Options::Instance().GetInfoTextFormat(), codec_, bandwidthsizes_, std::make_pair<const std::string&, const QString&>(std::string(), GetFindObjectWindow()->recording_->GetLocation()), std::make_pair<const std::string&, const QString&>(std::string(), GetFindObjectWindow()->recording_->GetName()), GetFindObjectWindow()->imagewidth_, GetFindObjectWindow()->imageheight_, infotextformatbuffer);
+  ToInfoText(QDateTime::fromMSecsSinceEpoch(time_, Qt::UTC), Options::Instance().GetInfoTextFormat(), codec_, bandwidthsizes_, std::make_pair<const std::string&, const QString&>(std::string(), GetFindObjectWindow()->recording_->GetLocation()), std::make_pair<const std::string&, const QString&>(std::string(), GetFindObjectWindow()->recording_->GetName()), GetFindObjectWindow()->imagewidth_, GetFindObjectWindow()->imageheight_, infotextformatbuffer_);
 
+  if (infotime_ != time_)
+  {
     QImage texture(INFO_WIDTH, INFO_HEIGHT, QImage::Format_RGBA8888);
     QPainter painter(&texture);
     texture.fill(QColor(0, 0, 0));
     int x = INFO_BORDER;
     const int maxfontheight = static_cast<int>(INFO_FONT_HEIGHT * (static_cast<float>(freetypearial_->bbox.yMax) / static_cast<float>(freetypearial_->bbox.yMax - freetypearial_->bbox.yMin)));
     const int y = INFO_BORDER + (INFO_FONT_HEIGHT - maxfontheight) - 1;
-    for (int i = 0; i < infotextformatbuffer.size(); ++i)
+    for (int i = 0; i < infotextformatbuffer_.size(); ++i)
     {
-      if (infotextformatbuffer.at(i) == '\0')
+      if (infotextformatbuffer_.at(i) == '\0')
       {
 
         break;
       }
 
-      if (FT_Load_Char(freetypearial_, infotextformatbuffer.at(i), FT_LOAD_RENDER))
+      if (FT_Load_Char(freetypearial_, infotextformatbuffer_.at(i), FT_LOAD_RENDER))
       {
 
         continue; // Ignore errors
@@ -960,6 +959,7 @@ void FindObjectVideoWidget::paintGL()
       }
     }
 
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, infotexture_);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture.width(), texture.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, texture.bits());
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -967,27 +967,35 @@ void FindObjectVideoWidget::paintGL()
     infotime_ = time_;
   }
 
-  // Draw info
-  viewinfoshader_.setUniformValue(infotexturesamplerlocation_, 0);
-  glBindTexture(GL_TEXTURE_2D, infotexture_);
+  // Draw Info
+  if (((type_ == IMAGEBUFFERTYPE_NV12) || (type_ == IMAGEBUFFERTYPE_RGBA) || (type_ == IMAGEBUFFERTYPE_YUV)) && GetFindObjectWindow()->showinfo_)
+  {
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glActiveTexture(GL_TEXTURE0);
 
-  infotexturebuffer_.bind();
-  viewinfoshader_.enableAttributeArray(infotexturecoordlocation_);
-  viewinfoshader_.setAttributeBuffer(infotexturecoordlocation_, GL_FLOAT, 0, 2);
-  infovertexbuffer_.bind();
-  viewinfoshader_.enableAttributeArray(infopositionlocation_);
-  viewinfoshader_.setAttributeBuffer(infopositionlocation_, GL_FLOAT, 0, 3);
+    viewinfoshader_.bind();
+    viewinfoshader_.setUniformValue(infotexturesamplerlocation_, 0);
+    glBindTexture(GL_TEXTURE_2D, infotexture_);
 
-  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    infotexturebuffer_.bind();
+    viewinfoshader_.enableAttributeArray(infotexturecoordlocation_);
+    viewinfoshader_.setAttributeBuffer(infotexturecoordlocation_, GL_FLOAT, 0, 2);
+    infovertexbuffer_.bind();
+    viewinfoshader_.enableAttributeArray(infopositionlocation_);
+    viewinfoshader_.setAttributeBuffer(infopositionlocation_, GL_FLOAT, 0, 3);
 
-  viewinfoshader_.disableAttributeArray(infopositionlocation_);
-  infovertexbuffer_.release();
-  viewinfoshader_.disableAttributeArray(infotexturecoordlocation_);
-  infotexturebuffer_.release();
-  glBindTexture(GL_TEXTURE_2D, 0);
-  viewinfoshader_.release();
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-  glDisable(GL_BLEND);
+    viewinfoshader_.disableAttributeArray(infopositionlocation_);
+    infovertexbuffer_.release();
+    viewinfoshader_.disableAttributeArray(infotexturecoordlocation_);
+    infotexturebuffer_.release();
+    glBindTexture(GL_TEXTURE_2D, 0);
+    viewinfoshader_.release();
+
+    glDisable(GL_BLEND);
+  }
 
 }
 
@@ -1187,7 +1195,13 @@ void FindObjectVideoWidget::ToggleStretch(bool)
 
 }
 
-void FindObjectVideoWidget::ToggleShowObjects(bool)
+void FindObjectVideoWidget::ToggleInfo(bool)
+{
+  GetFindObjectWindow()->showinfo_ = !GetFindObjectWindow()->showinfo_;
+  update();
+}
+
+void FindObjectVideoWidget::ToggleObjects(bool)
 {
   GetFindObjectWindow()->showobjects_ = !GetFindObjectWindow()->showobjects_;
   update();
