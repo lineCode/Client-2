@@ -137,6 +137,7 @@ class Device : public Connection
   bool SupportsFindObject() const;
   bool SupportsObjectDetection() const;
   bool SupportsCreateDefaultJob() const;
+  bool SupportsTrackCodec() const; // Whether the codecs are put into the Track structure
 
   // These methods look for the current user in the users_, find the group and figure out whether the current user has permission to do the operation
   bool CanManageUsers();

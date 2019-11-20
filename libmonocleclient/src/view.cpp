@@ -25,7 +25,9 @@
 
 #include "monocleclient/device.h"
 #include "monocleclient/mainwindow.h"
+#include "monocleclient/mediaview.h"
 #include "monocleclient/recording.h"
+#include "monocleclient/videoview.h"
 #include "monocleclient/videowidget.h"
 
 ///// Namespaces /////
@@ -672,10 +674,44 @@ void View::GetMenu(QMenu& parent)
   }
   if (actionobjects_)
   {
-    //TODO check for version>1.11.0
-      //TODO and then check codecs in the recording track
-    parent.addAction(actionobjects_);
+    if (GetViewType() == VIEWTYPE_MEDIA)
+    {
+      MediaView* mediaview = static_cast<MediaView*>(this);
+      bool added = false;
+      for (const file::TRACK& metadatatrack : mediaview->GetMetadataTracks())
+      {
+        for (const file::CODEC& codec : metadatatrack.codecs_)
+        {
+          if (codec.codec_ == static_cast<int>(monocle::Codec::OBJECTDETECTOR))
+          {
+            added = true;
+            parent.addAction(actionobjects_);
+            break;
+          }
+        }
+        if (added)
+        {
+          break;
+        }
+      }
+    }
+    else if (GetViewType() == VIEWTYPE_MONOCLE)
+    {
+      VideoView* videoview = static_cast<VideoView*>(this);
+      if (videoview->GetDevice()->SupportsTrackCodec())
+      {
+        if (videoview->GetRecording()->GetNumObjectDetectors())
+        {
+          parent.addAction(actionobjects_);
 
+        }
+      }
+      else
+      {
+        parent.addAction(actionobjects_);
+
+      }
+    }
   }
   parent.addAction(actionclose_);
 }
