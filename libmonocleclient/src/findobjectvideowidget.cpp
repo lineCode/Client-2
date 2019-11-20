@@ -90,7 +90,7 @@ FindObjectVideoWidget::FindObjectVideoWidget(QWidget* parent) :
     return;
   }
 
-  if (FT_Set_Pixel_Sizes(freetypearial_, PLAYBACK_TEXT_FONT_HEIGHT, 0))
+  if (FT_Set_Pixel_Sizes(freetypearial_, INFO_FONT_HEIGHT, 0))
   {
     LOG_GUI_WARNING(tr("Error initialising Arial resource"));
     return;
@@ -915,7 +915,7 @@ void FindObjectVideoWidget::paintGL()
   //TODO if ((view->GetImageType() == IMAGEBUFFERTYPE_TEXT) || (!view->GetShowInfo()))//TODO add these in
   if (infotime_ != time_) // Do we need to refresh the time
   {
-    std::vector<char> infotextformatbuffer;
+    std::vector<char> infotextformatbuffer;//TODO may as well store this around as a member
     ToInfoText(QDateTime::fromMSecsSinceEpoch(time_, Qt::UTC), Options::Instance().GetInfoTextFormat(), codec_, bandwidthsizes_, std::make_pair<const std::string&, const QString&>(std::string(), GetFindObjectWindow()->recording_->GetLocation()), std::make_pair<const std::string&, const QString&>(std::string(), GetFindObjectWindow()->recording_->GetName()), GetFindObjectWindow()->imagewidth_, GetFindObjectWindow()->imageheight_, infotextformatbuffer);
 
     QImage texture(INFO_WIDTH, INFO_HEIGHT, QImage::Format_RGBA8888);
