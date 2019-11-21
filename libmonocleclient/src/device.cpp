@@ -71,7 +71,7 @@ bool MOUNTPOINT::operator==(const MOUNTPOINT& rhs) const
   return ((id_ == rhs.id_) && (parentid_ == rhs.parentid_) && (majorstdev_ == rhs.majorstdev_) && (minorstdev_ == rhs.minorstdev_) && (path_ == rhs.path_) && (type_ == rhs.type_) && (source_ == rhs.source_));
 }
 
-Device::Device(const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port, const QString& username, const QString& password) :
+Device::Device(const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port, const QString& username, const QString& password, const uint64_t identifier) :
   Connection(MainWindow::Instance()->GetGUIIOService(), proxyparams, address, port),
   username_(username),
   password_(password),
@@ -81,7 +81,7 @@ Device::Device(const sock::ProxyParams& proxyparams, const QString& address, con
   utctimeoffset_(0),
   numcldevices_(0),
   numcudadevices_(0),
-  identifier_(0),
+  identifier_(identifier),
   logmessages_(1000),
   maxobjectdetectors_(0),
   maxrecordings_(0)
@@ -272,13 +272,14 @@ void Device::DestroyData()
   logmessages_.clear();
 }
 
-void Device::Set(const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port, const QString& username, const QString& password)
+void Device::Set(const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port, const QString& username, const QString& password, const uint64_t identifier)
 {
   proxyparams_ = proxyparams;
   address_ = address;
   port_ = port;
   username_ = username;
   password_ = password;
+  identifier_ = identifier;
   name_ = address;
   SignalNameChanged(name_);
 }
@@ -372,6 +373,7 @@ void Device::Subscribe()
             name_ = QString::fromStdString(subscriberesponse.name_);
             emit SignalNameChanged(name_);
           }
+
           numcldevices_ = subscriberesponse.numcldevices_;
           numcudadevices_ = subscriberesponse.numcudadevices_;
           architecture_ = QString::fromStdString(subscriberesponse.architecture_);
@@ -379,9 +381,14 @@ void Device::Subscribe()
           compiler_ = QString::fromStdString(subscriberesponse.compiler_);
           databasepath_ = QString::fromStdString(subscriberesponse.databasepath_);
           version_ = subscriberesponse.version_;
-          identifier_ = subscriberesponse.identifier_;
           environmentvariables_ = ToStrings(subscriberesponse.environmentalvariables_);
           commandlinevariables_ = ToStrings(subscriberesponse.commandlinevariables_);
+
+          if (identifier_ != subscriberesponse.identifier_)
+          {
+            identifier_ = subscriberesponse.identifier_;
+            MainWindow::Instance()->GetDeviceMgr().Save();
+          }
 
           if (publickey_.Init(subscriberesponse.publickey_))
           {

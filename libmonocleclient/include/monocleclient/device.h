@@ -76,12 +76,12 @@ class Device : public Connection
 
  public:
 
-  Device(const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port, const QString& username, const QString& password);
+  Device(const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port, const QString& username, const QString& password, const uint64_t identifier);
   ~Device();
 
   void DestroyData();
 
-  void Set(const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port, const QString& username, const QString& password);
+  void Set(const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port, const QString& username, const QString& password, const uint64_t identifier);
 
   virtual void Disconnected() override;
 

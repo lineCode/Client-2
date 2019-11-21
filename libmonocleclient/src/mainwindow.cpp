@@ -359,6 +359,52 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   discover_ = boost::make_shared<onvif::wsdiscover::WsDiscoverClient>(MainWindow::Instance()->GetGUIIOService());
   discover_->hello_.connect([](const std::vector<std::string>& addresses, const std::vector<std::string>& scopes)
   {
+    if (utility::Contains(scopes, "onvif://www.onvif.org/manufacturer/Monocle"))
+    {
+      std::vector<std::string>::const_iterator identifierscope = std::find_if(scopes.cbegin(), scopes.cend(), [](const std::string& scope) { return boost::starts_with(scope, "onvif://www.onvif.org/monocle/identifier/"); });
+      if (identifierscope == scopes.cend())
+      {
+
+        return;
+      }
+      uint64_t identifier = 0;
+      try
+      {
+        identifier = boost::lexical_cast<uint64_t>(identifierscope->substr(41));
+
+      }
+      catch (...)
+      {
+
+        return;
+      }
+
+      boost::shared_ptr<Device> device = MainWindow::Instance()->GetDeviceMgr().GetDevice(identifier);
+      if (device)
+      {
+        // We already have this device, ignore this
+        return;
+      }
+
+
+
+      //TODO get the identifier
+        //TODO if we don't have the identifier...
+          //TODO first check to see whether the addresses correspond to a device we haven't got an identifier for yet... and ignore it if so
+          //TODO messagebox query to add this device(and a checkbox to stop asking(for this identifier))
+            //TODO save the list of identifier that we want to ignore to QSettings
+    }
+    else
+    {
+      //TODO maybe a camera?
+        //TODO we want to keep a list around of all the receivers currently being used by devices we have connected to in the past
+          //TODO this allows us to determine whether or not this camera has been setup before(whether or not the monocle servers are currently alive or not)
+
+//TODO camera address/manufacturer/etc ignore list to stop bothering user
+
+    }
+
+
     //TODO if we find a monocle server that doesn't exist yet, we want to popup a nice thing asking to add
       //TODO There could be multiple monocle servers being added at once, so we want to be careful.... maybe we want to open a windwo to do this?
         //TODO if we are able to connect and authorise with default username/password, we just want to add it right in immediately
@@ -367,7 +413,7 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   //TODO we can compare against this...
     //TODO if a device is disconnected, we want to have this remembered from previous times
     //TODO we also want to compare against existing ones which don't have an identifier, otherwise we may add it multiple times stupidly...
-//TODO    "onvif://www.onvif.org/manufacturer/Monocle"
+//TODO    
 
     int i = 0;//TODO
     //TODO we want to see if this device is currently used by the servers

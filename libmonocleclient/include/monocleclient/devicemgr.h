@@ -40,7 +40,7 @@ class DeviceMgr : public QObject
 
   void Save();
 
-  boost::shared_ptr<Device> AddDevice(const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port, const QString& username, const QString& password, bool save);
+  boost::shared_ptr<Device> AddDevice(const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port, const QString& username, const QString& password, const uint64_t identifier, bool save);
   int RemoveDevice(boost::shared_ptr<Device>& device);
 
   inline std::vector< boost::shared_ptr<Device> >& GetDevices() { return devices_; }

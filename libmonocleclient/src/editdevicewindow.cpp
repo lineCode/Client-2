@@ -171,7 +171,7 @@ void EditDeviceWindow::on_buttontest_clicked()
   }
 
   ui_.editconnectresult->setText("Connecting...");
-  testdevice_ = boost::make_shared<Device>(proxyparams, ui_.editaddress->text(), ui_.editport->text().toUInt(), ui_.editusername->text(), ui_.editpassword->text());
+  testdevice_ = boost::make_shared<Device>(proxyparams, ui_.editaddress->text(), ui_.editport->text().toUInt(), ui_.editusername->text(), ui_.editpassword->text(), 0);
   connectconnection_ = testdevice_->Connect([this](const boost::system::error_code& err)
   {
     if (err)
@@ -237,13 +237,13 @@ void EditDeviceWindow::on_buttonok_clicked()
   
   if (device_)
   {
-    device_->Set(proxyparams, ui_.editaddress->text(), ui_.editport->text().toUInt(), ui_.editusername->text(), ui_.editpassword->text());
+    device_->Set(proxyparams, ui_.editaddress->text(), ui_.editport->text().toUInt(), ui_.editusername->text(), ui_.editpassword->text(), 0);
     MainWindow::Instance()->GetDeviceMgr().Save();
     device_->Subscribe();
   }
   else
   {
-    if (!MainWindow::Instance()->GetDeviceMgr().AddDevice(proxyparams, ui_.editaddress->text(), ui_.editport->text().toInt(), ui_.editusername->text(), ui_.editpassword->text(), true))
+    if (!MainWindow::Instance()->GetDeviceMgr().AddDevice(proxyparams, ui_.editaddress->text(), ui_.editport->text().toInt(), ui_.editusername->text(), ui_.editpassword->text(), 0, true))
     {
       QMessageBox(QMessageBox::Information, tr("Warning"), tr("Failed to add onvif device"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
       return;

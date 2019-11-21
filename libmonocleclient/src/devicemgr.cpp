@@ -32,6 +32,7 @@ const QString PROXYUSERNAME("proxyusername");
 const QString PROXYPASSWORD("proxypassword");
 const QString USERNAME("username");
 const QString PASSWORD("password");
+const QString IDENTIFIER("identifier");
 
 ///// Methods /////
 
@@ -62,6 +63,7 @@ void DeviceMgr::Init()
               settings.value(PORT, monocle::server::DEFAULTPORT).toInt(),
               settings.value(USERNAME).toString(),
               settings.value(PASSWORD).toString(),
+              settings.value(IDENTIFIER, 0).toULongLong(),
               false);
   }
   settings.endArray();
@@ -96,13 +98,14 @@ void DeviceMgr::Save()
     settings.setValue(PROXYPASSWORD, QString::fromStdString(device->GetProxyParams().GetPassword()));
     settings.setValue(USERNAME, device->GetUsername());
     settings.setValue(PASSWORD, device->GetPassword());
+    settings.setValue(IDENTIFIER, device->GetIdentifier());
   }
   settings.endArray();
 }
 
-boost::shared_ptr<Device> DeviceMgr::AddDevice(const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port, const QString& username, const QString& password, bool save)
+boost::shared_ptr<Device> DeviceMgr::AddDevice(const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port, const QString& username, const QString& password, const uint64_t identifier, bool save)
 {
-  boost::shared_ptr<Device> device = boost::make_shared<Device>(proxyparams, address, port, username, password);
+  boost::shared_ptr<Device> device = boost::make_shared<Device>(proxyparams, address, port, username, password, identifier);
   device->Subscribe();
   devices_.push_back(device);
   emit DeviceAdded(device);
