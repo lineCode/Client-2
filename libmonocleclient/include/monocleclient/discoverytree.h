@@ -45,7 +45,7 @@ class DiscoveryTree : public QTreeWidget
   void Filter(QTreeWidgetItem* item);
 
   PipeClient pipeclient_;
-  boost::shared_ptr<onvif::wsdiscover::WsDiscoverClient> discover_;
+  boost::shared_ptr<onvif::wsdiscover::WsDiscoverClient> discover_;//TODO need to use this MainWindow
 
   bool showipv4_;
   bool showipv6_;

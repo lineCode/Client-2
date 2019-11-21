@@ -88,7 +88,9 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   qttranslator_(new QTranslator(this)),
   videowidgetsmgr_(arial_, showfullscreen_),
   checkforupdate_(version_),
-  colourpickercolour_(2.0f, 2.0f, 2.0f)
+  colourpickercolour_(2.0f, 2.0f, 2.0f),
+  discoverytimer_(-1),
+  iotimer_(-1)
 {
   instance_ = this;
 
@@ -354,7 +356,39 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
 
   }
 
-  startTimer(100);
+  discover_ = boost::make_shared<onvif::wsdiscover::WsDiscoverClient>(MainWindow::Instance()->GetGUIIOService());
+  discover_->hello_.connect([](const std::vector<std::string>& addresses, const std::vector<std::string>& scopes)
+  {
+    //TODO if we find a monocle server that doesn't exist yet, we want to popup a nice thing asking to add
+      //TODO There could be multiple monocle servers being added at once, so we want to be careful.... maybe we want to open a windwo to do this?
+        //TODO if we are able to connect and authorise with default username/password, we just want to add it right in immediately
+
+//TODO    "onvif://www.onvif.org/monocle/identifier/15650752839421594420"
+  //TODO we can compare against this...
+    //TODO if a device is disconnected, we want to have this remembered from previous times
+    //TODO we also want to compare against existing ones which don't have an identifier, otherwise we may add it multiple times stupidly...
+//TODO    "onvif://www.onvif.org/manufacturer/Monocle"
+
+    int i = 0;//TODO
+    //TODO we want to see if this device is currently used by the servers
+    //TODO if there is a disconnected server, we want to remember what devices have been previously been connected
+      //TODO need to keep a list around of previously connected devices(if this changes, always change it)
+
+
+  });
+  if (discover_->Init())
+  {
+    LOG_GUI_WARNING(QString("WsDiscoverClient::Init failed"));
+
+  }
+
+  //TODO discover_->Broadcast();
+    //TODO call this every 30seconds too
+  //TODO provide an option in the gui to disable it
+
+  //TODO start scanning random ip addresses too!
+  discoverytimer_ = startTimer(std::chrono::seconds(30));
+  iotimer_ = startTimer(100);
 }
 
 MainWindow::~MainWindow()
@@ -672,8 +706,16 @@ void MainWindow::dropEvent(QDropEvent* event)
 
 void MainWindow::timerEvent(QTimerEvent* event)
 {
-  guiioservice_.reset();
-  guiioservice_.poll();
+  if (event->timerId() == discoverytimer_)
+  {
+    discover_->Broadcast();
+
+  }
+  else if (event->timerId() == iotimer_)
+  {
+    guiioservice_.reset();//TODO check which timer it is now, because we have multiple
+    guiioservice_.poll();
+  }
 }
 
 void MainWindow::AcceptDrop(QDragMoveEvent* event)

@@ -17,6 +17,7 @@
 #include <QVector>
 #include <utility/ioservicepool.hpp>
 #include <utility/utility.hpp>
+#include <wsdiscover/wsdiscoverclient.hpp>
 
 #ifdef _WIN32
   #include <WinSock2.h>
@@ -249,6 +250,11 @@ class MainWindow : public QMainWindow
   CheckForUpdate checkforupdate_;
 
   QVector3D colourpickercolour_;
+
+  boost::shared_ptr<onvif::wsdiscover::WsDiscoverClient> discover_;
+
+  int discoverytimer_;
+  int iotimer_;
 
  private slots:
 
