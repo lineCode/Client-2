@@ -379,18 +379,96 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
         return;
       }
 
-      boost::shared_ptr<Device> device = MainWindow::Instance()->GetDeviceMgr().GetDevice(identifier);
-      if (device)
+      if (MainWindow::Instance()->GetDeviceMgr().GetDevice(identifier))
       {
         // We already have this device, ignore this
         return;
       }
 
+      std::vector<boost::asio::ip::address> localaddresses;
+      localaddresses.reserve(addresses.size());
+      for (const std::string& address : addresses)
+      {
+        network::uri uri(address);
+        try
+        {
+          uri = network::uri(address);
+
+        }
+        catch (...)
+        {
+
+          continue;
+        }
+
+        if (!uri.has_path())
+        {
+
+          continue;
+        }
+
+        if (uri.path().compare("/monocle_service"))
+        {
+
+          continue;
+        }
+
+        if (!uri.has_host())
+        {
+
+          continue;
+        }
+
+        boost::system::error_code err;
+        const std::string host = uri.host().to_string();
+        const boost::asio::ip::address a = boost::asio::ip::address::from_string(host, err);
+        if (err)
+        {
+
+          continue;
+        }
+
+        if (a.is_v4())
+        {
+          if (boost::starts_with(host, "192.168.") || boost::starts_with(host, "172.") || boost::starts_with(host, "10."))
+          {
+            localaddresses.push_back(a);
+
+          }
+        }
+        else if (a.is_v6())
+        {
+          if (a.to_v6().is_site_local())
+          {
+            localaddresses.push_back(a);
+
+          }
+        }
+      }
+
+      //TODO now find the device with identifier zero, and with any of the ip addresses we have found
+        //TODO
+
+      int i = 0;//TODO
 
 
-      //TODO get the identifier
-        //TODO if we don't have the identifier...
-          //TODO first check to see whether the addresses correspond to a device we haven't got an identifier for yet... and ignore it if so
+      //TODO then convert to std::vector<boost::asio::ip::address> local addresses only
+        //TODO then try to retrieve the device which corresponds to identifier==0 and a device name
+
+      //TODO look for a device which shares the addresses with the current(on 192.168.x.x,172.x.x.x,10.x.x.x) AND has no identifier yet
+        //TODO what about 169.
+        //TODO if it is ipv6... convert to boost::asio::address first imo
+        //TODO we can then assume that this belongs to it, so don't bother continuing
+
+
+      //TODO now that we have exhausted possibilities for duplicates, then look at the saved ones we should ignore
+
+
+      //TODO now open a window or do something...
+        //TODO be careful, if there are multiple devices, we don't want to spam windows(or messageboxes)
+
+
+
           //TODO messagebox query to add this device(and a checkbox to stop asking(for this identifier))
             //TODO save the list of identifier that we want to ignore to QSettings
     }
