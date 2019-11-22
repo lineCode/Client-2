@@ -443,6 +443,12 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
           }
         }
 
+        if (utility::Contains(localaddresses, a)) // Don't add duplicates
+        {
+
+          continue;
+        }
+
         if (a.is_v4())
         {
           if (boost::starts_with(host, "192.168.") || boost::starts_with(host, "172.") || boost::starts_with(host, "10."))
@@ -461,6 +467,13 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
         }
       }
 
+      if (localaddresses.empty())
+      {
+
+        return;
+      }
+
+      //TODO we can pass in the port too, to this method I think
       if (MainWindow::Instance()->GetDeviceMgr().GetDevices(localaddresses, 0).size()) // If we have a device that has never connected before, but shares an address, we probably don't want to add this
       {
 
@@ -513,12 +526,27 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
           return;
         }
 
-        //TODO now kick off an attempt to connect
-          //TODO and if it fails, then we need to look at bringing up the EditDeviceWindow, filled out as best as we can
+        //TODO how do we decide which ip to use...
+          //TODO we need to look at our own ip addresses and compare, to see if we have any that match...
+          //TODO connect to all the addresses and see which one works..?
 
+        // Kick off a Connection, which automatically adds the device if it can authenticate, otherwise brings up the window to add it
+        boost::shared_ptr<Connection> connection = boost::make_shared<Connection>(MainWindow::Instance()->GetGUIIOService(), sock::ProxyParams(), );
+        boost::shared_ptr<sock::Connection> c = boost::make_shared<sock::Connection>();
+        *c = connection->Connect([connection, c](const boost::system::error_code& err)//TODO connection thing... how do we keep it alive nicely...
+        {
+          if (err)
+          {
+            //TODO increase a counter here
+            //TODO bring up dialog
 
+          }
+          else
+          {
+            //TODO begin authentication...
 
-        int i = 0;
+          }
+        });
 
         //TODO attempt to connect(carrying everything through I think?)
           //TODO we could have multiple of these trying all the time, i think we need to keep track of which ones we are trying?
