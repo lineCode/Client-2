@@ -256,6 +256,8 @@ class MainWindow : public QMainWindow
   int discoverytimer_;
   int iotimer_;
 
+  std::vector<uint64_t> newdeviceidentifiers_; // A list of devices we have asked the user to add
+
  private slots:
 
   void LanguageChanged(QAction* action);

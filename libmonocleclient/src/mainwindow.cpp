@@ -357,7 +357,7 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   }
 
   discover_ = boost::make_shared<onvif::wsdiscover::WsDiscoverClient>(MainWindow::Instance()->GetGUIIOService());
-  discover_->hello_.connect([](const std::vector<std::string>& addresses, const std::vector<std::string>& scopes)
+  discover_->hello_.connect([this](const std::vector<std::string>& addresses, const std::vector<std::string>& scopes)
   {
     if (utility::Contains(scopes, "onvif://www.onvif.org/manufacturer/Monocle"))
     {
@@ -428,6 +428,21 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
           continue;
         }
 
+        uint16_t port = 9854;
+        if (uri.has_port())
+        {
+          try
+          {
+            port = boost::lexical_cast<uint16_t>(uri.port());
+
+          }
+          catch (...)
+          {
+
+            continue;
+          }
+        }
+
         if (a.is_v4())
         {
           if (boost::starts_with(host, "192.168.") || boost::starts_with(host, "172.") || boost::starts_with(host, "10."))
@@ -446,31 +461,81 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
         }
       }
 
-      //TODO now find the device with identifier zero, and with any of the ip addresses we have found
+      if (MainWindow::Instance()->GetDeviceMgr().GetDevices(localaddresses, 0).size()) // If we have a device that has never connected before, but shares an address, we probably don't want to add this
+      {
+
+        return;
+      }
+
+      QMetaObject::invokeMethod(this, [this, identifier, localaddresses]()
+      {
+        if (utility::Contains(newdeviceidentifiers_, identifier)) // Ignore any devices that we have already queried the user with
+        {
+
+          return;
+        }
+        newdeviceidentifiers_.push_back(identifier);
+
+        //TODO how do we stop this from asking multiple at once and spamming?
+        //TODO is this the way we want to go?
+        QCheckBox* checkbox = new QCheckBox("Do not show this again");
+        QMessageBox messagebox;
+        messagebox.setWindowTitle("New Device Discovery");
+        messagebox.setText("Would you like to add this device?");
+        messagebox.setIcon(QMessageBox::Icon::Question);
+        messagebox.addButton(QMessageBox::Yes);
+        messagebox.addButton(QMessageBox::No);
+        messagebox.setDefaultButton(QMessageBox::No);
+        messagebox.setCheckBox(checkbox);
+        bool donotshowagain = false;
+        QObject::connect(checkbox, &QCheckBox::stateChanged, [&donotshowagain](int state)
+        {
+          if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
+          {
+            donotshowagain = true;
+
+          }
+          else
+          {
+            donotshowagain = false;
+
+          }
+        });
+        if (donotshowagain)
+        {
+          QSettings settings(QSettings::IniFormat, QSettings::UserScope, QCoreApplication::organizationName(), QCoreApplication::applicationName());
+          //TODO write to QSettings that we don't want to see this again
+            //TODO write the complete set of newdeviceidentifiers_
+        }
+        if (messagebox.exec() != QMessageBox::Yes)
+        {
+
+          return;
+        }
+
+        //TODO now kick off an attempt to connect
+          //TODO and if it fails, then we need to look at bringing up the EditDeviceWindow, filled out as best as we can
+
+
+
+        int i = 0;
+
+        //TODO attempt to connect(carrying everything through I think?)
+          //TODO we could have multiple of these trying all the time, i think we need to keep track of which ones we are trying?
+
+        //TODO open a window or a QMessageBox or something
+          //TODO we then want to fire off an attempt to connect and authorise too?
+
+        //TODO now open a window or do something...
+          //TODO be careful, if there are multiple devices, we don't want to spam windows(or messageboxes)
+
+
+
+            //TODO messagebox query to add this device(and a checkbox to stop asking(for this identifier))
+              //TODO save the list of identifier that we want to ignore to QSettings
         //TODO
 
-      int i = 0;//TODO
-
-
-      //TODO then convert to std::vector<boost::asio::ip::address> local addresses only
-        //TODO then try to retrieve the device which corresponds to identifier==0 and a device name
-
-      //TODO look for a device which shares the addresses with the current(on 192.168.x.x,172.x.x.x,10.x.x.x) AND has no identifier yet
-        //TODO what about 169.
-        //TODO if it is ipv6... convert to boost::asio::address first imo
-        //TODO we can then assume that this belongs to it, so don't bother continuing
-
-
-      //TODO now that we have exhausted possibilities for duplicates, then look at the saved ones we should ignore
-
-
-      //TODO now open a window or do something...
-        //TODO be careful, if there are multiple devices, we don't want to spam windows(or messageboxes)
-
-
-
-          //TODO messagebox query to add this device(and a checkbox to stop asking(for this identifier))
-            //TODO save the list of identifier that we want to ignore to QSettings
+      }, Qt::QueuedConnection);
     }
     else
     {
@@ -480,37 +545,19 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
 
 //TODO camera address/manufacturer/etc ignore list to stop bothering user
 
-    }
-
-
-    //TODO if we find a monocle server that doesn't exist yet, we want to popup a nice thing asking to add
-      //TODO There could be multiple monocle servers being added at once, so we want to be careful.... maybe we want to open a windwo to do this?
-        //TODO if we are able to connect and authorise with default username/password, we just want to add it right in immediately
-
-//TODO    "onvif://www.onvif.org/monocle/identifier/15650752839421594420"
-  //TODO we can compare against this...
-    //TODO if a device is disconnected, we want to have this remembered from previous times
-    //TODO we also want to compare against existing ones which don't have an identifier, otherwise we may add it multiple times stupidly...
-//TODO    
-
-    int i = 0;//TODO
-    //TODO we want to see if this device is currently used by the servers
     //TODO if there is a disconnected server, we want to remember what devices have been previously been connected
       //TODO need to keep a list around of previously connected devices(if this changes, always change it)
 
-
+//TODO start scanning random ip addresses too!
+  //TODO maybe monocle servers should be doing this for devices... don't really want too many clients searching around for devices
+    }
   });
   if (discover_->Init())
   {
     LOG_GUI_WARNING(QString("WsDiscoverClient::Init failed"));
 
   }
-
-  //TODO discover_->Broadcast();
-    //TODO call this every 30seconds too
-  //TODO provide an option in the gui to disable it
-
-  //TODO start scanning random ip addresses too!
+  //TODO provide an option in the gui to disable the discovery thing
   discoverytimer_ = startTimer(std::chrono::seconds(30));
   iotimer_ = startTimer(100);
 }

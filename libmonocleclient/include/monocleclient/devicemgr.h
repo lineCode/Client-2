@@ -6,8 +6,10 @@
 
 ///// Includes /////
 
+#include <boost/asio/ip/address.hpp>
 #include <boost/optional.hpp>
 #include <memory>
+#include <mutex>
 #include <socket/proxyparams.hpp>
 #include <QObject>
 #include <QStringList>
@@ -44,8 +46,8 @@ class DeviceMgr : public QObject
   int RemoveDevice(boost::shared_ptr<Device>& device);
 
   inline std::vector< boost::shared_ptr<Device> >& GetDevices() { return devices_; }
+  std::vector< boost::shared_ptr<Device> > GetDevices(const std::vector<boost::asio::ip::address>& addresses, const uint64_t identifier);
   std::vector< boost::shared_ptr<Device> > GetDevices(const uint64_t identifier);
-
   boost::shared_ptr<Device> GetDevice(const uint64_t identifier) const;
 
   QStringList GetLocations() const;
@@ -55,6 +57,7 @@ class DeviceMgr : public QObject
 
  private:
 
+  mutable std::recursive_mutex mutex_;
   std::vector< boost::shared_ptr<Device> > devices_;
 
  signals:
