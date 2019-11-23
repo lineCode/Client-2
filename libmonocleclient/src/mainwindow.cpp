@@ -545,7 +545,7 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
             newdeviceidentifiers.push_back(QString::number(newdeviceidenfitier));
 
           }
-          settings.setValue(NEWDEVICEIDENTIFIERS, newdeviceidentifiers);//TODO load this on startup...
+          settings.setValue(NEWDEVICEIDENTIFIERS, newdeviceidentifiers);
         }
         if (ret != QMessageBox::Yes)
         {
@@ -578,8 +578,8 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
             {
               *connecting = true;
 
-              //TODO need to keep ahold of the connection
-              connection->GetAuthenticationNonce([identifier, connection](const std::chrono::steady_clock::duration latency, const monocle::client::GETAUTHENTICATIONNONCERESPONSE& getauthenticationnonceresponse)
+              boost::shared_ptr<monocle::client::Connection> c = boost::make_shared<monocle::client::Connection>();
+              *c = connection->GetAuthenticationNonce([identifier, connection, c](const std::chrono::steady_clock::duration latency, const monocle::client::GETAUTHENTICATIONNONCERESPONSE& getauthenticationnonceresponse)
               {
                 if (getauthenticationnonceresponse.GetErrorCode() != monocle::ErrorCode::Success)
                 {
@@ -587,9 +587,8 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
                   return;
                 }
 
-                //TODO connection please for me
                 const std::string clientnonce = utility::GenerateRandomString(32);
-                connection->Authenticate("admin", clientnonce, monocle::AuthenticateDigest("admin", "password", getauthenticationnonceresponse.authenticatenonce_, clientnonce), [identifier, connection](const std::chrono::steady_clock::duration latency, const monocle::client::AUTHENTICATERESPONSE& authenticateresponse)
+                *c = connection->Authenticate("admin", clientnonce, monocle::AuthenticateDigest("admin", "password", getauthenticationnonceresponse.authenticatenonce_, clientnonce), [identifier, connection, c](const std::chrono::steady_clock::duration latency, const monocle::client::AUTHENTICATERESPONSE& authenticateresponse)
                 {
                   if (authenticateresponse.GetErrorCode() != monocle::ErrorCode::Success)
                   {
@@ -597,8 +596,7 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
                     return;
                   }
 
-                  //TODO connection please for me
-                  connection->GetState([identifier, connection](const std::chrono::steady_clock::duration latency, const monocle::client::GETSTATERESPONSE& getstateresponse)
+                  *c = connection->GetState([identifier, connection, c](const std::chrono::steady_clock::duration latency, const monocle::client::GETSTATERESPONSE& getstateresponse)
                   {
                     if (getstateresponse.GetErrorCode() != monocle::ErrorCode::Success)
                     {
