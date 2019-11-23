@@ -31,6 +31,7 @@ class EditDeviceWindow : public QDialog
  public:
 
   EditDeviceWindow(QWidget* parent, const boost::shared_ptr<Device>& device);
+  EditDeviceWindow(QWidget* parent, const QString& address, const uint16_t port, const QString& username, const QString& password);
   virtual ~EditDeviceWindow();
   
  protected:

@@ -46,7 +46,7 @@ class DeviceMgr : public QObject
   int RemoveDevice(boost::shared_ptr<Device>& device);
 
   inline std::vector< boost::shared_ptr<Device> >& GetDevices() { return devices_; }
-  std::vector< boost::shared_ptr<Device> > GetDevices(const std::vector<boost::asio::ip::address>& addresses, const uint64_t identifier);
+  std::vector< boost::shared_ptr<Device> > GetDevices(const std::vector< std::pair<boost::asio::ip::address, uint16_t> >& addresses, const uint64_t identifier); // <address, port>
   std::vector< boost::shared_ptr<Device> > GetDevices(const uint64_t identifier);
   boost::shared_ptr<Device> GetDevice(const uint64_t identifier) const;
 

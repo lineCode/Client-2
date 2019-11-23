@@ -52,6 +52,7 @@ static const QString MAINVIDEOWINDOWWIDTH("mainvideowindowwidth");
 static const QString MAINVIDEOWINDOWHEIGHT("videowindowheight");
 static const QString MAINVIDEOWINDOWSHOWTOOLBAR("videowindowshowtoolbar");
 static const QString MAINSHOWTOOLBAR("showtoolbar");
+static const QString NEWDEVICEIDENTIFIERS("newdeviceidentifiers");
 
 ///// Methods /////
 
@@ -248,6 +249,20 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   ui_.actionplayback->setChecked(ui_.dockplayback->isVisible());
   ui_.actiontoolbar->setChecked(ui_.toolbar->isVisible());
 
+  // Devices to not the warn the user about
+  for (const QString& newdeviceidentifier : settings.value(NEWDEVICEIDENTIFIERS).toStringList())
+  {
+    try
+    {
+      newdeviceidentifiers_.push_back(boost::lexical_cast<uint64_t>(newdeviceidentifier.toStdString()));
+
+    }
+    catch (...)
+    {
+
+    }
+  }
+
   // Translations
   QActionGroup* langgroup = new QActionGroup(ui_.menulanguage);
   langgroup->setExclusive(true);
@@ -385,7 +400,7 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
         return;
       }
 
-      std::vector<boost::asio::ip::address> localaddresses;
+      std::vector< std::pair<boost::asio::ip::address, uint16_t> > localaddresses;
       localaddresses.reserve(addresses.size());
       for (const std::string& address : addresses)
       {
@@ -443,7 +458,7 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
           }
         }
 
-        if (utility::Contains(localaddresses, a)) // Don't add duplicates
+        if (utility::Contains(localaddresses, std::make_pair(a, port))) // Don't add duplicates
         {
 
           continue;
@@ -453,7 +468,7 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
         {
           if (boost::starts_with(host, "192.168.") || boost::starts_with(host, "172.") || boost::starts_with(host, "10."))
           {
-            localaddresses.push_back(a);
+            localaddresses.push_back(std::make_pair(a, port));
 
           }
         }
@@ -461,7 +476,7 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
         {
           if (a.to_v6().is_site_local())
           {
-            localaddresses.push_back(a);
+            localaddresses.push_back(std::make_pair(a, port));
 
           }
         }
@@ -473,7 +488,6 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
         return;
       }
 
-      //TODO we can pass in the port too, to this method I think
       if (MainWindow::Instance()->GetDeviceMgr().GetDevices(localaddresses, 0).size()) // If we have a device that has never connected before, but shares an address, we probably don't want to add this
       {
 
@@ -489,11 +503,17 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
         }
         newdeviceidentifiers_.push_back(identifier);
 
-        //TODO how do we stop this from asking multiple at once and spamming?
-        //TODO is this the way we want to go?
+        QStringList localaddressestext;
+        for (const std::pair<boost::asio::ip::address, uint16_t>& localaddress : localaddresses)
+        {
+          localaddressestext.push_back(QString::fromStdString(localaddress.first.to_string()));
+
+        }
+
+        // If there are multiple devices to add, this will spam, but that's kind of ok I guess...//TODO would be nice to fix this...
         QCheckBox* checkbox = new QCheckBox("Do not show this again");
         QMessageBox messagebox;
-        messagebox.setWindowTitle("New Device Discovery");
+        messagebox.setWindowTitle("New Device Discovery: " + localaddressestext.join(" "));
         messagebox.setText("Would you like to add this device?");
         messagebox.setIcon(QMessageBox::Icon::Question);
         messagebox.addButton(QMessageBox::Yes);
@@ -514,55 +534,94 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
 
           }
         });
+        const int ret = messagebox.exec();
         if (donotshowagain)
         {
           QSettings settings(QSettings::IniFormat, QSettings::UserScope, QCoreApplication::organizationName(), QCoreApplication::applicationName());
-          //TODO write to QSettings that we don't want to see this again
-            //TODO write the complete set of newdeviceidentifiers_
+          QStringList newdeviceidentifiers;
+          newdeviceidentifiers.reserve(static_cast<int>(newdeviceidentifiers_.size()));
+          for (const uint64_t newdeviceidenfitier : newdeviceidentifiers_)
+          {
+            newdeviceidentifiers.push_back(QString::number(newdeviceidenfitier));
+
+          }
+          settings.setValue(NEWDEVICEIDENTIFIERS, newdeviceidentifiers);//TODO load this on startup...
         }
-        if (messagebox.exec() != QMessageBox::Yes)
+        if (ret != QMessageBox::Yes)
         {
 
           return;
         }
 
-        //TODO how do we decide which ip to use...
-          //TODO we need to look at our own ip addresses and compare, to see if we have any that match...
-          //TODO connect to all the addresses and see which one works..?
-
-        // Kick off a Connection, which automatically adds the device if it can authenticate, otherwise brings up the window to add it
-        boost::shared_ptr<Connection> connection = boost::make_shared<Connection>(MainWindow::Instance()->GetGUIIOService(), sock::ProxyParams(), );
-        boost::shared_ptr<sock::Connection> c = boost::make_shared<sock::Connection>();
-        *c = connection->Connect([connection, c](const boost::system::error_code& err)//TODO connection thing... how do we keep it alive nicely...
+        // Kick off a bunch of Connections, which automatically adds the device if it can authenticate, otherwise brings up the window to add it
+        boost::shared_ptr< std::vector< boost::shared_ptr<sock::Connection> > > connections = boost::make_shared< std::vector< boost::shared_ptr<sock::Connection> > >();
+        boost::shared_ptr<bool> connecting = boost::make_shared<bool>(false);
+        for (const std::pair<boost::asio::ip::address, uint16_t>& localaddress : localaddresses)
         {
-          if (err)
+          boost::shared_ptr<Connection> connection = boost::make_shared<Connection>(MainWindow::Instance()->GetGUIIOService(), sock::ProxyParams(), QString::fromStdString(localaddress.first.to_string()), localaddress.second);
+          connections->push_back(boost::make_shared<sock::Connection>(connection->Connect([identifier, connection, connections, connecting](const boost::system::error_code& err) mutable
           {
-            //TODO increase a counter here
-            //TODO bring up dialog
+            if (*connecting)
+            {
+              // Another connection has stolen the show already, ignore this one
+              return;
+            }
 
-          }
-          else
-          {
-            //TODO begin authentication...
+            if (err)
+            {
+              
+              //TODO increase a counter here
+              //TODO bring up dialog if we reach the max count
 
-          }
-        });
+            }
+            else
+            {
+              *connecting = true;
 
-        //TODO attempt to connect(carrying everything through I think?)
-          //TODO we could have multiple of these trying all the time, i think we need to keep track of which ones we are trying?
+              //TODO need to keep ahold of the connection
+              connection->GetAuthenticationNonce([identifier, connection](const std::chrono::steady_clock::duration latency, const monocle::client::GETAUTHENTICATIONNONCERESPONSE& getauthenticationnonceresponse)
+              {
+                if (getauthenticationnonceresponse.GetErrorCode() != monocle::ErrorCode::Success)
+                {
+                  EditDeviceWindow(MainWindow::Instance(), connection->GetAddress(), connection->GetPort(), "admin", "password").exec();
+                  return;
+                }
 
-        //TODO open a window or a QMessageBox or something
-          //TODO we then want to fire off an attempt to connect and authorise too?
+                //TODO connection please for me
+                const std::string clientnonce = utility::GenerateRandomString(32);
+                connection->Authenticate("admin", clientnonce, monocle::AuthenticateDigest("admin", "password", getauthenticationnonceresponse.authenticatenonce_, clientnonce), [identifier, connection](const std::chrono::steady_clock::duration latency, const monocle::client::AUTHENTICATERESPONSE& authenticateresponse)
+                {
+                  if (authenticateresponse.GetErrorCode() != monocle::ErrorCode::Success)
+                  {
+                    EditDeviceWindow(MainWindow::Instance(), connection->GetAddress(), connection->GetPort(), "admin", "password").exec();
+                    return;
+                  }
 
-        //TODO now open a window or do something...
-          //TODO be careful, if there are multiple devices, we don't want to spam windows(or messageboxes)
+                  //TODO connection please for me
+                  connection->GetState([identifier, connection](const std::chrono::steady_clock::duration latency, const monocle::client::GETSTATERESPONSE& getstateresponse)
+                  {
+                    if (getstateresponse.GetErrorCode() != monocle::ErrorCode::Success)
+                    {
+                      EditDeviceWindow(MainWindow::Instance(), connection->GetAddress(), connection->GetPort(), "admin", "password").exec();
+                      return;
+                    }
 
+                    if (identifier == getstateresponse.identifier_) // Make sure it is the device we discovered
+                    {
+                      MainWindow::Instance()->GetDeviceMgr().AddDevice(sock::ProxyParams(), connection->GetAddress(), connection->GetPort(), "admin", "password", 0, true);
 
+                    }
+                    else
+                    {
+                      EditDeviceWindow(MainWindow::Instance(), connection->GetAddress(), connection->GetPort(), "admin", "password").exec();
 
-            //TODO messagebox query to add this device(and a checkbox to stop asking(for this identifier))
-              //TODO save the list of identifier that we want to ignore to QSettings
-        //TODO
-
+                    }
+                  });
+                });
+              });
+            }
+          })));
+        }
       }, Qt::QueuedConnection);
     }
     else
@@ -578,6 +637,7 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
 
 //TODO start scanning random ip addresses too!
   //TODO maybe monocle servers should be doing this for devices... don't really want too many clients searching around for devices
+  //TODO we may want to do this on request?
     }
   });
   if (discover_->Init())
@@ -585,6 +645,7 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
     LOG_GUI_WARNING(QString("WsDiscoverClient::Init failed"));
 
   }
+
   //TODO provide an option in the gui to disable the discovery thing
   discoverytimer_ = startTimer(std::chrono::seconds(30));
   iotimer_ = startTimer(100);

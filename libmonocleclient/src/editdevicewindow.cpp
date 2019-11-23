@@ -79,6 +79,31 @@ EditDeviceWindow::EditDeviceWindow(QWidget* parent, const boost::shared_ptr<Devi
   }
 }
 
+EditDeviceWindow::EditDeviceWindow(QWidget* parent, const QString& address, const uint16_t port, const QString& username, const QString& password) :
+  QDialog(parent)
+{
+  ui_.setupUi(this);
+
+  connect(ui_.treediscovery, &DiscoveryTree::itemClicked, this, &EditDeviceWindow::DiscoveryTreeItemClicked);
+  connect(ui_.buttoncancel, &QPushButton::clicked, this, &QDialog::reject);
+
+  ui_.editproxyport->setValidator(new QIntValidator(1, 65535, this));
+  ui_.editport->setValidator(new QIntValidator(1, 65535, this));
+
+  QPalette palette;
+  palette.setColor(QPalette::Base, QColor(200, 200, 200));
+  ui_.editconnectresult->setPalette(palette);
+
+  ui_.comboproxytype->addItem(QString::fromStdString(sock::ToString(sock::PROXYTYPE_NONE)), static_cast<int>(sock::PROXYTYPE_NONE));
+  ui_.comboproxytype->addItem(QString::fromStdString(sock::ToString(sock::PROXYTYPE_HTTP)), static_cast<int>(sock::PROXYTYPE_HTTP));
+  ui_.comboproxytype->addItem(QString::fromStdString(sock::ToString(sock::PROXYTYPE_SOCKS5)), static_cast<int>(sock::PROXYTYPE_SOCKS5));
+
+  ui_.editaddress->setText(address);
+  ui_.editaddress->setText(QString::number(port));
+  ui_.editaddress->setText(username);
+  ui_.editaddress->setText(password);
+}
+
 EditDeviceWindow::~EditDeviceWindow()
 {
   connectconnection_.Close();

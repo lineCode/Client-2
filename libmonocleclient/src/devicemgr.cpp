@@ -152,7 +152,7 @@ std::vector< boost::shared_ptr<Device> > DeviceMgr::GetDevices(const uint64_t id
   return devices;
 }
 
-std::vector< boost::shared_ptr<Device> > DeviceMgr::GetDevices(const std::vector<boost::asio::ip::address>& addresses, const uint64_t identifier)
+std::vector< boost::shared_ptr<Device> > DeviceMgr::GetDevices(const std::vector< std::pair<boost::asio::ip::address, uint16_t> >& addresses, const uint64_t identifier)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   std::vector< boost::shared_ptr<Device> > devices;
@@ -171,7 +171,7 @@ std::vector< boost::shared_ptr<Device> > DeviceMgr::GetDevices(const std::vector
 
       continue;
     }
-    if (utility::Contains(addresses, address))
+    if (utility::Contains(addresses, std::make_pair(address, device->GetPort())))
     {
       devices.push_back(device);
 
