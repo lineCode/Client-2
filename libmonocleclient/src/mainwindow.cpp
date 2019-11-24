@@ -482,6 +482,12 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
         }
       }
 
+      if (QApplication::activeWindow() != MainWindow::Instance()) // Only bother the user if they haven't got another window open...
+      {
+
+        return;
+      }
+
       if (localaddresses.empty())
       {
 
