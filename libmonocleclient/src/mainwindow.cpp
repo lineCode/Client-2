@@ -562,10 +562,11 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
         // Kick off a bunch of Connections, which automatically adds the device if it can authenticate, otherwise brings up the window to add it
         boost::shared_ptr< std::vector< boost::shared_ptr<sock::Connection> > > connections = boost::make_shared< std::vector< boost::shared_ptr<sock::Connection> > >();
         boost::shared_ptr<bool> connecting = boost::make_shared<bool>(false);
+        const boost::shared_ptr<size_t> count = boost::make_shared<size_t>(localaddresses.size());
         for (const std::pair<boost::asio::ip::address, uint16_t>& localaddress : localaddresses)
         {
-          boost::shared_ptr<Connection> connection = boost::make_shared<Connection>(MainWindow::Instance()->GetGUIIOService(), sock::ProxyParams(), QString::fromStdString(localaddress.first.to_string()), localaddress.second);
-          connections->push_back(boost::make_shared<sock::Connection>(connection->Connect([identifier, connection, connections, connecting](const boost::system::error_code& err) mutable
+          boost::shared_ptr<Connection> connection = boost::make_shared<Connection>(MainWindow::Instance()->GetGUIIOService(), sock::ProxyParams(), QString::fromStdString("192.168.1.2"), localaddress.second);
+          connections->push_back(boost::make_shared<sock::Connection>(connection->Connect([identifier, count, connection, connections, connecting](const boost::system::error_code& err) mutable
           {
             if (*connecting)
             {
@@ -575,10 +576,12 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
 
             if (err)
             {
-              
-              //TODO increase a counter here
-              //TODO bring up dialog if we reach the max count
-
+              --(*count);
+              if (*count == 0) // If all connections failed, open the window
+              {
+                EditDeviceWindow(MainWindow::Instance(), connection->GetAddress(), connection->GetPort(), "admin", "password").exec();
+                return;
+              }
             }
             else
             {
@@ -977,7 +980,7 @@ void MainWindow::timerEvent(QTimerEvent* event)
   }
   else if (event->timerId() == iotimer_)
   {
-    guiioservice_.reset();//TODO check which timer it is now, because we have multiple
+    guiioservice_.reset();
     guiioservice_.poll();
   }
 }
