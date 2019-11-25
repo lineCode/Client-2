@@ -62,6 +62,8 @@ class ManageFileWindow : public QDialog
  private slots:
 
   void SlotMountPointAdded(const uint64_t id, const uint64_t parentid, const uint64_t majorstdev, const uint64_t minorstdev, const QString& path, const QString& type, const QString& source);
+  void on_buttonbrowsemountpoint_clicked();
+  void on_buttonbrowsepath_clicked();
   void on_editpath_textChanged(const QString& text);
   void on_checkfilldisk_toggled(const bool);
   void on_buttonok_clicked();

@@ -99,9 +99,9 @@ EditDeviceWindow::EditDeviceWindow(QWidget* parent, const QString& address, cons
   ui_.comboproxytype->addItem(QString::fromStdString(sock::ToString(sock::PROXYTYPE_SOCKS5)), static_cast<int>(sock::PROXYTYPE_SOCKS5));
 
   ui_.editaddress->setText(address);
-  ui_.editaddress->setText(QString::number(port));
-  ui_.editaddress->setText(username);
-  ui_.editaddress->setText(password);
+  ui_.editport->setText(QString::number(port));
+  ui_.editusername->setText(username);
+  ui_.editpassword->setText(password);
 }
 
 EditDeviceWindow::~EditDeviceWindow()

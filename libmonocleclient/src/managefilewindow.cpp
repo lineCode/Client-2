@@ -99,6 +99,18 @@ void ManageFileWindow::SlotMountPointAdded(const uint64_t id, const uint64_t par
   pathmodel_->setStringList(strings);
 }
 
+void ManageFileWindow::on_buttonbrowsemountpoint_clicked()
+{
+  int i = 0;//TODO bring up the selecty dialog thing
+
+}
+
+void ManageFileWindow::on_buttonbrowsepath_clicked()
+{
+  int i = 0;//TODO bring up the selecty dialog thing
+
+}
+
 void ManageFileWindow::on_editpath_textChanged(const QString& text)
 {
   if (!device_->SupportsGetChildFolders())

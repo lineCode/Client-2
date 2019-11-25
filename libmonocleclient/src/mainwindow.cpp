@@ -565,7 +565,7 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
         const boost::shared_ptr<size_t> count = boost::make_shared<size_t>(localaddresses.size());
         for (const std::pair<boost::asio::ip::address, uint16_t>& localaddress : localaddresses)
         {
-          boost::shared_ptr<Connection> connection = boost::make_shared<Connection>(MainWindow::Instance()->GetGUIIOService(), sock::ProxyParams(), QString::fromStdString("192.168.1.2"), localaddress.second);
+          boost::shared_ptr<Connection> connection = boost::make_shared<Connection>(MainWindow::Instance()->GetGUIIOService(), sock::ProxyParams(), QString::fromStdString(localaddress.first.to_string()), localaddress.second);
           connections->push_back(boost::make_shared<sock::Connection>(connection->Connect([identifier, count, connection, connections, connecting](const boost::system::error_code& err) mutable
           {
             if (*connecting)
