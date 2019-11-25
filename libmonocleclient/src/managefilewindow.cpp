@@ -11,6 +11,7 @@
 #include <QValidator>
 #include <utility/utility.hpp>
 
+#include "monocleclient/browsefileswindow.h"
 #include "monocleclient/device.h"
 
 ///// Namespaces /////
@@ -41,6 +42,7 @@ ManageFileWindow::ManageFileWindow(QWidget* parent, boost::shared_ptr<Device>& d
   {
     ui_.labelmountpoint->setVisible(false);
     ui_.editmountpoint->setVisible(false);
+    ui_.buttonbrowsemountpoint->setVisible(false);
     setFixedHeight(minimumSizeHint().height());
   }
 
@@ -107,6 +109,8 @@ void ManageFileWindow::on_buttonbrowsemountpoint_clicked()
 
 void ManageFileWindow::on_buttonbrowsepath_clicked()
 {
+  BrowseFilesWindow(this).exec();//TODO pass in the current directory because we want to begin there
+  //TODO add file thing as well
   int i = 0;//TODO bring up the selecty dialog thing
 
 }
