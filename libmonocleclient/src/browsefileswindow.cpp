@@ -26,6 +26,7 @@ BrowseFilesWindow::BrowseFilesWindow(QWidget* parent, const boost::shared_ptr<De
   connect(ui_.buttonok, &QPushButton::clicked, this, &QDialog::accept);
 
   //TODO prefill the text thing with file.dat
+    //TODO when selecting things, use the filename... and add the folder pretext stuff?
 
   device_->GetChildFolders(std::string("/"), [this](const std::chrono::steady_clock::duration latency, const monocle::client::GETCHILDFOLDERSRESPONSE& getchildfoldersresponse)
   {
@@ -35,10 +36,10 @@ BrowseFilesWindow::BrowseFilesWindow(QWidget* parent, const boost::shared_ptr<De
       return;
     }
 
-    for (const std::string& childfolders : getchildfoldersresponse.childfolders_)
+    for (const std::string& childfolder : getchildfoldersresponse.childfolders_)
     {
-      BrowseFilesTreeItem* item = new BrowseFilesTreeItem(device_);
-      item->setText(0, childfolders.c_str());
+      BrowseFilesTreeItem* item = new BrowseFilesTreeItem(childfolder, device_);
+      item->setText(0, childfolder.c_str());
       item->setChildIndicatorPolicy(QTreeWidgetItem::ChildIndicatorPolicy::ShowIndicator);
       ui_.treebrowsefiles->addTopLevelItem(item);
     }

@@ -17,6 +17,7 @@ namespace client
 BrowseFilesTree::BrowseFilesTree(QWidget* parent) :
   QTreeWidget(parent)
 {
+  connect(this, &BrowseFilesTree::itemExpanded, this, &BrowseFilesTree::ItemExpanded);
 
 }
 

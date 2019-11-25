@@ -30,9 +30,15 @@ class BrowseFilesTree : public QTreeWidget
 
  protected:
 
-  void ItemExpanded(QTreeWidgetItem* item);
+
 
  private:
+
+
+
+ private slots:
+
+  void ItemExpanded(QTreeWidgetItem* item);
 
 
 

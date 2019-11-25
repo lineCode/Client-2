@@ -7,8 +7,10 @@
 ///// Includes /////
 
 #include <boost/shared_ptr.hpp>
+#include <monocleprotocol/client/connection.hpp>
 #include <QObject>
 #include <QTreeWidgetItem>
+#include <string>
 
 ///// Namespaces /////
 
@@ -27,15 +29,18 @@ class BrowseFilesTreeItem : public QObject, public QTreeWidgetItem
 
  public:
 
-  BrowseFilesTreeItem(const boost::shared_ptr<Device>& device);
+  BrowseFilesTreeItem(const std::string& folder, const boost::shared_ptr<Device>& device);
   virtual ~BrowseFilesTreeItem();
 
   void Expanded();
 
  private:
 
+  const std::string folder_;
+
   boost::shared_ptr<Device> device_;
 
+  monocle::client::Connection getchildfoldersconnection_;
 
 };
 
