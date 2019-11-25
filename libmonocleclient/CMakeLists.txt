@@ -8,6 +8,8 @@ set(CMAKE_AUTORCC ON)
 SET(LIBMONOCLE_HEADERS
 include/monocleclient/aboutwindow.h
 include/monocleclient/actions.h
+include/monocleclient/browsefilestree.h
+include/monocleclient/browsefilestreeitem.h
 include/monocleclient/browsefileswindow.h
 include/monocleclient/checkforupdate.h
 include/monocleclient/connection.h
@@ -140,6 +142,8 @@ include/monocleclient/view.h)
 SET(LIBMONOCLE_SOURCES
 src/aboutwindow.cpp
 src/actions.cpp
+src/browsefilestree.cpp
+src/browsefilestreeitem.cpp
 src/browsefileswindow.cpp
 src/checkforupdate.cpp
 src/connection.cpp

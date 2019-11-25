@@ -38,6 +38,9 @@ ManageFileWindow::ManageFileWindow(QWidget* parent, boost::shared_ptr<Device>& d
 
   ui_.editsize->setValidator(new QIntValidator(1, 536870912, this));
 
+  //TODO device_->SupportsGetChildFolders()
+    //TODO this is not enough, because there are changes, it must be 1.11.0 now at least... SupportsGetRootFolders() ?
+    //TODO remove the "..." buttons
   if (device_->IsWindows()) // Windows doesn't care about mount points
   {
     ui_.labelmountpoint->setVisible(false);
@@ -109,7 +112,7 @@ void ManageFileWindow::on_buttonbrowsemountpoint_clicked()
 
 void ManageFileWindow::on_buttonbrowsepath_clicked()
 {
-  BrowseFilesWindow(this).exec();//TODO pass in the current directory because we want to begin there
+  BrowseFilesWindow(this, device_).exec();//TODO pass in the current directory because we want to begin there
   //TODO add file thing as well
   int i = 0;//TODO bring up the selecty dialog thing
 

@@ -6,6 +6,7 @@
 
 ///// Includes /////
 
+#include <boost/shared_ptr.hpp>
 #include <QDialog>
 
 #include "ui_browsefileswindow.h"
@@ -17,6 +18,10 @@ QT_BEGIN_NAMESPACE
 namespace client
 {
 
+///// Declarations /////
+
+class Device;
+
 ///// Classes /////
 
 class BrowseFilesWindow : public QDialog
@@ -25,12 +30,14 @@ class BrowseFilesWindow : public QDialog
 
  public:
 
-  BrowseFilesWindow(QWidget* parent);
+  BrowseFilesWindow(QWidget* parent, const boost::shared_ptr<Device>& device);
   virtual ~BrowseFilesWindow();
 
  private:
 
   Ui::BrowseFilesWindow ui_;
+
+  boost::shared_ptr<Device> device_;
 
 };
 
