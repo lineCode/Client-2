@@ -213,7 +213,7 @@ class Client : public boost::enable_shared_from_this<Client>
   boost::unique_future<DESTROYSTREAMRESPONSE> DestroyStream(const uint64_t streamtoken);
   boost::unique_future<DISCOVERYBROADCASTRESPONSE> DiscoveryBroadcast();
   boost::unique_future<GETAUTHENTICATIONNONCERESPONSE> GetAuthenticationNonce();
-  boost::unique_future<GETCHILDFOLDERSRESPONSE> GetChildFolders(const std::string& path);
+  boost::unique_future<GETCHILDFOLDERSRESPONSE> GetChildFolders(const std::string& path, const bool parentpaths);
   boost::unique_future<GETFILESRESPONSE> GetFiles();
   boost::unique_future<GETRECEIVERSRESPONSE> GetReceivers();
   boost::unique_future<GETRECORDINGSRESPONSE> GetRecordings();
@@ -279,7 +279,7 @@ class Client : public boost::enable_shared_from_this<Client>
   Connection DestroyStream(const uint64_t streamtoken, boost::function<void(const std::chrono::steady_clock::duration, const DESTROYSTREAMRESPONSE&)> callback);
   Connection DiscoveryBroadcast(boost::function<void(const std::chrono::steady_clock::duration, const DISCOVERYBROADCASTRESPONSE&)> callback);
   Connection GetAuthenticationNonce(boost::function<void(const std::chrono::steady_clock::duration, const GETAUTHENTICATIONNONCERESPONSE&)> callback);
-  Connection GetChildFolders(const std::string& path, boost::function<void(const std::chrono::steady_clock::duration, const GETCHILDFOLDERSRESPONSE&)> callback);
+  Connection GetChildFolders(const std::string& path, const bool parentpaths, boost::function<void(const std::chrono::steady_clock::duration, const GETCHILDFOLDERSRESPONSE&)> callback);
   Connection GetFiles(boost::function<void(const std::chrono::steady_clock::duration, const GETFILESRESPONSE&)> callback);
   Connection GetReceivers(boost::function<void(const std::chrono::steady_clock::duration, const GETRECEIVERSRESPONSE&)> callback);
   Connection GetRecordings(boost::function<void(const std::chrono::steady_clock::duration, const GETRECORDINGSRESPONSE&)> callback);
@@ -353,7 +353,7 @@ class Client : public boost::enable_shared_from_this<Client>
   boost::system::error_code DestroyStreamSend(const uint64_t streamtoken);
   boost::system::error_code DiscoveryBroadcastSend();
   boost::system::error_code GetAuthenticationNonceSend();
-  boost::system::error_code GetChildFoldersSend(const std::string& path);
+  boost::system::error_code GetChildFoldersSend(const std::string& path, const bool parentpaths);
   boost::system::error_code GetFilesSend();
   boost::system::error_code GetReceiversSend();
   boost::system::error_code GetRecordingsSend();

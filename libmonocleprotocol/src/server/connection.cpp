@@ -2740,7 +2740,7 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
 
       }
 
-      const std::pair<Error, std::vector<std::string> > files = GetChildFolders(path);
+      const std::pair<Error, std::vector<std::string> > files = GetChildFolders(path, getchildfoldersrequest->parentpaths());
       if (files.first.code_ != ErrorCode::Success)
       {
 

@@ -112,13 +112,15 @@ void ManageFileWindow::on_buttonbrowsemountpoint_clicked()
 
 void ManageFileWindow::on_buttonbrowsepath_clicked()
 {
-  BrowseFilesWindow(this, device_).exec();//TODO pass in the current directory because we want to begin there
-  //TODO add file thing as well
-  int i = 0;//TODO bring up the selecty dialog thing
+  BrowseFilesWindow browsefileswindow(this, device_, ui_.editpath->text());
+  if (browsefileswindow.exec() == QDialog::Accepted)
+  {
+    ui_.editpath->setText(browsefileswindow.GetLocation());
 
+  }
 }
 
-void ManageFileWindow::on_editpath_textChanged(const QString& text)
+void ManageFileWindow::on_editpath_textEdited(const QString& text)
 {
   if (!device_->SupportsGetChildFolders())
   {
@@ -137,7 +139,7 @@ void ManageFileWindow::on_editpath_textChanged(const QString& text)
   if (i == requestpaths_.cend())
   {
     requestpaths_.push_back(parentpath);
-    getchildfoldersconnections_.push_back(device_->GetChildFolders(parentpath, [this](const std::chrono::steady_clock::duration latency, const monocle::client::GETCHILDFOLDERSRESPONSE& getchildfoldersresponse)
+    getchildfoldersconnections_.push_back(device_->GetChildFolders(parentpath, true, [this](const std::chrono::steady_clock::duration latency, const monocle::client::GETCHILDFOLDERSRESPONSE& getchildfoldersresponse)
     {
       if (getchildfoldersresponse.GetErrorCode() != monocle::ErrorCode::Success)
       {

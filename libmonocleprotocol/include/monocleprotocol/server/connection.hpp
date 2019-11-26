@@ -105,7 +105,7 @@ class Connection : public boost::enable_shared_from_this<Connection>
   virtual Error DestroyStream(const uint64_t streamtoken) = 0;
   virtual Error DiscoveryBroadcast() = 0;
   virtual std::string GetAuthenticationNonce() = 0;
-  virtual std::pair< Error, std::vector<std::string> > GetChildFolders(const std::string& path) = 0;
+  virtual std::pair< Error, std::vector<std::string> > GetChildFolders(const std::string& path, const bool parentpaths) = 0;
   virtual std::pair< Error, std::vector<FILE> > GetFiles() = 0;
   virtual std::pair< Error, std::vector<RECEIVER> > GetReceivers() = 0;
   virtual std::pair<Error, RECORDING> GetRecording(const uint64_t token) = 0;

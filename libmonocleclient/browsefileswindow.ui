@@ -27,25 +27,32 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QPushButton" name="buttoncancel">
-       <property name="text">
-        <string>Cancel</string>
-       </property>
-      </widget>
+      <widget class="QLineEdit" name="editlocation"/>
      </item>
      <item row="2" column="0">
-      <widget class="QPushButton" name="buttonok">
+      <widget class="QLabel" name="label">
        <property name="text">
-        <string>OK</string>
+        <string>Location:</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="0" colspan="2">
-      <widget class="QLineEdit" name="lineEdit">
-       <property name="text">
-        <string>file.dat</string>
-       </property>
-      </widget>
+     <item row="3" column="0" colspan="2">
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QPushButton" name="buttonok">
+         <property name="text">
+          <string>OK</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="buttoncancel">
+         <property name="text">
+          <string>Cancel</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>

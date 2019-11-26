@@ -34,6 +34,8 @@ class BrowseFilesTreeItem : public QObject, public QTreeWidgetItem
 
   void Expanded();
 
+  const std::string& GetFolder() const { return folder_; }
+
  private:
 
   const std::string folder_;

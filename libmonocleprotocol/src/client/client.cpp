@@ -1426,10 +1426,10 @@ Connection Client::GetAuthenticationNonce(boost::function<void(const std::chrono
   return getauthenticationnonce_.CreateCallback(sequence_, callback);
 }
 
-Connection Client::GetChildFolders(const std::string& path, boost::function<void(const std::chrono::steady_clock::duration, const GETCHILDFOLDERSRESPONSE&)> callback)
+Connection Client::GetChildFolders(const std::string& path, const bool parentpaths, boost::function<void(const std::chrono::steady_clock::duration, const GETCHILDFOLDERSRESPONSE&)> callback)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  if (GetChildFoldersSend(path))
+  if (GetChildFoldersSend(path, parentpaths))
   {
     callback(std::chrono::steady_clock::duration(), GETCHILDFOLDERSRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
     return Connection();
@@ -2520,10 +2520,10 @@ boost::system::error_code Client::GetAuthenticationNonceSend()
   return err;
 }
 
-boost::system::error_code Client::GetChildFoldersSend(const std::string& path)
+boost::system::error_code Client::GetChildFoldersSend(const std::string& path, const bool parentpaths)
 {
   fbb_.Clear();
-  fbb_.Finish(CreateGetChildFoldersRequest(fbb_, fbb_.CreateString(path)));
+  fbb_.Finish(CreateGetChildFoldersRequest(fbb_, fbb_.CreateString(path), parentpaths));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::GETCHILDFOLDERS, ++sequence_);
   boost::system::error_code err;
