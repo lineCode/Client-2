@@ -26,8 +26,9 @@ BrowseFilesWindow::BrowseFilesWindow(QWidget* parent, const boost::shared_ptr<De
   location_(location)
 {
   ui_.setupUi(this);
-  
+
   connect(ui_.treebrowsefiles, &BrowseFilesTree::itemClicked, this, &BrowseFilesWindow::ItemClicked);
+  connect(ui_.buttoncancel, &QPushButton::clicked, this, &BrowseFilesWindow::reject);
 
   ui_.editlocation->setText(location);
 
@@ -35,7 +36,7 @@ BrowseFilesWindow::BrowseFilesWindow(QWidget* parent, const boost::shared_ptr<De
   {
     if (getchildfoldersresponse.GetErrorCode() != monocle::ErrorCode::Success)
     {
-      //TODO put an error in here
+
       return;
     }
 
