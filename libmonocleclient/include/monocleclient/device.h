@@ -50,6 +50,8 @@ enum class DEVICESTATE : int
   SUBSCRIBED
 };
 
+Q_DECLARE_METATYPE(client::DEVICESTATE)
+
 ///// Structures /////
 
 struct MOUNTPOINT
@@ -302,6 +304,7 @@ class Device : public Connection
   void SlotUserAdded(const uint64_t token, const QString& username, const uint64_t group);
   void SlotUserChanged(const uint64_t token, const uint64_t group);
   void SlotUserRemoved(const uint64_t token);
+  void SlotStateChanged(const DEVICESTATE state, const QString& message);
 
 };
 

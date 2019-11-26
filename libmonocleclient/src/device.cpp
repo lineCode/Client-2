@@ -6,6 +6,7 @@
 #include "monocleclient/device.h"
 
 #include <boost/range/combine.hpp>
+#include <QMessageBox>
 #include <QStandardPaths>
 #include <QtGlobal>
 #include <QTimer>
@@ -14,6 +15,7 @@
 #include "monocleclient/file.h"
 #include "monocleclient/group.h"
 #include "monocleclient/mainwindow.h"
+#include "monocleclient/managefilewindow.h"
 #include "monocleclient/onvifuser.h"
 #include "monocleclient/receiver.h"
 #include "monocleclient/recording.h"
@@ -133,6 +135,7 @@ Device::Device(const sock::ProxyParams& proxyparams, const QString& address, con
   connect(this, &Connection::SignalUserAdded, this, QOverload<const uint64_t, const QString&, const uint64_t>::of(&Device::SlotUserAdded), Qt::QueuedConnection);
   connect(this, &Connection::SignalUserChanged, this, QOverload<const uint64_t, const uint64_t>::of(&Device::SlotUserChanged), Qt::QueuedConnection);
   connect(this, &Connection::SignalUserRemoved, this, QOverload<const uint64_t>::of(&Device::SlotUserRemoved), Qt::QueuedConnection);
+  connect(this, &Device::SignalStateChanged, this, &Device::SlotStateChanged, Qt::QueuedConnection);
 }
 
 Device::~Device()
@@ -2598,6 +2601,18 @@ void Device::SlotUserRemoved(const uint64_t token)
   }
   users_.erase(u);
   emit SignalUserRemoved(token);
+}
+
+void Device::SlotStateChanged(const DEVICESTATE state, const QString& message)
+{
+  if ((state == DEVICESTATE::SUBSCRIBED) && IsValidLicense() && files_.empty() && recordings_.empty()) // If a device looks like it hasn't been setup before, we can help alert the user to setup a location to store data
+  {
+    if (QMessageBox::question(MainWindow::Instance(), tr("New Device Found"), tr("Would you like to setup a location to store video data?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+    {
+      ManageFileWindow(MainWindow::Instance(), boost::static_pointer_cast<Device>(shared_from_this())).exec();
+
+    }
+  }
 }
 
 }

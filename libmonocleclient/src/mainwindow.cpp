@@ -516,7 +516,7 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
 
         }
 
-        // If there are multiple devices to add, this will spam, but that's kind of ok I guess...//TODO would be nice to fix this...
+        // If there are multiple devices to add, this will spam, but that's kind of ok I guess...
         QCheckBox* checkbox = new QCheckBox("Do not show this again");
         QMessageBox messagebox;
         messagebox.setWindowTitle("New Device Discovery: " + localaddressestext.join(" "));
