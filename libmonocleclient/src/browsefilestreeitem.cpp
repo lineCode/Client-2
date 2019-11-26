@@ -43,8 +43,7 @@ void BrowseFilesTreeItem::Expanded()
 
     if (getchildfoldersresponse.GetErrorCode() != monocle::ErrorCode::Success)
     {
-      //TODO put a child error code thing in...
-        //TODO why does "Documents and settings" fail
+      setChildIndicatorPolicy(QTreeWidgetItem::ChildIndicatorPolicy::DontShowIndicator);
       return;
     }
 
