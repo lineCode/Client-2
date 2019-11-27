@@ -2607,7 +2607,7 @@ void Device::SlotStateChanged(const DEVICESTATE state, const QString& message)
 {
   if ((state == DEVICESTATE::SUBSCRIBED) && IsValidLicense() && files_.empty() && recordings_.empty()) // If a device looks like it hasn't been setup before, we can help alert the user to setup a location to store data
   {
-    if (QMessageBox::question(MainWindow::Instance(), tr("New Device Found"), tr("Would you like to setup a location to store video data?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+    if (QMessageBox::question(MainWindow::Instance(), tr("New Device Found: ") + address_, tr("Would you like to setup a location to store video data?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
     {
       ManageFileWindow(MainWindow::Instance(), boost::static_pointer_cast<Device>(shared_from_this())).exec();
 
