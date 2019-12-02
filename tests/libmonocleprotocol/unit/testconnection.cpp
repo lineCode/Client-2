@@ -289,7 +289,7 @@ Error TestConnection::DiscoveryBroadcast()
   return Error();
 }
 
-std::pair< Error, std::vector<std::string> > TestConnection::GetChildFolders(const std::string& path)
+std::pair< Error, std::vector<std::string> > TestConnection::GetChildFolders(const std::string& path, const bool parentpaths)
 {
   return std::make_pair(Error(), std::vector<std::string>());
 }

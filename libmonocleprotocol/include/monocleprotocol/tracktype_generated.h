@@ -12,31 +12,34 @@ enum class TrackType : int8_t {
   Video = 0,
   Audio = 1,
   Metadata = 2,
+  ObjectDetector = 3,
   MIN = Video,
-  MAX = Metadata
+  MAX = ObjectDetector
 };
 
-inline const TrackType (&EnumValuesTrackType())[3] {
+inline const TrackType (&EnumValuesTrackType())[4] {
   static const TrackType values[] = {
     TrackType::Video,
     TrackType::Audio,
-    TrackType::Metadata
+    TrackType::Metadata,
+    TrackType::ObjectDetector
   };
   return values;
 }
 
 inline const char * const *EnumNamesTrackType() {
-  static const char * const names[4] = {
+  static const char * const names[5] = {
     "Video",
     "Audio",
     "Metadata",
+    "ObjectDetector",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameTrackType(TrackType e) {
-  if (e < TrackType::Video || e > TrackType::Metadata) return "";
+  if (e < TrackType::Video || e > TrackType::ObjectDetector) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesTrackType()[index];
 }

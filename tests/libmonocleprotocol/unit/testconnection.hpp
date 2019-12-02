@@ -90,7 +90,7 @@ class TestConnection : public server::Connection
   virtual Error DestroyStream(const uint64_t streamtoken) override;
   virtual Error DiscoveryBroadcast() override;
   virtual std::string GetAuthenticationNonce() override;
-  virtual std::pair< Error, std::vector<std::string> > GetChildFolders(const std::string& path) override;
+  virtual std::pair< Error, std::vector<std::string> > GetChildFolders(const std::string& path, const bool parentpaths) override;
   virtual std::pair< Error, std::vector<FILE> > GetFiles() override;
   virtual std::pair< Error, std::vector<RECEIVER> > GetReceivers() override;
   virtual std::pair<Error, monocle::RECORDING> GetRecording(const uint64_t token) override;

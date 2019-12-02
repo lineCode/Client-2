@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>913</width>
-    <height>648</height>
+    <width>923</width>
+    <height>688</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,40 +20,43 @@
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
         <widget class="QGroupBox" name="groupBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="title">
           <string>Track</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
           <item row="0" column="0">
            <layout class="QGridLayout" name="gridLayout_3">
-            <item row="1" column="1">
-             <widget class="QComboBox" name="comboBox"/>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label">
+            <item row="4" column="1">
+             <widget class="QPushButton" name="pushButton">
               <property name="text">
-               <string>Type:</string>
+               <string>Files</string>
               </property>
              </widget>
             </item>
-            <item row="2" column="1">
+            <item row="2" column="0" colspan="2">
+             <widget class="QCheckBox" name="checkBox">
+              <property name="text">
+               <string>Digital Signing</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
              <widget class="QLineEdit" name="lineEdit"/>
             </item>
-            <item row="3" column="0">
+            <item row="1" column="0">
              <widget class="QLabel" name="label_3">
               <property name="text">
                <string>Flush Frequency(seconds):</string>
               </property>
              </widget>
             </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_2">
-              <property name="text">
-               <string>Description:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
+            <item row="1" column="1">
              <widget class="QSpinBox" name="spinBox">
               <property name="maximum">
                <number>9999</number>
@@ -63,38 +66,24 @@
               </property>
              </widget>
             </item>
-            <item row="6" column="0">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>Description:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
              <widget class="QCheckBox" name="checkBox_3">
               <property name="text">
                <string>Fixed Files</string>
               </property>
              </widget>
             </item>
-            <item row="6" column="1">
-             <widget class="QPushButton" name="pushButton">
-              <property name="text">
-               <string>Files</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0" colspan="2">
-             <widget class="QCheckBox" name="checkBox">
-              <property name="text">
-               <string>Digital Signing</string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="0" colspan="2">
+            <item row="3" column="0" colspan="2">
              <widget class="QCheckBox" name="checkBox_2">
               <property name="text">
                <string>Encrypt</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0" colspan="2">
-             <widget class="QCheckBox" name="checkBox_4">
-              <property name="text">
-               <string>Enabled</string>
               </property>
              </widget>
             </item>
@@ -105,18 +94,34 @@
        </item>
        <item row="1" column="0">
         <widget class="QGroupBox" name="groupBox_2">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="title">
           <string>Source</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_6">
           <item row="0" column="0">
            <layout class="QGridLayout" name="gridLayout_5">
-            <item row="0" column="2">
-             <widget class="QPushButton" name="pushButton_2">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_4">
               <property name="text">
-               <string>Find ONVIF Device</string>
+               <string>URI:</string>
               </property>
              </widget>
+            </item>
+            <item row="6" column="0">
+             <widget class="QLabel" name="label_10">
+              <property name="text">
+               <string>Rotation:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1" colspan="3">
+             <widget class="QLineEdit" name="lineEdit_4"/>
             </item>
             <item row="2" column="0">
              <widget class="QLabel" name="label_6">
@@ -125,16 +130,20 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="1" colspan="2">
-             <widget class="QLineEdit" name="lineEdit_4"/>
-            </item>
-            <item row="3" column="1" colspan="2">
-             <widget class="QComboBox" name="comboBox_2"/>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_4">
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_5">
               <property name="text">
-               <string>URI:</string>
+               <string>Profile Token:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1" colspan="3">
+             <widget class="QLineEdit" name="lineEdit_5"/>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_7">
+              <property name="text">
+               <string>Protocol:</string>
               </property>
              </widget>
             </item>
@@ -145,6 +154,9 @@
               </property>
              </widget>
             </item>
+            <item row="1" column="1" colspan="3">
+             <widget class="QLineEdit" name="lineEdit_3"/>
+            </item>
             <item row="5" column="0">
              <widget class="QLabel" name="label_9">
               <property name="text">
@@ -152,41 +164,38 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_7">
-              <property name="text">
-               <string>Protocol:</string>
-              </property>
-             </widget>
+            <item row="6" column="1" colspan="3">
+             <widget class="QComboBox" name="comboBox_3"/>
             </item>
-            <item row="1" column="1" colspan="2">
-             <widget class="QLineEdit" name="lineEdit_3"/>
+            <item row="3" column="1" colspan="3">
+             <widget class="QComboBox" name="comboBox_2"/>
             </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_5">
-              <property name="text">
-               <string>Profile Token:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLineEdit" name="lineEdit_2"/>
-            </item>
-            <item row="6" column="0">
-             <widget class="QLabel" name="label_10">
-              <property name="text">
-               <string>Rotation:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1" colspan="2">
-             <widget class="QLineEdit" name="lineEdit_5"/>
-            </item>
-            <item row="5" column="1" colspan="2">
+            <item row="5" column="1" colspan="3">
              <widget class="QLineEdit" name="lineEdit_6"/>
             </item>
-            <item row="6" column="1" colspan="2">
-             <widget class="QComboBox" name="comboBox_3"/>
+            <item row="7" column="3">
+             <widget class="QPushButton" name="pushButton_7">
+              <property name="text">
+               <string>Object Detector Settings</string>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="0" colspan="3">
+             <widget class="QCheckBox" name="checkBox_4">
+              <property name="text">
+               <string>Object Detector</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3">
+             <widget class="QPushButton" name="pushButton_2">
+              <property name="text">
+               <string>Find ONVIF Device</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QLineEdit" name="lineEdit_2"/>
             </item>
            </layout>
           </item>
@@ -236,7 +245,13 @@
           <item row="0" column="0">
            <layout class="QGridLayout" name="gridLayout_10">
             <item row="0" column="0">
-             <widget class="QTreeWidget" name="treeWidget"/>
+             <widget class="QTreeWidget" name="treeWidget">
+              <column>
+               <property name="text">
+                <string notr="true">1</string>
+               </property>
+              </column>
+             </widget>
             </item>
            </layout>
           </item>
