@@ -110,9 +110,9 @@ FindObjectWindow::FindObjectWindow(QWidget* parent, const QImage& image, const b
   ui_.tableresults->setItemDelegateForColumn(0, new ImageItemDelegate());
 
   // Tracks
-  for (const QSharedPointer<RecordingTrack>& metadatatrack : recording->GetMetadataTracks())
+  for (const QSharedPointer<RecordingTrack>& objectdetectortrack : recording->GetObjectDetectorTracks())
   {
-    const std::vector<monocle::CODECINDEX> codecindices = metadatatrack->GetCodecIndices(monocle::Codec::OBJECTDETECTOR);
+    const std::vector<monocle::CODECINDEX> codecindices = objectdetectortrack->GetCodecIndices(monocle::Codec::OBJECTDETECTOR);//TODO this goes away
     for (const monocle::CODECINDEX& codecindex : codecindices)
     {
       std::vector<std::string> parameters;
@@ -131,8 +131,8 @@ FindObjectWindow::FindObjectWindow(QWidget* parent, const QImage& image, const b
         const uint32_t videotrackid = boost::lexical_cast<uint32_t>(videotrackparametervalue);
         if (recording->GetTrack(videotrackid))
         {
-          ui_.combotracks->addItem(track_->GetDescription() + "->" + metadatatrack->GetDescription(), videotrackid);
-          ui_.combotracks->setItemData(ui_.combotracks->count() - 1, metadatatrack->GetId(), Qt::UserRole + 1);
+          ui_.combotracks->addItem(track_->GetDescription() + "->" + objectdetectortrack->GetDescription(), videotrackid);
+          ui_.combotracks->setItemData(ui_.combotracks->count() - 1, objectdetectortrack->GetId(), Qt::UserRole + 1);
           break;
         }
       }
@@ -839,7 +839,7 @@ void FindObjectWindow::on_buttonsearch_clicked()
     QMessageBox(QMessageBox::Warning, tr("Error"), tr("Unable to find video track: ") + QString::number(metadatatrackid), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
     return;
   }
-  if ((metadatatrack == nullptr) || (metadatatrack->GetTrackType() != monocle::TrackType::Metadata))
+  if ((metadatatrack == nullptr) || (metadatatrack->GetTrackType() != monocle::TrackType::ObjectDetector))
   {
     QMessageBox(QMessageBox::Warning, tr("Error"), tr("Unable to find metadata track: ") + QString::number(metadatatrackid), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
     return;

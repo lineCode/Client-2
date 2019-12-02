@@ -371,41 +371,7 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
             return;
           }
           
-          // Make sure this recording has some object detectors, and it corresponds to a valid video track
-          bool foundobjectdetector = false;
-          for (QSharedPointer<RecordingTrack> metadatatrack : videoview->GetRecording()->GetMetadataTracks())
-          {
-            const std::vector<monocle::CODECINDEX> codecindices = metadatatrack->GetCodecIndices(monocle::Codec::OBJECTDETECTOR);
-            for (const monocle::CODECINDEX& codecindex : codecindices)
-            {
-              std::vector<std::string> parameters;
-              boost::split(parameters, codecindex.parameters_, boost::is_any_of(";"), boost::algorithm::token_compress_on);
-
-              std::vector<std::string>::const_iterator videotrackidparameter = std::find_if(parameters.cbegin(), parameters.cend(), [](const std::string& parameter) { return (boost::istarts_with(parameter, "VideoTrackId")); });
-              if (videotrackidparameter == parameters.cend())
-              {
-
-                continue;
-              }
-
-              const std::string videotrackid = videotrackidparameter->substr(13, std::string::npos);
-              try
-              {
-                if (videoview->GetRecording()->GetTrack(boost::lexical_cast<uint32_t>(videotrackid)))
-                {
-                  foundobjectdetector = true;
-                  break;
-                }
-              }
-              catch (...)
-              {
-                // Ignore and continue
-
-              }
-            }
-          }
-
-          if (!foundobjectdetector)
+          if (!videoview->GetRecording()->HasObjectDetectorTracks())
           {
             QMessageBox(QMessageBox::Warning, tr("Error"), tr("Recording does not contain any object detectors"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
             return;

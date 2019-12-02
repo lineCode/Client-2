@@ -34,6 +34,7 @@ DeviceTreeRecordingItem::DeviceTreeRecordingItem(DeviceTreeItem* parent, const b
   device_(device),
   recording_(recording),
   edit_(new QAction("Edit", this)),
+  addvideotrack_(new QAction("Add Video Source", this)),
   managetracks_(new QAction("Manage Tracks", this)),
   managejobs_(new QAction("Manage Jobs", this)),
   remove_(new QAction("Remove", this)),
@@ -45,6 +46,7 @@ DeviceTreeRecordingItem::DeviceTreeRecordingItem(DeviceTreeItem* parent, const b
   connect(recording_.data(), &Recording::JobSourceTrackStateChanged, this, &DeviceTreeRecordingItem::RecordingJobSourceTrackStateChanged);
 
   connect(edit_, &QAction::triggered, this, &DeviceTreeRecordingItem::Edit);
+  connect(addvideotrack_, &QAction::triggered, this, &DeviceTreeRecordingItem::AddVideoTrack);
   connect(managetracks_, &QAction::triggered, this, &DeviceTreeRecordingItem::ManageTracks);
   connect(managejobs_, &QAction::triggered, this, &DeviceTreeRecordingItem::ManageJobs);
   connect(remove_, &QAction::triggered, this, &DeviceTreeRecordingItem::Remove);
@@ -68,8 +70,13 @@ void DeviceTreeRecordingItem::ContextMenuEvent(const QPoint& pos)
 {
   QMenu* menu = new QMenu(treeWidget());
   menu->addAction(edit_);
-  menu->addAction(managetracks_);
-  menu->addAction(managejobs_);
+  menu->addAction(addvideotrack_);//TODO rename
+  //TODO if we have too many video sources already(I think limit is 5?), don't show this menu item
+  //TODO addvideotrack_
+    //TODO this will add the new window..?
+  //TODO addmetadatatrack_
+  menu->addAction(managetracks_);//TODO disappears
+  menu->addAction(managejobs_);//TODO disappears
   menu->addAction(remove_);
   menu->addAction(viewlog_);
   menu->exec(pos);
@@ -136,6 +143,12 @@ void DeviceTreeRecordingItem::UpdateToolTip()
 
       for (const QSharedPointer<client::RecordingJobSourceTrack>& track : source->GetTracks())
       {
+        if (track->GetTrack()->GetTrackType() == monocle::TrackType::ObjectDetector)
+        {
+
+          continue;
+        }
+
         monocle::TrackType tracktype = monocle::TrackType::Video;
         if (track->GetTrack() && (track->GetTrack()->GetTrackType() == monocle::TrackType::Metadata))
         {
@@ -210,6 +223,12 @@ void DeviceTreeRecordingItem::RecordingJobSourceTrackStateChanged(const QSharedP
 void DeviceTreeRecordingItem::Edit(bool)
 {
   ManageRecordingWindow(treeWidget(), device_, recording_->GetToken()).exec();
+
+}
+
+void DeviceTreeRecordingItem::AddVideoTrack(bool)
+{
+  //TODO windowy
 
 }
 

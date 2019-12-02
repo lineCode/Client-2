@@ -766,7 +766,7 @@ void MediaView::Init(const size_t deviceindex, const size_t recordingindex, cons
   videostream_ = boost::make_shared<MediaStream>(*device, *recording, *videotrack, nextstreamindex_++);
   videostream_->Init(this, true, playrequestindex);
   videostream_->SendControlRequest<PlaybackControlRequest>(playrequestindex, 0, true, true, starttime, boost::none, boost::none);
-  for (const file::TRACK& metadatatrack : recording->metadatatracks_)
+  for (const file::TRACK& metadatatrack : recording->metadatatracks_)//TODO need to loop again through the object detector tracks
   {
     boost::shared_ptr<MediaStream> metadatastream = boost::make_shared<MediaStream>(*device, *recording, metadatatrack, nextstreamindex_++);
     metadatastream->Init(this, false, playrequestindex);

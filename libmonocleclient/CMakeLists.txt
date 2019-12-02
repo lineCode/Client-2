@@ -93,6 +93,7 @@ include/monocleclient/managerecordingswindow.h
 include/monocleclient/managerecordingtrackswindow.h
 include/monocleclient/managerecordingtrackwindow.h
 include/monocleclient/managerecordingwindow.h
+include/monocleclient/managetrackwindow.h
 include/monocleclient/manageuserswindow.h
 include/monocleclient/manageuserwindow.h
 include/monocleclient/map.h
@@ -227,6 +228,7 @@ src/managerecordingswindow.cpp
 src/managerecordingtrackswindow.cpp
 src/managerecordingtrackwindow.cpp
 src/managerecordingwindow.cpp
+src/managetrackwindow.cpp
 src/manageuserswindow.cpp
 src/manageuserwindow.cpp
 src/map.cpp
@@ -320,6 +322,7 @@ managerecordingswindow.ui
 managerecordingtrackswindow.ui
 managerecordingtrackwindow.ui
 managerecordingwindow.ui
+managetrackwindow.ui
 manageuserswindow.ui
 manageuserwindow.ui
 mediapropertieswindow.ui

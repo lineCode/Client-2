@@ -630,7 +630,7 @@ void ManageRecordingJobWindow::on_buttonaddobjectdetector_clicked()
     return;
   }
 
-  if (recording_->GetMetadataTracks().empty())
+  if (recording_->GetMetadataTracks().empty())//TODO this is going in the bin, but definitely doesn't work now
   {
     QMessageBox(QMessageBox::Warning, tr("Error"), tr("No metadata tracks available for this recording, please add a metadata track"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
     return;
@@ -686,14 +686,14 @@ void ManageRecordingJobWindow::on_buttonaddobjectdetector_clicked()
                                                       GetTrackIds());
   if (dialog.exec() == QDialog::Accepted)
   {
-    const QSharedPointer<client::RecordingTrack> track = recording_->GetTrack(dialog.metadatatrackid_);
+    const QSharedPointer<client::RecordingTrack> track = recording_->GetTrack(dialog.metadatatrackid_);//TODO rename if we even keep this window... which we won't...
     if (!track)
     {
       QMessageBox(QMessageBox::Warning, tr("Error"), tr("Unable to find metadata track: ") + QString::number(dialog.metadatatrackid_), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
       return;
     }
 
-    if (track->GetTrackType() != monocle::TrackType::Metadata)
+    if (track->GetTrackType() != monocle::TrackType::ObjectDetector)
     {
       QMessageBox(QMessageBox::Warning, tr("Error"), tr("Metadata track is not of metadata type: ") + QString::number(dialog.metadatatrackid_), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
       return;

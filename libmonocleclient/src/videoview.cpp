@@ -209,6 +209,12 @@ void VideoView::Connect()
           AddMetadataTrack(metadatatrack);
 
         }
+
+        for (const QSharedPointer<RecordingTrack>& objectdetectortrack : recording_->GetObjectDetectorTracks())
+        {
+          AddMetadataTrack(objectdetectortrack);
+
+        }
       });
     });
   });
@@ -1146,7 +1152,7 @@ void VideoView::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)
     }
   }
 
-  if (track->GetTrackType() == monocle::TrackType::Metadata)
+  if ((track->GetTrackType() == monocle::TrackType::Metadata) || (track->GetTrackType() == monocle::TrackType::ObjectDetector))
   {
     AddMetadataTrack(track);
 

@@ -75,6 +75,7 @@ class DeviceTreeRecordingItem : public DeviceTreeItem
   QSharedPointer<client::Recording> recording_;
 
   QAction* edit_;
+  QAction* addvideotrack_;
   QAction* managetracks_;
   QAction* managejobs_;
   QAction* remove_;
@@ -92,6 +93,7 @@ class DeviceTreeRecordingItem : public DeviceTreeItem
   void RecordingJobSourceTrackStateChanged(const QSharedPointer<client::RecordingJob>& job, const QSharedPointer<client::RecordingJobSource>& source, const QSharedPointer<client::RecordingJobSourceTrack>& track, const uint64_t time, const monocle::RecordingJobState state, const QString& error, const monocle::RecordingJobState prevstate);
 
   void Edit(bool);
+  void AddVideoTrack(bool);
   void ManageTracks(bool);
   void ManageJobs(bool);
   void Remove(bool);

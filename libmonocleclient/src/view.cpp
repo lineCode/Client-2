@@ -678,7 +678,7 @@ void View::GetMenu(QMenu& parent)
     {
       MediaView* mediaview = static_cast<MediaView*>(this);
       bool added = false;
-      for (const file::TRACK& metadatatrack : mediaview->GetMetadataTracks())
+      for (const file::TRACK& metadatatrack : mediaview->GetMetadataTracks())//TODO this will now look at mediaview->GetObjectDetectorTracks().size() and add the action based on that
       {
         for (const file::CODEC& codec : metadatatrack.codecs_)
         {

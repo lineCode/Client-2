@@ -55,6 +55,8 @@ class Recording : public QObject
   std::vector< QSharedPointer<client::RecordingTrack> > GetVideoTracks() const;
   std::vector< QSharedPointer<client::RecordingTrack> > GetAudioTracks() const;
   std::vector< QSharedPointer<client::RecordingTrack> > GetMetadataTracks() const;
+  std::vector< QSharedPointer<client::RecordingTrack> > GetObjectDetectorTracks() const;
+  bool HasObjectDetectorTracks() const;
   inline const std::vector< QSharedPointer<client::RecordingJob> >& GetJobs() const { return jobs_; }
   std::vector< QSharedPointer<client::Receiver> > GetActiveReceivers(const QSharedPointer<client::RecordingTrack>& track) const;
   std::vector<QString> GetActiveProfileTokens(const QSharedPointer<client::RecordingTrack>& track) const;

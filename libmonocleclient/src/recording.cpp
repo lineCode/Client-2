@@ -153,6 +153,7 @@ std::vector< QSharedPointer<client::RecordingTrack> > Recording::GetTracks(const
     if (track->GetTrackType() == tracktype)
     {
       tracks.push_back(track);
+
     }
   }
   return tracks;
@@ -174,6 +175,25 @@ std::vector< QSharedPointer<client::RecordingTrack> > Recording::GetMetadataTrac
 {
 
   return GetTracks(monocle::TrackType::Metadata);
+}
+
+std::vector< QSharedPointer<client::RecordingTrack> > Recording::GetObjectDetectorTracks() const
+{
+
+  return GetTracks(monocle::TrackType::ObjectDetector);
+}
+
+bool Recording::HasObjectDetectorTracks() const
+{
+  for (const QSharedPointer<client::RecordingTrack>& track : tracks_)
+  {
+    if (track->GetTrackType() == monocle::TrackType::ObjectDetector)
+    {
+
+      return true;
+    }
+  }
+  return false;
 }
 
 std::vector< QSharedPointer<client::Receiver> > Recording::GetActiveReceivers(const QSharedPointer<client::RecordingTrack>& track) const

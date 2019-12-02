@@ -343,7 +343,7 @@ void ManageRecordingJobSourceONVIFWindow::GetProfileCallback(const onvif::Profil
             mediatype = rtsp::sdp::MEDIATYPE_AUDIO;
 
           }
-          else if (track->GetTrackType() == monocle::TrackType::Metadata)
+          else if ((track->GetTrackType() == monocle::TrackType::Metadata) || (track->GetTrackType() == monocle::TrackType::ObjectDetector))
           {
             mediatype = rtsp::sdp::MEDIATYPE_APPLICATION;
 

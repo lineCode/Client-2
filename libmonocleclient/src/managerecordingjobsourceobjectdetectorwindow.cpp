@@ -149,7 +149,7 @@ ManageRecordingJobSourceObjectDetectorWindow::ManageRecordingJobSourceObjectDete
     }
     else
     {
-      if (track->GetTrackType() != monocle::TrackType::Metadata)
+      if (track->GetTrackType() != monocle::TrackType::ObjectDetector)
       {
         QMessageBox(QMessageBox::Warning, tr("Error"), tr("Invalid track type: ") + QString::number(metadatatrackid_) + " " + monocle::EnumNameTrackType(track->GetTrackType()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
 
@@ -165,17 +165,17 @@ ManageRecordingJobSourceObjectDetectorWindow::ManageRecordingJobSourceObjectDete
   {
     connect(recording_.data(), &Recording::TrackAdded, this, &ManageRecordingJobSourceObjectDetectorWindow::TrackAdded, Qt::QueuedConnection); // We don't want to add new tracks if we are editing
 
-    for (const QSharedPointer<client::RecordingTrack>& metadatatrack : recording_->GetMetadataTracks())
+    for (const QSharedPointer<client::RecordingTrack>& objectdetectortrack : recording_->GetObjectDetectorTracks())
     {
-      if (metadatatrack->GetId() != metadatatrackid_) // We can select our current track
+      if (objectdetectortrack->GetId() != metadatatrackid_) // We can select our current track
       {
-        if (std::find_if(reservedtrackids.cbegin(), reservedtrackids.cend(), [id = metadatatrack->GetId()](const uint64_t trackid){ return (trackid == id); }) != reservedtrackids.cend()) // Check to see if this is already in use by another source
+        if (std::find_if(reservedtrackids.cbegin(), reservedtrackids.cend(), [id = objectdetectortrack->GetId()](const uint64_t trackid){ return (trackid == id); }) != reservedtrackids.cend()) // Check to see if this is already in use by another source
         {
           
           continue;
         }
       }
-      ui_.combometadatatrack->addItem(metadatatrack->GetDescription(), metadatatrack->GetId());
+      ui_.combometadatatrack->addItem(objectdetectortrack->GetDescription(), objectdetectortrack->GetId());
     }
   }
 
@@ -269,7 +269,7 @@ void ManageRecordingJobSourceObjectDetectorWindow::TrackAdded(const QSharedPoint
     ui_.combovideotrack->addItem(track->GetDescription(), track->GetId());
 
   }
-  else if (track->GetTrackType() == monocle::TrackType::Metadata)
+  else if (track->GetTrackType() == monocle::TrackType::ObjectDetector)
   {
     ui_.combometadatatrack->addItem(track->GetDescription(), track->GetId());
 
@@ -288,7 +288,7 @@ void ManageRecordingJobSourceObjectDetectorWindow::TrackChanged(const QSharedPoi
     }
     ui_.combovideotrack->setItemText(0, track->GetDescription());
   }
-  else if (track->GetTrackType() == monocle::TrackType::Metadata)
+  else if (track->GetTrackType() == monocle::TrackType::ObjectDetector)
   {
     const int row = ui_.combometadatatrack->findData(track->GetId());
     if (row == -1)

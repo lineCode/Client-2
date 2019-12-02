@@ -409,6 +409,11 @@ void ExportProgressWindow::timerEvent(QTimerEvent*)
             recording->metadatatracks_.insert(file::TRACK(exporttrackconnection->trackid_, exporttrackconnection->trackdescription_.toStdString(), codecsindices));
 
           }
+          else if (exporttrackconnection->tracktype_ == monocle::TrackType::ObjectDetector)
+          {
+            //TODO recording->objectdetectors_.insert(file::TRACK(exporttrackconnection->trackid_, exporttrackconnection->trackdescription_.toStdString(), codecsindices));
+
+          }
         }
         if (filewriter_->Close(file::FILE(devices)))
         {
