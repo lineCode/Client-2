@@ -69,6 +69,7 @@ enum Message : uint16
   GETSNAPSHOT = 62,
   CREATEFINDOBJECT = 63,
   DESTROYFINDOBJECT = 64,
+  ADDTRACK2 = 65,
   
   // Server to client
   CONTROLSTREAMEND = 8000,

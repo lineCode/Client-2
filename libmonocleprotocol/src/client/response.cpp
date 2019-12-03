@@ -121,6 +121,18 @@ ADDTRACKRESPONSE::ADDTRACKRESPONSE(const Error& error) :
 
 }
 
+ADDTRACK2RESPONSE::ADDTRACK2RESPONSE() :
+  RESPONSE(Error(ErrorCode::Success, std::string()))
+{
+
+}
+
+ADDTRACK2RESPONSE::ADDTRACK2RESPONSE(const Error& error) :
+  RESPONSE(error)
+{
+
+}
+
 ADDUSERRESPONSE::ADDUSERRESPONSE() :
   RESPONSE(Error(ErrorCode::Success, std::string()))
 {

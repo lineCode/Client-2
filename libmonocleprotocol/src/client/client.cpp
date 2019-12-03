@@ -23,6 +23,7 @@
 #include "monocleprotocol/addrecordingrequest_generated.h"
 #include "monocleprotocol/addrecordingresponse_generated.h"
 #include "monocleprotocol/addtrackrequest_generated.h"
+#include "monocleprotocol/addtrackrequest2_generated.h"
 #include "monocleprotocol/addtrackresponse_generated.h"
 #include "monocleprotocol/adduserrequest_generated.h"
 #include "monocleprotocol/authenticaterequest_generated.h"
@@ -186,6 +187,7 @@ Client::Client(boost::asio::io_service& io) :
   addrecording_(DEFAULT_TIMEOUT, this),
   addrecordingjob_(DEFAULT_TIMEOUT, this),
   addtrack_(DEFAULT_TIMEOUT, this),
+  addtrack2_(DEFAULT_TIMEOUT, this),
   adduser_(DEFAULT_TIMEOUT, this),
   authenticate_(DEFAULT_TIMEOUT, this),
   changegroup_(DEFAULT_TIMEOUT, this),
@@ -466,6 +468,17 @@ boost::unique_future<ADDTRACKRESPONSE> Client::AddTrack(const uint64_t recording
     return boost::make_ready_future(ADDTRACKRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
   }
   return addtrack_.CreateFuture(sequence_);
+}
+
+boost::unique_future<ADDTRACK2RESPONSE> Client::AddTrack2(const uint64_t recordingtoken)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (AddTrack2Send(recordingtoken))
+  {
+
+    return boost::make_ready_future(ADDTRACK2RESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+  }
+  return addtrack2_.CreateFuture(sequence_);
 }
 
 boost::unique_future<ADDUSERRESPONSE> Client::AddUser(const std::string& username, const std::string& password, const uint64_t group)
@@ -1182,6 +1195,17 @@ Connection Client::AddTrack(const uint64_t recordingtoken, const monocle::TrackT
     return Connection();
   }
   return addtrack_.CreateCallback(sequence_, callback);
+}
+
+Connection Client::AddTrack2(const uint64_t recordingtoken, boost::function<void(const std::chrono::steady_clock::duration, const ADDTRACK2RESPONSE&)> callback)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (AddTrack2Send(recordingtoken))
+  {
+    callback(std::chrono::steady_clock::duration(), ADDTRACK2RESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+    return Connection();
+  }
+  return addtrack2_.CreateCallback(sequence_, callback);
 }
 
 Connection Client::AddUser(const std::string& username, const std::string& password, const uint64_t group, boost::function<void(const std::chrono::steady_clock::duration, const ADDUSERRESPONSE&)> callback)
@@ -1997,6 +2021,28 @@ boost::system::error_code Client::AddTrackSend(const uint64_t recordingtoken, co
   fbb_.Finish(CreateAddTrackRequest(fbb_, recordingtoken, tracktype, fbb_.CreateString(description), fixedfiles, digitalsigning, encrypt, flushfrequency, fbb_.CreateVector(files)));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::ADDTRACK, ++sequence_);
+  boost::system::error_code err;
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(fbb_.GetBufferPointer(), messagesize), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  return err;
+}
+
+boost::system::error_code Client::AddTrack2Send(const uint64_t recordingtoken)
+{
+  fbb_.Clear();
+  fbb_.Finish(CreateAddTrackRequest2(fbb_, recordingtoken));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::ADDTRACK2, ++sequence_);
   boost::system::error_code err;
   boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
   if (err)
@@ -3424,6 +3470,30 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       }
 
       addtrack_.Response(sequence, ADDTRACKRESPONSE(addtrackresponse->token()));
+      break;
+    }
+    case Message::ADDTRACK2:
+    {
+      if (error)
+      {
+        HandleError(addtrack2_, sequence, data, datasize);
+        return;
+      }
+
+      //TODO if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<AddTrack2Response>(nullptr))
+      //TODO {
+      //TODO   addtrack2_.Response(sequence, ADDTRACK2RESPONSE(Error(ErrorCode::InvalidMessage, "AddTrack2Response verification failed")));
+      //TODO   return;
+      //TODO }
+      //TODO 
+      //TODO const AddTrackResponse2* addtrackresponse2 = flatbuffers::GetRoot<AddTrackResponse2>(data);
+      //TODO if (!addtrack2response)
+      //TODO {
+      //TODO   addtrack2_.Response(sequence, ADDTRACK2RESPONSE(Error(ErrorCode::MissingParameter, "AddTrackResponse2 missing parameter")));
+      //TODO   return;
+      //TODO }
+      //TODO 
+      //TODO addtrack2_.Response(sequence, ADDTRACK2RESPONSE(addtrackresponse2->token()));
       break;
     }
     case Message::ADDUSER:

@@ -13,6 +13,7 @@
 #include "monocleclient/managerecordingjobswindow.h"
 #include "monocleclient/managerecordingwindow.h"
 #include "monocleclient/managerecordingtrackswindow.h"
+#include "monocleclient/managetrackwindow.h"
 #include "monocleclient/devicetreerecordingjobsitem.h"
 #include "monocleclient/devicetreerecordingtracksitem.h"
 #include "monocleclient/receiver.h"
@@ -70,7 +71,7 @@ void DeviceTreeRecordingItem::ContextMenuEvent(const QPoint& pos)
 {
   QMenu* menu = new QMenu(treeWidget());
   menu->addAction(edit_);
-  menu->addAction(addvideotrack_);//TODO rename
+  menu->addAction(addvideotrack_);
   //TODO if we have too many video sources already(I think limit is 5?), don't show this menu item
   //TODO addvideotrack_
     //TODO this will add the new window..?
@@ -228,7 +229,7 @@ void DeviceTreeRecordingItem::Edit(bool)
 
 void DeviceTreeRecordingItem::AddVideoTrack(bool)
 {
-  //TODO windowy
+  ManageTrackWindow(treeWidget(), monocle::TrackType::Video, device_, recording_).exec();
 
 }
 

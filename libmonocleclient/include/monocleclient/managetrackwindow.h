@@ -9,7 +9,12 @@
 #include "ui_managetrackwindow.h"
 
 #include <boost/shared_ptr.hpp>
+#include <monocleprotocol/client/connection.hpp>
 #include <QSharedPointer>
+
+///// Declarations /////
+
+namespace monocle { enum class TrackType : int8_t; }
 
 ///// Namespaces /////
 
@@ -21,6 +26,7 @@ namespace client
 ///// Declarations /////
 
 class Device;
+class Recording;
 
 ///// Classes /////
 
@@ -30,7 +36,7 @@ class ManageTrackWindow : public QDialog
 
  public:
 
-  ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>& device);
+  ManageTrackWindow(QWidget* parent, const monocle::TrackType tracktype, boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording);
   ~ManageTrackWindow();
 
  private:
@@ -38,8 +44,13 @@ class ManageTrackWindow : public QDialog
   Ui::ManageTrackWindow ui_;
 
   boost::shared_ptr<Device> device_;
+  QSharedPointer<Recording> recording_;
+
+  monocle::client::Connection addtrack2connection_;
 
  private slots:
+
+  void on_buttonok_clicked();
 
 };
 

@@ -52,6 +52,7 @@ class Client : public boost::enable_shared_from_this<Client>
  friend class Signal<Client, ADDRECORDINGRESPONSE>;
  friend class Signal<Client, ADDRECORDINGJOBRESPONSE>;
  friend class Signal<Client, ADDTRACKRESPONSE>;
+ friend class Signal<Client, ADDTRACK2RESPONSE>;
  friend class Signal<Client, ADDUSERRESPONSE>;
  friend class Signal<Client, AUTHENTICATERESPONSE>;
  friend class Signal<Client, CHANGEGROUPRESPONSE>;
@@ -191,6 +192,7 @@ class Client : public boost::enable_shared_from_this<Client>
   boost::unique_future<ADDRECORDINGRESPONSE> AddRecording(const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool createdefaulttracks, const bool createdefaultjob);
   boost::unique_future<ADDRECORDINGJOBRESPONSE> AddRecordingJob(const uint64_t recordingtoken, const std::string& name, const bool enabled, const uint64_t priority, const std::vector<ADDRECORDINGJOBSOURCE>& sources);
   boost::unique_future<ADDTRACKRESPONSE> AddTrack(const uint64_t recordingtoken, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files);
+  boost::unique_future<ADDTRACK2RESPONSE> AddTrack2(const uint64_t recordingtoken);
   boost::unique_future<ADDUSERRESPONSE> AddUser(const std::string& username, const std::string& password, const uint64_t group);
   boost::unique_future<AUTHENTICATERESPONSE> Authenticate(const std::string& username, const std::string& clientnonce, const std::string& authdigest);
   boost::unique_future<CHANGEGROUPRESPONSE> ChangeGroup(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
@@ -257,6 +259,7 @@ class Client : public boost::enable_shared_from_this<Client>
   Connection AddRecording(const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool createdefaulttracks, const bool createdefaultjob, boost::function<void(const std::chrono::steady_clock::duration, const ADDRECORDINGRESPONSE&)> callback);
   Connection AddRecordingJob(const uint64_t recordingtoken, const std::string& name, const bool enabled, const uint64_t priority, const std::vector<ADDRECORDINGJOBSOURCE>& sources, boost::function<void(const std::chrono::steady_clock::duration, const ADDRECORDINGJOBRESPONSE&)> callback);
   Connection AddTrack(const uint64_t recordingtoken, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, boost::function<void(const std::chrono::steady_clock::duration, const ADDTRACKRESPONSE&)> callback);
+  Connection AddTrack2(const uint64_t recordingtoken, boost::function<void(const std::chrono::steady_clock::duration, const ADDTRACK2RESPONSE&)> callback);
   Connection AddUser(const std::string& username, const std::string& password, const uint64_t group, boost::function<void(const std::chrono::steady_clock::duration, const ADDUSERRESPONSE&)> callback);
   Connection ChangeGroup(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings, boost::function<void(const std::chrono::steady_clock::duration, const CHANGEGROUPRESPONSE&)> callback);
   Connection ChangeMap(const uint64_t token, const std::string& name, const std::string& location, const std::vector<int8_t>& image, boost::function<void(const std::chrono::steady_clock::duration, const CHANGEMAPRESPONSE&)> callback);
@@ -331,6 +334,7 @@ class Client : public boost::enable_shared_from_this<Client>
   boost::system::error_code AddRecordingSend(const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool createdefaulttracks, const bool createdefaultjob);
   boost::system::error_code AddRecordingJobSend(const uint64_t recordingtoken, const std::string& name, const bool enabled, const uint64_t priority, const std::vector<ADDRECORDINGJOBSOURCE>& sources);
   boost::system::error_code AddTrackSend(const uint64_t recordingtoken, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files);
+  boost::system::error_code AddTrack2Send(const uint64_t recordingtoken);
   boost::system::error_code AddUserSend(const std::string& username, const std::string& password, const uint64_t group);
   boost::system::error_code AuthenticateSend(const std::string& username, const std::string& clientnonce, const std::string& authdigest);
   boost::system::error_code ChangeGroupSend(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
@@ -446,6 +450,7 @@ class Client : public boost::enable_shared_from_this<Client>
   Signal<Client, ADDRECORDINGRESPONSE> addrecording_;
   Signal<Client, ADDRECORDINGJOBRESPONSE> addrecordingjob_;
   Signal<Client, ADDTRACKRESPONSE> addtrack_;
+  Signal<Client, ADDTRACK2RESPONSE> addtrack2_;
   Signal<Client, ADDUSERRESPONSE> adduser_;
   Signal<Client, AUTHENTICATERESPONSE> authenticate_;
   Signal<Client, CHANGEGROUPRESPONSE> changegroup_;
