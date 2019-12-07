@@ -41,7 +41,11 @@ class ManageTrackWindow : public QDialog
 
  private:
 
+  void DisableSource();
+
   Ui::ManageTrackWindow ui_;
+
+  monocle::TrackType tracktype_;
 
   boost::shared_ptr<Device> device_;
   QSharedPointer<Recording> recording_;
@@ -50,6 +54,10 @@ class ManageTrackWindow : public QDialog
 
  private slots:
 
+  void on_edituri_textChanged(const QString& text);
+  void on_checkfixedfiles_stateChanged(int);
+  void on_checkobjectdetector_stateChanged(int);
+  void on_buttonfindonvifdevice_clicked();
   void on_buttonok_clicked();
 
 };

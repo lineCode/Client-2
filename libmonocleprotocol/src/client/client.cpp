@@ -470,10 +470,10 @@ boost::unique_future<ADDTRACKRESPONSE> Client::AddTrack(const uint64_t recording
   return addtrack_.CreateFuture(sequence_);
 }
 
-boost::unique_future<ADDTRACK2RESPONSE> Client::AddTrack2(const uint64_t recordingtoken)
+boost::unique_future<ADDTRACK2RESPONSE> Client::AddTrack2(const uint64_t recordingtoken, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  if (AddTrack2Send(recordingtoken))
+  if (AddTrack2Send(recordingtoken, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files))
   {
 
     return boost::make_ready_future(ADDTRACK2RESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
@@ -1197,10 +1197,10 @@ Connection Client::AddTrack(const uint64_t recordingtoken, const monocle::TrackT
   return addtrack_.CreateCallback(sequence_, callback);
 }
 
-Connection Client::AddTrack2(const uint64_t recordingtoken, boost::function<void(const std::chrono::steady_clock::duration, const ADDTRACK2RESPONSE&)> callback)
+Connection Client::AddTrack2(const uint64_t recordingtoken, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, boost::function<void(const std::chrono::steady_clock::duration, const ADDTRACK2RESPONSE&)> callback)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  if (AddTrack2Send(recordingtoken))
+  if (AddTrack2Send(recordingtoken, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files))
   {
     callback(std::chrono::steady_clock::duration(), ADDTRACK2RESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
     return Connection();
@@ -2037,10 +2037,10 @@ boost::system::error_code Client::AddTrackSend(const uint64_t recordingtoken, co
   return err;
 }
 
-boost::system::error_code Client::AddTrack2Send(const uint64_t recordingtoken)
+boost::system::error_code Client::AddTrack2Send(const uint64_t recordingtoken, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files)
 {
   fbb_.Clear();
-  fbb_.Finish(CreateAddTrackRequest2(fbb_, recordingtoken));
+  fbb_.Finish(CreateAddTrackRequest2(fbb_, recordingtoken, tracktype, fbb_.CreateString(description), fixedfiles, digitalsigning, encrypt, flushfrequency, fbb_.CreateVector(files)));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::ADDTRACK2, ++sequence_);
   boost::system::error_code err;

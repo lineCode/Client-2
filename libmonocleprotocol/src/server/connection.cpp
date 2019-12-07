@@ -18,6 +18,7 @@
 #include "monocleprotocol/addrecordingrequest_generated.h"
 #include "monocleprotocol/addrecordingresponse_generated.h"
 #include "monocleprotocol/addtrackrequest_generated.h"
+#include "monocleprotocol/addtrackrequest2_generated.h"
 #include "monocleprotocol/addtrackresponse_generated.h"
 #include "monocleprotocol/adduserrequest_generated.h"
 #include "monocleprotocol/authenticaterequest_generated.h"
@@ -1902,6 +1903,57 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       fbb_.Clear();
       fbb_.Finish(CreateAddTrackResponse(fbb_, error.second));
       return SendResponse(true, Message::ADDTRACK, sequence);
+    }
+    case Message::ADDTRACK2:
+    {
+      if (data == nullptr)
+      {
+
+        return SendErrorResponse(Message::ADDTRACK2, sequence, Error(ErrorCode::MissingMessage, "Missing message"));
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<AddTrackRequest2>(nullptr))
+      {
+
+        return SendErrorResponse(Message::ADDTRACK2, sequence, Error(ErrorCode::InvalidMessage, "Invalid message"));
+      }
+
+      const AddTrackRequest2* addtrackrequest2 = flatbuffers::GetRoot<AddTrackRequest2>(data);
+      if (addtrackrequest2 == nullptr)
+      {
+
+        return SendErrorResponse(Message::ADDTRACK2, sequence, Error(ErrorCode::InvalidMessage, "Invalid message"));
+      }
+
+      std::string description;
+      if (addtrackrequest2->description())
+      {
+        description = addtrackrequest2->description()->str();
+
+      }
+
+      std::vector<uint64_t> files;
+      files.reserve(addtrackrequest2->files()->size());
+      if (addtrackrequest2->files())
+      {
+        for (const uint64_t file : *addtrackrequest2->files())
+        {
+          files.push_back(file);
+
+        }
+      }
+
+      const std::pair<Error, uint32_t> error = AddTrack(addtrackrequest2->recordingtoken(), addtrackrequest2->tracktype(), description, addtrackrequest2->fixedfiles(), addtrackrequest2->digitalsigning(), addtrackrequest2->encrypt(), addtrackrequest2->flushfrequency(), files);
+      if (error.first.code_ != ErrorCode::Success)
+      {
+
+        return SendErrorResponse(Message::ADDTRACK2, sequence, error.first);
+      }
+
+      std::lock_guard<std::mutex> lock(writemutex_);
+      //TODO fbb_.Clear();
+      //TODO fbb_.Finish(CreateAddTrackResponse(fbb_, error.second));
+      //TODO return SendResponse(true, Message::ADDTRACK2, sequence);
     }
     case Message::ADDUSER:
     {
