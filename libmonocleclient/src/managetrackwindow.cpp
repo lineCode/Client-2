@@ -152,16 +152,13 @@ void ManageTrackWindow::on_buttonfindonvifdevice_clicked()
 void ManageTrackWindow::on_buttonok_clicked()
 {
   //TODO just pass in all the source details, and the server can create the source and rjst if needed
+    //TODO it needs to create track+source+rjst+receiver
 
   //TODO make sure uri is valid
-
-  //TODO find a recording job
-    //TODO create one if necessary
-
   //TODO check uri looks like rtsp or http://1.2.3.4:99/onvif/device_service
 
-  //TODO get the recording job...
-    //TODO get the active recording job, if none, then get the highest priority, if none, create a job...
+  //TODO find a recording job
+    //TODO grab an active one. If no active ones, grab the highest priority, if no jobs, create one
 
   //TODO pass in the recording job
   //TODO pass in the uri/username/protocol etc
