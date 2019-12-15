@@ -151,6 +151,37 @@ void ManageTrackWindow::on_buttonfindonvifdevice_clicked()
 //TODO on find onvif device
 void ManageTrackWindow::on_buttonok_clicked()
 {
+  std::vector<std::string> receiverparameters;
+  if (!ui_.comboprotocol->currentData(PROTOCOL_ROLE).toString().isEmpty())
+  {
+    receiverparameters.push_back((PROTOCOL_PARAMETER_NAME + "=" + ui_.comboprotocol->currentData(PROTOCOL_ROLE).toString()).toStdString());
+
+  }
+
+  std::vector<std::string> sourceparameters;
+  sourceparameters.push_back((STREAMING_PROTOCOL_PARAMETER_NAME + "=" + monocle::EnumNameStreamingProtocol(static_cast<monocle::StreamingProtocol>(ui_.comboprotocol->itemData(0, STREAMING_PROTOCOL_ROLE).toInt()))).toStdString());
+
+  std::vector<std::string> recordingjobsourcetrackparameters;
+  if (!ui_.editsourcetag->text().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((SOURCE_TAG_PARAMETER_NAME + "=" + ui_.editsourcetag->text()).toStdString());
+
+  }
+
+  if (!ui_.editprofiletoken->text().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((PROFILE_TOKEN_PARAMETER_NAME + "=" + ui_.editprofiletoken->text()).toStdString());
+
+  }
+
+  if (!ui_.comborotation->currentData(ROTATION_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((ROTATION_PARAMETER_NAME + "=" + ui_.comborotation->currentData(ROTATION_ROLE).toString()).toStdString());
+
+  }
+
+  //TODO receiver parameter as well please(protocol)
+
   //TODO just pass in all the source details, and the server can create the source and rjst if needed
     //TODO it needs to create track+source+rjst+receiver
 
