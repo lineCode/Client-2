@@ -5,13 +5,19 @@ namespace monocle;
 table AddTrackRequest2
 {
   recordingtoken:uint64 (id:0);
-  tracktype:TrackType (id:1);
-  description:string (id:2);
-  fixedfiles:bool (id:3);
-  digitalsigning:bool (id:4);
-  encrypt:bool (id:5);
-  flushfrequency:uint32 (id:6);
-  files:[uint64] (id:7);
+  recordingjobtoken:uint64 (id:1);
+  tracktype:TrackType (id:2);
+  description:string (id:3);
+  fixedfiles:bool (id:4);
+  digitalsigning:bool (id:5);
+  encrypt:bool (id:6);
+  flushfrequency:uint32 (id:7);
+  files:[uint64] (id:8);
   
-  //TODO source stuff now
+  mediauri:string (id:9);
+  username:string (id:10);
+  password:string (id:11);
+  receiverparameters:[string] (id:12);
+  
+  sourceparameters:[string] (id:13);
 }

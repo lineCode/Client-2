@@ -1943,11 +1943,54 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
         }
       }
 
-      const std::pair<Error, uint32_t> error = AddTrack(addtrackrequest2->recordingtoken(), addtrackrequest2->tracktype(), description, addtrackrequest2->fixedfiles(), addtrackrequest2->digitalsigning(), addtrackrequest2->encrypt(), addtrackrequest2->flushfrequency(), files);
-      if (error.first.code_ != ErrorCode::Success)
+      std::string mediauri;
+      if (addtrackrequest2->mediauri())
+      {
+        mediauri = addtrackrequest2->mediauri()->str();
+
+      }
+
+      std::string username;
+      if (addtrackrequest2->username())
+      {
+        mediauri = addtrackrequest2->username()->str();
+
+      }
+
+      std::string password;
+      if (addtrackrequest2->password())
+      {
+        mediauri = addtrackrequest2->password()->str();
+
+      }
+
+      std::vector<std::string> receiverparameters;
+      receiverparameters.reserve(addtrackrequest2->receiverparameters()->size());
+      if (addtrackrequest2->receiverparameters())
+      {
+        for (const flatbuffers::String* receiverparameter : *addtrackrequest2->receiverparameters())
+        {
+          receiverparameters.push_back(receiverparameter->str());
+
+        }
+      }
+
+      std::vector<std::string> sourceparameters;
+      sourceparameters.reserve(addtrackrequest2->sourceparameters()->size());
+      if (addtrackrequest2->receiverparameters())
+      {
+        for (const flatbuffers::String* sourceparameter : *addtrackrequest2->sourceparameters())
+        {
+          sourceparameters.push_back(sourceparameter->str());
+
+        }
+      }
+
+      const Error error = AddTrack2(addtrackrequest2->recordingtoken(), addtrackrequest2->recordingjobtoken(), addtrackrequest2->tracktype(), description, addtrackrequest2->fixedfiles(), addtrackrequest2->digitalsigning(), addtrackrequest2->encrypt(), addtrackrequest2->flushfrequency(), files, mediauri, username, password, receiverparameters, sourceparameters);
+      if (error.code_ != ErrorCode::Success)
       {
 
-        return SendErrorResponse(Message::ADDTRACK2, sequence, error.first);
+        return SendErrorResponse(Message::ADDTRACK2, sequence, error);
       }
 
       std::lock_guard<std::mutex> lock(writemutex_);

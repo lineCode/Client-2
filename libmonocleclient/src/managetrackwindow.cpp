@@ -151,6 +151,8 @@ void ManageTrackWindow::on_buttonfindonvifdevice_clicked()
 //TODO on find onvif device
 void ManageTrackWindow::on_buttonok_clicked()
 {
+  //TODO hwo do we find the job...
+
   std::vector<std::string> receiverparameters;
   if (!ui_.comboprotocol->currentData(PROTOCOL_ROLE).toString().isEmpty())
   {
@@ -195,7 +197,7 @@ void ManageTrackWindow::on_buttonok_clicked()
   //TODO pass in the uri/username/protocol etc
   //TODO we will want to pass in the object detector track and rjst too...
   //TODO files needs to be sorted
-  addtrack2connection_ = device_->AddTrack2(recording_->GetToken(), tracktype_, ui_.editdescription->text().toStdString(), ui_.checkfixedfiles->isChecked(), ui_.checkdigitalsigning->isChecked(), ui_.checkencrypt->isChecked(), ui_.spinflushfrequency->value(), {}, [this](const std::chrono::steady_clock::duration latency, const monocle::client::ADDTRACK2RESPONSE& addtrack2response)
+  addtrack2connection_ = device_->AddTrack2(recording_->GetToken(), recordingjobtoken, tracktype_, ui_.editdescription->text().toStdString(), ui_.checkfixedfiles->isChecked(), ui_.checkdigitalsigning->isChecked(), ui_.checkencrypt->isChecked(), ui_.spinflushfrequency->value(), {}, mediauri, username, password, receiverparameters, sourceparameters, [this](const std::chrono::steady_clock::duration latency, const monocle::client::ADDTRACK2RESPONSE& addtrack2response)
   {
 
     //TODO enable buttons... again

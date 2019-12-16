@@ -15,16 +15,25 @@ struct AddTrackRequest2;
 struct AddTrackRequest2 FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDINGTOKEN = 4,
-    VT_TRACKTYPE = 6,
-    VT_DESCRIPTION = 8,
-    VT_FIXEDFILES = 10,
-    VT_DIGITALSIGNING = 12,
-    VT_ENCRYPT = 14,
-    VT_FLUSHFREQUENCY = 16,
-    VT_FILES = 18
+    VT_RECORDINGJOBTOKEN = 6,
+    VT_TRACKTYPE = 8,
+    VT_DESCRIPTION = 10,
+    VT_FIXEDFILES = 12,
+    VT_DIGITALSIGNING = 14,
+    VT_ENCRYPT = 16,
+    VT_FLUSHFREQUENCY = 18,
+    VT_FILES = 20,
+    VT_MEDIAURI = 22,
+    VT_USERNAME = 24,
+    VT_PASSWORD = 26,
+    VT_RECEIVERPARAMETERS = 28,
+    VT_SOURCEPARAMETERS = 30
   };
   uint64_t recordingtoken() const {
     return GetField<uint64_t>(VT_RECORDINGTOKEN, 0);
+  }
+  uint64_t recordingjobtoken() const {
+    return GetField<uint64_t>(VT_RECORDINGJOBTOKEN, 0);
   }
   monocle::TrackType tracktype() const {
     return static_cast<monocle::TrackType>(GetField<int8_t>(VT_TRACKTYPE, 0));
@@ -47,9 +56,25 @@ struct AddTrackRequest2 FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const flatbuffers::Vector<uint64_t> *files() const {
     return GetPointer<const flatbuffers::Vector<uint64_t> *>(VT_FILES);
   }
+  const flatbuffers::String *mediauri() const {
+    return GetPointer<const flatbuffers::String *>(VT_MEDIAURI);
+  }
+  const flatbuffers::String *username() const {
+    return GetPointer<const flatbuffers::String *>(VT_USERNAME);
+  }
+  const flatbuffers::String *password() const {
+    return GetPointer<const flatbuffers::String *>(VT_PASSWORD);
+  }
+  const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *receiverparameters() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *>(VT_RECEIVERPARAMETERS);
+  }
+  const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *sourceparameters() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *>(VT_SOURCEPARAMETERS);
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_RECORDINGTOKEN) &&
+           VerifyField<uint64_t>(verifier, VT_RECORDINGJOBTOKEN) &&
            VerifyField<int8_t>(verifier, VT_TRACKTYPE) &&
            VerifyOffset(verifier, VT_DESCRIPTION) &&
            verifier.VerifyString(description()) &&
@@ -59,6 +84,18 @@ struct AddTrackRequest2 FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyField<uint32_t>(verifier, VT_FLUSHFREQUENCY) &&
            VerifyOffset(verifier, VT_FILES) &&
            verifier.VerifyVector(files()) &&
+           VerifyOffset(verifier, VT_MEDIAURI) &&
+           verifier.VerifyString(mediauri()) &&
+           VerifyOffset(verifier, VT_USERNAME) &&
+           verifier.VerifyString(username()) &&
+           VerifyOffset(verifier, VT_PASSWORD) &&
+           verifier.VerifyString(password()) &&
+           VerifyOffset(verifier, VT_RECEIVERPARAMETERS) &&
+           verifier.VerifyVector(receiverparameters()) &&
+           verifier.VerifyVectorOfStrings(receiverparameters()) &&
+           VerifyOffset(verifier, VT_SOURCEPARAMETERS) &&
+           verifier.VerifyVector(sourceparameters()) &&
+           verifier.VerifyVectorOfStrings(sourceparameters()) &&
            verifier.EndTable();
   }
 };
@@ -68,6 +105,9 @@ struct AddTrackRequest2Builder {
   flatbuffers::uoffset_t start_;
   void add_recordingtoken(uint64_t recordingtoken) {
     fbb_.AddElement<uint64_t>(AddTrackRequest2::VT_RECORDINGTOKEN, recordingtoken, 0);
+  }
+  void add_recordingjobtoken(uint64_t recordingjobtoken) {
+    fbb_.AddElement<uint64_t>(AddTrackRequest2::VT_RECORDINGJOBTOKEN, recordingjobtoken, 0);
   }
   void add_tracktype(monocle::TrackType tracktype) {
     fbb_.AddElement<int8_t>(AddTrackRequest2::VT_TRACKTYPE, static_cast<int8_t>(tracktype), 0);
@@ -90,6 +130,21 @@ struct AddTrackRequest2Builder {
   void add_files(flatbuffers::Offset<flatbuffers::Vector<uint64_t>> files) {
     fbb_.AddOffset(AddTrackRequest2::VT_FILES, files);
   }
+  void add_mediauri(flatbuffers::Offset<flatbuffers::String> mediauri) {
+    fbb_.AddOffset(AddTrackRequest2::VT_MEDIAURI, mediauri);
+  }
+  void add_username(flatbuffers::Offset<flatbuffers::String> username) {
+    fbb_.AddOffset(AddTrackRequest2::VT_USERNAME, username);
+  }
+  void add_password(flatbuffers::Offset<flatbuffers::String> password) {
+    fbb_.AddOffset(AddTrackRequest2::VT_PASSWORD, password);
+  }
+  void add_receiverparameters(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> receiverparameters) {
+    fbb_.AddOffset(AddTrackRequest2::VT_RECEIVERPARAMETERS, receiverparameters);
+  }
+  void add_sourceparameters(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> sourceparameters) {
+    fbb_.AddOffset(AddTrackRequest2::VT_SOURCEPARAMETERS, sourceparameters);
+  }
   explicit AddTrackRequest2Builder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -105,15 +160,27 @@ struct AddTrackRequest2Builder {
 inline flatbuffers::Offset<AddTrackRequest2> CreateAddTrackRequest2(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t recordingtoken = 0,
+    uint64_t recordingjobtoken = 0,
     monocle::TrackType tracktype = monocle::TrackType::Video,
     flatbuffers::Offset<flatbuffers::String> description = 0,
     bool fixedfiles = false,
     bool digitalsigning = false,
     bool encrypt = false,
     uint32_t flushfrequency = 0,
-    flatbuffers::Offset<flatbuffers::Vector<uint64_t>> files = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<uint64_t>> files = 0,
+    flatbuffers::Offset<flatbuffers::String> mediauri = 0,
+    flatbuffers::Offset<flatbuffers::String> username = 0,
+    flatbuffers::Offset<flatbuffers::String> password = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> receiverparameters = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> sourceparameters = 0) {
   AddTrackRequest2Builder builder_(_fbb);
+  builder_.add_recordingjobtoken(recordingjobtoken);
   builder_.add_recordingtoken(recordingtoken);
+  builder_.add_sourceparameters(sourceparameters);
+  builder_.add_receiverparameters(receiverparameters);
+  builder_.add_password(password);
+  builder_.add_username(username);
+  builder_.add_mediauri(mediauri);
   builder_.add_files(files);
   builder_.add_flushfrequency(flushfrequency);
   builder_.add_description(description);
@@ -127,25 +194,42 @@ inline flatbuffers::Offset<AddTrackRequest2> CreateAddTrackRequest2(
 inline flatbuffers::Offset<AddTrackRequest2> CreateAddTrackRequest2Direct(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t recordingtoken = 0,
+    uint64_t recordingjobtoken = 0,
     monocle::TrackType tracktype = monocle::TrackType::Video,
     const char *description = nullptr,
     bool fixedfiles = false,
     bool digitalsigning = false,
     bool encrypt = false,
     uint32_t flushfrequency = 0,
-    const std::vector<uint64_t> *files = nullptr) {
+    const std::vector<uint64_t> *files = nullptr,
+    const char *mediauri = nullptr,
+    const char *username = nullptr,
+    const char *password = nullptr,
+    const std::vector<flatbuffers::Offset<flatbuffers::String>> *receiverparameters = nullptr,
+    const std::vector<flatbuffers::Offset<flatbuffers::String>> *sourceparameters = nullptr) {
   auto description__ = description ? _fbb.CreateString(description) : 0;
   auto files__ = files ? _fbb.CreateVector<uint64_t>(*files) : 0;
+  auto mediauri__ = mediauri ? _fbb.CreateString(mediauri) : 0;
+  auto username__ = username ? _fbb.CreateString(username) : 0;
+  auto password__ = password ? _fbb.CreateString(password) : 0;
+  auto receiverparameters__ = receiverparameters ? _fbb.CreateVector<flatbuffers::Offset<flatbuffers::String>>(*receiverparameters) : 0;
+  auto sourceparameters__ = sourceparameters ? _fbb.CreateVector<flatbuffers::Offset<flatbuffers::String>>(*sourceparameters) : 0;
   return monocle::CreateAddTrackRequest2(
       _fbb,
       recordingtoken,
+      recordingjobtoken,
       tracktype,
       description__,
       fixedfiles,
       digitalsigning,
       encrypt,
       flushfrequency,
-      files__);
+      files__,
+      mediauri__,
+      username__,
+      password__,
+      receiverparameters__,
+      sourceparameters__);
 }
 
 }  // namespace monocle
