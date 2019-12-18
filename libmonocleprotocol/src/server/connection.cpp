@@ -1953,14 +1953,14 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       std::string username;
       if (addtrackrequest2->username())
       {
-        mediauri = addtrackrequest2->username()->str();
+        username = addtrackrequest2->username()->str();
 
       }
 
       std::string password;
       if (addtrackrequest2->password())
       {
-        mediauri = addtrackrequest2->password()->str();
+        password = addtrackrequest2->password()->str();
 
       }
 
@@ -1976,9 +1976,9 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       }
 
       std::vector<std::string> sourceparameters;
-      sourceparameters.reserve(addtrackrequest2->sourceparameters()->size());
       if (addtrackrequest2->receiverparameters())
       {
+        sourceparameters.reserve(addtrackrequest2->sourceparameters()->size());
         for (const flatbuffers::String* sourceparameter : *addtrackrequest2->sourceparameters())
         {
           sourceparameters.push_back(sourceparameter->str());
@@ -1986,17 +1986,25 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
         }
       }
 
-      const Error error = AddTrack2(addtrackrequest2->recordingtoken(), addtrackrequest2->recordingjobtoken(), addtrackrequest2->tracktype(), description, addtrackrequest2->fixedfiles(), addtrackrequest2->digitalsigning(), addtrackrequest2->encrypt(), addtrackrequest2->flushfrequency(), files, mediauri, username, password, receiverparameters, sourceparameters);
+      std::vector<std::string> objectdetectorsourceparameters;
+      if (addtrackrequest2->objectdetectorsourceparameters())
+      {
+        objectdetectorsourceparameters.reserve(addtrackrequest2->objectdetectorsourceparameters()->size());
+        for (const flatbuffers::String* objectdetectorsourceparameter : *addtrackrequest2->objectdetectorsourceparameters())
+        {
+          objectdetectorsourceparameters.push_back(objectdetectorsourceparameter->str());
+
+        }
+      }
+
+      const Error error = AddTrack2(addtrackrequest2->recordingtoken(), addtrackrequest2->recordingjobtoken(), addtrackrequest2->tracktype(), description, addtrackrequest2->fixedfiles(), addtrackrequest2->digitalsigning(), addtrackrequest2->encrypt(), addtrackrequest2->flushfrequency(), files, mediauri, username, password, receiverparameters, sourceparameters, objectdetectorsourceparameters);
       if (error.code_ != ErrorCode::Success)
       {
 
         return SendErrorResponse(Message::ADDTRACK2, sequence, error);
       }
 
-      std::lock_guard<std::mutex> lock(writemutex_);
-      //TODO fbb_.Clear();
-      //TODO fbb_.Finish(CreateAddTrackResponse(fbb_, error.second));
-      //TODO return SendResponse(true, Message::ADDTRACK2, sequence);
+      return SendHeaderResponse(HEADER(0, false, false, Message::ADDTRACK2, sequence));
     }
     case Message::ADDUSER:
     {

@@ -18,6 +18,7 @@ table AddTrackRequest2
   username:string (id:10);
   password:string (id:11);
   receiverparameters:[string] (id:12);
-  
   sourceparameters:[string] (id:13);
+  
+  objectdetectorsourceparameters:[string] (id:14); // If this is empty, don't enable the object detector
 }

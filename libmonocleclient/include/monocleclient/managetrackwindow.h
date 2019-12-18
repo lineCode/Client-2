@@ -52,11 +52,46 @@ class ManageTrackWindow : public QDialog
 
   monocle::client::Connection addtrack2connection_;
 
+  int accuracy_; // 0=Low,1=Medium,2=High,3=VeryHigh
+  bool humans_;
+  bool bicycles_;
+  bool cars_;
+  bool motorbikes_;
+  bool buses_;
+  bool trucks_;
+  bool backpacks_;
+  bool umbrellas_;
+  bool handbags_;
+  bool suitcases_;
+  bool cats_;
+  bool dogs_;
+  bool aeroplanes_;
+  bool trains_;
+  bool boats_;
+  bool horses_;
+  double humanssensitivity_;
+  double bicyclessensitivity_;
+  double carssensitivity_;
+  double motorbikessensitivity_;
+  double busessensitivity_;
+  double truckssensitivity_;
+  double backpackssensitivity_;
+  double umbrellassensitivity_;
+  double handbagssensitivity_;
+  double suitcasessensitivity_;
+  double catssensitivity_;
+  double dogssensitivity_;
+  double aeroplanessensitivity_;
+  double trainssensitivity_;
+  double boatssensitivity_;
+  double horsessensitivity_;
+
  private slots:
 
   void on_edituri_textChanged(const QString& text);
   void on_checkfixedfiles_stateChanged(int);
   void on_checkobjectdetector_stateChanged(int);
+  void on_buttonobjectdetectorsettings_clicked();
   void on_buttonfindonvifdevice_clicked();
   void on_buttonok_clicked();
 

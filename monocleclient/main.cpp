@@ -56,6 +56,7 @@ Q_DECLARE_METATYPE(monocle::Severity)
 Q_DECLARE_METATYPE(std::chrono::steady_clock::duration)
 Q_DECLARE_METATYPE(boost::shared_ptr<client::Device>)
 Q_DECLARE_METATYPE(std::string)
+Q_DECLARE_METATYPE(std::vector<monocle::CODECINDEX>)
 Q_DECLARE_METATYPE(std::vector<monocle::DISKSTAT>)
 Q_DECLARE_METATYPE(std::vector<monocle::INDEX>)
 Q_DECLARE_METATYPE(std::vector<monocle::RECORDINGJOBSOURCE>)
@@ -114,6 +115,7 @@ int main(int argc, char** argv)
   qRegisterMetaType<std::chrono::steady_clock::duration>();
   qRegisterMetaType< boost::shared_ptr<client::Device> >();
   qRegisterMetaType<std::string>();
+  qRegisterMetaType< std::vector<monocle::CODECINDEX> >();
   qRegisterMetaType< std::vector<monocle::DISKSTAT> >();
   qRegisterMetaType< std::vector<monocle::INDEX> >();
   qRegisterMetaType< std::vector<monocle::RECORDINGJOBSOURCE> >();

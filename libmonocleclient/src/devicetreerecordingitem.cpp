@@ -144,6 +144,12 @@ void DeviceTreeRecordingItem::UpdateToolTip()
 
       for (const QSharedPointer<client::RecordingJobSourceTrack>& track : source->GetTracks())
       {
+        if (!track->GetTrack())
+        {
+
+          continue;
+        }
+
         if (track->GetTrack()->GetTrackType() == monocle::TrackType::ObjectDetector)
         {
 

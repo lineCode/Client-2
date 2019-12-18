@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>client::ManageTrackObjectDetectorWindow</class>
+ <widget class="QDialog" name="client::ManageTrackObjectDetectorWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>666</width>
+    <height>363</height>
+   </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>16777215</width>
+    <height>550</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Object Detector</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_10">
+   <item row="0" column="0">
+    <layout class="QGridLayout" name="gridLayout_6">
+     <item row="1" column="0">
+      <widget class="QPushButton" name="buttonok">
+       <property name="text">
+        <string>OK</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QPushButton" name="buttoncancel">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" colspan="2">
+      <widget class="QGroupBox" name="groupBox">
+       <property name="title">
+        <string>Object Detector</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="2" column="0" colspan="2">
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="1" column="0" colspan="2">
+           <widget class="QGroupBox" name="groupBox_2">
+            <property name="title">
+             <string>Objects and Sensitivities</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_4">
+             <item row="0" column="0">
+              <layout class="QGridLayout" name="gridLayout">
+               <item row="0" column="2" rowspan="12">
+                <widget class="Line" name="line_2">
+                 <property name="frameShadow">
+                  <enum>QFrame::Plain</enum>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="5">
+                <widget class="QSlider" name="sliderdogs">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="3" colspan="2">
+                <widget class="QCheckBox" name="checkhandbags">
+                 <property name="text">
+                  <string>Handbags</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QSlider" name="sliderbicycles">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QSlider" name="slidercars">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QCheckBox" name="checkmotorbikes">
+                 <property name="text">
+                  <string>Motorbikes</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="3" colspan="2">
+                <widget class="QCheckBox" name="checkaeroplanes">
+                 <property name="text">
+                  <string>Aeroplanes</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QSlider" name="slidermotorbikes">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="5">
+                <widget class="QSlider" name="sliderhandbags">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="3" colspan="2">
+                <widget class="QCheckBox" name="checkdogs">
+                 <property name="text">
+                  <string>Dogs</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QCheckBox" name="checkhumans">
+                 <property name="text">
+                  <string>Humans</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="1">
+                <widget class="QSlider" name="sliderbuses">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="1">
+                <widget class="QSlider" name="slidertrucks">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="5">
+                <widget class="QSlider" name="slidertrains">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="5">
+                <widget class="QSlider" name="slidersuitcases">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="3" colspan="2">
+                <widget class="QCheckBox" name="checktrains">
+                 <property name="text">
+                  <string>Trains</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="3" colspan="2">
+                <widget class="QCheckBox" name="checkboats">
+                 <property name="text">
+                  <string>Boats</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QSlider" name="sliderhumans">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="3" colspan="2">
+                <widget class="QCheckBox" name="checkcats">
+                 <property name="text">
+                  <string>Cats</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="0">
+                <widget class="QCheckBox" name="checktrucks">
+                 <property name="text">
+                  <string>Trucks</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="3" colspan="2">
+                <widget class="QCheckBox" name="checksuitcases">
+                 <property name="text">
+                  <string>Suitcases</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="0">
+                <widget class="QCheckBox" name="checkbackpacks">
+                 <property name="text">
+                  <string>Backpacks</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="5">
+                <widget class="QSlider" name="slidercats">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="5">
+                <widget class="QSlider" name="sliderboats">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QCheckBox" name="checkbicycles">
+                 <property name="text">
+                  <string>Bicycles</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="5">
+                <widget class="QSlider" name="slideraeroplanes">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QCheckBox" name="checkcars">
+                 <property name="text">
+                  <string>Cars</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0">
+                <widget class="QCheckBox" name="checkbuses">
+                 <property name="text">
+                  <string>Buses</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="1">
+                <widget class="QSlider" name="sliderbackpacks">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="1" rowspan="5">
+                <widget class="QSlider" name="sliderumbrellas">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="0" rowspan="5">
+                <widget class="QCheckBox" name="checkumbrellas">
+                 <property name="text">
+                  <string>Umbrellas</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="3" rowspan="5" colspan="2">
+                <widget class="QCheckBox" name="checkhorses">
+                 <property name="text">
+                  <string>Horses</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="5" rowspan="5">
+                <widget class="QSlider" name="sliderhorses">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="comboaccuracy">
+            <property name="currentText">
+             <string>Low</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>Low</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Medium</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>High</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Very High</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Accuracy:</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

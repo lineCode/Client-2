@@ -171,7 +171,11 @@
              <widget class="QComboBox" name="comboprotocol"/>
             </item>
             <item row="5" column="1" colspan="3">
-             <widget class="QLineEdit" name="editpassword"/>
+             <widget class="QLineEdit" name="editpassword">
+              <property name="echoMode">
+               <enum>QLineEdit::Password</enum>
+              </property>
+             </widget>
             </item>
             <item row="7" column="3">
              <widget class="QPushButton" name="buttonobjectdetectorsettings">
@@ -197,7 +201,7 @@
             <item row="0" column="1" colspan="2">
              <widget class="QLineEdit" name="edituri">
               <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Examples: http://10.0.0.1/onvif/device_service or rtsp://192.168.0.1/path&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Examples:&amp;lt;br/&amp;gt;http://10.0.0.1/onvif/device_service&amp;lt;br/&amp;gt;rtsp://192.168.0.1/path&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
              </widget>
             </item>

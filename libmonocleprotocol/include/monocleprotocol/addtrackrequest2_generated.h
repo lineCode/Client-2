@@ -27,7 +27,8 @@ struct AddTrackRequest2 FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_USERNAME = 24,
     VT_PASSWORD = 26,
     VT_RECEIVERPARAMETERS = 28,
-    VT_SOURCEPARAMETERS = 30
+    VT_SOURCEPARAMETERS = 30,
+    VT_OBJECTDETECTORSOURCEPARAMETERS = 32
   };
   uint64_t recordingtoken() const {
     return GetField<uint64_t>(VT_RECORDINGTOKEN, 0);
@@ -71,6 +72,9 @@ struct AddTrackRequest2 FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *sourceparameters() const {
     return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *>(VT_SOURCEPARAMETERS);
   }
+  const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *objectdetectorsourceparameters() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *>(VT_OBJECTDETECTORSOURCEPARAMETERS);
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_RECORDINGTOKEN) &&
@@ -96,6 +100,9 @@ struct AddTrackRequest2 FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyOffset(verifier, VT_SOURCEPARAMETERS) &&
            verifier.VerifyVector(sourceparameters()) &&
            verifier.VerifyVectorOfStrings(sourceparameters()) &&
+           VerifyOffset(verifier, VT_OBJECTDETECTORSOURCEPARAMETERS) &&
+           verifier.VerifyVector(objectdetectorsourceparameters()) &&
+           verifier.VerifyVectorOfStrings(objectdetectorsourceparameters()) &&
            verifier.EndTable();
   }
 };
@@ -145,6 +152,9 @@ struct AddTrackRequest2Builder {
   void add_sourceparameters(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> sourceparameters) {
     fbb_.AddOffset(AddTrackRequest2::VT_SOURCEPARAMETERS, sourceparameters);
   }
+  void add_objectdetectorsourceparameters(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> objectdetectorsourceparameters) {
+    fbb_.AddOffset(AddTrackRequest2::VT_OBJECTDETECTORSOURCEPARAMETERS, objectdetectorsourceparameters);
+  }
   explicit AddTrackRequest2Builder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -172,10 +182,12 @@ inline flatbuffers::Offset<AddTrackRequest2> CreateAddTrackRequest2(
     flatbuffers::Offset<flatbuffers::String> username = 0,
     flatbuffers::Offset<flatbuffers::String> password = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> receiverparameters = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> sourceparameters = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> sourceparameters = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> objectdetectorsourceparameters = 0) {
   AddTrackRequest2Builder builder_(_fbb);
   builder_.add_recordingjobtoken(recordingjobtoken);
   builder_.add_recordingtoken(recordingtoken);
+  builder_.add_objectdetectorsourceparameters(objectdetectorsourceparameters);
   builder_.add_sourceparameters(sourceparameters);
   builder_.add_receiverparameters(receiverparameters);
   builder_.add_password(password);
@@ -206,7 +218,8 @@ inline flatbuffers::Offset<AddTrackRequest2> CreateAddTrackRequest2Direct(
     const char *username = nullptr,
     const char *password = nullptr,
     const std::vector<flatbuffers::Offset<flatbuffers::String>> *receiverparameters = nullptr,
-    const std::vector<flatbuffers::Offset<flatbuffers::String>> *sourceparameters = nullptr) {
+    const std::vector<flatbuffers::Offset<flatbuffers::String>> *sourceparameters = nullptr,
+    const std::vector<flatbuffers::Offset<flatbuffers::String>> *objectdetectorsourceparameters = nullptr) {
   auto description__ = description ? _fbb.CreateString(description) : 0;
   auto files__ = files ? _fbb.CreateVector<uint64_t>(*files) : 0;
   auto mediauri__ = mediauri ? _fbb.CreateString(mediauri) : 0;
@@ -214,6 +227,7 @@ inline flatbuffers::Offset<AddTrackRequest2> CreateAddTrackRequest2Direct(
   auto password__ = password ? _fbb.CreateString(password) : 0;
   auto receiverparameters__ = receiverparameters ? _fbb.CreateVector<flatbuffers::Offset<flatbuffers::String>>(*receiverparameters) : 0;
   auto sourceparameters__ = sourceparameters ? _fbb.CreateVector<flatbuffers::Offset<flatbuffers::String>>(*sourceparameters) : 0;
+  auto objectdetectorsourceparameters__ = objectdetectorsourceparameters ? _fbb.CreateVector<flatbuffers::Offset<flatbuffers::String>>(*objectdetectorsourceparameters) : 0;
   return monocle::CreateAddTrackRequest2(
       _fbb,
       recordingtoken,
@@ -229,7 +243,8 @@ inline flatbuffers::Offset<AddTrackRequest2> CreateAddTrackRequest2Direct(
       username__,
       password__,
       receiverparameters__,
-      sourceparameters__);
+      sourceparameters__,
+      objectdetectorsourceparameters__);
 }
 
 }  // namespace monocle
