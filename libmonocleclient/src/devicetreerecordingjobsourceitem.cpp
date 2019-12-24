@@ -164,7 +164,7 @@ void DeviceTreeRecordingJobSourceItem::UpdateToolTip()
     }
 
     monocle::TrackType tracktype = monocle::TrackType::Video;
-    if (recordingjobsourcetrack_->GetTrack() && (recordingjobsourcetrack_->GetTrack()->GetTrackType() == monocle::TrackType::Metadata))
+    if (recordingjobsourcetrack_->GetTrack() && ((recordingjobsourcetrack_->GetTrack()->GetTrackType() == monocle::TrackType::Metadata) || (recordingjobsourcetrack_->GetTrack()->GetTrackType() == monocle::TrackType::ObjectDetector)))
     {
       tracktype = monocle::TrackType::Metadata;
 

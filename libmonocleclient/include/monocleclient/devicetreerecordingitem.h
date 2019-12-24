@@ -87,6 +87,10 @@ class DeviceTreeRecordingItem : public DeviceTreeItem
 
  public slots:
 
+  void TrackAdded(const QSharedPointer<client::RecordingTrack>& track);
+  void TrackRemoved(const uint32_t id);
+  void JobSourceTrackAdded(const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource, const QSharedPointer<client::RecordingJobSourceTrack>& recordingjobsourcetrack);
+  void JobSourceTrackRemoved(const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource, const uint64_t token);
   void ActiveJobChanged(const QSharedPointer<client::RecordingJob>& activejob);
   void RecordingJobSourceAdded(const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource);
   void RecordingJobSourceRemoved(const QSharedPointer<client::RecordingJob>& recordingjob, const uint64_t token);

@@ -41,6 +41,10 @@ DeviceTreeRecordingItem::DeviceTreeRecordingItem(DeviceTreeItem* parent, const b
   remove_(new QAction("Remove", this)),
   viewlog_(new QAction("View Log", this))
 {
+  connect(recording_.data(), &Recording::TrackAdded, this, &DeviceTreeRecordingItem::TrackAdded);
+  connect(recording_.data(), &Recording::TrackRemoved, this, &DeviceTreeRecordingItem::TrackRemoved);
+  connect(recording_.data(), &Recording::JobSourceTrackAdded, this, &DeviceTreeRecordingItem::JobSourceTrackAdded);
+  connect(recording_.data(), &Recording::JobSourceTrackRemoved, this, &DeviceTreeRecordingItem::JobSourceTrackRemoved);
   connect(recording_.data(), &Recording::ActiveJobChanged, this, &DeviceTreeRecordingItem::ActiveJobChanged);
   connect(recording_.data(), &Recording::JobSourceAdded, this, &DeviceTreeRecordingItem::RecordingJobSourceAdded);
   connect(recording_.data(), &Recording::JobSourceRemoved, this, &DeviceTreeRecordingItem::RecordingJobSourceRemoved);
@@ -52,6 +56,29 @@ DeviceTreeRecordingItem::DeviceTreeRecordingItem(DeviceTreeItem* parent, const b
   connect(managejobs_, &QAction::triggered, this, &DeviceTreeRecordingItem::ManageJobs);
   connect(remove_, &QAction::triggered, this, &DeviceTreeRecordingItem::Remove);
   connect(viewlog_, &QAction::triggered, this, &DeviceTreeRecordingItem::ViewLog);
+
+  //TODO put this into a method imo... and then just call it every time something gets added...
+  //TODO for (const QSharedPointer<RecordingTrack>& track : recording_->GetVideoTracks())
+  {
+    for (const QSharedPointer<RecordingJob>& job : recording_->GetJobs())
+    {
+      for (const QSharedPointer<RecordingJobSource>& source : job->GetSources())
+      {
+        for (const QSharedPointer<RecordingJobSourceTrack>& sourcetrack : source->GetTracks())
+        {
+          const QSharedPointer<RecordingTrack>& track = sourcetrack->GetTrack();
+          if (track->GetTrackType() != monocle::TrackType::Video)
+          {
+
+            continue;
+          }
+
+          //TODO now look to see if this has been added before...
+            //TODO copy another device tree source thing and use it?
+        }
+      }
+    }
+  }
 
   addChild(new DeviceTreeRecordingTracksItem(this, device_, recording_));
   addChild(new DeviceTreeRecordingJobsItem(this, device_, recording_));
@@ -201,6 +228,30 @@ void DeviceTreeRecordingItem::UpdateToolTip()
     setData(0, Qt::BackgroundRole, QVariant());
     setData(0, Qt::ToolTipRole, QVariant());
   }
+}
+
+void DeviceTreeRecordingItem::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)
+{
+  //TODO look for sources
+
+}
+
+void DeviceTreeRecordingItem::TrackRemoved(const uint32_t id)
+{
+  //TODO look for sources
+
+}
+
+void DeviceTreeRecordingItem::JobSourceTrackAdded(const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource, const QSharedPointer<client::RecordingJobSourceTrack>& recordingjobsourcetrack)
+{
+  //TODO looks for track(see if we have already added it?)
+  
+}
+
+void DeviceTreeRecordingItem::JobSourceTrackRemoved(const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource, const uint64_t token)
+{
+  //TODO looks for track(see if we have already added it?)
+
 }
 
 void DeviceTreeRecordingItem::ActiveJobChanged(const QSharedPointer<client::RecordingJob>& activejob)
