@@ -70,14 +70,15 @@ class DeviceTreeRecordingItem : public DeviceTreeItem
  private:
 
   void UpdateToolTip();
+  void UpdateChildren();
 
   boost::shared_ptr<Device> device_;
   QSharedPointer<client::Recording> recording_;
 
   QAction* edit_;
   QAction* addvideotrack_;
-  QAction* managetracks_;
-  QAction* managejobs_;
+  //TODO QAction* managetracks_;
+  //TODO QAction* managejobs_;
   QAction* remove_;
   QAction* viewlog_;
 

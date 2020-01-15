@@ -9,6 +9,7 @@
 #include <QMessageBox>
 #include <QStringList>
 
+#include "monocleclient/devicetreerecordingtrackitem.h"
 #include "monocleclient/mainwindow.h"
 #include "monocleclient/managerecordingjobswindow.h"
 #include "monocleclient/managerecordingwindow.h"
@@ -36,8 +37,8 @@ DeviceTreeRecordingItem::DeviceTreeRecordingItem(DeviceTreeItem* parent, const b
   recording_(recording),
   edit_(new QAction("Edit", this)),
   addvideotrack_(new QAction("Add Video Source", this)),
-  managetracks_(new QAction("Manage Tracks", this)),
-  managejobs_(new QAction("Manage Jobs", this)),
+  //TODO managetracks_(new QAction("Manage Tracks", this)),
+  //TODO managejobs_(new QAction("Manage Jobs", this)),
   remove_(new QAction("Remove", this)),
   viewlog_(new QAction("View Log", this))
 {
@@ -52,37 +53,12 @@ DeviceTreeRecordingItem::DeviceTreeRecordingItem(DeviceTreeItem* parent, const b
 
   connect(edit_, &QAction::triggered, this, &DeviceTreeRecordingItem::Edit);
   connect(addvideotrack_, &QAction::triggered, this, &DeviceTreeRecordingItem::AddVideoTrack);
-  connect(managetracks_, &QAction::triggered, this, &DeviceTreeRecordingItem::ManageTracks);
-  connect(managejobs_, &QAction::triggered, this, &DeviceTreeRecordingItem::ManageJobs);
+  //TODO connect(managetracks_, &QAction::triggered, this, &DeviceTreeRecordingItem::ManageTracks);
+  //TODO connect(managejobs_, &QAction::triggered, this, &DeviceTreeRecordingItem::ManageJobs);
   connect(remove_, &QAction::triggered, this, &DeviceTreeRecordingItem::Remove);
   connect(viewlog_, &QAction::triggered, this, &DeviceTreeRecordingItem::ViewLog);
 
-  //TODO put this into a method imo... and then just call it every time something gets added...
-  //TODO for (const QSharedPointer<RecordingTrack>& track : recording_->GetVideoTracks())
-  {
-    for (const QSharedPointer<RecordingJob>& job : recording_->GetJobs())
-    {
-      for (const QSharedPointer<RecordingJobSource>& source : job->GetSources())
-      {
-        for (const QSharedPointer<RecordingJobSourceTrack>& sourcetrack : source->GetTracks())
-        {
-          const QSharedPointer<RecordingTrack>& track = sourcetrack->GetTrack();
-          if (track->GetTrackType() != monocle::TrackType::Video)
-          {
-
-            continue;
-          }
-
-          //TODO now look to see if this has been added before...
-            //TODO copy another device tree source thing and use it?
-        }
-      }
-    }
-  }
-
-  addChild(new DeviceTreeRecordingTracksItem(this, device_, recording_));
-  addChild(new DeviceTreeRecordingJobsItem(this, device_, recording_));
-
+  UpdateChildren();
   UpdateToolTip();
 
   setIcon(0, recordingicon);
@@ -100,11 +76,10 @@ void DeviceTreeRecordingItem::ContextMenuEvent(const QPoint& pos)
   menu->addAction(edit_);
   menu->addAction(addvideotrack_);
   //TODO if we have too many video sources already(I think limit is 5?), don't show this menu item
+    //TODO how do we know the maximum number(is that in the SUBSCRIBE message?)
   //TODO addvideotrack_
     //TODO this will add the new window..?
   //TODO addmetadatatrack_
-  menu->addAction(managetracks_);//TODO disappears
-  menu->addAction(managejobs_);//TODO disappears
   menu->addAction(remove_);
   menu->addAction(viewlog_);
   menu->exec(pos);
@@ -230,27 +205,63 @@ void DeviceTreeRecordingItem::UpdateToolTip()
   }
 }
 
+void DeviceTreeRecordingItem::UpdateChildren()
+{
+  // Add any children
+  for (const QSharedPointer<RecordingJob>& job : recording_->GetJobs())
+  {
+    for (const QSharedPointer<RecordingJobSource>& source : job->GetSources())
+    {
+      for (const QSharedPointer<RecordingJobSourceTrack>& sourcetrack : source->GetTracks())
+      {
+        const QSharedPointer<RecordingTrack>& track = sourcetrack->GetTrack();
+        if (track->GetTrackType() != monocle::TrackType::Video)
+        {
+
+          continue;
+        }
+
+        //TODO look to see if it has been added before... just have a method for that I guess?
+        //TODO addChild()
+        //TODO just hijack DeviceTreeRecordingTrackItem ?
+
+        //TODO now look to see if this has been added before...
+          //TODO copy another device tree source thing and use it?
+      }
+    }
+  }
+
+  // Clear up any that may have disappeared
+  for (int i = (childCount() - 1); i >= 0; --i)
+  {
+    DeviceTreeRecordingTrackItem* item = static_cast<DeviceTreeRecordingTrackItem*>(child(i));
+    //TODO item->GetTrack()
+    //TODO now check for it existing or not from the recording_
+
+  }
+}
+
 void DeviceTreeRecordingItem::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)
 {
-  //TODO look for sources
-
+  UpdateChildren();
+  UpdateToolTip();
 }
 
 void DeviceTreeRecordingItem::TrackRemoved(const uint32_t id)
 {
-  //TODO look for sources
-
+  UpdateChildren();
+  UpdateToolTip();
 }
 
 void DeviceTreeRecordingItem::JobSourceTrackAdded(const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource, const QSharedPointer<client::RecordingJobSourceTrack>& recordingjobsourcetrack)
 {
-  //TODO looks for track(see if we have already added it?)
+  UpdateChildren();
   
 }
 
 void DeviceTreeRecordingItem::JobSourceTrackRemoved(const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource, const uint64_t token)
 {
-  //TODO looks for track(see if we have already added it?)
+  UpdateChildren();
 
 }
 
@@ -268,14 +279,14 @@ void DeviceTreeRecordingItem::RecordingJobSourceAdded(const QSharedPointer<clien
 
 void DeviceTreeRecordingItem::RecordingJobSourceRemoved(const QSharedPointer<client::RecordingJob>& recordingjob, const uint64_t token)
 {
+  UpdateChildren();
   UpdateToolTip();
-
 }
 
 void DeviceTreeRecordingItem::RecordingJobSourceTrackStateChanged(const QSharedPointer<client::RecordingJob>& job, const QSharedPointer<client::RecordingJobSource>& source, const QSharedPointer<client::RecordingJobSourceTrack>& track, const uint64_t time, const monocle::RecordingJobState state, const QString& error, const monocle::RecordingJobState prevstate)
 {
+  UpdateChildren();
   UpdateToolTip();
-
 }
 
 void DeviceTreeRecordingItem::Edit(bool)

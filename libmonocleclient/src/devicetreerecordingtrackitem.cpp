@@ -20,7 +20,7 @@ namespace client
 {
 
 ///// Methods /////
-
+//TODO this now needs the QSharedPointer<RecordingJobSourceTrack> too now
 DeviceTreeRecordingTrackItem::DeviceTreeRecordingTrackItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingTrack>& track) :
   DeviceTreeItem(parent, GetName(track)),
   device_(device),
@@ -78,12 +78,14 @@ QString DeviceTreeRecordingTrackItem::GetName(const QSharedPointer<client::Recor
 
 void DeviceTreeRecordingTrackItem::Edit(bool)
 {
-  ManageRecordingTrackWindow(treeWidget(), device_, recording_, track_).exec();
+  //TODO this will now need to go to ManageTrackWindow
+  //TODO ManageRecordingTrackWindow(treeWidget(), device_, recording_, track_).exec();
 
 }
 
 void DeviceTreeRecordingTrackItem::Remove(bool)
 {
+  //TODO I think this is ok, check the server removes the source when it does this though?
   if (QMessageBox::question(treeWidget(), tr("Remove"), tr("Are you sure?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
   {
     removetrackconnection_ = device_->RemoveTrack(recording_->GetToken(), track_->GetId(), [](const std::chrono::steady_clock::duration latency, const monocle::client::REMOVETRACKRESPONSE& removetrackresponse)
