@@ -131,6 +131,7 @@ endif()
 
 add_subdirectory(clientcli)
 add_subdirectory(libfile)
+add_subdirectory(liblicense)
 add_subdirectory(libmonocleclient)
 add_subdirectory(libmonocleprotocol)
 add_subdirectory(libonvifclient)
