@@ -9,7 +9,7 @@
 #include <QMessageBox>
 
 #include "monocleclient/mainwindow.h"
-#include "monocleclient/managerecordingtrackwindow.h"
+#include "monocleclient/managetrackwindow.h"
 #include "monocleclient/recording.h"
 #include "monocleclient/recordinglogwindow.h"
 #include "monocleclient/recordingtrack.h"
@@ -79,8 +79,7 @@ QString DeviceTreeRecordingTrackItem::GetName(const QSharedPointer<client::Recor
 
 void DeviceTreeRecordingTrackItem::Edit(bool)
 {
-  //TODO this will now need to go to ManageTrackWindow
-  //TODO ManageRecordingTrackWindow(treeWidget(), device_, recording_, track_).exec();
+  ManageTrackWindow(treeWidget(), device_, recording_, recordingjobsourcetrack_, track_).exec();
 
 }
 

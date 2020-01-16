@@ -27,6 +27,8 @@ namespace client
 
 class Device;
 class Recording;
+class RecordingJobSourceTrack;
+class RecordingTrack;
 
 ///// Classes /////
 
@@ -36,7 +38,7 @@ class ManageTrackWindow : public QDialog
 
  public:
 
-  ManageTrackWindow(QWidget* parent, const monocle::TrackType tracktype, boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording);
+  ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& recordingtrack);
   ~ManageTrackWindow();
 
  private:
@@ -45,10 +47,10 @@ class ManageTrackWindow : public QDialog
 
   Ui::ManageTrackWindow ui_;
 
-  monocle::TrackType tracktype_;
-
   boost::shared_ptr<Device> device_;
   QSharedPointer<Recording> recording_;
+  QSharedPointer<RecordingJobSourceTrack> recordingjobsourcetrack_;
+  QSharedPointer<RecordingTrack> recordingtrack_;
 
   monocle::client::Connection addtrack2connection_;
 

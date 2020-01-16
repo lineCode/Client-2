@@ -39,11 +39,12 @@ const int ROTATION_ROLE = Qt::UserRole + 1;
       //TODO this doesn't work because we may use the same ip address or hostname multiple times...
     //TODO is it by recordingjobsource/receiver?
       //TODO I think this is the ONLY way?
-ManageTrackWindow::ManageTrackWindow(QWidget* parent, const monocle::TrackType tracktype, boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording) :
+ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& recordingtrack) :
   QDialog(parent),
-  tracktype_(tracktype),
   device_(device),
   recording_(recording),
+  recordingjobsourcetrack_(recordingjobsourcetrack),
+  recordingtrack_(recordingtrack),
   accuracy_(1),
   humans_(true),
   bicycles_(true),
@@ -90,20 +91,21 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, const monocle::TrackType t
   ui_.comborotation->addItem("90", "90");
   ui_.comborotation->addItem("180", "180");
   ui_.comborotation->addItem("270", "270");
-  
-  if (tracktype == monocle::TrackType::Video)//TODO this goes away...
+
+  // Find a job to get started with, it may not always be available
+  QSharedPointer<RecordingJob> job = recording_->GetActiveJob();
+  if (!job)
   {
-    //TODO this shit is ugly here... would be nice to sort out...
-    QSharedPointer<RecordingJob> job = recording_->GetActiveJob();
-    if (!job)
+    if (recording_->GetJobs().size())
     {
-      if (recording_->GetJobs().size())
-      {
-        job = recording_->GetJobs().front();
+      job = recording_->GetJobs().front();
 
-      }
     }
+  }
 
+  if (recordingjobsourcetrack_ && recordingtrack_)
+  {
+    //TODO is this correct?
     if (job)
     {
       for (const QSharedPointer<RecordingJobSource>& source : job->GetSources())
@@ -113,25 +115,20 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, const monocle::TrackType t
           QSharedPointer<RecordingTrack> track = sourcetrack->GetTrack();
           if (track && (track->GetTrackType() == monocle::TrackType::ObjectDetector))
           {
-            ui_.checkobjectdetector->setChecked(true);
-            sourcetrack->GetParameters();//TODO set all the object detector details(anything not mentioned should be disabled imo?)
-            //TODO fill it in and deal with it
+            //TODO we want to see that the source going into this track is using the objectdetector://[recordingtrack_->GetId()]
 
+            ui_.checkobjectdetector->setChecked(true);
+            for (const QString& parametertext : sourcetrack->GetParameters())//TODO set all the object detector details(anything not mentioned should be disabled imo?)
+            {
+              //TODO now Parameter(parametertext)
+
+            }
+            //TODO fill it in and deal with it
+            break;
           }
         }
       }
     }
-  }
-  else if (tracktype == monocle::TrackType::Metadata)
-  {
-    ui_.checkobjectdetector->setVisible(false);
-    ui_.buttonobjectdetectorsettings->setVisible(false);
-  }
-  else
-  {
-    //TODO error and reject in 1ms
-      //TODO no longer required
-
   }
 
   //TODO select and fill in the things if there is a stuff editing to put in
@@ -361,21 +358,31 @@ void ManageTrackWindow::on_buttonok_clicked()
     objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_HORSES_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(horsessensitivity_)).toStdString());
   }
 
+  //TODO disable buttons
+
   //TODO files needs to be sorted
-  addtrack2connection_ = device_->AddTrack2(recording_->GetToken(), recordingjobtoken, tracktype_, ui_.editdescription->text().toStdString(), ui_.checkfixedfiles->isChecked(), ui_.checkdigitalsigning->isChecked(), ui_.checkencrypt->isChecked(), ui_.spinflushfrequency->value(), {}, ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), receiverparameters, recordingjobsourcetrackparameters, objectdetectorsourcetrackparameters, [this](const std::chrono::steady_clock::duration latency, const monocle::client::ADDTRACK2RESPONSE& addtrack2response)
+  if (recordingjobsourcetrack_ && recordingtrack_)
   {
+    //TODO edit
 
-    //TODO enable buttons... again
-      //TODO just create a method for tidy up all the enabled/disabled
-
-    if (addtrack2response.GetErrorCode() != monocle::ErrorCode::Success)
+  }
+  else
+  {
+    addtrack2connection_ = device_->AddTrack2(recording_->GetToken(), recordingjobtoken, monocle::TrackType::Video, ui_.editdescription->text().toStdString(), ui_.checkfixedfiles->isChecked(), ui_.checkdigitalsigning->isChecked(), ui_.checkencrypt->isChecked(), ui_.spinflushfrequency->value(), {}, ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), receiverparameters, recordingjobsourcetrackparameters, objectdetectorsourcetrackparameters, [this](const std::chrono::steady_clock::duration latency, const monocle::client::ADDTRACK2RESPONSE& addtrack2response)
     {
-      //TODO QMessageBox
-      return;
-    }
 
-    accept();
-  });
+      //TODO enable buttons... again
+        //TODO just create a method for tidy up all the enabled/disabled
+
+      if (addtrack2response.GetErrorCode() != monocle::ErrorCode::Success)
+      {
+        //TODO QMessageBox
+        return;
+      }
+
+      accept();
+    });
+  }
 }
 
 }

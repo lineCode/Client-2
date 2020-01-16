@@ -4,9 +4,10 @@ namespace monocle;
 
 table AddTrackRequest2
 {
+  // Video track details
   recordingtoken:uint64 (id:0);
   recordingjobtoken:uint64 (id:1);
-  tracktype:TrackType (id:2);
+  tracktype:TrackType (id:2);//TODO required?
   description:string (id:3);
   fixedfiles:bool (id:4);
   digitalsigning:bool (id:5);
@@ -14,6 +15,7 @@ table AddTrackRequest2
   flushfrequency:uint32 (id:7);
   files:[uint64] (id:8);
   
+  // Object Detector details//TODO is this true?
   mediauri:string (id:9);
   username:string (id:10);
   password:string (id:11);

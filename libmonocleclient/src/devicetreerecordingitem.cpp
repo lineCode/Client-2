@@ -329,7 +329,7 @@ void DeviceTreeRecordingItem::Edit(bool)
 
 void DeviceTreeRecordingItem::AddVideoTrack(bool)
 {
-  ManageTrackWindow(treeWidget(), monocle::TrackType::Video, device_, recording_).exec();
+  ManageTrackWindow(treeWidget(), monocle::TrackType::Video, device_, recording_, nullptr, nullptr).exec();
 
 }
 
