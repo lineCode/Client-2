@@ -20,11 +20,12 @@ namespace client
 {
 
 ///// Methods /////
-//TODO this now needs the QSharedPointer<RecordingJobSourceTrack> too now
-DeviceTreeRecordingTrackItem::DeviceTreeRecordingTrackItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingTrack>& track) :
+
+DeviceTreeRecordingTrackItem::DeviceTreeRecordingTrackItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<client::RecordingTrack>& track) :
   DeviceTreeItem(parent, GetName(track)),
   device_(device),
   recording_(recording),
+  recordingjobsourcetrack_(recordingjobsourcetrack),
   track_(track),
   edit_(new QAction("Edit", this)),
   remove_(new QAction("Remove", this)),

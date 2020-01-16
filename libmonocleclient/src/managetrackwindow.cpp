@@ -31,7 +31,14 @@ const int STREAMING_PROTOCOL_ROLE = Qt::UserRole;
 const int ROTATION_ROLE = Qt::UserRole + 1;
 
 ///// Methods /////
-
+//TODO I don't think we pass in the tracktype anymore, because metadata will be a checkbox within
+  //TODO so we just pass in the recordingjobsourcetrack and track
+    //TODO maybe we just pass in the "recordingjobsource", this way if there is 
+  //TODO how do we link the metadata tracks in like this?
+    //TODO is it by ip address or hostname?
+      //TODO this doesn't work because we may use the same ip address or hostname multiple times...
+    //TODO is it by recordingjobsource/receiver?
+      //TODO I think this is the ONLY way?
 ManageTrackWindow::ManageTrackWindow(QWidget* parent, const monocle::TrackType tracktype, boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording) :
   QDialog(parent),
   tracktype_(tracktype),
@@ -84,7 +91,7 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, const monocle::TrackType t
   ui_.comborotation->addItem("180", "180");
   ui_.comborotation->addItem("270", "270");
   
-  if (tracktype == monocle::TrackType::Video)
+  if (tracktype == monocle::TrackType::Video)//TODO this goes away...
   {
     //TODO this shit is ugly here... would be nice to sort out...
     QSharedPointer<RecordingJob> job = recording_->GetActiveJob();
@@ -123,10 +130,16 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, const monocle::TrackType t
   else
   {
     //TODO error and reject in 1ms
+      //TODO no longer required
 
   }
 
   //TODO select and fill in the things if there is a stuff editing to put in
+
+  //TODO look for the object detector receiver(within the bounds of this recording)
+    //TODO and fill in the object detector checkbox etc
+
+  //TODO if there are no CUDA cores, disable the object detector button and checkbox and put a status message thing on them
 
   on_checkfixedfiles_stateChanged(0);
   on_checkobjectdetector_stateChanged(0);

@@ -32,6 +32,7 @@ namespace client
 class Device;
 class DeviceTree;
 class DeviceTreeItem;
+class DeviceTreeRecordingTrackItem;
 class Recording;
 class RecordingJob;
 class RecordingJobSource;
@@ -71,14 +72,14 @@ class DeviceTreeRecordingItem : public DeviceTreeItem
 
   void UpdateToolTip();
   void UpdateChildren();
+  DeviceTreeRecordingTrackItem* GetChild(const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& track) const;
+  bool Exists(const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& track) const;
 
   boost::shared_ptr<Device> device_;
   QSharedPointer<client::Recording> recording_;
 
   QAction* edit_;
   QAction* addvideotrack_;
-  //TODO QAction* managetracks_;
-  //TODO QAction* managejobs_;
   QAction* remove_;
   QAction* viewlog_;
 
@@ -103,7 +104,6 @@ class DeviceTreeRecordingItem : public DeviceTreeItem
   void ManageJobs(bool);
   void Remove(bool);
   void ViewLog(bool);
-
 
 };
 

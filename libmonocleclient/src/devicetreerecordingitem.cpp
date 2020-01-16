@@ -37,8 +37,6 @@ DeviceTreeRecordingItem::DeviceTreeRecordingItem(DeviceTreeItem* parent, const b
   recording_(recording),
   edit_(new QAction("Edit", this)),
   addvideotrack_(new QAction("Add Video Source", this)),
-  //TODO managetracks_(new QAction("Manage Tracks", this)),
-  //TODO managejobs_(new QAction("Manage Jobs", this)),
   remove_(new QAction("Remove", this)),
   viewlog_(new QAction("View Log", this))
 {
@@ -53,8 +51,6 @@ DeviceTreeRecordingItem::DeviceTreeRecordingItem(DeviceTreeItem* parent, const b
 
   connect(edit_, &QAction::triggered, this, &DeviceTreeRecordingItem::Edit);
   connect(addvideotrack_, &QAction::triggered, this, &DeviceTreeRecordingItem::AddVideoTrack);
-  //TODO connect(managetracks_, &QAction::triggered, this, &DeviceTreeRecordingItem::ManageTracks);
-  //TODO connect(managejobs_, &QAction::triggered, this, &DeviceTreeRecordingItem::ManageJobs);
   connect(remove_, &QAction::triggered, this, &DeviceTreeRecordingItem::Remove);
   connect(viewlog_, &QAction::triggered, this, &DeviceTreeRecordingItem::ViewLog);
 
@@ -74,12 +70,11 @@ void DeviceTreeRecordingItem::ContextMenuEvent(const QPoint& pos)
 {
   QMenu* menu = new QMenu(treeWidget());
   menu->addAction(edit_);
-  menu->addAction(addvideotrack_);
-  //TODO if we have too many video sources already(I think limit is 5?), don't show this menu item
-    //TODO how do we know the maximum number(is that in the SUBSCRIBE message?)
-  //TODO addvideotrack_
-    //TODO this will add the new window..?
-  //TODO addmetadatatrack_
+  if (recording_->GetNumVideoTracks() < 5)
+  {
+    menu->addAction(addvideotrack_);
+
+  }
   menu->addAction(remove_);
   menu->addAction(viewlog_);
   menu->exec(pos);
@@ -221,24 +216,61 @@ void DeviceTreeRecordingItem::UpdateChildren()
           continue;
         }
 
-        //TODO look to see if it has been added before... just have a method for that I guess?
-        //TODO addChild()
-        //TODO just hijack DeviceTreeRecordingTrackItem ?
+        if (GetChild(sourcetrack, track)) // If we already have this child, ignore this
+        {
 
-        //TODO now look to see if this has been added before...
-          //TODO copy another device tree source thing and use it?
+          continue;
+        }
+
+        addChild(new DeviceTreeRecordingTrackItem(this, device_, recording_, sourcetrack, track));
       }
     }
   }
 
   // Clear up any that may have disappeared
+//TODO make sure this works?
   for (int i = (childCount() - 1); i >= 0; --i)
   {
     DeviceTreeRecordingTrackItem* item = static_cast<DeviceTreeRecordingTrackItem*>(child(i));
-    //TODO item->GetTrack()
-    //TODO now check for it existing or not from the recording_
+    if (!Exists(item->GetRecordingJobSourceTrack(), item->GetTrack()))
+    {
+      removeChild(item);
 
+    }
   }
+}
+
+DeviceTreeRecordingTrackItem* DeviceTreeRecordingItem::GetChild(const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& track) const
+{
+  for (int i = 0; i < childCount(); ++i)
+  {
+    DeviceTreeRecordingTrackItem* item = static_cast<DeviceTreeRecordingTrackItem*>(child(i));
+    if ((item->GetRecordingJobSourceTrack() == recordingjobsourcetrack) && (item->GetTrack() == track))
+    {
+
+      return item;
+    }
+  }
+  return nullptr;
+}
+
+bool DeviceTreeRecordingItem::Exists(const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& track) const
+{
+  for (const QSharedPointer<RecordingJob>& job : recording_->GetJobs())
+  {
+    for (const QSharedPointer<RecordingJobSource>& source : job->GetSources())
+    {
+      for (const QSharedPointer<RecordingJobSourceTrack>& sourcetrack : source->GetTracks())
+      {
+        if ((recordingjobsourcetrack == sourcetrack) && (sourcetrack->GetTrack() == track))
+        {
+
+          return true;
+        }
+      }
+    }
+  }
+  return false;
 }
 
 void DeviceTreeRecordingItem::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)

@@ -159,6 +159,20 @@ std::vector< QSharedPointer<client::RecordingTrack> > Recording::GetTracks(const
   return tracks;
 }
 
+unsigned int Recording::GetNumVideoTracks() const
+{
+  unsigned int numvideotracks = 0;
+  for (const QSharedPointer<client::RecordingTrack>& track : tracks_)
+  {
+    if (track->GetTrackType() == monocle::TrackType::Video)
+    {
+      ++numvideotracks;
+
+    }
+  }
+  return numvideotracks;
+}
+
 std::vector< QSharedPointer<client::RecordingTrack> > Recording::GetVideoTracks() const
 {
 

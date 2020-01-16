@@ -61,7 +61,8 @@ void DeviceTreeRecordingTracksItem::DoubleClicked()
 
 void DeviceTreeRecordingTracksItem::AddTrack(const QSharedPointer<client::RecordingTrack>& track)
 {
-  addChild(new DeviceTreeRecordingTrackItem(this, device_, recording_, track));
+  //TODO this whole file goes in the bin I think?
+  //TODO addChild(new DeviceTreeRecordingTrackItem(this, device_, recording_, track));
 
 }
 
