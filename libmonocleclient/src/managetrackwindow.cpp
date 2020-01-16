@@ -151,12 +151,39 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>&
           if (track && (track->GetTrackType() == monocle::TrackType::ObjectDetector)) // This should always be true after looking above at the receiver, but lets just check just in case...
           {
             ui_.checkobjectdetector->setChecked(true);
-            for (const QString& parametertext : sourcetrack->GetParameters())//TODO set all the object detector details(anything not mentioned should be disabled imo?)
-            {
-              //TODO now Parameter(parametertext)
-
-            }
-            //TODO fill it in and deal with it
+            accuracy_ = sourcetrack->GetObjectDetectorAccuracy().toInt();
+            humans_ = sourcetrack->GetObjectDetectorHumansEnabled().toBool();
+            bicycles_ = sourcetrack->GetObjectDetectorBicyclesEnabled().toBool();
+            cars_ = sourcetrack->GetObjectDetectorCarsEnabled().toBool();
+            motorbikes_ = sourcetrack->GetObjectDetectorMotorbikesEnabled().toBool();
+            buses_ = sourcetrack->GetObjectDetectorBusesEnabled().toBool();
+            trucks_ = sourcetrack->GetObjectDetectorTrucksEnabled().toBool();
+            backpacks_ = sourcetrack->GetObjectDetectorBackpacksEnabled().toBool();
+            umbrellas_ = sourcetrack->GetObjectDetectorUmbrellasEnabled().toBool();
+            handbags_ = sourcetrack->GetObjectDetectorHandbagsEnabled().toBool();
+            suitcases_ = sourcetrack->GetObjectDetectorSuitcasesEnabled().toBool();
+            cats_ = sourcetrack->GetObjectDetectorCatsEnabled().toBool();
+            dogs_ = sourcetrack->GetObjectDetectorDogsEnabled().toBool();
+            aeroplanes_ = sourcetrack->GetObjectDetectorAeroplanesEnabled().toBool();
+            trains_ = sourcetrack->GetObjectDetectorTrainsEnabled().toBool();
+            boats_ = sourcetrack->GetObjectDetectorBoatsEnabled().toBool();
+            horses_ = sourcetrack->GetObjectDetectorHorsesEnabled().toBool();
+            humanssensitivity_ = sourcetrack->GetObjectDetectorHumansSensitivity().toDouble();
+            bicyclessensitivity_ = sourcetrack->GetObjectDetectorBicyclesSensitivity().toDouble();
+            carssensitivity_ = sourcetrack->GetObjectDetectorCarsSensitivity().toDouble();
+            motorbikessensitivity_ = sourcetrack->GetObjectDetectorMotorbikesSensitivity().toDouble();
+            busessensitivity_ = sourcetrack->GetObjectDetectorBusesSensitivity().toDouble();
+            truckssensitivity_ = sourcetrack->GetObjectDetectorTrucksSensitivity().toDouble();
+            backpackssensitivity_ = sourcetrack->GetObjectDetectorBackpacksSensitivity().toDouble();
+            umbrellassensitivity_ = sourcetrack->GetObjectDetectorUmbrellasSensitivity().toDouble();
+            handbagssensitivity_ = sourcetrack->GetObjectDetectorHandbagsSensitivity().toDouble();
+            suitcasessensitivity_ = sourcetrack->GetObjectDetectorSuitcasesSensitivity().toDouble();
+            catssensitivity_ = sourcetrack->GetObjectDetectorCatsSensitivity().toDouble();
+            dogssensitivity_ = sourcetrack->GetObjectDetectorDogsSensitivity().toDouble();
+            aeroplanessensitivity_ = sourcetrack->GetObjectDetectorAeroplanesSensitivity().toDouble();
+            trainssensitivity_ = sourcetrack->GetObjectDetectorTrainsSensitivity().toDouble();
+            boatssensitivity_ = sourcetrack->GetObjectDetectorBoatsSensitivity().toDouble();
+            horsessensitivity_ = sourcetrack->GetObjectDetectorHorsesSensitivity().toDouble();
             break;
           }
         }
@@ -165,9 +192,6 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>&
   }
 
   //TODO select and fill in the things if there is a stuff editing to put in
-
-  //TODO look for the object detector receiver(within the bounds of this recording)
-    //TODO and fill in the object detector checkbox etc
 
   if (device_->GetNumCudaDevices() == 0)
   {
