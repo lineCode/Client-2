@@ -110,13 +110,46 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>&
     {
       for (const QSharedPointer<RecordingJobSource>& source : job->GetSources())
       {
+        // Check to see whether this source is an object detector pointing to the original track
+        QSharedPointer<Receiver> receiver = device_->GetReceiver(source->GetReceiverToken());
+        if (!receiver)
+        {
+
+          continue;
+        }
+
+        try
+        {
+          network::uri uri(receiver->GetMediaUri().toStdString());
+          if (!uri.has_scheme() || !uri.has_path())
+          {
+
+            continue;
+          }
+
+          if (uri.scheme().compare("objectdetector"))
+          {
+
+            continue;
+          }
+          
+          if (uri.path().compare(std::to_string(recordingtrack_->GetId())))//TODO not sure this works, be careful?
+          {
+
+            continue;
+          }
+        }
+        catch (...)
+        {
+
+          continue;
+        }
+
         for (const QSharedPointer<RecordingJobSourceTrack>& sourcetrack : source->GetTracks())
         {
           QSharedPointer<RecordingTrack> track = sourcetrack->GetTrack();
-          if (track && (track->GetTrackType() == monocle::TrackType::ObjectDetector))
+          if (track && (track->GetTrackType() == monocle::TrackType::ObjectDetector)) // This should always be true after looking above at the receiver, but lets just check just in case...
           {
-            //TODO we want to see that the source going into this track is using the objectdetector://[recordingtrack_->GetId()]
-
             ui_.checkobjectdetector->setChecked(true);
             for (const QString& parametertext : sourcetrack->GetParameters())//TODO set all the object detector details(anything not mentioned should be disabled imo?)
             {
@@ -136,7 +169,13 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>&
   //TODO look for the object detector receiver(within the bounds of this recording)
     //TODO and fill in the object detector checkbox etc
 
-  //TODO if there are no CUDA cores, disable the object detector button and checkbox and put a status message thing on them
+  if (device_->GetNumCudaDevices() == 0)
+  {
+    ui_.checkobjectdetector->setDisabled(true);
+    ui_.checkobjectdetector->setStatusTip("No CUDA devices found on server");//TODO does this work
+    ui_.buttonobjectdetectorsettings->setDisabled(true);
+    ui_.buttonobjectdetectorsettings->setStatusTip("No CUDA devices found on server");//TODO does this work
+  }
 
   on_checkfixedfiles_stateChanged(0);
   on_checkobjectdetector_stateChanged(0);
