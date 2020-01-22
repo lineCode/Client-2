@@ -36,7 +36,7 @@ DeviceTreeRecordingItem::DeviceTreeRecordingItem(DeviceTreeItem* parent, const b
   device_(device),
   recording_(recording),
   edit_(new QAction("Edit", this)),
-  addvideotrack_(new QAction("Add Video Source", this)),
+  addvideotrack_(new QAction("Add Video Source", this)),//TODO rename to "Add Source" I think? addsource_
   remove_(new QAction("Remove", this)),
   viewlog_(new QAction("View Log", this))
 {
@@ -329,7 +329,7 @@ void DeviceTreeRecordingItem::Edit(bool)
 
 void DeviceTreeRecordingItem::AddVideoTrack(bool)
 {
-  ManageTrackWindow(treeWidget(), monocle::TrackType::Video, device_, recording_, nullptr, nullptr).exec();
+  ManageTrackWindow(treeWidget(), device_, recording_, nullptr, nullptr).exec();
 
 }
 

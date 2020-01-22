@@ -162,6 +162,11 @@ std::pair<Error, uint32_t> TestConnection::AddTrack(const uint64_t recordingtoke
   return std::make_pair(Error(), 0);
 }
 
+Error TestConnection::AddTrack2(const uint64_t recordingtoken, const uint64_t recordingjobtoken, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::string& mediauri, const std::string& username, const std::string& password, const std::vector<std::string>& receiverparameters, const std::vector<std::string>& sourceparameters, const std::vector<std::string>& objectdetectorsourceparameters)
+{
+  return Error();
+}
+
 Error TestConnection::AddUser(const std::string& username, const std::string& digest, const uint64_t group)
 {
   return Error();

@@ -82,6 +82,7 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>&
   ui_.setupUi(this);
 
   connect(ui_.buttoncancel, &QPushButton::clicked, this, &ManageTrackWindow::reject);
+  //TODO connect to the track and rjst getting removed so that we can close this dialog if we are editing
 
   ui_.comboprotocol->addItem(QString(monocle::EnumNameStreamingProtocol(monocle::StreamingProtocol::TCPInterleaved)), static_cast<int>(monocle::StreamingProtocol::TCPInterleaved));
   ui_.comboprotocol->addItem(QString(monocle::EnumNameStreamingProtocol(monocle::StreamingProtocol::UDPUnicast)), static_cast<int>(monocle::StreamingProtocol::UDPUnicast));
@@ -339,7 +340,7 @@ void ManageTrackWindow::on_buttonok_clicked()
   //TODO check uri looks like rtsp or http://1.2.3.4:99/onvif/device_service
 
   // Find or create a recording job
-  QSharedPointer<RecordingJob> activerecordingjob = recording_->GetActiveJob();
+  QSharedPointer<RecordingJob> activerecordingjob = recording_->GetActiveJob();//TODO use the same method as the one in the constructor to get a job... create a method for this
   uint64_t recordingjobtoken = 0;
   if (activerecordingjob)
   {
@@ -348,6 +349,7 @@ void ManageTrackWindow::on_buttonok_clicked()
   }
   else
   {
+    //TODO remove the job from sqlite and try this
     int i = 0;//TODO remove
     //TODO now just find the highest priority one...
       //TODO if we don't find one then we need to create a job
