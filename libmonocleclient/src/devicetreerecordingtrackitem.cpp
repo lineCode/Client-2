@@ -74,7 +74,7 @@ void DeviceTreeRecordingTrackItem::DoubleClicked()
 
 QString DeviceTreeRecordingTrackItem::GetName(const QSharedPointer<client::RecordingTrack>& track) const
 {
-  return (track->GetDescription() + "(" + monocle::EnumNameTrackType(track->GetTrackType()) + ")");
+  return (track->GetDescription() + "(" + monocle::EnumNameTrackType(track->GetTrackType()) + ")");//TODO no longer need this(unless it is empty... then we can just put the track type?)... or "empty"?
 }
 
 void DeviceTreeRecordingTrackItem::Edit(bool)
@@ -85,7 +85,7 @@ void DeviceTreeRecordingTrackItem::Edit(bool)
 
 void DeviceTreeRecordingTrackItem::Remove(bool)
 {
-  //TODO I think this is ok, check the server removes the source when it does this though?
+  //TODO The tracks get removed... but the RecordingJobSource does NOT get removed
   if (QMessageBox::question(treeWidget(), tr("Remove"), tr("Are you sure?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
   {
     removetrackconnection_ = device_->RemoveTrack(recording_->GetToken(), track_->GetId(), [](const std::chrono::steady_clock::duration latency, const monocle::client::REMOVETRACKRESPONSE& removetrackresponse)

@@ -27,6 +27,7 @@ namespace client
 
 class Device;
 class Recording;
+class RecordingJob;
 class RecordingJobSourceTrack;
 class RecordingTrack;
 
@@ -43,6 +44,7 @@ class ManageTrackWindow : public QDialog
 
  private:
 
+  QSharedPointer<RecordingJob> GetJob() const;
   void DisableSource();
 
   Ui::ManageTrackWindow ui_;

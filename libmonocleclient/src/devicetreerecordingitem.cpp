@@ -229,6 +229,7 @@ void DeviceTreeRecordingItem::UpdateChildren()
 
   // Clear up any that may have disappeared
 //TODO make sure this works?
+  //TODO seems to be ok?
   for (int i = (childCount() - 1); i >= 0; --i)
   {
     DeviceTreeRecordingTrackItem* item = static_cast<DeviceTreeRecordingTrackItem*>(child(i));

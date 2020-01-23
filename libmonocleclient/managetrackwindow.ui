@@ -290,6 +290,28 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>editdescription</tabstop>
+  <tabstop>spinflushfrequency</tabstop>
+  <tabstop>checkdigitalsigning</tabstop>
+  <tabstop>checkencrypt</tabstop>
+  <tabstop>checkfixedfiles</tabstop>
+  <tabstop>buttonfiles</tabstop>
+  <tabstop>edituri</tabstop>
+  <tabstop>buttonfindonvifdevice</tabstop>
+  <tabstop>editprofiletoken</tabstop>
+  <tabstop>editsourcetag</tabstop>
+  <tabstop>comboprotocol</tabstop>
+  <tabstop>editusername</tabstop>
+  <tabstop>editpassword</tabstop>
+  <tabstop>comborotation</tabstop>
+  <tabstop>checkobjectdetector</tabstop>
+  <tabstop>buttonobjectdetectorsettings</tabstop>
+  <tabstop>buttontest</tabstop>
+  <tabstop>buttonok</tabstop>
+  <tabstop>treedetails</tabstop>
+  <tabstop>buttoncancel</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

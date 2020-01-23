@@ -94,15 +94,7 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>&
   ui_.comborotation->addItem("270", "270");
 
   // Find a job to get started with, it may not always be available
-  QSharedPointer<RecordingJob> job = recording_->GetActiveJob();
-  if (!job)
-  {
-    if (recording_->GetJobs().size())
-    {
-      job = recording_->GetJobs().front();
-
-    }
-  }
+  QSharedPointer<RecordingJob> job = GetJob();
 
   if (recordingjobsourcetrack_ && recordingtrack_)
   {
@@ -210,6 +202,24 @@ ManageTrackWindow::~ManageTrackWindow()
 {
   addtrack2connection_.Close();
 
+}
+
+QSharedPointer<RecordingJob> ManageTrackWindow::GetJob() const
+{
+  QSharedPointer<RecordingJob> job = recording_->GetActiveJob();
+  if (job)
+  {
+
+    return job;
+  }
+
+  if (recording_->GetJobs().size())
+  {
+    return recording_->GetJobs().front();
+
+  }
+
+  return nullptr;
 }
 
 void ManageTrackWindow::DisableSource()
@@ -340,11 +350,11 @@ void ManageTrackWindow::on_buttonok_clicked()
   //TODO check uri looks like rtsp or http://1.2.3.4:99/onvif/device_service
 
   // Find or create a recording job
-  QSharedPointer<RecordingJob> activerecordingjob = recording_->GetActiveJob();//TODO use the same method as the one in the constructor to get a job... create a method for this
+  QSharedPointer<RecordingJob> job = GetJob();
   uint64_t recordingjobtoken = 0;
-  if (activerecordingjob)
+  if (job)
   {
-    recordingjobtoken = activerecordingjob->GetToken();
+    recordingjobtoken = job->GetToken();
 
   }
   else
@@ -359,7 +369,7 @@ void ManageTrackWindow::on_buttonok_clicked()
   std::vector<std::string> receiverparameters;
   if (!ui_.comboprotocol->currentData(STREAMING_PROTOCOL_ROLE).toString().isEmpty())
   {
-    receiverparameters.push_back((STREAMING_PROTOCOL_PARAMETER_NAME + "=" + ui_.comboprotocol->currentData(STREAMING_PROTOCOL_ROLE).toString()).toStdString());
+    receiverparameters.push_back((STREAMING_PROTOCOL_PARAMETER_NAME + "=" + monocle::EnumNameStreamingProtocol(static_cast<monocle::StreamingProtocol>(ui_.comboprotocol->currentData(STREAMING_PROTOCOL_ROLE).toInt()))).toStdString());
 
   }
 
