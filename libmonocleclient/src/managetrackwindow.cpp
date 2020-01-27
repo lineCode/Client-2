@@ -194,6 +194,7 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>&
     ui_.buttonobjectdetectorsettings->setStatusTip("No CUDA devices found on server");//TODO does this work
   }
 
+  on_edituri_textChanged(QString());
   on_checkfixedfiles_stateChanged(0);
   on_checkobjectdetector_stateChanged(0);
 }

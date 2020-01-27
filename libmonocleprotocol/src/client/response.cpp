@@ -610,6 +610,18 @@ REMOVETRACKRESPONSE::REMOVETRACKRESPONSE(const Error& error) :
 
 }
 
+REMOVETRACKSRESPONSE::REMOVETRACKSRESPONSE() :
+  RESPONSE(Error(ErrorCode::Success, std::string()))
+{
+
+}
+
+REMOVETRACKSRESPONSE::REMOVETRACKSRESPONSE(const Error& error) :
+  RESPONSE(error)
+{
+
+}
+
 REMOVEUSERRESPONSE::REMOVEUSERRESPONSE() :
   RESPONSE(Error(ErrorCode::Success, std::string()))
 {

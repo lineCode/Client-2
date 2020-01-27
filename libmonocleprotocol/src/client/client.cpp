@@ -122,6 +122,7 @@
 #include "monocleprotocol/removerecordingjobsourcerequest_generated.h"
 #include "monocleprotocol/removerecordingrequest_generated.h"
 #include "monocleprotocol/removetrackrequest_generated.h"
+#include "monocleprotocol/removetracksrequest_generated.h"
 #include "monocleprotocol/removeuserrequest_generated.h"
 #include "monocleprotocol/setlocationrequest_generated.h"
 #include "monocleprotocol/setnamerequest_generated.h"
@@ -228,6 +229,7 @@ Client::Client(boost::asio::io_service& io) :
   removerecordingjob_(DEFAULT_TIMEOUT, this),
   removerecordingjobsource_(DEFAULT_TIMEOUT, this),
   removetrack_(DEFAULT_TIMEOUT, this),
+  removetracks_(DEFAULT_TIMEOUT, this),
   removeuser_(DEFAULT_TIMEOUT, this),
   setlocation_(DEFAULT_TIMEOUT, this),
   setname_(DEFAULT_TIMEOUT, this),
@@ -920,6 +922,17 @@ boost::unique_future<REMOVETRACKRESPONSE> Client::RemoveTrack(const uint64_t rec
     return boost::make_ready_future(REMOVETRACKRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
   }
   return removetrack_.CreateFuture(sequence_);
+}
+
+boost::unique_future<REMOVETRACKSRESPONSE> Client::RemoveTracks(const uint64_t recordingtoken, const std::vector<uint32_t>& ids)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (RemoveTracksSend(recordingtoken, ids))
+  {
+
+    return boost::make_ready_future(REMOVETRACKSRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+  }
+  return removetracks_.CreateFuture(sequence_);
 }
 
 boost::unique_future<REMOVEUSERRESPONSE> Client::RemoveUser(const uint64_t token)
@@ -1649,6 +1662,17 @@ Connection Client::RemoveTrack(const uint64_t recordingtoken, const uint32_t id,
     return Connection();
   }
   return removetrack_.CreateCallback(sequence_, callback);
+}
+
+Connection Client::RemoveTracks(const uint64_t recordingtoken, const std::vector<uint32_t>& ids, boost::function<void(const std::chrono::steady_clock::duration latency, const REMOVETRACKSRESPONSE&)> callback)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (RemoveTracksSend(recordingtoken, ids))
+  {
+    callback(std::chrono::steady_clock::duration(), REMOVETRACKSRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+    return Connection();
+  }
+  return removetracks_.CreateCallback(sequence_, callback);
 }
 
 Connection Client::RemoveUser(const uint64_t token, boost::function<void(const std::chrono::steady_clock::duration latency, const REMOVEUSERRESPONSE&)> callback)
@@ -2873,12 +2897,34 @@ boost::system::error_code Client::RemoveRecordingJobSourceSend(const uint64_t re
   return err;
 }
 
-boost::system::error_code Client::RemoveTrackSend(const uint64_t recordingtoken, const uint32_t token)
+boost::system::error_code Client::RemoveTrackSend(const uint64_t recordingtoken, const uint32_t id)
 {
   fbb_.Clear();
-  fbb_.Finish(CreateRemoveTrackRequest(fbb_, recordingtoken, token));
+  fbb_.Finish(CreateRemoveTrackRequest(fbb_, recordingtoken, id));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::REMOVETRACK, ++sequence_);
+  boost::system::error_code err;
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(fbb_.GetBufferPointer(), messagesize), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  return err;
+}
+
+boost::system::error_code Client::RemoveTracksSend(const uint64_t recordingtoken, const std::vector<uint32_t>& ids)
+{
+  fbb_.Clear();
+  fbb_.Finish(CreateRemoveTracksRequest(fbb_, recordingtoken, fbb_.CreateVector(ids)));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::REMOVETRACKS, ++sequence_);
   boost::system::error_code err;
   boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
   if (err)
@@ -6080,6 +6126,16 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         return;
       }
       removetrack_.Response(sequence, REMOVETRACKRESPONSE());
+      break;
+    }
+    case Message::REMOVETRACKS:
+    {
+      if (error)
+      {
+        HandleError(removetracks_, sequence, data, datasize);
+        return;
+      }
+      removetracks_.Response(sequence, REMOVETRACKSRESPONSE());
       break;
     }
     case Message::REMOVEUSER:

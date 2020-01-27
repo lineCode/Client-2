@@ -119,6 +119,7 @@
 #include "monocleprotocol/removerecordingjobsourcerequest_generated.h"
 #include "monocleprotocol/removerecordingrequest_generated.h"
 #include "monocleprotocol/removetrackrequest_generated.h"
+#include "monocleprotocol/removetracksrequest_generated.h"
 #include "monocleprotocol/removeuserrequest_generated.h"
 #include "monocleprotocol/setlocationrequest_generated.h"
 #include "monocleprotocol/setnamerequest_generated.h"
@@ -3241,6 +3242,41 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       }
 
       return SendHeaderResponse(HEADER(0, false, false, Message::REMOVETRACK, sequence));
+    }
+    case Message::REMOVETRACKS:
+    {
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<RemoveTracksRequest>(nullptr))
+      {
+
+        return SendErrorResponse(Message::REMOVETRACKS, sequence, Error(ErrorCode::InvalidMessage, "Invalid message"));
+      }
+
+      const RemoveTracksRequest* removetracksrequest = flatbuffers::GetRoot<RemoveTracksRequest>(data);
+      if (removetracksrequest == nullptr)
+      {
+
+        return SendErrorResponse(Message::REMOVETRACKS, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
+      }
+
+      std::vector<uint32_t> tracks;
+      if (removetracksrequest->ids())
+      {
+        tracks.reserve(removetracksrequest->ids()->size());
+        for (uint32_t track : *removetracksrequest->ids())
+        {
+          tracks.push_back(track);
+
+        }
+      }
+
+      const Error error = RemoveTracks(removetracksrequest->recordingtoken(), tracks);
+      if (error.code_ != ErrorCode::Success)
+      {
+
+        return SendErrorResponse(Message::REMOVETRACKS, sequence, error);
+      }
+
+      return SendHeaderResponse(HEADER(0, false, false, Message::REMOVETRACKS, sequence));
     }
     case Message::REMOVEUSER:
     {

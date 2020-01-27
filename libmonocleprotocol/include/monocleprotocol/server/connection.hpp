@@ -124,6 +124,7 @@ class Connection : public boost::enable_shared_from_this<Connection>
   virtual Error RemoveRecordingJob(const uint64_t recordingtoken, const uint64_t token) = 0;
   virtual Error RemoveRecordingJobSource(const uint64_t recordingtoken, const uint64_t recordingjobtoken, const uint64_t token) = 0;
   virtual Error RemoveTrack(const uint64_t recordingtoken, const uint32_t id) = 0;
+  virtual Error RemoveTracks(const uint64_t recordingtoken, const std::vector<uint32_t>& ids) = 0;
   virtual Error RemoveUser(const uint64_t token) = 0;
   virtual Error SetLocation(const std::string& latitude, const std::string& longitude) = 0;
   virtual Error SetName(const std::string& name) = 0;

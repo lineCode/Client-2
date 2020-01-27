@@ -85,14 +85,23 @@ void DeviceTreeRecordingTrackItem::Edit(bool)
 
 void DeviceTreeRecordingTrackItem::Remove(bool)
 {
-  //TODO The tracks get removed... but the RecordingJobSource does NOT get removed
   if (QMessageBox::question(treeWidget(), tr("Remove"), tr("Are you sure?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
   {
-    removetrackconnection_ = device_->RemoveTrack(recording_->GetToken(), track_->GetId(), [](const std::chrono::steady_clock::duration latency, const monocle::client::REMOVETRACKRESPONSE& removetrackresponse)
+    std::vector<uint32_t> removetracks = { track_->GetId() };
+    for (const QSharedPointer<RecordingTrack>& track : recording_->GetObjectDetectorTracks())
     {
-      if (removetrackresponse.GetErrorCode() != monocle::ErrorCode::Success)
+      if (track->GetToken() == QString::number(track_->GetId()))
       {
-        QMessageBox(QMessageBox::Warning, tr("Error"), tr("Remove failed: ") + QString::fromStdString(removetrackresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+        removetracks.push_back(track->GetId());
+
+      }
+    }
+
+    removetrackconnection_ = device_->RemoveTracks(recording_->GetToken(), removetracks, [](const std::chrono::steady_clock::duration latency, const monocle::client::REMOVETRACKSRESPONSE& removetracksresponse)
+    {
+      if (removetracksresponse.GetErrorCode() != monocle::ErrorCode::Success)
+      {
+        QMessageBox(QMessageBox::Warning, tr("Error"), tr("Remove failed: ") + QString::fromStdString(removetracksresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
         return;
       }
     });
