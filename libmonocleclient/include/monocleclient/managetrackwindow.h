@@ -10,11 +10,28 @@
 
 #include <boost/shared_ptr.hpp>
 #include <monocleprotocol/client/connection.hpp>
+#include <onvifclient/connection.hpp>
+#include <rtsp/client/client.hpp>
+#include <rtsp/client/connection.hpp>
 #include <QSharedPointer>
 
 ///// Declarations /////
 
 namespace monocle { enum class TrackType : int8_t; }
+
+///// Namespaces /////
+
+namespace onvif
+{
+namespace device { class DeviceClient; }
+namespace media { class MediaClient; }
+class Profile;
+}
+
+namespace rtsp
+{
+namespace sdp { class MediaDescription; }
+}
 
 ///// Namespaces /////
 
@@ -42,10 +59,15 @@ class ManageTrackWindow : public QDialog
   ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& recordingtrack);
   ~ManageTrackWindow();
 
+ protected:
+
+  void timerEvent(QTimerEvent*) override;
+
  private:
 
   QSharedPointer<RecordingJob> GetJob() const;
   void DisableSource();
+  void GetProfileCallback(const onvif::Profile& profile);
 
   Ui::ManageTrackWindow ui_;
 
@@ -54,7 +76,9 @@ class ManageTrackWindow : public QDialog
   QSharedPointer<RecordingJobSourceTrack> recordingjobsourcetrack_;
   QSharedPointer<RecordingTrack> recordingtrack_;
 
-  monocle::client::Connection addtrack2connection_;
+  boost::shared_ptr<onvif::device::DeviceClient> deviceclient_;
+  boost::shared_ptr<onvif::media::MediaClient> mediaclient_;
+  boost::shared_ptr< rtsp::Client<ManageTrackWindow> > rtspclient_;
 
   int accuracy_; // 0=Low,1=Medium,2=High,3=VeryHigh
   bool humans_;
@@ -90,6 +114,12 @@ class ManageTrackWindow : public QDialog
   double boatssensitivity_;
   double horsessensitivity_;
 
+  monocle::client::Connection addtrack2connection_;
+
+  onvif::Connection onvifconnection_;
+  sock::Connection rtspconnectconnection_;
+  rtsp::client::Connection rtspconnection_;
+
  private slots:
 
   void on_edituri_textChanged(const QString& text);
@@ -97,6 +127,7 @@ class ManageTrackWindow : public QDialog
   void on_checkobjectdetector_stateChanged(int);
   void on_buttonobjectdetectorsettings_clicked();
   void on_buttonfindonvifdevice_clicked();
+  void on_buttontest_clicked();
   void on_buttonok_clicked();
 
 };

@@ -5,11 +5,15 @@
 
 #include "monocleclient/managetrackwindow.h"
 
+#include <boost/lexical_cast.hpp>
 #include <monocleprotocol/streamingprotocol_generated.h>
 #include <monocleprotocol/tracktype_generated.h>
 #include <network/uri.hpp>
+#include <onvifclient/deviceclient.hpp>
+#include <onvifclient/mediaclient.hpp>
 #include <QString>
 
+#include "monocleclient/mainwindow.h"
 #include "monocleclient/device.h"
 #include "monocleclient/managetrackobjectdetectorwindow.h"
 #include "monocleclient/receiver.h"
@@ -203,6 +207,40 @@ ManageTrackWindow::~ManageTrackWindow()
 {
   addtrack2connection_.Close();
 
+  if (mediaclient_)
+  {
+    mediaclient_->Destroy();
+    mediaclient_.reset();
+  }
+
+  if (deviceclient_)
+  {
+    deviceclient_->Destroy();
+    deviceclient_.reset();
+  }
+
+  rtspconnectconnection_.Close();
+  rtspconnection_.Close();
+  if (rtspclient_)
+  {
+    rtspclient_->Destroy();
+    rtspclient_.reset();
+  }
+}
+
+void ManageTrackWindow::timerEvent(QTimerEvent*)
+{
+  if (deviceclient_ && deviceclient_->IsInitialised())
+  {
+    deviceclient_->Update();
+
+  }
+
+  if (mediaclient_ && mediaclient_->IsInitialised())
+  {
+    mediaclient_->Update();
+
+  }
 }
 
 QSharedPointer<RecordingJob> ManageTrackWindow::GetJob() const
@@ -235,6 +273,228 @@ void ManageTrackWindow::DisableSource()
   ui_.buttonobjectdetectorsettings->setEnabled(false);
 }
 
+void ManageTrackWindow::GetProfileCallback(const onvif::Profile& profile)
+{
+  if (!profile.token_.is_initialized())
+  {
+    ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid Profile token</font><br/>");
+    return;
+  }
+
+  onvif::StreamSetup streamsetup;
+  const monocle::StreamingProtocol streamingprotocol = monocle::EnumValuesStreamingProtocol()[ui_.comboprotocol->currentData().toInt()];
+  if (streamingprotocol == monocle::StreamingProtocol::UDPUnicast)
+  {
+    streamsetup = onvif::StreamSetup(onvif::STREAM_RTPUNICAST, onvif::Transport(onvif::TRANSPORTPROTOCOL_UDP));
+
+  }
+  else if (streamingprotocol == monocle::StreamingProtocol::TCPInterleaved)
+  {
+    streamsetup = onvif::StreamSetup(onvif::STREAM_RTPUNICAST, onvif::Transport(onvif::TRANSPORTPROTOCOL_RTSP));
+
+  }
+  else if (streamingprotocol == monocle::StreamingProtocol::UDPMulticast)
+  {
+    streamsetup = onvif::StreamSetup(onvif::STREAM_RTPMULTICAST, onvif::Transport(onvif::TRANSPORTPROTOCOL_UDP));
+
+  }
+  else
+  {
+    ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid protocol</font><br/>");
+    return;
+  }
+
+  ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Retrieving Stream URI</font><br/>");
+  onvifconnection_ = mediaclient_->GetStreamUriCallback(streamsetup, *profile.token_, [this, profile](const onvif::media::GetStreamUriResponse& getstreamuriresponse)
+  {
+    if (getstreamuriresponse.Error())
+    {
+      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">GetStreamUri failed: " + QString::fromStdString(getstreamuriresponse.Message()) + "</font><br/>");
+      return;
+    }
+
+    if (!getstreamuriresponse.mediauri_.is_initialized() || !getstreamuriresponse.mediauri_->uri_.is_initialized())
+    {
+      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">GetStreamUri Invalid Media URI</font><br/>");
+      return;
+    }
+
+    network::uri uri;
+    try
+    {
+      uri = network::uri(*getstreamuriresponse.mediauri_->uri_);
+
+    }
+    catch (...)
+    {
+      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid RTSP URI: " + QString::fromStdString(*getstreamuriresponse.mediauri_->uri_) + "</font><br/>");
+      return;
+    }
+
+    if (!uri.has_scheme())
+    {
+      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid RTSP URI: " + QString::fromStdString(*getstreamuriresponse.mediauri_->uri_) + " no schema present</font><br/>");
+      return;
+    }
+
+    if (!boost::algorithm::iequals(uri.scheme().to_string(), "rtsp"))
+    {
+      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid RTSP URI schema: " + QString::fromStdString(uri.scheme().to_string()) + "</font><br/>");
+      return;
+    }
+
+    if (!uri.has_host())
+    {
+      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid RTSP URI: " + QString::fromStdString(*getstreamuriresponse.mediauri_->uri_) + " no host present</font><br/>");
+      return;
+    }
+
+    uint16_t port = 554;
+    if (uri.has_port())
+    {
+      try
+      {
+        port = boost::lexical_cast<uint16_t>(uri.port().to_string());
+
+      }
+      catch (...)
+      {
+        ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid RTSP URI port: " + QString::fromStdString(uri.port().to_string()) + "</font><br/>");
+        return;
+      }
+    }
+
+    rtspclient_ = boost::make_shared< rtsp::Client<ManageTrackWindow> >(MainWindow::Instance()->GetGUIIOService(), boost::posix_time::seconds(10), boost::posix_time::seconds(60));
+    rtspclient_->Init(sock::ProxyParams(sock::PROXYTYPE_HTTP, device_->GetAddress().toStdString(), device_->GetPort(), true, device_->GetUsername().toStdString(), device_->GetPassword().toStdString()), uri.host().to_string(), port, ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString());
+
+    ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">RTSP Connecting</font><br/>");
+    rtspconnectconnection_ = rtspclient_->Connect([this, profile, uri = *getstreamuriresponse.mediauri_->uri_](const boost::system::error_code err)
+    {
+      if (err)
+      {
+        ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Failed to connect</font><br/>");
+        return;
+      }
+
+      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Connected</font><br/><font color=\"green\">Requesting Options</font><br/>");
+      rtspconnection_ = rtspclient_->OptionsCallback(uri, [this, profile, uri](const boost::system::error_code err, const rtsp::OptionsResponse& optionsresponse) mutable
+      {
+        if (err)
+        {
+          ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">OPTIONS failed</font><br/>");
+          return;
+        }
+
+        if (optionsresponse.options_.find(rtsp::headers::REQUESTTYPE_DESCRIBE) == optionsresponse.options_.end())
+        {
+          ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Describe option not found</font><br/>");
+          return;
+        }
+
+        if (optionsresponse.options_.find(rtsp::headers::REQUESTTYPE_SETUP) == optionsresponse.options_.end())
+        {
+          ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Setup option not found</font><br/>");
+          return;
+        }
+
+        if (optionsresponse.options_.find(rtsp::headers::REQUESTTYPE_PLAY) == optionsresponse.options_.end())
+        {
+          ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Play option not found</font><br/>");
+          return;
+        }
+
+        ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Options received</font><br/><font color=\"green\">Requesting Describe</font><br/>");
+        rtspconnection_ = rtspclient_->DescribeCallback(uri, [this, profile, uri](const boost::system::error_code err, const rtsp::DescribeResponse& describeresponse) mutable
+        {
+          if (err)
+          {
+            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">DESCRIBE failed</font><br/>");
+            return;
+          }
+          ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Describe received</font><br/>");
+
+          const std::vector<rtsp::sdp::MediaDescription> mediadescriptions = describeresponse.sdp_.GetMediaDescriptions(rtsp::sdp::MEDIATYPE_VIDEO);
+          if (mediadescriptions.empty())
+          {
+            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Video media description type not found</font><br/>");
+            return;
+          }
+
+          if (ui_.editsourcetag->text().isEmpty())
+          {
+            if (mediadescriptions.size() > 1)
+            {
+              ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"orange\">Media ambiguity; set the source tag to remove this warning</font><br/>");
+
+            }
+
+            AddProfile(profile);
+
+            ui_.treedetails->addTopLevelItem(new QTreeWidgetItem({ "RTSP Uri: " + QString::fromStdString(uri) }));
+
+            for (const rtsp::sdp::MediaDescription& mediadescription : mediadescriptions)
+            {
+              if (!mediadescription.media_.is_initialized())
+              {
+
+                continue;
+              }
+              AddMediaDescription(mediadescription);
+            }
+          }
+          else
+          {
+            static const boost::regex sourcetagregex("([A-Za-z]+)=([A-Za-z0-9]+)");
+            boost::smatch match;
+            const std::string sourcetag = ui_.editsourcetag->text().toStdString();
+            if (!boost::regex_match(sourcetag, match, sourcetagregex))
+            {
+              ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid source tag: " + ui_.editsourcetag->text() + "</font><br/>");
+              return;
+            }
+
+            if (!boost::algorithm::iequals(match[1].str(), "codec"))
+            {
+              ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid source tag: " + ui_.editsourcetag->text() + "</font><br/>");
+              return;
+            }
+
+            int codec = 0;
+            try
+            {
+              codec = boost::lexical_cast<decltype(codec)>(match[2].str());
+
+            }
+            catch (...)
+            {
+              ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid source tag: " + ui_.editsourcetag->text() + "</font><br/>");
+              return;
+            }
+
+            auto mediadescription = std::find_if(mediadescriptions.cbegin(), mediadescriptions.cend(), [codec](const rtsp::sdp::MediaDescription& mediadescription) { return (mediadescription.media_.is_initialized() && utility::Contains(mediadescription.media_->formats_, codec)); });
+            if (mediadescription == mediadescriptions.end())
+            {
+              ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Source tag: " + ui_.editsourcetag->text() + " not found</font><br/>");
+              return;
+            }
+
+            AddProfile(profile);
+
+            ui_.treedetails->addTopLevelItem(new QTreeWidgetItem({ "RTSP Uri: " + QString::fromStdString(uri) }));
+
+            AddMediaDescription(*mediadescription);
+          }
+          ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Success</font><br/>");
+        });
+      });
+    }, []()
+    {
+      // Do nothing
+
+    });
+  });
+}
+
 void ManageTrackWindow::on_edituri_textChanged(const QString& text)
 {
   try
@@ -243,7 +503,7 @@ void ManageTrackWindow::on_edituri_textChanged(const QString& text)
     if (!uri.has_scheme())
     {
       DisableSource();
-      //TODO disable test
+      ui_.buttontest->setEnabled(false);
       return;
     }
 
@@ -257,7 +517,7 @@ void ManageTrackWindow::on_edituri_textChanged(const QString& text)
       ui_.comborotation->setEnabled(true);
       ui_.checkobjectdetector->setEnabled(true);
       ui_.buttonobjectdetectorsettings->setEnabled(true);
-      //TODO enable test
+      ui_.buttontest->setEnabled(true);
     }
     else if ((uri.scheme().compare("http") == 0) && uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))//TODO check it works
     {
@@ -269,20 +529,18 @@ void ManageTrackWindow::on_edituri_textChanged(const QString& text)
       ui_.comborotation->setEnabled(true);
       ui_.checkobjectdetector->setEnabled(true);
       ui_.buttonobjectdetectorsettings->setEnabled(true);
-      //TODO enable test
+      ui_.buttontest->setEnabled(true);
     }
     else
     {
       DisableSource();
-      //TODO disable test
-
+      ui_.buttontest->setEnabled(false);
     }
   }
   catch (...)
   {
     DisableSource();
-    //TODO disable test
-
+    ui_.buttontest->setEnabled(false);
   }
 }
 
@@ -343,7 +601,182 @@ void ManageTrackWindow::on_buttonfindonvifdevice_clicked()
 {
   //TODO open the find a onvif device window...
 }
-//TODO on find onvif device
+
+void ManageTrackWindow::on_buttontest_clicked()
+{
+  ui_.labeltestresult->clear();
+  ui_.treedetails->clear();
+
+  rtspconnectconnection_.Close();
+  rtspconnection_.Close();
+  rtspclient_.reset();
+  onvifconnection_.Close();
+  if (mediaclient_)
+  {
+    mediaclient_->Destroy();
+    mediaclient_.reset();
+  }
+  if (deviceclient_)
+  {
+    deviceclient_->Destroy();
+    deviceclient_.reset();
+  }
+
+  try
+  {
+    const network::uri uri(ui_.edituri->text().toStdString());
+    if (!uri.has_scheme())
+    {
+      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid URI: " + ui_.edituri->text() + " no scheme present</font><br/>");
+      return;
+    }
+
+    if (!uri.has_host())
+    {
+      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid URI: " + ui_.edituri->text() + " no host present</font><br/>");
+      return;
+    }
+
+    if (uri.scheme().compare("rtsp") == 0)
+    {
+      //TODO test
+    }
+    else if ((uri.scheme().compare("http") == 0) && uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))//TODO check it works
+    {
+      uint16_t port = 80;
+      if (uri.has_port())
+      {
+        try
+        {
+          port = boost::lexical_cast<uint16_t>(uri.port().to_string());
+
+        }
+        catch (...)
+        {
+          ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid URI port: " + QString::fromStdString(uri.port().to_string()) + "</font><br/>");
+          return;
+        }
+      }
+
+      deviceclient_ = boost::make_shared<onvif::device::DeviceClient>();
+      mediaclient_ = boost::make_shared<onvif::media::MediaClient>();
+      if (deviceclient_->Init(sock::ProxyParams(sock::PROXYTYPE_HTTP, device_->GetAddress().toStdString(), device_->GetPort(), true, device_->GetUsername().toStdString(), device_->GetPassword().toStdString()), ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), 1, false, true))
+      {
+        ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Failed to initialise ONVIF Device Client</font><br/>");
+        return;
+      }
+
+      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Retrieving System Date and Time</font><br/>");
+      onvifconnection_ = deviceclient_->GetSystemDateAndTimeCallback([this](const onvif::device::GetSystemDateAndTimeResponse& getsystemdateandtimeresponse)
+      {
+        if (getsystemdateandtimeresponse.Message() == onvif::UNABLETOCONNECT)
+        {
+          ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">GetSystemDateAndTime failed: " + QString::fromStdString(getsystemdateandtimeresponse.Message()) + "</font><br/>");
+          return;
+        }
+        else if (getsystemdateandtimeresponse.Error())
+        {
+          ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"orange\">GetSystemDateAndTime failed: " + QString::fromStdString(getsystemdateandtimeresponse.Message()) + "</font><br/>");
+
+        }
+
+        if (getsystemdateandtimeresponse.systemdatetime_.is_initialized())
+        {
+          deviceclient_->SetTimeOffset(getsystemdateandtimeresponse.systemdatetime_->GetUtcOffset());
+          mediaclient_->SetTimeOffset(getsystemdateandtimeresponse.systemdatetime_->GetUtcOffset());
+        }
+
+        ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Retrieving Capabilities</font><br/>");
+        onvifconnection_ = deviceclient_->GetCapabilitiesCallback(onvif::CAPABILITYCATEGORY::CAPABILITYCATEGORY_ALL, [this](const onvif::device::GetCapabilitiesResponse& getcapabilitiesresponse)
+        {
+          if (getcapabilitiesresponse.Error())
+          {
+            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">GetCapabilities failed: " + QString::fromStdString(getcapabilitiesresponse.Message()) + "</font><br/>");
+            return;
+          }
+
+          if (!getcapabilitiesresponse.capabilities_.is_initialized())
+          {
+            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">GetCapabilities invalid response no capabilities found</font><br/>");
+            return;
+          }
+
+          if (!getcapabilitiesresponse.capabilities_->media_.is_initialized())
+          {
+            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">GetCapabilities invalid response no media capabilities</font><br/>");
+            return;
+          }
+
+          const std::string mediaxaddr = getcapabilitiesresponse.capabilities_->media_->GetXAddr();
+          if (mediaxaddr.empty())
+          {
+            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">GetCapabilities invalid response no media XADDR</font><br/>");
+            return;
+          }
+
+          if (mediaclient_->Init(sock::ProxyParams(sock::PROXYTYPE_HTTP, device_->GetAddress().toStdString(), device_->GetPort(), true, device_->GetUsername().toStdString(), device_->GetPassword().toStdString()), mediaxaddr, deviceclient_->GetUsername(), deviceclient_->GetPassword(), 1, false, true))
+          {
+            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Failed to initialise Media client</font><br/>");
+            return;
+          }
+
+          if (ui_.editprofiletoken->text().isEmpty())
+          {
+            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Retrieving Profiles</font><br/>");
+            onvifconnection_ = mediaclient_->GetProfilesCallback([this](const onvif::media::GetProfilesResponse& getprofilesresponse)
+            {
+              if (getprofilesresponse.Error())
+              {
+                ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">GetProfiles failed: " + QString::fromStdString(getprofilesresponse.Message()) + "</font><br/>");
+                return;
+              }
+
+              if (getprofilesresponse.profiles_.empty())
+              {
+                ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">No profiles found</font><br/>");
+                return;
+              }
+
+              //TODO we really want to loop through all of these and put them in as autocomplete inside the edit box I think
+              GetProfileCallback(getprofilesresponse.profiles_.front());
+            });
+          }
+          else
+          {
+            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Retrieving Profile</font><br/>");
+            onvifconnection_ = mediaclient_->GetProfileCallback(ui_.editprofiletoken->text().toStdString(), [this](const onvif::media::GetProfileResponse& getprofileresponse)
+            {
+              if (getprofileresponse.Error())
+              {
+                ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">GetProfile failed: " + QString::fromStdString(getprofileresponse.Message()) + "</font><br/>");
+                return;
+              }
+
+              if (!getprofileresponse.profile_.is_initialized())
+              {
+                ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Profile not initialised</font><br/>");
+                return;
+              }
+
+              GetProfileCallback(*getprofileresponse.profile_);
+            });
+          }
+        });
+      });
+    }
+    else
+    {
+      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid URI: " + ui_.edituri->text() + " invalid scheme</font><br/>");
+
+    }
+  }
+  catch (...)
+  {
+    ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid URI: " + ui_.edituri->text() + " invalid uri</font><br/>");
+
+  }
+}
+
 void ManageTrackWindow::on_buttonok_clicked()
 {
 
