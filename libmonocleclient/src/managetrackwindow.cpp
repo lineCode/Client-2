@@ -35,14 +35,7 @@ const int STREAMING_PROTOCOL_ROLE = Qt::UserRole;
 const int ROTATION_ROLE = Qt::UserRole + 1;
 
 ///// Methods /////
-//TODO I don't think we pass in the tracktype anymore, because metadata will be a checkbox within
-  //TODO so we just pass in the recordingjobsourcetrack and track
-    //TODO maybe we just pass in the "recordingjobsource", this way if there is 
-  //TODO how do we link the metadata tracks in like this?
-    //TODO is it by ip address or hostname?
-      //TODO this doesn't work because we may use the same ip address or hostname multiple times...
-    //TODO is it by recordingjobsource/receiver?
-      //TODO I think this is the ONLY way?
+
 ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& recordingtrack) :
   QDialog(parent),
   profilemodel_(new QStringListModel(this)),
@@ -116,9 +109,34 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>&
 
   if (recordingjobsourcetrack_ && recordingtrack_)
   {
-    //TODO is this correct?
+    ui_.editdescription->setText(recordingtrack_->GetDescription());
+    ui_.spinflushfrequency->setValue(recordingtrack_->GetFlushFrequency());
+    ui_.checkdigitalsigning->setChecked(recordingtrack_->GetDigitalSigning());
+    ui_.checkencrypt->setChecked(recordingtrack_->GetEncrypt());
+    ui_.checkfixedfiles->setChecked(recordingtrack_->GetFixedFiles());
+    //TODO we need to remember which files we are going to recording to here...
+      //TODO whether or not we want to have fixed files or not
+
+    //TODO the uri comes from the recordingjobsourcetrack->recordingjobsource->getreceiver()
+      //TODO pass in the recordingjobsource imo?
+
+    //TODO profile token
+
+    //TODO source tag
+
+    //TODO protocol
+
+    //TODO username
+
+    //TODO password
+
+    //TODO rotation
+
+    // Object detector
     if (job)
     {
+      //TODO does rotation etc etc and stuff go in here?
+
       for (const QSharedPointer<RecordingJobSource>& source : job->GetSources())
       {
         // Check to see whether this source is an object detector pointing to the original track

@@ -75,6 +75,9 @@
             </item>
             <item row="4" column="0">
              <widget class="QCheckBox" name="checkfixedfiles">
+              <property name="statusTip">
+               <string>Do you want to record data to all available files, or only want to record to a fixed set of files</string>
+              </property>
               <property name="text">
                <string>Fixed Files</string>
               </property>
