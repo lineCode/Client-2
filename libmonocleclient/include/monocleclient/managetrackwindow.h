@@ -13,7 +13,9 @@
 #include <onvifclient/connection.hpp>
 #include <rtsp/client/client.hpp>
 #include <rtsp/client/connection.hpp>
+#include <QCompleter>
 #include <QSharedPointer>
+#include <QStringListModel>
 
 ///// Declarations /////
 
@@ -70,9 +72,14 @@ class ManageTrackWindow : public QDialog
   void AddProfile(const onvif::Profile& profile);
   void AddMediaDescription(const rtsp::sdp::MediaDescription& mediadescription);
   void GetProfileCallback(const onvif::Profile& profile);
-  void RTSPCallback(const std::string& uri, const std::string& host, const uint16_t port, const onvif::Profile& profile);
+  void RTSPCallback(const std::string& uri, const std::string& host, const uint16_t port);
 
   Ui::ManageTrackWindow ui_;
+
+  QStringListModel* profilemodel_;
+  QStringListModel* sourcetagmodel_;
+  QCompleter* profilecompleter_;
+  QCompleter* sourcetagcompleter_;
 
   boost::shared_ptr<Device> device_;
   QSharedPointer<Recording> recording_;

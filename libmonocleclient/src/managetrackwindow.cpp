@@ -45,6 +45,10 @@ const int ROTATION_ROLE = Qt::UserRole + 1;
       //TODO I think this is the ONLY way?
 ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& recordingtrack) :
   QDialog(parent),
+  profilemodel_(new QStringListModel(this)),
+  sourcetagmodel_(new QStringListModel(this)),
+  profilecompleter_(new QCompleter(this)),
+  sourcetagcompleter_(new QCompleter(this)),
   device_(device),
   recording_(recording),
   recordingjobsourcetrack_(recordingjobsourcetrack),
@@ -96,6 +100,16 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>&
   ui_.comborotation->addItem("90", "90");
   ui_.comborotation->addItem("180", "180");
   ui_.comborotation->addItem("270", "270");
+
+  profilecompleter_->setModel(profilemodel_);
+  profilecompleter_->setCompletionMode(QCompleter::PopupCompletion);
+  profilecompleter_->setMaxVisibleItems(16);
+  ui_.editprofiletoken->setCompleter(profilecompleter_);
+
+  sourcetagcompleter_->setModel(sourcetagmodel_);
+  sourcetagcompleter_->setCompletionMode(QCompleter::PopupCompletion);
+  sourcetagcompleter_->setMaxVisibleItems(16);
+  ui_.editsourcetag->setCompleter(sourcetagcompleter_);
 
   // Find a job to get started with, it may not always be available
   QSharedPointer<RecordingJob> job = GetJob();
@@ -548,6 +562,8 @@ void ManageTrackWindow::GetProfileCallback(const onvif::Profile& profile)
     return;
   }
 
+  AddProfile(profile);
+
   ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Retrieving Stream URI</font><br/>");
   onvifconnection_ = mediaclient_->GetStreamUriCallback(streamsetup, *profile.token_, [this, profile](const onvif::media::GetStreamUriResponse& getstreamuriresponse)
   {
@@ -608,17 +624,17 @@ void ManageTrackWindow::GetProfileCallback(const onvif::Profile& profile)
       }
     }
 
-    RTSPCallback(*getstreamuriresponse.mediauri_->uri_, uri.host().to_string(), port, profile);
+    RTSPCallback(*getstreamuriresponse.mediauri_->uri_, uri.host().to_string(), port);
   });
 }
 
-void ManageTrackWindow::RTSPCallback(const std::string& uri, const std::string& host, const uint16_t port, const onvif::Profile& profile)
+void ManageTrackWindow::RTSPCallback(const std::string& uri, const std::string& host, const uint16_t port)
 {
   rtspclient_ = boost::make_shared< rtsp::Client<ManageTrackWindow> >(MainWindow::Instance()->GetGUIIOService(), boost::posix_time::seconds(10), boost::posix_time::seconds(60));
   rtspclient_->Init(sock::ProxyParams(sock::PROXYTYPE_HTTP, device_->GetAddress().toStdString(), device_->GetPort(), true, device_->GetUsername().toStdString(), device_->GetPassword().toStdString()), host, port, ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString());
 
   ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">RTSP Connecting</font><br/>");
-  rtspconnectconnection_ = rtspclient_->Connect([this, profile, uri](const boost::system::error_code err)
+  rtspconnectconnection_ = rtspclient_->Connect([this, uri](const boost::system::error_code err)
   {
     if (err)
     {
@@ -627,7 +643,7 @@ void ManageTrackWindow::RTSPCallback(const std::string& uri, const std::string& 
     }
 
     ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Connected</font><br/><font color=\"green\">Requesting Options</font><br/>");
-    rtspconnection_ = rtspclient_->OptionsCallback(uri, [this, profile, uri](const boost::system::error_code err, const rtsp::OptionsResponse& optionsresponse) mutable
+    rtspconnection_ = rtspclient_->OptionsCallback(uri, [this, uri](const boost::system::error_code err, const rtsp::OptionsResponse& optionsresponse) mutable
     {
       if (err)
       {
@@ -654,7 +670,7 @@ void ManageTrackWindow::RTSPCallback(const std::string& uri, const std::string& 
       }
 
       ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Options received</font><br/><font color=\"green\">Requesting Describe</font><br/>");
-      rtspconnection_ = rtspclient_->DescribeCallback(uri, [this, profile, uri](const boost::system::error_code err, const rtsp::DescribeResponse& describeresponse) mutable
+      rtspconnection_ = rtspclient_->DescribeCallback(uri, [this, uri](const boost::system::error_code err, const rtsp::DescribeResponse& describeresponse) mutable
       {
         if (err)
         {
@@ -678,8 +694,6 @@ void ManageTrackWindow::RTSPCallback(const std::string& uri, const std::string& 
 
           }
 
-          AddProfile(profile);
-
           ui_.treedetails->addTopLevelItem(new QTreeWidgetItem({ "RTSP Uri: " + QString::fromStdString(uri) }));
 
           for (const rtsp::sdp::MediaDescription& mediadescription : mediadescriptions)
@@ -689,6 +703,16 @@ void ManageTrackWindow::RTSPCallback(const std::string& uri, const std::string& 
 
               continue;
             }
+
+            // Set the auto completer for the source tags
+            QStringList sourcetags;
+            for (const unsigned int format : mediadescription.media_->formats_)
+            {
+              sourcetags.push_back("codec=" + QString::number(format));
+
+            }
+            sourcetagmodel_->setStringList(sourcetags);
+
             AddMediaDescription(mediadescription);
           }
         }
@@ -728,7 +752,23 @@ void ManageTrackWindow::RTSPCallback(const std::string& uri, const std::string& 
             return;
           }
 
-          AddProfile(profile);
+          // Set the auto completer for the source tags
+          QStringList sourcetags;
+          for (const rtsp::sdp::MediaDescription& mediadescription : mediadescriptions)
+          {
+            if (!mediadescription.media_.is_initialized())
+            {
+
+              continue;
+            }
+
+            for (const unsigned int format : mediadescription.media_->formats_)
+            {
+              sourcetags.push_back("codec=" + QString::number(format));
+
+            }
+          }
+          sourcetagmodel_->setStringList(sourcetags);
 
           ui_.treedetails->addTopLevelItem(new QTreeWidgetItem({ "RTSP Uri: " + QString::fromStdString(uri) }));
 
@@ -746,6 +786,9 @@ void ManageTrackWindow::RTSPCallback(const std::string& uri, const std::string& 
 
 void ManageTrackWindow::on_edituri_textChanged(const QString& text)
 {
+  profilemodel_->setStringList(QStringList());
+  sourcetagmodel_->setStringList(QStringList());
+
   try
   {
     const network::uri uri(text.toStdString());
@@ -768,7 +811,7 @@ void ManageTrackWindow::on_edituri_textChanged(const QString& text)
       ui_.buttonobjectdetectorsettings->setEnabled(true);
       ui_.buttontest->setEnabled(true);
     }
-    else if ((uri.scheme().compare("http") == 0) && uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))//TODO check it works
+    else if ((uri.scheme().compare("http") == 0) && uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))
     {
       ui_.editprofiletoken->setEnabled(true);
       ui_.editsourcetag->setEnabled(true);
@@ -903,9 +946,9 @@ void ManageTrackWindow::on_buttontest_clicked()
         }
       }
 
-      RTSPCallback(ui_.edituri->text().toStdString(), uri.host().to_string(), port, profile);
+      RTSPCallback(ui_.edituri->text().toStdString(), uri.host().to_string(), port);
     }
-    else if ((uri.scheme().compare("http") == 0) && uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))//TODO check it works
+    else if ((uri.scheme().compare("http") == 0) && uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))
     {
       uint16_t port = 80;
       if (uri.has_port())
@@ -1001,10 +1044,18 @@ void ManageTrackWindow::on_buttontest_clicked()
                 return;
               }
 
-              //TODO we really want to loop through all of these and put them in as autocomplete inside the edit box I think
-                //TODO also write a log message saying we are selecting the front() one
-              //TODO make sure to delete all the previous ones
-                //TODO probably delete them here? or when we click buttontest
+              // Add the profile tokens to the auto completer for the edit profile
+              QStringList profiletokens;
+              for (const onvif::Profile& profile : getprofilesresponse.profiles_)
+              {
+                if (profile.token_.is_initialized())
+                {
+                  profiletokens.push_back(QString::fromStdString(*profile.token_));
+
+                }
+              }
+              profilemodel_->setStringList(profiletokens);
+
               GetProfileCallback(getprofilesresponse.profiles_.front());
             });
           }
@@ -1024,6 +1075,15 @@ void ManageTrackWindow::on_buttontest_clicked()
                 ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Profile not initialised</font><br/>");
                 return;
               }
+
+              // Add the profile token to the auto completer for the edit profile
+              QStringList profiletokens = profilemodel_->stringList();
+              if (getprofileresponse.profile_->token_.is_initialized())
+              {
+                profiletokens.push_back(QString::fromStdString(*getprofileresponse.profile_->token_));
+
+              }
+              profilemodel_->setStringList(profiletokens);
 
               GetProfileCallback(*getprofileresponse.profile_);
             });
