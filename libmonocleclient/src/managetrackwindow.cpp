@@ -608,135 +608,139 @@ void ManageTrackWindow::GetProfileCallback(const onvif::Profile& profile)
       }
     }
 
-    //TODO this is where the RTSP thing begins
-    rtspclient_ = boost::make_shared< rtsp::Client<ManageTrackWindow> >(MainWindow::Instance()->GetGUIIOService(), boost::posix_time::seconds(10), boost::posix_time::seconds(60));
-    rtspclient_->Init(sock::ProxyParams(sock::PROXYTYPE_HTTP, device_->GetAddress().toStdString(), device_->GetPort(), true, device_->GetUsername().toStdString(), device_->GetPassword().toStdString()), uri.host().to_string(), port, ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString());
+    RTSPCallback(*getstreamuriresponse.mediauri_->uri_, uri.host().to_string(), port, profile);
+  });
+}
 
-    ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">RTSP Connecting</font><br/>");
-    rtspconnectconnection_ = rtspclient_->Connect([this, profile, uri = *getstreamuriresponse.mediauri_->uri_](const boost::system::error_code err)
+void ManageTrackWindow::RTSPCallback(const std::string& uri, const std::string& host, const uint16_t port, const onvif::Profile& profile)
+{
+  rtspclient_ = boost::make_shared< rtsp::Client<ManageTrackWindow> >(MainWindow::Instance()->GetGUIIOService(), boost::posix_time::seconds(10), boost::posix_time::seconds(60));
+  rtspclient_->Init(sock::ProxyParams(sock::PROXYTYPE_HTTP, device_->GetAddress().toStdString(), device_->GetPort(), true, device_->GetUsername().toStdString(), device_->GetPassword().toStdString()), host, port, ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString());
+
+  ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">RTSP Connecting</font><br/>");
+  rtspconnectconnection_ = rtspclient_->Connect([this, profile, uri](const boost::system::error_code err)
+  {
+    if (err)
+    {
+      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Failed to connect</font><br/>");
+      return;
+    }
+
+    ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Connected</font><br/><font color=\"green\">Requesting Options</font><br/>");
+    rtspconnection_ = rtspclient_->OptionsCallback(uri, [this, profile, uri](const boost::system::error_code err, const rtsp::OptionsResponse& optionsresponse) mutable
     {
       if (err)
       {
-        ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Failed to connect</font><br/>");
+        ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">OPTIONS failed</font><br/>");
         return;
       }
 
-      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Connected</font><br/><font color=\"green\">Requesting Options</font><br/>");
-      rtspconnection_ = rtspclient_->OptionsCallback(uri, [this, profile, uri](const boost::system::error_code err, const rtsp::OptionsResponse& optionsresponse) mutable
+      if (optionsresponse.options_.find(rtsp::headers::REQUESTTYPE_DESCRIBE) == optionsresponse.options_.end())
+      {
+        ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Describe option not found</font><br/>");
+        return;
+      }
+
+      if (optionsresponse.options_.find(rtsp::headers::REQUESTTYPE_SETUP) == optionsresponse.options_.end())
+      {
+        ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Setup option not found</font><br/>");
+        return;
+      }
+
+      if (optionsresponse.options_.find(rtsp::headers::REQUESTTYPE_PLAY) == optionsresponse.options_.end())
+      {
+        ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Play option not found</font><br/>");
+        return;
+      }
+
+      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Options received</font><br/><font color=\"green\">Requesting Describe</font><br/>");
+      rtspconnection_ = rtspclient_->DescribeCallback(uri, [this, profile, uri](const boost::system::error_code err, const rtsp::DescribeResponse& describeresponse) mutable
       {
         if (err)
         {
-          ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">OPTIONS failed</font><br/>");
+          ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">DESCRIBE failed</font><br/>");
+          return;
+        }
+        ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Describe received</font><br/>");
+
+        const std::vector<rtsp::sdp::MediaDescription> mediadescriptions = describeresponse.sdp_.GetMediaDescriptions(rtsp::sdp::MEDIATYPE_VIDEO);
+        if (mediadescriptions.empty())
+        {
+          ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Video media description type not found</font><br/>");
           return;
         }
 
-        if (optionsresponse.options_.find(rtsp::headers::REQUESTTYPE_DESCRIBE) == optionsresponse.options_.end())
+        if (ui_.editsourcetag->text().isEmpty())
         {
-          ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Describe option not found</font><br/>");
-          return;
-        }
-
-        if (optionsresponse.options_.find(rtsp::headers::REQUESTTYPE_SETUP) == optionsresponse.options_.end())
-        {
-          ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Setup option not found</font><br/>");
-          return;
-        }
-
-        if (optionsresponse.options_.find(rtsp::headers::REQUESTTYPE_PLAY) == optionsresponse.options_.end())
-        {
-          ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Play option not found</font><br/>");
-          return;
-        }
-
-        ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Options received</font><br/><font color=\"green\">Requesting Describe</font><br/>");
-        rtspconnection_ = rtspclient_->DescribeCallback(uri, [this, profile, uri](const boost::system::error_code err, const rtsp::DescribeResponse& describeresponse) mutable
-        {
-          if (err)
+          if (mediadescriptions.size() > 1)
           {
-            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">DESCRIBE failed</font><br/>");
+            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"orange\">Media ambiguity; set the source tag to remove this warning</font><br/>");
+
+          }
+
+          AddProfile(profile);
+
+          ui_.treedetails->addTopLevelItem(new QTreeWidgetItem({ "RTSP Uri: " + QString::fromStdString(uri) }));
+
+          for (const rtsp::sdp::MediaDescription& mediadescription : mediadescriptions)
+          {
+            if (!mediadescription.media_.is_initialized())
+            {
+
+              continue;
+            }
+            AddMediaDescription(mediadescription);
+          }
+        }
+        else
+        {
+          static const boost::regex sourcetagregex("([A-Za-z]+)=([A-Za-z0-9]+)");
+          boost::smatch match;
+          const std::string sourcetag = ui_.editsourcetag->text().toStdString();
+          if (!boost::regex_match(sourcetag, match, sourcetagregex))
+          {
+            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid source tag: " + ui_.editsourcetag->text() + "</font><br/>");
             return;
           }
-          ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Describe received</font><br/>");
 
-          const std::vector<rtsp::sdp::MediaDescription> mediadescriptions = describeresponse.sdp_.GetMediaDescriptions(rtsp::sdp::MEDIATYPE_VIDEO);
-          if (mediadescriptions.empty())
+          if (!boost::algorithm::iequals(match[1].str(), "codec"))
           {
-            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Video media description type not found</font><br/>");
+            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid source tag: " + ui_.editsourcetag->text() + "</font><br/>");
             return;
           }
 
-          if (ui_.editsourcetag->text().isEmpty())
+          int codec = 0;
+          try
           {
-            if (mediadescriptions.size() > 1)
-            {
-              ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"orange\">Media ambiguity; set the source tag to remove this warning</font><br/>");
+            codec = boost::lexical_cast<decltype(codec)>(match[2].str());
 
-            }
-
-            AddProfile(profile);
-
-            ui_.treedetails->addTopLevelItem(new QTreeWidgetItem({ "RTSP Uri: " + QString::fromStdString(uri) }));
-
-            for (const rtsp::sdp::MediaDescription& mediadescription : mediadescriptions)
-            {
-              if (!mediadescription.media_.is_initialized())
-              {
-
-                continue;
-              }
-              AddMediaDescription(mediadescription);
-            }
           }
-          else
+          catch (...)
           {
-            static const boost::regex sourcetagregex("([A-Za-z]+)=([A-Za-z0-9]+)");
-            boost::smatch match;
-            const std::string sourcetag = ui_.editsourcetag->text().toStdString();
-            if (!boost::regex_match(sourcetag, match, sourcetagregex))
-            {
-              ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid source tag: " + ui_.editsourcetag->text() + "</font><br/>");
-              return;
-            }
-
-            if (!boost::algorithm::iequals(match[1].str(), "codec"))
-            {
-              ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid source tag: " + ui_.editsourcetag->text() + "</font><br/>");
-              return;
-            }
-
-            int codec = 0;
-            try
-            {
-              codec = boost::lexical_cast<decltype(codec)>(match[2].str());
-
-            }
-            catch (...)
-            {
-              ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid source tag: " + ui_.editsourcetag->text() + "</font><br/>");
-              return;
-            }
-
-            auto mediadescription = std::find_if(mediadescriptions.cbegin(), mediadescriptions.cend(), [codec](const rtsp::sdp::MediaDescription& mediadescription) { return (mediadescription.media_.is_initialized() && utility::Contains(mediadescription.media_->formats_, codec)); });
-            if (mediadescription == mediadescriptions.end())
-            {
-              ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Source tag: " + ui_.editsourcetag->text() + " not found</font><br/>");
-              return;
-            }
-
-            AddProfile(profile);
-
-            ui_.treedetails->addTopLevelItem(new QTreeWidgetItem({ "RTSP Uri: " + QString::fromStdString(uri) }));
-
-            AddMediaDescription(*mediadescription);
+            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid source tag: " + ui_.editsourcetag->text() + "</font><br/>");
+            return;
           }
-          ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Success</font><br/>");
-        });
+
+          auto mediadescription = std::find_if(mediadescriptions.cbegin(), mediadescriptions.cend(), [codec](const rtsp::sdp::MediaDescription& mediadescription) { return (mediadescription.media_.is_initialized() && utility::Contains(mediadescription.media_->formats_, codec)); });
+          if (mediadescription == mediadescriptions.end())
+          {
+            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Source tag: " + ui_.editsourcetag->text() + " not found</font><br/>");
+            return;
+          }
+
+          AddProfile(profile);
+
+          ui_.treedetails->addTopLevelItem(new QTreeWidgetItem({ "RTSP Uri: " + QString::fromStdString(uri) }));
+
+          AddMediaDescription(*mediadescription);
+        }
+        ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Success</font><br/>");
       });
-    }, []()
-    {
-      // Do nothing
-
     });
+  }, []()
+  {
+    // Do nothing
+
   });
 }
 
@@ -884,7 +888,22 @@ void ManageTrackWindow::on_buttontest_clicked()
 
     if (uri.scheme().compare("rtsp") == 0)
     {
-      //TODO go straight to the rtsp thing
+      uint16_t port = 554;
+      if (uri.has_port())
+      {
+        try
+        {
+          port = boost::lexical_cast<uint16_t>(uri.port().to_string());
+
+        }
+        catch (...)
+        {
+          ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid URI port: " + QString::fromStdString(uri.port().to_string()) + "</font><br/>");
+          return;
+        }
+      }
+
+      RTSPCallback(ui_.edituri->text().toStdString(), uri.host().to_string(), port, profile);
     }
     else if ((uri.scheme().compare("http") == 0) && uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))//TODO check it works
     {

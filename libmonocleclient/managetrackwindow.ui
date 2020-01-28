@@ -253,7 +253,11 @@
           <item row="0" column="0">
            <layout class="QGridLayout" name="gridLayout_10">
             <item row="0" column="0">
-             <widget class="QTreeWidget" name="treedetails"/>
+             <widget class="QTreeWidget" name="treedetails">
+              <attribute name="headerVisible">
+               <bool>false</bool>
+              </attribute>
+             </widget>
             </item>
            </layout>
           </item>

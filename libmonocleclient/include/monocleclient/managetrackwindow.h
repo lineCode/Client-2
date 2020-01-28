@@ -70,6 +70,7 @@ class ManageTrackWindow : public QDialog
   void AddProfile(const onvif::Profile& profile);
   void AddMediaDescription(const rtsp::sdp::MediaDescription& mediadescription);
   void GetProfileCallback(const onvif::Profile& profile);
+  void RTSPCallback(const std::string& uri, const std::string& host, const uint16_t port, const onvif::Profile& profile);
 
   Ui::ManageTrackWindow ui_;
 
