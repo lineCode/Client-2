@@ -253,13 +253,7 @@
           <item row="0" column="0">
            <layout class="QGridLayout" name="gridLayout_10">
             <item row="0" column="0">
-             <widget class="QTreeWidget" name="treedetails">
-              <column>
-               <property name="text">
-                <string notr="true">1</string>
-               </property>
-              </column>
-             </widget>
+             <widget class="QTreeWidget" name="treedetails"/>
             </item>
            </layout>
           </item>

@@ -23,27 +23,20 @@
 
 namespace monocle
 {
-
 enum class ReceiverMode : int8_t;
 enum class StreamingProtocol : int8_t;
-
 }
 
 namespace onvif
 {
-
 namespace device { class DeviceClient; }
 namespace media { class MediaClient; }
-
 class Profile;
-
 }
 
 namespace rtsp
 {
-
 namespace sdp { class MediaDescription; }
-
 }
 
 ///// Namespaces /////

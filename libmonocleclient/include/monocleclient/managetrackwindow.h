@@ -67,6 +67,8 @@ class ManageTrackWindow : public QDialog
 
   QSharedPointer<RecordingJob> GetJob() const;
   void DisableSource();
+  void AddProfile(const onvif::Profile& profile);
+  void AddMediaDescription(const rtsp::sdp::MediaDescription& mediadescription);
   void GetProfileCallback(const onvif::Profile& profile);
 
   Ui::ManageTrackWindow ui_;
