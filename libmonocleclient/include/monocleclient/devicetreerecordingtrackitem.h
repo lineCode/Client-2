@@ -27,6 +27,7 @@ namespace client
 
 class Device;
 class Recording;
+class RecordingJobSource;
 class RecordingJobSourceTrack;
 class RecordingTrack;
 
@@ -38,7 +39,7 @@ class DeviceTreeRecordingTrackItem : public DeviceTreeItem
 
  public:
 
-  DeviceTreeRecordingTrackItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<client::RecordingTrack>& track);
+  DeviceTreeRecordingTrackItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingJobSource>& recordingjobsource, const QSharedPointer<client::RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<client::RecordingTrack>& track);
   ~DeviceTreeRecordingTrackItem();
 
   virtual void ContextMenuEvent(const QPoint& pos) override;
@@ -64,6 +65,7 @@ class DeviceTreeRecordingTrackItem : public DeviceTreeItem
 
   boost::shared_ptr<Device> device_;
   QSharedPointer<client::Recording> recording_;
+  QSharedPointer<client::RecordingJobSource> recordingjobsource_;
   QSharedPointer<client::RecordingJobSourceTrack> recordingjobsourcetrack_;
   QSharedPointer<client::RecordingTrack> track_;
 

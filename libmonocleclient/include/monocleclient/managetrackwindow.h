@@ -47,6 +47,7 @@ namespace client
 class Device;
 class Recording;
 class RecordingJob;
+class RecordingJobSource;
 class RecordingJobSourceTrack;
 class RecordingTrack;
 
@@ -58,7 +59,7 @@ class ManageTrackWindow : public QDialog
 
  public:
 
-  ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& recordingtrack);
+  ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingJobSource>& recordingjobsource, const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& recordingtrack);
   ~ManageTrackWindow();
 
  protected:
@@ -83,6 +84,7 @@ class ManageTrackWindow : public QDialog
 
   boost::shared_ptr<Device> device_;
   QSharedPointer<Recording> recording_;
+  QSharedPointer<RecordingJobSource> recordingjobsource_;
   QSharedPointer<RecordingJobSourceTrack> recordingjobsourcetrack_;
   QSharedPointer<RecordingTrack> recordingtrack_;
 

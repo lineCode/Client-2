@@ -21,10 +21,11 @@ namespace client
 
 ///// Methods /////
 
-DeviceTreeRecordingTrackItem::DeviceTreeRecordingTrackItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<client::RecordingTrack>& track) :
+DeviceTreeRecordingTrackItem::DeviceTreeRecordingTrackItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingJobSource>& recordingjobsource, const QSharedPointer<client::RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<client::RecordingTrack>& track) :
   DeviceTreeItem(parent, GetName(track)),
   device_(device),
   recording_(recording),
+  recordingjobsource_(recordingjobsource),
   recordingjobsourcetrack_(recordingjobsourcetrack),
   track_(track),
   edit_(new QAction("Edit", this)),
@@ -79,7 +80,7 @@ QString DeviceTreeRecordingTrackItem::GetName(const QSharedPointer<client::Recor
 
 void DeviceTreeRecordingTrackItem::Edit(bool)
 {
-  ManageTrackWindow(treeWidget(), device_, recording_, recordingjobsourcetrack_, track_).exec();
+  ManageTrackWindow(treeWidget(), device_, recording_, recordingjobsource_, recordingjobsourcetrack_, track_).exec();
 
 }
 

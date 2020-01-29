@@ -36,7 +36,7 @@ const int ROTATION_ROLE = Qt::UserRole + 1;
 
 ///// Methods /////
 
-ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& recordingtrack) :
+ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingJobSource>& recordingjobsource, const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& recordingtrack) :
   QDialog(parent),
   profilemodel_(new QStringListModel(this)),
   sourcetagmodel_(new QStringListModel(this)),
@@ -44,6 +44,7 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>&
   sourcetagcompleter_(new QCompleter(this)),
   device_(device),
   recording_(recording),
+  recordingjobsource_(recordingjobsource),
   recordingjobsourcetrack_(recordingjobsourcetrack),
   recordingtrack_(recordingtrack),
   accuracy_(1),
@@ -107,35 +108,67 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>&
   // Find a job to get started with, it may not always be available
   QSharedPointer<RecordingJob> job = GetJob();
 
-  if (recordingjobsourcetrack_ && recordingtrack_)
+  if (recordingjobsource_ && recordingjobsourcetrack_ && recordingtrack_)
   {
     ui_.editdescription->setText(recordingtrack_->GetDescription());
     ui_.spinflushfrequency->setValue(recordingtrack_->GetFlushFrequency());
     ui_.checkdigitalsigning->setChecked(recordingtrack_->GetDigitalSigning());
     ui_.checkencrypt->setChecked(recordingtrack_->GetEncrypt());
     ui_.checkfixedfiles->setChecked(recordingtrack_->GetFixedFiles());
+
     //TODO we need to remember which files we are going to recording to here...
       //TODO whether or not we want to have fixed files or not
 
-    //TODO the uri comes from the recordingjobsourcetrack->recordingjobsource->getreceiver()
-      //TODO pass in the recordingjobsource imo?
+    QSharedPointer<Receiver> receiver = device_->GetReceiver(recordingjobsource_->GetReceiverToken());
+    if (receiver)
+    {
+      ui_.edituri->setText(receiver->GetMediaUri());
 
-    //TODO profile token
+      boost::optional<monocle::StreamingProtocol> streamingprotocol = receiver->GetStreamingProtocol();
+      if (streamingprotocol.is_initialized())
+      {
+        int i = ui_.comboprotocol->findData(static_cast<int>(*streamingprotocol));
+        if (i != -1)
+        {
+          ui_.comboprotocol->setCurrentIndex(i);
 
-    //TODO source tag
+        }
+      }
 
-    //TODO protocol
+      ui_.editusername->setText(receiver->GetUsername());
+      ui_.editpassword->setText(receiver->GetPassword());
+    }
 
-    //TODO username
+    const boost::optional<QString> profiletoken = recordingjobsourcetrack_->GetProfileToken();
+    if (profiletoken.is_initialized())
+    {
+      ui_.editprofiletoken->setText(*profiletoken);
 
-    //TODO password
+    }
 
-    //TODO rotation
+    const boost::optional<QString> sourcetag = recordingjobsourcetrack_->GetSourceTag();
+    if (sourcetag.is_initialized())
+    {
+      ui_.editsourcetag->setText(*sourcetag);
+
+    }
+    
+    boost::optional<ROTATION> rotation = recordingjobsourcetrack_->GetRotation();
+    if (rotation.is_initialized())
+    {
+      int i = ui_.comborotation->findData(QString::number(static_cast<int>(*rotation)));
+      if (i != 1)
+      {
+        ui_.comborotation->setCurrentIndex(i);
+
+      }
+    }
 
     // Object detector
     if (job)
     {
       //TODO does rotation etc etc and stuff go in here?
+        //TODO I think rotation is on the recordingjobsource? or recordingjobsourcetrack...
 
       for (const QSharedPointer<RecordingJobSource>& source : job->GetSources())
       {
@@ -804,12 +837,9 @@ void ManageTrackWindow::RTSPCallback(const std::string& uri, const std::string& 
 
 void ManageTrackWindow::on_edituri_textChanged(const QString& text)
 {
-  profilemodel_->setStringList(QStringList());
-  sourcetagmodel_->setStringList(QStringList());
-
   try
   {
-    const network::uri uri(text.toStdString());
+    const network::uri uri(ui_.edituri->text());
     if (!uri.has_scheme())
     {
       DisableSource();
@@ -914,6 +944,9 @@ void ManageTrackWindow::on_buttonfindonvifdevice_clicked()
 
 void ManageTrackWindow::on_buttontest_clicked()
 {
+  profilemodel_->setStringList(QStringList());
+  sourcetagmodel_->setStringList(QStringList());
+
   ui_.labeltestresult->clear();
   ui_.treedetails->clear();
 
@@ -1126,6 +1159,7 @@ void ManageTrackWindow::on_buttonok_clicked()
 {
 
   //TODO make sure uri is valid
+    //TODO not sure how much of this we want to do, because we may actually WANT to have a dodgy uri because we might get the validation wrong.
   //TODO check uri looks like rtsp or http://1.2.3.4:99/onvif/device_service
 
   // Find or create a recording job
@@ -1215,7 +1249,7 @@ void ManageTrackWindow::on_buttonok_clicked()
   //TODO disable buttons
 
   //TODO files needs to be sorted
-  if (recordingjobsourcetrack_ && recordingtrack_)
+  if (recordingjobsource_ && recordingjobsourcetrack_ && recordingtrack_)
   {
     //TODO edit
 
