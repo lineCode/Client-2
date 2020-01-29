@@ -1,0 +1,25 @@
+include "tracktype.fbs";
+
+namespace monocle;
+
+table ChangeTrackRequest2
+{
+  // Video track details
+  recordingtoken:uint64 (id:0);
+  recordingjobtoken:uint64 (id:1);
+  description:string (id:2);
+  fixedfiles:bool (id:3);
+  digitalsigning:bool (id:4);
+  encrypt:bool (id:5);
+  flushfrequency:uint32 (id:6);
+  files:[uint64] (id:7);
+  
+  // Object Detector details//TODO is this true?
+  mediauri:string (id:8);
+  username:string (id:9);
+  password:string (id:10);
+  receiverparameters:[string] (id:11);
+  sourceparameters:[string] (id:12);
+  
+  objectdetectorsourceparameters:[string] (id:13); // If this is empty, don't enable the object detector
+}
