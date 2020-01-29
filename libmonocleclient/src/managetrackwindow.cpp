@@ -839,7 +839,7 @@ void ManageTrackWindow::on_edituri_textChanged(const QString& text)
 {
   try
   {
-    const network::uri uri(ui_.edituri->text());
+    const network::uri uri(ui_.edituri->text().toStdString());
     if (!uri.has_scheme())
     {
       DisableSource();
@@ -1251,8 +1251,14 @@ void ManageTrackWindow::on_buttonok_clicked()
   //TODO files needs to be sorted
   if (recordingjobsource_ && recordingjobsourcetrack_ && recordingtrack_)
   {
-    //TODO edit
+    //TODO
+    addtrack2connection_ = device_->ChangeTrack2(recording_->GetToken(), recordingjobtoken, ui_.editdescription->text().toStdString(), ui_.checkfixedfiles->isChecked(), ui_.checkdigitalsigning->isChecked(), ui_.checkencrypt->isChecked(), ui_.spinflushfrequency->value(), {}, ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), receiverparameters, recordingjobsourcetrackparameters, objectdetectorsourcetrackparameters, [this](const std::chrono::steady_clock::duration latency, const monocle::client::CHANGETRACK2RESPONSE& changetrack2response)
+    {
+      //TODO
 
+
+
+    });
   }
   else
   {

@@ -30,6 +30,7 @@
 #include "monocleprotocol/changerecordingjobrequest_generated.h"
 #include "monocleprotocol/changerecordingrequest_generated.h"
 #include "monocleprotocol/changetrackrequest_generated.h"
+#include "monocleprotocol/changetrackrequest2_generated.h"
 #include "monocleprotocol/changeuserrequest_generated.h"
 #include "monocleprotocol/controlstreamend_generated.h"
 #include "monocleprotocol/controlstreamframesteprequest_generated.h"
@@ -2459,6 +2460,108 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       }
 
       return SendHeaderResponse(HEADER(0, false, false, Message::CHANGETRACK, sequence));
+    }
+    case Message::CHANGETRACK2:
+    {
+      if (data == nullptr)
+      {
+
+        return SendErrorResponse(Message::CHANGETRACK2, sequence, Error(ErrorCode::MissingMessage, "Missing message"));
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<ChangeTrackRequest2>(nullptr))
+      {
+
+        return SendErrorResponse(Message::CHANGETRACK2, sequence, Error(ErrorCode::InvalidMessage, "Invalid message"));
+      }
+
+      const ChangeTrackRequest2* changetrackrequest2 = flatbuffers::GetRoot<ChangeTrackRequest2>(data);
+      if (changetrackrequest2 == nullptr)
+      {
+
+        return SendErrorResponse(Message::CHANGETRACK2, sequence, Error(ErrorCode::InvalidMessage, "Invalid message"));
+      }
+
+      std::string description;
+      if (changetrackrequest2->description())
+      {
+        description = changetrackrequest2->description()->str();
+
+      }
+
+      std::vector<uint64_t> files;
+      files.reserve(changetrackrequest2->files()->size());
+      if (changetrackrequest2->files())
+      {
+        for (const uint64_t file : *changetrackrequest2->files())
+        {
+          files.push_back(file);
+
+        }
+      }
+
+      std::string mediauri;
+      if (changetrackrequest2->mediauri())
+      {
+        mediauri = changetrackrequest2->mediauri()->str();
+
+      }
+
+      std::string username;
+      if (changetrackrequest2->username())
+      {
+        username = changetrackrequest2->username()->str();
+
+      }
+
+      std::string password;
+      if (changetrackrequest2->password())
+      {
+        password = changetrackrequest2->password()->str();
+
+      }
+
+      std::vector<std::string> receiverparameters;
+      receiverparameters.reserve(changetrackrequest2->receiverparameters()->size());
+      if (changetrackrequest2->receiverparameters())
+      {
+        for (const flatbuffers::String* receiverparameter : *changetrackrequest2->receiverparameters())
+        {
+          receiverparameters.push_back(receiverparameter->str());
+
+        }
+      }
+
+      std::vector<std::string> sourceparameters;
+      if (changetrackrequest2->receiverparameters())
+      {
+        sourceparameters.reserve(changetrackrequest2->sourceparameters()->size());
+        for (const flatbuffers::String* sourceparameter : *changetrackrequest2->sourceparameters())
+        {
+          sourceparameters.push_back(sourceparameter->str());
+
+        }
+      }
+
+      std::vector<std::string> objectdetectorsourceparameters;
+      if (changetrackrequest2->objectdetectorsourceparameters())
+      {
+        objectdetectorsourceparameters.reserve(changetrackrequest2->objectdetectorsourceparameters()->size());
+        for (const flatbuffers::String* objectdetectorsourceparameter : *changetrackrequest2->objectdetectorsourceparameters())
+        {
+          objectdetectorsourceparameters.push_back(objectdetectorsourceparameter->str());
+
+        }
+      }
+
+      const Error error = ChangeTrack2(changetrackrequest2->recordingtoken(), changetrackrequest2->recordingjobtoken(), description, changetrackrequest2->fixedfiles(), changetrackrequest2->digitalsigning(), changetrackrequest2->encrypt(), changetrackrequest2->flushfrequency(), files, mediauri, username, password, receiverparameters, sourceparameters, objectdetectorsourceparameters);
+      if (error.code_ != ErrorCode::Success)
+      {
+
+        return SendErrorResponse(Message::CHANGETRACK2, sequence, error);
+      }
+
+      return SendHeaderResponse(HEADER(0, false, false, Message::CHANGETRACK2, sequence));
     }
     case Message::CHANGEUSER:
     {

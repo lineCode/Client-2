@@ -241,6 +241,18 @@ CHANGETRACKRESPONSE::CHANGETRACKRESPONSE(const Error& error) :
 
 }
 
+CHANGETRACK2RESPONSE::CHANGETRACK2RESPONSE() :
+  RESPONSE(Error(ErrorCode::Success, std::string()))
+{
+
+}
+
+CHANGETRACK2RESPONSE::CHANGETRACK2RESPONSE(const Error& error) :
+  RESPONSE(error)
+{
+
+}
+
 CHANGEUSERRESPONSE::CHANGEUSERRESPONSE() :
   RESPONSE(Error(ErrorCode::Success, std::string()))
 {

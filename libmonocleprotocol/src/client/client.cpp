@@ -35,6 +35,7 @@
 #include "monocleprotocol/changerecordingjobsource_generated.h"
 #include "monocleprotocol/changerecordingrequest_generated.h"
 #include "monocleprotocol/changetrackrequest_generated.h"
+#include "monocleprotocol/changetrackrequest2_generated.h"
 #include "monocleprotocol/changeuserrequest_generated.h"
 #include "monocleprotocol/codecindex_generated.h"
 #include "monocleprotocol/controlstreamend_generated.h"
@@ -198,6 +199,7 @@ Client::Client(boost::asio::io_service& io) :
   changerecording_(DEFAULT_TIMEOUT, this),
   changerecordingjob_(DEFAULT_TIMEOUT, this),
   changetrack_(DEFAULT_TIMEOUT, this),
+  changetrack2_(DEFAULT_TIMEOUT, this),
   changeuser_(DEFAULT_TIMEOUT, this),
   controlstream_(DEFAULT_TIMEOUT, this),
   controlstreamframestep_(DEFAULT_TIMEOUT, this),
@@ -580,6 +582,17 @@ boost::unique_future<CHANGETRACKRESPONSE> Client::ChangeTrack(const uint64_t rec
     return boost::make_ready_future(CHANGETRACKRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
   }
   return changetrack_.CreateFuture(sequence_);
+}
+
+boost::unique_future<CHANGETRACK2RESPONSE> Client::ChangeTrack2(const uint64_t recordingtoken, const uint64_t recordingjobtoken, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::string& mediauri, const std::string& username, const std::string& password, const std::vector<std::string>& receiverparameters, const std::vector<std::string>& sourceparameters, const std::vector<std::string>& objectdetectorsourceparameters)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (ChangeTrack2Send(recordingtoken, recordingjobtoken, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files, mediauri, username, password, receiverparameters, sourceparameters, objectdetectorsourceparameters))
+  {
+
+    return boost::make_ready_future(CHANGETRACK2RESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+  }
+  return changetrack2_.CreateFuture(sequence_);
 }
 
 boost::unique_future<CHANGEUSERRESPONSE> Client::ChangeUser(const uint64_t token, const boost::optional<std::string>& digest, const uint64_t group)
@@ -1318,6 +1331,17 @@ Connection Client::ChangeTrack(const uint64_t recordingtoken, const uint32_t id,
     return Connection();
   }
   return changetrack_.CreateCallback(sequence_, callback);
+}
+
+Connection Client::ChangeTrack2(const uint64_t recordingtoken, const uint64_t recordingjobtoken, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::string& mediauri, const std::string& username, const std::string& password, const std::vector<std::string>& receiverparameters, const std::vector<std::string>& sourceparameters, const std::vector<std::string>& objectdetectorsourceparameters, boost::function<void(const std::chrono::steady_clock::duration, const CHANGETRACK2RESPONSE&)> callback)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (ChangeTrack2Send(recordingtoken, recordingjobtoken, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files, mediauri, username, password, receiverparameters, sourceparameters, objectdetectorsourceparameters))
+  {
+    callback(std::chrono::steady_clock::duration(), CHANGETRACK2RESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+    return Connection();
+  }
+  return changetrack2_.CreateCallback(sequence_, callback);
 }
 
 Connection Client::ChangeUser(const uint64_t token, const boost::optional<std::string>& digest, const uint64_t group, boost::function<void(const std::chrono::steady_clock::duration, const CHANGEUSERRESPONSE&)> callback)
@@ -2294,12 +2318,12 @@ boost::system::error_code Client::ChangeRecordingJobSend(const uint64_t recordin
   return err;
 }
 
-boost::system::error_code Client::ChangeTrackSend(const uint64_t recordingtoken, const uint32_t id, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files)
+boost::system::error_code Client::ChangeTrack2Send(const uint64_t recordingtoken, const uint64_t recordingjobtoken, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::string& mediauri, const std::string& username, const std::string& password, const std::vector<std::string>& receiverparameters, const std::vector<std::string>& sourceparameters, const std::vector<std::string>& objectdetectorsourceparameters)
 {
   fbb_.Clear();
-  fbb_.Finish(CreateChangeTrackRequest(fbb_, recordingtoken, id, tracktype, fbb_.CreateString(description), fixedfiles, digitalsigning, encrypt, flushfrequency, fbb_.CreateVector(files)));
+  fbb_.Finish(CreateChangeTrackRequest2(fbb_, recordingtoken, recordingjobtoken, fbb_.CreateString(description), fixedfiles, digitalsigning, encrypt, flushfrequency, fbb_.CreateVector(files), fbb_.CreateString(mediauri), fbb_.CreateString(username), fbb_.CreateString(password), fbb_.CreateVectorOfStrings(receiverparameters), fbb_.CreateVectorOfStrings(sourceparameters), fbb_.CreateVectorOfStrings(objectdetectorsourceparameters)));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
-  const HEADER header(messagesize, false, false, Message::CHANGETRACK, ++sequence_);
+  const HEADER header(messagesize, false, false, Message::CHANGETRACK2, ++sequence_);
   boost::system::error_code err;
   boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
   if (err)
@@ -3626,6 +3650,17 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       }
 
       changetrack_.Response(sequence, CHANGETRACKRESPONSE());
+      break;
+    }
+    case Message::CHANGETRACK2:
+    {
+      if (error)
+      {
+        HandleError(changetrack2_, sequence, data, datasize);
+        return;
+      }
+
+      changetrack2_.Response(sequence, CHANGETRACK2RESPONSE());
       break;
     }
     case Message::CHANGEUSER:
