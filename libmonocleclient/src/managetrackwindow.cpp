@@ -35,7 +35,8 @@ const int STREAMING_PROTOCOL_ROLE = Qt::UserRole;
 const int ROTATION_ROLE = Qt::UserRole + 1;
 
 ///// Methods /////
-
+//TODO pass in the RecordingJob too, along with the RecordingJobSource, because we need this when EDITING!
+  //TODO then check it everywhere downstairs as well
 ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingJobSource>& recordingjobsource, const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& recordingtrack) :
   QDialog(parent),
   profilemodel_(new QStringListModel(this)),
