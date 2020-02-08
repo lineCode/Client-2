@@ -17,8 +17,8 @@ struct SubscribeRecordingLogResponse FLATBUFFERS_FINAL_CLASS : private flatbuffe
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_MESSAGES = 4
   };
-  const flatbuffers::Vector<flatbuffers::Offset<monocle::LogMessage>> *messages() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::LogMessage>> *>(VT_MESSAGES);
+  const flatbuffers::Vector<flatbuffers::Offset<LogMessage>> *messages() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<LogMessage>> *>(VT_MESSAGES);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -32,7 +32,7 @@ struct SubscribeRecordingLogResponse FLATBUFFERS_FINAL_CLASS : private flatbuffe
 struct SubscribeRecordingLogResponseBuilder {
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_messages(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::LogMessage>>> messages) {
+  void add_messages(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<LogMessage>>> messages) {
     fbb_.AddOffset(SubscribeRecordingLogResponse::VT_MESSAGES, messages);
   }
   explicit SubscribeRecordingLogResponseBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -49,7 +49,7 @@ struct SubscribeRecordingLogResponseBuilder {
 
 inline flatbuffers::Offset<SubscribeRecordingLogResponse> CreateSubscribeRecordingLogResponse(
     flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::LogMessage>>> messages = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<LogMessage>>> messages = 0) {
   SubscribeRecordingLogResponseBuilder builder_(_fbb);
   builder_.add_messages(messages);
   return builder_.Finish();
@@ -57,8 +57,8 @@ inline flatbuffers::Offset<SubscribeRecordingLogResponse> CreateSubscribeRecordi
 
 inline flatbuffers::Offset<SubscribeRecordingLogResponse> CreateSubscribeRecordingLogResponseDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<flatbuffers::Offset<monocle::LogMessage>> *messages = nullptr) {
-  auto messages__ = messages ? _fbb.CreateVector<flatbuffers::Offset<monocle::LogMessage>>(*messages) : 0;
+    const std::vector<flatbuffers::Offset<LogMessage>> *messages = nullptr) {
+  auto messages__ = messages ? _fbb.CreateVector<flatbuffers::Offset<LogMessage>>(*messages) : 0;
   return monocle::CreateSubscribeRecordingLogResponse(
       _fbb,
       messages__);

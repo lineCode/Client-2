@@ -21,8 +21,8 @@ struct RecordingLogMessage FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table 
   uint64_t token() const {
     return GetField<uint64_t>(VT_TOKEN, 0);
   }
-  const monocle::LogMessage *message() const {
-    return GetPointer<const monocle::LogMessage *>(VT_MESSAGE);
+  const LogMessage *message() const {
+    return GetPointer<const LogMessage *>(VT_MESSAGE);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -39,7 +39,7 @@ struct RecordingLogMessageBuilder {
   void add_token(uint64_t token) {
     fbb_.AddElement<uint64_t>(RecordingLogMessage::VT_TOKEN, token, 0);
   }
-  void add_message(flatbuffers::Offset<monocle::LogMessage> message) {
+  void add_message(flatbuffers::Offset<LogMessage> message) {
     fbb_.AddOffset(RecordingLogMessage::VT_MESSAGE, message);
   }
   explicit RecordingLogMessageBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -57,7 +57,7 @@ struct RecordingLogMessageBuilder {
 inline flatbuffers::Offset<RecordingLogMessage> CreateRecordingLogMessage(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t token = 0,
-    flatbuffers::Offset<monocle::LogMessage> message = 0) {
+    flatbuffers::Offset<LogMessage> message = 0) {
   RecordingLogMessageBuilder builder_(_fbb);
   builder_.add_token(token);
   builder_.add_message(message);

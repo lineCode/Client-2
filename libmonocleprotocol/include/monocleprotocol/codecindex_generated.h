@@ -22,8 +22,8 @@ struct CodecIndex FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint64_t id() const {
     return GetField<uint64_t>(VT_ID, 0);
   }
-  monocle::Codec codec() const {
-    return static_cast<monocle::Codec>(GetField<int8_t>(VT_CODEC, 0));
+  Codec codec() const {
+    return static_cast<Codec>(GetField<int8_t>(VT_CODEC, 0));
   }
   const flatbuffers::String *parameters() const {
     return GetPointer<const flatbuffers::String *>(VT_PARAMETERS);
@@ -48,7 +48,7 @@ struct CodecIndexBuilder {
   void add_id(uint64_t id) {
     fbb_.AddElement<uint64_t>(CodecIndex::VT_ID, id, 0);
   }
-  void add_codec(monocle::Codec codec) {
+  void add_codec(Codec codec) {
     fbb_.AddElement<int8_t>(CodecIndex::VT_CODEC, static_cast<int8_t>(codec), 0);
   }
   void add_parameters(flatbuffers::Offset<flatbuffers::String> parameters) {
@@ -72,7 +72,7 @@ struct CodecIndexBuilder {
 inline flatbuffers::Offset<CodecIndex> CreateCodecIndex(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t id = 0,
-    monocle::Codec codec = monocle::Codec::METADATA,
+    Codec codec = Codec::METADATA,
     flatbuffers::Offset<flatbuffers::String> parameters = 0,
     uint64_t timestamp = 0) {
   CodecIndexBuilder builder_(_fbb);
@@ -86,7 +86,7 @@ inline flatbuffers::Offset<CodecIndex> CreateCodecIndex(
 inline flatbuffers::Offset<CodecIndex> CreateCodecIndexDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t id = 0,
-    monocle::Codec codec = monocle::Codec::METADATA,
+    Codec codec = Codec::METADATA,
     const char *parameters = nullptr,
     uint64_t timestamp = 0) {
   auto parameters__ = parameters ? _fbb.CreateString(parameters) : 0;

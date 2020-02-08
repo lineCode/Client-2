@@ -27,8 +27,8 @@ struct Receiver FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint64_t token() const {
     return GetField<uint64_t>(VT_TOKEN, 0);
   }
-  monocle::ReceiverMode mode() const {
-    return static_cast<monocle::ReceiverMode>(GetField<int8_t>(VT_MODE, 0));
+  ReceiverMode mode() const {
+    return static_cast<ReceiverMode>(GetField<int8_t>(VT_MODE, 0));
   }
   const flatbuffers::String *mediauri() const {
     return GetPointer<const flatbuffers::String *>(VT_MEDIAURI);
@@ -45,8 +45,8 @@ struct Receiver FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *parameters() const {
     return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *>(VT_PARAMETERS);
   }
-  monocle::ReceiverState state() const {
-    return static_cast<monocle::ReceiverState>(GetField<int8_t>(VT_STATE, 0));
+  ReceiverState state() const {
+    return static_cast<ReceiverState>(GetField<int8_t>(VT_STATE, 0));
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -73,7 +73,7 @@ struct ReceiverBuilder {
   void add_token(uint64_t token) {
     fbb_.AddElement<uint64_t>(Receiver::VT_TOKEN, token, 0);
   }
-  void add_mode(monocle::ReceiverMode mode) {
+  void add_mode(ReceiverMode mode) {
     fbb_.AddElement<int8_t>(Receiver::VT_MODE, static_cast<int8_t>(mode), 0);
   }
   void add_mediauri(flatbuffers::Offset<flatbuffers::String> mediauri) {
@@ -91,7 +91,7 @@ struct ReceiverBuilder {
   void add_parameters(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> parameters) {
     fbb_.AddOffset(Receiver::VT_PARAMETERS, parameters);
   }
-  void add_state(monocle::ReceiverState state) {
+  void add_state(ReceiverState state) {
     fbb_.AddElement<int8_t>(Receiver::VT_STATE, static_cast<int8_t>(state), 0);
   }
   explicit ReceiverBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -109,13 +109,13 @@ struct ReceiverBuilder {
 inline flatbuffers::Offset<Receiver> CreateReceiver(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t token = 0,
-    monocle::ReceiverMode mode = monocle::ReceiverMode::AutoConnect,
+    ReceiverMode mode = ReceiverMode::AutoConnect,
     flatbuffers::Offset<flatbuffers::String> mediauri = 0,
     bool autocreated = false,
     flatbuffers::Offset<flatbuffers::String> username = 0,
     flatbuffers::Offset<flatbuffers::String> password = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> parameters = 0,
-    monocle::ReceiverState state = monocle::ReceiverState::NotConnected) {
+    ReceiverState state = ReceiverState::NotConnected) {
   ReceiverBuilder builder_(_fbb);
   builder_.add_token(token);
   builder_.add_parameters(parameters);
@@ -131,13 +131,13 @@ inline flatbuffers::Offset<Receiver> CreateReceiver(
 inline flatbuffers::Offset<Receiver> CreateReceiverDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t token = 0,
-    monocle::ReceiverMode mode = monocle::ReceiverMode::AutoConnect,
+    ReceiverMode mode = ReceiverMode::AutoConnect,
     const char *mediauri = nullptr,
     bool autocreated = false,
     const char *username = nullptr,
     const char *password = nullptr,
     const std::vector<flatbuffers::Offset<flatbuffers::String>> *parameters = nullptr,
-    monocle::ReceiverState state = monocle::ReceiverState::NotConnected) {
+    ReceiverState state = ReceiverState::NotConnected) {
   auto mediauri__ = mediauri ? _fbb.CreateString(mediauri) : 0;
   auto username__ = username ? _fbb.CreateString(username) : 0;
   auto password__ = password ? _fbb.CreateString(password) : 0;

@@ -18,8 +18,8 @@ struct GetFilesResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_FILES = 4
   };
-  const flatbuffers::Vector<flatbuffers::Offset<monocle::File>> *files() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::File>> *>(VT_FILES);
+  const flatbuffers::Vector<flatbuffers::Offset<File>> *files() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<File>> *>(VT_FILES);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -33,7 +33,7 @@ struct GetFilesResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 struct GetFilesResponseBuilder {
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_files(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::File>>> files) {
+  void add_files(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<File>>> files) {
     fbb_.AddOffset(GetFilesResponse::VT_FILES, files);
   }
   explicit GetFilesResponseBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -51,7 +51,7 @@ struct GetFilesResponseBuilder {
 
 inline flatbuffers::Offset<GetFilesResponse> CreateGetFilesResponse(
     flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::File>>> files = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<File>>> files = 0) {
   GetFilesResponseBuilder builder_(_fbb);
   builder_.add_files(files);
   return builder_.Finish();
@@ -59,8 +59,8 @@ inline flatbuffers::Offset<GetFilesResponse> CreateGetFilesResponse(
 
 inline flatbuffers::Offset<GetFilesResponse> CreateGetFilesResponseDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<flatbuffers::Offset<monocle::File>> *files = nullptr) {
-  auto files__ = files ? _fbb.CreateVector<flatbuffers::Offset<monocle::File>>(*files) : 0;
+    const std::vector<flatbuffers::Offset<File>> *files = nullptr) {
+  auto files__ = files ? _fbb.CreateVector<flatbuffers::Offset<File>>(*files) : 0;
   return monocle::CreateGetFilesResponse(
       _fbb,
       files__);

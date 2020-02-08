@@ -60,14 +60,14 @@ struct Recording FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint64_t retentiontime() const {
     return GetField<uint64_t>(VT_RETENTIONTIME, 0);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingJob>> *recordingjobs() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingJob>> *>(VT_RECORDINGJOBS);
+  const flatbuffers::Vector<flatbuffers::Offset<RecordingJob>> *recordingjobs() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<RecordingJob>> *>(VT_RECORDINGJOBS);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingTrack>> *tracks() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingTrack>> *>(VT_TRACKS);
+  const flatbuffers::Vector<flatbuffers::Offset<RecordingTrack>> *tracks() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<RecordingTrack>> *>(VT_TRACKS);
   }
-  const monocle::TOKEN *activejob() const {
-    return GetStruct<const monocle::TOKEN *>(VT_ACTIVEJOB);
+  const TOKEN *activejob() const {
+    return GetStruct<const TOKEN *>(VT_ACTIVEJOB);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -91,7 +91,7 @@ struct Recording FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyOffset(verifier, VT_TRACKS) &&
            verifier.VerifyVector(tracks()) &&
            verifier.VerifyVectorOfTables(tracks()) &&
-           VerifyField<monocle::TOKEN>(verifier, VT_ACTIVEJOB) &&
+           VerifyField<TOKEN>(verifier, VT_ACTIVEJOB) &&
            verifier.EndTable();
   }
 };
@@ -123,13 +123,13 @@ struct RecordingBuilder {
   void add_retentiontime(uint64_t retentiontime) {
     fbb_.AddElement<uint64_t>(Recording::VT_RETENTIONTIME, retentiontime, 0);
   }
-  void add_recordingjobs(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingJob>>> recordingjobs) {
+  void add_recordingjobs(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<RecordingJob>>> recordingjobs) {
     fbb_.AddOffset(Recording::VT_RECORDINGJOBS, recordingjobs);
   }
-  void add_tracks(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingTrack>>> tracks) {
+  void add_tracks(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<RecordingTrack>>> tracks) {
     fbb_.AddOffset(Recording::VT_TRACKS, tracks);
   }
-  void add_activejob(const monocle::TOKEN *activejob) {
+  void add_activejob(const TOKEN *activejob) {
     fbb_.AddStruct(Recording::VT_ACTIVEJOB, activejob);
   }
   explicit RecordingBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -154,9 +154,9 @@ inline flatbuffers::Offset<Recording> CreateRecording(
     flatbuffers::Offset<flatbuffers::String> address = 0,
     flatbuffers::Offset<flatbuffers::String> content = 0,
     uint64_t retentiontime = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingJob>>> recordingjobs = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingTrack>>> tracks = 0,
-    const monocle::TOKEN *activejob = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<RecordingJob>>> recordingjobs = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<RecordingTrack>>> tracks = 0,
+    const TOKEN *activejob = 0) {
   RecordingBuilder builder_(_fbb);
   builder_.add_retentiontime(retentiontime);
   builder_.add_token(token);
@@ -182,17 +182,17 @@ inline flatbuffers::Offset<Recording> CreateRecordingDirect(
     const char *address = nullptr,
     const char *content = nullptr,
     uint64_t retentiontime = 0,
-    const std::vector<flatbuffers::Offset<monocle::RecordingJob>> *recordingjobs = nullptr,
-    const std::vector<flatbuffers::Offset<monocle::RecordingTrack>> *tracks = nullptr,
-    const monocle::TOKEN *activejob = 0) {
+    const std::vector<flatbuffers::Offset<RecordingJob>> *recordingjobs = nullptr,
+    const std::vector<flatbuffers::Offset<RecordingTrack>> *tracks = nullptr,
+    const TOKEN *activejob = 0) {
   auto sourceid__ = sourceid ? _fbb.CreateString(sourceid) : 0;
   auto name__ = name ? _fbb.CreateString(name) : 0;
   auto location__ = location ? _fbb.CreateString(location) : 0;
   auto description__ = description ? _fbb.CreateString(description) : 0;
   auto address__ = address ? _fbb.CreateString(address) : 0;
   auto content__ = content ? _fbb.CreateString(content) : 0;
-  auto recordingjobs__ = recordingjobs ? _fbb.CreateVector<flatbuffers::Offset<monocle::RecordingJob>>(*recordingjobs) : 0;
-  auto tracks__ = tracks ? _fbb.CreateVector<flatbuffers::Offset<monocle::RecordingTrack>>(*tracks) : 0;
+  auto recordingjobs__ = recordingjobs ? _fbb.CreateVector<flatbuffers::Offset<RecordingJob>>(*recordingjobs) : 0;
+  auto tracks__ = tracks ? _fbb.CreateVector<flatbuffers::Offset<RecordingTrack>>(*tracks) : 0;
   return monocle::CreateRecording(
       _fbb,
       token,

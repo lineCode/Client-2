@@ -21,8 +21,8 @@ struct CreateStreamResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table
   uint64_t token() const {
     return GetField<uint64_t>(VT_TOKEN, 0);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<monocle::CodecIndex>> *codecindices() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::CodecIndex>> *>(VT_CODECINDICES);
+  const flatbuffers::Vector<flatbuffers::Offset<CodecIndex>> *codecindices() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<CodecIndex>> *>(VT_CODECINDICES);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -40,7 +40,7 @@ struct CreateStreamResponseBuilder {
   void add_token(uint64_t token) {
     fbb_.AddElement<uint64_t>(CreateStreamResponse::VT_TOKEN, token, 0);
   }
-  void add_codecindices(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::CodecIndex>>> codecindices) {
+  void add_codecindices(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<CodecIndex>>> codecindices) {
     fbb_.AddOffset(CreateStreamResponse::VT_CODECINDICES, codecindices);
   }
   explicit CreateStreamResponseBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -58,7 +58,7 @@ struct CreateStreamResponseBuilder {
 inline flatbuffers::Offset<CreateStreamResponse> CreateCreateStreamResponse(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t token = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::CodecIndex>>> codecindices = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<CodecIndex>>> codecindices = 0) {
   CreateStreamResponseBuilder builder_(_fbb);
   builder_.add_token(token);
   builder_.add_codecindices(codecindices);
@@ -68,8 +68,8 @@ inline flatbuffers::Offset<CreateStreamResponse> CreateCreateStreamResponse(
 inline flatbuffers::Offset<CreateStreamResponse> CreateCreateStreamResponseDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t token = 0,
-    const std::vector<flatbuffers::Offset<monocle::CodecIndex>> *codecindices = nullptr) {
-  auto codecindices__ = codecindices ? _fbb.CreateVector<flatbuffers::Offset<monocle::CodecIndex>>(*codecindices) : 0;
+    const std::vector<flatbuffers::Offset<CodecIndex>> *codecindices = nullptr) {
+  auto codecindices__ = codecindices ? _fbb.CreateVector<flatbuffers::Offset<CodecIndex>>(*codecindices) : 0;
   return monocle::CreateCreateStreamResponse(
       _fbb,
       token,

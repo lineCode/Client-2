@@ -36,8 +36,8 @@ struct AddTrackRequest2 FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint64_t recordingjobtoken() const {
     return GetField<uint64_t>(VT_RECORDINGJOBTOKEN, 0);
   }
-  monocle::TrackType tracktype() const {
-    return static_cast<monocle::TrackType>(GetField<int8_t>(VT_TRACKTYPE, 0));
+  TrackType tracktype() const {
+    return static_cast<TrackType>(GetField<int8_t>(VT_TRACKTYPE, 0));
   }
   const flatbuffers::String *description() const {
     return GetPointer<const flatbuffers::String *>(VT_DESCRIPTION);
@@ -116,7 +116,7 @@ struct AddTrackRequest2Builder {
   void add_recordingjobtoken(uint64_t recordingjobtoken) {
     fbb_.AddElement<uint64_t>(AddTrackRequest2::VT_RECORDINGJOBTOKEN, recordingjobtoken, 0);
   }
-  void add_tracktype(monocle::TrackType tracktype) {
+  void add_tracktype(TrackType tracktype) {
     fbb_.AddElement<int8_t>(AddTrackRequest2::VT_TRACKTYPE, static_cast<int8_t>(tracktype), 0);
   }
   void add_description(flatbuffers::Offset<flatbuffers::String> description) {
@@ -171,7 +171,7 @@ inline flatbuffers::Offset<AddTrackRequest2> CreateAddTrackRequest2(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t recordingtoken = 0,
     uint64_t recordingjobtoken = 0,
-    monocle::TrackType tracktype = monocle::TrackType::Video,
+    TrackType tracktype = TrackType::Video,
     flatbuffers::Offset<flatbuffers::String> description = 0,
     bool fixedfiles = false,
     bool digitalsigning = false,
@@ -207,7 +207,7 @@ inline flatbuffers::Offset<AddTrackRequest2> CreateAddTrackRequest2Direct(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t recordingtoken = 0,
     uint64_t recordingjobtoken = 0,
-    monocle::TrackType tracktype = monocle::TrackType::Video,
+    TrackType tracktype = TrackType::Video,
     const char *description = nullptr,
     bool fixedfiles = false,
     bool digitalsigning = false,

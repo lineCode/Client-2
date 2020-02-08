@@ -50,7 +50,7 @@ inline const ErrorCode (&EnumValuesErrorCode())[15] {
 }
 
 inline const char * const *EnumNamesErrorCode() {
-  static const char * const names[16] = {
+  static const char * const names[] = {
     "Success",
     "BadAuth",
     "Disconnected",
@@ -73,7 +73,7 @@ inline const char * const *EnumNamesErrorCode() {
 
 inline const char *EnumNameErrorCode(ErrorCode e) {
   if (e < ErrorCode::Success || e > ErrorCode::InvalidLicense) return "";
-  const size_t index = static_cast<size_t>(e);
+  const size_t index = static_cast<int>(e);
   return EnumNamesErrorCode()[index];
 }
 

@@ -32,7 +32,7 @@ inline const Severity (&EnumValuesSeverity())[6] {
 }
 
 inline const char * const *EnumNamesSeverity() {
-  static const char * const names[7] = {
+  static const char * const names[] = {
     "Trace",
     "Debug",
     "Info",
@@ -46,7 +46,7 @@ inline const char * const *EnumNamesSeverity() {
 
 inline const char *EnumNameSeverity(Severity e) {
   if (e < Severity::Trace || e > Severity::Critical) return "";
-  const size_t index = static_cast<size_t>(e);
+  const size_t index = static_cast<int>(e);
   return EnumNamesSeverity()[index];
 }
 

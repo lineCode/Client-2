@@ -21,8 +21,8 @@ struct LogMessage FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint64_t time() const {
     return GetField<uint64_t>(VT_TIME, 0);
   }
-  monocle::Severity severity() const {
-    return static_cast<monocle::Severity>(GetField<int8_t>(VT_SEVERITY, 0));
+  Severity severity() const {
+    return static_cast<Severity>(GetField<int8_t>(VT_SEVERITY, 0));
   }
   const flatbuffers::String *message() const {
     return GetPointer<const flatbuffers::String *>(VT_MESSAGE);
@@ -43,7 +43,7 @@ struct LogMessageBuilder {
   void add_time(uint64_t time) {
     fbb_.AddElement<uint64_t>(LogMessage::VT_TIME, time, 0);
   }
-  void add_severity(monocle::Severity severity) {
+  void add_severity(Severity severity) {
     fbb_.AddElement<int8_t>(LogMessage::VT_SEVERITY, static_cast<int8_t>(severity), 0);
   }
   void add_message(flatbuffers::Offset<flatbuffers::String> message) {
@@ -64,7 +64,7 @@ struct LogMessageBuilder {
 inline flatbuffers::Offset<LogMessage> CreateLogMessage(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t time = 0,
-    monocle::Severity severity = monocle::Severity::Trace,
+    Severity severity = Severity::Trace,
     flatbuffers::Offset<flatbuffers::String> message = 0) {
   LogMessageBuilder builder_(_fbb);
   builder_.add_time(time);
@@ -76,7 +76,7 @@ inline flatbuffers::Offset<LogMessage> CreateLogMessage(
 inline flatbuffers::Offset<LogMessage> CreateLogMessageDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t time = 0,
-    monocle::Severity severity = monocle::Severity::Trace,
+    Severity severity = Severity::Trace,
     const char *message = nullptr) {
   auto message__ = message ? _fbb.CreateString(message) : 0;
   return monocle::CreateLogMessage(

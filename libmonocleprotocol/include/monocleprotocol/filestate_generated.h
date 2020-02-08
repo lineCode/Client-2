@@ -28,7 +28,7 @@ inline const FileState (&EnumValuesFileState())[4] {
 }
 
 inline const char * const *EnumNamesFileState() {
-  static const char * const names[5] = {
+  static const char * const names[] = {
     "Unmounted",
     "Mounted",
     "Mounting",
@@ -40,7 +40,7 @@ inline const char * const *EnumNamesFileState() {
 
 inline const char *EnumNameFileState(FileState e) {
   if (e < FileState::Unmounted || e > FileState::Unmounting) return "";
-  const size_t index = static_cast<size_t>(e);
+  const size_t index = static_cast<int>(e);
   return EnumNamesFileState()[index];
 }
 

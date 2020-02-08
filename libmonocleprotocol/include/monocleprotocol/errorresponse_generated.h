@@ -17,8 +17,8 @@ struct ErrorResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_CODE = 4,
     VT_TEXT = 6
   };
-  monocle::ErrorCode code() const {
-    return static_cast<monocle::ErrorCode>(GetField<uint16_t>(VT_CODE, 0));
+  ErrorCode code() const {
+    return static_cast<ErrorCode>(GetField<uint16_t>(VT_CODE, 0));
   }
   const flatbuffers::String *text() const {
     return GetPointer<const flatbuffers::String *>(VT_TEXT);
@@ -35,7 +35,7 @@ struct ErrorResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 struct ErrorResponseBuilder {
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_code(monocle::ErrorCode code) {
+  void add_code(ErrorCode code) {
     fbb_.AddElement<uint16_t>(ErrorResponse::VT_CODE, static_cast<uint16_t>(code), 0);
   }
   void add_text(flatbuffers::Offset<flatbuffers::String> text) {
@@ -55,7 +55,7 @@ struct ErrorResponseBuilder {
 
 inline flatbuffers::Offset<ErrorResponse> CreateErrorResponse(
     flatbuffers::FlatBufferBuilder &_fbb,
-    monocle::ErrorCode code = monocle::ErrorCode::Success,
+    ErrorCode code = ErrorCode::Success,
     flatbuffers::Offset<flatbuffers::String> text = 0) {
   ErrorResponseBuilder builder_(_fbb);
   builder_.add_text(text);
@@ -65,7 +65,7 @@ inline flatbuffers::Offset<ErrorResponse> CreateErrorResponse(
 
 inline flatbuffers::Offset<ErrorResponse> CreateErrorResponseDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
-    monocle::ErrorCode code = monocle::ErrorCode::Success,
+    ErrorCode code = ErrorCode::Success,
     const char *text = nullptr) {
   auto text__ = text ? _fbb.CreateString(text) : 0;
   return monocle::CreateErrorResponse(

@@ -28,7 +28,7 @@ inline const ONVIFUserlevel (&EnumValuesONVIFUserlevel())[4] {
 }
 
 inline const char * const *EnumNamesONVIFUserlevel() {
-  static const char * const names[5] = {
+  static const char * const names[] = {
     "Anonymous",
     "User",
     "Operator",
@@ -40,7 +40,7 @@ inline const char * const *EnumNamesONVIFUserlevel() {
 
 inline const char *EnumNameONVIFUserlevel(ONVIFUserlevel e) {
   if (e < ONVIFUserlevel::Anonymous || e > ONVIFUserlevel::Administrator) return "";
-  const size_t index = static_cast<size_t>(e) - static_cast<size_t>(ONVIFUserlevel::Anonymous);
+  const size_t index = static_cast<int>(e) - static_cast<int>(ONVIFUserlevel::Anonymous);
   return EnumNamesONVIFUserlevel()[index];
 }
 

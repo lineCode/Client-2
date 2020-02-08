@@ -27,8 +27,8 @@ struct GetRecordingsResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Tabl
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDINGS = 4
   };
-  const flatbuffers::Vector<flatbuffers::Offset<monocle::Recording>> *recordings() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::Recording>> *>(VT_RECORDINGS);
+  const flatbuffers::Vector<flatbuffers::Offset<Recording>> *recordings() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<Recording>> *>(VT_RECORDINGS);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -42,7 +42,7 @@ struct GetRecordingsResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Tabl
 struct GetRecordingsResponseBuilder {
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_recordings(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::Recording>>> recordings) {
+  void add_recordings(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Recording>>> recordings) {
     fbb_.AddOffset(GetRecordingsResponse::VT_RECORDINGS, recordings);
   }
   explicit GetRecordingsResponseBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -59,7 +59,7 @@ struct GetRecordingsResponseBuilder {
 
 inline flatbuffers::Offset<GetRecordingsResponse> CreateGetRecordingsResponse(
     flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::Recording>>> recordings = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Recording>>> recordings = 0) {
   GetRecordingsResponseBuilder builder_(_fbb);
   builder_.add_recordings(recordings);
   return builder_.Finish();
@@ -67,8 +67,8 @@ inline flatbuffers::Offset<GetRecordingsResponse> CreateGetRecordingsResponse(
 
 inline flatbuffers::Offset<GetRecordingsResponse> CreateGetRecordingsResponseDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<flatbuffers::Offset<monocle::Recording>> *recordings = nullptr) {
-  auto recordings__ = recordings ? _fbb.CreateVector<flatbuffers::Offset<monocle::Recording>>(*recordings) : 0;
+    const std::vector<flatbuffers::Offset<Recording>> *recordings = nullptr) {
+  auto recordings__ = recordings ? _fbb.CreateVector<flatbuffers::Offset<Recording>>(*recordings) : 0;
   return monocle::CreateGetRecordingsResponse(
       _fbb,
       recordings__);

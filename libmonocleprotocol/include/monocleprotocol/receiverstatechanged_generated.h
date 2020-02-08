@@ -20,8 +20,8 @@ struct ReceiverStateChanged FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table
   uint64_t receiver() const {
     return GetField<uint64_t>(VT_RECEIVER, 0);
   }
-  monocle::ReceiverState state() const {
-    return static_cast<monocle::ReceiverState>(GetField<int8_t>(VT_STATE, 0));
+  ReceiverState state() const {
+    return static_cast<ReceiverState>(GetField<int8_t>(VT_STATE, 0));
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -37,7 +37,7 @@ struct ReceiverStateChangedBuilder {
   void add_receiver(uint64_t receiver) {
     fbb_.AddElement<uint64_t>(ReceiverStateChanged::VT_RECEIVER, receiver, 0);
   }
-  void add_state(monocle::ReceiverState state) {
+  void add_state(ReceiverState state) {
     fbb_.AddElement<int8_t>(ReceiverStateChanged::VT_STATE, static_cast<int8_t>(state), 0);
   }
   explicit ReceiverStateChangedBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -55,7 +55,7 @@ struct ReceiverStateChangedBuilder {
 inline flatbuffers::Offset<ReceiverStateChanged> CreateReceiverStateChanged(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t receiver = 0,
-    monocle::ReceiverState state = monocle::ReceiverState::NotConnected) {
+    ReceiverState state = ReceiverState::NotConnected) {
   ReceiverStateChangedBuilder builder_(_fbb);
   builder_.add_receiver(receiver);
   builder_.add_state(state);

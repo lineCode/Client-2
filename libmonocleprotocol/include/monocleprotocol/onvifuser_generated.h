@@ -24,8 +24,8 @@ struct ONVIFUser FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const flatbuffers::String *username() const {
     return GetPointer<const flatbuffers::String *>(VT_USERNAME);
   }
-  monocle::ONVIFUserlevel userlevel() const {
-    return static_cast<monocle::ONVIFUserlevel>(GetField<int8_t>(VT_USERLEVEL, 1));
+  ONVIFUserlevel userlevel() const {
+    return static_cast<ONVIFUserlevel>(GetField<int8_t>(VT_USERLEVEL, 1));
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -46,7 +46,7 @@ struct ONVIFUserBuilder {
   void add_username(flatbuffers::Offset<flatbuffers::String> username) {
     fbb_.AddOffset(ONVIFUser::VT_USERNAME, username);
   }
-  void add_userlevel(monocle::ONVIFUserlevel userlevel) {
+  void add_userlevel(ONVIFUserlevel userlevel) {
     fbb_.AddElement<int8_t>(ONVIFUser::VT_USERLEVEL, static_cast<int8_t>(userlevel), 1);
   }
   explicit ONVIFUserBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -65,7 +65,7 @@ inline flatbuffers::Offset<ONVIFUser> CreateONVIFUser(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t token = 0,
     flatbuffers::Offset<flatbuffers::String> username = 0,
-    monocle::ONVIFUserlevel userlevel = monocle::ONVIFUserlevel::Anonymous) {
+    ONVIFUserlevel userlevel = ONVIFUserlevel::Anonymous) {
   ONVIFUserBuilder builder_(_fbb);
   builder_.add_token(token);
   builder_.add_username(username);
@@ -77,7 +77,7 @@ inline flatbuffers::Offset<ONVIFUser> CreateONVIFUserDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t token = 0,
     const char *username = nullptr,
-    monocle::ONVIFUserlevel userlevel = monocle::ONVIFUserlevel::Anonymous) {
+    ONVIFUserlevel userlevel = ONVIFUserlevel::Anonymous) {
   auto username__ = username ? _fbb.CreateString(username) : 0;
   return monocle::CreateONVIFUser(
       _fbb,

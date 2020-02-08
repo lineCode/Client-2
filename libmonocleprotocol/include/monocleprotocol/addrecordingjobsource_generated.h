@@ -25,8 +25,8 @@ struct AddRecordingJobSource FLATBUFFERS_FINAL_CLASS : private flatbuffers::Tabl
   uint32_t recordingtrackid() const {
     return GetField<uint32_t>(VT_RECORDINGTRACKID, 0);
   }
-  monocle::ReceiverMode receivermode() const {
-    return static_cast<monocle::ReceiverMode>(GetField<int8_t>(VT_RECEIVERMODE, 0));
+  ReceiverMode receivermode() const {
+    return static_cast<ReceiverMode>(GetField<int8_t>(VT_RECEIVERMODE, 0));
   }
   const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *sourceparameters() const {
     return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *>(VT_SOURCEPARAMETERS);
@@ -69,7 +69,7 @@ struct AddRecordingJobSourceBuilder {
   void add_recordingtrackid(uint32_t recordingtrackid) {
     fbb_.AddElement<uint32_t>(AddRecordingJobSource::VT_RECORDINGTRACKID, recordingtrackid, 0);
   }
-  void add_receivermode(monocle::ReceiverMode receivermode) {
+  void add_receivermode(ReceiverMode receivermode) {
     fbb_.AddElement<int8_t>(AddRecordingJobSource::VT_RECEIVERMODE, static_cast<int8_t>(receivermode), 0);
   }
   void add_sourceparameters(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> sourceparameters) {
@@ -102,7 +102,7 @@ struct AddRecordingJobSourceBuilder {
 inline flatbuffers::Offset<AddRecordingJobSource> CreateAddRecordingJobSource(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t recordingtrackid = 0,
-    monocle::ReceiverMode receivermode = monocle::ReceiverMode::AutoConnect,
+    ReceiverMode receivermode = ReceiverMode::AutoConnect,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> sourceparameters = 0,
     flatbuffers::Offset<flatbuffers::String> mediauri = 0,
     flatbuffers::Offset<flatbuffers::String> username = 0,
@@ -122,7 +122,7 @@ inline flatbuffers::Offset<AddRecordingJobSource> CreateAddRecordingJobSource(
 inline flatbuffers::Offset<AddRecordingJobSource> CreateAddRecordingJobSourceDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t recordingtrackid = 0,
-    monocle::ReceiverMode receivermode = monocle::ReceiverMode::AutoConnect,
+    ReceiverMode receivermode = ReceiverMode::AutoConnect,
     const std::vector<flatbuffers::Offset<flatbuffers::String>> *sourceparameters = nullptr,
     const char *mediauri = nullptr,
     const char *username = nullptr,

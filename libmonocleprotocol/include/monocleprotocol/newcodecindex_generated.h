@@ -21,8 +21,8 @@ struct NewCodecIndex FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint64_t stream() const {
     return GetField<uint64_t>(VT_STREAM, 0);
   }
-  const monocle::CodecIndex *codecindex() const {
-    return GetPointer<const monocle::CodecIndex *>(VT_CODECINDEX);
+  const CodecIndex *codecindex() const {
+    return GetPointer<const CodecIndex *>(VT_CODECINDEX);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -39,7 +39,7 @@ struct NewCodecIndexBuilder {
   void add_stream(uint64_t stream) {
     fbb_.AddElement<uint64_t>(NewCodecIndex::VT_STREAM, stream, 0);
   }
-  void add_codecindex(flatbuffers::Offset<monocle::CodecIndex> codecindex) {
+  void add_codecindex(flatbuffers::Offset<CodecIndex> codecindex) {
     fbb_.AddOffset(NewCodecIndex::VT_CODECINDEX, codecindex);
   }
   explicit NewCodecIndexBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -57,7 +57,7 @@ struct NewCodecIndexBuilder {
 inline flatbuffers::Offset<NewCodecIndex> CreateNewCodecIndex(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t stream = 0,
-    flatbuffers::Offset<monocle::CodecIndex> codecindex = 0) {
+    flatbuffers::Offset<CodecIndex> codecindex = 0) {
   NewCodecIndexBuilder builder_(_fbb);
   builder_.add_stream(stream);
   builder_.add_codecindex(codecindex);

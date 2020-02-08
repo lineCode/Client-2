@@ -48,8 +48,8 @@ struct RecordingAdded FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint64_t retentiontime() const {
     return GetField<uint64_t>(VT_RETENTIONTIME, 0);
   }
-  const monocle::TOKEN *activejob() const {
-    return GetStruct<const monocle::TOKEN *>(VT_ACTIVEJOB);
+  const TOKEN *activejob() const {
+    return GetStruct<const TOKEN *>(VT_ACTIVEJOB);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -67,7 +67,7 @@ struct RecordingAdded FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyOffset(verifier, VT_CONTENT) &&
            verifier.VerifyString(content()) &&
            VerifyField<uint64_t>(verifier, VT_RETENTIONTIME) &&
-           VerifyField<monocle::TOKEN>(verifier, VT_ACTIVEJOB) &&
+           VerifyField<TOKEN>(verifier, VT_ACTIVEJOB) &&
            verifier.EndTable();
   }
 };
@@ -99,7 +99,7 @@ struct RecordingAddedBuilder {
   void add_retentiontime(uint64_t retentiontime) {
     fbb_.AddElement<uint64_t>(RecordingAdded::VT_RETENTIONTIME, retentiontime, 0);
   }
-  void add_activejob(const monocle::TOKEN *activejob) {
+  void add_activejob(const TOKEN *activejob) {
     fbb_.AddStruct(RecordingAdded::VT_ACTIVEJOB, activejob);
   }
   explicit RecordingAddedBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -124,7 +124,7 @@ inline flatbuffers::Offset<RecordingAdded> CreateRecordingAdded(
     flatbuffers::Offset<flatbuffers::String> address = 0,
     flatbuffers::Offset<flatbuffers::String> content = 0,
     uint64_t retentiontime = 0,
-    const monocle::TOKEN *activejob = 0) {
+    const TOKEN *activejob = 0) {
   RecordingAddedBuilder builder_(_fbb);
   builder_.add_retentiontime(retentiontime);
   builder_.add_token(token);
@@ -148,7 +148,7 @@ inline flatbuffers::Offset<RecordingAdded> CreateRecordingAddedDirect(
     const char *address = nullptr,
     const char *content = nullptr,
     uint64_t retentiontime = 0,
-    const monocle::TOKEN *activejob = 0) {
+    const TOKEN *activejob = 0) {
   auto sourceid__ = sourceid ? _fbb.CreateString(sourceid) : 0;
   auto name__ = name ? _fbb.CreateString(name) : 0;
   auto location__ = location ? _fbb.CreateString(location) : 0;

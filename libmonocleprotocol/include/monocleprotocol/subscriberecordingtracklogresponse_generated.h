@@ -23,8 +23,8 @@ struct RecordingTrackLogMessages FLATBUFFERS_FINAL_CLASS : private flatbuffers::
   uint32_t token() const {
     return GetField<uint32_t>(VT_TOKEN, 0);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<monocle::LogMessage>> *messages() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::LogMessage>> *>(VT_MESSAGES);
+  const flatbuffers::Vector<flatbuffers::Offset<LogMessage>> *messages() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<LogMessage>> *>(VT_MESSAGES);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -42,7 +42,7 @@ struct RecordingTrackLogMessagesBuilder {
   void add_token(uint32_t token) {
     fbb_.AddElement<uint32_t>(RecordingTrackLogMessages::VT_TOKEN, token, 0);
   }
-  void add_messages(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::LogMessage>>> messages) {
+  void add_messages(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<LogMessage>>> messages) {
     fbb_.AddOffset(RecordingTrackLogMessages::VT_MESSAGES, messages);
   }
   explicit RecordingTrackLogMessagesBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -60,7 +60,7 @@ struct RecordingTrackLogMessagesBuilder {
 inline flatbuffers::Offset<RecordingTrackLogMessages> CreateRecordingTrackLogMessages(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t token = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::LogMessage>>> messages = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<LogMessage>>> messages = 0) {
   RecordingTrackLogMessagesBuilder builder_(_fbb);
   builder_.add_messages(messages);
   builder_.add_token(token);
@@ -70,8 +70,8 @@ inline flatbuffers::Offset<RecordingTrackLogMessages> CreateRecordingTrackLogMes
 inline flatbuffers::Offset<RecordingTrackLogMessages> CreateRecordingTrackLogMessagesDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t token = 0,
-    const std::vector<flatbuffers::Offset<monocle::LogMessage>> *messages = nullptr) {
-  auto messages__ = messages ? _fbb.CreateVector<flatbuffers::Offset<monocle::LogMessage>>(*messages) : 0;
+    const std::vector<flatbuffers::Offset<LogMessage>> *messages = nullptr) {
+  auto messages__ = messages ? _fbb.CreateVector<flatbuffers::Offset<LogMessage>>(*messages) : 0;
   return monocle::CreateRecordingTrackLogMessages(
       _fbb,
       token,
@@ -82,8 +82,8 @@ struct SubscribeRecordingTrackLogResponse FLATBUFFERS_FINAL_CLASS : private flat
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDINGTRACKLOGMESSAGES = 4
   };
-  const flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingTrackLogMessages>> *recordingtracklogmessages() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingTrackLogMessages>> *>(VT_RECORDINGTRACKLOGMESSAGES);
+  const flatbuffers::Vector<flatbuffers::Offset<RecordingTrackLogMessages>> *recordingtracklogmessages() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<RecordingTrackLogMessages>> *>(VT_RECORDINGTRACKLOGMESSAGES);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -97,7 +97,7 @@ struct SubscribeRecordingTrackLogResponse FLATBUFFERS_FINAL_CLASS : private flat
 struct SubscribeRecordingTrackLogResponseBuilder {
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_recordingtracklogmessages(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingTrackLogMessages>>> recordingtracklogmessages) {
+  void add_recordingtracklogmessages(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<RecordingTrackLogMessages>>> recordingtracklogmessages) {
     fbb_.AddOffset(SubscribeRecordingTrackLogResponse::VT_RECORDINGTRACKLOGMESSAGES, recordingtracklogmessages);
   }
   explicit SubscribeRecordingTrackLogResponseBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -114,7 +114,7 @@ struct SubscribeRecordingTrackLogResponseBuilder {
 
 inline flatbuffers::Offset<SubscribeRecordingTrackLogResponse> CreateSubscribeRecordingTrackLogResponse(
     flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingTrackLogMessages>>> recordingtracklogmessages = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<RecordingTrackLogMessages>>> recordingtracklogmessages = 0) {
   SubscribeRecordingTrackLogResponseBuilder builder_(_fbb);
   builder_.add_recordingtracklogmessages(recordingtracklogmessages);
   return builder_.Finish();
@@ -122,8 +122,8 @@ inline flatbuffers::Offset<SubscribeRecordingTrackLogResponse> CreateSubscribeRe
 
 inline flatbuffers::Offset<SubscribeRecordingTrackLogResponse> CreateSubscribeRecordingTrackLogResponseDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<flatbuffers::Offset<monocle::RecordingTrackLogMessages>> *recordingtracklogmessages = nullptr) {
-  auto recordingtracklogmessages__ = recordingtracklogmessages ? _fbb.CreateVector<flatbuffers::Offset<monocle::RecordingTrackLogMessages>>(*recordingtracklogmessages) : 0;
+    const std::vector<flatbuffers::Offset<RecordingTrackLogMessages>> *recordingtracklogmessages = nullptr) {
+  auto recordingtracklogmessages__ = recordingtracklogmessages ? _fbb.CreateVector<flatbuffers::Offset<RecordingTrackLogMessages>>(*recordingtracklogmessages) : 0;
   return monocle::CreateSubscribeRecordingTrackLogResponse(
       _fbb,
       recordingtracklogmessages__);

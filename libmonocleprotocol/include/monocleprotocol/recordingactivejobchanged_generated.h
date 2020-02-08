@@ -20,13 +20,13 @@ struct RecordingActiveJobChanged FLATBUFFERS_FINAL_CLASS : private flatbuffers::
   uint64_t token() const {
     return GetField<uint64_t>(VT_TOKEN, 0);
   }
-  const monocle::TOKEN *activejob() const {
-    return GetStruct<const monocle::TOKEN *>(VT_ACTIVEJOB);
+  const TOKEN *activejob() const {
+    return GetStruct<const TOKEN *>(VT_ACTIVEJOB);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_TOKEN) &&
-           VerifyField<monocle::TOKEN>(verifier, VT_ACTIVEJOB) &&
+           VerifyField<TOKEN>(verifier, VT_ACTIVEJOB) &&
            verifier.EndTable();
   }
 };
@@ -37,7 +37,7 @@ struct RecordingActiveJobChangedBuilder {
   void add_token(uint64_t token) {
     fbb_.AddElement<uint64_t>(RecordingActiveJobChanged::VT_TOKEN, token, 0);
   }
-  void add_activejob(const monocle::TOKEN *activejob) {
+  void add_activejob(const TOKEN *activejob) {
     fbb_.AddStruct(RecordingActiveJobChanged::VT_ACTIVEJOB, activejob);
   }
   explicit RecordingActiveJobChangedBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -55,7 +55,7 @@ struct RecordingActiveJobChangedBuilder {
 inline flatbuffers::Offset<RecordingActiveJobChanged> CreateRecordingActiveJobChanged(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t token = 0,
-    const monocle::TOKEN *activejob = 0) {
+    const TOKEN *activejob = 0) {
   RecordingActiveJobChangedBuilder builder_(_fbb);
   builder_.add_token(token);
   builder_.add_activejob(activejob);

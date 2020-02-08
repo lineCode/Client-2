@@ -24,7 +24,7 @@ inline const RecordingJobSourceType (&EnumValuesRecordingJobSourceType())[2] {
 }
 
 inline const char * const *EnumNamesRecordingJobSourceType() {
-  static const char * const names[3] = {
+  static const char * const names[] = {
     "Media",
     "Receiver",
     nullptr
@@ -34,7 +34,7 @@ inline const char * const *EnumNamesRecordingJobSourceType() {
 
 inline const char *EnumNameRecordingJobSourceType(RecordingJobSourceType e) {
   if (e < RecordingJobSourceType::Media || e > RecordingJobSourceType::Receiver) return "";
-  const size_t index = static_cast<size_t>(e);
+  const size_t index = static_cast<int>(e);
   return EnumNamesRecordingJobSourceType()[index];
 }
 

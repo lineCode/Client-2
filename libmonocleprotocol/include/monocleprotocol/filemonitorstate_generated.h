@@ -24,7 +24,7 @@ inline const FileMonitorState (&EnumValuesFileMonitorState())[2] {
 }
 
 inline const char * const *EnumNamesFileMonitorState() {
-  static const char * const names[3] = {
+  static const char * const names[] = {
     "Unavailable",
     "Available",
     nullptr
@@ -34,7 +34,7 @@ inline const char * const *EnumNamesFileMonitorState() {
 
 inline const char *EnumNameFileMonitorState(FileMonitorState e) {
   if (e < FileMonitorState::Unavailable || e > FileMonitorState::Available) return "";
-  const size_t index = static_cast<size_t>(e);
+  const size_t index = static_cast<int>(e);
   return EnumNamesFileMonitorState()[index];
 }
 

@@ -84,8 +84,8 @@ struct SubscribeResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const flatbuffers::String *databasepath() const {
     return GetPointer<const flatbuffers::String *>(VT_DATABASEPATH);
   }
-  const monocle::VERSION *version() const {
-    return GetStruct<const monocle::VERSION *>(VT_VERSION);
+  const VERSION *version() const {
+    return GetStruct<const VERSION *>(VT_VERSION);
   }
   uint64_t identifier() const {
     return GetField<uint64_t>(VT_IDENTIFIER, 0);
@@ -96,35 +96,35 @@ struct SubscribeResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *commandlinevariables() const {
     return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *>(VT_COMMANDLINEVARIABLES);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<monocle::ONVIFUser>> *onvifusers() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::ONVIFUser>> *>(VT_ONVIFUSERS);
+  const flatbuffers::Vector<flatbuffers::Offset<ONVIFUser>> *onvifusers() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<ONVIFUser>> *>(VT_ONVIFUSERS);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<monocle::Group>> *groups() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::Group>> *>(VT_GROUPS);
+  const flatbuffers::Vector<flatbuffers::Offset<Group>> *groups() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<Group>> *>(VT_GROUPS);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<monocle::User>> *users() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::User>> *>(VT_USERS);
+  const flatbuffers::Vector<flatbuffers::Offset<User>> *users() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<User>> *>(VT_USERS);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<monocle::File>> *files() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::File>> *>(VT_FILES);
+  const flatbuffers::Vector<flatbuffers::Offset<File>> *files() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<File>> *>(VT_FILES);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<monocle::Receiver>> *receivers() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::Receiver>> *>(VT_RECEIVERS);
+  const flatbuffers::Vector<flatbuffers::Offset<Receiver>> *receivers() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<Receiver>> *>(VT_RECEIVERS);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<monocle::Recording>> *recordings() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::Recording>> *>(VT_RECORDINGS);
+  const flatbuffers::Vector<flatbuffers::Offset<Recording>> *recordings() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<Recording>> *>(VT_RECORDINGS);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<monocle::LogMessage>> *serverlogmessages() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::LogMessage>> *>(VT_SERVERLOGMESSAGES);
+  const flatbuffers::Vector<flatbuffers::Offset<LogMessage>> *serverlogmessages() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<LogMessage>> *>(VT_SERVERLOGMESSAGES);
   }
   uint32_t maxrecordings() const {
     return GetField<uint32_t>(VT_MAXRECORDINGS, 0);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<monocle::Map>> *maps() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::Map>> *>(VT_MAPS);
+  const flatbuffers::Vector<flatbuffers::Offset<Map>> *maps() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<Map>> *>(VT_MAPS);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<monocle::MountPoint>> *mountpoints() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::MountPoint>> *>(VT_MOUNTPOINTS);
+  const flatbuffers::Vector<flatbuffers::Offset<MountPoint>> *mountpoints() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<MountPoint>> *>(VT_MOUNTPOINTS);
   }
   const flatbuffers::String *latitude() const {
     return GetPointer<const flatbuffers::String *>(VT_LATITUDE);
@@ -154,7 +154,7 @@ struct SubscribeResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            verifier.VerifyString(compiler()) &&
            VerifyOffset(verifier, VT_DATABASEPATH) &&
            verifier.VerifyString(databasepath()) &&
-           VerifyField<monocle::VERSION>(verifier, VT_VERSION) &&
+           VerifyField<VERSION>(verifier, VT_VERSION) &&
            VerifyField<uint64_t>(verifier, VT_IDENTIFIER) &&
            VerifyOffset(verifier, VT_ENVIRONMENTVARIABLES) &&
            verifier.VerifyVector(environmentvariables()) &&
@@ -222,7 +222,7 @@ struct SubscribeResponseBuilder {
   void add_databasepath(flatbuffers::Offset<flatbuffers::String> databasepath) {
     fbb_.AddOffset(SubscribeResponse::VT_DATABASEPATH, databasepath);
   }
-  void add_version(const monocle::VERSION *version) {
+  void add_version(const VERSION *version) {
     fbb_.AddStruct(SubscribeResponse::VT_VERSION, version);
   }
   void add_identifier(uint64_t identifier) {
@@ -234,34 +234,34 @@ struct SubscribeResponseBuilder {
   void add_commandlinevariables(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> commandlinevariables) {
     fbb_.AddOffset(SubscribeResponse::VT_COMMANDLINEVARIABLES, commandlinevariables);
   }
-  void add_onvifusers(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::ONVIFUser>>> onvifusers) {
+  void add_onvifusers(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<ONVIFUser>>> onvifusers) {
     fbb_.AddOffset(SubscribeResponse::VT_ONVIFUSERS, onvifusers);
   }
-  void add_groups(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::Group>>> groups) {
+  void add_groups(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Group>>> groups) {
     fbb_.AddOffset(SubscribeResponse::VT_GROUPS, groups);
   }
-  void add_users(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::User>>> users) {
+  void add_users(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<User>>> users) {
     fbb_.AddOffset(SubscribeResponse::VT_USERS, users);
   }
-  void add_files(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::File>>> files) {
+  void add_files(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<File>>> files) {
     fbb_.AddOffset(SubscribeResponse::VT_FILES, files);
   }
-  void add_receivers(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::Receiver>>> receivers) {
+  void add_receivers(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Receiver>>> receivers) {
     fbb_.AddOffset(SubscribeResponse::VT_RECEIVERS, receivers);
   }
-  void add_recordings(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::Recording>>> recordings) {
+  void add_recordings(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Recording>>> recordings) {
     fbb_.AddOffset(SubscribeResponse::VT_RECORDINGS, recordings);
   }
-  void add_serverlogmessages(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::LogMessage>>> serverlogmessages) {
+  void add_serverlogmessages(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<LogMessage>>> serverlogmessages) {
     fbb_.AddOffset(SubscribeResponse::VT_SERVERLOGMESSAGES, serverlogmessages);
   }
   void add_maxrecordings(uint32_t maxrecordings) {
     fbb_.AddElement<uint32_t>(SubscribeResponse::VT_MAXRECORDINGS, maxrecordings, 0);
   }
-  void add_maps(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::Map>>> maps) {
+  void add_maps(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Map>>> maps) {
     fbb_.AddOffset(SubscribeResponse::VT_MAPS, maps);
   }
-  void add_mountpoints(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::MountPoint>>> mountpoints) {
+  void add_mountpoints(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<MountPoint>>> mountpoints) {
     fbb_.AddOffset(SubscribeResponse::VT_MOUNTPOINTS, mountpoints);
   }
   void add_latitude(flatbuffers::Offset<flatbuffers::String> latitude) {
@@ -299,20 +299,20 @@ inline flatbuffers::Offset<SubscribeResponse> CreateSubscribeResponse(
     int32_t operatingsystem = 0,
     flatbuffers::Offset<flatbuffers::String> compiler = 0,
     flatbuffers::Offset<flatbuffers::String> databasepath = 0,
-    const monocle::VERSION *version = 0,
+    const VERSION *version = 0,
     uint64_t identifier = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> environmentvariables = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> commandlinevariables = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::ONVIFUser>>> onvifusers = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::Group>>> groups = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::User>>> users = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::File>>> files = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::Receiver>>> receivers = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::Recording>>> recordings = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::LogMessage>>> serverlogmessages = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<ONVIFUser>>> onvifusers = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Group>>> groups = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<User>>> users = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<File>>> files = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Receiver>>> receivers = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Recording>>> recordings = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<LogMessage>>> serverlogmessages = 0,
     uint32_t maxrecordings = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::Map>>> maps = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::MountPoint>>> mountpoints = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Map>>> maps = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<MountPoint>>> mountpoints = 0,
     flatbuffers::Offset<flatbuffers::String> latitude = 0,
     flatbuffers::Offset<flatbuffers::String> longitude = 0,
     uint32_t numcudadevices = 0,
@@ -355,20 +355,20 @@ inline flatbuffers::Offset<SubscribeResponse> CreateSubscribeResponseDirect(
     int32_t operatingsystem = 0,
     const char *compiler = nullptr,
     const char *databasepath = nullptr,
-    const monocle::VERSION *version = 0,
+    const VERSION *version = 0,
     uint64_t identifier = 0,
     const std::vector<flatbuffers::Offset<flatbuffers::String>> *environmentvariables = nullptr,
     const std::vector<flatbuffers::Offset<flatbuffers::String>> *commandlinevariables = nullptr,
-    const std::vector<flatbuffers::Offset<monocle::ONVIFUser>> *onvifusers = nullptr,
-    const std::vector<flatbuffers::Offset<monocle::Group>> *groups = nullptr,
-    const std::vector<flatbuffers::Offset<monocle::User>> *users = nullptr,
-    const std::vector<flatbuffers::Offset<monocle::File>> *files = nullptr,
-    const std::vector<flatbuffers::Offset<monocle::Receiver>> *receivers = nullptr,
-    const std::vector<flatbuffers::Offset<monocle::Recording>> *recordings = nullptr,
-    const std::vector<flatbuffers::Offset<monocle::LogMessage>> *serverlogmessages = nullptr,
+    const std::vector<flatbuffers::Offset<ONVIFUser>> *onvifusers = nullptr,
+    const std::vector<flatbuffers::Offset<Group>> *groups = nullptr,
+    const std::vector<flatbuffers::Offset<User>> *users = nullptr,
+    const std::vector<flatbuffers::Offset<File>> *files = nullptr,
+    const std::vector<flatbuffers::Offset<Receiver>> *receivers = nullptr,
+    const std::vector<flatbuffers::Offset<Recording>> *recordings = nullptr,
+    const std::vector<flatbuffers::Offset<LogMessage>> *serverlogmessages = nullptr,
     uint32_t maxrecordings = 0,
-    const std::vector<flatbuffers::Offset<monocle::Map>> *maps = nullptr,
-    const std::vector<flatbuffers::Offset<monocle::MountPoint>> *mountpoints = nullptr,
+    const std::vector<flatbuffers::Offset<Map>> *maps = nullptr,
+    const std::vector<flatbuffers::Offset<MountPoint>> *mountpoints = nullptr,
     const char *latitude = nullptr,
     const char *longitude = nullptr,
     uint32_t numcudadevices = 0,
@@ -381,15 +381,15 @@ inline flatbuffers::Offset<SubscribeResponse> CreateSubscribeResponseDirect(
   auto databasepath__ = databasepath ? _fbb.CreateString(databasepath) : 0;
   auto environmentvariables__ = environmentvariables ? _fbb.CreateVector<flatbuffers::Offset<flatbuffers::String>>(*environmentvariables) : 0;
   auto commandlinevariables__ = commandlinevariables ? _fbb.CreateVector<flatbuffers::Offset<flatbuffers::String>>(*commandlinevariables) : 0;
-  auto onvifusers__ = onvifusers ? _fbb.CreateVector<flatbuffers::Offset<monocle::ONVIFUser>>(*onvifusers) : 0;
-  auto groups__ = groups ? _fbb.CreateVector<flatbuffers::Offset<monocle::Group>>(*groups) : 0;
-  auto users__ = users ? _fbb.CreateVector<flatbuffers::Offset<monocle::User>>(*users) : 0;
-  auto files__ = files ? _fbb.CreateVector<flatbuffers::Offset<monocle::File>>(*files) : 0;
-  auto receivers__ = receivers ? _fbb.CreateVector<flatbuffers::Offset<monocle::Receiver>>(*receivers) : 0;
-  auto recordings__ = recordings ? _fbb.CreateVector<flatbuffers::Offset<monocle::Recording>>(*recordings) : 0;
-  auto serverlogmessages__ = serverlogmessages ? _fbb.CreateVector<flatbuffers::Offset<monocle::LogMessage>>(*serverlogmessages) : 0;
-  auto maps__ = maps ? _fbb.CreateVector<flatbuffers::Offset<monocle::Map>>(*maps) : 0;
-  auto mountpoints__ = mountpoints ? _fbb.CreateVector<flatbuffers::Offset<monocle::MountPoint>>(*mountpoints) : 0;
+  auto onvifusers__ = onvifusers ? _fbb.CreateVector<flatbuffers::Offset<ONVIFUser>>(*onvifusers) : 0;
+  auto groups__ = groups ? _fbb.CreateVector<flatbuffers::Offset<Group>>(*groups) : 0;
+  auto users__ = users ? _fbb.CreateVector<flatbuffers::Offset<User>>(*users) : 0;
+  auto files__ = files ? _fbb.CreateVector<flatbuffers::Offset<File>>(*files) : 0;
+  auto receivers__ = receivers ? _fbb.CreateVector<flatbuffers::Offset<Receiver>>(*receivers) : 0;
+  auto recordings__ = recordings ? _fbb.CreateVector<flatbuffers::Offset<Recording>>(*recordings) : 0;
+  auto serverlogmessages__ = serverlogmessages ? _fbb.CreateVector<flatbuffers::Offset<LogMessage>>(*serverlogmessages) : 0;
+  auto maps__ = maps ? _fbb.CreateVector<flatbuffers::Offset<Map>>(*maps) : 0;
+  auto mountpoints__ = mountpoints ? _fbb.CreateVector<flatbuffers::Offset<MountPoint>>(*mountpoints) : 0;
   auto latitude__ = latitude ? _fbb.CreateString(latitude) : 0;
   auto longitude__ = longitude ? _fbb.CreateString(longitude) : 0;
   return monocle::CreateSubscribeResponse(

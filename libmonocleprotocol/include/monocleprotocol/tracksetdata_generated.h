@@ -24,8 +24,8 @@ struct TrackSetData FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint32_t track() const {
     return GetField<uint32_t>(VT_TRACK, 0);
   }
-  const flatbuffers::Vector<const monocle::INDEX *> *indices() const {
-    return GetPointer<const flatbuffers::Vector<const monocle::INDEX *> *>(VT_INDICES);
+  const flatbuffers::Vector<const INDEX *> *indices() const {
+    return GetPointer<const flatbuffers::Vector<const INDEX *> *>(VT_INDICES);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -46,7 +46,7 @@ struct TrackSetDataBuilder {
   void add_track(uint32_t track) {
     fbb_.AddElement<uint32_t>(TrackSetData::VT_TRACK, track, 0);
   }
-  void add_indices(flatbuffers::Offset<flatbuffers::Vector<const monocle::INDEX *>> indices) {
+  void add_indices(flatbuffers::Offset<flatbuffers::Vector<const INDEX *>> indices) {
     fbb_.AddOffset(TrackSetData::VT_INDICES, indices);
   }
   explicit TrackSetDataBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -65,7 +65,7 @@ inline flatbuffers::Offset<TrackSetData> CreateTrackSetData(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t recording = 0,
     uint32_t track = 0,
-    flatbuffers::Offset<flatbuffers::Vector<const monocle::INDEX *>> indices = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<const INDEX *>> indices = 0) {
   TrackSetDataBuilder builder_(_fbb);
   builder_.add_recording(recording);
   builder_.add_indices(indices);
@@ -77,8 +77,8 @@ inline flatbuffers::Offset<TrackSetData> CreateTrackSetDataDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t recording = 0,
     uint32_t track = 0,
-    const std::vector<monocle::INDEX> *indices = nullptr) {
-  auto indices__ = indices ? _fbb.CreateVectorOfStructs<monocle::INDEX>(*indices) : 0;
+    const std::vector<INDEX> *indices = nullptr) {
+  auto indices__ = indices ? _fbb.CreateVectorOfStructs<INDEX>(*indices) : 0;
   return monocle::CreateTrackSetData(
       _fbb,
       recording,

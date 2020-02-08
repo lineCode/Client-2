@@ -56,7 +56,7 @@ inline const ObjectClass (&EnumValuesObjectClass())[16] {
 }
 
 inline const char * const *EnumNamesObjectClass() {
-  static const char * const names[31] = {
+  static const char * const names[] = {
     "Human",
     "Bicycle",
     "Car",
@@ -94,7 +94,7 @@ inline const char * const *EnumNamesObjectClass() {
 
 inline const char *EnumNameObjectClass(ObjectClass e) {
   if (e < ObjectClass::Human || e > ObjectClass::Suitcase) return "";
-  const size_t index = static_cast<size_t>(e);
+  const size_t index = static_cast<int>(e);
   return EnumNamesObjectClass()[index];
 }
 
@@ -111,8 +111,8 @@ struct Object FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint64_t id() const {
     return GetField<uint64_t>(VT_ID, 0);
   }
-  monocle::ObjectClass classid() const {
-    return static_cast<monocle::ObjectClass>(GetField<uint16_t>(VT_CLASSID, 0));
+  ObjectClass classid() const {
+    return static_cast<ObjectClass>(GetField<uint16_t>(VT_CLASSID, 0));
   }
   float confidence() const {
     return GetField<float>(VT_CONFIDENCE, 0.0f);
@@ -148,7 +148,7 @@ struct ObjectBuilder {
   void add_id(uint64_t id) {
     fbb_.AddElement<uint64_t>(Object::VT_ID, id, 0);
   }
-  void add_classid(monocle::ObjectClass classid) {
+  void add_classid(ObjectClass classid) {
     fbb_.AddElement<uint16_t>(Object::VT_CLASSID, static_cast<uint16_t>(classid), 0);
   }
   void add_confidence(float confidence) {
@@ -181,7 +181,7 @@ struct ObjectBuilder {
 inline flatbuffers::Offset<Object> CreateObject(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t id = 0,
-    monocle::ObjectClass classid = monocle::ObjectClass::Human,
+    ObjectClass classid = ObjectClass::Human,
     float confidence = 0.0f,
     float x = 0.0f,
     float y = 0.0f,
@@ -202,8 +202,8 @@ struct Objects FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_OBJECTS = 4
   };
-  const flatbuffers::Vector<flatbuffers::Offset<monocle::Object>> *objects() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::Object>> *>(VT_OBJECTS);
+  const flatbuffers::Vector<flatbuffers::Offset<Object>> *objects() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<Object>> *>(VT_OBJECTS);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -217,7 +217,7 @@ struct Objects FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 struct ObjectsBuilder {
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_objects(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::Object>>> objects) {
+  void add_objects(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Object>>> objects) {
     fbb_.AddOffset(Objects::VT_OBJECTS, objects);
   }
   explicit ObjectsBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -234,7 +234,7 @@ struct ObjectsBuilder {
 
 inline flatbuffers::Offset<Objects> CreateObjects(
     flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::Object>>> objects = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Object>>> objects = 0) {
   ObjectsBuilder builder_(_fbb);
   builder_.add_objects(objects);
   return builder_.Finish();
@@ -242,8 +242,8 @@ inline flatbuffers::Offset<Objects> CreateObjects(
 
 inline flatbuffers::Offset<Objects> CreateObjectsDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<flatbuffers::Offset<monocle::Object>> *objects = nullptr) {
-  auto objects__ = objects ? _fbb.CreateVector<flatbuffers::Offset<monocle::Object>>(*objects) : 0;
+    const std::vector<flatbuffers::Offset<Object>> *objects = nullptr) {
+  auto objects__ = objects ? _fbb.CreateVector<flatbuffers::Offset<Object>>(*objects) : 0;
   return monocle::CreateObjects(
       _fbb,
       objects__);

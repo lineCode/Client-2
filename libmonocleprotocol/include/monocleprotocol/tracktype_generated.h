@@ -28,7 +28,7 @@ inline const TrackType (&EnumValuesTrackType())[4] {
 }
 
 inline const char * const *EnumNamesTrackType() {
-  static const char * const names[5] = {
+  static const char * const names[] = {
     "Video",
     "Audio",
     "Metadata",
@@ -40,7 +40,7 @@ inline const char * const *EnumNamesTrackType() {
 
 inline const char *EnumNameTrackType(TrackType e) {
   if (e < TrackType::Video || e > TrackType::ObjectDetector) return "";
-  const size_t index = static_cast<size_t>(e);
+  const size_t index = static_cast<int>(e);
   return EnumNamesTrackType()[index];
 }
 

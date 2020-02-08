@@ -48,8 +48,8 @@ struct MetadataFrameHeader FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table 
   const flatbuffers::Vector<uint8_t> *signature() const {
     return GetPointer<const flatbuffers::Vector<uint8_t> *>(VT_SIGNATURE);
   }
-  monocle::MetadataFrameType metadataframetype() const {
-    return static_cast<monocle::MetadataFrameType>(GetField<uint16_t>(VT_METADATAFRAMETYPE, 1));
+  MetadataFrameType metadataframetype() const {
+    return static_cast<MetadataFrameType>(GetField<uint16_t>(VT_METADATAFRAMETYPE, 1));
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -94,7 +94,7 @@ struct MetadataFrameHeaderBuilder {
   void add_signature(flatbuffers::Offset<flatbuffers::Vector<uint8_t>> signature) {
     fbb_.AddOffset(MetadataFrameHeader::VT_SIGNATURE, signature);
   }
-  void add_metadataframetype(monocle::MetadataFrameType metadataframetype) {
+  void add_metadataframetype(MetadataFrameType metadataframetype) {
     fbb_.AddElement<uint16_t>(MetadataFrameHeader::VT_METADATAFRAMETYPE, static_cast<uint16_t>(metadataframetype), 1);
   }
   explicit MetadataFrameHeaderBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -119,7 +119,7 @@ inline flatbuffers::Offset<MetadataFrameHeader> CreateMetadataFrameHeader(
     int64_t sequencenum = 0,
     float progress = 0.0f,
     flatbuffers::Offset<flatbuffers::Vector<uint8_t>> signature = 0,
-    monocle::MetadataFrameType metadataframetype = monocle::MetadataFrameType::ONVIF_XML) {
+    MetadataFrameType metadataframetype = MetadataFrameType::ONVIF_XML) {
   MetadataFrameHeaderBuilder builder_(_fbb);
   builder_.add_sequencenum(sequencenum);
   builder_.add_timestamp(timestamp);
@@ -143,7 +143,7 @@ inline flatbuffers::Offset<MetadataFrameHeader> CreateMetadataFrameHeaderDirect(
     int64_t sequencenum = 0,
     float progress = 0.0f,
     const std::vector<uint8_t> *signature = nullptr,
-    monocle::MetadataFrameType metadataframetype = monocle::MetadataFrameType::ONVIF_XML) {
+    MetadataFrameType metadataframetype = MetadataFrameType::ONVIF_XML) {
   auto signature__ = signature ? _fbb.CreateVector<uint8_t>(*signature) : 0;
   return monocle::CreateMetadataFrameHeader(
       _fbb,

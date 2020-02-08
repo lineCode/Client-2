@@ -16,24 +16,32 @@ struct ChangeTrackRequest2 FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table 
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDINGTOKEN = 4,
     VT_RECORDINGJOBTOKEN = 6,
-    VT_DESCRIPTION = 8,
-    VT_FIXEDFILES = 10,
-    VT_DIGITALSIGNING = 12,
-    VT_ENCRYPT = 14,
-    VT_FLUSHFREQUENCY = 16,
-    VT_FILES = 18,
-    VT_MEDIAURI = 20,
-    VT_USERNAME = 22,
-    VT_PASSWORD = 24,
-    VT_RECEIVERPARAMETERS = 26,
-    VT_SOURCEPARAMETERS = 28,
-    VT_OBJECTDETECTORSOURCEPARAMETERS = 30
+    VT_RECORDINGJOBSOURCETOKEN = 8,
+    VT_RECORDINGJOBSOURCETRACKTOKEN = 10,
+    VT_DESCRIPTION = 12,
+    VT_FIXEDFILES = 14,
+    VT_DIGITALSIGNING = 16,
+    VT_ENCRYPT = 18,
+    VT_FLUSHFREQUENCY = 20,
+    VT_FILES = 22,
+    VT_MEDIAURI = 24,
+    VT_USERNAME = 26,
+    VT_PASSWORD = 28,
+    VT_RECEIVERPARAMETERS = 30,
+    VT_SOURCEPARAMETERS = 32,
+    VT_OBJECTDETECTORSOURCEPARAMETERS = 34
   };
   uint64_t recordingtoken() const {
     return GetField<uint64_t>(VT_RECORDINGTOKEN, 0);
   }
   uint64_t recordingjobtoken() const {
     return GetField<uint64_t>(VT_RECORDINGJOBTOKEN, 0);
+  }
+  uint64_t recordingjobsourcetoken() const {
+    return GetField<uint64_t>(VT_RECORDINGJOBSOURCETOKEN, 0);
+  }
+  uint64_t recordingjobsourcetracktoken() const {
+    return GetField<uint64_t>(VT_RECORDINGJOBSOURCETRACKTOKEN, 0);
   }
   const flatbuffers::String *description() const {
     return GetPointer<const flatbuffers::String *>(VT_DESCRIPTION);
@@ -75,6 +83,8 @@ struct ChangeTrackRequest2 FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table 
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_RECORDINGTOKEN) &&
            VerifyField<uint64_t>(verifier, VT_RECORDINGJOBTOKEN) &&
+           VerifyField<uint64_t>(verifier, VT_RECORDINGJOBSOURCETOKEN) &&
+           VerifyField<uint64_t>(verifier, VT_RECORDINGJOBSOURCETRACKTOKEN) &&
            VerifyOffset(verifier, VT_DESCRIPTION) &&
            verifier.VerifyString(description()) &&
            VerifyField<uint8_t>(verifier, VT_FIXEDFILES) &&
@@ -110,6 +120,12 @@ struct ChangeTrackRequest2Builder {
   }
   void add_recordingjobtoken(uint64_t recordingjobtoken) {
     fbb_.AddElement<uint64_t>(ChangeTrackRequest2::VT_RECORDINGJOBTOKEN, recordingjobtoken, 0);
+  }
+  void add_recordingjobsourcetoken(uint64_t recordingjobsourcetoken) {
+    fbb_.AddElement<uint64_t>(ChangeTrackRequest2::VT_RECORDINGJOBSOURCETOKEN, recordingjobsourcetoken, 0);
+  }
+  void add_recordingjobsourcetracktoken(uint64_t recordingjobsourcetracktoken) {
+    fbb_.AddElement<uint64_t>(ChangeTrackRequest2::VT_RECORDINGJOBSOURCETRACKTOKEN, recordingjobsourcetracktoken, 0);
   }
   void add_description(flatbuffers::Offset<flatbuffers::String> description) {
     fbb_.AddOffset(ChangeTrackRequest2::VT_DESCRIPTION, description);
@@ -163,6 +179,8 @@ inline flatbuffers::Offset<ChangeTrackRequest2> CreateChangeTrackRequest2(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t recordingtoken = 0,
     uint64_t recordingjobtoken = 0,
+    uint64_t recordingjobsourcetoken = 0,
+    uint64_t recordingjobsourcetracktoken = 0,
     flatbuffers::Offset<flatbuffers::String> description = 0,
     bool fixedfiles = false,
     bool digitalsigning = false,
@@ -176,6 +194,8 @@ inline flatbuffers::Offset<ChangeTrackRequest2> CreateChangeTrackRequest2(
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> sourceparameters = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> objectdetectorsourceparameters = 0) {
   ChangeTrackRequest2Builder builder_(_fbb);
+  builder_.add_recordingjobsourcetracktoken(recordingjobsourcetracktoken);
+  builder_.add_recordingjobsourcetoken(recordingjobsourcetoken);
   builder_.add_recordingjobtoken(recordingjobtoken);
   builder_.add_recordingtoken(recordingtoken);
   builder_.add_objectdetectorsourceparameters(objectdetectorsourceparameters);
@@ -197,6 +217,8 @@ inline flatbuffers::Offset<ChangeTrackRequest2> CreateChangeTrackRequest2Direct(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t recordingtoken = 0,
     uint64_t recordingjobtoken = 0,
+    uint64_t recordingjobsourcetoken = 0,
+    uint64_t recordingjobsourcetracktoken = 0,
     const char *description = nullptr,
     bool fixedfiles = false,
     bool digitalsigning = false,
@@ -221,6 +243,8 @@ inline flatbuffers::Offset<ChangeTrackRequest2> CreateChangeTrackRequest2Direct(
       _fbb,
       recordingtoken,
       recordingjobtoken,
+      recordingjobsourcetoken,
+      recordingjobsourcetracktoken,
       description__,
       fixedfiles,
       digitalsigning,

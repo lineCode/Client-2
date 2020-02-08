@@ -30,8 +30,8 @@ struct ChangeTrackRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint32_t id() const {
     return GetField<uint32_t>(VT_ID, 0);
   }
-  monocle::TrackType tracktype() const {
-    return static_cast<monocle::TrackType>(GetField<int8_t>(VT_TRACKTYPE, 0));
+  TrackType tracktype() const {
+    return static_cast<TrackType>(GetField<int8_t>(VT_TRACKTYPE, 0));
   }
   const flatbuffers::String *description() const {
     return GetPointer<const flatbuffers::String *>(VT_DESCRIPTION);
@@ -77,7 +77,7 @@ struct ChangeTrackRequestBuilder {
   void add_id(uint32_t id) {
     fbb_.AddElement<uint32_t>(ChangeTrackRequest::VT_ID, id, 0);
   }
-  void add_tracktype(monocle::TrackType tracktype) {
+  void add_tracktype(TrackType tracktype) {
     fbb_.AddElement<int8_t>(ChangeTrackRequest::VT_TRACKTYPE, static_cast<int8_t>(tracktype), 0);
   }
   void add_description(flatbuffers::Offset<flatbuffers::String> description) {
@@ -114,7 +114,7 @@ inline flatbuffers::Offset<ChangeTrackRequest> CreateChangeTrackRequest(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t recordingtoken = 0,
     uint32_t id = 0,
-    monocle::TrackType tracktype = monocle::TrackType::Video,
+    TrackType tracktype = TrackType::Video,
     flatbuffers::Offset<flatbuffers::String> description = 0,
     bool fixedfiles = false,
     bool digitalsigning = false,
@@ -138,7 +138,7 @@ inline flatbuffers::Offset<ChangeTrackRequest> CreateChangeTrackRequestDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t recordingtoken = 0,
     uint32_t id = 0,
-    monocle::TrackType tracktype = monocle::TrackType::Video,
+    TrackType tracktype = TrackType::Video,
     const char *description = nullptr,
     bool fixedfiles = false,
     bool digitalsigning = false,

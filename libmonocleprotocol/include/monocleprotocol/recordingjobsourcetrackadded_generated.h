@@ -42,8 +42,8 @@ struct RecordingJobSourceTrackAdded FLATBUFFERS_FINAL_CLASS : private flatbuffer
   const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *parameters() const {
     return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>> *>(VT_PARAMETERS);
   }
-  monocle::RecordingJobState state() const {
-    return static_cast<monocle::RecordingJobState>(GetField<int8_t>(VT_STATE, 0));
+  RecordingJobState state() const {
+    return static_cast<RecordingJobState>(GetField<int8_t>(VT_STATE, 0));
   }
   const flatbuffers::String *error() const {
     return GetPointer<const flatbuffers::String *>(VT_ERROR);
@@ -92,7 +92,7 @@ struct RecordingJobSourceTrackAddedBuilder {
   void add_parameters(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> parameters) {
     fbb_.AddOffset(RecordingJobSourceTrackAdded::VT_PARAMETERS, parameters);
   }
-  void add_state(monocle::RecordingJobState state) {
+  void add_state(RecordingJobState state) {
     fbb_.AddElement<int8_t>(RecordingJobSourceTrackAdded::VT_STATE, static_cast<int8_t>(state), 0);
   }
   void add_error(flatbuffers::Offset<flatbuffers::String> error) {
@@ -121,7 +121,7 @@ inline flatbuffers::Offset<RecordingJobSourceTrackAdded> CreateRecordingJobSourc
     uint64_t recordingjobsourcetracktoken = 0,
     uint32_t recordingtrackid = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> parameters = 0,
-    monocle::RecordingJobState state = monocle::RecordingJobState::Idle,
+    RecordingJobState state = RecordingJobState::Idle,
     flatbuffers::Offset<flatbuffers::String> error = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> activeparameters = 0) {
   RecordingJobSourceTrackAddedBuilder builder_(_fbb);
@@ -145,7 +145,7 @@ inline flatbuffers::Offset<RecordingJobSourceTrackAdded> CreateRecordingJobSourc
     uint64_t recordingjobsourcetracktoken = 0,
     uint32_t recordingtrackid = 0,
     const std::vector<flatbuffers::Offset<flatbuffers::String>> *parameters = nullptr,
-    monocle::RecordingJobState state = monocle::RecordingJobState::Idle,
+    RecordingJobState state = RecordingJobState::Idle,
     const char *error = nullptr,
     const std::vector<flatbuffers::Offset<flatbuffers::String>> *activeparameters = nullptr) {
   auto parameters__ = parameters ? _fbb.CreateVector<flatbuffers::Offset<flatbuffers::String>>(*parameters) : 0;

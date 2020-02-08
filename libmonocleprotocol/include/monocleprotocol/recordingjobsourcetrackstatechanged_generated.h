@@ -37,8 +37,8 @@ struct RecordingJobSourceTrackStateChanged FLATBUFFERS_FINAL_CLASS : private fla
   uint64_t time() const {
     return GetField<uint64_t>(VT_TIME, 0);
   }
-  monocle::RecordingJobState state() const {
-    return static_cast<monocle::RecordingJobState>(GetField<int8_t>(VT_STATE, 0));
+  RecordingJobState state() const {
+    return static_cast<RecordingJobState>(GetField<int8_t>(VT_STATE, 0));
   }
   const flatbuffers::String *error() const {
     return GetPointer<const flatbuffers::String *>(VT_ERROR);
@@ -75,7 +75,7 @@ struct RecordingJobSourceTrackStateChangedBuilder {
   void add_time(uint64_t time) {
     fbb_.AddElement<uint64_t>(RecordingJobSourceTrackStateChanged::VT_TIME, time, 0);
   }
-  void add_state(monocle::RecordingJobState state) {
+  void add_state(RecordingJobState state) {
     fbb_.AddElement<int8_t>(RecordingJobSourceTrackStateChanged::VT_STATE, static_cast<int8_t>(state), 0);
   }
   void add_error(flatbuffers::Offset<flatbuffers::String> error) {
@@ -100,7 +100,7 @@ inline flatbuffers::Offset<RecordingJobSourceTrackStateChanged> CreateRecordingJ
     uint64_t recordingjobsource = 0,
     uint64_t recordingjobsourcetrack = 0,
     uint64_t time = 0,
-    monocle::RecordingJobState state = monocle::RecordingJobState::Idle,
+    RecordingJobState state = RecordingJobState::Idle,
     flatbuffers::Offset<flatbuffers::String> error = 0) {
   RecordingJobSourceTrackStateChangedBuilder builder_(_fbb);
   builder_.add_time(time);
@@ -120,7 +120,7 @@ inline flatbuffers::Offset<RecordingJobSourceTrackStateChanged> CreateRecordingJ
     uint64_t recordingjobsource = 0,
     uint64_t recordingjobsourcetrack = 0,
     uint64_t time = 0,
-    monocle::RecordingJobState state = monocle::RecordingJobState::Idle,
+    RecordingJobState state = RecordingJobState::Idle,
     const char *error = nullptr) {
   auto error__ = error ? _fbb.CreateString(error) : 0;
   return monocle::CreateRecordingJobSourceTrackStateChanged(

@@ -23,8 +23,8 @@ struct HardwareStats FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint64_t time() const {
     return GetField<uint64_t>(VT_TIME, 0);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<monocle::DiskStat>> *diskstats() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::DiskStat>> *>(VT_DISKSTATS);
+  const flatbuffers::Vector<flatbuffers::Offset<DiskStat>> *diskstats() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<DiskStat>> *>(VT_DISKSTATS);
   }
   double cpuusage() const {
     return GetField<double>(VT_CPUUSAGE, 0.0);
@@ -54,7 +54,7 @@ struct HardwareStatsBuilder {
   void add_time(uint64_t time) {
     fbb_.AddElement<uint64_t>(HardwareStats::VT_TIME, time, 0);
   }
-  void add_diskstats(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::DiskStat>>> diskstats) {
+  void add_diskstats(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<DiskStat>>> diskstats) {
     fbb_.AddOffset(HardwareStats::VT_DISKSTATS, diskstats);
   }
   void add_cpuusage(double cpuusage) {
@@ -81,7 +81,7 @@ struct HardwareStatsBuilder {
 inline flatbuffers::Offset<HardwareStats> CreateHardwareStats(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t time = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::DiskStat>>> diskstats = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<DiskStat>>> diskstats = 0,
     double cpuusage = 0.0,
     uint64_t totalmemory = 0,
     uint64_t availablememory = 0) {
@@ -97,11 +97,11 @@ inline flatbuffers::Offset<HardwareStats> CreateHardwareStats(
 inline flatbuffers::Offset<HardwareStats> CreateHardwareStatsDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t time = 0,
-    const std::vector<flatbuffers::Offset<monocle::DiskStat>> *diskstats = nullptr,
+    const std::vector<flatbuffers::Offset<DiskStat>> *diskstats = nullptr,
     double cpuusage = 0.0,
     uint64_t totalmemory = 0,
     uint64_t availablememory = 0) {
-  auto diskstats__ = diskstats ? _fbb.CreateVector<flatbuffers::Offset<monocle::DiskStat>>(*diskstats) : 0;
+  auto diskstats__ = diskstats ? _fbb.CreateVector<flatbuffers::Offset<DiskStat>>(*diskstats) : 0;
   return monocle::CreateHardwareStats(
       _fbb,
       time,
