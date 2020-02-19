@@ -17,7 +17,7 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(8) INDEX FLATBUFFERS_FINAL_CLASS {
 
  public:
   INDEX() {
-    memset(this, 0, sizeof(INDEX));
+    memset(static_cast<void *>(this), 0, sizeof(INDEX));
   }
   INDEX(uint64_t _starttime, uint64_t _endtime)
       : starttime_(flatbuffers::EndianScalar(_starttime)),

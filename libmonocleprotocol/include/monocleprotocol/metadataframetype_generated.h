@@ -24,7 +24,7 @@ inline const MetadataFrameType (&EnumValuesMetadataFrameType())[2] {
 }
 
 inline const char * const *EnumNamesMetadataFrameType() {
-  static const char * const names[] = {
+  static const char * const names[3] = {
     "ONVIF_XML",
     "OBJECT_DETECTION",
     nullptr
@@ -34,7 +34,7 @@ inline const char * const *EnumNamesMetadataFrameType() {
 
 inline const char *EnumNameMetadataFrameType(MetadataFrameType e) {
   if (e < MetadataFrameType::ONVIF_XML || e > MetadataFrameType::OBJECT_DETECTION) return "";
-  const size_t index = static_cast<int>(e) - static_cast<int>(MetadataFrameType::ONVIF_XML);
+  const size_t index = static_cast<size_t>(e) - static_cast<size_t>(MetadataFrameType::ONVIF_XML);
   return EnumNamesMetadataFrameType()[index];
 }
 

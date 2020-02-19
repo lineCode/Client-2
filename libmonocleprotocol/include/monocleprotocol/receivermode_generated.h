@@ -26,7 +26,7 @@ inline const ReceiverMode (&EnumValuesReceiverMode())[3] {
 }
 
 inline const char * const *EnumNamesReceiverMode() {
-  static const char * const names[] = {
+  static const char * const names[4] = {
     "AutoConnect",
     "AlwaysConnect",
     "NeverConnect",
@@ -37,7 +37,7 @@ inline const char * const *EnumNamesReceiverMode() {
 
 inline const char *EnumNameReceiverMode(ReceiverMode e) {
   if (e < ReceiverMode::AutoConnect || e > ReceiverMode::NeverConnect) return "";
-  const size_t index = static_cast<int>(e);
+  const size_t index = static_cast<size_t>(e);
   return EnumNamesReceiverMode()[index];
 }
 

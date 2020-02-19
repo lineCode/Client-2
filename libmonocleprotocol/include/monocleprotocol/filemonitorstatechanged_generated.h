@@ -20,8 +20,8 @@ struct FileMonitorStateChanged FLATBUFFERS_FINAL_CLASS : private flatbuffers::Ta
   uint64_t token() const {
     return GetField<uint64_t>(VT_TOKEN, 0);
   }
-  FileMonitorState state() const {
-    return static_cast<FileMonitorState>(GetField<int8_t>(VT_STATE, 0));
+  monocle::FileMonitorState state() const {
+    return static_cast<monocle::FileMonitorState>(GetField<int8_t>(VT_STATE, 0));
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -37,7 +37,7 @@ struct FileMonitorStateChangedBuilder {
   void add_token(uint64_t token) {
     fbb_.AddElement<uint64_t>(FileMonitorStateChanged::VT_TOKEN, token, 0);
   }
-  void add_state(FileMonitorState state) {
+  void add_state(monocle::FileMonitorState state) {
     fbb_.AddElement<int8_t>(FileMonitorStateChanged::VT_STATE, static_cast<int8_t>(state), 0);
   }
   explicit FileMonitorStateChangedBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -55,7 +55,7 @@ struct FileMonitorStateChangedBuilder {
 inline flatbuffers::Offset<FileMonitorStateChanged> CreateFileMonitorStateChanged(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t token = 0,
-    FileMonitorState state = FileMonitorState::Unavailable) {
+    monocle::FileMonitorState state = monocle::FileMonitorState::Unavailable) {
   FileMonitorStateChangedBuilder builder_(_fbb);
   builder_.add_token(token);
   builder_.add_state(state);

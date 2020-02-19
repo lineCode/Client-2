@@ -23,8 +23,8 @@ struct RecordingJobLogMessages FLATBUFFERS_FINAL_CLASS : private flatbuffers::Ta
   uint64_t token() const {
     return GetField<uint64_t>(VT_TOKEN, 0);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<LogMessage>> *messages() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<LogMessage>> *>(VT_MESSAGES);
+  const flatbuffers::Vector<flatbuffers::Offset<monocle::LogMessage>> *messages() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::LogMessage>> *>(VT_MESSAGES);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -42,7 +42,7 @@ struct RecordingJobLogMessagesBuilder {
   void add_token(uint64_t token) {
     fbb_.AddElement<uint64_t>(RecordingJobLogMessages::VT_TOKEN, token, 0);
   }
-  void add_messages(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<LogMessage>>> messages) {
+  void add_messages(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::LogMessage>>> messages) {
     fbb_.AddOffset(RecordingJobLogMessages::VT_MESSAGES, messages);
   }
   explicit RecordingJobLogMessagesBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -60,7 +60,7 @@ struct RecordingJobLogMessagesBuilder {
 inline flatbuffers::Offset<RecordingJobLogMessages> CreateRecordingJobLogMessages(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t token = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<LogMessage>>> messages = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::LogMessage>>> messages = 0) {
   RecordingJobLogMessagesBuilder builder_(_fbb);
   builder_.add_token(token);
   builder_.add_messages(messages);
@@ -70,8 +70,8 @@ inline flatbuffers::Offset<RecordingJobLogMessages> CreateRecordingJobLogMessage
 inline flatbuffers::Offset<RecordingJobLogMessages> CreateRecordingJobLogMessagesDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t token = 0,
-    const std::vector<flatbuffers::Offset<LogMessage>> *messages = nullptr) {
-  auto messages__ = messages ? _fbb.CreateVector<flatbuffers::Offset<LogMessage>>(*messages) : 0;
+    const std::vector<flatbuffers::Offset<monocle::LogMessage>> *messages = nullptr) {
+  auto messages__ = messages ? _fbb.CreateVector<flatbuffers::Offset<monocle::LogMessage>>(*messages) : 0;
   return monocle::CreateRecordingJobLogMessages(
       _fbb,
       token,
@@ -82,8 +82,8 @@ struct SubscribeRecordingJobLogResponse FLATBUFFERS_FINAL_CLASS : private flatbu
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDINGJOBLOGMESSAGES = 4
   };
-  const flatbuffers::Vector<flatbuffers::Offset<RecordingJobLogMessages>> *recordingjoblogmessages() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<RecordingJobLogMessages>> *>(VT_RECORDINGJOBLOGMESSAGES);
+  const flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingJobLogMessages>> *recordingjoblogmessages() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingJobLogMessages>> *>(VT_RECORDINGJOBLOGMESSAGES);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -97,7 +97,7 @@ struct SubscribeRecordingJobLogResponse FLATBUFFERS_FINAL_CLASS : private flatbu
 struct SubscribeRecordingJobLogResponseBuilder {
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_recordingjoblogmessages(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<RecordingJobLogMessages>>> recordingjoblogmessages) {
+  void add_recordingjoblogmessages(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingJobLogMessages>>> recordingjoblogmessages) {
     fbb_.AddOffset(SubscribeRecordingJobLogResponse::VT_RECORDINGJOBLOGMESSAGES, recordingjoblogmessages);
   }
   explicit SubscribeRecordingJobLogResponseBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -114,7 +114,7 @@ struct SubscribeRecordingJobLogResponseBuilder {
 
 inline flatbuffers::Offset<SubscribeRecordingJobLogResponse> CreateSubscribeRecordingJobLogResponse(
     flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<RecordingJobLogMessages>>> recordingjoblogmessages = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingJobLogMessages>>> recordingjoblogmessages = 0) {
   SubscribeRecordingJobLogResponseBuilder builder_(_fbb);
   builder_.add_recordingjoblogmessages(recordingjoblogmessages);
   return builder_.Finish();
@@ -122,8 +122,8 @@ inline flatbuffers::Offset<SubscribeRecordingJobLogResponse> CreateSubscribeReco
 
 inline flatbuffers::Offset<SubscribeRecordingJobLogResponse> CreateSubscribeRecordingJobLogResponseDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<flatbuffers::Offset<RecordingJobLogMessages>> *recordingjoblogmessages = nullptr) {
-  auto recordingjoblogmessages__ = recordingjoblogmessages ? _fbb.CreateVector<flatbuffers::Offset<RecordingJobLogMessages>>(*recordingjoblogmessages) : 0;
+    const std::vector<flatbuffers::Offset<monocle::RecordingJobLogMessages>> *recordingjoblogmessages = nullptr) {
+  auto recordingjoblogmessages__ = recordingjoblogmessages ? _fbb.CreateVector<flatbuffers::Offset<monocle::RecordingJobLogMessages>>(*recordingjoblogmessages) : 0;
   return monocle::CreateSubscribeRecordingJobLogResponse(
       _fbb,
       recordingjoblogmessages__);

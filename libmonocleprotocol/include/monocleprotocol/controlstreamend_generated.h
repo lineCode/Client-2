@@ -24,8 +24,8 @@ struct ControlStreamEnd FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint64_t playrequestindex() const {
     return GetField<uint64_t>(VT_PLAYREQUESTINDEX, 0);
   }
-  ErrorCode error() const {
-    return static_cast<ErrorCode>(GetField<uint16_t>(VT_ERROR, 0));
+  monocle::ErrorCode error() const {
+    return static_cast<monocle::ErrorCode>(GetField<uint16_t>(VT_ERROR, 0));
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -45,7 +45,7 @@ struct ControlStreamEndBuilder {
   void add_playrequestindex(uint64_t playrequestindex) {
     fbb_.AddElement<uint64_t>(ControlStreamEnd::VT_PLAYREQUESTINDEX, playrequestindex, 0);
   }
-  void add_error(ErrorCode error) {
+  void add_error(monocle::ErrorCode error) {
     fbb_.AddElement<uint16_t>(ControlStreamEnd::VT_ERROR, static_cast<uint16_t>(error), 0);
   }
   explicit ControlStreamEndBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -64,7 +64,7 @@ inline flatbuffers::Offset<ControlStreamEnd> CreateControlStreamEnd(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t token = 0,
     uint64_t playrequestindex = 0,
-    ErrorCode error = ErrorCode::Success) {
+    monocle::ErrorCode error = monocle::ErrorCode::Success) {
   ControlStreamEndBuilder builder_(_fbb);
   builder_.add_playrequestindex(playrequestindex);
   builder_.add_token(token);

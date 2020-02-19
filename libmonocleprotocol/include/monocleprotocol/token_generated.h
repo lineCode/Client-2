@@ -16,7 +16,7 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(8) TOKEN FLATBUFFERS_FINAL_CLASS {
 
  public:
   TOKEN() {
-    memset(this, 0, sizeof(TOKEN));
+    memset(static_cast<void *>(this), 0, sizeof(TOKEN));
   }
   TOKEN(uint64_t _token)
       : token_(flatbuffers::EndianScalar(_token)) {

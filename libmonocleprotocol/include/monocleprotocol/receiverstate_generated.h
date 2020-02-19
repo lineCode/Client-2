@@ -26,7 +26,7 @@ inline const ReceiverState (&EnumValuesReceiverState())[3] {
 }
 
 inline const char * const *EnumNamesReceiverState() {
-  static const char * const names[] = {
+  static const char * const names[4] = {
     "NotConnected",
     "Connecting",
     "Connected",
@@ -37,7 +37,7 @@ inline const char * const *EnumNamesReceiverState() {
 
 inline const char *EnumNameReceiverState(ReceiverState e) {
   if (e < ReceiverState::NotConnected || e > ReceiverState::Connected) return "";
-  const size_t index = static_cast<int>(e);
+  const size_t index = static_cast<size_t>(e);
   return EnumNamesReceiverState()[index];
 }
 

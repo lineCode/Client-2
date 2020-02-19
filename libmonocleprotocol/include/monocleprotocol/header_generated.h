@@ -25,7 +25,7 @@ inline const HeaderFlags (&EnumValuesHeaderFlags())[2] {
 }
 
 inline const char * const *EnumNamesHeaderFlags() {
-  static const char * const names[] = {
+  static const char * const names[3] = {
     "FLAG_ERROR",
     "FLAG_COMPRESSED",
     nullptr
@@ -35,7 +35,7 @@ inline const char * const *EnumNamesHeaderFlags() {
 
 inline const char *EnumNameHeaderFlags(HeaderFlags e) {
   if (e < HeaderFlags::FLAG_ERROR || e > HeaderFlags::FLAG_COMPRESSED) return "";
-  const size_t index = static_cast<int>(e) - static_cast<int>(HeaderFlags::FLAG_ERROR);
+  const size_t index = static_cast<size_t>(e) - static_cast<size_t>(HeaderFlags::FLAG_ERROR);
   return EnumNamesHeaderFlags()[index];
 }
 

@@ -24,8 +24,8 @@ struct AddONVIFUserRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table 
   const flatbuffers::String *password() const {
     return GetPointer<const flatbuffers::String *>(VT_PASSWORD);
   }
-  ONVIFUserlevel onvifuserlevel() const {
-    return static_cast<ONVIFUserlevel>(GetField<int8_t>(VT_ONVIFUSERLEVEL, 1));
+  monocle::ONVIFUserlevel onvifuserlevel() const {
+    return static_cast<monocle::ONVIFUserlevel>(GetField<int8_t>(VT_ONVIFUSERLEVEL, 1));
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -47,7 +47,7 @@ struct AddONVIFUserRequestBuilder {
   void add_password(flatbuffers::Offset<flatbuffers::String> password) {
     fbb_.AddOffset(AddONVIFUserRequest::VT_PASSWORD, password);
   }
-  void add_onvifuserlevel(ONVIFUserlevel onvifuserlevel) {
+  void add_onvifuserlevel(monocle::ONVIFUserlevel onvifuserlevel) {
     fbb_.AddElement<int8_t>(AddONVIFUserRequest::VT_ONVIFUSERLEVEL, static_cast<int8_t>(onvifuserlevel), 1);
   }
   explicit AddONVIFUserRequestBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -66,7 +66,7 @@ inline flatbuffers::Offset<AddONVIFUserRequest> CreateAddONVIFUserRequest(
     flatbuffers::FlatBufferBuilder &_fbb,
     flatbuffers::Offset<flatbuffers::String> username = 0,
     flatbuffers::Offset<flatbuffers::String> password = 0,
-    ONVIFUserlevel onvifuserlevel = ONVIFUserlevel::Anonymous) {
+    monocle::ONVIFUserlevel onvifuserlevel = monocle::ONVIFUserlevel::Anonymous) {
   AddONVIFUserRequestBuilder builder_(_fbb);
   builder_.add_password(password);
   builder_.add_username(username);
@@ -78,7 +78,7 @@ inline flatbuffers::Offset<AddONVIFUserRequest> CreateAddONVIFUserRequestDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     const char *username = nullptr,
     const char *password = nullptr,
-    ONVIFUserlevel onvifuserlevel = ONVIFUserlevel::Anonymous) {
+    monocle::ONVIFUserlevel onvifuserlevel = monocle::ONVIFUserlevel::Anonymous) {
   auto username__ = username ? _fbb.CreateString(username) : 0;
   auto password__ = password ? _fbb.CreateString(password) : 0;
   return monocle::CreateAddONVIFUserRequest(

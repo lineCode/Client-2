@@ -36,8 +36,8 @@ struct RecordingJobAdded FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint64_t priority() const {
     return GetField<uint64_t>(VT_PRIORITY, 0);
   }
-  RecordingJobState state() const {
-    return static_cast<RecordingJobState>(GetField<int8_t>(VT_STATE, 0));
+  monocle::RecordingJobState state() const {
+    return static_cast<monocle::RecordingJobState>(GetField<int8_t>(VT_STATE, 0));
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -70,7 +70,7 @@ struct RecordingJobAddedBuilder {
   void add_priority(uint64_t priority) {
     fbb_.AddElement<uint64_t>(RecordingJobAdded::VT_PRIORITY, priority, 0);
   }
-  void add_state(RecordingJobState state) {
+  void add_state(monocle::RecordingJobState state) {
     fbb_.AddElement<int8_t>(RecordingJobAdded::VT_STATE, static_cast<int8_t>(state), 0);
   }
   explicit RecordingJobAddedBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -92,7 +92,7 @@ inline flatbuffers::Offset<RecordingJobAdded> CreateRecordingJobAdded(
     flatbuffers::Offset<flatbuffers::String> name = 0,
     bool enabled = false,
     uint64_t priority = 0,
-    RecordingJobState state = RecordingJobState::Idle) {
+    monocle::RecordingJobState state = monocle::RecordingJobState::Idle) {
   RecordingJobAddedBuilder builder_(_fbb);
   builder_.add_priority(priority);
   builder_.add_token(token);
@@ -110,7 +110,7 @@ inline flatbuffers::Offset<RecordingJobAdded> CreateRecordingJobAddedDirect(
     const char *name = nullptr,
     bool enabled = false,
     uint64_t priority = 0,
-    RecordingJobState state = RecordingJobState::Idle) {
+    monocle::RecordingJobState state = monocle::RecordingJobState::Idle) {
   auto name__ = name ? _fbb.CreateString(name) : 0;
   return monocle::CreateRecordingJobAdded(
       _fbb,

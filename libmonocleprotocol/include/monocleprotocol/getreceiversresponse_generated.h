@@ -18,8 +18,8 @@ struct GetReceiversResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECEIVERS = 4
   };
-  const flatbuffers::Vector<flatbuffers::Offset<Receiver>> *receivers() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<Receiver>> *>(VT_RECEIVERS);
+  const flatbuffers::Vector<flatbuffers::Offset<monocle::Receiver>> *receivers() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::Receiver>> *>(VT_RECEIVERS);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -33,7 +33,7 @@ struct GetReceiversResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table
 struct GetReceiversResponseBuilder {
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_receivers(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Receiver>>> receivers) {
+  void add_receivers(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::Receiver>>> receivers) {
     fbb_.AddOffset(GetReceiversResponse::VT_RECEIVERS, receivers);
   }
   explicit GetReceiversResponseBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -50,7 +50,7 @@ struct GetReceiversResponseBuilder {
 
 inline flatbuffers::Offset<GetReceiversResponse> CreateGetReceiversResponse(
     flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<Receiver>>> receivers = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::Receiver>>> receivers = 0) {
   GetReceiversResponseBuilder builder_(_fbb);
   builder_.add_receivers(receivers);
   return builder_.Finish();
@@ -58,8 +58,8 @@ inline flatbuffers::Offset<GetReceiversResponse> CreateGetReceiversResponse(
 
 inline flatbuffers::Offset<GetReceiversResponse> CreateGetReceiversResponseDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<flatbuffers::Offset<Receiver>> *receivers = nullptr) {
-  auto receivers__ = receivers ? _fbb.CreateVector<flatbuffers::Offset<Receiver>>(*receivers) : 0;
+    const std::vector<flatbuffers::Offset<monocle::Receiver>> *receivers = nullptr) {
+  auto receivers__ = receivers ? _fbb.CreateVector<flatbuffers::Offset<monocle::Receiver>>(*receivers) : 0;
   return monocle::CreateGetReceiversResponse(
       _fbb,
       receivers__);

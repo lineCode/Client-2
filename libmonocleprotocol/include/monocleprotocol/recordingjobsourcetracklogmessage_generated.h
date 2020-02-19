@@ -33,8 +33,8 @@ struct RecordingJobSourceTrackLogMessage FLATBUFFERS_FINAL_CLASS : private flatb
   uint64_t token() const {
     return GetField<uint64_t>(VT_TOKEN, 0);
   }
-  const LogMessage *message() const {
-    return GetPointer<const LogMessage *>(VT_MESSAGE);
+  const monocle::LogMessage *message() const {
+    return GetPointer<const monocle::LogMessage *>(VT_MESSAGE);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -63,7 +63,7 @@ struct RecordingJobSourceTrackLogMessageBuilder {
   void add_token(uint64_t token) {
     fbb_.AddElement<uint64_t>(RecordingJobSourceTrackLogMessage::VT_TOKEN, token, 0);
   }
-  void add_message(flatbuffers::Offset<LogMessage> message) {
+  void add_message(flatbuffers::Offset<monocle::LogMessage> message) {
     fbb_.AddOffset(RecordingJobSourceTrackLogMessage::VT_MESSAGE, message);
   }
   explicit RecordingJobSourceTrackLogMessageBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -84,7 +84,7 @@ inline flatbuffers::Offset<RecordingJobSourceTrackLogMessage> CreateRecordingJob
     uint64_t recordingjobtoken = 0,
     uint64_t recordingjobsourcetoken = 0,
     uint64_t token = 0,
-    flatbuffers::Offset<LogMessage> message = 0) {
+    flatbuffers::Offset<monocle::LogMessage> message = 0) {
   RecordingJobSourceTrackLogMessageBuilder builder_(_fbb);
   builder_.add_token(token);
   builder_.add_recordingjobsourcetoken(recordingjobsourcetoken);

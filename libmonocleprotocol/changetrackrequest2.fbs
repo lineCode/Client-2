@@ -6,22 +6,25 @@ table ChangeTrackRequest2
 {
   // Video track details
   recordingtoken:uint64 (id:0);
-  recordingjobtoken:uint64 (id:1);
-  recordingjobsourcetoken:uint64 (id:2);
-  recordingjobsourcetracktoken:uint64 (id:3);
-  description:string (id:4);
-  fixedfiles:bool (id:5);
-  digitalsigning:bool (id:6);
-  encrypt:bool (id:7);
-  flushfrequency:uint32 (id:8);
-  files:[uint64] (id:9);
+  recordingtrackid:uint32 (id:1);
+  recordingjobtoken:uint64 (id:2);
+  recordingjobsourcetoken:uint64 (id:3);
+  recordingjobsourcetracktoken:uint64 (id:4);
+  objectdetectorrecordingtrackid:uint32 (id:5);
+  objectdetectorrecordingjobsourcetoken:uint64 (id:6);
+  objectdetectorrecordingjobsourcetracktoken:uint64 (id:7);
+  description:string (id:8);
+  fixedfiles:bool (id:9);
+  digitalsigning:bool (id:10);
+  encrypt:bool (id:11);
+  flushfrequency:uint32 (id:12);
+  files:[uint64] (id:13);
   
-  // Object Detector details//TODO is this true?
-  mediauri:string (id:10);
-  username:string (id:11);
-  password:string (id:12);
-  receiverparameters:[string] (id:13);
-  sourceparameters:[string] (id:14);
+  mediauri:string (id:14);
+  username:string (id:15);
+  password:string (id:16);
+  receiverparameters:[string] (id:17);
+  sourceparameters:[string] (id:18);
   
-  objectdetectorsourceparameters:[string] (id:15); // If this is empty, don't enable the object detector
+  objectdetectorsourceparameters:[string] (id:19); // If this is empty, don't enable the object detector
 }

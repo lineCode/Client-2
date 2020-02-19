@@ -35,8 +35,8 @@ struct RecordingTrack FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const flatbuffers::String *token() const {
     return GetPointer<const flatbuffers::String *>(VT_TOKEN);
   }
-  TrackType tracktype() const {
-    return static_cast<TrackType>(GetField<int8_t>(VT_TRACKTYPE, 0));
+  monocle::TrackType tracktype() const {
+    return static_cast<monocle::TrackType>(GetField<int8_t>(VT_TRACKTYPE, 0));
   }
   const flatbuffers::String *description() const {
     return GetPointer<const flatbuffers::String *>(VT_DESCRIPTION);
@@ -56,11 +56,11 @@ struct RecordingTrack FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const flatbuffers::Vector<uint64_t> *files() const {
     return GetPointer<const flatbuffers::Vector<uint64_t> *>(VT_FILES);
   }
-  const flatbuffers::Vector<const INDEX *> *indices() const {
-    return GetPointer<const flatbuffers::Vector<const INDEX *> *>(VT_INDICES);
+  const flatbuffers::Vector<const monocle::INDEX *> *indices() const {
+    return GetPointer<const flatbuffers::Vector<const monocle::INDEX *> *>(VT_INDICES);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<CodecIndex>> *codecindices() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<CodecIndex>> *>(VT_CODECINDICES);
+  const flatbuffers::Vector<flatbuffers::Offset<monocle::CodecIndex>> *codecindices() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::CodecIndex>> *>(VT_CODECINDICES);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -94,7 +94,7 @@ struct RecordingTrackBuilder {
   void add_token(flatbuffers::Offset<flatbuffers::String> token) {
     fbb_.AddOffset(RecordingTrack::VT_TOKEN, token);
   }
-  void add_tracktype(TrackType tracktype) {
+  void add_tracktype(monocle::TrackType tracktype) {
     fbb_.AddElement<int8_t>(RecordingTrack::VT_TRACKTYPE, static_cast<int8_t>(tracktype), 0);
   }
   void add_description(flatbuffers::Offset<flatbuffers::String> description) {
@@ -115,10 +115,10 @@ struct RecordingTrackBuilder {
   void add_files(flatbuffers::Offset<flatbuffers::Vector<uint64_t>> files) {
     fbb_.AddOffset(RecordingTrack::VT_FILES, files);
   }
-  void add_indices(flatbuffers::Offset<flatbuffers::Vector<const INDEX *>> indices) {
+  void add_indices(flatbuffers::Offset<flatbuffers::Vector<const monocle::INDEX *>> indices) {
     fbb_.AddOffset(RecordingTrack::VT_INDICES, indices);
   }
-  void add_codecindices(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<CodecIndex>>> codecindices) {
+  void add_codecindices(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::CodecIndex>>> codecindices) {
     fbb_.AddOffset(RecordingTrack::VT_CODECINDICES, codecindices);
   }
   explicit RecordingTrackBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -137,15 +137,15 @@ inline flatbuffers::Offset<RecordingTrack> CreateRecordingTrack(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t id = 0,
     flatbuffers::Offset<flatbuffers::String> token = 0,
-    TrackType tracktype = TrackType::Video,
+    monocle::TrackType tracktype = monocle::TrackType::Video,
     flatbuffers::Offset<flatbuffers::String> description = 0,
     bool fixedfiles = false,
     bool digitalsigning = false,
     bool encrypt = false,
     uint32_t flushfrequency = 0,
     flatbuffers::Offset<flatbuffers::Vector<uint64_t>> files = 0,
-    flatbuffers::Offset<flatbuffers::Vector<const INDEX *>> indices = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<CodecIndex>>> codecindices = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<const monocle::INDEX *>> indices = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::CodecIndex>>> codecindices = 0) {
   RecordingTrackBuilder builder_(_fbb);
   builder_.add_codecindices(codecindices);
   builder_.add_indices(indices);
@@ -165,20 +165,20 @@ inline flatbuffers::Offset<RecordingTrack> CreateRecordingTrackDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t id = 0,
     const char *token = nullptr,
-    TrackType tracktype = TrackType::Video,
+    monocle::TrackType tracktype = monocle::TrackType::Video,
     const char *description = nullptr,
     bool fixedfiles = false,
     bool digitalsigning = false,
     bool encrypt = false,
     uint32_t flushfrequency = 0,
     const std::vector<uint64_t> *files = nullptr,
-    const std::vector<INDEX> *indices = nullptr,
-    const std::vector<flatbuffers::Offset<CodecIndex>> *codecindices = nullptr) {
+    const std::vector<monocle::INDEX> *indices = nullptr,
+    const std::vector<flatbuffers::Offset<monocle::CodecIndex>> *codecindices = nullptr) {
   auto token__ = token ? _fbb.CreateString(token) : 0;
   auto description__ = description ? _fbb.CreateString(description) : 0;
   auto files__ = files ? _fbb.CreateVector<uint64_t>(*files) : 0;
-  auto indices__ = indices ? _fbb.CreateVectorOfStructs<INDEX>(*indices) : 0;
-  auto codecindices__ = codecindices ? _fbb.CreateVector<flatbuffers::Offset<CodecIndex>>(*codecindices) : 0;
+  auto indices__ = indices ? _fbb.CreateVectorOfStructs<monocle::INDEX>(*indices) : 0;
+  auto codecindices__ = codecindices ? _fbb.CreateVector<flatbuffers::Offset<monocle::CodecIndex>>(*codecindices) : 0;
   return monocle::CreateRecordingTrack(
       _fbb,
       id,

@@ -15,24 +15,31 @@ struct ChangeTrackRequest2;
 struct ChangeTrackRequest2 FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDINGTOKEN = 4,
-    VT_RECORDINGJOBTOKEN = 6,
-    VT_RECORDINGJOBSOURCETOKEN = 8,
-    VT_RECORDINGJOBSOURCETRACKTOKEN = 10,
-    VT_DESCRIPTION = 12,
-    VT_FIXEDFILES = 14,
-    VT_DIGITALSIGNING = 16,
-    VT_ENCRYPT = 18,
-    VT_FLUSHFREQUENCY = 20,
-    VT_FILES = 22,
-    VT_MEDIAURI = 24,
-    VT_USERNAME = 26,
-    VT_PASSWORD = 28,
-    VT_RECEIVERPARAMETERS = 30,
-    VT_SOURCEPARAMETERS = 32,
-    VT_OBJECTDETECTORSOURCEPARAMETERS = 34
+    VT_RECORDINGTRACKID = 6,
+    VT_RECORDINGJOBTOKEN = 8,
+    VT_RECORDINGJOBSOURCETOKEN = 10,
+    VT_RECORDINGJOBSOURCETRACKTOKEN = 12,
+    VT_OBJECTDETECTORRECORDINGTRACKID = 14,
+    VT_OBJECTDETECTORRECORDINGJOBSOURCETOKEN = 16,
+    VT_OBJECTDETECTORRECORDINGJOBSOURCETRACKTOKEN = 18,
+    VT_DESCRIPTION = 20,
+    VT_FIXEDFILES = 22,
+    VT_DIGITALSIGNING = 24,
+    VT_ENCRYPT = 26,
+    VT_FLUSHFREQUENCY = 28,
+    VT_FILES = 30,
+    VT_MEDIAURI = 32,
+    VT_USERNAME = 34,
+    VT_PASSWORD = 36,
+    VT_RECEIVERPARAMETERS = 38,
+    VT_SOURCEPARAMETERS = 40,
+    VT_OBJECTDETECTORSOURCEPARAMETERS = 42
   };
   uint64_t recordingtoken() const {
     return GetField<uint64_t>(VT_RECORDINGTOKEN, 0);
+  }
+  uint32_t recordingtrackid() const {
+    return GetField<uint32_t>(VT_RECORDINGTRACKID, 0);
   }
   uint64_t recordingjobtoken() const {
     return GetField<uint64_t>(VT_RECORDINGJOBTOKEN, 0);
@@ -42,6 +49,15 @@ struct ChangeTrackRequest2 FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table 
   }
   uint64_t recordingjobsourcetracktoken() const {
     return GetField<uint64_t>(VT_RECORDINGJOBSOURCETRACKTOKEN, 0);
+  }
+  uint32_t objectdetectorrecordingtrackid() const {
+    return GetField<uint32_t>(VT_OBJECTDETECTORRECORDINGTRACKID, 0);
+  }
+  uint64_t objectdetectorrecordingjobsourcetoken() const {
+    return GetField<uint64_t>(VT_OBJECTDETECTORRECORDINGJOBSOURCETOKEN, 0);
+  }
+  uint64_t objectdetectorrecordingjobsourcetracktoken() const {
+    return GetField<uint64_t>(VT_OBJECTDETECTORRECORDINGJOBSOURCETRACKTOKEN, 0);
   }
   const flatbuffers::String *description() const {
     return GetPointer<const flatbuffers::String *>(VT_DESCRIPTION);
@@ -82,9 +98,13 @@ struct ChangeTrackRequest2 FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table 
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_RECORDINGTOKEN) &&
+           VerifyField<uint32_t>(verifier, VT_RECORDINGTRACKID) &&
            VerifyField<uint64_t>(verifier, VT_RECORDINGJOBTOKEN) &&
            VerifyField<uint64_t>(verifier, VT_RECORDINGJOBSOURCETOKEN) &&
            VerifyField<uint64_t>(verifier, VT_RECORDINGJOBSOURCETRACKTOKEN) &&
+           VerifyField<uint32_t>(verifier, VT_OBJECTDETECTORRECORDINGTRACKID) &&
+           VerifyField<uint64_t>(verifier, VT_OBJECTDETECTORRECORDINGJOBSOURCETOKEN) &&
+           VerifyField<uint64_t>(verifier, VT_OBJECTDETECTORRECORDINGJOBSOURCETRACKTOKEN) &&
            VerifyOffset(verifier, VT_DESCRIPTION) &&
            verifier.VerifyString(description()) &&
            VerifyField<uint8_t>(verifier, VT_FIXEDFILES) &&
@@ -118,6 +138,9 @@ struct ChangeTrackRequest2Builder {
   void add_recordingtoken(uint64_t recordingtoken) {
     fbb_.AddElement<uint64_t>(ChangeTrackRequest2::VT_RECORDINGTOKEN, recordingtoken, 0);
   }
+  void add_recordingtrackid(uint32_t recordingtrackid) {
+    fbb_.AddElement<uint32_t>(ChangeTrackRequest2::VT_RECORDINGTRACKID, recordingtrackid, 0);
+  }
   void add_recordingjobtoken(uint64_t recordingjobtoken) {
     fbb_.AddElement<uint64_t>(ChangeTrackRequest2::VT_RECORDINGJOBTOKEN, recordingjobtoken, 0);
   }
@@ -126,6 +149,15 @@ struct ChangeTrackRequest2Builder {
   }
   void add_recordingjobsourcetracktoken(uint64_t recordingjobsourcetracktoken) {
     fbb_.AddElement<uint64_t>(ChangeTrackRequest2::VT_RECORDINGJOBSOURCETRACKTOKEN, recordingjobsourcetracktoken, 0);
+  }
+  void add_objectdetectorrecordingtrackid(uint32_t objectdetectorrecordingtrackid) {
+    fbb_.AddElement<uint32_t>(ChangeTrackRequest2::VT_OBJECTDETECTORRECORDINGTRACKID, objectdetectorrecordingtrackid, 0);
+  }
+  void add_objectdetectorrecordingjobsourcetoken(uint64_t objectdetectorrecordingjobsourcetoken) {
+    fbb_.AddElement<uint64_t>(ChangeTrackRequest2::VT_OBJECTDETECTORRECORDINGJOBSOURCETOKEN, objectdetectorrecordingjobsourcetoken, 0);
+  }
+  void add_objectdetectorrecordingjobsourcetracktoken(uint64_t objectdetectorrecordingjobsourcetracktoken) {
+    fbb_.AddElement<uint64_t>(ChangeTrackRequest2::VT_OBJECTDETECTORRECORDINGJOBSOURCETRACKTOKEN, objectdetectorrecordingjobsourcetracktoken, 0);
   }
   void add_description(flatbuffers::Offset<flatbuffers::String> description) {
     fbb_.AddOffset(ChangeTrackRequest2::VT_DESCRIPTION, description);
@@ -178,9 +210,13 @@ struct ChangeTrackRequest2Builder {
 inline flatbuffers::Offset<ChangeTrackRequest2> CreateChangeTrackRequest2(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t recordingtoken = 0,
+    uint32_t recordingtrackid = 0,
     uint64_t recordingjobtoken = 0,
     uint64_t recordingjobsourcetoken = 0,
     uint64_t recordingjobsourcetracktoken = 0,
+    uint32_t objectdetectorrecordingtrackid = 0,
+    uint64_t objectdetectorrecordingjobsourcetoken = 0,
+    uint64_t objectdetectorrecordingjobsourcetracktoken = 0,
     flatbuffers::Offset<flatbuffers::String> description = 0,
     bool fixedfiles = false,
     bool digitalsigning = false,
@@ -194,6 +230,8 @@ inline flatbuffers::Offset<ChangeTrackRequest2> CreateChangeTrackRequest2(
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> sourceparameters = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> objectdetectorsourceparameters = 0) {
   ChangeTrackRequest2Builder builder_(_fbb);
+  builder_.add_objectdetectorrecordingjobsourcetracktoken(objectdetectorrecordingjobsourcetracktoken);
+  builder_.add_objectdetectorrecordingjobsourcetoken(objectdetectorrecordingjobsourcetoken);
   builder_.add_recordingjobsourcetracktoken(recordingjobsourcetracktoken);
   builder_.add_recordingjobsourcetoken(recordingjobsourcetoken);
   builder_.add_recordingjobtoken(recordingjobtoken);
@@ -207,6 +245,8 @@ inline flatbuffers::Offset<ChangeTrackRequest2> CreateChangeTrackRequest2(
   builder_.add_files(files);
   builder_.add_flushfrequency(flushfrequency);
   builder_.add_description(description);
+  builder_.add_objectdetectorrecordingtrackid(objectdetectorrecordingtrackid);
+  builder_.add_recordingtrackid(recordingtrackid);
   builder_.add_encrypt(encrypt);
   builder_.add_digitalsigning(digitalsigning);
   builder_.add_fixedfiles(fixedfiles);
@@ -216,9 +256,13 @@ inline flatbuffers::Offset<ChangeTrackRequest2> CreateChangeTrackRequest2(
 inline flatbuffers::Offset<ChangeTrackRequest2> CreateChangeTrackRequest2Direct(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t recordingtoken = 0,
+    uint32_t recordingtrackid = 0,
     uint64_t recordingjobtoken = 0,
     uint64_t recordingjobsourcetoken = 0,
     uint64_t recordingjobsourcetracktoken = 0,
+    uint32_t objectdetectorrecordingtrackid = 0,
+    uint64_t objectdetectorrecordingjobsourcetoken = 0,
+    uint64_t objectdetectorrecordingjobsourcetracktoken = 0,
     const char *description = nullptr,
     bool fixedfiles = false,
     bool digitalsigning = false,
@@ -242,9 +286,13 @@ inline flatbuffers::Offset<ChangeTrackRequest2> CreateChangeTrackRequest2Direct(
   return monocle::CreateChangeTrackRequest2(
       _fbb,
       recordingtoken,
+      recordingtrackid,
       recordingjobtoken,
       recordingjobsourcetoken,
       recordingjobsourcetracktoken,
+      objectdetectorrecordingtrackid,
+      objectdetectorrecordingjobsourcetoken,
+      objectdetectorrecordingjobsourcetracktoken,
       description__,
       fixedfiles,
       digitalsigning,

@@ -25,8 +25,8 @@ struct RecordingTrackLogMessage FLATBUFFERS_FINAL_CLASS : private flatbuffers::T
   uint32_t id() const {
     return GetField<uint32_t>(VT_ID, 0);
   }
-  const LogMessage *message() const {
-    return GetPointer<const LogMessage *>(VT_MESSAGE);
+  const monocle::LogMessage *message() const {
+    return GetPointer<const monocle::LogMessage *>(VT_MESSAGE);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -47,7 +47,7 @@ struct RecordingTrackLogMessageBuilder {
   void add_id(uint32_t id) {
     fbb_.AddElement<uint32_t>(RecordingTrackLogMessage::VT_ID, id, 0);
   }
-  void add_message(flatbuffers::Offset<LogMessage> message) {
+  void add_message(flatbuffers::Offset<monocle::LogMessage> message) {
     fbb_.AddOffset(RecordingTrackLogMessage::VT_MESSAGE, message);
   }
   explicit RecordingTrackLogMessageBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -66,7 +66,7 @@ inline flatbuffers::Offset<RecordingTrackLogMessage> CreateRecordingTrackLogMess
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t recordingtoken = 0,
     uint32_t id = 0,
-    flatbuffers::Offset<LogMessage> message = 0) {
+    flatbuffers::Offset<monocle::LogMessage> message = 0) {
   RecordingTrackLogMessageBuilder builder_(_fbb);
   builder_.add_recordingtoken(recordingtoken);
   builder_.add_message(message);

@@ -26,7 +26,7 @@ inline const RecordingJobState (&EnumValuesRecordingJobState())[3] {
 }
 
 inline const char * const *EnumNamesRecordingJobState() {
-  static const char * const names[] = {
+  static const char * const names[4] = {
     "Idle",
     "Active",
     "Error",
@@ -37,7 +37,7 @@ inline const char * const *EnumNamesRecordingJobState() {
 
 inline const char *EnumNameRecordingJobState(RecordingJobState e) {
   if (e < RecordingJobState::Idle || e > RecordingJobState::Error) return "";
-  const size_t index = static_cast<int>(e);
+  const size_t index = static_cast<size_t>(e);
   return EnumNamesRecordingJobState()[index];
 }
 

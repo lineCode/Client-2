@@ -24,14 +24,14 @@ struct RecordingJobSource FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint64_t token() const {
     return GetField<uint64_t>(VT_TOKEN, 0);
   }
-  RecordingJobSourceType type() const {
-    return static_cast<RecordingJobSourceType>(GetField<int8_t>(VT_TYPE, 0));
+  monocle::RecordingJobSourceType type() const {
+    return static_cast<monocle::RecordingJobSourceType>(GetField<int8_t>(VT_TYPE, 0));
   }
   uint64_t receiver() const {
     return GetField<uint64_t>(VT_RECEIVER, 0);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<RecordingJobSourceTrack>> *recordingjobsourcetracks() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<RecordingJobSourceTrack>> *>(VT_RECORDINGJOBSOURCETRACKS);
+  const flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingJobSourceTrack>> *recordingjobsourcetracks() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingJobSourceTrack>> *>(VT_RECORDINGJOBSOURCETRACKS);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -51,13 +51,13 @@ struct RecordingJobSourceBuilder {
   void add_token(uint64_t token) {
     fbb_.AddElement<uint64_t>(RecordingJobSource::VT_TOKEN, token, 0);
   }
-  void add_type(RecordingJobSourceType type) {
+  void add_type(monocle::RecordingJobSourceType type) {
     fbb_.AddElement<int8_t>(RecordingJobSource::VT_TYPE, static_cast<int8_t>(type), 0);
   }
   void add_receiver(uint64_t receiver) {
     fbb_.AddElement<uint64_t>(RecordingJobSource::VT_RECEIVER, receiver, 0);
   }
-  void add_recordingjobsourcetracks(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<RecordingJobSourceTrack>>> recordingjobsourcetracks) {
+  void add_recordingjobsourcetracks(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingJobSourceTrack>>> recordingjobsourcetracks) {
     fbb_.AddOffset(RecordingJobSource::VT_RECORDINGJOBSOURCETRACKS, recordingjobsourcetracks);
   }
   explicit RecordingJobSourceBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -75,9 +75,9 @@ struct RecordingJobSourceBuilder {
 inline flatbuffers::Offset<RecordingJobSource> CreateRecordingJobSource(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t token = 0,
-    RecordingJobSourceType type = RecordingJobSourceType::Media,
+    monocle::RecordingJobSourceType type = monocle::RecordingJobSourceType::Media,
     uint64_t receiver = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<RecordingJobSourceTrack>>> recordingjobsourcetracks = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingJobSourceTrack>>> recordingjobsourcetracks = 0) {
   RecordingJobSourceBuilder builder_(_fbb);
   builder_.add_receiver(receiver);
   builder_.add_token(token);
@@ -89,10 +89,10 @@ inline flatbuffers::Offset<RecordingJobSource> CreateRecordingJobSource(
 inline flatbuffers::Offset<RecordingJobSource> CreateRecordingJobSourceDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t token = 0,
-    RecordingJobSourceType type = RecordingJobSourceType::Media,
+    monocle::RecordingJobSourceType type = monocle::RecordingJobSourceType::Media,
     uint64_t receiver = 0,
-    const std::vector<flatbuffers::Offset<RecordingJobSourceTrack>> *recordingjobsourcetracks = nullptr) {
-  auto recordingjobsourcetracks__ = recordingjobsourcetracks ? _fbb.CreateVector<flatbuffers::Offset<RecordingJobSourceTrack>>(*recordingjobsourcetracks) : 0;
+    const std::vector<flatbuffers::Offset<monocle::RecordingJobSourceTrack>> *recordingjobsourcetracks = nullptr) {
+  auto recordingjobsourcetracks__ = recordingjobsourcetracks ? _fbb.CreateVector<flatbuffers::Offset<monocle::RecordingJobSourceTrack>>(*recordingjobsourcetracks) : 0;
   return monocle::CreateRecordingJobSource(
       _fbb,
       token,

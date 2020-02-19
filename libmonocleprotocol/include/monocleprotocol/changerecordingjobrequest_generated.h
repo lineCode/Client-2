@@ -37,8 +37,8 @@ struct ChangeRecordingJobRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::
   uint64_t priority() const {
     return GetField<uint64_t>(VT_PRIORITY, 0);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<ChangeRecordingJobSource>> *sources() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<ChangeRecordingJobSource>> *>(VT_SOURCES);
+  const flatbuffers::Vector<flatbuffers::Offset<monocle::ChangeRecordingJobSource>> *sources() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::ChangeRecordingJobSource>> *>(VT_SOURCES);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -73,7 +73,7 @@ struct ChangeRecordingJobRequestBuilder {
   void add_priority(uint64_t priority) {
     fbb_.AddElement<uint64_t>(ChangeRecordingJobRequest::VT_PRIORITY, priority, 0);
   }
-  void add_sources(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<ChangeRecordingJobSource>>> sources) {
+  void add_sources(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::ChangeRecordingJobSource>>> sources) {
     fbb_.AddOffset(ChangeRecordingJobRequest::VT_SOURCES, sources);
   }
   explicit ChangeRecordingJobRequestBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -95,7 +95,7 @@ inline flatbuffers::Offset<ChangeRecordingJobRequest> CreateChangeRecordingJobRe
     flatbuffers::Offset<flatbuffers::String> name = 0,
     bool enabled = false,
     uint64_t priority = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<ChangeRecordingJobSource>>> sources = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::ChangeRecordingJobSource>>> sources = 0) {
   ChangeRecordingJobRequestBuilder builder_(_fbb);
   builder_.add_priority(priority);
   builder_.add_token(token);
@@ -113,9 +113,9 @@ inline flatbuffers::Offset<ChangeRecordingJobRequest> CreateChangeRecordingJobRe
     const char *name = nullptr,
     bool enabled = false,
     uint64_t priority = 0,
-    const std::vector<flatbuffers::Offset<ChangeRecordingJobSource>> *sources = nullptr) {
+    const std::vector<flatbuffers::Offset<monocle::ChangeRecordingJobSource>> *sources = nullptr) {
   auto name__ = name ? _fbb.CreateString(name) : 0;
-  auto sources__ = sources ? _fbb.CreateVector<flatbuffers::Offset<ChangeRecordingJobSource>>(*sources) : 0;
+  auto sources__ = sources ? _fbb.CreateVector<flatbuffers::Offset<monocle::ChangeRecordingJobSource>>(*sources) : 0;
   return monocle::CreateChangeRecordingJobRequest(
       _fbb,
       recordingtoken,

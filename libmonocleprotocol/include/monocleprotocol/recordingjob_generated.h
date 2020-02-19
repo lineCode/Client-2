@@ -36,11 +36,11 @@ struct RecordingJob FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint64_t priority() const {
     return GetField<uint64_t>(VT_PRIORITY, 0);
   }
-  const flatbuffers::Vector<flatbuffers::Offset<RecordingJobSource>> *recordingjobsources() const {
-    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<RecordingJobSource>> *>(VT_RECORDINGJOBSOURCES);
+  const flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingJobSource>> *recordingjobsources() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingJobSource>> *>(VT_RECORDINGJOBSOURCES);
   }
-  RecordingJobState state() const {
-    return static_cast<RecordingJobState>(GetField<int8_t>(VT_STATE, 0));
+  monocle::RecordingJobState state() const {
+    return static_cast<monocle::RecordingJobState>(GetField<int8_t>(VT_STATE, 0));
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -72,10 +72,10 @@ struct RecordingJobBuilder {
   void add_priority(uint64_t priority) {
     fbb_.AddElement<uint64_t>(RecordingJob::VT_PRIORITY, priority, 0);
   }
-  void add_recordingjobsources(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<RecordingJobSource>>> recordingjobsources) {
+  void add_recordingjobsources(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingJobSource>>> recordingjobsources) {
     fbb_.AddOffset(RecordingJob::VT_RECORDINGJOBSOURCES, recordingjobsources);
   }
-  void add_state(RecordingJobState state) {
+  void add_state(monocle::RecordingJobState state) {
     fbb_.AddElement<int8_t>(RecordingJob::VT_STATE, static_cast<int8_t>(state), 0);
   }
   explicit RecordingJobBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -96,8 +96,8 @@ inline flatbuffers::Offset<RecordingJob> CreateRecordingJob(
     flatbuffers::Offset<flatbuffers::String> name = 0,
     bool enabled = false,
     uint64_t priority = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<RecordingJobSource>>> recordingjobsources = 0,
-    RecordingJobState state = RecordingJobState::Idle) {
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingJobSource>>> recordingjobsources = 0,
+    monocle::RecordingJobState state = monocle::RecordingJobState::Idle) {
   RecordingJobBuilder builder_(_fbb);
   builder_.add_priority(priority);
   builder_.add_token(token);
@@ -114,10 +114,10 @@ inline flatbuffers::Offset<RecordingJob> CreateRecordingJobDirect(
     const char *name = nullptr,
     bool enabled = false,
     uint64_t priority = 0,
-    const std::vector<flatbuffers::Offset<RecordingJobSource>> *recordingjobsources = nullptr,
-    RecordingJobState state = RecordingJobState::Idle) {
+    const std::vector<flatbuffers::Offset<monocle::RecordingJobSource>> *recordingjobsources = nullptr,
+    monocle::RecordingJobState state = monocle::RecordingJobState::Idle) {
   auto name__ = name ? _fbb.CreateString(name) : 0;
-  auto recordingjobsources__ = recordingjobsources ? _fbb.CreateVector<flatbuffers::Offset<RecordingJobSource>>(*recordingjobsources) : 0;
+  auto recordingjobsources__ = recordingjobsources ? _fbb.CreateVector<flatbuffers::Offset<monocle::RecordingJobSource>>(*recordingjobsources) : 0;
   return monocle::CreateRecordingJob(
       _fbb,
       token,

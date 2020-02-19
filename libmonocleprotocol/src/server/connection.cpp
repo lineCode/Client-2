@@ -2554,7 +2554,7 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
         }
       }
 
-      const Error error = ChangeTrack2(changetrackrequest2->recordingtoken(), changetrackrequest2->recordingjobtoken(), changetrackrequest2->recordingjobsourcetoken(), changetrackrequest2->recordingjobsourcetracktoken(), description, changetrackrequest2->fixedfiles(), changetrackrequest2->digitalsigning(), changetrackrequest2->encrypt(), changetrackrequest2->flushfrequency(), files, mediauri, username, password, receiverparameters, sourceparameters, objectdetectorsourceparameters);
+      const Error error = ChangeTrack2(changetrackrequest2->recordingtoken(), changetrackrequest2->recordingtrackid(), changetrackrequest2->recordingjobtoken(), changetrackrequest2->recordingjobsourcetoken(), changetrackrequest2->recordingjobsourcetracktoken(), changetrackrequest2->objectdetectorrecordingtrackid(), changetrackrequest2->objectdetectorrecordingjobsourcetoken(), changetrackrequest2->objectdetectorrecordingjobsourcetracktoken(), description, changetrackrequest2->fixedfiles(), changetrackrequest2->digitalsigning(), changetrackrequest2->encrypt(), changetrackrequest2->flushfrequency(), files, mediauri, username, password, receiverparameters, sourceparameters, objectdetectorsourceparameters);
       if (error.code_ != ErrorCode::Success)
       {
 

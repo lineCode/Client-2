@@ -42,11 +42,11 @@ struct File FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   bool automount() const {
     return GetField<uint8_t>(VT_AUTOMOUNT, 0) != 0;
   }
-  FileState state() const {
-    return static_cast<FileState>(GetField<int8_t>(VT_STATE, 0));
+  monocle::FileState state() const {
+    return static_cast<monocle::FileState>(GetField<int8_t>(VT_STATE, 0));
   }
-  FileMonitorState monitorstate() const {
-    return static_cast<FileMonitorState>(GetField<int8_t>(VT_MONITORSTATE, 0));
+  monocle::FileMonitorState monitorstate() const {
+    return static_cast<monocle::FileMonitorState>(GetField<int8_t>(VT_MONITORSTATE, 0));
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -85,10 +85,10 @@ struct FileBuilder {
   void add_automount(bool automount) {
     fbb_.AddElement<uint8_t>(File::VT_AUTOMOUNT, static_cast<uint8_t>(automount), 0);
   }
-  void add_state(FileState state) {
+  void add_state(monocle::FileState state) {
     fbb_.AddElement<int8_t>(File::VT_STATE, static_cast<int8_t>(state), 0);
   }
-  void add_monitorstate(FileMonitorState monitorstate) {
+  void add_monitorstate(monocle::FileMonitorState monitorstate) {
     fbb_.AddElement<int8_t>(File::VT_MONITORSTATE, static_cast<int8_t>(monitorstate), 0);
   }
   explicit FileBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -111,8 +111,8 @@ inline flatbuffers::Offset<File> CreateFile(
     uint64_t numchunks = 0,
     uint64_t chunksize = 0,
     bool automount = false,
-    FileState state = FileState::Unmounted,
-    FileMonitorState monitorstate = FileMonitorState::Unavailable) {
+    monocle::FileState state = monocle::FileState::Unmounted,
+    monocle::FileMonitorState monitorstate = monocle::FileMonitorState::Unavailable) {
   FileBuilder builder_(_fbb);
   builder_.add_chunksize(chunksize);
   builder_.add_numchunks(numchunks);
@@ -133,8 +133,8 @@ inline flatbuffers::Offset<File> CreateFileDirect(
     uint64_t numchunks = 0,
     uint64_t chunksize = 0,
     bool automount = false,
-    FileState state = FileState::Unmounted,
-    FileMonitorState monitorstate = FileMonitorState::Unavailable) {
+    monocle::FileState state = monocle::FileState::Unmounted,
+    monocle::FileMonitorState monitorstate = monocle::FileMonitorState::Unavailable) {
   auto path__ = path ? _fbb.CreateString(path) : 0;
   auto mountpoint__ = mountpoint ? _fbb.CreateString(mountpoint) : 0;
   return monocle::CreateFile(

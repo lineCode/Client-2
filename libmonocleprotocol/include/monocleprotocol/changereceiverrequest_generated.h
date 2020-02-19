@@ -24,8 +24,8 @@ struct ChangeReceiverRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Tabl
   uint64_t token() const {
     return GetField<uint64_t>(VT_TOKEN, 0);
   }
-  ReceiverMode mode() const {
-    return static_cast<ReceiverMode>(GetField<int8_t>(VT_MODE, 0));
+  monocle::ReceiverMode mode() const {
+    return static_cast<monocle::ReceiverMode>(GetField<int8_t>(VT_MODE, 0));
   }
   const flatbuffers::String *mediauri() const {
     return GetPointer<const flatbuffers::String *>(VT_MEDIAURI);
@@ -62,7 +62,7 @@ struct ChangeReceiverRequestBuilder {
   void add_token(uint64_t token) {
     fbb_.AddElement<uint64_t>(ChangeReceiverRequest::VT_TOKEN, token, 0);
   }
-  void add_mode(ReceiverMode mode) {
+  void add_mode(monocle::ReceiverMode mode) {
     fbb_.AddElement<int8_t>(ChangeReceiverRequest::VT_MODE, static_cast<int8_t>(mode), 0);
   }
   void add_mediauri(flatbuffers::Offset<flatbuffers::String> mediauri) {
@@ -92,7 +92,7 @@ struct ChangeReceiverRequestBuilder {
 inline flatbuffers::Offset<ChangeReceiverRequest> CreateChangeReceiverRequest(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t token = 0,
-    ReceiverMode mode = ReceiverMode::AutoConnect,
+    monocle::ReceiverMode mode = monocle::ReceiverMode::AutoConnect,
     flatbuffers::Offset<flatbuffers::String> mediauri = 0,
     flatbuffers::Offset<flatbuffers::String> username = 0,
     flatbuffers::Offset<flatbuffers::String> password = 0,
@@ -110,7 +110,7 @@ inline flatbuffers::Offset<ChangeReceiverRequest> CreateChangeReceiverRequest(
 inline flatbuffers::Offset<ChangeReceiverRequest> CreateChangeReceiverRequestDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t token = 0,
-    ReceiverMode mode = ReceiverMode::AutoConnect,
+    monocle::ReceiverMode mode = monocle::ReceiverMode::AutoConnect,
     const char *mediauri = nullptr,
     const char *username = nullptr,
     const char *password = nullptr,

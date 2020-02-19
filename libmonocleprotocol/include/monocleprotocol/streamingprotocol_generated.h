@@ -30,7 +30,7 @@ inline const StreamingProtocol (&EnumValuesStreamingProtocol())[5] {
 }
 
 inline const char * const *EnumNamesStreamingProtocol() {
-  static const char * const names[] = {
+  static const char * const names[6] = {
     "UDPUnicast",
     "TCPInterleaved",
     "UDPMulticast",
@@ -43,7 +43,7 @@ inline const char * const *EnumNamesStreamingProtocol() {
 
 inline const char *EnumNameStreamingProtocol(StreamingProtocol e) {
   if (e < StreamingProtocol::UDPUnicast || e > StreamingProtocol::HTTPUnicast) return "";
-  const size_t index = static_cast<int>(e);
+  const size_t index = static_cast<size_t>(e);
   return EnumNamesStreamingProtocol()[index];
 }
 

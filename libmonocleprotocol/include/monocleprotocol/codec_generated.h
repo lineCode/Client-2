@@ -32,7 +32,7 @@ inline const Codec (&EnumValuesCodec())[6] {
 }
 
 inline const char * const *EnumNamesCodec() {
-  static const char * const names[] = {
+  static const char * const names[7] = {
     "METADATA",
     "MJPEG",
     "MPEG4",
@@ -46,7 +46,7 @@ inline const char * const *EnumNamesCodec() {
 
 inline const char *EnumNameCodec(Codec e) {
   if (e < Codec::METADATA || e > Codec::OBJECTDETECTOR) return "";
-  const size_t index = static_cast<int>(e);
+  const size_t index = static_cast<size_t>(e);
   return EnumNamesCodec()[index];
 }
 

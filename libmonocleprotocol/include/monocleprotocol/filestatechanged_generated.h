@@ -20,8 +20,8 @@ struct FileStateChanged FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint64_t token() const {
     return GetField<uint64_t>(VT_TOKEN, 0);
   }
-  FileState state() const {
-    return static_cast<FileState>(GetField<int8_t>(VT_STATE, 0));
+  monocle::FileState state() const {
+    return static_cast<monocle::FileState>(GetField<int8_t>(VT_STATE, 0));
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -37,7 +37,7 @@ struct FileStateChangedBuilder {
   void add_token(uint64_t token) {
     fbb_.AddElement<uint64_t>(FileStateChanged::VT_TOKEN, token, 0);
   }
-  void add_state(FileState state) {
+  void add_state(monocle::FileState state) {
     fbb_.AddElement<int8_t>(FileStateChanged::VT_STATE, static_cast<int8_t>(state), 0);
   }
   explicit FileStateChangedBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -55,7 +55,7 @@ struct FileStateChangedBuilder {
 inline flatbuffers::Offset<FileStateChanged> CreateFileStateChanged(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t token = 0,
-    FileState state = FileState::Unmounted) {
+    monocle::FileState state = monocle::FileState::Unmounted) {
   FileStateChangedBuilder builder_(_fbb);
   builder_.add_token(token);
   builder_.add_state(state);

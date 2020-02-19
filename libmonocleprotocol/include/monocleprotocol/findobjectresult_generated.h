@@ -34,8 +34,8 @@ struct FindObjectResult FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint64_t end() const {
     return GetField<uint64_t>(VT_END, 0);
   }
-  ObjectClass objectclass() const {
-    return static_cast<ObjectClass>(GetField<uint16_t>(VT_OBJECTCLASS, 0));
+  monocle::ObjectClass objectclass() const {
+    return static_cast<monocle::ObjectClass>(GetField<uint16_t>(VT_OBJECTCLASS, 0));
   }
   uint64_t id() const {
     return GetField<uint64_t>(VT_ID, 0);
@@ -83,7 +83,7 @@ struct FindObjectResultBuilder {
   void add_end(uint64_t end) {
     fbb_.AddElement<uint64_t>(FindObjectResult::VT_END, end, 0);
   }
-  void add_objectclass(ObjectClass objectclass) {
+  void add_objectclass(monocle::ObjectClass objectclass) {
     fbb_.AddElement<uint16_t>(FindObjectResult::VT_OBJECTCLASS, static_cast<uint16_t>(objectclass), 0);
   }
   void add_id(uint64_t id) {
@@ -121,7 +121,7 @@ inline flatbuffers::Offset<FindObjectResult> CreateFindObjectResult(
     uint64_t token = 0,
     uint64_t start = 0,
     uint64_t end = 0,
-    ObjectClass objectclass = ObjectClass::Human,
+    monocle::ObjectClass objectclass = monocle::ObjectClass::Human,
     uint64_t id = 0,
     uint64_t largesttime = 0,
     float largestx = 0.0f,

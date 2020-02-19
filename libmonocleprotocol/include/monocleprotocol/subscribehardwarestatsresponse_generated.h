@@ -17,8 +17,8 @@ struct SubscribeHardwareStatsResponse FLATBUFFERS_FINAL_CLASS : private flatbuff
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_CURRENTHARDWARESTATS = 4
   };
-  const HardwareStats *currenthardwarestats() const {
-    return GetPointer<const HardwareStats *>(VT_CURRENTHARDWARESTATS);
+  const monocle::HardwareStats *currenthardwarestats() const {
+    return GetPointer<const monocle::HardwareStats *>(VT_CURRENTHARDWARESTATS);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -31,7 +31,7 @@ struct SubscribeHardwareStatsResponse FLATBUFFERS_FINAL_CLASS : private flatbuff
 struct SubscribeHardwareStatsResponseBuilder {
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_currenthardwarestats(flatbuffers::Offset<HardwareStats> currenthardwarestats) {
+  void add_currenthardwarestats(flatbuffers::Offset<monocle::HardwareStats> currenthardwarestats) {
     fbb_.AddOffset(SubscribeHardwareStatsResponse::VT_CURRENTHARDWARESTATS, currenthardwarestats);
   }
   explicit SubscribeHardwareStatsResponseBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -48,7 +48,7 @@ struct SubscribeHardwareStatsResponseBuilder {
 
 inline flatbuffers::Offset<SubscribeHardwareStatsResponse> CreateSubscribeHardwareStatsResponse(
     flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<HardwareStats> currenthardwarestats = 0) {
+    flatbuffers::Offset<monocle::HardwareStats> currenthardwarestats = 0) {
   SubscribeHardwareStatsResponseBuilder builder_(_fbb);
   builder_.add_currenthardwarestats(currenthardwarestats);
   return builder_.Finish();

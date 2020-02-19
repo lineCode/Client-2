@@ -18,7 +18,7 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) VERSION FLATBUFFERS_FINAL_CLASS {
 
  public:
   VERSION() {
-    memset(this, 0, sizeof(VERSION));
+    memset(static_cast<void *>(this), 0, sizeof(VERSION));
   }
   VERSION(int32_t _major, int32_t _minor, int32_t _build)
       : major_(flatbuffers::EndianScalar(_major)),

@@ -1173,6 +1173,7 @@ void ManageTrackWindow::on_buttonok_clicked()
   }
   else
   {
+    //TODO need to create a job first... which is weird, but then call a function do to the rest...
     //TODO remove the job from sqlite and try this
     int i = 0;//TODO remove
     //TODO now just find the highest priority one...
@@ -1252,13 +1253,22 @@ void ManageTrackWindow::on_buttonok_clicked()
   //TODO files needs to be sorted
   if (recordingjobsource_ && recordingjobsourcetrack_ && recordingtrack_)
   {
+    //TODO how do we get the object detector details... we need to work it out(same as constructor?)
+      //TODO save it in the constructor and use it here, or determine it again here?
+
     //TODO
-    addtrack2connection_ = device_->ChangeTrack2(recording_->GetToken(), recordingjobtoken, ui_.editdescription->text().toStdString(), ui_.checkfixedfiles->isChecked(), ui_.checkdigitalsigning->isChecked(), ui_.checkencrypt->isChecked(), ui_.spinflushfrequency->value(), {}, ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), receiverparameters, recordingjobsourcetrackparameters, objectdetectorsourcetrackparameters, [this](const std::chrono::steady_clock::duration latency, const monocle::client::CHANGETRACK2RESPONSE& changetrack2response)
+    addtrack2connection_ = device_->ChangeTrack2(recording_->GetToken(), recordingtrack_->GetId(), recordingjobtoken, recordingjobsource_->GetToken(), recordingjobsourcetrack_->GetToken(), objectdetectortrackid, objectdetectorrecordingjobsourcetoken, objectdetectorrecordingjobsourcetracktoken, ui_.editdescription->text().toStdString(), ui_.checkfixedfiles->isChecked(), ui_.checkdigitalsigning->isChecked(), ui_.checkencrypt->isChecked(), ui_.spinflushfrequency->value(), {}, ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), receiverparameters, recordingjobsourcetrackparameters, objectdetectorsourcetrackparameters, [this](const std::chrono::steady_clock::duration latency, const monocle::client::CHANGETRACK2RESPONSE& changetrack2response)
     {
-      //TODO
+      //TODO enable buttons... again
+        //TODO just create a method for tidy up all the enabled/disabled
 
+      if (changetrack2response.GetErrorCode() != monocle::ErrorCode::Success)
+      {
+        //TODO QMessageBox
+        return;
+      }
 
-
+      accept();
     });
   }
   else
