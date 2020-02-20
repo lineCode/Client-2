@@ -160,4 +160,55 @@ size_t RecordingJob::GetNumObjectDetectors() const
   return total;
 }
 
+std::vector< QSharedPointer<RecordingJobSource> > RecordingJob::GetObjectDetectors(const uint32_t trackid) const
+{
+  std::vector< QSharedPointer<RecordingJobSource> > results;
+  for (const QSharedPointer<RecordingJobSource>& source : sources_)
+  {
+    // Check to see whether this source is an object detector pointing to the original track
+    QSharedPointer<Receiver> receiver = device_->GetReceiver(source->GetReceiverToken());
+    if (!receiver)
+    {
+
+      continue;
+    }
+
+    try
+    {
+      network::uri uri(receiver->GetMediaUri().toStdString());
+      if (!uri.has_scheme() || !uri.has_path())
+      {
+
+        continue;
+      }
+
+      if (uri.scheme().compare("objectdetector"))
+      {
+
+        continue;
+      }
+
+      if (uri.path().compare(std::to_string(trackid)))//TODO not sure this works, be careful?
+      {
+
+        continue;
+      }
+
+      if (source->GetTracks(monocle::TrackType::ObjectDetector).empty())
+      {
+
+        continue;
+      }
+
+      results.push_back(source);
+    }
+    catch (...)
+    {
+
+      continue;
+    }
+  }
+  return results;
+}
+
 }

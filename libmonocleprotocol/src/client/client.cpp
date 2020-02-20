@@ -2318,6 +2318,28 @@ boost::system::error_code Client::ChangeRecordingJobSend(const uint64_t recordin
   return err;
 }
 
+boost::system::error_code Client::ChangeTrackSend(const uint64_t recordingtoken, const uint32_t id, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files)
+{
+  fbb_.Clear();
+  fbb_.Finish(CreateChangeTrackRequest(fbb_, recordingtoken, id, tracktype, fbb_.CreateString(description), fixedfiles, digitalsigning, encrypt, flushfrequency, fbb_.CreateVector(files)));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::CHANGETRACK, ++sequence_);
+  boost::system::error_code err;
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(fbb_.GetBufferPointer(), messagesize), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  return err;
+}
+
 boost::system::error_code Client::ChangeTrack2Send(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t recordingjobtoken, const uint64_t recordingjobsourcetoken, const uint64_t recordingjobsourcetracktoken, const uint32_t objectdetectorrecordingtrackid, const uint64_t objectdetectorrecordingjobsourcetoken, const uint64_t objectdetectorrecordingjobsourcetracktoken, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::string& mediauri, const std::string& username, const std::string& password, const std::vector<std::string>& receiverparameters, const std::vector<std::string>& sourceparameters, const std::vector<std::string>& objectdetectorsourceparameters)
 {
   fbb_.Clear();

@@ -171,44 +171,10 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>&
       //TODO does rotation etc etc and stuff go in here?
         //TODO I think rotation is on the recordingjobsource? or recordingjobsourcetrack...
 
-      for (const QSharedPointer<RecordingJobSource>& source : job->GetSources())
+      const std::vector< QSharedPointer<RecordingJobSource> > sources = job->GetObjectDetectors(recordingtrack_->GetId());
+      if (sources.size())
       {
-        // Check to see whether this source is an object detector pointing to the original track
-        QSharedPointer<Receiver> receiver = device_->GetReceiver(source->GetReceiverToken());
-        if (!receiver)
-        {
-
-          continue;
-        }
-
-        try
-        {
-          network::uri uri(receiver->GetMediaUri().toStdString());
-          if (!uri.has_scheme() || !uri.has_path())
-          {
-
-            continue;
-          }
-
-          if (uri.scheme().compare("objectdetector"))
-          {
-
-            continue;
-          }
-          
-          if (uri.path().compare(std::to_string(recordingtrack_->GetId())))//TODO not sure this works, be careful?
-          {
-
-            continue;
-          }
-        }
-        catch (...)
-        {
-
-          continue;
-        }
-
-        for (const QSharedPointer<RecordingJobSourceTrack>& sourcetrack : source->GetTracks())
+        for (const QSharedPointer<RecordingJobSourceTrack>& sourcetrack : sources.front()->GetTracks())
         {
           QSharedPointer<RecordingTrack> track = sourcetrack->GetTrack();
           if (track && (track->GetTrackType() == monocle::TrackType::ObjectDetector)) // This should always be true after looking above at the receiver, but lets just check just in case...
@@ -1165,20 +1131,30 @@ void ManageTrackWindow::on_buttonok_clicked()
 
   // Find or create a recording job
   QSharedPointer<RecordingJob> job = GetJob();
-  uint64_t recordingjobtoken = 0;
+  uint64_t recordingjobtoken = 1;
   if (job)
   {
     recordingjobtoken = job->GetToken();
 
+    //TODO call the method here, passing in the object detector details
+
   }
   else
   {
-    //TODO need to create a job first... which is weird, but then call a function do to the rest...
-    //TODO remove the job from sqlite and try this
-    int i = 0;//TODO remove
-    //TODO now just find the highest priority one...
-      //TODO if we don't find one then we need to create a job
+    //TODO disable buttons
+    addtrack2connection_ = device_->AddRecordingJob(recording_->GetToken(), "Job", true, 0, std::vector<monocle::ADDRECORDINGJOBSOURCE>(), [](const std::chrono::steady_clock::duration latency, const monocle::client::ADDRECORDINGJOBRESPONSE& addrecordingjobresponse)
+    {
+      if (addrecordingjobresponse.GetErrorCode() != monocle::ErrorCode::Success)
+      {
+        //TODO QMessageBox
+        return;
+      }
 
+      //TODO call the method here
+        //TODO pass in the new recording job token from the addrecordingjobresponse(and zero for all the object detector stuff)
+          //TODO what about if there is an object detector track hanging around for us... we would like to borrow that one...
+    });
+    return;
   }
 
   std::vector<std::string> receiverparameters;
@@ -1207,10 +1183,30 @@ void ManageTrackWindow::on_buttonok_clicked()
 
   }
 
+  uint32_t objectdetectortrackid = 0;
+  uint64_t objectdetectorrecordingjobsourcetoken = 0;
+  uint64_t objectdetectorrecordingjobsourcetracktoken = 0;
+  if (recordingjobsource_ && recordingjobsourcetrack_ && recordingtrack_)
+  {
+    const std::vector< QSharedPointer<RecordingJobSource> > sources = job->GetObjectDetectors(recordingtrack_->GetId());
+    if (sources.size())
+    {
+      std::vector< QSharedPointer<RecordingJobSourceTrack> > sourcetracks = sources.front()->GetTracks(monocle::TrackType::ObjectDetector);
+      if (sourcetracks.size())
+      {
+        if (sourcetracks.front()->GetTrack())
+        {
+          objectdetectortrackid = sourcetracks.front()->GetTrack()->GetId();
+          objectdetectorrecordingjobsourcetoken = sources.front()->GetToken();
+          objectdetectorrecordingjobsourcetracktoken = sourcetracks.front()->GetToken();
+        }
+      }
+    }
+  }
+
   // Object detector
-  const bool enableobjectdetector = ui_.checkobjectdetector->isChecked();
   std::vector<std::string> objectdetectorsourcetrackparameters;
-  if (enableobjectdetector)
+  if (ui_.checkobjectdetector->isChecked())
   {
     objectdetectorsourcetrackparameters.reserve(33);
     objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_ACCURACY_PARAMETER_NAME + "=" + QString::number(accuracy_)).toStdString());
