@@ -15,6 +15,7 @@
 #include "monocleprotocol/addonvifuserrequest_generated.h"
 #include "monocleprotocol/addreceiverrequest_generated.h"
 #include "monocleprotocol/addrecordingjobrequest_generated.h"
+#include "monocleprotocol/addrecordingjobresponse_generated.h"
 #include "monocleprotocol/addrecordingrequest_generated.h"
 #include "monocleprotocol/addrecordingresponse_generated.h"
 #include "monocleprotocol/addtrackrequest_generated.h"
@@ -1846,14 +1847,17 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
         }
       }
 
-      const Error error = AddRecordingJob(addrecordingjobrequest->recordingtoken(), name, addrecordingjobrequest->enabled(), addrecordingjobrequest->priority(), sources);
-      if (error.code_ != ErrorCode::Success)
+      const std::pair<Error, uint64_t> error = AddRecordingJob(addrecordingjobrequest->recordingtoken(), name, addrecordingjobrequest->enabled(), addrecordingjobrequest->priority(), sources);
+      if (error.first.code_ != ErrorCode::Success)
       {
 
-        return SendErrorResponse(Message::ADDRECORDINGJOB, sequence, error);
+        return SendErrorResponse(Message::ADDRECORDINGJOB, sequence, error.first);
       }
 
-      return SendHeaderResponse(HEADER(0, false, false, Message::ADDRECORDINGJOB, sequence));
+      std::lock_guard<std::mutex> lock(writemutex_);
+      fbb_.Clear();
+      fbb_.Finish(CreateAddRecordingJobResponse(fbb_, error.second));
+      return SendResponse(true, Message::ADDRECORDINGJOB, sequence);
     }
     case Message::ADDTRACK:
     {

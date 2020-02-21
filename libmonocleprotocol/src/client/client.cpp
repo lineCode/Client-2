@@ -19,6 +19,7 @@
 #include "monocleprotocol/addonvifuserrequest_generated.h"
 #include "monocleprotocol/addreceiverrequest_generated.h"
 #include "monocleprotocol/addrecordingjobrequest_generated.h"
+#include "monocleprotocol/addrecordingjobresponse_generated.h"
 #include "monocleprotocol/addrecordingjobsource_generated.h"
 #include "monocleprotocol/addrecordingrequest_generated.h"
 #include "monocleprotocol/addrecordingresponse_generated.h"
@@ -3537,7 +3538,28 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         return;
       }
 
-      addrecordingjob_.Response(sequence, ADDRECORDINGJOBRESPONSE());
+      if (data && datasize)
+      {
+        if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<AddRecordingJobResponse>(nullptr))
+        {
+          addrecordingjob_.Response(sequence, ADDRECORDINGJOBRESPONSE(Error(ErrorCode::InvalidMessage, "AddRecordingJobResponse verification failed")));
+          return;
+        }
+
+        const AddRecordingJobResponse* addrecordingjobresponse = flatbuffers::GetRoot<AddRecordingJobResponse>(data);
+        if (!addrecordingjobresponse)
+        {
+          addrecordingjob_.Response(sequence, ADDRECORDINGJOBRESPONSE(Error(ErrorCode::MissingParameter, "AddRecordingJobResponse missing parameter")));
+          return;
+        }
+        addrecordingjob_.Response(sequence, ADDRECORDINGJOBRESPONSE(addrecordingjobresponse->recordingjobtoken()));
+      }
+      else
+      {
+        addrecordingjob_.Response(sequence, ADDRECORDINGJOBRESPONSE(0));
+
+      }
+
       break;
     }
     case Message::ADDTRACK:

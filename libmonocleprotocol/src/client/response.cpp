@@ -95,14 +95,16 @@ ADDRECORDINGRESPONSE::ADDRECORDINGRESPONSE(const Error& error) :
 
 }
 
-ADDRECORDINGJOBRESPONSE::ADDRECORDINGJOBRESPONSE() :
-  RESPONSE(Error(ErrorCode::Success, std::string()))
+ADDRECORDINGJOBRESPONSE::ADDRECORDINGJOBRESPONSE(const uint64_t recordingjobtoken) :
+  RESPONSE(Error(ErrorCode::Success, std::string())),
+  recordingjobtoken_(recordingjobtoken)
 {
 
 }
 
 ADDRECORDINGJOBRESPONSE::ADDRECORDINGJOBRESPONSE(const Error& error) :
-  RESPONSE(error)
+  RESPONSE(error),
+  recordingjobtoken_(0)
 {
 
 }

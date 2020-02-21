@@ -82,8 +82,10 @@ struct ADDRECORDINGRESPONSE : public RESPONSE
 
 struct ADDRECORDINGJOBRESPONSE : public RESPONSE
 {
-  ADDRECORDINGJOBRESPONSE();
+  ADDRECORDINGJOBRESPONSE(const uint64_t recordingjobtoken);
   ADDRECORDINGJOBRESPONSE(const Error& error);
+
+  uint64_t recordingjobtoken_;
 
 };
 

@@ -802,6 +802,116 @@ void ManageTrackWindow::RTSPCallback(const std::string& uri, const std::string& 
   });
 }
 
+void ManageTrackWindow::SetTrack(const uint64_t recordingjobtoken, const uint64_t objectdetectortrackid, const uint64_t objectdetectorrecordingjobsourcetoken, const uint64_t objectdetectorrecordingjobsourcetracktoken)
+{
+  std::vector<std::string> receiverparameters;
+  if (!ui_.comboprotocol->currentData(STREAMING_PROTOCOL_ROLE).toString().isEmpty())
+  {
+    receiverparameters.push_back((STREAMING_PROTOCOL_PARAMETER_NAME + "=" + monocle::EnumNameStreamingProtocol(static_cast<monocle::StreamingProtocol>(ui_.comboprotocol->currentData(STREAMING_PROTOCOL_ROLE).toInt()))).toStdString());
+
+  }
+
+  std::vector<std::string> recordingjobsourcetrackparameters;
+  if (!ui_.editsourcetag->text().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((SOURCE_TAG_PARAMETER_NAME + "=" + ui_.editsourcetag->text()).toStdString());
+
+  }
+
+  if (!ui_.editprofiletoken->text().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((PROFILE_TOKEN_PARAMETER_NAME + "=" + ui_.editprofiletoken->text()).toStdString());
+
+  }
+
+  if (!ui_.comborotation->currentData(ROTATION_ROLE).toString().isEmpty())
+  {
+    recordingjobsourcetrackparameters.push_back((ROTATION_PARAMETER_NAME + "=" + ui_.comborotation->currentData(ROTATION_ROLE).toString()).toStdString());
+
+  }
+
+  // Object detector
+  std::vector<std::string> objectdetectorsourcetrackparameters;
+  if (ui_.checkobjectdetector->isChecked())
+  {
+    objectdetectorsourcetrackparameters.reserve(33);
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_ACCURACY_PARAMETER_NAME + "=" + QString::number(accuracy_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_HUMANS_ENABLED_PARAMETER_NAME + "=" + QString::number(humans_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_HUMANS_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(humanssensitivity_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_BICYCLES_ENABLED_PARAMETER_NAME + "=" + QString::number(bicycles_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_BICYCLES_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(bicyclessensitivity_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_CARS_ENABLED_PARAMETER_NAME + "=" + QString::number(cars_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_CARS_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(carssensitivity_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_MOTORBIKES_ENABLED_PARAMETER_NAME + "=" + QString::number(motorbikes_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_MOTORBIKES_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(motorbikessensitivity_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_BUSES_ENABLED_PARAMETER_NAME + "=" + QString::number(buses_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_BUSES_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(busessensitivity_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_TRUCKS_ENABLED_PARAMETER_NAME + "=" + QString::number(trucks_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_TRUCKS_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(truckssensitivity_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_BACKPACKS_ENABLED_PARAMETER_NAME + "=" + QString::number(backpacks_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_BACKPACKS_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(backpackssensitivity_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_UMBRELLAS_ENABLED_PARAMETER_NAME + "=" + QString::number(umbrellas_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_UMBRELLAS_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(umbrellassensitivity_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_HANDBAGS_ENABLED_PARAMETER_NAME + "=" + QString::number(handbags_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_HANDBAGS_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(handbagssensitivity_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_SUITCASES_ENABLED_PARAMETER_NAME + "=" + QString::number(suitcases_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_SUITCASES_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(suitcasessensitivity_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_CATS_ENABLED_PARAMETER_NAME + "=" + QString::number(cats_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_CATS_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(catssensitivity_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_DOGS_ENABLED_PARAMETER_NAME + "=" + QString::number(dogs_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_DOGS_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(dogssensitivity_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_AEROPLANES_ENABLED_PARAMETER_NAME + "=" + QString::number(aeroplanes_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_AEROPLANES_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(aeroplanessensitivity_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_TRAINS_ENABLED_PARAMETER_NAME + "=" + QString::number(trains_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_TRAINS_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(trainssensitivity_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_BOATS_ENABLED_PARAMETER_NAME + "=" + QString::number(boats_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_BOATS_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(boatssensitivity_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_HORSES_ENABLED_PARAMETER_NAME + "=" + QString::number(horses_)).toStdString());
+    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_HORSES_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(horsessensitivity_)).toStdString());
+  }
+
+  //TODO disable buttons
+
+  //TODO files needs to be sorted
+  if (recordingjobsource_ && recordingjobsourcetrack_ && recordingtrack_)
+  {
+    //TODO how do we get the object detector details... we need to work it out(same as constructor?)
+      //TODO save it in the constructor and use it here, or determine it again here?
+
+    //TODO
+    addtrack2connection_ = device_->ChangeTrack2(recording_->GetToken(), recordingtrack_->GetId(), recordingjobtoken, recordingjobsource_->GetToken(), recordingjobsourcetrack_->GetToken(), objectdetectortrackid, objectdetectorrecordingjobsourcetoken, objectdetectorrecordingjobsourcetracktoken, ui_.editdescription->text().toStdString(), ui_.checkfixedfiles->isChecked(), ui_.checkdigitalsigning->isChecked(), ui_.checkencrypt->isChecked(), ui_.spinflushfrequency->value(), {}, ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), receiverparameters, recordingjobsourcetrackparameters, objectdetectorsourcetrackparameters, [this](const std::chrono::steady_clock::duration latency, const monocle::client::CHANGETRACK2RESPONSE& changetrack2response)
+    {
+      //TODO enable buttons... again
+        //TODO just create a method for tidy up all the enabled/disabled
+
+      if (changetrack2response.GetErrorCode() != monocle::ErrorCode::Success)
+      {
+        //TODO QMessageBox
+        return;
+      }
+
+      accept();
+    });
+  }
+  else
+  {
+    addtrack2connection_ = device_->AddTrack2(recording_->GetToken(), recordingjobtoken, monocle::TrackType::Video, ui_.editdescription->text().toStdString(), ui_.checkfixedfiles->isChecked(), ui_.checkdigitalsigning->isChecked(), ui_.checkencrypt->isChecked(), ui_.spinflushfrequency->value(), {}, ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), receiverparameters, recordingjobsourcetrackparameters, objectdetectorsourcetrackparameters, [this](const std::chrono::steady_clock::duration latency, const monocle::client::ADDTRACK2RESPONSE& addtrack2response)
+    {
+
+      //TODO enable buttons... again
+        //TODO just create a method for tidy up all the enabled/disabled
+
+      if (addtrack2response.GetErrorCode() != monocle::ErrorCode::Success)
+      {
+        //TODO QMessageBox
+        return;
+      }
+
+      accept();
+    });
+  }
+}
+
 void ManageTrackWindow::on_edituri_textChanged(const QString& text)
 {
   try
@@ -1124,7 +1234,6 @@ void ManageTrackWindow::on_buttontest_clicked()
 
 void ManageTrackWindow::on_buttonok_clicked()
 {
-
   //TODO make sure uri is valid
     //TODO not sure how much of this we want to do, because we may actually WANT to have a dodgy uri because we might get the validation wrong.
   //TODO check uri looks like rtsp or http://1.2.3.4:99/onvif/device_service
@@ -1134,155 +1243,53 @@ void ManageTrackWindow::on_buttonok_clicked()
   uint64_t recordingjobtoken = 1;
   if (job)
   {
-    recordingjobtoken = job->GetToken();
+    uint32_t objectdetectortrackid = 0;
+    uint64_t objectdetectorrecordingjobsourcetoken = 0;
+    uint64_t objectdetectorrecordingjobsourcetracktoken = 0;
+    if (recordingjobsource_ && recordingjobsourcetrack_ && recordingtrack_)
+    {
+      const std::vector< QSharedPointer<RecordingJobSource> > sources = job->GetObjectDetectors(recordingtrack_->GetId());
+      if (sources.size())
+      {
+        std::vector< QSharedPointer<RecordingJobSourceTrack> > sourcetracks = sources.front()->GetTracks(monocle::TrackType::ObjectDetector);
+        if (sourcetracks.size())
+        {
+          if (sourcetracks.front()->GetTrack())
+          {
+            objectdetectortrackid = sourcetracks.front()->GetTrack()->GetId();
+            objectdetectorrecordingjobsourcetoken = sources.front()->GetToken();
+            objectdetectorrecordingjobsourcetracktoken = sourcetracks.front()->GetToken();
+          }
+        }
+      }
+    }
 
-    //TODO call the method here, passing in the object detector details
-
+    SetTrack(job->GetToken(), objectdetectortrackid, objectdetectorrecordingjobsourcetoken, objectdetectorrecordingjobsourcetracktoken);
   }
   else
   {
     //TODO disable buttons
-    addtrack2connection_ = device_->AddRecordingJob(recording_->GetToken(), "Job", true, 0, std::vector<monocle::ADDRECORDINGJOBSOURCE>(), [](const std::chrono::steady_clock::duration latency, const monocle::client::ADDRECORDINGJOBRESPONSE& addrecordingjobresponse)
+    addtrack2connection_ = device_->AddRecordingJob(recording_->GetToken(), "Job", true, 0, std::vector<monocle::ADDRECORDINGJOBSOURCE>(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::ADDRECORDINGJOBRESPONSE& addrecordingjobresponse)
     {
       if (addrecordingjobresponse.GetErrorCode() != monocle::ErrorCode::Success)
       {
+        //TODO enable buttons... method to do so
+          //TODO make sure we only enable the correct ones...
         //TODO QMessageBox
         return;
       }
 
-      //TODO call the method here
-        //TODO pass in the new recording job token from the addrecordingjobresponse(and zero for all the object detector stuff)
-          //TODO what about if there is an object detector track hanging around for us... we would like to borrow that one...
+      uint32_t objectdetectortrackid = 0;
+      const std::vector< QSharedPointer<RecordingTrack> > objectdetectortracks = recording_->GetObjectDetectorTracks();
+      if (objectdetectortracks.size())
+      {
+        objectdetectortrackid = objectdetectortracks.front()->GetId();
+
+      }
+
+      SetTrack(addrecordingjobresponse.recordingjobtoken_, objectdetectortrackid, 0, 0);
     });
     return;
-  }
-
-  std::vector<std::string> receiverparameters;
-  if (!ui_.comboprotocol->currentData(STREAMING_PROTOCOL_ROLE).toString().isEmpty())
-  {
-    receiverparameters.push_back((STREAMING_PROTOCOL_PARAMETER_NAME + "=" + monocle::EnumNameStreamingProtocol(static_cast<monocle::StreamingProtocol>(ui_.comboprotocol->currentData(STREAMING_PROTOCOL_ROLE).toInt()))).toStdString());
-
-  }
-
-  std::vector<std::string> recordingjobsourcetrackparameters;
-  if (!ui_.editsourcetag->text().isEmpty())
-  {
-    recordingjobsourcetrackparameters.push_back((SOURCE_TAG_PARAMETER_NAME + "=" + ui_.editsourcetag->text()).toStdString());
-
-  }
-
-  if (!ui_.editprofiletoken->text().isEmpty())
-  {
-    recordingjobsourcetrackparameters.push_back((PROFILE_TOKEN_PARAMETER_NAME + "=" + ui_.editprofiletoken->text()).toStdString());
-
-  }
-
-  if (!ui_.comborotation->currentData(ROTATION_ROLE).toString().isEmpty())
-  {
-    recordingjobsourcetrackparameters.push_back((ROTATION_PARAMETER_NAME + "=" + ui_.comborotation->currentData(ROTATION_ROLE).toString()).toStdString());
-
-  }
-
-  uint32_t objectdetectortrackid = 0;
-  uint64_t objectdetectorrecordingjobsourcetoken = 0;
-  uint64_t objectdetectorrecordingjobsourcetracktoken = 0;
-  if (recordingjobsource_ && recordingjobsourcetrack_ && recordingtrack_)
-  {
-    const std::vector< QSharedPointer<RecordingJobSource> > sources = job->GetObjectDetectors(recordingtrack_->GetId());
-    if (sources.size())
-    {
-      std::vector< QSharedPointer<RecordingJobSourceTrack> > sourcetracks = sources.front()->GetTracks(monocle::TrackType::ObjectDetector);
-      if (sourcetracks.size())
-      {
-        if (sourcetracks.front()->GetTrack())
-        {
-          objectdetectortrackid = sourcetracks.front()->GetTrack()->GetId();
-          objectdetectorrecordingjobsourcetoken = sources.front()->GetToken();
-          objectdetectorrecordingjobsourcetracktoken = sourcetracks.front()->GetToken();
-        }
-      }
-    }
-  }
-
-  // Object detector
-  std::vector<std::string> objectdetectorsourcetrackparameters;
-  if (ui_.checkobjectdetector->isChecked())
-  {
-    objectdetectorsourcetrackparameters.reserve(33);
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_ACCURACY_PARAMETER_NAME + "=" + QString::number(accuracy_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_HUMANS_ENABLED_PARAMETER_NAME + "=" + QString::number(humans_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_HUMANS_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(humanssensitivity_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_BICYCLES_ENABLED_PARAMETER_NAME + "=" + QString::number(bicycles_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_BICYCLES_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(bicyclessensitivity_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_CARS_ENABLED_PARAMETER_NAME + "=" + QString::number(cars_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_CARS_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(carssensitivity_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_MOTORBIKES_ENABLED_PARAMETER_NAME + "=" + QString::number(motorbikes_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_MOTORBIKES_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(motorbikessensitivity_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_BUSES_ENABLED_PARAMETER_NAME + "=" + QString::number(buses_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_BUSES_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(busessensitivity_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_TRUCKS_ENABLED_PARAMETER_NAME + "=" + QString::number(trucks_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_TRUCKS_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(truckssensitivity_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_BACKPACKS_ENABLED_PARAMETER_NAME + "=" + QString::number(backpacks_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_BACKPACKS_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(backpackssensitivity_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_UMBRELLAS_ENABLED_PARAMETER_NAME + "=" + QString::number(umbrellas_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_UMBRELLAS_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(umbrellassensitivity_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_HANDBAGS_ENABLED_PARAMETER_NAME + "=" + QString::number(handbags_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_HANDBAGS_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(handbagssensitivity_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_SUITCASES_ENABLED_PARAMETER_NAME + "=" + QString::number(suitcases_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_SUITCASES_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(suitcasessensitivity_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_CATS_ENABLED_PARAMETER_NAME + "=" + QString::number(cats_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_CATS_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(catssensitivity_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_DOGS_ENABLED_PARAMETER_NAME + "=" + QString::number(dogs_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_DOGS_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(dogssensitivity_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_AEROPLANES_ENABLED_PARAMETER_NAME + "=" + QString::number(aeroplanes_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_AEROPLANES_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(aeroplanessensitivity_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_TRAINS_ENABLED_PARAMETER_NAME + "=" + QString::number(trains_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_TRAINS_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(trainssensitivity_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_BOATS_ENABLED_PARAMETER_NAME + "=" + QString::number(boats_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_BOATS_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(boatssensitivity_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_HORSES_ENABLED_PARAMETER_NAME + "=" + QString::number(horses_)).toStdString());
-    objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_HORSES_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(horsessensitivity_)).toStdString());
-  }
-
-  //TODO disable buttons
-
-  //TODO files needs to be sorted
-  if (recordingjobsource_ && recordingjobsourcetrack_ && recordingtrack_)
-  {
-    //TODO how do we get the object detector details... we need to work it out(same as constructor?)
-      //TODO save it in the constructor and use it here, or determine it again here?
-
-    //TODO
-    addtrack2connection_ = device_->ChangeTrack2(recording_->GetToken(), recordingtrack_->GetId(), recordingjobtoken, recordingjobsource_->GetToken(), recordingjobsourcetrack_->GetToken(), objectdetectortrackid, objectdetectorrecordingjobsourcetoken, objectdetectorrecordingjobsourcetracktoken, ui_.editdescription->text().toStdString(), ui_.checkfixedfiles->isChecked(), ui_.checkdigitalsigning->isChecked(), ui_.checkencrypt->isChecked(), ui_.spinflushfrequency->value(), {}, ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), receiverparameters, recordingjobsourcetrackparameters, objectdetectorsourcetrackparameters, [this](const std::chrono::steady_clock::duration latency, const monocle::client::CHANGETRACK2RESPONSE& changetrack2response)
-    {
-      //TODO enable buttons... again
-        //TODO just create a method for tidy up all the enabled/disabled
-
-      if (changetrack2response.GetErrorCode() != monocle::ErrorCode::Success)
-      {
-        //TODO QMessageBox
-        return;
-      }
-
-      accept();
-    });
-  }
-  else
-  {
-    addtrack2connection_ = device_->AddTrack2(recording_->GetToken(), recordingjobtoken, monocle::TrackType::Video, ui_.editdescription->text().toStdString(), ui_.checkfixedfiles->isChecked(), ui_.checkdigitalsigning->isChecked(), ui_.checkencrypt->isChecked(), ui_.spinflushfrequency->value(), {}, ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), receiverparameters, recordingjobsourcetrackparameters, objectdetectorsourcetrackparameters, [this](const std::chrono::steady_clock::duration latency, const monocle::client::ADDTRACK2RESPONSE& addtrack2response)
-    {
-
-      //TODO enable buttons... again
-        //TODO just create a method for tidy up all the enabled/disabled
-
-      if (addtrack2response.GetErrorCode() != monocle::ErrorCode::Success)
-      {
-        //TODO QMessageBox
-        return;
-      }
-
-      accept();
-    });
   }
 }
 
