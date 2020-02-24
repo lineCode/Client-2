@@ -152,9 +152,9 @@ std::pair<Error, uint64_t> TestConnection::AddRecording(const std::string& sourc
   return std::make_pair(Error(), 0);
 }
 
-Error TestConnection::AddRecordingJob(const uint64_t recordingtoken, const std::string& name, const bool enabled, const uint64_t priority, const std::vector<monocle::ADDRECORDINGJOBSOURCE>& sources)
+std::pair<Error, uint64_t> TestConnection::AddRecordingJob(const uint64_t recordingtoken, const std::string& name, const bool enabled, const uint64_t priority, const std::vector<monocle::ADDRECORDINGJOBSOURCE>& sources)
 {
-  return Error();
+  return std::make_pair(Error(), 0);
 }
 
 std::pair<Error, uint32_t> TestConnection::AddTrack(const uint64_t recordingtoken, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files)
@@ -220,6 +220,11 @@ Error TestConnection::ChangeRecordingJob(const uint64_t recordingtoken, const ui
 }
 
 Error TestConnection::ChangeTrack(const uint64_t recordingtoken, const uint32_t id, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files)
+{
+  return Error();
+}
+
+Error TestConnection::ChangeTrack2(const uint64_t recordingtoken, const uint32_t trackid, const uint64_t recordingjobtoken, const uint64_t recordingjobsourcetoken, const uint64_t recordingjobsourcetracktoken, const uint32_t objectdetectortrackid, const uint64_t objectdetectorrecordingjobsourcetoken, const uint64_t objectdetectorrecordingjobsourcetracktoken, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::string& mediauri, const std::string& username, const std::string& password, const std::vector<std::string>& receiverparameters, const std::vector<std::string>& sourceparameters, const std::vector<std::string>& objectdetectorsourceparameters)
 {
   return Error();
 }
@@ -385,6 +390,11 @@ Error TestConnection::RemoveRecordingJobSource(const uint64_t recordingtoken, co
 }
 
 Error TestConnection::RemoveTrack(const uint64_t recordingtoken, const uint32_t id)
+{
+  return Error();
+}
+
+Error TestConnection::RemoveTracks(const uint64_t recordingtoken, const std::vector<uint32_t>& ids)
 {
   return Error();
 }

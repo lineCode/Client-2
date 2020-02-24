@@ -188,7 +188,7 @@ std::vector< QSharedPointer<RecordingJobSource> > RecordingJob::GetObjectDetecto
         continue;
       }
 
-      if (uri.path().compare(std::to_string(trackid)))//TODO not sure this works, be careful?
+      if (uri.host().compare(std::to_string(trackid)))
       {
 
         continue;
