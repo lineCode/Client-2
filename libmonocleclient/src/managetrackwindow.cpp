@@ -15,6 +15,7 @@
 
 #include "monocleclient/mainwindow.h"
 #include "monocleclient/device.h"
+#include "monocleclient/managetrackfileswindow.h"
 #include "monocleclient/managetrackobjectdetectorwindow.h"
 #include "monocleclient/receiver.h"
 #include "monocleclient/recording.h"
@@ -1011,6 +1012,16 @@ void ManageTrackWindow::on_buttonobjectdetectorsettings_clicked()
     trainssensitivity_ = managetrackobjectdetectorwindow.trainssensitivity_;
     boatssensitivity_ = managetrackobjectdetectorwindow.boatssensitivity_;
     horsessensitivity_ = managetrackobjectdetectorwindow.horsessensitivity_;
+  }
+}
+
+void ManageTrackWindow::on_buttonfiles_clicked()
+{
+  ManageTrackFilesWindow managetrackfileswindow(this, device_, files_);
+  if (managetrackfileswindow.exec() == QDialog::Accepted)
+  {
+    files_ = managetrackfileswindow.files_;
+
   }
 }
 

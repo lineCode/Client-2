@@ -16,6 +16,9 @@
 #include <QCompleter>
 #include <QSharedPointer>
 #include <QStringListModel>
+#include <vector>
+
+#include "monocleclient/file.h"
 
 ///// Declarations /////
 
@@ -93,6 +96,8 @@ class ManageTrackWindow : public QDialog
   boost::shared_ptr<onvif::media::MediaClient> mediaclient_;
   boost::shared_ptr< rtsp::Client<ManageTrackWindow> > rtspclient_;
 
+  std::vector< QSharedPointer<File> > files_;
+
   int accuracy_; // 0=Low,1=Medium,2=High,3=VeryHigh
   bool humans_;
   bool bicycles_;
@@ -139,6 +144,7 @@ class ManageTrackWindow : public QDialog
   void on_checkfixedfiles_stateChanged(int);
   void on_checkobjectdetector_stateChanged(int);
   void on_buttonobjectdetectorsettings_clicked();
+  void on_buttonfiles_clicked();
   void on_buttonfindonvifdevice_clicked();
   void on_buttontest_clicked();
   void on_buttonok_clicked();
