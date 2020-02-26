@@ -871,16 +871,22 @@ void ManageTrackWindow::SetTrack(const uint64_t recordingjobtoken, const uint64_
     objectdetectorsourcetrackparameters.push_back((OBJECT_DETECTOR_HORSES_SENSITIVITY_PARAMETER_NAME + "=" + QString::number(horsessensitivity_)).toStdString());
   }
 
+  std::vector<uint64_t> filetokens;
+  if (ui_.checkfixedfiles->isChecked())
+  {
+    filetokens.reserve(files_.size());
+    for (const QSharedPointer<File>& file : files_)
+    {
+      filetokens.push_back(file->GetToken());
+
+    }
+  }
+
   //TODO disable buttons
 
-  //TODO files needs to be sorted
   if (recordingjobsource_ && recordingjobsourcetrack_ && recordingtrack_)
   {
-    //TODO how do we get the object detector details... we need to work it out(same as constructor?)
-      //TODO save it in the constructor and use it here, or determine it again here?
-
-    //TODO
-    addtrack2connection_ = device_->ChangeTrack2(recording_->GetToken(), recordingtrack_->GetId(), recordingjobtoken, recordingjobsource_->GetToken(), recordingjobsourcetrack_->GetToken(), objectdetectortrackid, objectdetectorrecordingjobsourcetoken, objectdetectorrecordingjobsourcetracktoken, ui_.editdescription->text().toStdString(), ui_.checkfixedfiles->isChecked(), ui_.checkdigitalsigning->isChecked(), ui_.checkencrypt->isChecked(), ui_.spinflushfrequency->value(), {}, ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), receiverparameters, recordingjobsourcetrackparameters, objectdetectorsourcetrackparameters, [this](const std::chrono::steady_clock::duration latency, const monocle::client::CHANGETRACK2RESPONSE& changetrack2response)
+    addtrack2connection_ = device_->ChangeTrack2(recording_->GetToken(), recordingtrack_->GetId(), recordingjobtoken, recordingjobsource_->GetToken(), recordingjobsourcetrack_->GetToken(), objectdetectortrackid, objectdetectorrecordingjobsourcetoken, objectdetectorrecordingjobsourcetracktoken, ui_.editdescription->text().toStdString(), ui_.checkfixedfiles->isChecked(), ui_.checkdigitalsigning->isChecked(), ui_.checkencrypt->isChecked(), ui_.spinflushfrequency->value(), filetokens, ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), receiverparameters, recordingjobsourcetrackparameters, objectdetectorsourcetrackparameters, [this](const std::chrono::steady_clock::duration latency, const monocle::client::CHANGETRACK2RESPONSE& changetrack2response)
     {
       //TODO enable buttons... again
         //TODO just create a method for tidy up all the enabled/disabled
@@ -896,7 +902,7 @@ void ManageTrackWindow::SetTrack(const uint64_t recordingjobtoken, const uint64_
   }
   else
   {
-    addtrack2connection_ = device_->AddTrack2(recording_->GetToken(), recordingjobtoken, monocle::TrackType::Video, ui_.editdescription->text().toStdString(), ui_.checkfixedfiles->isChecked(), ui_.checkdigitalsigning->isChecked(), ui_.checkencrypt->isChecked(), ui_.spinflushfrequency->value(), {}, ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), receiverparameters, recordingjobsourcetrackparameters, objectdetectorsourcetrackparameters, [this](const std::chrono::steady_clock::duration latency, const monocle::client::ADDTRACK2RESPONSE& addtrack2response)
+    addtrack2connection_ = device_->AddTrack2(recording_->GetToken(), recordingjobtoken, monocle::TrackType::Video, ui_.editdescription->text().toStdString(), ui_.checkfixedfiles->isChecked(), ui_.checkdigitalsigning->isChecked(), ui_.checkencrypt->isChecked(), ui_.spinflushfrequency->value(), filetokens, ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), receiverparameters, recordingjobsourcetrackparameters, objectdetectorsourcetrackparameters, [this](const std::chrono::steady_clock::duration latency, const monocle::client::ADDTRACK2RESPONSE& addtrack2response)
     {
 
       //TODO enable buttons... again
