@@ -95,6 +95,7 @@ include/monocleclient/managerecordingtrackwindow.h
 include/monocleclient/managerecordingwindow.h
 include/monocleclient/managetrackobjectdetectorwindow.h
 include/monocleclient/managetrackfileswindow.h
+include/monocleclient/managetrackfindonvifdevicewindow.h
 include/monocleclient/managetrackwindow.h
 include/monocleclient/manageuserswindow.h
 include/monocleclient/manageuserwindow.h
@@ -232,6 +233,7 @@ src/managerecordingtrackwindow.cpp
 src/managerecordingwindow.cpp
 src/managetrackobjectdetectorwindow.cpp
 src/managetrackfileswindow.cpp
+src/managetrackfindonvifdevicewindow.cpp
 src/managetrackwindow.cpp
 src/manageuserswindow.cpp
 src/manageuserwindow.cpp
@@ -328,6 +330,7 @@ managerecordingtrackwindow.ui
 managerecordingwindow.ui
 managetrackobjectdetectorwindow.ui
 managetrackfileswindow.ui
+managetrackfindonvifdevicewindow.ui
 managetrackwindow.ui
 manageuserswindow.ui
 manageuserwindow.ui

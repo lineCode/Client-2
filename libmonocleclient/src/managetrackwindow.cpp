@@ -16,6 +16,7 @@
 #include "monocleclient/mainwindow.h"
 #include "monocleclient/device.h"
 #include "monocleclient/managetrackfileswindow.h"
+#include "monocleclient/managetrackfindonvifdevicewindow.h"
 #include "monocleclient/managetrackobjectdetectorwindow.h"
 #include "monocleclient/receiver.h"
 #include "monocleclient/recording.h"
@@ -173,7 +174,7 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>&
     boost::optional<ROTATION> rotation = recordingjobsourcetrack_->GetRotation();
     if (rotation.is_initialized())
     {
-      int i = ui_.comborotation->findData(QString::number(static_cast<int>(*rotation)));
+      const int i = ui_.comborotation->findData(QString::number(static_cast<int>(*rotation)));
       if (i != 1)
       {
         ui_.comborotation->setCurrentIndex(i);
@@ -1048,7 +1049,12 @@ void ManageTrackWindow::on_buttonfiles_clicked()
 
 void ManageTrackWindow::on_buttonfindonvifdevice_clicked()
 {
-  //TODO open the find a onvif device window...
+  ManageTrackFindONVIFDeviceWindow managetrackfindonvifdevicewindow(this, device_);
+  if (managetrackfindonvifdevicewindow.exec() == QDialog::Accepted)
+  {
+    //TODO
+
+  }
 }
 
 void ManageTrackWindow::on_buttontest_clicked()
