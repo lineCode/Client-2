@@ -118,8 +118,23 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>&
     ui_.checkencrypt->setChecked(recordingtrack_->GetEncrypt());
     ui_.checkfixedfiles->setChecked(recordingtrack_->GetFixedFiles());
 
-    //TODO we need to remember which files we are going to recording to here...
-      //TODO whether or not we want to have fixed files or not
+    if (recordingtrack_->GetFixedFiles())
+    {
+      for (const uint64_t filetoken : recordingtrack_->GetFiles())
+      {
+        QSharedPointer<File> file = device_->GetFile(filetoken);
+        if (file)
+        {
+          files_.push_back(file);
+
+        }
+      }
+    }
+    else
+    {
+      files_ = device_->GetFiles();
+
+    }
 
     QSharedPointer<Receiver> receiver = device_->GetReceiver(recordingjobsource_->GetReceiverToken());
     if (receiver)
@@ -971,7 +986,7 @@ void ManageTrackWindow::on_edituri_textChanged(const QString& text)
 void ManageTrackWindow::on_checkfixedfiles_stateChanged(int)
 {
   ui_.buttonfiles->setEnabled(ui_.checkfixedfiles->isChecked());
-
+  
 }
 
 void ManageTrackWindow::on_checkobjectdetector_stateChanged(int)
