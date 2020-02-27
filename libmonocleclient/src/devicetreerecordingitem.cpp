@@ -222,7 +222,7 @@ void DeviceTreeRecordingItem::UpdateChildren()
           continue;
         }
 
-        addChild(new DeviceTreeRecordingTrackItem(this, device_, recording_, source, sourcetrack, track));
+        addChild(new DeviceTreeRecordingTrackItem(this, device_, recording_, job, source, sourcetrack, track));
       }
     }
   }
@@ -330,7 +330,7 @@ void DeviceTreeRecordingItem::Edit(bool)
 
 void DeviceTreeRecordingItem::AddVideoTrack(bool)
 {
-  ManageTrackWindow(treeWidget(), device_, recording_, nullptr, nullptr, nullptr).exec();
+  ManageTrackWindow(treeWidget(), device_, recording_, nullptr, nullptr, nullptr, nullptr).exec();
 
 }
 

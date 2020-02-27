@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1041</width>
-    <height>538</height>
+    <width>750</width>
+    <height>576</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -138,7 +138,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>351</width>
-                 <height>258</height>
+                 <height>348</height>
                 </rect>
                </property>
                <layout class="QGridLayout" name="gridLayout_12">
@@ -178,47 +178,6 @@
            <layout class="QGridLayout" name="gridLayout_3">
             <item row="2" column="0">
              <layout class="QGridLayout" name="gridLayout_2">
-              <item row="0" column="1">
-               <widget class="QLineEdit" name="edituri">
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Examples: rtsp://1.2.3.4/media.sdp&lt;/p&gt;&lt;p&gt;http://2.3.4.5/onvif/device_service&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="QLineEdit" name="editsourcetag"/>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_6">
-                <property name="text">
-                 <string>Profile Token:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QLineEdit" name="editprofiletoken">
-                <property name="toolTip">
-                 <string>The profile to stream, if empty use the default profile</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="1" rowspan="5">
-               <widget class="QLineEdit" name="editusername"/>
-              </item>
-              <item row="3" column="0" rowspan="5">
-               <widget class="QLabel" name="label_2">
-                <property name="text">
-                 <string>Username:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="8" column="1" rowspan="5">
-               <widget class="QLineEdit" name="editpassword">
-                <property name="echoMode">
-                 <enum>QLineEdit::Password</enum>
-                </property>
-               </widget>
-              </item>
               <item row="0" column="0">
                <widget class="QLabel" name="label_4">
                 <property name="text">
@@ -226,17 +185,34 @@
                 </property>
                </widget>
               </item>
-              <item row="8" column="0" rowspan="5">
-               <widget class="QLabel" name="label">
+              <item row="1" column="0" rowspan="5">
+               <widget class="QLabel" name="label_2">
                 <property name="text">
-                 <string>Password:</string>
+                 <string>Username:</string>
                 </property>
                </widget>
               </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="label_7">
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="edituri">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Examples: rtsp://1.2.3.4/media.sdp&lt;/p&gt;&lt;p&gt;http://2.3.4.5/onvif/device_service&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1" rowspan="5">
+               <widget class="QLineEdit" name="editusername"/>
+              </item>
+              <item row="6" column="1" rowspan="5">
+               <widget class="QLineEdit" name="editpassword">
+                <property name="echoMode">
+                 <enum>QLineEdit::Password</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="0" rowspan="5">
+               <widget class="QLabel" name="label">
                 <property name="text">
-                 <string>Source Tag:</string>
+                 <string>Password:</string>
                 </property>
                </widget>
               </item>
@@ -265,31 +241,6 @@
          </item>
         </layout>
        </widget>
-       <widget class="QGroupBox" name="groupBox_3">
-        <property name="title">
-         <string>Details</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_8">
-         <item row="0" column="0">
-          <widget class="QTreeWidget" name="treedetails">
-           <property name="minimumSize">
-            <size>
-             <width>250</width>
-             <height>0</height>
-            </size>
-           </property>
-           <attribute name="headerVisible">
-            <bool>false</bool>
-           </attribute>
-           <column>
-            <property name="text">
-             <string notr="true">1</string>
-            </property>
-           </column>
-          </widget>
-         </item>
-        </layout>
-       </widget>
       </widget>
      </item>
     </layout>
@@ -311,14 +262,11 @@
   <tabstop>checklinklocal</tabstop>
   <tabstop>buttondiscoverrefresh</tabstop>
   <tabstop>edituri</tabstop>
-  <tabstop>editprofiletoken</tabstop>
-  <tabstop>editsourcetag</tabstop>
   <tabstop>editusername</tabstop>
   <tabstop>editpassword</tabstop>
   <tabstop>scrollArea</tabstop>
   <tabstop>buttonok</tabstop>
   <tabstop>buttoncancel</tabstop>
-  <tabstop>treedetails</tabstop>
  </tabstops>
  <resources/>
  <connections/>

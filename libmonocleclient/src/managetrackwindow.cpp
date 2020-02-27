@@ -11,6 +11,7 @@
 #include <network/uri.hpp>
 #include <onvifclient/deviceclient.hpp>
 #include <onvifclient/mediaclient.hpp>
+#include <QMessageBox>
 #include <QString>
 
 #include "monocleclient/mainwindow.h"
@@ -37,9 +38,8 @@ const int STREAMING_PROTOCOL_ROLE = Qt::UserRole;
 const int ROTATION_ROLE = Qt::UserRole + 1;
 
 ///// Methods /////
-//TODO pass in the RecordingJob too, along with the RecordingJobSource, because we need this when EDITING!
-  //TODO then check it everywhere downstairs as well
-ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingJobSource>& recordingjobsource, const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& recordingtrack) :
+
+ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingJob>& recordingjob, const QSharedPointer<RecordingJobSource>& recordingjobsource, const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& recordingtrack) :
   QDialog(parent),
   profilemodel_(new QStringListModel(this)),
   sourcetagmodel_(new QStringListModel(this)),
@@ -47,6 +47,7 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>&
   sourcetagcompleter_(new QCompleter(this)),
   device_(device),
   recording_(recording),
+  recordingjob_(recordingjob),
   recordingjobsource_(recordingjobsource),
   recordingjobsourcetrack_(recordingjobsourcetrack),
   recordingtrack_(recordingtrack),
@@ -87,7 +88,12 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>&
   ui_.setupUi(this);
 
   connect(ui_.buttoncancel, &QPushButton::clicked, this, &ManageTrackWindow::reject);
-  //TODO connect to the track and rjst getting removed so that we can close this dialog if we are editing
+
+  if (recordingtrack)
+  {
+    connect(recording_.data(), &Recording::TrackRemoved, this, &ManageTrackWindow::TrackRemoved, Qt::QueuedConnection);
+
+  }
 
   ui_.comboprotocol->addItem(QString(monocle::EnumNameStreamingProtocol(monocle::StreamingProtocol::TCPInterleaved)), static_cast<int>(monocle::StreamingProtocol::TCPInterleaved));
   ui_.comboprotocol->addItem(QString(monocle::EnumNameStreamingProtocol(monocle::StreamingProtocol::UDPUnicast)), static_cast<int>(monocle::StreamingProtocol::UDPUnicast));
@@ -109,9 +115,7 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>&
   ui_.editsourcetag->setCompleter(sourcetagcompleter_);
 
   // Find a job to get started with, it may not always be available
-  QSharedPointer<RecordingJob> job = GetJob();
-
-  if (recordingjobsource_ && recordingjobsourcetrack_ && recordingtrack_)
+  if (recordingjob_ && recordingjobsource_ && recordingjobsourcetrack_ && recordingtrack_)
   {
     ui_.editdescription->setText(recordingtrack_->GetDescription());
     ui_.spinflushfrequency->setValue(recordingtrack_->GetFlushFrequency());
@@ -183,6 +187,7 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>&
     }
 
     // Object detector
+    QSharedPointer<RecordingJob> job = GetJob();
     if (job)
     {
       //TODO does rotation etc etc and stuff go in here?
@@ -242,9 +247,9 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>&
   if (device_->GetNumCudaDevices() == 0)
   {
     ui_.checkobjectdetector->setDisabled(true);
-    ui_.checkobjectdetector->setStatusTip("No CUDA devices found on server");//TODO does this work
+    ui_.checkobjectdetector->setToolTip("No CUDA devices found on server");
     ui_.buttonobjectdetectorsettings->setDisabled(true);
-    ui_.buttonobjectdetectorsettings->setStatusTip("No CUDA devices found on server");//TODO does this work
+    ui_.buttonobjectdetectorsettings->setToolTip("No CUDA devices found on server");
   }
 
   startTimer(std::chrono::milliseconds(50));
@@ -296,6 +301,12 @@ void ManageTrackWindow::timerEvent(QTimerEvent*)
 
 QSharedPointer<RecordingJob> ManageTrackWindow::GetJob() const
 {
+  if (recordingjob_)
+  {
+
+    return recordingjob_;
+  }
+
   QSharedPointer<RecordingJob> job = recording_->GetActiveJob();
   if (job)
   {
@@ -900,7 +911,7 @@ void ManageTrackWindow::SetTrack(const uint64_t recordingjobtoken, const uint64_
 
   //TODO disable buttons
 
-  if (recordingjobsource_ && recordingjobsourcetrack_ && recordingtrack_)
+  if (recordingjob_ && recordingjobsource_ && recordingjobsourcetrack_ && recordingtrack_)
   {
     addtrack2connection_ = device_->ChangeTrack2(recording_->GetToken(), recordingtrack_->GetId(), recordingjobtoken, recordingjobsource_->GetToken(), recordingjobsourcetrack_->GetToken(), objectdetectortrackid, objectdetectorrecordingjobsourcetoken, objectdetectorrecordingjobsourcetracktoken, ui_.editdescription->text().toStdString(), ui_.checkfixedfiles->isChecked(), ui_.checkdigitalsigning->isChecked(), ui_.checkencrypt->isChecked(), ui_.spinflushfrequency->value(), filetokens, ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), receiverparameters, recordingjobsourcetrackparameters, objectdetectorsourcetrackparameters, [this](const std::chrono::steady_clock::duration latency, const monocle::client::CHANGETRACK2RESPONSE& changetrack2response)
     {
@@ -935,6 +946,15 @@ void ManageTrackWindow::SetTrack(const uint64_t recordingjobtoken, const uint64_
   }
 }
 
+void ManageTrackWindow::TrackRemoved(const uint32_t id)
+{
+  if (recordingtrack_ && (recordingtrack_->GetId() == id))
+  {
+    QMessageBox(QMessageBox::Warning, tr("Error"), tr("Track has been removed"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+    reject();
+  }
+}
+
 void ManageTrackWindow::on_edituri_textChanged(const QString& text)
 {
   try
@@ -955,8 +975,11 @@ void ManageTrackWindow::on_edituri_textChanged(const QString& text)
       ui_.editusername->setEnabled(true);
       ui_.editpassword->setEnabled(true);
       ui_.comborotation->setEnabled(true);
-      ui_.checkobjectdetector->setEnabled(true);
-      ui_.buttonobjectdetectorsettings->setEnabled(true);
+      if (device_->GetNumCudaDevices())
+      {
+        ui_.checkobjectdetector->setEnabled(true);
+        ui_.buttonobjectdetectorsettings->setEnabled(true);
+      }
       ui_.buttontest->setEnabled(true);
     }
     else if ((uri.scheme().compare("http") == 0) && uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))
@@ -967,8 +990,11 @@ void ManageTrackWindow::on_edituri_textChanged(const QString& text)
       ui_.editusername->setEnabled(true);
       ui_.editpassword->setEnabled(true);
       ui_.comborotation->setEnabled(true);
-      ui_.checkobjectdetector->setEnabled(true);
-      ui_.buttonobjectdetectorsettings->setEnabled(true);
+      if (device_->GetNumCudaDevices())
+      {
+        ui_.checkobjectdetector->setEnabled(true);
+        ui_.buttonobjectdetectorsettings->setEnabled(true);
+      }
       ui_.buttontest->setEnabled(true);
     }
     else
@@ -992,8 +1018,11 @@ void ManageTrackWindow::on_checkfixedfiles_stateChanged(int)
 
 void ManageTrackWindow::on_checkobjectdetector_stateChanged(int)
 {
-  ui_.buttonobjectdetectorsettings->setEnabled(ui_.checkobjectdetector->isChecked());
+  if (device_->GetNumCudaDevices())
+  {
+    ui_.buttonobjectdetectorsettings->setEnabled(ui_.checkobjectdetector->isChecked());
 
+  }
 }
 
 void ManageTrackWindow::on_buttonobjectdetectorsettings_clicked()
@@ -1049,11 +1078,12 @@ void ManageTrackWindow::on_buttonfiles_clicked()
 
 void ManageTrackWindow::on_buttonfindonvifdevice_clicked()
 {
-  ManageTrackFindONVIFDeviceWindow managetrackfindonvifdevicewindow(this, device_);
+  ManageTrackFindONVIFDeviceWindow managetrackfindonvifdevicewindow(this, device_, ui_.edituri->text(), ui_.editusername->text(), ui_.editpassword->text());
   if (managetrackfindonvifdevicewindow.exec() == QDialog::Accepted)
   {
-    //TODO
-
+    ui_.edituri->setText(managetrackfindonvifdevicewindow.uri_);
+    ui_.editusername->setText(managetrackfindonvifdevicewindow.username_);
+    ui_.editpassword->setText(managetrackfindonvifdevicewindow.password_);
   }
 }
 
@@ -1277,7 +1307,7 @@ void ManageTrackWindow::on_buttonok_clicked()
   //TODO check uri looks like rtsp or http://1.2.3.4:99/onvif/device_service
 
   // Find or create a recording job
-  QSharedPointer<RecordingJob> job = GetJob();
+  QSharedPointer<RecordingJob> job = GetJob();//TODO please job
   uint64_t recordingjobtoken = 1;
   if (job)
   {

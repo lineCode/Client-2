@@ -62,7 +62,7 @@ class ManageTrackWindow : public QDialog
 
  public:
 
-  ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingJobSource>& recordingjobsource, const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& recordingtrack);
+  ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingJob>& recordingjob, const QSharedPointer<RecordingJobSource>& recordingjobsource, const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& recordingtrack);
   ~ManageTrackWindow();
 
  protected:
@@ -88,6 +88,7 @@ class ManageTrackWindow : public QDialog
 
   boost::shared_ptr<Device> device_;
   QSharedPointer<Recording> recording_;
+  QSharedPointer<RecordingJob> recordingjob_;
   QSharedPointer<RecordingJobSource> recordingjobsource_;
   QSharedPointer<RecordingJobSourceTrack> recordingjobsourcetrack_;
   QSharedPointer<RecordingTrack> recordingtrack_;
@@ -140,6 +141,7 @@ class ManageTrackWindow : public QDialog
 
  private slots:
 
+  void TrackRemoved(const uint32_t id);
   void on_edituri_textChanged(const QString& text);
   void on_checkfixedfiles_stateChanged(int);
   void on_checkobjectdetector_stateChanged(int);

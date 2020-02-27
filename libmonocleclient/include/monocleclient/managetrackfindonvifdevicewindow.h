@@ -10,8 +10,6 @@
 #include <memory>
 #include <monocleprotocol/client/connection.hpp>
 #include <onvifclient/connection.hpp>
-#include <rtsp/client/client.hpp>
-#include <rtsp/client/connection.hpp>
 #include <socket/connection.hpp>
 #include <QDialog>
 #include <QSharedPointer>
@@ -21,22 +19,11 @@
 
 ///// Declarations /////
 
-namespace monocle
-{
-enum class ReceiverMode : int8_t;
-enum class StreamingProtocol : int8_t;
-}
-
 namespace onvif
 {
 namespace device { class DeviceClient; }
 namespace media { class MediaClient; }
 class Profile;
-}
-
-namespace rtsp
-{
-namespace sdp { class MediaDescription; }
 }
 
 ///// Namespaces /////
@@ -64,12 +51,10 @@ class ManageTrackFindONVIFDeviceWindow : public QDialog
 
  public:
 
-  ManageTrackFindONVIFDeviceWindow(QWidget* parent, const boost::shared_ptr<Device>& device, const QString& mediauri, const QString& profiletoken, const QString& sourcetag, const QString& username, const QString& password);
+  ManageTrackFindONVIFDeviceWindow(QWidget* parent, const boost::shared_ptr<Device>& device, const QString& mediauri, const QString& username, const QString& password);
   ~ManageTrackFindONVIFDeviceWindow();
 
   QString uri_;
-  QString profiletoken_;
-  QString sourcetag_;
   QString username_;
   QString password_;
 
@@ -80,29 +65,18 @@ class ManageTrackFindONVIFDeviceWindow : public QDialog
  private:
 
   void SetEnabled(const bool enabled);
-  void GetProfileCallback(const onvif::Profile& profile);
-  void AddProfile(const onvif::Profile& profile);
-  void AddMediaDescription(const rtsp::sdp::MediaDescription& mediadescription);
 
   Ui::ManageTrackFindONVIFDeviceWindow ui_;
 
   const boost::shared_ptr<Device> device_;
-  const QSharedPointer<client::Recording> recording_;
-  const QSharedPointer<client::RecordingJob> recordingjob_;
 
   onvif::Connection onvifconnection_;
-  sock::Connection rtspconnectconnection_;
-  rtsp::client::Connection rtspconnection_;
 
   boost::shared_ptr<onvif::device::DeviceClient> deviceclient_;
   boost::shared_ptr<onvif::media::MediaClient> mediaclient_;
-  boost::shared_ptr< rtsp::Client<ManageTrackFindONVIFDeviceWindow> > rtspclient_;
 
  private slots:
 
-  void TrackAdded(const QSharedPointer<client::RecordingTrack>& track);
-  void TrackChanged(const QSharedPointer<client::RecordingTrack>& track);
-  void TrackRemoved(const uint32_t id);
   void on_edittextfilter_textChanged();
   void on_checkipv4_clicked();
   void on_checkipv6_clicked();
