@@ -179,7 +179,7 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>&
     if (rotation.is_initialized())
     {
       const int i = ui_.comborotation->findData(QString::number(static_cast<int>(*rotation)));
-      if (i != 1)
+      if (i != -1)
       {
         ui_.comborotation->setCurrentIndex(i);
 
@@ -190,9 +190,6 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>&
     QSharedPointer<RecordingJob> job = GetJob();
     if (job)
     {
-      //TODO does rotation etc etc and stuff go in here?
-        //TODO I think rotation is on the recordingjobsource? or recordingjobsourcetrack...
-
       const std::vector< QSharedPointer<RecordingJobSource> > sources = job->GetObjectDetectors(recordingtrack_->GetId());
       if (sources.size())
       {
@@ -852,9 +849,9 @@ void ManageTrackWindow::SetTrack(const uint64_t recordingjobtoken, const uint64_
 
   }
 
-  if (!ui_.comborotation->currentData(ROTATION_ROLE).toString().isEmpty())
+  if (!ui_.comborotation->currentData().toString().isEmpty())
   {
-    recordingjobsourcetrackparameters.push_back((ROTATION_PARAMETER_NAME + "=" + ui_.comborotation->currentData(ROTATION_ROLE).toString()).toStdString());
+    recordingjobsourcetrackparameters.push_back((ROTATION_PARAMETER_NAME + "=" + ui_.comborotation->currentData().toString()).toStdString());
 
   }
 

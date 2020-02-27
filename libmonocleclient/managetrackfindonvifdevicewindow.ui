@@ -66,7 +66,7 @@
             </widget>
            </item>
            <item row="0" column="0" colspan="3">
-            <widget class="ManageRecordingJobSourceONVIFDiscoveryTree" name="treediscovery">
+            <widget class="ManageTrackFindONVIFDeviceDiscoveryTree" name="treediscovery">
              <property name="minimumSize">
               <size>
                <width>320</width>
@@ -249,9 +249,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ManageRecordingJobSourceONVIFDiscoveryTree</class>
+   <class>ManageTrackFindONVIFDeviceDiscoveryTree</class>
    <extends>QTreeWidget</extends>
-   <header>monocleclient/managerecordingjobsourceonvifdiscoverytree.h</header>
+   <header>monocleclient/managetrackfindonvifdevicediscoverytree.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
