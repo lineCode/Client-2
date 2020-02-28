@@ -78,6 +78,7 @@ class ManageTrackWindow : public QDialog
   void GetProfileCallback(const onvif::Profile& profile);
   void RTSPCallback(const std::string& uri, const std::string& host, const uint16_t port);
   void SetTrack(const uint64_t recordingjobtoken, const uint64_t objectdetectortrackid, const uint64_t objectdetectorrecordingjobsourcetoken, const uint64_t objectdetectorrecordingjobsourcetracktoken);
+  void SetEnabled(const bool enabled);
 
   Ui::ManageTrackWindow ui_;
 

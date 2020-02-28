@@ -239,8 +239,6 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>&
     }
   }
 
-  //TODO select and fill in the things if there is a stuff editing to put in
-
   if (device_->GetNumCudaDevices() == 0)
   {
     ui_.checkobjectdetector->setDisabled(true);
@@ -906,18 +904,16 @@ void ManageTrackWindow::SetTrack(const uint64_t recordingjobtoken, const uint64_
     }
   }
 
-  //TODO disable buttons
+  SetEnabled(false);
 
   if (recordingjob_ && recordingjobsource_ && recordingjobsourcetrack_ && recordingtrack_)
   {
     addtrack2connection_ = device_->ChangeTrack2(recording_->GetToken(), recordingtrack_->GetId(), recordingjobtoken, recordingjobsource_->GetToken(), recordingjobsourcetrack_->GetToken(), objectdetectortrackid, objectdetectorrecordingjobsourcetoken, objectdetectorrecordingjobsourcetracktoken, ui_.editdescription->text().toStdString(), ui_.checkfixedfiles->isChecked(), ui_.checkdigitalsigning->isChecked(), ui_.checkencrypt->isChecked(), ui_.spinflushfrequency->value(), filetokens, ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), receiverparameters, recordingjobsourcetrackparameters, objectdetectorsourcetrackparameters, [this](const std::chrono::steady_clock::duration latency, const monocle::client::CHANGETRACK2RESPONSE& changetrack2response)
     {
-      //TODO enable buttons... again
-        //TODO just create a method for tidy up all the enabled/disabled
-
       if (changetrack2response.GetErrorCode() != monocle::ErrorCode::Success)
       {
-        //TODO QMessageBox
+        QMessageBox(QMessageBox::Warning, tr("Error"), tr("ChangeTrack failed: ") + QString::fromStdString(changetrack2response.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+        SetEnabled(true);
         return;
       }
 
@@ -928,18 +924,47 @@ void ManageTrackWindow::SetTrack(const uint64_t recordingjobtoken, const uint64_
   {
     addtrack2connection_ = device_->AddTrack2(recording_->GetToken(), recordingjobtoken, monocle::TrackType::Video, ui_.editdescription->text().toStdString(), ui_.checkfixedfiles->isChecked(), ui_.checkdigitalsigning->isChecked(), ui_.checkencrypt->isChecked(), ui_.spinflushfrequency->value(), filetokens, ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), receiverparameters, recordingjobsourcetrackparameters, objectdetectorsourcetrackparameters, [this](const std::chrono::steady_clock::duration latency, const monocle::client::ADDTRACK2RESPONSE& addtrack2response)
     {
-
-      //TODO enable buttons... again
-        //TODO just create a method for tidy up all the enabled/disabled
-
       if (addtrack2response.GetErrorCode() != monocle::ErrorCode::Success)
       {
-        //TODO QMessageBox
+        QMessageBox(QMessageBox::Warning, tr("Error"), tr("ChangeTrack failed: ") + QString::fromStdString(addtrack2response.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+        SetEnabled(true);
         return;
       }
 
       accept();
     });
+  }
+}
+
+void ManageTrackWindow::SetEnabled(const bool enabled)
+{
+  ui_.editdescription->setEnabled(enabled);
+  ui_.spinflushfrequency->setEnabled(enabled);
+  ui_.checkdigitalsigning->setEnabled(enabled);
+  ui_.checkencrypt->setEnabled(enabled);
+  ui_.checkfixedfiles->setEnabled(enabled);
+  ui_.buttonfiles->setEnabled(enabled);
+  ui_.edituri->setEnabled(enabled);
+  ui_.buttonfindonvifdevice->setEnabled(enabled);
+
+  if (enabled)
+  {
+    on_edituri_textChanged(QString());
+    on_checkfixedfiles_stateChanged(0);
+    on_checkobjectdetector_stateChanged(0);
+  }
+  else
+  {
+    ui_.editprofiletoken->setEnabled(false);
+    ui_.editsourcetag->setEnabled(false);
+    ui_.comboprotocol->setEnabled(false);
+    ui_.editusername->setEnabled(false);
+    ui_.editpassword->setEnabled(false);
+    ui_.comborotation->setEnabled(false);
+    ui_.checkobjectdetector->setEnabled(false);
+    ui_.buttonobjectdetectorsettings->setEnabled(false);
+    ui_.buttontest->setEnabled(false);
+    ui_.buttonok->setEnabled(false);
   }
 }
 
@@ -1299,12 +1324,52 @@ void ManageTrackWindow::on_buttontest_clicked()
 
 void ManageTrackWindow::on_buttonok_clicked()
 {
-  //TODO make sure uri is valid
-    //TODO not sure how much of this we want to do, because we may actually WANT to have a dodgy uri because we might get the validation wrong.
-  //TODO check uri looks like rtsp or http://1.2.3.4:99/onvif/device_service
+  // Make sure the URI looks reasonable
+  const network::uri uri(ui_.edituri->text().toStdString());
+  if (!uri.has_scheme())
+  {
+    ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid URI: " + ui_.edituri->text() + " no scheme present</font><br/>");
+    return;
+  }
+
+  if (!uri.has_host())
+  {
+    ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid URI: " + ui_.edituri->text() + " no host present</font><br/>");
+    return;
+  }
+
+  if (uri.scheme().compare("rtsp") == 0)
+  {
+    // Looks good
+
+  }
+  else if ((uri.scheme().compare("http") == 0))
+  {
+    if (uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))
+    {
+      // Looks good
+
+    }
+    else
+    {
+      if (QMessageBox::question(this, tr("Warning"), tr("The uri looks invalid, are you sure you want to continue?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+      {
+
+        return;
+      }
+    }
+  }
+  else
+  {
+    if (QMessageBox::question(this, tr("Warning"), tr("The uri looks invalid, are you sure you want to continue?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+    {
+
+      return;
+    }
+  }
 
   // Find or create a recording job
-  QSharedPointer<RecordingJob> job = GetJob();//TODO please job
+  QSharedPointer<RecordingJob> job = GetJob();
   uint64_t recordingjobtoken = 1;
   if (job)
   {
@@ -1333,14 +1398,14 @@ void ManageTrackWindow::on_buttonok_clicked()
   }
   else
   {
-    //TODO disable buttons
+    SetEnabled(false);
+    
     addtrack2connection_ = device_->AddRecordingJob(recording_->GetToken(), "Job", true, 0, std::vector<monocle::ADDRECORDINGJOBSOURCE>(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::ADDRECORDINGJOBRESPONSE& addrecordingjobresponse)
     {
       if (addrecordingjobresponse.GetErrorCode() != monocle::ErrorCode::Success)
       {
-        //TODO enable buttons... method to do so
-          //TODO make sure we only enable the correct ones...
-        //TODO QMessageBox
+        QMessageBox(QMessageBox::Warning, tr("Error"), tr("ChangeTrack failed: ") + QString::fromStdString(addrecordingjobresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+        SetEnabled(true);
         return;
       }
 
