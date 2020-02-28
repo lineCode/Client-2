@@ -36,7 +36,7 @@ DeviceTreeRecordingItem::DeviceTreeRecordingItem(DeviceTreeItem* parent, const b
   device_(device),
   recording_(recording),
   edit_(new QAction("Edit", this)),
-  addvideotrack_(new QAction("Add Video Source", this)),//TODO rename to "Add Source" I think? addsource_
+  addvideotrack_(new QAction("Add Video Track", this)),
   remove_(new QAction("Remove", this)),
   viewlog_(new QAction("View Log", this))
 {
@@ -228,8 +228,6 @@ void DeviceTreeRecordingItem::UpdateChildren()
   }
 
   // Clear up any that may have disappeared
-//TODO make sure this works?
-  //TODO seems to be ok?
   for (int i = (childCount() - 1); i >= 0; --i)
   {
     DeviceTreeRecordingTrackItem* item = static_cast<DeviceTreeRecordingTrackItem*>(child(i));
@@ -289,13 +287,13 @@ void DeviceTreeRecordingItem::TrackRemoved(const uint32_t id)
 void DeviceTreeRecordingItem::JobSourceTrackAdded(const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource, const QSharedPointer<client::RecordingJobSourceTrack>& recordingjobsourcetrack)
 {
   UpdateChildren();
-  
+  UpdateToolTip();
 }
 
 void DeviceTreeRecordingItem::JobSourceTrackRemoved(const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource, const uint64_t token)
 {
   UpdateChildren();
-
+  UpdateToolTip();
 }
 
 void DeviceTreeRecordingItem::ActiveJobChanged(const QSharedPointer<client::RecordingJob>& activejob)
@@ -306,8 +304,8 @@ void DeviceTreeRecordingItem::ActiveJobChanged(const QSharedPointer<client::Reco
 
 void DeviceTreeRecordingItem::RecordingJobSourceAdded(const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource)
 {
+  UpdateChildren();
   UpdateToolTip();
-
 }
 
 void DeviceTreeRecordingItem::RecordingJobSourceRemoved(const QSharedPointer<client::RecordingJob>& recordingjob, const uint64_t token)

@@ -76,7 +76,16 @@ void DeviceTreeRecordingTrackItem::DoubleClicked()
 
 QString DeviceTreeRecordingTrackItem::GetName(const QSharedPointer<client::RecordingTrack>& track) const
 {
-  return (track->GetDescription() + "(" + monocle::EnumNameTrackType(track->GetTrackType()) + ")");//TODO no longer need this(unless it is empty... then we can just put the track type?)... or "empty"?
+  if (track->GetDescription().isEmpty())
+  {
+
+    return monocle::EnumNameTrackType(track->GetTrackType());
+  }
+  else
+  {
+
+    return track->GetDescription();
+  }
 }
 
 void DeviceTreeRecordingTrackItem::Edit(bool)
