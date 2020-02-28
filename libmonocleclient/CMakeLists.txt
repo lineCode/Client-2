@@ -29,7 +29,6 @@ include/monocleclient/devicetreerecordingjobitem.h
 include/monocleclient/devicetreerecordingjobsitem.h
 include/monocleclient/devicetreerecordingjobsourceitem.h
 include/monocleclient/devicetreerecordingtrackitem.h
-include/monocleclient/devicetreerecordingtracksitem.h
 include/monocleclient/discoverytree.h
 include/monocleclient/editdevicewindow.h
 include/monocleclient/exportprogresswindow.h
@@ -168,7 +167,6 @@ src/devicetreerecordingitem.cpp
 src/devicetreerecordingjobitem.cpp
 src/devicetreerecordingjobsitem.cpp
 src/devicetreerecordingjobsourceitem.cpp
-src/devicetreerecordingtracksitem.cpp
 src/devicetreerecordingtrackitem.cpp
 src/discoverytree.cpp
 src/editdevicewindow.cpp

@@ -411,7 +411,7 @@ void ExportProgressWindow::timerEvent(QTimerEvent*)
           }
           else if (exporttrackconnection->tracktype_ == monocle::TrackType::ObjectDetector)
           {
-            //TODO recording->objectdetectors_.insert(file::TRACK(exporttrackconnection->trackid_, exporttrackconnection->trackdescription_.toStdString(), codecsindices));
+            recording->objectdetectortracks_.insert(file::TRACK(exporttrackconnection->trackid_, exporttrackconnection->trackdescription_.toStdString(), codecsindices));
 
           }
         }

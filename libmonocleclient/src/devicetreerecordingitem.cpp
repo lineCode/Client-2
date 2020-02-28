@@ -16,7 +16,6 @@
 #include "monocleclient/managerecordingtrackswindow.h"
 #include "monocleclient/managetrackwindow.h"
 #include "monocleclient/devicetreerecordingjobsitem.h"
-#include "monocleclient/devicetreerecordingtracksitem.h"
 #include "monocleclient/receiver.h"
 #include "monocleclient/recording.h"
 #include "monocleclient/recordingjob.h"

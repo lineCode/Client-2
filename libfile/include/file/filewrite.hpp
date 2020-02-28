@@ -46,6 +46,7 @@ class FileWrite
   int WriteJPEGFrame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const uint8_t* data, const uint64_t size, const uint64_t time, const std::vector<unsigned char>& signature, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const std::array<uint8_t, 64>& lqt, const std::array<uint8_t, 64>& cqt);
   int WriteMetadataFrame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const uint8_t* data, const uint64_t size, const uint64_t time, const file::MetadataFrameType metadataframetype, const std::vector<unsigned char>& signature);
   int WriteMPEG4Frame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const uint8_t* data, const uint64_t size, const bool marker, const uint64_t time, const std::vector<unsigned char>& signature);
+  int WriteObjectDetectorFrame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const uint8_t* data, const uint64_t size, const uint64_t time, const file::MetadataFrameType metadataframetype, const std::vector<unsigned char>& signature);
 
  private:
 
@@ -76,6 +77,7 @@ class FileWrite
   std::map<FRAMEINDEX, std::vector< std::unique_ptr<JPEGFRAMEHEADER> > > jpegframeheaders_;
   std::map<FRAMEINDEX, std::vector< std::unique_ptr<METADATAFRAMEHEADER> > > metadataframeheaders_;
   std::map<FRAMEINDEX, std::vector< std::unique_ptr<MPEG4FRAMEHEADER> > > mpeg4frameheaders_;
+  std::map<FRAMEINDEX, std::vector< std::unique_ptr<METADATAFRAMEHEADER> > > objectdetectorframeheaders_;
 
   flatbuffers::FlatBufferBuilder fbb_;
 

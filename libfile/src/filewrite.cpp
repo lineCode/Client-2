@@ -240,7 +240,7 @@ int FileWrite::Close(const FILE& file)
 
         metadatatracksfb.push_back(CreateTrackDirect(fbb, metadatatrack.index_, metadatatrack.description_.c_str(), &codecsfb, nullptr, nullptr, nullptr, &metadataframeheadersfb, nullptr));
       }
-      recordingsfb.push_back(CreateRecording(fbb, recording.index_, fbb.CreateString(recording.name_), fbb.CreateString(recording.location_), fbb.CreateVector(videotracksfb), fbb.CreateVector(std::vector< flatbuffers::Offset<file::Track> >()), fbb.CreateVector(metadatatracksfb)));
+      recordingsfb.push_back(CreateRecording(fbb, recording.index_, fbb.CreateString(recording.name_), fbb.CreateString(recording.location_), fbb.CreateVector(videotracksfb), fbb.CreateVector(std::vector< flatbuffers::Offset<file::Track> >()), fbb.CreateVector(metadatatracksfb), fbb.CreateVector(objectdetectorsfb)));
     }
     devicesfb.push_back(CreateDeviceDirect(fbb, device.index_, device.name_.c_str(), device.address_.c_str(), device.signingkey_.c_str(), &recordingsfb));
   }

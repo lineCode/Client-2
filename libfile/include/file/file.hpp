@@ -134,7 +134,7 @@ struct RECORDING
 {
   RECORDING();
   RECORDING(const uint64_t index, const std::string& name, const std::string& location);
-  RECORDING(const uint64_t index, const std::string& name, const std::string& location, const boost::container::flat_set<TRACK>& videotracks, const boost::container::flat_set<TRACK>& audiotracks, const boost::container::flat_set<TRACK>& metadatatracks);
+  RECORDING(const uint64_t index, const std::string& name, const std::string& location, const boost::container::flat_set<TRACK>& videotracks, const boost::container::flat_set<TRACK>& audiotracks, const boost::container::flat_set<TRACK>& metadatatracks, const boost::container::flat_set<TRACK>& objectdetectortracks);
 
   boost::container::flat_set<TRACK> GetTracks() const;
 
@@ -147,6 +147,7 @@ struct RECORDING
   boost::container::flat_set<TRACK> videotracks_;
   boost::container::flat_set<TRACK> audiotracks_;
   boost::container::flat_set<TRACK> metadatatracks_;
+  boost::container::flat_set<TRACK> objectdetectortracks_;
   
 };
 
