@@ -553,7 +553,7 @@ void MediaView::SetPaused(const bool paused, const boost::optional<uint64_t>& fr
   }
 }
 
-void MediaView::MetadataCallback(const uint64_t playrequestindex, const size_t streamindex, const size_t frame)
+void MediaView::ObjectDetectorCallback(const uint64_t playrequestindex, const size_t streamindex, const size_t frame)
 {
   if (GetPlayRequestIndex() != playrequestindex)
   {
@@ -569,14 +569,14 @@ void MediaView::MetadataCallback(const uint64_t playrequestindex, const size_t s
   }
 
   std::shared_ptr<file::FRAMEHEADER> frameheader = (*stream)->track_.frameheaders_[frame];
-  if (frameheader->Type() != file::FrameHeaderType::METADATA)
+  if (frameheader->Type() != file::FrameHeaderType::METADATA)//TODO
   {
 
     return;
   }
  
-  file::METADATAFRAMEHEADER* metadataframeheader = static_cast<file::METADATAFRAMEHEADER*>(frameheader.get());
-  if (metadataframeheader->metadataframetype_ != file::MetadataFrameType::OBJECT_DETECTION)
+  file::OBJECTDETECTORFRAMEHEADER* objectdetectorframeheader = static_cast<file::OBJECTDETECTORFRAMEHEADER*>(frameheader.get());
+  if (objectdetectorframeheader->objectdetectorframetype_ != file::ObjectDetectorFrameType::OBJECT_DETECTOR)
   {
 
     return;
@@ -1132,7 +1132,7 @@ std::pair<int, bool> MediaView::SendFrame(const uint64_t playrequestindex, const
   }
   else if (!mainstream && (frameheader->Type() == file::FrameHeaderType::METADATA))
   {
-    QMetaObject::invokeMethod(this, [this, playrequestindex, stream, frame]() { MetadataCallback(playrequestindex, stream->index_, frame); }, Qt::QueuedConnection);
+    QMetaObject::invokeMethod(this, [this, playrequestindex, stream, frame]() { ObjectDetectorCallback(playrequestindex, stream->index_, frame); }, Qt::QueuedConnection);
 
   }
   else

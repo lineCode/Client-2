@@ -28,6 +28,7 @@ namespace monocle
 ///// Declarations /////
 
 enum class MetadataFrameType : uint16_t;
+enum class ObjectDetectorFrameType : uint16_t;
 
 ///// Namespaces /////
 
@@ -176,6 +177,7 @@ class Connection : public boost::enable_shared_from_this<Connection>
   boost::system::error_code SendMPEG4Frame(const uint64_t stream, const uint64_t playrequest, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const boost::optional<uint64_t>& sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* data, const size_t size);
   boost::system::error_code SendNameChanged(const std::string& name);
   boost::system::error_code SendNewCodecIndex(const uint64_t stream, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp);
+  boost::system::error_code SendObjectDetectorFrame(const uint64_t stream, const uint64_t playrequest, const uint64_t codecindex, const uint64_t timestamp, const boost::optional<uint64_t>& sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* data, const size_t size);
   boost::system::error_code SendONVIFUserAdded(const uint64_t token, const std::string& username, const ONVIFUserlevel onvifuserlevel);
   boost::system::error_code SendONVIFUserChanged(const uint64_t token, const boost::optional<std::string>& username, const ONVIFUserlevel onvifuserlevel);
   boost::system::error_code SendONVIFUserRemoved(const uint64_t token);

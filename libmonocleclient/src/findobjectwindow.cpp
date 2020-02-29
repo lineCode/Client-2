@@ -8,7 +8,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <monocleprotocol/monocleprotocol.hpp>
-#include <monocleprotocol/metadataframetype_generated.h>
+#include <monocleprotocol/objectdetectorframetype_generated.h>
 #include <QImage>
 #include <QItemDelegate>
 #include <QMessageBox>
@@ -460,34 +460,6 @@ void FindObjectWindow::H264Callback(const uint64_t streamtoken, const uint64_t p
   }
 }
 
-void FindObjectWindow::MetadataCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::MetadataFrameType metadataframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
-{
-  FindObjectWindow* findobjectwindow = reinterpret_cast<FindObjectWindow*>(callbackdata);
-  if (findobjectwindow->ui_.videowidget->metadataplayrequestindex_ != playrequestindex)
-  {
-
-    return;
-  }
-  if (metadataframetype == monocle::MetadataFrameType::OBJECT_DETECTION)
-  {
-    if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(signaturedata), signaturedatasize).VerifyBuffer<monocle::Objects>(nullptr))
-    {
-      // Ignore illegal packets
-      return;
-    }
-
-    const monocle::Objects* objects = flatbuffers::GetRoot<monocle::Objects>(signaturedata);
-    if ((objects == nullptr) || (objects->objects() == nullptr))
-    {
-
-      return;
-    }
-    findobjectwindow->ui_.videowidget->makeCurrent();
-    findobjectwindow->ui_.videowidget->objects_.Update(findobjectwindow->ui_.videowidget->GetImagePixelRectF(), findobjectwindow->mirror_, findobjectwindow->rotation_, objects, timestamp, findobjectwindow->ui_.videowidget->time_);
-    findobjectwindow->ui_.videowidget->doneCurrent();
-  }
-}
-
 void FindObjectWindow::JPEGCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const uint8_t* lqt, const uint8_t* cqt, const char* framedata, const size_t size, void* callbackdata)
 {
   FindObjectWindow* findobjectwindow = reinterpret_cast<FindObjectWindow*>(callbackdata);
@@ -521,6 +493,11 @@ void FindObjectWindow::JPEGCallback(const uint64_t streamtoken, const uint64_t p
 
     }
   }
+}
+
+void FindObjectWindow::MetadataCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::MetadataFrameType metadataframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
+{
+
 }
 
 void FindObjectWindow::MPEG4Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
@@ -560,6 +537,35 @@ void FindObjectWindow::NewCodecIndexCallback(const uint64_t streamtoken, const u
   FindObjectWindow* findobjectwindow = reinterpret_cast<FindObjectWindow*>(callbackdata);
   findobjectwindow->AddCodecIndex(monocle::CODECINDEX(id, codec, parameters, timestamp));
 }
+
+void FindObjectWindow::ObjectDetectorCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
+{
+  FindObjectWindow* findobjectwindow = reinterpret_cast<FindObjectWindow*>(callbackdata);
+  if (findobjectwindow->ui_.videowidget->metadataplayrequestindex_ != playrequestindex)
+  {
+
+    return;
+  }
+  if (objectdetectorframetype == monocle::ObjectDetectorFrameType::OBJECT_DETECTION)
+  {
+    if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(signaturedata), signaturedatasize).VerifyBuffer<monocle::Objects>(nullptr))
+    {
+      // Ignore illegal packets
+      return;
+    }
+
+    const monocle::Objects* objects = flatbuffers::GetRoot<monocle::Objects>(signaturedata);
+    if ((objects == nullptr) || (objects->objects() == nullptr))
+    {
+
+      return;
+    }
+    findobjectwindow->ui_.videowidget->makeCurrent();
+    findobjectwindow->ui_.videowidget->objects_.Update(findobjectwindow->ui_.videowidget->GetImagePixelRectF(), findobjectwindow->mirror_, findobjectwindow->rotation_, objects, timestamp, findobjectwindow->ui_.videowidget->time_);
+    findobjectwindow->ui_.videowidget->doneCurrent();
+  }
+}
+
 
 void FindObjectWindow::AddCodecIndex(const monocle::CODECINDEX& codecindex)
 {
@@ -937,8 +943,8 @@ void FindObjectWindow::on_buttonsearch_clicked()
               }
               findobjecttoken_ = createfindobjectresponse.token_;
             });
-          }, FindObjectWindow::ControlStreamEnd, FindObjectWindow::H265Callback, FindObjectWindow::H264Callback, FindObjectWindow::MetadataCallback, FindObjectWindow::JPEGCallback, FindObjectWindow::MPEG4Callback, FindObjectWindow::NewCodecIndexCallback, this);
-        }, FindObjectWindow::ControlStreamEnd, FindObjectWindow::H265Callback, FindObjectWindow::H264Callback, FindObjectWindow::MetadataCallback, FindObjectWindow::JPEGCallback, FindObjectWindow::MPEG4Callback, FindObjectWindow::NewCodecIndexCallback, this);
+          }, FindObjectWindow::ControlStreamEnd, FindObjectWindow::H265Callback, FindObjectWindow::H264Callback, FindObjectWindow::MetadataCallback, FindObjectWindow::JPEGCallback, FindObjectWindow::MPEG4Callback, FindObjectWindow::ObjectDetectorCallback, FindObjectWindow::NewCodecIndexCallback, this);
+        }, FindObjectWindow::ControlStreamEnd, FindObjectWindow::H265Callback, FindObjectWindow::H264Callback, FindObjectWindow::MetadataCallback, FindObjectWindow::JPEGCallback, FindObjectWindow::MPEG4Callback, FindObjectWindow::ObjectDetectorCallback, FindObjectWindow::NewCodecIndexCallback, this);
       });
     });
   });

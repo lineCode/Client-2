@@ -594,11 +594,85 @@ std::future<int> FileRead::Init(const boost::filesystem::path& path, const std::
             metadatatracks.insert(TRACK(metadatatrack->index(), metadatatrack->description() ? metadatatrack->description()->str() : std::string(), codecs, frameheaders));
           }
         }
-        recordings.insert(RECORDING(recording->index(), recording->name() ? recording->name()->str() : std::string(), recording->location() ? recording->location()->str() : std::string(), videotracks, boost::container::flat_set<file::TRACK>(), metadatatracks));
+
+        boost::container::flat_set<TRACK> objectdetectortracks;
+        if (recording->objectdetectortracks())
+        {
+          objectdetectortracks.reserve(recording->objectdetectortracks()->size());
+          for (const file::Track* objectdetectortrack : *recording->objectdetectortracks())
+          {
+            if (std::find_if(objectdetectortracks.cbegin(), objectdetectortracks.cend(), [objectdetectortrack](const TRACK& t) { return (t.index_ == objectdetectortrack->index()); }) != objectdetectortracks.cend()) // Make sure the index is unique
+            {
+              promise->set_value(28);
+              return;
+            }
+
+            // Codecs
+            if (objectdetectortrack->codecs() == nullptr)
+            {
+              promise->set_value(29);
+              return;
+            }
+
+            boost::container::flat_set<CODEC> codecs;
+            for (const file::Codec* codec : *objectdetectortrack->codecs())
+            {
+              if (std::find_if(codecs.cbegin(), codecs.cend(), [codec](const CODEC& c) { return (c.index_ == codec->index()); }) != codecs.cend()) // Make sure the index is unique
+              {
+                promise->set_value(30);
+                return;
+              }
+              codecs.insert(CODEC(codec->index(), codec->codec(), codec->parameters() ? codec->parameters()->str() : std::string()));
+            }
+
+            // Frame headers
+            std::vector< std::shared_ptr<FRAMEHEADER> > frameheaders;
+            if (objectdetectortrack->objectdetectorframeheaders())
+            {
+              for (const file::FrameHeader* objectdetectorframeheader : *objectdetectortrack->objectdetectorframeheaders())
+              {
+                ++currentframe;
+                *progress = static_cast<float>(currentframe) / static_cast<float>(totalframes);
+
+                if (!running_)
+                {
+                  promise->set_value(999);
+                  return;
+                }
+
+                if (objectdetectorframeheader->offset() > (size_ - (sizeof(MAGIC_BYTES) + sizeof(VERSION) + filesize + sizeof(filesize)))) // Make sure the frame remains inside the correct bounds
+                {
+                  promise->set_value(35);
+                  return;
+                }
+
+                buffer.resize(objectdetectorframeheader->size());
+                if (Read(objectdetectorframeheader->offset(), objectdetectorframeheader->size(), buffer.data()))
+                {
+                  promise->set_value(33);
+                  return;
+                }
+
+                const file::ObjectDetectorFrame* objectdetectorframe = flatbuffers::GetRoot<ObjectDetectorFrame>(buffer.data());
+                if (!objectdetectorframe || !objectdetectorframe->data())
+                {
+                  // Ignore I guess?
+                  continue;
+                }
+
+                frameheaders.push_back(std::make_shared<OBJECTDETECTORFRAMEHEADER>(objectdetectorframe->codecindex(), objectdetectorframeheader->offset() + (objectdetectorframe->data()->data() - buffer.data()), objectdetectorframe->data()->size(), objectdetectorframe->time(), objectdetectorframe->objectdetectorframetype(), (objectdetectorframe->signature() && objectdetectorframe->signature()->size()) ? std::vector<uint8_t>(objectdetectorframe->signature()->data(), objectdetectorframe->signature()->data() + objectdetectorframe->signature()->size()) : std::vector<uint8_t>()));
+              }
+            }
+
+            std::sort(frameheaders.begin(), frameheaders.end(), [](const std::shared_ptr<FRAMEHEADER>& lhs, const std::shared_ptr<FRAMEHEADER>& rhs) { return (lhs->time_ < rhs->time_); }); // Order the frame headers so the user can index them properly
+            objectdetectortracks.insert(TRACK(objectdetectortrack->index(), objectdetectortrack->description() ? objectdetectortrack->description()->str() : std::string(), codecs, frameheaders));
+          }
+        }
+        recordings.insert(RECORDING(recording->index(), recording->name() ? recording->name()->str() : std::string(), recording->location() ? recording->location()->str() : std::string(), videotracks, boost::container::flat_set<file::TRACK>(), metadatatracks, objectdetectortracks));
       }
       file_.devices_.insert(DEVICE(device->index(), device->name() ? device->name()->str() : std::string(), device->address() ? device->address()->str() : std::string(), device->signingkey() ? device->signingkey()->str() : std::string(), recordings));
     }
-    promise->set_value(0);
+    promise->set_value(0); // Success!
   });
   return promise->get_future();
 }

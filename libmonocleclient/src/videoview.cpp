@@ -11,6 +11,7 @@
 #include <boost/bind.hpp>
 #include <monocleprotocol/objects_generated.h>
 #include <monocleprotocol/metadataframetype_generated.h>
+#include <monocleprotocol/objectdetectorframetype_generated.h>
 #include <onvifclient/deviceclient.hpp>
 #include <onvifclient/eventclient.hpp>
 #include <onvifclient/mediaclient.hpp>
@@ -173,7 +174,7 @@ void VideoView::Connect()
             }
 		        Keepalive();
           });
-        }, VideoView::ControlStreamEnd, VideoView::H265Callback, VideoView::H264Callback, nullptr, VideoView::JPEGCallback, VideoView::MPEG4Callback, VideoView::NewCodecIndexCallback, this);
+        }, VideoView::ControlStreamEnd, VideoView::H265Callback, VideoView::H264Callback, nullptr, VideoView::JPEGCallback, VideoView::MPEG4Callback, VideoView::ObjectDetectorCallback, VideoView::NewCodecIndexCallback, this);
       });
     });
   });
@@ -669,24 +670,6 @@ void VideoView::MetadataCallback(const uint64_t streamtoken, const uint64_t play
 
     return;
   }
-  if (metadataframetype == monocle::MetadataFrameType::OBJECT_DETECTION)
-  {
-    if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(signaturedata), signaturedatasize).VerifyBuffer<monocle::Objects>(nullptr))
-    {
-      // Ignore illegal packets
-      return;
-    }
-
-    const monocle::Objects* objects = flatbuffers::GetRoot<monocle::Objects>(signaturedata);
-    if ((objects == nullptr) || (objects->objects() == nullptr))
-    {
-
-      return;
-    }
-    videoview->videowidget_->makeCurrent();
-    videoview->UpdateObjects(objects, timestamp);
-    videoview->videowidget_->doneCurrent();
-  }
 }
 
 void VideoView::JPEGCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const uint8_t* lqt, const uint8_t* cqt, const char* framedata, const size_t size, void* callbackdata) // This gets called by the Connection thread
@@ -757,6 +740,35 @@ void VideoView::MPEG4Callback(const uint64_t streamtoken, const uint64_t playreq
       imagebuffer.Destroy();
 
     }
+  }
+}
+
+void VideoView::ObjectDetectorCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
+{
+  VideoView* videoview = reinterpret_cast<VideoView*>(callbackdata);
+  if (videoview->metadataplayrequestindex_ != playrequestindex)
+  {
+
+    return;
+  }
+
+  if (objectdetectorframetype == monocle::ObjectDetectorFrameType::OBJECT_DETECTION)
+  {
+    if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(signaturedata), signaturedatasize).VerifyBuffer<monocle::Objects>(nullptr))
+    {
+      // Ignore illegal packets
+      return;
+    }
+
+    const monocle::Objects* objects = flatbuffers::GetRoot<monocle::Objects>(signaturedata);
+    if ((objects == nullptr) || (objects->objects() == nullptr))
+    {
+
+      return;
+    }
+    videoview->videowidget_->makeCurrent();
+    videoview->UpdateObjects(objects, timestamp);
+    videoview->videowidget_->doneCurrent();
   }
 }
 
@@ -1117,7 +1129,7 @@ void VideoView::AddMetadataTrack(const QSharedPointer<RecordingTrack>& metadatat
         return;
       }
     }));
-  }, VideoView::ControlStreamEnd, nullptr, nullptr, VideoView::MetadataCallback, nullptr, nullptr, nullptr, this));
+  }, VideoView::ControlStreamEnd, nullptr, nullptr, VideoView::MetadataCallback, nullptr, nullptr, VideoView::ObjectDetectorCallback, nullptr, this));
 }
 
 void VideoView::DeviceStateChanged(const DEVICESTATE state, const QString&)

@@ -112,6 +112,16 @@ struct MPEG4FRAMEHEADER : public FRAMEHEADER
 
 };
 
+struct OBJECTDETECTORFRAMEHEADER : public FRAMEHEADER
+{
+  OBJECTDETECTORFRAMEHEADER(const uint64_t codecindex, const uint64_t offset, const uint64_t size, const uint64_t time, const file::ObjectDetectorFrameType objectdetectorframetype, const std::vector<uint8_t>& signature);
+
+  virtual FrameHeaderType Type() { return FrameHeaderType::OBJECTDETECTOR; };
+
+  file::ObjectDetectorFrameType objectdetectorframetype_;
+
+};
+
 struct TRACK
 {
   TRACK();

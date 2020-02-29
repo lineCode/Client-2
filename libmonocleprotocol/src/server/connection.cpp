@@ -88,6 +88,7 @@
 #include "monocleprotocol/mpeg4frameheader_generated.h"
 #include "monocleprotocol/namechanged_generated.h"
 #include "monocleprotocol/newcodecindex_generated.h"
+#include "monocleprotocol/objectdetectorframeheader_generated.h"
 #include "monocleprotocol/onvifuseradded_generated.h"
 #include "monocleprotocol/onvifuserchanged_generated.h"
 #include "monocleprotocol/onvifuserremoved_generated.h"
@@ -763,6 +764,27 @@ boost::system::error_code Connection::SendNewCodecIndex(const uint64_t stream, c
     boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
   };
   boost::system::error_code err;
+  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
+  return err;
+}
+
+boost::system::error_code Connection::SendObjectDetectorFrame(const uint64_t stream, const uint64_t playrequest, const uint64_t codecindex, const uint64_t timestamp, const boost::optional<uint64_t>& sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* data, const size_t size)
+{
+  std::lock_guard<std::mutex> lock(writemutex_);
+  fbb_.Clear();
+  fbb_.Finish(CreateObjectDetectorFrameHeader(fbb_, stream, playrequest, codecindex, true, timestamp, sequencenum.is_initialized() ? *sequencenum : 0, progress, signature ? fbb_.CreateVector(signature, signaturesize) : flatbuffers::Offset< flatbuffers::Vector<uint8_t> >(), objectdetectorframetype));
+  const uint32_t frameheadersize = static_cast<uint32_t>(fbb_.GetSize());
+  const uint32_t messagesize = sizeof(frameheadersize) + frameheadersize + static_cast<uint32_t>(size);
+  const HEADER header(messagesize, false, false, Message::OBJECTDETECTORFRAME, ++sequence_);
+
+  boost::system::error_code err;
+  const std::array<boost::asio::const_buffer, 4> buffers =
+  {
+    boost::asio::const_buffer(&header, sizeof(HEADER)),
+    boost::asio::const_buffer(&frameheadersize, sizeof(frameheadersize)),
+    boost::asio::const_buffer(fbb_.GetBufferPointer(), frameheadersize),
+    boost::asio::const_buffer(data, size)
+  };
   boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
   return err;
 }

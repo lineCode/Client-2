@@ -22,6 +22,7 @@ namespace client
 ///// Declarations /////
 
 enum class MetadataFrameType : uint16_t;
+enum class ObjectDetectorFrameType : uint16_t;
 
 ///// Classes /////
 
@@ -67,6 +68,7 @@ class Connection : public QObject, public monocle::client::Client
   virtual void LocationChanged(const std::string& latitude, const std::string& longitude) override;
   virtual void NameChanged(const std::string& namechanged) override;
   virtual void NewCodecIndex(const uint64_t token, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp) override;
+  virtual void ObjectDetectorFrame(const uint64_t token, const uint64_t playrequest, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* data, const size_t size) override;
   virtual void ONVIFUserAdded(const uint64_t token, const std::string& username, const monocle::ONVIFUserlevel onvifuserlevel) override;
   virtual void ONVIFUserChanged(const uint64_t token, const boost::optional<std::string>& username, const monocle::ONVIFUserlevel onvifuserlevel) override;
   virtual void ONVIFUserRemoved(const uint64_t token) override;
@@ -105,7 +107,7 @@ class Connection : public QObject, public monocle::client::Client
   sock::Connection Connect(const boost::function<void(const boost::system::error_code&)> callback);
 
   monocle::client::Connection Authenticate(const std::string& username, const std::string& clientnonce, const std::string& authdigest, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::AUTHENTICATERESPONSE&)> callback);
-  monocle::client::Connection CreateStream(const uint64_t recordingtoken, const uint64_t tracktoken, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::CREATESTREAMRESPONSE&)> callback, const CONTROLSTREAMEND controlstreamendcallback, const H265CALLBACK h265callback, const H264CALLBACK h264callback, const METADATACALLBACK metadatacallback, const JPEGCALLBACK jpegcallback, const MPEG4CALLBACK mpeg4callback, const NEWCODECINDEX newcodecindexcallback, void* callbackdata);
+  monocle::client::Connection CreateStream(const uint64_t recordingtoken, const uint64_t tracktoken, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::CREATESTREAMRESPONSE&)> callback, const CONTROLSTREAMEND controlstreamendcallback, const H265CALLBACK h265callback, const H264CALLBACK h264callback, const METADATACALLBACK metadatacallback, const JPEGCALLBACK jpegcallback, const MPEG4CALLBACK mpeg4callback, const OBJECTDETECTORCALLBACK objectdetectorcallback, const NEWCODECINDEX newcodecindexcallback, void* callbackdata);
   monocle::client::Connection DestroyStream(const uint64_t streamtoken, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::DESTROYSTREAMRESPONSE&)> callback);
   monocle::client::Connection GetAuthenticationNonce(boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::GETAUTHENTICATIONNONCERESPONSE&)> callback);
   monocle::client::Connection RemoveFile(const uint64_t token, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::REMOVEFILERESPONSE&)> callback);

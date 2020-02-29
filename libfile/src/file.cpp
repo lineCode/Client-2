@@ -93,6 +93,13 @@ MPEG4FRAMEHEADER::MPEG4FRAMEHEADER(const uint64_t codecindex, const uint64_t off
 
 }
 
+OBJECTDETECTORFRAMEHEADER::OBJECTDETECTORFRAMEHEADER(const uint64_t codecindex, const uint64_t offset, const uint64_t size, const uint64_t time, const file::ObjectDetectorFrameType objectdetectorframetype, const std::vector<uint8_t>& signature) :
+  FRAMEHEADER(codecindex, offset, size, true, time, signature),
+  objectdetectorframetype_(objectdetectorframetype)
+{
+
+}
+
 TRACK::TRACK() :
   index_(0)
 {

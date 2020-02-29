@@ -240,7 +240,36 @@ int FileWrite::Close(const FILE& file)
 
         metadatatracksfb.push_back(CreateTrackDirect(fbb, metadatatrack.index_, metadatatrack.description_.c_str(), &codecsfb, nullptr, nullptr, nullptr, &metadataframeheadersfb, nullptr));
       }
-      recordingsfb.push_back(CreateRecording(fbb, recording.index_, fbb.CreateString(recording.name_), fbb.CreateString(recording.location_), fbb.CreateVector(videotracksfb), fbb.CreateVector(std::vector< flatbuffers::Offset<file::Track> >()), fbb.CreateVector(metadatatracksfb), fbb.CreateVector(objectdetectorsfb)));
+
+      // Object Detector
+      std::vector< flatbuffers::Offset<file::Track> > objectdetectortracksfb;
+      objectdetectortracksfb.reserve(recording.objectdetectortracks_.size());
+      for (const file::TRACK& objectdetectortrack : recording.objectdetectortracks_)
+      {
+        std::vector< flatbuffers::Offset<file::Codec> > codecsfb;
+        codecsfb.reserve(objectdetectortrack.codecs_.size());
+        for (const CODEC& codec : objectdetectortrack.codecs_)
+        {
+          codecsfb.push_back(CreateCodecDirect(fbb, codec.index_, codec.codec_, codec.parameters_.c_str()));
+
+        }
+
+        std::vector< flatbuffers::Offset<FrameHeader> > objectdetectorframeheadersfb;
+        std::map<FRAMEINDEX, std::vector< std::unique_ptr<OBJECTDETECTORFRAMEHEADER> > >::iterator objectdetectorframeheaders = objectdetectorframeheaders_.find(FRAMEINDEX(device.index_, recording.index_, objectdetectortrack.index_));
+        if (objectdetectorframeheaders != objectdetectorframeheaders_.cend())
+        {
+          objectdetectorframeheadersfb.reserve(objectdetectorframeheaders->second.size());
+          for (const std::unique_ptr<OBJECTDETECTORFRAMEHEADER>& objectdetectorframeheader : objectdetectorframeheaders->second)
+          {
+            objectdetectorframeheadersfb.push_back(CreateFrameHeader(fbb, objectdetectorframeheader->offset_, objectdetectorframeheader->size_));
+
+          }
+        }
+
+        objectdetectortracksfb.push_back(CreateTrackDirect(fbb, objectdetectortrack.index_, objectdetectortrack.description_.c_str(), &codecsfb, nullptr, nullptr, nullptr, nullptr, nullptr, &objectdetectorframeheadersfb));
+      }
+
+      recordingsfb.push_back(CreateRecording(fbb, recording.index_, fbb.CreateString(recording.name_), fbb.CreateString(recording.location_), fbb.CreateVector(videotracksfb), fbb.CreateVector(std::vector< flatbuffers::Offset<file::Track> >()), fbb.CreateVector(metadatatracksfb), fbb.CreateVector(objectdetectortracksfb)));
     }
     devicesfb.push_back(CreateDeviceDirect(fbb, device.index_, device.name_.c_str(), device.address_.c_str(), device.signingkey_.c_str(), &recordingsfb));
   }
@@ -437,6 +466,37 @@ int FileWrite::WriteMPEG4Frame(const uint64_t deviceindex, const uint64_t record
   else
   {
     mpeg4frameheader->second.push_back(std::make_unique<MPEG4FRAMEHEADER>(codecindex, currentoffset_, fbb_.GetSize(), marker, time, signature));
+
+  }
+
+  currentoffset_ += fbb_.GetSize();
+  return 0;
+}
+
+int FileWrite::WriteObjectDetectorFrame(const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex, const uint64_t codecindex, const uint8_t* data, const uint64_t size, const uint64_t time, const file::ObjectDetectorFrameType objectdetectorframetype, const std::vector<unsigned char>& signature)
+{
+  fbb_.Clear();
+  flatbuffers::Offset<ObjectDetectorFrame> objectdetectorframe = CreateObjectDetectorFrame(fbb_, codecindex, time, signature.size() ? fbb_.CreateVector(signature) : flatbuffers::Offset< flatbuffers::Vector<uint8_t> >(), objectdetectorframetype, fbb_.CreateVector(data, size));
+  fbb_.Finish(objectdetectorframe);
+
+  const int ret = WriteFrame(fbb_.GetBufferPointer(), fbb_.GetSize());
+  if (ret)
+  {
+
+    return ret;
+  }
+
+  const FRAMEINDEX frameindex(deviceindex, recordingindex, trackindex);
+  std::map<FRAMEINDEX, std::vector< std::unique_ptr<OBJECTDETECTORFRAMEHEADER> > >::iterator objectdetectorframeheader = objectdetectorframeheaders_.find(frameindex);
+  if (objectdetectorframeheader == objectdetectorframeheaders_.cend())
+  {
+    std::vector< std::unique_ptr<OBJECTDETECTORFRAMEHEADER> > tmp;
+    tmp.emplace_back(std::make_unique<OBJECTDETECTORFRAMEHEADER>(codecindex, currentoffset_, fbb_.GetSize(), time, objectdetectorframetype, signature));
+    objectdetectorframeheaders_.emplace(frameindex, std::move(tmp));
+  }
+  else
+  {
+    objectdetectorframeheader->second.push_back(std::make_unique<OBJECTDETECTORFRAMEHEADER>(codecindex, currentoffset_, fbb_.GetSize(), time, objectdetectorframetype, signature));
 
   }
 

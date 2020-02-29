@@ -10,30 +10,27 @@ namespace monocle {
 
 enum class MetadataFrameType : uint16_t {
   ONVIF_XML = 1,
-  OBJECT_DETECTION = 2,
   MIN = ONVIF_XML,
-  MAX = OBJECT_DETECTION
+  MAX = ONVIF_XML
 };
 
-inline const MetadataFrameType (&EnumValuesMetadataFrameType())[2] {
+inline const MetadataFrameType (&EnumValuesMetadataFrameType())[1] {
   static const MetadataFrameType values[] = {
-    MetadataFrameType::ONVIF_XML,
-    MetadataFrameType::OBJECT_DETECTION
+    MetadataFrameType::ONVIF_XML
   };
   return values;
 }
 
 inline const char * const *EnumNamesMetadataFrameType() {
-  static const char * const names[3] = {
+  static const char * const names[2] = {
     "ONVIF_XML",
-    "OBJECT_DETECTION",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameMetadataFrameType(MetadataFrameType e) {
-  if (e < MetadataFrameType::ONVIF_XML || e > MetadataFrameType::OBJECT_DETECTION) return "";
+  if (e < MetadataFrameType::ONVIF_XML || e > MetadataFrameType::ONVIF_XML) return "";
   const size_t index = static_cast<size_t>(e) - static_cast<size_t>(MetadataFrameType::ONVIF_XML);
   return EnumNamesMetadataFrameType()[index];
 }

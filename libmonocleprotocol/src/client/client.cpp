@@ -91,6 +91,7 @@
 #include "monocleprotocol/mpeg4frameheader_generated.h"
 #include "monocleprotocol/namechanged_generated.h"
 #include "monocleprotocol/newcodecindex_generated.h"
+#include "monocleprotocol/objectdetectorframeheader_generated.h"
 #include "monocleprotocol/onvifuseradded_generated.h"
 #include "monocleprotocol/onvifuserchanged_generated.h"
 #include "monocleprotocol/onvifuserremoved_generated.h"
@@ -5254,6 +5255,35 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       }
 
       NameChanged(namechanged->name() ? namechanged->name()->str() : std::string());
+      break;
+    }
+    case Message::OBJECTDETECTORFRAME:
+    {
+      if (sizeof(uint32_t) > datasize)
+      {
+        // Ignore illegal packets
+        return;
+      }
+      const uint32_t headersize = *reinterpret_cast<const uint32_t*>(data);
+      if ((sizeof(uint32_t) + headersize) > datasize)
+      {
+        // Ignore illegal packets
+        return;
+      }
+      data += sizeof(headersize);
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), headersize).VerifyBuffer<ObjectDetectorFrameHeader>(nullptr))
+      {
+        // Ignore illegal packets
+        return;
+      }
+      const ObjectDetectorFrameHeader* objectdetectorframeheader = flatbuffers::GetRoot<ObjectDetectorFrameHeader>(data);
+      if (!objectdetectorframeheader)
+      {
+        // Ignore illegal packets
+        return;
+      }
+      data += headersize;
+      ObjectDetectorFrame(objectdetectorframeheader->token(), objectdetectorframeheader->playrequestindex(), objectdetectorframeheader->codecindex(), objectdetectorframeheader->timestamp(), objectdetectorframeheader->sequencenum(), objectdetectorframeheader->progress(), objectdetectorframeheader->signature() ? objectdetectorframeheader->signature()->data() : nullptr, objectdetectorframeheader->signature() ? objectdetectorframeheader->signature()->size() : 0, objectdetectorframeheader->objectdetectorframetype(), data, datasize - (sizeof(headersize) + headersize));
       break;
     }
     case Message::NEWCODECINDEX:

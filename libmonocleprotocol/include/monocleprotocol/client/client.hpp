@@ -34,6 +34,7 @@ namespace monocle
 ///// Declarations /////
 
 enum class MetadataFrameType : uint16_t;
+enum class ObjectDetectorFrameType : uint16_t;
 
 ///// Namespaces /////
 
@@ -151,6 +152,7 @@ class Client : public boost::enable_shared_from_this<Client>
   virtual void LocationChanged(const std::string& latitude, const std::string& longitude) = 0;
   virtual void NameChanged(const std::string& namechanged) = 0;
   virtual void NewCodecIndex(const uint64_t stream, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp) = 0;
+  virtual void ObjectDetectorFrame(const uint64_t token, const uint64_t playrequest, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* data, const size_t size) = 0;
   virtual void ONVIFUserAdded(const uint64_t token, const std::string& username, const ONVIFUserlevel onvifuserlevel) = 0;
   virtual void ONVIFUserChanged(const uint64_t token, const boost::optional<std::string>& username, const monocle::ONVIFUserlevel onvifuserlevel) = 0;
   virtual void ONVIFUserRemoved(const uint64_t token) = 0;
