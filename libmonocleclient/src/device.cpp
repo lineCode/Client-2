@@ -2607,10 +2607,44 @@ void Device::SlotStateChanged(const DEVICESTATE state, const QString& message)
 {
   if ((state == DEVICESTATE::SUBSCRIBED) && IsValidLicense() && files_.empty() && recordings_.empty()) // If a device looks like it hasn't been setup before, we can help alert the user to setup a location to store data
   {
-    if (QMessageBox::question(MainWindow::Instance(), tr("New Device Found: ") + address_, tr("Would you like to setup a location to store video data?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+    if (Options::Instance().GetHideNewDeviceDialog() == false)
     {
-      ManageFileWindow(MainWindow::Instance(), boost::static_pointer_cast<Device>(shared_from_this())).exec();
+      QCheckBox* checkbox = new QCheckBox("Do not show this again");
+      QMessageBox messagebox;
+      messagebox.setWindowTitle(tr("New Device Found: ") + address_);
+      messagebox.setText("Would you like to setup a location to store video data?");
+      messagebox.setIcon(QMessageBox::Icon::Question);
+      messagebox.addButton(QMessageBox::Yes);
+      messagebox.addButton(QMessageBox::No);
+      messagebox.setDefaultButton(QMessageBox::Yes);
+      messagebox.setCheckBox(checkbox);
+      bool donotshowagain = false;
+      QObject::connect(checkbox, &QCheckBox::stateChanged, [&donotshowagain](int state)
+      {
+        if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
+        {
+          donotshowagain = true;
 
+        }
+        else
+        {
+          donotshowagain = false;
+
+        }
+      });
+      const int ret = messagebox.exec();
+      if (donotshowagain)
+      {
+        Options::Instance().SetHideNewDeviceDialog(true);
+
+      }
+      if (ret != QMessageBox::Yes)
+      {
+
+        return;
+      }
+
+      ManageFileWindow(MainWindow::Instance(), boost::static_pointer_cast<Device>(shared_from_this())).exec();
     }
   }
 }

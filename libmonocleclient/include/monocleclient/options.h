@@ -57,6 +57,9 @@ public:
   inline void SetHideMainWindowCloseDialog(const bool hidemainwindowclosedialog) { hidemainwindowclosedialog_ = hidemainwindowclosedialog; }
   inline bool GetHideMainWindowCloseDialog() const { return hidemainwindowclosedialog_; }
 
+  inline void SetHideNewDeviceDialog(const bool hidenewdevicedialog) { hidenewdevicedialog_ = hidenewdevicedialog; }
+  inline bool GetHideNewDeviceDialog() const { return hidenewdevicedialog_; }
+
   inline void SetInfoTextFormat(const std::string& infotextformat) { infotextformat_ = infotextformat; }
   inline const std::string& GetInfoTextFormat() const { return infotextformat_; }
 
@@ -95,6 +98,7 @@ public:
   bool hidemediaclosedialog_;
   bool hidevideowindowclosedialog_;
   bool hidemainwindowclosedialog_;
+  bool hidenewdevicedialog_;
 
   std::string infotextformat_;
   bool showinfo_;

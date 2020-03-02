@@ -38,6 +38,7 @@ OptionsWindow::OptionsWindow(QWidget* parent) :
   ui_.checkhidemediaclosedialog->setCheckState(Options::Instance().GetHideMediaCloseDialog() ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
   ui_.checkhidevideowindowclosedialog->setCheckState(Options::Instance().GetHideVideoWindowCloseDialog() ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
   ui_.checkhidemainwindowclosedialog->setCheckState(Options::Instance().GetHideMainWindowCloseDialog() ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
+  ui_.checkhidenewdevicewindow->setCheckState(Options::Instance().GetHideNewDeviceDialog() ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
 
   // Streaming
   ui_.editinfotextformat->setText(QString::fromStdString(Options::Instance().GetInfoTextFormat()));
@@ -114,6 +115,7 @@ void OptionsWindow::on_buttonok_clicked()
   Options::Instance().SetHideMediaCloseDialog(ui_.checkhidemediaclosedialog->isChecked());
   Options::Instance().SetHideVideoWindowCloseDialog(ui_.checkhidevideowindowclosedialog->isChecked());
   Options::Instance().SetHideMainWindowCloseDialog(ui_.checkhidemainwindowclosedialog->isChecked());
+  Options::Instance().SetHideNewDeviceDialog(ui_.checkhidenewdevicewindow->isChecked());
 
   // Streaming
   Options::Instance().SetInfoTextFormat(ui_.editinfotextformat->text().toStdString());

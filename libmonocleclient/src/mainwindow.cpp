@@ -896,16 +896,16 @@ void MainWindow::closeEvent(QCloseEvent* event)
 
       }
     });
-    if (messagebox.exec() != QMessageBox::Yes)
-    {
-      event->ignore();
-      return;
-    }
-
+    const int ret = messagebox.exec();
     if (donotshowagain)
     {
       Options::Instance().SetHideMainWindowCloseDialog(true);
 
+    }
+    if (ret != QMessageBox::Yes)
+    {
+      event->ignore();
+      return;
     }
   }
 
