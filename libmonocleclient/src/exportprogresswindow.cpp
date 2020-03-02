@@ -837,20 +837,20 @@ void ExportProgressWindow::ObjectDetectorCallback(const uint64_t streamtoken, co
   ExportTrackConnection* exporttrackconnection = reinterpret_cast<ExportTrackConnection*>(callbackdata);
   switch (exporttrackconnection->exportformat_)
   {
-  case EXPORTFORMAT_MONOCLE:
-  {
-    std::lock_guard<std::recursive_mutex> lock(*exporttrackconnection->filewritermutex_);
-    if (exporttrackconnection->filewriter_->WriteObjectDetectorFrame(exporttrackconnection->deviceindex_, exporttrackconnection->recordingtoken_, exporttrackconnection->trackid_, codecindex, reinterpret_cast<const uint8_t*>(signaturedata), signaturedatasize, timestamp, static_cast<file::ObjectDetectorFrameType>(objectdetectorframetype), Signature(signature, signaturesize)))
+    case EXPORTFORMAT_MONOCLE:
     {
-      exporttrackconnection->audit_.push_back("FileWrite::WriteFrame failed");
-      exporttrackconnection->state_ = EXPORTTRACKSTATE_ERROR;
-      return;
+      std::lock_guard<std::recursive_mutex> lock(*exporttrackconnection->filewritermutex_);
+      if (exporttrackconnection->filewriter_->WriteObjectDetectorFrame(exporttrackconnection->deviceindex_, exporttrackconnection->recordingtoken_, exporttrackconnection->trackid_, codecindex, reinterpret_cast<const uint8_t*>(signaturedata), signaturedatasize, timestamp, static_cast<file::ObjectDetectorFrameType>(objectdetectorframetype), Signature(signature, signaturesize)))
+      {
+        exporttrackconnection->audit_.push_back("FileWrite::WriteFrame failed");
+        exporttrackconnection->state_ = EXPORTTRACKSTATE_ERROR;
+        return;
+      }
+      exporttrackconnection->currentprogress_ = std::min(1.0f, progress);
+      exporttrackconnection->totalsize_ += size;
+      exporttrackconnection->currentspeed_.push_back(std::make_pair(std::chrono::steady_clock::now(), size));
+      break;
     }
-    exporttrackconnection->currentprogress_ = std::min(1.0f, progress);
-    exporttrackconnection->totalsize_ += size;
-    exporttrackconnection->currentspeed_.push_back(std::make_pair(std::chrono::steady_clock::now(), size));
-    break;
-  }
   }
 }
 

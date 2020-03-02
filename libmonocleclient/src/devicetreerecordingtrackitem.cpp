@@ -21,7 +21,7 @@ namespace client
 
 ///// Methods /////
 
-DeviceTreeRecordingTrackItem::DeviceTreeRecordingTrackItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource, const QSharedPointer<client::RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<client::RecordingTrack>& track) :
+DeviceTreeRecordingTrackItem::DeviceTreeRecordingTrackItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource, const QSharedPointer<client::RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<client::RecordingTrack>& track, const QIcon& cameraicon) :
   DeviceTreeItem(parent, GetName(track)),
   device_(device),
   recording_(recording),
@@ -37,6 +37,8 @@ DeviceTreeRecordingTrackItem::DeviceTreeRecordingTrackItem(DeviceTreeItem* paren
   connect(remove_, &QAction::triggered, this, &DeviceTreeRecordingTrackItem::Remove);
   connect(viewlog_, &QAction::triggered, this, &DeviceTreeRecordingTrackItem::ViewLog);
   connect(recording.get(), &Recording::TrackChanged, this, &DeviceTreeRecordingTrackItem::TrackChanged);
+
+  setIcon(0, cameraicon);
 }
 
 DeviceTreeRecordingTrackItem::~DeviceTreeRecordingTrackItem()

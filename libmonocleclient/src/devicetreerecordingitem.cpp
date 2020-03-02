@@ -30,10 +30,11 @@ namespace client
 
 ///// Methods /////
 
-DeviceTreeRecordingItem::DeviceTreeRecordingItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QIcon& recordingicon) :
+DeviceTreeRecordingItem::DeviceTreeRecordingItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QIcon& recordingicon, const QIcon& cameraicon) :
   DeviceTreeItem(parent, recording->GetName()),
   device_(device),
   recording_(recording),
+  cameraicon_(cameraicon),
   edit_(new QAction("Edit", this)),
   addvideotrack_(new QAction("Add Video Track", this)),
   remove_(new QAction("Remove", this)),
@@ -161,21 +162,21 @@ void DeviceTreeRecordingItem::UpdateToolTip()
 
         if (track->GetState() == monocle::RecordingJobState::Idle)
         {
-          if (tracktype != monocle::TrackType::Metadata) // Metadata might not send frames for long durations and may become idle
+          if ((tracktype != monocle::TrackType::Metadata) && !receiver->GetMediaUri().isEmpty()) // Metadata might not send frames for long durations and may become idle. Empty URI is ok to be idle as well
           {
             error = true;
 
           }
-          tooltips.append(receiver->GetMediaUri() + ": Idle");
+          tooltips.append(Tooltip(receiver->GetMediaUri(), "Idle"));
         }
         else if (track->GetState() == monocle::RecordingJobState::Error)
         {
           error = true;
-          tooltips.append(receiver->GetMediaUri() + ": Error " + track->GetError());
+          tooltips.append(Tooltip(receiver->GetMediaUri(), "Error " + track->GetError()));
         }
         else // if (track->GetState() == monocle::RecordingJobState::Active)
         {
-          tooltips.append(receiver->GetMediaUri() + ": Active");
+          tooltips.append(Tooltip(receiver->GetMediaUri(), "Active"));
 
         }
       }
@@ -221,7 +222,7 @@ void DeviceTreeRecordingItem::UpdateChildren()
           continue;
         }
 
-        addChild(new DeviceTreeRecordingTrackItem(this, device_, recording_, job, source, sourcetrack, track));
+        addChild(new DeviceTreeRecordingTrackItem(this, device_, recording_, job, source, sourcetrack, track, cameraicon_));
       }
     }
   }
@@ -269,6 +270,20 @@ bool DeviceTreeRecordingItem::Exists(const QSharedPointer<RecordingJobSourceTrac
     }
   }
   return false;
+}
+
+QString DeviceTreeRecordingItem::Tooltip(const QString& mediauri, const QString& status) const
+{
+  if (mediauri.isEmpty())
+  {
+
+    return status;
+  }
+  else
+  {
+
+    return (mediauri + ": " + status);
+  }
 }
 
 void DeviceTreeRecordingItem::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)

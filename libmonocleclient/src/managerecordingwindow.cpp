@@ -52,18 +52,23 @@ ManageRecordingWindow::ManageRecordingWindow(QWidget* parent, boost::shared_ptr<
     connect(device.get(), QOverload<const uint64_t>::of(&Device::SignalRecordingRemoved), this, &ManageRecordingWindow::RecordingRemoved);
 
     QSharedPointer<client::Recording> recording = device_->GetRecording(*token_);
-    ui_.editname->setText(recording->GetName());
-    ui_.editlocation->setText(recording->GetLocation());
-    ui_.spinretentiontime->setValue(recording->GetRetentionTime() / (86400 * 1000));
-
-    const QSize sizehint = sizeHint();
-    if (sizehint.isValid())
+    if (recording)
     {
-      resize(width(), sizehint.height());
-      setMinimumHeight(sizehint.height());
-      setMaximumHeight(sizehint.height());
+      ui_.editname->setText(recording->GetName());
+      ui_.editlocation->setText(recording->GetLocation());
+      ui_.spinretentiontime->setValue(recording->GetRetentionTime() / (86400 * 1000));
+
+      const QSize sizehint = sizeHint();
+      if (sizehint.isValid())
+      {
+        resize(width(), sizehint.height());
+        setMinimumHeight(sizehint.height());
+        setMaximumHeight(sizehint.height());
+      }
     }
   }
+
+  ui_.editname->setFocus(); // For some reason this isn't being focused initially in line with the tab order...
 }
 
 ManageRecordingWindow::~ManageRecordingWindow()

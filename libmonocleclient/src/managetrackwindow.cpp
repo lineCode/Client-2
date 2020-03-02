@@ -1132,6 +1132,12 @@ void ManageTrackWindow::on_buttontest_clicked()
     deviceclient_.reset();
   }
 
+  if (ui_.edituri->text().isEmpty())
+  {
+    ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Empty URI</font><br/>");
+    return;
+  }
+
   try
   {
     const network::uri uri(ui_.edituri->text().toStdString());
@@ -1325,30 +1331,42 @@ void ManageTrackWindow::on_buttontest_clicked()
 void ManageTrackWindow::on_buttonok_clicked()
 {
   // Make sure the URI looks reasonable
-  const network::uri uri(ui_.edituri->text().toStdString());
-  if (!uri.has_scheme())
+  const std::string mediauri = ui_.edituri->text().toStdString();
+  if (mediauri.size()) // Empty URI is satisfactory, it just remains idle on the server
   {
-    ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid URI: " + ui_.edituri->text() + " no scheme present</font><br/>");
-    return;
-  }
+    const network::uri uri(mediauri);
+    if (!uri.has_scheme())
+    {
+      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid URI: " + ui_.edituri->text() + " no scheme present</font><br/>");
+      return;
+    }
 
-  if (!uri.has_host())
-  {
-    ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid URI: " + ui_.edituri->text() + " no host present</font><br/>");
-    return;
-  }
+    if (!uri.has_host())
+    {
+      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid URI: " + ui_.edituri->text() + " no host present</font><br/>");
+      return;
+    }
 
-  if (uri.scheme().compare("rtsp") == 0)
-  {
-    // Looks good
-
-  }
-  else if ((uri.scheme().compare("http") == 0))
-  {
-    if (uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))
+    if (uri.scheme().compare("rtsp") == 0)
     {
       // Looks good
 
+    }
+    else if ((uri.scheme().compare("http") == 0))
+    {
+      if (uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))
+      {
+        // Looks good
+
+      }
+      else
+      {
+        if (QMessageBox::question(this, tr("Warning"), tr("The uri looks invalid, are you sure you want to continue?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+        {
+
+          return;
+        }
+      }
     }
     else
     {
@@ -1357,14 +1375,6 @@ void ManageTrackWindow::on_buttonok_clicked()
 
         return;
       }
-    }
-  }
-  else
-  {
-    if (QMessageBox::question(this, tr("Warning"), tr("The uri looks invalid, are you sure you want to continue?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
-    {
-
-      return;
     }
   }
 

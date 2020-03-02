@@ -227,7 +227,7 @@
               <item row="0" column="1" colspan="2">
                <widget class="QLineEdit" name="edituri">
                 <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Examples:&amp;lt;br/&amp;gt;http://10.0.0.1/onvif/device_service&amp;lt;br/&amp;gt;rtsp://192.168.0.1/path&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Examples:&lt;/p&gt;&lt;p&gt;http://10.0.0.1/onvif/device_service&lt;/p&gt;&lt;p&gt;rtsp://192.168.0.1/path&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                </widget>
               </item>

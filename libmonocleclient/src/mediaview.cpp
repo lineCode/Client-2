@@ -232,7 +232,7 @@ std::vector< std::shared_ptr<file::FRAMEHEADER> >::const_iterator MediaView::Med
   }
   else
   {
-    const std::shared_ptr<file::FRAMEHEADER> tmp = std::make_shared<file::METADATAFRAMEHEADER>(0, 0, 0, time, file::MetadataFrameType::ONVIF_XML, std::vector<uint8_t>()); // Only time matters
+    const std::shared_ptr<file::FRAMEHEADER> tmp = std::make_shared<file::METADATAFRAMEHEADER>(0, 0, 0, time, file::MetadataFrameType::ONVIF_XML, std::vector<uint8_t>()); // Only time matters, the rest of this can be ignored
     i = std::lower_bound(track_.frameheaders_.cbegin(), track_.frameheaders_.cend(), tmp, [](const std::shared_ptr<file::FRAMEHEADER>& lhs, const std::shared_ptr<file::FRAMEHEADER>& rhs) { return (lhs->time_ < rhs->time_); });
   }
   if (i == track_.frameheaders_.cend())
@@ -569,7 +569,7 @@ void MediaView::ObjectDetectorCallback(const uint64_t playrequestindex, const si
   }
 
   std::shared_ptr<file::FRAMEHEADER> frameheader = (*stream)->track_.frameheaders_[frame];
-  if (frameheader->Type() != file::FrameHeaderType::METADATA)//TODO
+  if (frameheader->Type() != file::FrameHeaderType::OBJECTDETECTOR)
   {
 
     return;
@@ -728,6 +728,11 @@ void MediaView::Init(const size_t deviceindex, const size_t recordingindex, cons
           mpeg4decoders_.emplace_back(std::move(mpeg4decoder));
           break;
         }
+        case monocle::Codec::OBJECTDETECTOR:
+        {
+          // Ignore for the time being
+          break;
+        }
         default:
         {
           LOG_GUI_WARNING(QString("Unrecognised codec: ") + QString::number(codec.codec_) + " " + QString::fromStdString(recording->name_) + " " + QString::number(recording->index_) + " " + QString::fromStdString(codec.parameters_));
@@ -766,12 +771,12 @@ void MediaView::Init(const size_t deviceindex, const size_t recordingindex, cons
   videostream_ = boost::make_shared<MediaStream>(*device, *recording, *videotrack, nextstreamindex_++);
   videostream_->Init(this, true, playrequestindex);
   videostream_->SendControlRequest<PlaybackControlRequest>(playrequestindex, 0, true, true, starttime, boost::none, boost::none);
-  for (const file::TRACK& metadatatrack : recording->metadatatracks_)//TODO need to loop again through the object detector tracks
+  for (const file::TRACK& objectdetectortrack : recording->objectdetectortracks_)
   {
-    boost::shared_ptr<MediaStream> metadatastream = boost::make_shared<MediaStream>(*device, *recording, metadatatrack, nextstreamindex_++);
-    metadatastream->Init(this, false, playrequestindex);
-    metadatastream->SendControlRequest<PlaybackControlRequest>(playrequestindex, 0, true, true, starttime, boost::none, boost::none);
-    metadatastreams_.emplace_back(metadatastream);
+    boost::shared_ptr<MediaStream> objectdetectorstream = boost::make_shared<MediaStream>(*device, *recording, objectdetectortrack, nextstreamindex_++);
+    objectdetectorstream->Init(this, false, playrequestindex);
+    objectdetectorstream->SendControlRequest<PlaybackControlRequest>(playrequestindex, 0, true, true, starttime, boost::none, boost::none);
+    metadatastreams_.emplace_back(objectdetectorstream);
   }
 }
 
@@ -1130,7 +1135,7 @@ std::pair<int, bool> MediaView::SendFrame(const uint64_t playrequestindex, const
       }
     }
   }
-  else if (!mainstream && (frameheader->Type() == file::FrameHeaderType::METADATA))
+  else if (!mainstream && (frameheader->Type() == file::FrameHeaderType::OBJECTDETECTOR))
   {
     QMetaObject::invokeMethod(this, [this, playrequestindex, stream, frame]() { ObjectDetectorCallback(playrequestindex, stream->index_, frame); }, Qt::QueuedConnection);
 

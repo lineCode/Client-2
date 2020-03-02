@@ -80,6 +80,7 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   translationsdirectory_((QCoreApplication::applicationDirPath() + QString("/translations"))),
   arial_(new QResource(":/arial.ttf")),
   showfullscreen_(":/showfullscreen.png"),
+  cameraicon_(":/camera.png"),
   gen_(rd_()),
   hsvcolordist_(0.0, 1.0),
   ioservicepool_(numioservices, numioservicethreads, [](){}, [](){}),

@@ -47,7 +47,7 @@ class DeviceTreeRecordingItem : public DeviceTreeItem
 
  public:
 
-  DeviceTreeRecordingItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QIcon& recordingicon);
+  DeviceTreeRecordingItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QIcon& recordingicon, const QIcon& cameraicon);
   virtual ~DeviceTreeRecordingItem();
 
   virtual void ContextMenuEvent(const QPoint& pos) override;
@@ -74,9 +74,12 @@ class DeviceTreeRecordingItem : public DeviceTreeItem
   void UpdateChildren();
   DeviceTreeRecordingTrackItem* GetChild(const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& track) const;
   bool Exists(const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& track) const;
+  QString Tooltip(const QString& mediauri, const QString& status) const;
 
   boost::shared_ptr<Device> device_;
   QSharedPointer<client::Recording> recording_;
+
+  const QIcon& cameraicon_;
 
   QAction* edit_;
   QAction* addvideotrack_;

@@ -9,6 +9,7 @@
 #include <memory>
 #include <monocleprotocol/client/connection.hpp>
 #include <stdint.h>
+#include <QIcon>
 #include <QSharedPointer>
 #include <QString>
 
@@ -40,7 +41,7 @@ class DeviceTreeRecordingTrackItem : public DeviceTreeItem
 
  public:
 
-  DeviceTreeRecordingTrackItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource, const QSharedPointer<client::RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<client::RecordingTrack>& track);
+  DeviceTreeRecordingTrackItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource, const QSharedPointer<client::RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<client::RecordingTrack>& track, const QIcon& cameraicon);
   ~DeviceTreeRecordingTrackItem();
 
   virtual void ContextMenuEvent(const QPoint& pos) override;

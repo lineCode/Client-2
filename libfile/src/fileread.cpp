@@ -269,6 +269,18 @@ std::future<int> FileRead::Init(const boost::filesystem::path& path, const std::
               }
             }
           }
+
+          if (recording->objectdetectortracks())
+          {
+            for (const file::Track* track : *recording->objectdetectortracks())
+            {
+              if (track->objectdetectorframeheaders())
+              {
+                totalframes += track->objectdetectorframeheaders()->size();
+
+              }
+            }
+          }
         }
       }
     }

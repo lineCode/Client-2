@@ -352,7 +352,7 @@ void DeviceTreeDeviceItem::NameChanged(const QString& name)
 
 void DeviceTreeDeviceItem::RecordingAdded(QSharedPointer<client::Recording>& recording)
 {
-  addChild(new DeviceTreeRecordingItem(this, device_, recording, recordingicon_));
+  addChild(new DeviceTreeRecordingItem(this, device_, recording, recordingicon_, MainWindow::Instance()->GetCameraIcon()));
 
 }
 

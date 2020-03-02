@@ -141,6 +141,8 @@ class MainWindow : public QMainWindow
   inline utility::IoServicePool& GetIOServicePool() { return ioservicepool_; }
   inline boost::asio::io_service& GetGUIIOService() { return guiioservice_; }
 
+  inline const QIcon& GetCameraIcon() const { return cameraicon_; }
+
   void ShortMonthName(const int mon, std::vector<char>& buffer) const;
   void ShortWeekDayName(const int mon, std::vector<char>& buffer) const;
 
@@ -215,6 +217,7 @@ class MainWindow : public QMainWindow
   const boost::filesystem::path licensepath_;
   const QResource* arial_;
   const QIcon showfullscreen_;
+  const QIcon cameraicon_;
 
   std::random_device rd_;
   mutable std::mt19937 gen_;

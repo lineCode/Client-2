@@ -112,7 +112,7 @@ FindObjectWindow::FindObjectWindow(QWidget* parent, const QImage& image, const b
   // Tracks
   for (const QSharedPointer<RecordingTrack>& objectdetectortrack : recording->GetObjectDetectorTracks())
   {
-    const std::vector<monocle::CODECINDEX> codecindices = objectdetectortrack->GetCodecIndices(monocle::Codec::OBJECTDETECTOR);//TODO this goes away
+    const std::vector<monocle::CODECINDEX> codecindices = objectdetectortrack->GetCodecIndices(monocle::Codec::OBJECTDETECTOR);
     for (const monocle::CODECINDEX& codecindex : codecindices)
     {
       std::vector<std::string> parameters;
