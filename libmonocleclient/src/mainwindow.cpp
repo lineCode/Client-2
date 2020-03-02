@@ -373,281 +373,7 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   }
 
   discover_ = boost::make_shared<onvif::wsdiscover::WsDiscoverClient>(MainWindow::Instance()->GetGUIIOService());
-  discover_->hello_.connect([this](const std::vector<std::string>& addresses, const std::vector<std::string>& scopes)
-  {
-    if (utility::Contains(scopes, "onvif://www.onvif.org/manufacturer/Monocle"))
-    {
-      std::vector<std::string>::const_iterator identifierscope = std::find_if(scopes.cbegin(), scopes.cend(), [](const std::string& scope) { return boost::starts_with(scope, "onvif://www.onvif.org/monocle/identifier/"); });
-      if (identifierscope == scopes.cend())
-      {
-
-        return;
-      }
-      uint64_t identifier = 0;
-      try
-      {
-        identifier = boost::lexical_cast<uint64_t>(identifierscope->substr(41));
-
-      }
-      catch (...)
-      {
-
-        return;
-      }
-
-      if (MainWindow::Instance()->GetDeviceMgr().GetDevice(identifier))
-      {
-        // We already have this device, ignore this
-        return;
-      }
-
-      std::vector< std::pair<boost::asio::ip::address, uint16_t> > localaddresses;
-      localaddresses.reserve(addresses.size());
-      for (const std::string& address : addresses)
-      {
-        network::uri uri(address);
-        try
-        {
-          uri = network::uri(address);
-
-        }
-        catch (...)
-        {
-
-          continue;
-        }
-
-        if (!uri.has_path())
-        {
-
-          continue;
-        }
-
-        if (uri.path().compare("/monocle_service"))
-        {
-
-          continue;
-        }
-
-        if (!uri.has_host())
-        {
-
-          continue;
-        }
-
-        boost::system::error_code err;
-        const std::string host = uri.host().to_string();
-        const boost::asio::ip::address a = boost::asio::ip::address::from_string(host, err);
-        if (err)
-        {
-
-          continue;
-        }
-
-        uint16_t port = 9854;
-        if (uri.has_port())
-        {
-          try
-          {
-            port = boost::lexical_cast<uint16_t>(uri.port());
-
-          }
-          catch (...)
-          {
-
-            continue;
-          }
-        }
-
-        if (utility::Contains(localaddresses, std::make_pair(a, port))) // Don't add duplicates
-        {
-
-          continue;
-        }
-
-        if (a.is_v4())
-        {
-          if (boost::starts_with(host, "192.168.") || boost::starts_with(host, "172.") || boost::starts_with(host, "10."))
-          {
-            localaddresses.push_back(std::make_pair(a, port));
-
-          }
-        }
-        else if (a.is_v6())
-        {
-          if (a.to_v6().is_site_local())
-          {
-            localaddresses.push_back(std::make_pair(a, port));
-
-          }
-        }
-      }
-
-      if (QApplication::activeWindow() != MainWindow::Instance()) // Only bother the user if they haven't got another window open...
-      {
-
-        return;
-      }
-
-      if (localaddresses.empty())
-      {
-
-        return;
-      }
-
-      if (MainWindow::Instance()->GetDeviceMgr().GetDevices(localaddresses, 0).size()) // If we have a device that has never connected before, but shares an address, we probably don't want to add this
-      {
-
-        return;
-      }
-
-      QMetaObject::invokeMethod(this, [this, identifier, localaddresses]()
-      {
-        if (utility::Contains(newdeviceidentifiers_, identifier)) // Ignore any devices that we have already queried the user with
-        {
-
-          return;
-        }
-        newdeviceidentifiers_.push_back(identifier);
-
-        QStringList localaddressestext;
-        for (const std::pair<boost::asio::ip::address, uint16_t>& localaddress : localaddresses)
-        {
-          localaddressestext.push_back(QString::fromStdString(localaddress.first.to_string()));
-
-        }
-
-        // If there are multiple devices to add, this will spam, but that's kind of ok I guess...
-        QCheckBox* checkbox = new QCheckBox("Do not show this again");
-        QMessageBox messagebox;
-        messagebox.setWindowTitle("New Device Discovery: " + localaddressestext.join(" "));
-        messagebox.setText("Would you like to add this device?");
-        messagebox.setIcon(QMessageBox::Icon::Question);
-        messagebox.addButton(QMessageBox::Yes);
-        messagebox.addButton(QMessageBox::No);
-        messagebox.setDefaultButton(QMessageBox::No);
-        messagebox.setCheckBox(checkbox);
-        bool donotshowagain = false;
-        QObject::connect(checkbox, &QCheckBox::stateChanged, [&donotshowagain](int state)
-        {
-          if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
-          {
-            donotshowagain = true;
-
-          }
-          else
-          {
-            donotshowagain = false;
-
-          }
-        });
-        const int ret = messagebox.exec();
-        if (donotshowagain)
-        {
-          QSettings settings(QSettings::IniFormat, QSettings::UserScope, QCoreApplication::organizationName(), QCoreApplication::applicationName());
-          QStringList newdeviceidentifiers;
-          newdeviceidentifiers.reserve(static_cast<int>(newdeviceidentifiers_.size()));
-          for (const uint64_t newdeviceidenfitier : newdeviceidentifiers_)
-          {
-            newdeviceidentifiers.push_back(QString::number(newdeviceidenfitier));
-
-          }
-          settings.setValue(NEWDEVICEIDENTIFIERS, newdeviceidentifiers);
-        }
-        if (ret != QMessageBox::Yes)
-        {
-
-          return;
-        }
-
-        // Kick off a bunch of Connections, which automatically adds the device if it can authenticate, otherwise brings up the window to add it
-        boost::shared_ptr< std::vector< boost::shared_ptr<sock::Connection> > > connections = boost::make_shared< std::vector< boost::shared_ptr<sock::Connection> > >();
-        boost::shared_ptr<bool> connecting = boost::make_shared<bool>(false);
-        const boost::shared_ptr<size_t> count = boost::make_shared<size_t>(localaddresses.size());
-        for (const std::pair<boost::asio::ip::address, uint16_t>& localaddress : localaddresses)
-        {
-          boost::shared_ptr<Connection> connection = boost::make_shared<Connection>(MainWindow::Instance()->GetGUIIOService(), sock::ProxyParams(), QString::fromStdString(localaddress.first.to_string()), localaddress.second);
-          connections->push_back(boost::make_shared<sock::Connection>(connection->Connect([identifier, count, connection, connections, connecting](const boost::system::error_code& err) mutable
-          {
-            if (*connecting)
-            {
-              // Another connection has stolen the show already, ignore this one
-              return;
-            }
-
-            if (err)
-            {
-              --(*count);
-              if (*count == 0) // If all connections failed, open the window
-              {
-                EditDeviceWindow(MainWindow::Instance(), connection->GetAddress(), connection->GetPort(), "admin", "password").exec();
-                return;
-              }
-            }
-            else
-            {
-              *connecting = true;
-
-              boost::shared_ptr<monocle::client::Connection> c = boost::make_shared<monocle::client::Connection>();
-              *c = connection->GetAuthenticationNonce([identifier, connection, c](const std::chrono::steady_clock::duration latency, const monocle::client::GETAUTHENTICATIONNONCERESPONSE& getauthenticationnonceresponse)
-              {
-                if (getauthenticationnonceresponse.GetErrorCode() != monocle::ErrorCode::Success)
-                {
-                  EditDeviceWindow(MainWindow::Instance(), connection->GetAddress(), connection->GetPort(), "admin", "password").exec();
-                  return;
-                }
-
-                const std::string clientnonce = utility::GenerateRandomString(32);
-                *c = connection->Authenticate("admin", clientnonce, monocle::AuthenticateDigest("admin", "password", getauthenticationnonceresponse.authenticatenonce_, clientnonce), [identifier, connection, c](const std::chrono::steady_clock::duration latency, const monocle::client::AUTHENTICATERESPONSE& authenticateresponse)
-                {
-                  if (authenticateresponse.GetErrorCode() != monocle::ErrorCode::Success)
-                  {
-                    EditDeviceWindow(MainWindow::Instance(), connection->GetAddress(), connection->GetPort(), "admin", "password").exec();
-                    return;
-                  }
-
-                  *c = connection->GetState([identifier, connection, c](const std::chrono::steady_clock::duration latency, const monocle::client::GETSTATERESPONSE& getstateresponse)
-                  {
-                    if (getstateresponse.GetErrorCode() != monocle::ErrorCode::Success)
-                    {
-                      EditDeviceWindow(MainWindow::Instance(), connection->GetAddress(), connection->GetPort(), "admin", "password").exec();
-                      return;
-                    }
-
-                    if (identifier == getstateresponse.identifier_) // Make sure it is the device we discovered
-                    {
-                      MainWindow::Instance()->GetDeviceMgr().AddDevice(sock::ProxyParams(), connection->GetAddress(), connection->GetPort(), "admin", "password", 0, true);
-
-                    }
-                    else
-                    {
-                      EditDeviceWindow(MainWindow::Instance(), connection->GetAddress(), connection->GetPort(), "admin", "password").exec();
-
-                    }
-                  });
-                });
-              });
-            }
-          })));
-        }
-      }, Qt::QueuedConnection);
-    }
-    else
-    {
-      //TODO maybe a camera?
-        //TODO we want to keep a list around of all the receivers currently being used by devices we have connected to in the past
-          //TODO this allows us to determine whether or not this camera has been setup before(whether or not the monocle servers are currently alive or not)
-
-//TODO camera address/manufacturer/etc ignore list to stop bothering user
-
-    //TODO if there is a disconnected server, we want to remember what devices have been previously been connected
-      //TODO need to keep a list around of previously connected devices(if this changes, always change it)
-
-//TODO start scanning random ip addresses too!
-  //TODO maybe monocle servers should be doing this for devices... don't really want too many clients searching around for devices
-  //TODO we may want to do this on request?
-    }
-  });
+  discover_->hello_.connect([this](const std::vector<std::string>& addresses, const std::vector<std::string>& scopes) { DiscoverCallback(addresses, scopes); });
   if (discover_->Init())
   {
     LOG_GUI_WARNING(QString("WsDiscoverClient::Init failed"));
@@ -1124,6 +850,282 @@ void MainWindow::ToolbarUpdated()
   {
     colourpickercolour_ = QVector3D(2.0f, 2.0f, 2.0f); // Reset
 
+  }
+}
+
+void MainWindow::DiscoverCallback(const std::vector<std::string>& addresses, const std::vector<std::string>& scopes)
+{
+  if (utility::Contains(scopes, "onvif://www.onvif.org/manufacturer/Monocle"))
+  {
+    std::vector<std::string>::const_iterator identifierscope = std::find_if(scopes.cbegin(), scopes.cend(), [](const std::string& scope) { return boost::starts_with(scope, "onvif://www.onvif.org/monocle/identifier/"); });
+    if (identifierscope == scopes.cend())
+    {
+
+      return;
+    }
+    uint64_t identifier = 0;
+    try
+    {
+      identifier = boost::lexical_cast<uint64_t>(identifierscope->substr(41));
+
+    }
+    catch (...)
+    {
+
+      return;
+    }
+
+    if (MainWindow::Instance()->GetDeviceMgr().GetDevice(identifier))
+    {
+      // We already have this device, ignore this
+      return;
+    }
+
+    std::vector< std::pair<boost::asio::ip::address, uint16_t> > localaddresses;
+    localaddresses.reserve(addresses.size());
+    for (const std::string& address : addresses)
+    {
+      network::uri uri(address);
+      try
+      {
+        uri = network::uri(address);
+
+      }
+      catch (...)
+      {
+
+        continue;
+      }
+
+      if (!uri.has_path())
+      {
+
+        continue;
+      }
+
+      if (uri.path().compare("/monocle_service"))
+      {
+
+        continue;
+      }
+
+      if (!uri.has_host())
+      {
+
+        continue;
+      }
+
+      boost::system::error_code err;
+      const std::string host = uri.host().to_string();
+      const boost::asio::ip::address a = boost::asio::ip::address::from_string(host, err);
+      if (err)
+      {
+
+        continue;
+      }
+
+      uint16_t port = 9854;
+      if (uri.has_port())
+      {
+        try
+        {
+          port = boost::lexical_cast<uint16_t>(uri.port());
+
+        }
+        catch (...)
+        {
+
+          continue;
+        }
+      }
+
+      if (utility::Contains(localaddresses, std::make_pair(a, port))) // Don't add duplicates
+      {
+
+        continue;
+      }
+
+      if (a.is_v4())
+      {
+        if (boost::starts_with(host, "192.168.") || boost::starts_with(host, "172.") || boost::starts_with(host, "10."))
+        {
+          localaddresses.push_back(std::make_pair(a, port));
+
+        }
+      }
+      else if (a.is_v6())
+      {
+        if (a.to_v6().is_site_local())
+        {
+          localaddresses.push_back(std::make_pair(a, port));
+
+        }
+      }
+    }
+
+    if (QApplication::activeWindow() != MainWindow::Instance()) // Only bother the user if they haven't got another window open...
+    {
+
+      return;
+    }
+
+    if (localaddresses.empty())
+    {
+
+      return;
+    }
+
+    if (MainWindow::Instance()->GetDeviceMgr().GetDevices(localaddresses, 0).size()) // If we have a device that has never connected before, but shares an address, we probably don't want to add this
+    {
+
+      return;
+    }
+
+    QMetaObject::invokeMethod(this, [this, identifier, localaddresses]()
+    {
+      if (utility::Contains(newdeviceidentifiers_, identifier)) // Ignore any devices that we have already queried the user with
+      {
+
+        return;
+      }
+      newdeviceidentifiers_.push_back(identifier);
+
+      QStringList localaddressestext;
+      for (const std::pair<boost::asio::ip::address, uint16_t>& localaddress : localaddresses)
+      {
+        localaddressestext.push_back(QString::fromStdString(localaddress.first.to_string()));
+
+      }
+
+      // If there are multiple devices to add, this will spam, but that's kind of ok I guess...
+      QCheckBox* checkbox = new QCheckBox("Do not show this again");
+      QMessageBox messagebox;
+      messagebox.setWindowTitle("New Device Discovery: " + localaddressestext.join(" "));
+      messagebox.setText("Would you like to add this device?");
+      messagebox.setIcon(QMessageBox::Icon::Question);
+      messagebox.addButton(QMessageBox::Yes);
+      messagebox.addButton(QMessageBox::No);
+      messagebox.setDefaultButton(QMessageBox::No);
+      messagebox.setCheckBox(checkbox);
+      bool donotshowagain = false;
+      QObject::connect(checkbox, &QCheckBox::stateChanged, [&donotshowagain](int state)
+      {
+        if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
+        {
+          donotshowagain = true;
+
+        }
+        else
+        {
+          donotshowagain = false;
+
+        }
+      });
+      const int ret = messagebox.exec();
+      if (donotshowagain)
+      {
+        QSettings settings(QSettings::IniFormat, QSettings::UserScope, QCoreApplication::organizationName(), QCoreApplication::applicationName());
+        QStringList newdeviceidentifiers;
+        newdeviceidentifiers.reserve(static_cast<int>(newdeviceidentifiers_.size()));
+        for (const uint64_t newdeviceidenfitier : newdeviceidentifiers_)
+        {
+          newdeviceidentifiers.push_back(QString::number(newdeviceidenfitier));
+
+        }
+        settings.setValue(NEWDEVICEIDENTIFIERS, newdeviceidentifiers);
+      }
+      if (ret != QMessageBox::Yes)
+      {
+
+        return;
+      }
+
+      // Kick off a bunch of Connections, which automatically adds the device if it can authenticate, otherwise brings up the window to add it
+      boost::shared_ptr< std::vector< boost::shared_ptr<sock::Connection> > > connections = boost::make_shared< std::vector< boost::shared_ptr<sock::Connection> > >();
+      boost::shared_ptr<bool> connecting = boost::make_shared<bool>(false);
+      const boost::shared_ptr<size_t> count = boost::make_shared<size_t>(localaddresses.size());
+      for (const std::pair<boost::asio::ip::address, uint16_t>& localaddress : localaddresses)
+      {
+        boost::shared_ptr<Connection> connection = boost::make_shared<Connection>(MainWindow::Instance()->GetGUIIOService(), sock::ProxyParams(), QString::fromStdString(localaddress.first.to_string()), localaddress.second);
+        connections->push_back(boost::make_shared<sock::Connection>(connection->Connect([identifier, count, connection, connections, connecting](const boost::system::error_code& err) mutable
+        {
+          if (*connecting)
+          {
+            // Another connection has stolen the show already, ignore this one
+            return;
+          }
+
+          if (err)
+          {
+            --(*count);
+            if (*count == 0) // If all connections failed, open the window
+            {
+              EditDeviceWindow(MainWindow::Instance(), connection->GetAddress(), connection->GetPort(), "admin", "password").exec();
+              return;
+            }
+          }
+          else
+          {
+            *connecting = true;
+
+            boost::shared_ptr<monocle::client::Connection> c = boost::make_shared<monocle::client::Connection>();
+            *c = connection->GetAuthenticationNonce([identifier, connection, c](const std::chrono::steady_clock::duration latency, const monocle::client::GETAUTHENTICATIONNONCERESPONSE& getauthenticationnonceresponse)
+            {
+              if (getauthenticationnonceresponse.GetErrorCode() != monocle::ErrorCode::Success)
+              {
+                EditDeviceWindow(MainWindow::Instance(), connection->GetAddress(), connection->GetPort(), "admin", "password").exec();
+                return;
+              }
+
+              const std::string clientnonce = utility::GenerateRandomString(32);
+              *c = connection->Authenticate("admin", clientnonce, monocle::AuthenticateDigest("admin", "password", getauthenticationnonceresponse.authenticatenonce_, clientnonce), [identifier, connection, c](const std::chrono::steady_clock::duration latency, const monocle::client::AUTHENTICATERESPONSE& authenticateresponse)
+              {
+                if (authenticateresponse.GetErrorCode() != monocle::ErrorCode::Success)
+                {
+                  EditDeviceWindow(MainWindow::Instance(), connection->GetAddress(), connection->GetPort(), "admin", "password").exec();
+                  return;
+                }
+
+                *c = connection->GetState([identifier, connection, c](const std::chrono::steady_clock::duration latency, const monocle::client::GETSTATERESPONSE& getstateresponse)
+                {
+                  if (getstateresponse.GetErrorCode() != monocle::ErrorCode::Success)
+                  {
+                    EditDeviceWindow(MainWindow::Instance(), connection->GetAddress(), connection->GetPort(), "admin", "password").exec();
+                    return;
+                  }
+
+                  if (identifier == getstateresponse.identifier_) // Make sure it is the device we discovered
+                  {
+                    MainWindow::Instance()->GetDeviceMgr().AddDevice(sock::ProxyParams(), connection->GetAddress(), connection->GetPort(), "admin", "password", 0, true);
+
+                  }
+                  else
+                  {
+                    EditDeviceWindow(MainWindow::Instance(), connection->GetAddress(), connection->GetPort(), "admin", "password").exec();
+
+                  }
+                });
+              });
+            });
+          }
+        })));
+      }
+    }, Qt::QueuedConnection);
+  }
+  else
+  {
+    //TODO maybe a camera?
+      //TODO we want to keep a list around of all the receivers currently being used by devices we have connected to in the past
+        //TODO this allows us to determine whether or not this camera has been setup before(whether or not the monocle servers are currently alive or not)
+
+//TODO camera address/manufacturer/etc ignore list to stop bothering user
+
+  //TODO if there is a disconnected server, we want to remember what devices have been previously been connected
+    //TODO need to keep a list around of previously connected devices(if this changes, always change it)
+
+//TODO start scanning random ip addresses too!
+//TODO maybe monocle servers should be doing this for devices... don't really want too many clients searching around for devices
+//TODO we may want to do this on request?
   }
 }
 

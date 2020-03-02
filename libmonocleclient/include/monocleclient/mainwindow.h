@@ -211,6 +211,7 @@ class MainWindow : public QMainWindow
   bool SelectLanguage(const QString& language);
   void UnselectAllLanguages();
   void ToolbarUpdated();
+  void DiscoverCallback(const std::vector<std::string>& addresses, const std::vector<std::string>& scopes);
 
   const utility::Version version_;
   const QDir translationsdirectory_;
