@@ -64,6 +64,7 @@ class DeviceTreeRecordingTrackItem : public DeviceTreeItem
  private:
 
   QString GetName(const QSharedPointer<client::RecordingTrack>& track) const;
+  bool IsONVIF(const std::string& mediauri) const;
 
   boost::shared_ptr<Device> device_;
   QSharedPointer<client::Recording> recording_;
@@ -74,6 +75,7 @@ class DeviceTreeRecordingTrackItem : public DeviceTreeItem
 
   QAction* edit_;
   QAction* remove_;
+  QAction* managedevice_;
   QAction* viewlog_;
 
   monocle::client::Connection removetrackconnection_;
@@ -82,6 +84,7 @@ class DeviceTreeRecordingTrackItem : public DeviceTreeItem
 
   void Edit(bool);
   void Remove(bool);
+  void ManageDevice(bool);
   void ViewLog(bool);
   void TrackChanged(const QSharedPointer<client::RecordingTrack>& track);
 

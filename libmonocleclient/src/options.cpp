@@ -29,6 +29,7 @@ static const QString CHECKHIDEMEDIACLOSEDIALOG("checkhidemediaclosedialog");
 static const QString CHECKHIDEVIDEOWINDOWCLOSEDIALOG("checkhidevideowindowclosedialog");
 static const QString CHECKHIDEMAINWINDOWCLOSEDIALOG("checkhidemainwindowclosedialog");
 static const QString CHECKHIDENEWDEVICEDIALOG("checkhidenewdevicedialog");
+static const QString CHECKDISCOVERYHELPER("checkdiscoveryhelper");
 
 static const QString INFOTEXTFORMAT("infotextformat");
 static const QString SHOWINFO("showinfo");
@@ -56,6 +57,7 @@ Options::Options() :
   hidevideowindowclosedialog_(false),
   hidemainwindowclosedialog_(false),
   hidenewdevicedialog_(false),
+  discoveryhelper_(true),
   infotextformat_("%a %b %d %T.%f %Y %k %q"),
   showinfo_(true),
   showobjects_(true),
@@ -89,6 +91,7 @@ void Options::Load()
   hidevideowindowclosedialog_ = settings.value(CHECKHIDEVIDEOWINDOWCLOSEDIALOG, hidevideowindowclosedialog_).toBool();
   hidemainwindowclosedialog_ = settings.value(CHECKHIDEMAINWINDOWCLOSEDIALOG, hidemainwindowclosedialog_).toBool();
   hidenewdevicedialog_ = settings.value(CHECKHIDENEWDEVICEDIALOG, hidenewdevicedialog_).toBool();
+  discoveryhelper_ = settings.value(CHECKDISCOVERYHELPER, discoveryhelper_).toBool();
 
   // Streaming
   infotextformat_ = settings.value(INFOTEXTFORMAT, QString::fromStdString(infotextformat_)).toString().toStdString();
@@ -121,6 +124,7 @@ void Options::Save()
   settings.setValue(CHECKHIDEVIDEOWINDOWCLOSEDIALOG, hidevideowindowclosedialog_);
   settings.setValue(CHECKHIDEMAINWINDOWCLOSEDIALOG, hidemainwindowclosedialog_);
   settings.setValue(CHECKHIDENEWDEVICEDIALOG, hidenewdevicedialog_);
+  settings.setValue(CHECKDISCOVERYHELPER, discoveryhelper_);
 
   // Streaming
   settings.setValue(INFOTEXTFORMAT, QString::fromStdString(infotextformat_));

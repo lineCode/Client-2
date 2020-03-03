@@ -89,7 +89,6 @@ void DeviceTreeRecordingJobSourceItem::Manage(bool)
     QMessageBox(QMessageBox::Warning, tr("Error"), tr("Unable to find receiver: ") + QString::number(recordingjobsource_->GetReceiverToken()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
     return;
   }
-
   ManageONVIFWindow(treeWidget(), sock::ProxyParams(sock::PROXYTYPE_HTTP, device_->GetAddress().toStdString(), device_->GetPort(), true, device_->GetUsername().toStdString(), device_->GetPassword().toStdString()), receiver->GetMediaUri(), receiver->GetUsername(), receiver->GetPassword()).exec();
 }
 

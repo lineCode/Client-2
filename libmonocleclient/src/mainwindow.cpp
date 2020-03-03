@@ -380,8 +380,11 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
 
   }
 
-  //TODO provide an option in the gui to disable the discovery thing
-  discoverytimer_ = startTimer(std::chrono::seconds(30));
+  if (Options::Instance().GetDiscoveryHelper())
+  {
+    discoverytimer_ = startTimer(std::chrono::seconds(30));
+
+  }
   iotimer_ = startTimer(100);
 }
 
@@ -421,6 +424,26 @@ MainWindow::~MainWindow()
     }
   }
   cudadevices_.clear();
+}
+
+void MainWindow::SetDiscoveryHelper(const bool discoveryhelper)
+{
+  if (discoveryhelper)
+  {
+    if (discoverytimer_ == -1)
+    {
+      discoverytimer_ = startTimer(std::chrono::seconds(30));
+
+    }
+  }
+  else
+  {
+    if (discoverytimer_ != -1)
+    {
+      killTimer(discoverytimer_);
+      discoverytimer_ = -1;
+    }
+  }
 }
 
 void MainWindow::ShortMonthName(const int mon, std::vector<char>& buffer) const

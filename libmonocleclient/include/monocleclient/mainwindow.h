@@ -143,6 +143,8 @@ class MainWindow : public QMainWindow
 
   inline const QIcon& GetCameraIcon() const { return cameraicon_; }
 
+  void SetDiscoveryHelper(const bool discoveryhelper);
+
   void ShortMonthName(const int mon, std::vector<char>& buffer) const;
   void ShortWeekDayName(const int mon, std::vector<char>& buffer) const;
 
