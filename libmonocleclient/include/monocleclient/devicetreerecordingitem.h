@@ -103,7 +103,6 @@ class DeviceTreeRecordingItem : public DeviceTreeItem
 
   void Edit(bool);
   void AddVideoTrack(bool);
-  void ManageTracks(bool);
   void ManageJobs(bool);
   void Remove(bool);
   void ViewLog(bool);

@@ -8,9 +8,7 @@
 #include <QMessageBox>
 
 #include "monocleclient/device.h"
-#include "monocleclient/managerecordingjobswindow.h"
 #include "monocleclient/managerecordingwindow.h"
-#include "monocleclient/managerecordingtrackswindow.h"
 #include "monocleclient/options.h"
 #include "monocleclient/recording.h"
 
@@ -142,15 +140,11 @@ void ManageRecordingsWindow::on_tablerecordings_itemSelectionChanged()
   if (selectedrows.empty())
   {
     ui_.buttonedit->setEnabled(false);
-    ui_.buttonmanagetracks->setEnabled(false);
-    ui_.buttonmanagerecordingjobs->setEnabled(false);
     ui_.buttonremove->setEnabled(false);
   }
   else
   {
     ui_.buttonedit->setEnabled(true);
-    ui_.buttonmanagetracks->setEnabled(true);
-    ui_.buttonmanagerecordingjobs->setEnabled(true);
     ui_.buttonremove->setEnabled(true);
   }
 }
@@ -176,44 +170,6 @@ void ManageRecordingsWindow::on_buttonedit_clicked()
   }
 
   ManageRecordingWindow(this, device_, ui_.tablerecordings->item(selectedrows.at(0).row(), 0)->data(Qt::UserRole).toULongLong()).exec();
-}
-
-void ManageRecordingsWindow::on_buttonmanagetracks_clicked()
-{
-  const QModelIndexList selectedrows = ui_.tablerecordings->selectionModel()->selectedRows();
-  if (selectedrows.empty())
-  {
-    QMessageBox(QMessageBox::Warning, tr("Error"), tr("No recording selected"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-    return;
-  }
-
-  const QSharedPointer<client::Recording> recording = device_->GetRecording(ui_.tablerecordings->item(selectedrows.at(0).row(), 0)->data(Qt::UserRole).toULongLong());
-  if (!recording)
-  {
-    QMessageBox(QMessageBox::Warning, tr("Error"), tr("Unable to find recording: ") + QString::number(ui_.tablerecordings->item(selectedrows.at(0).row(), 0)->data(Qt::UserRole).toULongLong()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-    return;
-  }
-
-  ManageRecordingTracksWindow(this, device_, recording).exec();
-}
-
-void ManageRecordingsWindow::on_buttonmanagerecordingjobs_clicked()
-{
-  const QModelIndexList selectedrows = ui_.tablerecordings->selectionModel()->selectedRows();
-  if (selectedrows.empty())
-  {
-    QMessageBox(QMessageBox::Warning, tr("Error"), tr("No recording selected"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-    return;
-  }
-
-  const QSharedPointer<client::Recording> recording = device_->GetRecording(ui_.tablerecordings->item(selectedrows.at(0).row(), 0)->data(Qt::UserRole).toULongLong());
-  if (!recording)
-  {
-    QMessageBox(QMessageBox::Warning, tr("Error"), tr("Unable to find recording: ") + QString::number(ui_.tablerecordings->item(selectedrows.at(0).row(), 0)->data(Qt::UserRole).toULongLong()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-    return;
-  }
-
-  ManageRecordingJobsWindow(this, device_, recording).exec();
 }
 
 void ManageRecordingsWindow::on_buttonremove_clicked()
