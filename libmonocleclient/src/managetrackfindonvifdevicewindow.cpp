@@ -15,7 +15,7 @@
 #include "monocleclient/device.h"
 #include "monocleclient/mainwindow.h"
 #include "monocleclient/receiver.h"
-#include "monocleclient/managerecordingjobsourceonvifdiscoverytreeitem.h"
+#include "monocleclient/managetrackfindonvifdevicediscoverytreeitem.h"
 
 ///// Namespaces /////
 

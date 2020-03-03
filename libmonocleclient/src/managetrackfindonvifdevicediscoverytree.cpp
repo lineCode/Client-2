@@ -12,7 +12,7 @@
 #include <utility/ioservicepool.hpp>
 #include <utility/utility.hpp>
 
-#include "monocleclient/managerecordingjobsourceonvifdiscoverytreeitem.h"
+#include "monocleclient/managetrackfindonvifdevicediscoverytreeitem.h"
 #include "monocleclient/mainwindow.h"
 
 ///// Namespaces /////
@@ -108,7 +108,7 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::SetUserPass(const std::string& use
   password_ = password;
   for (int i = 0; i < topLevelItemCount(); ++i)
   {
-    ManageRecordingJobSourceONVIFDiscoveryTreeItem* item = static_cast<ManageRecordingJobSourceONVIFDiscoveryTreeItem*>(topLevelItem(i));
+    ManageTrackFindONVIFDeviceDiscoveryTreeItem* item = static_cast<ManageTrackFindONVIFDeviceDiscoveryTreeItem*>(topLevelItem(i));
     item->SetUserPass(username, password);
   }
 }
@@ -117,7 +117,7 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::timerEvent(QTimerEvent* event)
 {
   for (int i = 0; i < topLevelItemCount(); ++i)
   {
-    ManageRecordingJobSourceONVIFDiscoveryTreeItem* item = dynamic_cast<ManageRecordingJobSourceONVIFDiscoveryTreeItem*>(topLevelItem(i));
+    ManageTrackFindONVIFDeviceDiscoveryTreeItem* item = dynamic_cast<ManageTrackFindONVIFDeviceDiscoveryTreeItem*>(topLevelItem(i));
     if (item == nullptr) // Top level item might be an error, so we use this ugly hack to check
     {
 
@@ -211,13 +211,13 @@ bool ManageTrackFindONVIFDeviceDiscoveryTree::ChildrenContainsTextFilter(QTreeWi
 
 void ManageTrackFindONVIFDeviceDiscoveryTree::ItemCollapsed(QTreeWidgetItem* item)
 {
-  static_cast<ManageRecordingJobSourceONVIFDiscoveryTreeItem*>(item)->Collapsed();
+  static_cast<ManageTrackFindONVIFDeviceDiscoveryTreeItem*>(item)->Collapsed();
 
 }
 
 void ManageTrackFindONVIFDeviceDiscoveryTree::ItemExpanded(QTreeWidgetItem* item)
 {
-  static_cast<ManageRecordingJobSourceONVIFDiscoveryTreeItem*>(item)->Expanded();
+  static_cast<ManageTrackFindONVIFDeviceDiscoveryTreeItem*>(item)->Expanded();
 
 }
 
@@ -253,7 +253,7 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::DiscoveryHello(const std::vector<s
       continue;
     }
 
-    ManageRecordingJobSourceONVIFDiscoveryTreeItem* item = new ManageRecordingJobSourceONVIFDiscoveryTreeItem(device_, names, locations, address, username_, password_);
+    ManageTrackFindONVIFDeviceDiscoveryTreeItem* item = new ManageTrackFindONVIFDeviceDiscoveryTreeItem(device_, names, locations, address, username_, password_);
     item->setData(0, Qt::UserRole, RECEIVERDISCOVERYITEM_DEVICE);
     item->setData(0, Qt::UserRole + 1, QString::fromStdString(address));
     Filter(item);

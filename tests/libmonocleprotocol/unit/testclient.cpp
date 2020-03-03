@@ -204,6 +204,11 @@ void TestClient::NewCodecIndex(const uint64_t stream, const uint64_t id, const m
 
 }
 
+void TestClient::ObjectDetectorFrame(const uint64_t token, const uint64_t playrequest, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* data, const size_t size)
+{
+
+}
+
 void TestClient::ONVIFUserAdded(const uint64_t token, const std::string& username, const ONVIFUserlevel onvifuserlevel)
 {
 

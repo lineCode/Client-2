@@ -11,10 +11,8 @@
 
 #include "monocleclient/devicetreerecordingtrackitem.h"
 #include "monocleclient/mainwindow.h"
-#include "monocleclient/managerecordingjobswindow.h"
 #include "monocleclient/managerecordingwindow.h"
 #include "monocleclient/managetrackwindow.h"
-#include "monocleclient/devicetreerecordingjobsitem.h"
 #include "monocleclient/receiver.h"
 #include "monocleclient/recording.h"
 #include "monocleclient/recordingjob.h"
@@ -342,12 +340,6 @@ void DeviceTreeRecordingItem::Edit(bool)
 void DeviceTreeRecordingItem::AddVideoTrack(bool)
 {
   ManageTrackWindow(treeWidget(), device_, recording_, nullptr, nullptr, nullptr, nullptr).exec();
-
-}
-
-void DeviceTreeRecordingItem::ManageJobs(bool)
-{
-  ManageRecordingJobsWindow(treeWidget(), device_, recording_).exec();
 
 }
 
