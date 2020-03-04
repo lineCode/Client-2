@@ -82,7 +82,9 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   showfullscreen_(":/showfullscreen.png"),
   cameraicon_(":/camera.png"),
   gen_(rd_()),
-  hsvcolordist_(0.0, 1.0),
+  hcolordist_(0.0, 1.0),
+  scolordist_(0.4, 1.0),
+  vcolordist_(0.6, 1.0),
   ioservicepool_(numioservices, numioservicethreads, [](){}, [](){}),
   guiioservice_(0),
   tray_(new QSystemTrayIcon(QIcon(":/icon.ico"), this)),
@@ -519,12 +521,12 @@ void MainWindow::ShowHideDocks()
 
 QColor MainWindow::GetRandomHSVColour()
 {
-  return QColor::fromHsvF(hsvcolordist_(gen_), hsvcolordist_(gen_), hsvcolordist_(gen_), 1.0f);
+  return QColor::fromHsvF(hcolordist_(gen_), scolordist_(gen_), vcolordist_(gen_), 1.0f);
 }
 
 QVector4D MainWindow::GetRandomHSVColour4D()
 {
-  const QColor colour = QColor::fromHsvF(hsvcolordist_(gen_), hsvcolordist_(gen_), hsvcolordist_(gen_), 1.0f).darker(300);
+  const QColor colour = QColor::fromHsvF(hcolordist_(gen_), scolordist_(gen_), vcolordist_(gen_), 1.0f);
   return QVector4D(colour.redF(), colour.greenF(), colour.blueF(), 1.0f);
 }
 

@@ -224,7 +224,9 @@ class MainWindow : public QMainWindow
 
   std::random_device rd_;
   mutable std::mt19937 gen_;
-  std::uniform_real_distribution<double> hsvcolordist_;
+  std::uniform_real_distribution<double> hcolordist_;
+  std::uniform_real_distribution<double> scolordist_;
+  std::uniform_real_distribution<double> vcolordist_;
 
   Ui::MainWindow ui_;
 
