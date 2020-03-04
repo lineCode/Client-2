@@ -1149,6 +1149,10 @@ void MainWindow::DiscoverCallback(const std::vector<std::string>& addresses, con
 //TODO start scanning random ip addresses too!
 //TODO maybe monocle servers should be doing this for devices... don't really want too many clients searching around for devices
 //TODO we may want to do this on request?
+
+//TODO we really want to open the ManageTrackWindow
+  //TODO description can be the same for recording+track. Retention time and location can be empty etc
+    //TODO I think we pass in a boolean "createrecording", which then creates a recording for CreateTrack2
   }
 }
 

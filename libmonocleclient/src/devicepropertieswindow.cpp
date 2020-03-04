@@ -92,7 +92,8 @@ DevicePropertiesWindow::DevicePropertiesWindow(QWidget* parent, boost::shared_pt
   currentparamrow = paramrow++;
   ui_.tableparameters->insertRow(currentparamrow);
   ui_.tableparameters->setItem(currentparamrow, 0, new QTableWidgetItem("Command Line Arguments"));
-  ui_.tableparameters->setItem(currentparamrow, 1, new QTableWidgetItem(QStringList::fromVector(QVector<QString>::fromStdVector(device_->GetCommandLineVariables())).join(" ")));
+  const std::vector<QString> commandlinevariables = device_->GetCommandLineVariables();
+  ui_.tableparameters->setItem(currentparamrow, 1, new QTableWidgetItem(QStringList::fromVector(QVector<QString>(commandlinevariables.cbegin(), commandlinevariables.cend())).join(" ")));
 
   currentparamrow = paramrow++;
   ui_.tableparameters->insertRow(currentparamrow);

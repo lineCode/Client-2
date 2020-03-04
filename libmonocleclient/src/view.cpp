@@ -700,7 +700,7 @@ void View::GetMenu(QMenu& parent)
       VideoView* videoview = static_cast<VideoView*>(this);
       if (videoview->GetDevice()->SupportsTrackCodec())
       {
-        if (videoview->GetRecording()->GetNumObjectDetectors())
+        if (videoview->GetRecording()->GetNumObjectDetectors())//TODO This can now just count the object detector tracks
         {
           parent.addAction(actionobjects_);
 

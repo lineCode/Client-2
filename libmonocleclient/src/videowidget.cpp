@@ -623,6 +623,7 @@ bool VideoWidget::RemoveView(const QSharedPointer<View>& view)
 
     return false;
   }
+  emit MainWindow::Instance()->GetVideoWidgetsMgr().ViewDestroyed(*i);
   views_.erase(i);
   ResetGrid();
   return true;
