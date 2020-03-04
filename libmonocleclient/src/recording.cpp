@@ -260,10 +260,13 @@ std::vector<ROTATION> Recording::GetActiveRotations(const QSharedPointer<client:
 size_t Recording::GetNumObjectDetectors() const
 {
   size_t total = 0;
-  for (const QSharedPointer<RecordingJob>& job : jobs_)
+  for (const QSharedPointer<RecordingTrack>& track : tracks_)
   {
-    total += job->GetNumObjectDetectors();
+    if (track->GetTrackType() == monocle::TrackType::ObjectDetector)
+    {
+      ++total;
 
+    }
   }
   return total;
 }

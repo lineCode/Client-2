@@ -55,7 +55,6 @@ class RecordingJob : public QObject
   std::vector<uint64_t> GetReceivers(const QSharedPointer<client::RecordingTrack>& track) const;
   std::vector<QString> GetActiveProfileTokens(const QSharedPointer<client::RecordingTrack>& track) const;
   std::vector<ROTATION> GetActiveRotations(const QSharedPointer<client::RecordingTrack>& track) const;
-  size_t GetNumObjectDetectors() const;
   std::vector< QSharedPointer<RecordingJobSource> > GetObjectDetectors(const uint32_t trackid) const;
 
   inline uint64_t GetToken() const { return token_; }

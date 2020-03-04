@@ -678,7 +678,7 @@ void View::GetMenu(QMenu& parent)
     {
       MediaView* mediaview = static_cast<MediaView*>(this);
       bool added = false;
-      for (const file::TRACK& metadatatrack : mediaview->GetMetadataTracks())//TODO this will now look at mediaview->GetObjectDetectorTracks().size() and add the action based on that
+      for (const file::TRACK& metadatatrack : mediaview->GetMetadataTracks())
       {
         for (const file::CODEC& codec : metadatatrack.codecs_)
         {
@@ -691,6 +691,7 @@ void View::GetMenu(QMenu& parent)
         }
         if (added)
         {
+
           break;
         }
       }
@@ -700,7 +701,7 @@ void View::GetMenu(QMenu& parent)
       VideoView* videoview = static_cast<VideoView*>(this);
       if (videoview->GetDevice()->SupportsTrackCodec())
       {
-        if (videoview->GetRecording()->GetNumObjectDetectors())//TODO This can now just count the object detector tracks
+        if (videoview->GetRecording()->GetNumObjectDetectors())
         {
           parent.addAction(actionobjects_);
 

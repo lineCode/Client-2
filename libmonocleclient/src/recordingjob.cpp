@@ -133,33 +133,6 @@ std::vector<ROTATION> RecordingJob::GetActiveRotations(const QSharedPointer<clie
   return result;
 }
 
-size_t RecordingJob::GetNumObjectDetectors() const
-{
-  size_t total = 0;
-  for (const QSharedPointer<RecordingJobSource>& source : sources_)
-  {
-    //TODO this should now look at the track it points too, and whether it is of TrackType::ObjectDetector
-    const QSharedPointer<Receiver> receiver = device_->GetReceiver(source->GetReceiverToken());
-    if (receiver)
-    {
-      try
-      {
-        const network::uri uri(receiver->GetMediaUri().toStdString());
-        if (uri.has_scheme() && (uri.scheme().to_string() == "objectdetector"))
-        {
-          total += source->GetTracks().size();
-
-        }
-      }
-      catch (...)
-      {
-
-      }
-    }
-  }
-  return total;
-}
-
 std::vector< QSharedPointer<RecordingJobSource> > RecordingJob::GetObjectDetectors(const uint32_t trackid) const
 {
   std::vector< QSharedPointer<RecordingJobSource> > results;
