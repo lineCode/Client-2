@@ -24,8 +24,13 @@
 #include "monocleclient/aboutwindow.h"
 #include "monocleclient/devicemgr.h"
 #include "monocleclient/editdevicewindow.h"
+#include "monocleclient/managetrackwindow.h"
 #include "monocleclient/options.h"
 #include "monocleclient/optionswindow.h"
+#include "monocleclient/receiver.h"
+#include "monocleclient/recording.h"
+#include "monocleclient/recordingjob.h"
+#include "monocleclient/recordingjobsource.h"
 #include "monocleclient/updatewindow.h"
 
 ///// Defines /////
@@ -1137,24 +1142,143 @@ void MainWindow::DiscoverCallback(const std::vector<std::string>& addresses, con
       }
     }, Qt::QueuedConnection);
   }
-  else
+  else if (utility::Contains(scopes, "onvif://www.onvif.org/Profile/Streaming")) // Found an ONVIF Profile S device
   {
-    //TODO maybe a camera?
-      //TODO we want to keep a list around of all the receivers currently being used by devices we have connected to in the past
-        //TODO this allows us to determine whether or not this camera has been setup before(whether or not the monocle servers are currently alive or not)
+    // Discover hostnames
+    std::vector<std::string> discoveryhostnames;
+    discoveryhostnames.reserve(addresses.size());
+    for (const std::string& address : addresses)
+    {
+      try
+      {
+        const network::uri uri(address);
+        if (uri.has_host())
+        {
+          discoveryhostnames.push_back(uri.host().to_string());
 
-//TODO camera address/manufacturer/etc ignore list to stop bothering user
+        }
+      }
+      catch (...)
+      {
 
-  //TODO if there is a disconnected server, we want to remember what devices have been previously been connected
-    //TODO need to keep a list around of previously connected devices(if this changes, always change it)
+      }
+    }
 
-//TODO start scanning random ip addresses too!
-//TODO maybe monocle servers should be doing this for devices... don't really want too many clients searching around for devices
-//TODO we may want to do this on request?
+    std::vector<std::string> devicehostnames;
+    for (const boost::shared_ptr<Device>& device : devicemgr_.GetDevices())
+    {
+      if (device->GetState() != DEVICESTATE::SUBSCRIBED) // Check all devices are subscribed, this makes it easier to determine what discovered devices are currently in use or not
+      {
 
-//TODO we really want to open the ManageTrackWindow
-  //TODO description can be the same for recording+track. Retention time and location can be empty etc
-    //TODO I think we pass in a boolean "createrecording", which then creates a recording for CreateTrack2
+        return;
+      }
+
+      // Device hostnames
+      for (const QSharedPointer<Recording>& recording : device->GetRecordings())
+      {
+        for (const QSharedPointer<RecordingJob>& job : recording->GetJobs())
+        {
+          for (const QSharedPointer<RecordingJobSource>& source : job->GetSources())
+          {
+            const QSharedPointer<Receiver> receiver = device->GetReceiver(source->GetReceiverToken());
+            if (!receiver)
+            {
+
+              continue;
+            }
+
+            try
+            {
+              const network::uri uri(receiver->GetMediaUri().toStdString());
+              if (uri.has_host())
+              {
+                devicehostnames.push_back(uri.host().to_string());
+
+              }
+            }
+            catch (...)
+            {
+
+            }
+          }
+        }
+      }
+    }
+    
+    if (!utility::Intersects(discoveryhostnames, devicehostnames)) // If no device has setup this discovered device before
+    {
+      std::vector<std::string>::const_iterator ipv4address = std::find_if(addresses.cbegin(), addresses.cend(), [](const std::string& address)
+      {
+        try
+        {
+          const network::uri uri(address);
+          if (!uri.has_host())
+          {
+
+            return false;
+          }
+
+          boost::system::error_code err;
+          const std::string host = uri.host().to_string();
+          boost::asio::ip::address_v4::from_string(host, err);
+          if (err)
+          {
+
+            return false;
+          }
+          
+          if (boost::starts_with(host, "10.") || boost::starts_with(host, "172.16") || boost::starts_with(host, "192.168."))
+          {
+
+            return true;
+          }
+          else
+          {
+
+            return false;
+          }
+        }
+        catch (...)
+        {
+
+          return false;
+        }
+      });
+      if (ipv4address == addresses.cend())
+      {
+
+        return;
+      }
+
+      std::vector< boost::shared_ptr<Device> > devices; // This will contain a set of devices which
+      devices.reserve(devicemgr_.GetDevices().size());
+      for (const boost::shared_ptr<Device>& device : devicemgr_.GetDevices())
+      {
+        if (device->GetRecordings().size() < device->GetMaxRecordings()) // Do we have space for another recording on this device?
+        {
+          devices.push_back(device);
+
+        }
+      }
+
+      if (devices.empty()) // No devices to place this recording on
+      {
+
+        return;
+      }
+      if (devices.size() == 1)
+      {
+        //TODO bring up the ManageTrackWindow with this device and address setup
+          //TODO the description of the track and recording are the same, and default retention time and location are fine...
+
+
+      }
+      else
+      {
+        //TODO bring up dialog selecting a device to put this on and THEN ManageTrackWindow(this, device)
+
+      }
+    }
   }
 }
 
