@@ -147,6 +147,12 @@
              <layout class="QGridLayout" name="gridLayout_5">
               <item row="0" column="0">
                <widget class="QLabel" name="label_4">
+                <property name="maximumSize">
+                 <size>
+                  <width>70</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
                 <property name="text">
                  <string>URI:</string>
                 </property>
@@ -154,6 +160,12 @@
               </item>
               <item row="6" column="0">
                <widget class="QLabel" name="label_10">
+                <property name="maximumSize">
+                 <size>
+                  <width>70</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
                 <property name="text">
                  <string>Rotation:</string>
                 </property>
@@ -164,6 +176,12 @@
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="label_6">
+                <property name="maximumSize">
+                 <size>
+                  <width>70</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
                 <property name="text">
                  <string>Source Tag:</string>
                 </property>
@@ -171,6 +189,12 @@
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_5">
+                <property name="maximumSize">
+                 <size>
+                  <width>70</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
                 <property name="text">
                  <string>Profile Token:</string>
                 </property>
@@ -181,6 +205,12 @@
               </item>
               <item row="3" column="0">
                <widget class="QLabel" name="label_7">
+                <property name="maximumSize">
+                 <size>
+                  <width>70</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
                 <property name="text">
                  <string>Protocol:</string>
                 </property>
@@ -188,6 +218,12 @@
               </item>
               <item row="4" column="0">
                <widget class="QLabel" name="label_8">
+                <property name="maximumSize">
+                 <size>
+                  <width>70</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
                 <property name="text">
                  <string>Username:</string>
                 </property>
@@ -198,6 +234,12 @@
               </item>
               <item row="5" column="0">
                <widget class="QLabel" name="label_9">
+                <property name="maximumSize">
+                 <size>
+                  <width>70</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
                 <property name="text">
                  <string>Password:</string>
                 </property>
@@ -239,6 +281,12 @@
               </item>
               <item row="0" column="1" colspan="2">
                <widget class="QLineEdit" name="edituri">
+                <property name="minimumSize">
+                 <size>
+                  <width>320</width>
+                  <height>0</height>
+                 </size>
+                </property>
                 <property name="toolTip">
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Examples:&lt;/p&gt;&lt;p&gt;http://10.0.0.1/onvif/device_service&lt;/p&gt;&lt;p&gt;rtsp://192.168.0.1/path&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>

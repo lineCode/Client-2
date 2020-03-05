@@ -1187,7 +1187,11 @@ void MainWindow::DiscoverCallback(const std::vector<std::string>& addresses, con
             return;
           }
 
-          //TODO do we want to make sure these devices all have files as well? not much point adding recordings to device without a file...
+          if (device->GetFiles().empty()) // The user must setup files on each device before helping them to setup cameras
+          {
+
+            return;
+          }
 
           // Device hostnames
           for (const QSharedPointer<Recording>& recording : device->GetRecordings())
@@ -1283,19 +1287,38 @@ void MainWindow::DiscoverCallback(const std::vector<std::string>& addresses, con
             return;
           }
 
-          //TODO present user with a QMessageBox question
-            //TODO allow user to not show the question again(for this device...
-
-          if (devices.size() == 1)
+          QString extensiontext;
+          const std::vector<std::string>::const_iterator name = std::find_if(scopes.cbegin(), scopes.cend(), [](const std::string& scope) { return boost::starts_with(scope, "onvif://www.onvif.org/name/"); });
+          if (name != scopes.cend())
           {
-            ManageTrackWindow(this, devices.front(), nullptr, nullptr, nullptr, nullptr, nullptr, QString::fromStdString(*ipv4address)).exec();
+            extensiontext += " " + QString::fromStdString(name->substr(27));
 
+          }
+
+          const std::vector<std::string>::const_iterator hardware = std::find_if(scopes.cbegin(), scopes.cend(), [](const std::string& scope) { return boost::starts_with(scope, "onvif://www.onvif.org/hardware/"); });
+          if (name != scopes.cend())
+          {
+            extensiontext += " " + QString::fromStdString(hardware->substr(31));
+
+          }
+
+          //TODO we need at least one tick box(maybe we should make an actual proper dialog for this), to say that we don't care about this PARTICULAR device anymore forever, AND one that we never care about any device ever again.
+          if (QMessageBox::question(this, tr("New Camera Detected: ") + QString::fromStdString(*ipv4address) + extensiontext, tr("Would you like to add this camera to the a Monocle server?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+          {
+            if (devices.size() == 1)
+            {
+              ManageTrackWindow(this, devices.front(), nullptr, nullptr, nullptr, nullptr, nullptr, QString::fromStdString(*ipv4address)).exec();
+
+            }
+            else
+            {
+              ManageTrackWindow(this, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, QString::fromStdString(*ipv4address)).exec();
+
+            }
           }
           else
           {
-            ManageTrackWindow(this, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, QString::fromStdString(*ipv4address)).exec();
-            //TODO I think the selection can be INSIDE ManageTrackWindow, where we pass it a nullptr for the device_, and then it presents a combobox(otherwise it doesn't)
-            //TODO bring up dialog selecting a device to put this on and THEN ManageTrackWindow(this, device)
+            //TODO remember(temporarily this launch) to not bother the user with this device
 
           }
         }

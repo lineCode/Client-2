@@ -143,7 +143,8 @@ class ManageTrackWindow : public QDialog
  private slots:
 
   void TrackRemoved(const uint32_t id);
-  void on_edituri_textChanged(const QString& text);
+  void on_combodevice_currentIndexChanged(const QString&);
+  void on_edituri_textChanged(const QString&);
   void on_checkfixedfiles_stateChanged(int);
   void on_checkobjectdetector_stateChanged(int);
   void on_buttonobjectdetectorsettings_clicked();

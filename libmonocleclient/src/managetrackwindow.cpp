@@ -89,25 +89,18 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, const boost::shared_ptr<De
 
   connect(ui_.buttoncancel, &QPushButton::clicked, this, &ManageTrackWindow::reject);
 
-  //TODO when a device gets selected(and on initialisation of which one gets selected), we need to enable/disable buttons like the object detector based on if that device has CUDA cores
-    //TODO also update which files(reset the filetokens_ too)
-
-  //TODO pass in an address
-
-  if (device_)//TODO I think we need a "currentdevice_" member which gets updated... maybe rename "device_"
+  if (device_)
   {
     ui_.labeldevice->setVisible(false);
     ui_.combodevice->setVisible(false);
-    //TODO resize window?
   }
   else
   {
     for (const boost::shared_ptr<Device>& device : MainWindow::Instance()->GetDeviceMgr().GetDevices())
     {
-      ui_.combodevice->addItem(device->GetName(), device->GetIdentifier());
+      ui_.combodevice->addItem(device->GetName() + "(" + device->GetAddress() + ")", device->GetIdentifier());
 
     }
-    ui_.combodevice->setCurrentIndex(0);
 
     if (ui_.combodevice->count() == 0)
     {
@@ -115,6 +108,8 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, const boost::shared_ptr<De
       //TODO QMessageBox
       return;
     }
+
+    ui_.combodevice->setCurrentIndex(0);
 
     boost::shared_ptr<Device> currentdevice = MainWindow::Instance()->GetDeviceMgr().GetDevice(ui_.combodevice->currentData().toULongLong());
     if (!currentdevice)
@@ -125,7 +120,6 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, const boost::shared_ptr<De
     }
 
     device_ = currentdevice;
-    //TODO listen for changes in the ui_.combodevice combo box so that we can update the device_
   }
 
   if (recording_ && recordingtrack)
@@ -1024,10 +1018,24 @@ void ManageTrackWindow::TrackRemoved(const uint32_t id)
   }
 }
 
-void ManageTrackWindow::on_edituri_textChanged(const QString& text)
+void ManageTrackWindow::on_combodevice_currentIndexChanged(const QString&)
+{
+  boost::shared_ptr<Device> currentdevice = MainWindow::Instance()->GetDeviceMgr().GetDevice(ui_.combodevice->currentData().toULongLong());
+  if (!currentdevice)
+  {
+    //TODO reject in 1ms
+    //TODO QMessageBox
+    return;
+  }
+  device_ = currentdevice;
+  on_edituri_textChanged(QString()); // Update all the buttons in here
+}
+
+void ManageTrackWindow::on_edituri_textChanged(const QString&)
 {
   try
   {
+    const bool enableobjectdetector = device_->GetNumCudaDevices() ? true : false;
     const network::uri uri(ui_.edituri->text().toStdString());
     if (!uri.has_scheme())
     {
@@ -1044,11 +1052,8 @@ void ManageTrackWindow::on_edituri_textChanged(const QString& text)
       ui_.editusername->setEnabled(true);
       ui_.editpassword->setEnabled(true);
       ui_.comborotation->setEnabled(true);
-      if (device_->GetNumCudaDevices())
-      {
-        ui_.checkobjectdetector->setEnabled(true);
-        ui_.buttonobjectdetectorsettings->setEnabled(true);
-      }
+      ui_.checkobjectdetector->setEnabled(enableobjectdetector);
+      ui_.buttonobjectdetectorsettings->setEnabled(enableobjectdetector);
       ui_.buttontest->setEnabled(true);
     }
     else if ((uri.scheme().compare("http") == 0) && uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))
@@ -1059,11 +1064,8 @@ void ManageTrackWindow::on_edituri_textChanged(const QString& text)
       ui_.editusername->setEnabled(true);
       ui_.editpassword->setEnabled(true);
       ui_.comborotation->setEnabled(true);
-      if (device_->GetNumCudaDevices())
-      {
-        ui_.checkobjectdetector->setEnabled(true);
-        ui_.buttonobjectdetectorsettings->setEnabled(true);
-      }
+      ui_.checkobjectdetector->setEnabled(enableobjectdetector);
+      ui_.buttonobjectdetectorsettings->setEnabled(enableobjectdetector);
       ui_.buttontest->setEnabled(true);
     }
     else
@@ -1377,6 +1379,12 @@ void ManageTrackWindow::on_buttontest_clicked()
 
 void ManageTrackWindow::on_buttonok_clicked()
 {
+  if (ui_.editdescription->text().isEmpty())
+  {
+    QMessageBox(QMessageBox::Warning, tr("Error"), tr("Description empty, please provide a track description"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+    return;
+  }
+
   // Make sure the URI looks reasonable
   const std::string mediauri = ui_.edituri->text().toStdString();
   if (mediauri.size()) // Empty URI is satisfactory, it just remains idle on the server
@@ -1384,13 +1392,13 @@ void ManageTrackWindow::on_buttonok_clicked()
     const network::uri uri(mediauri);
     if (!uri.has_scheme())
     {
-      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid URI: " + ui_.edituri->text() + " no scheme present</font><br/>");
+      QMessageBox(QMessageBox::Warning, tr("Error"), tr("Invalid URI: ") + ui_.edituri->text() + " no scheme present", QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
       return;
     }
 
     if (!uri.has_host())
     {
-      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid URI: " + ui_.edituri->text() + " no host present</font><br/>");
+      QMessageBox(QMessageBox::Warning, tr("Error"), tr("Invalid URI: ") + ui_.edituri->text() + " no host present", QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
       return;
     }
 
