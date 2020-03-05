@@ -162,7 +162,7 @@ void ManageTrackFindONVIFDeviceWindow::on_buttontest_clicked()
     return;
   }
 
-  if (!boost::algorithm::iequals(uri.scheme().to_string(), "http"))
+  if (!boost::algorithm::iequals(uri.scheme().to_string(), "http") && !boost::algorithm::iequals(uri.scheme().to_string(), "https"))
   {
     ui_.labeltestoutput->setText(ui_.labeltestoutput->text() + "<font color=\"red\">Invalid URI schema: " + QString::fromStdString(uri.scheme().to_string()) + "</font><br/>");
     return;
@@ -304,7 +304,7 @@ void ManageTrackFindONVIFDeviceWindow::on_buttonok_clicked()
     return;
   }
 
-  if (!boost::algorithm::iequals(uri.scheme().to_string(), "http"))
+  if (!boost::algorithm::iequals(uri.scheme().to_string(), "http") && !boost::algorithm::iequals(uri.scheme().to_string(), "https"))
   {
     QMessageBox(QMessageBox::Warning, tr("Error"), "Invalid URI schema: " + QString::fromStdString(uri.scheme().to_string()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
     return;

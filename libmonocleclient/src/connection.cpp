@@ -5,6 +5,8 @@
 
 #include "monocleclient/connection.h"
 
+#include <QDebug>//TODO remove
+
 ///// Namespaces /////
 
 namespace client
@@ -245,6 +247,7 @@ void Connection::NameChanged(const std::string& name)
 
 void Connection::NewCodecIndex(const uint64_t token, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp)
 {
+  qDebug() << QString::fromStdString(parameters);//TODO remove
   std::vector<Stream>::iterator stream = std::find_if(streams_.begin(), streams_.end(), [token](const Stream& stream) { return (stream.GetToken() == token); });
   if (stream == streams_.end())
   {

@@ -50,6 +50,7 @@ Q_DECLARE_METATYPE(QSharedPointer<client::RecordingJob>)
 Q_DECLARE_METATYPE(QSharedPointer<client::RecordingJobSource>)
 Q_DECLARE_METATYPE(QSharedPointer<client::RecordingJobSourceTrack>)
 Q_DECLARE_METATYPE(QSharedPointer<client::RecordingTrack>)
+Q_DECLARE_METATYPE(monocle::Codec)
 Q_DECLARE_METATYPE(monocle::ReceiverMode)
 Q_DECLARE_METATYPE(monocle::ReceiverState)
 Q_DECLARE_METATYPE(monocle::Severity)
@@ -110,6 +111,7 @@ int main(int argc, char** argv)
   qRegisterMetaType< const QSharedPointer<client::RecordingJobSourceTrack>& >();
   qRegisterMetaType< QSharedPointer<client::RecordingJobSourceTrack> >();
   qRegisterMetaType< const QSharedPointer<client::RecordingTrack>& >();
+  qRegisterMetaType<monocle::Codec>("monocle::Codec");
   qRegisterMetaType<monocle::ReceiverMode>("monocle::ReceiverMode");
   qRegisterMetaType<monocle::ReceiverState>("monocle::ReceiverState");
   qRegisterMetaType<std::chrono::steady_clock::duration>();

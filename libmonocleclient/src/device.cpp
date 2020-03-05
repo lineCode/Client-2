@@ -125,6 +125,8 @@ Device::Device(const sock::ProxyParams& proxyparams, const QString& address, con
   connect(this, &Connection::SignalRecordingJobSourceTrackStateChanged, this, QOverload<const uint64_t, const uint64_t, const uint64_t, const uint64_t, const uint64_t, const monocle::RecordingJobState, const QString&>::of(&Device::SlotRecordingJobSourceTrackStateChanged), Qt::QueuedConnection);
   connect(this, &Connection::SignalRecordingRemoved, this, QOverload<const uint64_t>::of(&Device::SlotRecordingRemoved), Qt::QueuedConnection);
   connect(this, &Connection::SignalRecordingLogMessage, this, QOverload<const uint64_t, const uint64_t, const monocle::Severity, const QString&>::of(&Device::SlotRecordingLogMessage), Qt::QueuedConnection);
+  connect(this, &Connection::SignalRecordingTrackCodecAdded, this, &Device::SlotRecordingTrackCodecAdded, Qt::QueuedConnection);
+  connect(this, &Connection::SignalRecordingTrackCodecRemoved, this, &Device::SlotRecordingTrackCodecRemoved, Qt::QueuedConnection);
   connect(this, &Connection::SignalRecordingTrackLogMessage, this, QOverload<const uint64_t, const uint32_t, const uint64_t, const monocle::Severity, const QString&>::of(&Device::SlotRecordingTrackLogMessage), Qt::QueuedConnection);
   connect(this, &Connection::SignalServerLogMessage, this, QOverload<const uint64_t, const monocle::Severity, const QString&>::of(&Device::SlotServerLogMessage), Qt::QueuedConnection);
   connect(this, &Connection::SignalTrackAdded, this, QOverload<const uint64_t, const uint32_t, const std::string&, const monocle::TrackType, const std::string&, const bool, const bool, const bool, const uint32_t, const std::vector<uint64_t>&, const std::vector<monocle::CODECINDEX>&>::of(&Device::SlotTrackAdded), Qt::QueuedConnection);

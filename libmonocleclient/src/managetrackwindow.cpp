@@ -1056,7 +1056,7 @@ void ManageTrackWindow::on_edituri_textChanged(const QString&)
       ui_.buttonobjectdetectorsettings->setEnabled(enableobjectdetector);
       ui_.buttontest->setEnabled(true);
     }
-    else if ((uri.scheme().compare("http") == 0) && uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))
+    else if (((uri.scheme().compare("http") == 0) || (uri.scheme().compare("https") == 0)) && uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))
     {
       ui_.editprofiletoken->setEnabled(true);
       ui_.editsourcetag->setEnabled(true);
@@ -1221,7 +1221,7 @@ void ManageTrackWindow::on_buttontest_clicked()
 
       RTSPCallback(ui_.edituri->text().toStdString(), uri.host().to_string(), port);
     }
-    else if ((uri.scheme().compare("http") == 0) && uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))
+    else if (((uri.scheme().compare("http") == 0) || (uri.scheme().compare("https") == 0)) && uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))
     {
       uint16_t port = 80;
       if (uri.has_port())
@@ -1407,7 +1407,7 @@ void ManageTrackWindow::on_buttonok_clicked()
       // Looks good
 
     }
-    else if ((uri.scheme().compare("http") == 0))
+    else if ((uri.scheme().compare("http") == 0) || (uri.scheme().compare("https") == 0))
     {
       if (uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))
       {
