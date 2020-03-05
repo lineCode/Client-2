@@ -39,7 +39,7 @@ const int ROTATION_ROLE = Qt::UserRole + 1;
 
 ///// Methods /////
 
-ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingJob>& recordingjob, const QSharedPointer<RecordingJobSource>& recordingjobsource, const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& recordingtrack) :
+ManageTrackWindow::ManageTrackWindow(QWidget* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingJob>& recordingjob, const QSharedPointer<RecordingJobSource>& recordingjobsource, const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& recordingtrack, const QString& uri) :
   QDialog(parent),
   profilemodel_(new QStringListModel(this)),
   sourcetagmodel_(new QStringListModel(this)),
@@ -89,11 +89,52 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>&
 
   connect(ui_.buttoncancel, &QPushButton::clicked, this, &ManageTrackWindow::reject);
 
-  if (recordingtrack)
+  //TODO when a device gets selected(and on initialisation of which one gets selected), we need to enable/disable buttons like the object detector based on if that device has CUDA cores
+    //TODO also update which files(reset the filetokens_ too)
+
+  //TODO pass in an address
+
+  if (device_)//TODO I think we need a "currentdevice_" member which gets updated... maybe rename "device_"
+  {
+    ui_.labeldevice->setVisible(false);
+    ui_.combodevice->setVisible(false);
+    //TODO resize window?
+  }
+  else
+  {
+    for (const boost::shared_ptr<Device>& device : MainWindow::Instance()->GetDeviceMgr().GetDevices())
+    {
+      ui_.combodevice->addItem(device->GetName(), device->GetIdentifier());
+
+    }
+    ui_.combodevice->setCurrentIndex(0);
+
+    if (ui_.combodevice->count() == 0)
+    {
+      //TODO reject in 1ms
+      //TODO QMessageBox
+      return;
+    }
+
+    boost::shared_ptr<Device> currentdevice = MainWindow::Instance()->GetDeviceMgr().GetDevice(ui_.combodevice->currentData().toULongLong());
+    if (!currentdevice)
+    {
+      //TODO reject in 1ms
+      //TODO QMessageBox
+      return;
+    }
+
+    device_ = currentdevice;
+    //TODO listen for changes in the ui_.combodevice combo box so that we can update the device_
+  }
+
+  if (recording_ && recordingtrack)
   {
     connect(recording_.data(), &Recording::TrackRemoved, this, &ManageTrackWindow::TrackRemoved, Qt::QueuedConnection);
 
   }
+
+  ui_.edituri->setText(uri);
 
   ui_.comboprotocol->addItem(QString(monocle::EnumNameStreamingProtocol(monocle::StreamingProtocol::TCPInterleaved)), static_cast<int>(monocle::StreamingProtocol::TCPInterleaved));
   ui_.comboprotocol->addItem(QString(monocle::EnumNameStreamingProtocol(monocle::StreamingProtocol::UDPUnicast)), static_cast<int>(monocle::StreamingProtocol::UDPUnicast));
@@ -296,6 +337,12 @@ void ManageTrackWindow::timerEvent(QTimerEvent*)
 
 QSharedPointer<RecordingJob> ManageTrackWindow::GetJob() const
 {
+  if (!recording_)
+  {
+
+    return nullptr;
+  }
+
   if (recordingjob_)
   {
 
@@ -825,7 +872,7 @@ void ManageTrackWindow::RTSPCallback(const std::string& uri, const std::string& 
   });
 }
 
-void ManageTrackWindow::SetTrack(const uint64_t recordingjobtoken, const uint64_t objectdetectortrackid, const uint64_t objectdetectorrecordingjobsourcetoken, const uint64_t objectdetectorrecordingjobsourcetracktoken)
+void ManageTrackWindow::SetTrack(const uint64_t recordingtoken, const uint64_t recordingjobtoken, const uint64_t objectdetectortrackid, const uint64_t objectdetectorrecordingjobsourcetoken, const uint64_t objectdetectorrecordingjobsourcetracktoken)
 {
   std::vector<std::string> receiverparameters;
   if (!ui_.comboprotocol->currentData(STREAMING_PROTOCOL_ROLE).toString().isEmpty())
@@ -906,9 +953,9 @@ void ManageTrackWindow::SetTrack(const uint64_t recordingjobtoken, const uint64_
 
   SetEnabled(false);
 
-  if (recordingjob_ && recordingjobsource_ && recordingjobsourcetrack_ && recordingtrack_)
+  if (recording_ && recordingjob_ && recordingjobsource_ && recordingjobsourcetrack_ && recordingtrack_)
   {
-    addtrack2connection_ = device_->ChangeTrack2(recording_->GetToken(), recordingtrack_->GetId(), recordingjobtoken, recordingjobsource_->GetToken(), recordingjobsourcetrack_->GetToken(), objectdetectortrackid, objectdetectorrecordingjobsourcetoken, objectdetectorrecordingjobsourcetracktoken, ui_.editdescription->text().toStdString(), ui_.checkfixedfiles->isChecked(), ui_.checkdigitalsigning->isChecked(), ui_.checkencrypt->isChecked(), ui_.spinflushfrequency->value(), filetokens, ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), receiverparameters, recordingjobsourcetrackparameters, objectdetectorsourcetrackparameters, [this](const std::chrono::steady_clock::duration latency, const monocle::client::CHANGETRACK2RESPONSE& changetrack2response)
+    addtrack2connection_ = device_->ChangeTrack2(recordingtoken, recordingtrack_->GetId(), recordingjobtoken, recordingjobsource_->GetToken(), recordingjobsourcetrack_->GetToken(), objectdetectortrackid, objectdetectorrecordingjobsourcetoken, objectdetectorrecordingjobsourcetracktoken, ui_.editdescription->text().toStdString(), ui_.checkfixedfiles->isChecked(), ui_.checkdigitalsigning->isChecked(), ui_.checkencrypt->isChecked(), ui_.spinflushfrequency->value(), filetokens, ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), receiverparameters, recordingjobsourcetrackparameters, objectdetectorsourcetrackparameters, [this](const std::chrono::steady_clock::duration latency, const monocle::client::CHANGETRACK2RESPONSE& changetrack2response)
     {
       if (changetrack2response.GetErrorCode() != monocle::ErrorCode::Success)
       {
@@ -922,7 +969,7 @@ void ManageTrackWindow::SetTrack(const uint64_t recordingjobtoken, const uint64_
   }
   else
   {
-    addtrack2connection_ = device_->AddTrack2(recording_->GetToken(), recordingjobtoken, monocle::TrackType::Video, ui_.editdescription->text().toStdString(), ui_.checkfixedfiles->isChecked(), ui_.checkdigitalsigning->isChecked(), ui_.checkencrypt->isChecked(), ui_.spinflushfrequency->value(), filetokens, ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), receiverparameters, recordingjobsourcetrackparameters, objectdetectorsourcetrackparameters, [this](const std::chrono::steady_clock::duration latency, const monocle::client::ADDTRACK2RESPONSE& addtrack2response)
+    addtrack2connection_ = device_->AddTrack2(recordingtoken, recordingjobtoken, monocle::TrackType::Video, ui_.editdescription->text().toStdString(), ui_.checkfixedfiles->isChecked(), ui_.checkdigitalsigning->isChecked(), ui_.checkencrypt->isChecked(), ui_.spinflushfrequency->value(), filetokens, ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), receiverparameters, recordingjobsourcetrackparameters, objectdetectorsourcetrackparameters, [this](const std::chrono::steady_clock::duration latency, const monocle::client::ADDTRACK2RESPONSE& addtrack2response)
     {
       if (addtrack2response.GetErrorCode() != monocle::ErrorCode::Success)
       {
@@ -1378,9 +1425,7 @@ void ManageTrackWindow::on_buttonok_clicked()
     }
   }
 
-  // Find or create a recording job
   QSharedPointer<RecordingJob> job = GetJob();
-  uint64_t recordingjobtoken = 1;
   if (job)
   {
     uint32_t objectdetectortrackid = 0;
@@ -1404,32 +1449,39 @@ void ManageTrackWindow::on_buttonok_clicked()
       }
     }
 
-    SetTrack(job->GetToken(), objectdetectortrackid, objectdetectorrecordingjobsourcetoken, objectdetectorrecordingjobsourcetracktoken);
+    SetTrack(recording_->GetToken(), job->GetToken(), objectdetectortrackid, objectdetectorrecordingjobsourcetoken, objectdetectorrecordingjobsourcetracktoken);
   }
   else
   {
     SetEnabled(false);
-    
-    addtrack2connection_ = device_->AddRecordingJob(recording_->GetToken(), "Job", true, 0, std::vector<monocle::ADDRECORDINGJOBSOURCE>(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::ADDRECORDINGJOBRESPONSE& addrecordingjobresponse)
+
+    if (recording_)
     {
-      if (addrecordingjobresponse.GetErrorCode() != monocle::ErrorCode::Success)
+      addtrack2connection_ = device_->AddRecordingJob(recording_->GetToken(), "Job", true, 0, std::vector<monocle::ADDRECORDINGJOBSOURCE>(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::ADDRECORDINGJOBRESPONSE& addrecordingjobresponse)
       {
-        QMessageBox(QMessageBox::Warning, tr("Error"), tr("ChangeTrack failed: ") + QString::fromStdString(addrecordingjobresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-        SetEnabled(true);
-        return;
-      }
+        if (addrecordingjobresponse.GetErrorCode() != monocle::ErrorCode::Success)
+        {
+          QMessageBox(QMessageBox::Warning, tr("Error"), tr("ChangeTrack failed: ") + QString::fromStdString(addrecordingjobresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+          SetEnabled(true);
+          return;
+        }
 
-      uint32_t objectdetectortrackid = 0;
-      const std::vector< QSharedPointer<RecordingTrack> > objectdetectortracks = recording_->GetObjectDetectorTracks();
-      if (objectdetectortracks.size())
-      {
-        objectdetectortrackid = objectdetectortracks.front()->GetId();
+        uint32_t objectdetectortrackid = 0;
+        const std::vector< QSharedPointer<RecordingTrack> > objectdetectortracks = recording_->GetObjectDetectorTracks();
+        if (objectdetectortracks.size())
+        {
+          objectdetectortrackid = objectdetectortracks.front()->GetId();
 
-      }
+        }
 
-      SetTrack(addrecordingjobresponse.recordingjobtoken_, objectdetectortrackid, 0, 0);
-    });
-    return;
+        SetTrack(recording_->GetToken(), addrecordingjobresponse.recordingjobtoken_, objectdetectortrackid, 0, 0);
+      });
+    }
+    else
+    {
+      SetTrack(0, 0, 0, 0, 0); // Need to create the recording along with everything else
+
+    }
   }
 }
 

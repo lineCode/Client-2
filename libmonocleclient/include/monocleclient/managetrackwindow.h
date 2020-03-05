@@ -62,7 +62,7 @@ class ManageTrackWindow : public QDialog
 
  public:
 
-  ManageTrackWindow(QWidget* parent, boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingJob>& recordingjob, const QSharedPointer<RecordingJobSource>& recordingjobsource, const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& recordingtrack);
+  ManageTrackWindow(QWidget* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingJob>& recordingjob, const QSharedPointer<RecordingJobSource>& recordingjobsource, const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& recordingtrack, const QString& uri);
   ~ManageTrackWindow();
 
  protected:
@@ -77,7 +77,7 @@ class ManageTrackWindow : public QDialog
   void AddMediaDescription(const rtsp::sdp::MediaDescription& mediadescription);
   void GetProfileCallback(const onvif::Profile& profile);
   void RTSPCallback(const std::string& uri, const std::string& host, const uint16_t port);
-  void SetTrack(const uint64_t recordingjobtoken, const uint64_t objectdetectortrackid, const uint64_t objectdetectorrecordingjobsourcetoken, const uint64_t objectdetectorrecordingjobsourcetracktoken);
+  void SetTrack(const uint64_t recordingtoken, const uint64_t recordingjobtoken, const uint64_t objectdetectortrackid, const uint64_t objectdetectorrecordingjobsourcetoken, const uint64_t objectdetectorrecordingjobsourcetracktoken);
   void SetEnabled(const bool enabled);
 
   Ui::ManageTrackWindow ui_;

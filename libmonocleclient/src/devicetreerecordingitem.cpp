@@ -339,7 +339,7 @@ void DeviceTreeRecordingItem::Edit(bool)
 
 void DeviceTreeRecordingItem::AddVideoTrack(bool)
 {
-  ManageTrackWindow(treeWidget(), device_, recording_, nullptr, nullptr, nullptr, nullptr).exec();
+  ManageTrackWindow(treeWidget(), device_, recording_, nullptr, nullptr, nullptr, nullptr, QString()).exec();
 
 }
 

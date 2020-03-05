@@ -1144,141 +1144,157 @@ void MainWindow::DiscoverCallback(const std::vector<std::string>& addresses, con
   }
   else if (utility::Contains(scopes, "onvif://www.onvif.org/Profile/Streaming")) // Found an ONVIF Profile S device
   {
-    // Discover hostnames
-    std::vector<std::string> discoveryhostnames;
-    discoveryhostnames.reserve(addresses.size());
-    for (const std::string& address : addresses)
+  //TODO this gets called multiple times... how to do this?
+    QMetaObject::invokeMethod(this, [this, addresses, scopes]()//TODO this is getting brapped 4x, we have to stop this somehow...
     {
-      try
-      {
-        const network::uri uri(address);
-        if (uri.has_host())
-        {
-          discoveryhostnames.push_back(uri.host().to_string());
-
-        }
-      }
-      catch (...)
-      {
-
-      }
-    }
-
-    std::vector<std::string> devicehostnames;
-    for (const boost::shared_ptr<Device>& device : devicemgr_.GetDevices())
-    {
-      if (device->GetState() != DEVICESTATE::SUBSCRIBED) // Check all devices are subscribed, this makes it easier to determine what discovered devices are currently in use or not
+      if (QApplication::activeWindow() != MainWindow::Instance()) // Only bother the user if they haven't got another window open...
       {
 
         return;
       }
 
-      // Device hostnames
-      for (const QSharedPointer<Recording>& recording : device->GetRecordings())
-      {
-        for (const QSharedPointer<RecordingJob>& job : recording->GetJobs())
-        {
-          for (const QSharedPointer<RecordingJobSource>& source : job->GetSources())
-          {
-            const QSharedPointer<Receiver> receiver = device->GetReceiver(source->GetReceiverToken());
-            if (!receiver)
-            {
-
-              continue;
-            }
-
-            try
-            {
-              const network::uri uri(receiver->GetMediaUri().toStdString());
-              if (uri.has_host())
-              {
-                devicehostnames.push_back(uri.host().to_string());
-
-              }
-            }
-            catch (...)
-            {
-
-            }
-          }
-        }
-      }
-    }
-    
-    if (!utility::Intersects(discoveryhostnames, devicehostnames)) // If no device has setup this discovered device before
-    {
-      std::vector<std::string>::const_iterator ipv4address = std::find_if(addresses.cbegin(), addresses.cend(), [](const std::string& address)
+      // Discover hostnames
+      std::vector<std::string> discoveryhostnames;
+      discoveryhostnames.reserve(addresses.size());
+      for (const std::string& address : addresses)
       {
         try
         {
           const network::uri uri(address);
-          if (!uri.has_host())
+          if (uri.has_host())
           {
+            discoveryhostnames.push_back(uri.host().to_string());
 
-            return false;
-          }
-
-          boost::system::error_code err;
-          const std::string host = uri.host().to_string();
-          boost::asio::ip::address_v4::from_string(host, err);
-          if (err)
-          {
-
-            return false;
-          }
-          
-          if (boost::starts_with(host, "10.") || boost::starts_with(host, "172.16") || boost::starts_with(host, "192.168."))
-          {
-
-            return true;
-          }
-          else
-          {
-
-            return false;
           }
         }
         catch (...)
         {
 
-          return false;
         }
-      });
-      if (ipv4address == addresses.cend())
-      {
-
-        return;
       }
 
-      std::vector< boost::shared_ptr<Device> > devices; // This will contain a set of devices which
-      devices.reserve(devicemgr_.GetDevices().size());
+      std::vector<std::string> devicehostnames;
       for (const boost::shared_ptr<Device>& device : devicemgr_.GetDevices())
       {
-        if (device->GetRecordings().size() < device->GetMaxRecordings()) // Do we have space for another recording on this device?
+        if (device->GetState() != DEVICESTATE::SUBSCRIBED) // Check all devices are subscribed, this makes it easier to determine what discovered devices are currently in use or not
         {
-          devices.push_back(device);
+
+          return;
+        }
+
+        //TODO do we want to make sure these devices all have files as well? not much point adding recordings to device without a file...
+
+        // Device hostnames
+        for (const QSharedPointer<Recording>& recording : device->GetRecordings())
+        {
+          for (const QSharedPointer<RecordingJob>& job : recording->GetJobs())
+          {
+            for (const QSharedPointer<RecordingJobSource>& source : job->GetSources())
+            {
+              const QSharedPointer<Receiver> receiver = device->GetReceiver(source->GetReceiverToken());
+              if (!receiver)
+              {
+
+                continue;
+              }
+
+              try
+              {
+                const network::uri uri(receiver->GetMediaUri().toStdString());
+                if (uri.has_host())
+                {
+                  devicehostnames.push_back(uri.host().to_string());
+
+                }
+              }
+              catch (...)
+              {
+
+              }
+            }
+          }
+        }
+      }
+    
+      if (!utility::Intersects(discoveryhostnames, devicehostnames)) // If no device has setup this discovered device before
+      {
+        std::vector<std::string>::const_iterator ipv4address = std::find_if(addresses.cbegin(), addresses.cend(), [](const std::string& address)
+        {
+          try
+          {
+            const network::uri uri(address);
+            if (!uri.has_host())
+            {
+
+              return false;
+            }
+
+            boost::system::error_code err;
+            const std::string host = uri.host().to_string();
+            boost::asio::ip::address_v4::from_string(host, err);
+            if (err)
+            {
+
+              return false;
+            }
+          
+            if (boost::starts_with(host, "10.") || boost::starts_with(host, "172.16") || boost::starts_with(host, "192.168."))
+            {
+
+              return true;
+            }
+            else
+            {
+
+              return false;
+            }
+          }
+          catch (...)
+          {
+
+            return false;
+          }
+        });
+        if (ipv4address == addresses.cend())
+        {
+
+          return;
+        }
+
+        std::vector< boost::shared_ptr<Device> > devices; // This will contain a set of devices which
+        devices.reserve(devicemgr_.GetDevices().size());
+        for (const boost::shared_ptr<Device>& device : devicemgr_.GetDevices())
+        {
+          if (device->GetRecordings().size() < device->GetMaxRecordings()) // Do we have space for another recording on this device?
+          {
+            devices.push_back(device);
+
+          }
+        }
+        
+        if (devices.empty()) // No devices to place this recording on
+        {
+
+          return;
+        }
+
+        //TODO present user with a QMessageBox question
+          //TODO allow user to not show the question again(for this device...
+
+        if (devices.size() == 1)
+        {
+          ManageTrackWindow(this, devices.front(), nullptr, nullptr, nullptr, nullptr, nullptr, QString::fromStdString(*ipv4address)).exec();
+
+        }
+        else
+        {
+          ManageTrackWindow(this, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, QString::fromStdString(*ipv4address)).exec();
+          //TODO I think the selection can be INSIDE ManageTrackWindow, where we pass it a nullptr for the device_, and then it presents a combobox(otherwise it doesn't)
+          //TODO bring up dialog selecting a device to put this on and THEN ManageTrackWindow(this, device)
 
         }
       }
-
-      if (devices.empty()) // No devices to place this recording on
-      {
-
-        return;
-      }
-      if (devices.size() == 1)
-      {
-        //TODO bring up the ManageTrackWindow with this device and address setup
-          //TODO the description of the track and recording are the same, and default retention time and location are fine...
-
-
-      }
-      else
-      {
-        //TODO bring up dialog selecting a device to put this on and THEN ManageTrackWindow(this, device)
-
-      }
-    }
+    }, Qt::QueuedConnection);
   }
 }
 

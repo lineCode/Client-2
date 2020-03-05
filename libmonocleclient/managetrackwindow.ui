@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>906</width>
-    <height>670</height>
+    <width>908</width>
+    <height>681</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -54,51 +54,7 @@
            <layout class="QGridLayout" name="gridLayout_4">
             <item row="0" column="0">
              <layout class="QGridLayout" name="gridLayout_3">
-              <item row="4" column="1" rowspan="2" colspan="2">
-               <widget class="QPushButton" name="buttonfiles">
-                <property name="text">
-                 <string>Files</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1" colspan="2">
-               <widget class="QLineEdit" name="editdescription"/>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_3">
-                <property name="text">
-                 <string>Flush Frequency(seconds):</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1" colspan="2">
-               <widget class="QSpinBox" name="spinflushfrequency">
-                <property name="maximum">
-                 <number>9999</number>
-                </property>
-                <property name="value">
-                 <number>60</number>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="0" rowspan="2">
-               <widget class="QCheckBox" name="checkfixedfiles">
-                <property name="statusTip">
-                 <string>Do you want to record data to all available files, or only want to record to a fixed set of files</string>
-                </property>
-                <property name="text">
-                 <string>Fixed Files</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_2">
-                <property name="text">
-                 <string>Description:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0" rowspan="2" colspan="3">
+              <item row="3" column="0" rowspan="2" colspan="3">
                <layout class="QHBoxLayout" name="horizontalLayout_2">
                 <item>
                  <widget class="QCheckBox" name="checkdigitalsigning">
@@ -115,6 +71,60 @@
                  </widget>
                 </item>
                </layout>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>Description:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_3">
+                <property name="text">
+                 <string>Flush Frequency(seconds):</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="1" rowspan="2" colspan="2">
+               <widget class="QPushButton" name="buttonfiles">
+                <property name="text">
+                 <string>Files</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1" colspan="2">
+               <widget class="QSpinBox" name="spinflushfrequency">
+                <property name="maximum">
+                 <number>9999</number>
+                </property>
+                <property name="value">
+                 <number>60</number>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="0" rowspan="2">
+               <widget class="QCheckBox" name="checkfixedfiles">
+                <property name="statusTip">
+                 <string>Do you want to record data to all available files, or only want to record to a fixed set of files</string>
+                </property>
+                <property name="text">
+                 <string>Fixed Files</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1" colspan="2">
+               <widget class="QLineEdit" name="editdescription"/>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="labeldevice">
+                <property name="text">
+                 <string>Device:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1" colspan="2">
+               <widget class="QComboBox" name="combodevice"/>
               </item>
              </layout>
             </item>
