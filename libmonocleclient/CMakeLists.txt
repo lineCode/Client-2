@@ -97,6 +97,7 @@ include/monocleclient/mediapropertieswindow.h
 include/monocleclient/mediaview.h
 include/monocleclient/mjpegdecoder.h
 include/monocleclient/mpeg4decoder.h
+include/monocleclient/newcameraquestionwindow.h
 include/monocleclient/objects.h
 include/monocleclient/onvifuser.h
 include/monocleclient/options.h
@@ -224,6 +225,7 @@ src/mediapropertieswindow.cpp
 src/mediaview.cpp
 src/mjpegdecoder.cpp
 src/mpeg4decoder.cpp
+src/newcameraquestionwindow.cpp
 src/objects.cpp
 src/onvifuser.cpp
 src/options.cpp
@@ -306,6 +308,7 @@ managetrackwindow.ui
 manageuserswindow.ui
 manageuserwindow.ui
 mediapropertieswindow.ui
+newcameraquestionwindow.ui
 recordinglogwindow.ui
 optionswindow.ui
 updatewindow.ui

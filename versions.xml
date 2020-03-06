@@ -32,6 +32,9 @@
       <change>Improved decoding performance on CUDA GPUs</change>
       <change>fixed possible duplication of items in the device tree</change>
       <change>Added option to hide objects in the GUI</change>
+      <change>Improved colours for video view and timeline</change>
+      <change>Improved setup and management of devices</change>
+      <change>Added support for ONVIF over HTTPS</change>
     </changes>
   </version>
 </versions>

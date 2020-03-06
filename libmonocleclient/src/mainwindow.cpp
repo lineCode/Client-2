@@ -26,6 +26,7 @@
 #include "monocleclient/devicemgr.h"
 #include "monocleclient/editdevicewindow.h"
 #include "monocleclient/managetrackwindow.h"
+#include "monocleclient/newcameraquestionwindow.h"
 #include "monocleclient/options.h"
 #include "monocleclient/optionswindow.h"
 #include "monocleclient/receiver.h"
@@ -59,6 +60,9 @@ static const QString MAINVIDEOWINDOWHEIGHT("videowindowheight");
 static const QString MAINVIDEOWINDOWSHOWTOOLBAR("videowindowshowtoolbar");
 static const QString MAINSHOWTOOLBAR("showtoolbar");
 static const QString NEWDEVICEIDENTIFIERS("newdeviceidentifiers");
+static const QString NEWCAMERAS("newcameras");
+
+static const std::chrono::seconds DISCOVERY_DELAY(30);
 
 ///// Methods /////
 
@@ -272,6 +276,12 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
     }
   }
 
+  for (const QString& newcamera : settings.value(NEWCAMERAS).toStringList())
+  {
+    newcameras_.push_back(std::make_pair(true, newcamera));
+
+  }
+
   // Translations
   QActionGroup* langgroup = new QActionGroup(ui_.menulanguage);
   langgroup->setExclusive(true);
@@ -390,7 +400,7 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
 
   if (Options::Instance().GetDiscoveryHelper())
   {
-    discoverytimer_ = startTimer(std::chrono::seconds(60));
+    discoverytimer_ = startTimer(DISCOVERY_DELAY);
 
   }
   iotimer_ = startTimer(100);
@@ -440,7 +450,7 @@ void MainWindow::SetDiscoveryHelper(const bool discoveryhelper)
   {
     if (discoverytimer_ == -1)
     {
-      discoverytimer_ = startTimer(std::chrono::seconds(30));
+      discoverytimer_ = startTimer(DISCOVERY_DELAY);
 
     }
   }
@@ -1152,10 +1162,25 @@ void MainWindow::DiscoverCallback(const std::vector<std::string>& addresses, con
       std::uniform_int_distribution<uint64_t> dist(0, 20 * 1000);
       QTimer::singleShot(dist(gen), [this, addresses, scopes]() // We randomize the time we call this, because otherwise we potentially spam the user with windows
       {
+        if (!Options::Instance().GetDiscoveryHelper()) // Possible this got disabled in the delay
+        {
+
+          return;
+        }
+
         if (QApplication::activeWindow() != MainWindow::Instance()) // Only bother the user if they haven't got another window open...
         {
 
           return;
+        }
+
+        for (const std::pair<bool, QString>& newcamera : newcameras_) // If this camera contains an address on the ignore list, just leave
+        {
+          if (utility::Contains(addresses, newcamera.second.toStdString()))
+          {
+
+            return;
+          }
         }
 
         // Discover hostnames
@@ -1287,24 +1312,25 @@ void MainWindow::DiscoverCallback(const std::vector<std::string>& addresses, con
             return;
           }
 
-          QString extensiontext;
-          const std::vector<std::string>::const_iterator name = std::find_if(scopes.cbegin(), scopes.cend(), [](const std::string& scope) { return boost::starts_with(scope, "onvif://www.onvif.org/name/"); });
-          if (name != scopes.cend())
+          NewCameraQuestionWindow newcameraquestionwindow(this, QString::fromStdString(*ipv4address), scopes);
+          if (newcameraquestionwindow.exec() == QDialog::Accepted)
           {
-            extensiontext += " " + QString::fromStdString(name->substr(27));
+            if (newcameraquestionwindow.donotaskdevice_)
+            {
+              for (const std::string& address : addresses) // Don't bother the user ever again
+              {
+                newcameras_.push_back(std::make_pair(true, QString::fromStdString(address)));
 
-          }
+              }
+              SaveNewCameras();
+            }
 
-          const std::vector<std::string>::const_iterator hardware = std::find_if(scopes.cbegin(), scopes.cend(), [](const std::string& scope) { return boost::starts_with(scope, "onvif://www.onvif.org/hardware/"); });
-          if (name != scopes.cend())
-          {
-            extensiontext += " " + QString::fromStdString(hardware->substr(31));
+            if (newcameraquestionwindow.donotask_)
+            {
+              Options::Instance().SetDiscoveryHelper(false);
 
-          }
+            }
 
-          //TODO we need at least one tick box(maybe we should make an actual proper dialog for this), to say that we don't care about this PARTICULAR device anymore forever, AND one that we never care about any device ever again.
-          if (QMessageBox::question(this, tr("New Camera Detected: ") + QString::fromStdString(*ipv4address) + extensiontext, tr("Would you like to add this camera to the a Monocle server?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
-          {
             if (devices.size() == 1)
             {
               ManageTrackWindow(this, devices.front(), nullptr, nullptr, nullptr, nullptr, nullptr, QString::fromStdString(*ipv4address)).exec();
@@ -1318,13 +1344,34 @@ void MainWindow::DiscoverCallback(const std::vector<std::string>& addresses, con
           }
           else
           {
-            //TODO remember(temporarily this launch) to not bother the user with this device
+            // Don't bother the user again with these addresses
+            for (const std::string& address : addresses)
+            {
+              newcameras_.push_back(std::make_pair(false, QString::fromStdString(address)));
 
+            }
+            SaveNewCameras();
           }
         }
       });
     }, Qt::QueuedConnection);
   }
+}
+
+void MainWindow::SaveNewCameras() const
+{
+  QSettings settings(QSettings::IniFormat, QSettings::UserScope, QCoreApplication::organizationName(), QCoreApplication::applicationName());
+  QStringList newcameras;
+  newcameras.reserve(static_cast<int>(newcameras_.size()));
+  for (const std::pair<bool, QString>& newcamera : newcameras_)
+  {
+    if (newcamera.first)
+    {
+      newcameras.push_back(newcamera.second);
+
+    }
+  }
+  settings.setValue(NEWCAMERAS, newcameras);
 }
 
 void MainWindow::LanguageChanged(QAction* action)

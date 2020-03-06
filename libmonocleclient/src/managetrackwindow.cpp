@@ -13,6 +13,7 @@
 #include <onvifclient/mediaclient.hpp>
 #include <QMessageBox>
 #include <QString>
+#include <QTimer>
 
 #include "monocleclient/mainwindow.h"
 #include "monocleclient/device.h"
@@ -98,14 +99,15 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, const boost::shared_ptr<De
   {
     for (const boost::shared_ptr<Device>& device : MainWindow::Instance()->GetDeviceMgr().GetDevices())
     {
+      //TODO in the future we can look at the address ranges this device is on, and compare that with the address range of the uri, and then put them at the top if they share possible connectivity
       ui_.combodevice->addItem(device->GetName() + "(" + device->GetAddress() + ")", device->GetIdentifier());
 
     }
 
     if (ui_.combodevice->count() == 0)
     {
-      //TODO reject in 1ms
-      //TODO QMessageBox
+      QMessageBox(QMessageBox::Warning, tr("Error"), tr("No valid devices"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+      QTimer::singleShot(std::chrono::milliseconds(1), [this]() { reject(); });
       return;
     }
 
@@ -114,8 +116,8 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, const boost::shared_ptr<De
     boost::shared_ptr<Device> currentdevice = MainWindow::Instance()->GetDeviceMgr().GetDevice(ui_.combodevice->currentData().toULongLong());
     if (!currentdevice)
     {
-      //TODO reject in 1ms
-      //TODO QMessageBox
+      QMessageBox(QMessageBox::Warning, tr("Error"), tr("Unable to find device: ") + QString::number(ui_.combodevice->currentData().toULongLong()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+      QTimer::singleShot(std::chrono::milliseconds(1), [this]() { reject(); });
       return;
     }
 
@@ -1023,8 +1025,8 @@ void ManageTrackWindow::on_combodevice_currentIndexChanged(const QString&)
   boost::shared_ptr<Device> currentdevice = MainWindow::Instance()->GetDeviceMgr().GetDevice(ui_.combodevice->currentData().toULongLong());
   if (!currentdevice)
   {
-    //TODO reject in 1ms
-    //TODO QMessageBox
+    QMessageBox(QMessageBox::Warning, tr("Error"), tr("Unable to find device: ") + QString::number(ui_.combodevice->currentData().toULongLong()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+    reject();
     return;
   }
   device_ = currentdevice;

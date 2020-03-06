@@ -214,6 +214,7 @@ class MainWindow : public QMainWindow
   void UnselectAllLanguages();
   void ToolbarUpdated();
   void DiscoverCallback(const std::vector<std::string>& addresses, const std::vector<std::string>& scopes);
+  void SaveNewCameras() const;
 
   const utility::Version version_;
   const QDir translationsdirectory_;
@@ -265,6 +266,8 @@ class MainWindow : public QMainWindow
   int iotimer_;
 
   std::vector<uint64_t> newdeviceidentifiers_; // A list of devices we have asked the user to add
+  std::vector< std::pair<bool, QString> > newcameras_; // A list of cameras we have asked the user to add <Save to disk, address>
+
 
  private slots:
 
