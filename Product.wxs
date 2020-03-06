@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product Id="*" Name="MonocleClient" Language="1033" Version="1.11.0.0" Manufacturer="Monocle Security" UpgradeCode="b8005458-f311-4fbc-8865-54e59aef1972">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
@@ -46,7 +46,7 @@
     <InstallUISequence>
       <Custom Action="CA_Set_WIXUI_EXITDIALOGOPTIONALTEXT" After="FindRelatedProducts">NOT Installed</Custom>
     </InstallUISequence>
-    
+
   </Product>
 
   <Fragment>
@@ -63,11 +63,11 @@
       </Component>
     </DirectoryRef>
   </Fragment>
-  
-  <Fragment>
-    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
 
-      <Component Id="monocleclient.exe" Guid="1cba0e3e-39b7-46a3-ab74-1c5ebd379030">
+  <Fragment>
+    <ComponentGroup Id="ProductComponents">
+
+      <Component Directory="INSTALLFOLDER" Guid="1cba0e3e-39b7-46a3-ab74-1c5ebd379030">
         <File
           Id="monocleclient.exe"
           Name="monocleclient.exe"
@@ -260,8 +260,8 @@
       <Component Directory="INSTALLFOLDER" Guid="362263a0-2f50-4e8b-b9dd-88b2ef535fc7">
         <File
           Id="libcrypto"
-          Name="libcrypto-1_1-x64.dll"
-          Source="$(env.OPENSSL_DIR)\libcrypto-1_1-x64.dll"
+          Name="libcrypto-3.dll"
+          Source="$(env.OPENSSL_DIR)\libcrypto-3.dll"
           DiskId="1"
           Vital="yes"
           KeyPath="yes" />
@@ -290,8 +290,8 @@
       <Component Directory="INSTALLFOLDER" Guid="dec51a35-86c7-448e-a1c4-a4344c764fcc">
         <File
           Id="libssl"
-          Name="libssl-1_1-x64.dll"
-          Source="$(env.OPENSSL_DIR)\libssl-1_1-x64.dll"
+          Name="libssl-3.dll"
+          Source="$(env.OPENSSL_DIR)\libssl-3.dll"
           DiskId="1"
           Vital="yes"
           KeyPath="yes" />
