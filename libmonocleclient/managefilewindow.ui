@@ -182,7 +182,11 @@
    <item row="2" column="2" colspan="4">
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
-      <widget class="QLineEdit" name="editpath"/>
+      <widget class="QLineEdit" name="editpath">
+       <property name="toolTip">
+        <string>Example: D:/data.dat</string>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="buttonbrowsepath">

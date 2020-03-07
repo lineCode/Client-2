@@ -183,6 +183,9 @@ void ManageFileWindow::on_checkfilldisk_toggled(const bool)
 
 void ManageFileWindow::on_buttonok_clicked()
 {
+  //TODO make sure editpath contains a proper path with a leaf thing
+    //TODO windows nad linux treat things differently, definitely can't use boost, can we use Qt?
+
   std::string mountpoint;
   const std::string path = ui_.editpath->text().toStdString();
   if (device_->IsLinux())

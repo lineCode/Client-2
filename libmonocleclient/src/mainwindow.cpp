@@ -1317,7 +1317,8 @@ void MainWindow::DiscoverCallback(const std::vector<std::string>& addresses, con
           {
             if (newcameraquestionwindow.donotaskdevice_)
             {
-              for (const std::string& address : addresses) // Don't bother the user ever again
+              // Don't bother the user ever again with this camera
+              for (const std::string& address : addresses)
               {
                 newcameras_.push_back(std::make_pair(true, QString::fromStdString(address)));
 
@@ -1325,7 +1326,7 @@ void MainWindow::DiscoverCallback(const std::vector<std::string>& addresses, con
               SaveNewCameras();
             }
 
-            if (newcameraquestionwindow.donotask_)
+            if (newcameraquestionwindow.donotask_) // Disable the discovery helper
             {
               Options::Instance().SetDiscoveryHelper(false);
 
@@ -1344,7 +1345,7 @@ void MainWindow::DiscoverCallback(const std::vector<std::string>& addresses, con
           }
           else
           {
-            // Don't bother the user again with these addresses
+            // Don't bother the user again with these addresses this session
             for (const std::string& address : addresses)
             {
               newcameras_.push_back(std::make_pair(false, QString::fromStdString(address)));
