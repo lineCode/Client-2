@@ -143,6 +143,9 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
 
   }
 
+  ui_.editdevicetreefilter->addAction(QIcon(":/magnifyingglass.png"), QLineEdit::LeadingPosition);
+  ui_.editdevicetreefilter->setPlaceholderText("Filter...");
+
   // Collect all short month names for later
   std::array<char, 256> buffer;
   struct tm tm;
@@ -1546,13 +1549,13 @@ void MainWindow::on_actionfindobject_toggled()
 
 void MainWindow::on_editdevicetreefilter_textChanged(const QString&)
 {
-  ui_.devicetree->SetFilter(ui_.editdevicetreefilter->Text());
+  ui_.devicetree->SetFilter(ui_.editdevicetreefilter->text());
 
 }
 
 void MainWindow::on_editlocationtreefilter_textChanged(const QString&)
 {
-  ui_.locationtree->SetFilter(ui_.editlocationtreefilter->Text());
+  ui_.locationtree->SetFilter(ui_.editlocationtreefilter->text());
 
 }
 
