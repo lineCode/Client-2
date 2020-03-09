@@ -74,9 +74,15 @@ Range::Range(const std::string& text) :
         starttime_ = 0;
 
       }
+      else
+      {
+        starttime_ = starttime_ * 1000;
+
+      }
+
       if (match[7].matched)
       {
-        starttime_ += boost::lexical_cast<uint64_t>(match[7]);
+        starttime_ += boost::lexical_cast<uint64_t>(match[7]);//TODO do we need to multiply by 1000?
 
       }
 
@@ -102,6 +108,12 @@ Range::Range(const std::string& text) :
             endtime_ = 0;
 
           }
+          else
+          {
+            *endtime_ = *endtime_ * 1000;
+
+          }
+
           if (match[14].matched)
           {
             *endtime_ += boost::lexical_cast<uint64_t>(match[14]);
