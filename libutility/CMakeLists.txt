@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.0)
 
 add_library(libutility STATIC
 include/utility/cpuid.hpp
+include/utility/externalwindow.hpp
 include/utility/ioservicepool.hpp
 include/utility/pipeclient.hpp
 include/utility/pipeserver.hpp
@@ -15,6 +16,7 @@ include/utility/servicemgr.hpp
 include/utility/utility.hpp
 include/utility/version.hpp
 src/cpuid.cpp
+src/externalwindow.cpp
 src/ioservicepool.cpp
 src/pipeclient.cpp
 src/pipeserver.cpp

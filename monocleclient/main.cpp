@@ -26,11 +26,8 @@
 #include <QFile>
 #include <QString>
 #include <QTextStream>
+#include <utility/externalwindow.hpp>
 #include <vector>
-
-#ifdef _WIN32
-  #include <psapi.h>
-#endif
 
 extern "C"
 {
@@ -92,76 +89,13 @@ int main(int argc, char** argv)
   client::RunGuard runguard(QString("3fa94d34-4753-4dbb-98c6-48b3acb65bf8"));
   if (!runguard.Run())
   {
-#ifdef _WIN32//TODO this belongs in a utility class, put it up above first, and then do it(make room for linux too)
-//TODO should have a utility::ExternalWindow class and std::vector<ExternalWindow> utility::EnumWindows() function perhaps
-    std::vector< std::pair<HWND, boost::filesystem::path> > hwnds;
-    if (EnumWindows([](HWND hwnd, LPARAM param) -> BOOL
+    // Find the appropriate client window in another process and maximise it
+    std::vector<utility::ExternalWindow> externalwindows = utility::GetExternalWindows("monocleclient.exe", "Qt5QWindowIcon");
+    if (externalwindows.size())
     {
-      // We ignore errors in this function so that we keep on searching
-      std::vector< std::pair<HWND, boost::filesystem::path> >* hwnds = reinterpret_cast< std::vector< std::pair<HWND, boost::filesystem::path> >* >(param);
-      DWORD processid = 0;
-      const DWORD threadid = GetWindowThreadProcessId(hwnd, &processid);
-      if ((threadid == 0) || (processid == 0))
-      {
+      externalwindows.front().Show();
 
-        return 1;
-      }
-
-      const HANDLE hprocess = OpenProcess(PROCESS_QUERY_INFORMATION, TRUE, processid);
-      if (hprocess == nullptr)
-      {
-
-        return 1;
-      }
-
-      if (GetCurrentProcessId() == processid) // Ignore our current process just in case
-      {
-        CloseHandle(hprocess);
-        return 1;
-      }
-
-      char path[MAX_PATH];
-      if (GetModuleFileNameEx(hprocess, nullptr, path, sizeof(path)) == 0)
-      {
-        CloseHandle(hprocess);
-        return 1;
-      }
-      CloseHandle(hprocess);
-
-      const boost::filesystem::path tmp(path);
-      if (tmp.filename() != "monocleclient.exe")
-      {
-
-        return 1;
-      }
-
-      char classname[MAX_PATH];
-      if (GetClassName(hwnd, classname, sizeof(classname)) == 0)
-      {
-
-        return 1;
-      }
-
-      if (strcmp(classname, "Qt5QWindowIcon"))
-      {
-
-        return 1;
-      }
-
-      hwnds->push_back(std::make_pair(hwnd, tmp));
-      return 1;
-    }, reinterpret_cast<LPARAM>(&hwnds)) == 0)
-    {
-      //TODO cout I guess
-      return 2;
     }
-
-    if (hwnds.size())
-    {
-      ShowWindow(hwnds.front().first, SW_SHOW);
-      SetForegroundWindow(hwnds.front().first);
-    }
-#endif
     return 0;
   }
 
