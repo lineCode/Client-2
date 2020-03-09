@@ -202,7 +202,7 @@ TEST_F(TestProtocol, Disconnected)
   boost::unique_future<client::KEEPALIVERESPONSE> keepalive5 = client_->Keepalive();
   boost::unique_future<client::KEEPALIVERESPONSE> keepalive6 = client_->Keepalive();
 
-  ASSERT_EQ(ErrorCode::OperationTimeout, keepalive1.get().GetErrorCode());
+  ASSERT_TRUE((ErrorCode::OperationCancelled == keepalive1.get().GetErrorCode()) || (ErrorCode::Disconnected == keepalive1.get().GetErrorCode()));
   utility::Sleep(std::chrono::milliseconds(1000));
   ASSERT_TRUE((ErrorCode::OperationCancelled == keepalive2.get().GetErrorCode()) || (ErrorCode::Disconnected == keepalive2.get().GetErrorCode()));
   ASSERT_TRUE((ErrorCode::OperationCancelled == keepalive3.get().GetErrorCode()) || (ErrorCode::Disconnected == keepalive3.get().GetErrorCode()));
