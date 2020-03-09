@@ -99,9 +99,18 @@ TEST_F(TestHttpServer, Get)
   curl_easy_setopt(handle, CURLOPT_POST, 1);
   ASSERT_FALSE(curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, EmptyCallback));
   std::string text;
-  curl_easy_setopt(handle, CURLOPT_WRITEDATA, &text);
+  ASSERT_FALSE(curl_easy_setopt(handle, CURLOPT_WRITEDATA, &text));
+  curl_slist* slist = nullptr;
+  curl_slist* tmp = nullptr;
+  slist = curl_slist_append(slist, "Expect:");
+  const std::string content("some random contents");
+  ASSERT_FALSE(curl_easy_setopt(handle, CURLOPT_COPYPOSTFIELDS, content.c_str()));
+  tmp = curl_slist_append(slist, (std::string("Content-Length: ") + std::to_string(content.size())).c_str());
+  tmp = curl_slist_append(tmp, "Content-Type: application/soap+xml");
+  ASSERT_FALSE(curl_easy_setopt(handle, CURLOPT_HTTPHEADER, slist));
   ASSERT_EQ(CURLE_OK, curl_easy_perform(handle));
   ASSERT_EQ(response, text);
+  curl_slist_free_all(slist);
   curl_easy_cleanup(handle);
 }
 
@@ -118,14 +127,22 @@ TEST_F(TestHttpServer, Digest)
 
   CURL* handle = curl_easy_init();
   ASSERT_TRUE(handle);
-  curl_easy_setopt(handle, CURLOPT_URL, ("http://127.0.0.1:" + std::to_string(PORT) + URI).c_str());
-  curl_easy_setopt(handle, CURLOPT_POST, 1);
+  ASSERT_FALSE(curl_easy_setopt(handle, CURLOPT_URL, ("http://127.0.0.1:" + std::to_string(PORT) + URI).c_str()));
+  ASSERT_FALSE(curl_easy_setopt(handle, CURLOPT_POST, 1));
   ASSERT_FALSE(curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, EmptyCallback));
   ASSERT_FALSE(curl_easy_setopt(handle, CURLOPT_HTTPAUTH, CURLAUTH_DIGEST));
   ASSERT_FALSE(curl_easy_setopt(handle, CURLOPT_USERNAME, username.c_str()));
   ASSERT_FALSE(curl_easy_setopt(handle, CURLOPT_PASSWORD, password.c_str()));
   std::string text;
-  curl_easy_setopt(handle, CURLOPT_WRITEDATA, &text);
+  ASSERT_FALSE(curl_easy_setopt(handle, CURLOPT_WRITEDATA, &text));
+  curl_slist* slist = nullptr;
+  curl_slist* tmp = nullptr;
+  slist = curl_slist_append(slist, "Expect:");
+  const std::string content("some random contents");
+  ASSERT_FALSE(curl_easy_setopt(handle, CURLOPT_COPYPOSTFIELDS, content.c_str()));
+  tmp = curl_slist_append(slist, (std::string("Content-Length: ") + std::to_string(content.size())).c_str());
+  tmp = curl_slist_append(tmp, "Content-Type: application/soap+xml");
+  ASSERT_FALSE(curl_easy_setopt(handle, CURLOPT_HTTPHEADER, slist));
   ASSERT_EQ(CURLE_OK, curl_easy_perform(handle));
   ASSERT_EQ(response, text);
   curl_easy_cleanup(handle);
@@ -152,6 +169,14 @@ TEST_F(TestHttpServer, DigestBadUsername)
   ASSERT_FALSE(curl_easy_setopt(handle, CURLOPT_PASSWORD, password.c_str()));
   std::string text;
   curl_easy_setopt(handle, CURLOPT_WRITEDATA, &text);
+  curl_slist* slist = nullptr;
+  curl_slist* tmp = nullptr;
+  slist = curl_slist_append(slist, "Expect:");
+  const std::string content("some random contents");
+  ASSERT_FALSE(curl_easy_setopt(handle, CURLOPT_COPYPOSTFIELDS, content.c_str()));
+  tmp = curl_slist_append(slist, (std::string("Content-Length: ") + std::to_string(content.size())).c_str());
+  tmp = curl_slist_append(tmp, "Content-Type: application/soap+xml");
+  ASSERT_FALSE(curl_easy_setopt(handle, CURLOPT_HTTPHEADER, slist));
   ASSERT_EQ(CURLE_OK, curl_easy_perform(handle));
   long responsecode = 0;
   curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &responsecode);
@@ -180,6 +205,14 @@ TEST_F(TestHttpServer, DigestBadPassword)
   ASSERT_FALSE(curl_easy_setopt(handle, CURLOPT_PASSWORD, "badpassword"));
   std::string text;
   curl_easy_setopt(handle, CURLOPT_WRITEDATA, &text);
+  curl_slist* slist = nullptr;
+  curl_slist* tmp = nullptr;
+  slist = curl_slist_append(slist, "Expect:");
+  const std::string content("some random contents");
+  ASSERT_FALSE(curl_easy_setopt(handle, CURLOPT_COPYPOSTFIELDS, content.c_str()));
+  tmp = curl_slist_append(slist, (std::string("Content-Length: ") + std::to_string(content.size())).c_str());
+  tmp = curl_slist_append(tmp, "Content-Type: application/soap+xml");
+  ASSERT_FALSE(curl_easy_setopt(handle, CURLOPT_HTTPHEADER, slist));
   ASSERT_EQ(CURLE_OK, curl_easy_perform(handle));
   long responsecode = 0;
   curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &responsecode);

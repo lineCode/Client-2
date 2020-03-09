@@ -520,7 +520,7 @@ int HttpServer::Update()
   users_.erase(std::remove_if(users_.begin(), users_.end(), [this, now](const User& user) { return ((now - user.GetLastRequestTime()) > usertimeout_); }), users_.end());
 
   // Sort out nonces
-  for (auto& user : users_)
+  for (onvif::server::User& user : users_)
   {
     // Timeout current nonce
     if ((now - user.GetNonce().GetTime()) > noncetimeout_)

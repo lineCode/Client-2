@@ -2,6 +2,5 @@ namespace monocle;
 
 enum MetadataFrameType : uint16
 {
-  ONVIF_XML = 1,
-  OBJECT_DETECTION = 2
+  ONVIF_XML = 1
 }

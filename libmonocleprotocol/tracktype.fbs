@@ -4,5 +4,6 @@ enum TrackType : byte
 {
   Video = 0,
   Audio = 1,
-  Metadata = 2
+  Metadata = 2,
+  ObjectDetector = 3
 }

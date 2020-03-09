@@ -112,6 +112,16 @@ struct MPEG4FRAMEHEADER : public FRAMEHEADER
 
 };
 
+struct OBJECTDETECTORFRAMEHEADER : public FRAMEHEADER
+{
+  OBJECTDETECTORFRAMEHEADER(const uint64_t codecindex, const uint64_t offset, const uint64_t size, const uint64_t time, const file::ObjectDetectorFrameType objectdetectorframetype, const std::vector<uint8_t>& signature);
+
+  virtual FrameHeaderType Type() { return FrameHeaderType::OBJECTDETECTOR; };
+
+  file::ObjectDetectorFrameType objectdetectorframetype_;
+
+};
+
 struct TRACK
 {
   TRACK();
@@ -134,7 +144,7 @@ struct RECORDING
 {
   RECORDING();
   RECORDING(const uint64_t index, const std::string& name, const std::string& location);
-  RECORDING(const uint64_t index, const std::string& name, const std::string& location, const boost::container::flat_set<TRACK>& videotracks, const boost::container::flat_set<TRACK>& audiotracks, const boost::container::flat_set<TRACK>& metadatatracks);
+  RECORDING(const uint64_t index, const std::string& name, const std::string& location, const boost::container::flat_set<TRACK>& videotracks, const boost::container::flat_set<TRACK>& audiotracks, const boost::container::flat_set<TRACK>& metadatatracks, const boost::container::flat_set<TRACK>& objectdetectortracks);
 
   boost::container::flat_set<TRACK> GetTracks() const;
 
@@ -147,6 +157,7 @@ struct RECORDING
   boost::container::flat_set<TRACK> videotracks_;
   boost::container::flat_set<TRACK> audiotracks_;
   boost::container::flat_set<TRACK> metadatatracks_;
+  boost::container::flat_set<TRACK> objectdetectortracks_;
   
 };
 

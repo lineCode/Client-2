@@ -6,6 +6,7 @@
 #include "monocleclient/device.h"
 
 #include <boost/range/combine.hpp>
+#include <QMessageBox>
 #include <QStandardPaths>
 #include <QtGlobal>
 #include <QTimer>
@@ -14,6 +15,7 @@
 #include "monocleclient/file.h"
 #include "monocleclient/group.h"
 #include "monocleclient/mainwindow.h"
+#include "monocleclient/managefilewindow.h"
 #include "monocleclient/onvifuser.h"
 #include "monocleclient/receiver.h"
 #include "monocleclient/recording.h"
@@ -71,7 +73,7 @@ bool MOUNTPOINT::operator==(const MOUNTPOINT& rhs) const
   return ((id_ == rhs.id_) && (parentid_ == rhs.parentid_) && (majorstdev_ == rhs.majorstdev_) && (minorstdev_ == rhs.minorstdev_) && (path_ == rhs.path_) && (type_ == rhs.type_) && (source_ == rhs.source_));
 }
 
-Device::Device(const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port, const QString& username, const QString& password) :
+Device::Device(const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port, const QString& username, const QString& password, const uint64_t identifier) :
   Connection(MainWindow::Instance()->GetGUIIOService(), proxyparams, address, port),
   username_(username),
   password_(password),
@@ -81,7 +83,7 @@ Device::Device(const sock::ProxyParams& proxyparams, const QString& address, con
   utctimeoffset_(0),
   numcldevices_(0),
   numcudadevices_(0),
-  identifier_(0),
+  identifier_(identifier),
   logmessages_(1000),
   maxobjectdetectors_(0),
   maxrecordings_(0)
@@ -123,6 +125,8 @@ Device::Device(const sock::ProxyParams& proxyparams, const QString& address, con
   connect(this, &Connection::SignalRecordingJobSourceTrackStateChanged, this, QOverload<const uint64_t, const uint64_t, const uint64_t, const uint64_t, const uint64_t, const monocle::RecordingJobState, const QString&>::of(&Device::SlotRecordingJobSourceTrackStateChanged), Qt::QueuedConnection);
   connect(this, &Connection::SignalRecordingRemoved, this, QOverload<const uint64_t>::of(&Device::SlotRecordingRemoved), Qt::QueuedConnection);
   connect(this, &Connection::SignalRecordingLogMessage, this, QOverload<const uint64_t, const uint64_t, const monocle::Severity, const QString&>::of(&Device::SlotRecordingLogMessage), Qt::QueuedConnection);
+  connect(this, &Connection::SignalRecordingTrackCodecAdded, this, &Device::SlotRecordingTrackCodecAdded, Qt::QueuedConnection);
+  connect(this, &Connection::SignalRecordingTrackCodecRemoved, this, &Device::SlotRecordingTrackCodecRemoved, Qt::QueuedConnection);
   connect(this, &Connection::SignalRecordingTrackLogMessage, this, QOverload<const uint64_t, const uint32_t, const uint64_t, const monocle::Severity, const QString&>::of(&Device::SlotRecordingTrackLogMessage), Qt::QueuedConnection);
   connect(this, &Connection::SignalServerLogMessage, this, QOverload<const uint64_t, const monocle::Severity, const QString&>::of(&Device::SlotServerLogMessage), Qt::QueuedConnection);
   connect(this, &Connection::SignalTrackAdded, this, QOverload<const uint64_t, const uint32_t, const std::string&, const monocle::TrackType, const std::string&, const bool, const bool, const bool, const uint32_t, const std::vector<uint64_t>&, const std::vector<monocle::CODECINDEX>&>::of(&Device::SlotTrackAdded), Qt::QueuedConnection);
@@ -133,6 +137,7 @@ Device::Device(const sock::ProxyParams& proxyparams, const QString& address, con
   connect(this, &Connection::SignalUserAdded, this, QOverload<const uint64_t, const QString&, const uint64_t>::of(&Device::SlotUserAdded), Qt::QueuedConnection);
   connect(this, &Connection::SignalUserChanged, this, QOverload<const uint64_t, const uint64_t>::of(&Device::SlotUserChanged), Qt::QueuedConnection);
   connect(this, &Connection::SignalUserRemoved, this, QOverload<const uint64_t>::of(&Device::SlotUserRemoved), Qt::QueuedConnection);
+  connect(this, &Device::SignalStateChanged, this, &Device::SlotStateChanged, Qt::QueuedConnection);
 }
 
 Device::~Device()
@@ -272,13 +277,14 @@ void Device::DestroyData()
   logmessages_.clear();
 }
 
-void Device::Set(const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port, const QString& username, const QString& password)
+void Device::Set(const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port, const QString& username, const QString& password, const uint64_t identifier)
 {
   proxyparams_ = proxyparams;
   address_ = address;
   port_ = port;
   username_ = username;
   password_ = password;
+  identifier_ = identifier;
   name_ = address;
   SignalNameChanged(name_);
 }
@@ -372,6 +378,7 @@ void Device::Subscribe()
             name_ = QString::fromStdString(subscriberesponse.name_);
             emit SignalNameChanged(name_);
           }
+
           numcldevices_ = subscriberesponse.numcldevices_;
           numcudadevices_ = subscriberesponse.numcudadevices_;
           architecture_ = QString::fromStdString(subscriberesponse.architecture_);
@@ -379,9 +386,14 @@ void Device::Subscribe()
           compiler_ = QString::fromStdString(subscriberesponse.compiler_);
           databasepath_ = QString::fromStdString(subscriberesponse.databasepath_);
           version_ = subscriberesponse.version_;
-          identifier_ = subscriberesponse.identifier_;
           environmentvariables_ = ToStrings(subscriberesponse.environmentalvariables_);
           commandlinevariables_ = ToStrings(subscriberesponse.commandlinevariables_);
+
+          if (identifier_ != subscriberesponse.identifier_)
+          {
+            identifier_ = subscriberesponse.identifier_;
+            MainWindow::Instance()->GetDeviceMgr().Save();
+          }
 
           if (publickey_.Init(subscriberesponse.publickey_))
           {
@@ -1218,6 +1230,16 @@ bool Device::SupportsCreateDefaultJob() const
 }
 
 bool Device::SupportsTrackCodec() const
+{
+  if (version_ < utility::Version(1, 11, 0))
+  {
+
+    return false;
+  }
+  return true;
+}
+
+bool Device::SupportsGetChildFoldersFilter() const
 {
   if (version_ < utility::Version(1, 11, 0))
   {
@@ -2581,6 +2603,52 @@ void Device::SlotUserRemoved(const uint64_t token)
   }
   users_.erase(u);
   emit SignalUserRemoved(token);
+}
+
+void Device::SlotStateChanged(const DEVICESTATE state, const QString& message)
+{
+  if ((state == DEVICESTATE::SUBSCRIBED) && IsValidLicense() && files_.empty() && recordings_.empty()) // If a device looks like it hasn't been setup before, we can help alert the user to setup a location to store data
+  {
+    if (Options::Instance().GetHideNewDeviceDialog() == false)
+    {
+      QCheckBox* checkbox = new QCheckBox("Do not show this again");
+      QMessageBox messagebox;
+      messagebox.setWindowTitle(tr("New Device Found: ") + address_);
+      messagebox.setText("Would you like to setup a location to store video data?");
+      messagebox.setIcon(QMessageBox::Icon::Question);
+      messagebox.addButton(QMessageBox::Yes);
+      messagebox.addButton(QMessageBox::No);
+      messagebox.setDefaultButton(QMessageBox::Yes);
+      messagebox.setCheckBox(checkbox);
+      bool donotshowagain = false;
+      QObject::connect(checkbox, &QCheckBox::stateChanged, [&donotshowagain](int state)
+      {
+        if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
+        {
+          donotshowagain = true;
+
+        }
+        else
+        {
+          donotshowagain = false;
+
+        }
+      });
+      const int ret = messagebox.exec();
+      if (donotshowagain)
+      {
+        Options::Instance().SetHideNewDeviceDialog(true);
+
+      }
+      if (ret != QMessageBox::Yes)
+      {
+
+        return;
+      }
+
+      ManageFileWindow(MainWindow::Instance(), boost::static_pointer_cast<Device>(shared_from_this())).exec();
+    }
+  }
 }
 
 }

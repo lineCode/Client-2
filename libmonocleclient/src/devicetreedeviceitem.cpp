@@ -352,7 +352,7 @@ void DeviceTreeDeviceItem::NameChanged(const QString& name)
 
 void DeviceTreeDeviceItem::RecordingAdded(QSharedPointer<client::Recording>& recording)
 {
-  addChild(new DeviceTreeRecordingItem(this, device_, recording, recordingicon_));
+  addChild(new DeviceTreeRecordingItem(this, device_, recording, recordingicon_, MainWindow::Instance()->GetCameraIcon()));
 
 }
 
@@ -394,7 +394,7 @@ void DeviceTreeDeviceItem::RecordingRemoved(const uint64_t token)
   }
 }
 
-void DeviceTreeDeviceItem::StateChanged(const DEVICESTATE state, const QString& message)
+void DeviceTreeDeviceItem::StateChanged(const client::DEVICESTATE state, const QString& message)
 {
   SetState(state, message);
 

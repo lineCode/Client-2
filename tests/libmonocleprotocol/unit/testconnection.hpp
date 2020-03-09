@@ -66,8 +66,9 @@ class TestConnection : public server::Connection
   virtual Error AddONVIFUser(const std::string& username, const std::string& password, const ONVIFUserlevel onvifuserlevel) override;
   virtual Error AddReceiver(const monocle::ReceiverMode mode, const std::string& uri, const std::string& username, const std::string& password, const std::vector<std::string>& parameters) override;
   virtual std::pair<Error, uint64_t> AddRecording(const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool createdefaulttracks, const bool createdefaultjobs) override;
-  virtual Error AddRecordingJob(const uint64_t recordingtoken, const std::string& name, const bool enabled, const uint64_t priority, const std::vector<monocle::ADDRECORDINGJOBSOURCE>& sources) override;
+  virtual std::pair<Error, uint64_t> AddRecordingJob(const uint64_t recordingtoken, const std::string& name, const bool enabled, const uint64_t priority, const std::vector<monocle::ADDRECORDINGJOBSOURCE>& sources) override;
   virtual std::pair<Error, uint32_t> AddTrack(const uint64_t recordingtoken, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files) override;
+  virtual Error AddTrack2(const uint64_t recordingtoken, const uint64_t recordingjobtoken, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::string& mediauri, const std::string& username, const std::string& password, const std::vector<std::string>& receiverparameters, const std::vector<std::string>& sourceparameters, const std::vector<std::string>& objectdetectorsourceparameters) override;
   virtual Error AddUser(const std::string& username, const std::string& digest, const uint64_t group) override;
   virtual std::pair<Error, AUTHENTICATERESPONSE> Authenticate(const std::string& username, const std::string& clientnonce, const std::string& authdigest) override;
   virtual Error ChangeGroup(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings) override;
@@ -77,6 +78,7 @@ class TestConnection : public server::Connection
   virtual Error ChangeRecording(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime) override;
   virtual Error ChangeRecordingJob(const uint64_t recordingtoken, const uint64_t token, const std::string& name, const bool enabled, const uint64_t priority, const std::vector<CHANGERECORDINGJOBSOURCE>& sources) override;
   virtual Error ChangeTrack(const uint64_t recordingtoken, const uint32_t id, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files) override;
+  virtual Error ChangeTrack2(const uint64_t recordingtoken, const uint32_t trackid, const uint64_t recordingjobtoken, const uint64_t recordingjobsourcetoken, const uint64_t recordingjobsourcetracktoken, const uint32_t objectdetectortrackid, const uint64_t objectdetectorrecordingjobsourcetoken, const uint64_t objectdetectorrecordingjobsourcetracktoken, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::string& mediauri, const std::string& username, const std::string& password, const std::vector<std::string>& receiverparameters, const std::vector<std::string>& sourceparameters, const std::vector<std::string>& objectdetectorsourceparameters) override;
   virtual Error ChangeUser(const uint64_t token, const boost::optional<std::string>& digest, const uint64_t group) override;
   virtual Error ControlStream(const uint64_t streamtoken, const uint64_t playrequestindex, const bool fetchmarker, const bool ratecontrol, const boost::optional<bool>& forwards, const boost::optional<uint64_t>& starttime, const boost::optional<uint64_t>& endtime, const boost::optional<uint64_t>& numframes, const bool iframes) override;
   virtual Error ControlStreamFrameStep(const uint64_t streamtoken, const uint64_t playrequestindex, const bool forwards, const uint64_t sequencenum) override;
@@ -90,7 +92,7 @@ class TestConnection : public server::Connection
   virtual Error DestroyStream(const uint64_t streamtoken) override;
   virtual Error DiscoveryBroadcast() override;
   virtual std::string GetAuthenticationNonce() override;
-  virtual std::pair< Error, std::vector<std::string> > GetChildFolders(const std::string& path) override;
+  virtual std::pair< Error, std::vector<std::string> > GetChildFolders(const std::string& path, const bool parentpaths) override;
   virtual std::pair< Error, std::vector<FILE> > GetFiles() override;
   virtual std::pair< Error, std::vector<RECEIVER> > GetReceivers() override;
   virtual std::pair<Error, monocle::RECORDING> GetRecording(const uint64_t token) override;
@@ -109,6 +111,7 @@ class TestConnection : public server::Connection
   virtual Error RemoveRecordingJob(const uint64_t recordingtoken, const uint64_t token) override;
   virtual Error RemoveRecordingJobSource(const uint64_t recordingtoken, const uint64_t recordingjobtoken, const uint64_t token) override;
   virtual Error RemoveTrack(const uint64_t recordingtoken, const uint32_t id) override;
+  virtual Error RemoveTracks(const uint64_t recordingtoken, const std::vector<uint32_t>& ids) override;
   virtual Error RemoveUser(const uint64_t token) override;
   virtual Error SetName(const std::string& name) override;
   virtual std::pair<Error, SUBSCRIBE> Subscribe() override;

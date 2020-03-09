@@ -254,6 +254,17 @@ void Connection::NewCodecIndex(const uint64_t token, const uint64_t id, const mo
   stream->NewCodecIndex(id, codec, parameters, timestamp);
 }
 
+void Connection::ObjectDetectorFrame(const uint64_t token, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* data, const size_t size)
+{
+  std::vector<Stream>::iterator stream = std::find_if(streams_.begin(), streams_.end(), [token](const Stream& stream) { return (stream.GetToken() == token); });
+  if (stream == streams_.end())
+  {
+    // Just ignore
+    return;
+  }
+  stream->ObjectDetectorFrame(playrequestindex, codecindex, timestamp, sequencenum, progress, signature, signaturesize, objectdetectorframetype, data, size);
+}
+
 void Connection::ONVIFUserAdded(const uint64_t token, const std::string& username, const monocle::ONVIFUserlevel onvifuserlevel)
 {
   emit SignalONVIFUserAdded(token, QString::fromStdString(username), onvifuserlevel);
@@ -476,9 +487,9 @@ monocle::client::Connection Connection::Authenticate(const std::string& username
   return Client::Authenticate(username, clientnonce, authdigest, callback);
 }
 
-monocle::client::Connection Connection::CreateStream(const uint64_t recordingtoken, const uint64_t tracktoken, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::CREATESTREAMRESPONSE&)> callback, const CONTROLSTREAMEND controlstreamendcallback, const H265CALLBACK h265callback, const H264CALLBACK h264callback, const METADATACALLBACK metadatacallback, const JPEGCALLBACK jpegcallback, const MPEG4CALLBACK mpeg4callback, const NEWCODECINDEX newcodecindexcallback, void* callbackdata)
+monocle::client::Connection Connection::CreateStream(const uint64_t recordingtoken, const uint64_t tracktoken, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::CREATESTREAMRESPONSE&)> callback, const CONTROLSTREAMEND controlstreamendcallback, const H265CALLBACK h265callback, const H264CALLBACK h264callback, const METADATACALLBACK metadatacallback, const JPEGCALLBACK jpegcallback, const MPEG4CALLBACK mpeg4callback, const OBJECTDETECTORCALLBACK objectdetectorcallback, const NEWCODECINDEX newcodecindexcallback, void* callbackdata)
 {
-  return Client::CreateStream(recordingtoken, tracktoken, [this, callback, controlstreamendcallback, h265callback, h264callback, metadatacallback, jpegcallback, mpeg4callback, newcodecindexcallback, callbackdata](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
+  return Client::CreateStream(recordingtoken, tracktoken, [this, callback, controlstreamendcallback, h265callback, h264callback, metadatacallback, jpegcallback, mpeg4callback, objectdetectorcallback, newcodecindexcallback, callbackdata](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
   {
     if (createstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
     {
@@ -487,7 +498,7 @@ monocle::client::Connection Connection::CreateStream(const uint64_t recordingtok
     }
 
     // Intercept the response and create our own stream
-    Stream stream(createstreamresponse.token_, controlstreamendcallback, h265callback, h264callback, metadatacallback, jpegcallback, mpeg4callback, newcodecindexcallback, callbackdata);
+    Stream stream(createstreamresponse.token_, controlstreamendcallback, h265callback, h264callback, metadatacallback, jpegcallback, mpeg4callback, objectdetectorcallback, newcodecindexcallback, callbackdata);
     streams_.push_back(stream);
     callback(latency, createstreamresponse);
   });

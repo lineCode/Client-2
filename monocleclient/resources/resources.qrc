@@ -12,12 +12,14 @@
       <file>findobject.png</file>
       <file>colourpicker.png</file>
       <file>framestepbackwards.png</file>
+	  <file>magnifyingglass.png</file>
       <file>pause.ico</file>
       <file>stop.ico</file>
       <file>framestepforwards.png</file>
       <file>export.png</file>
       <file>map.png</file>
       <file>recording.png</file>
+      <file>camera.png</file>
       <file>latencygreen.png</file>
       <file>latencyyellow.png</file>
       <file>latencyred.png</file>

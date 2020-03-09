@@ -36,6 +36,11 @@ boost::optional<TrackType> GetTrackType(const std::string& tracktype)
 
     return TrackType::Metadata;
   }
+  else if (boost::iequals(tracktype, "ObjectDetector"))
+  {
+
+    return TrackType::ObjectDetector;
+  }
   else
   {
   

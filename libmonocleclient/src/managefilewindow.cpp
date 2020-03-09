@@ -11,6 +11,7 @@
 #include <QValidator>
 #include <utility/utility.hpp>
 
+#include "monocleclient/browsefileswindow.h"
 #include "monocleclient/device.h"
 
 ///// Namespaces /////
@@ -37,10 +38,18 @@ ManageFileWindow::ManageFileWindow(QWidget* parent, boost::shared_ptr<Device>& d
 
   ui_.editsize->setValidator(new QIntValidator(1, 536870912, this));
 
+  if (!device_->SupportsGetChildFoldersFilter())
+  {
+    ui_.buttonbrowsemountpoint->setVisible(false);
+    ui_.buttonbrowsepath->setVisible(false);
+    setFixedHeight(minimumSizeHint().height());
+  }
+
   if (device_->IsWindows()) // Windows doesn't care about mount points
   {
     ui_.labelmountpoint->setVisible(false);
     ui_.editmountpoint->setVisible(false);
+    ui_.buttonbrowsemountpoint->setVisible(false);
     setFixedHeight(minimumSizeHint().height());
   }
 
@@ -99,7 +108,27 @@ void ManageFileWindow::SlotMountPointAdded(const uint64_t id, const uint64_t par
   pathmodel_->setStringList(strings);
 }
 
-void ManageFileWindow::on_editpath_textChanged(const QString& text)
+void ManageFileWindow::on_buttonbrowsemountpoint_clicked()
+{
+  BrowseFilesWindow browsefileswindow(this, device_, ui_.editmountpoint->text());
+  if (browsefileswindow.exec() == QDialog::Accepted)
+  {
+    ui_.editmountpoint->setText(browsefileswindow.GetLocation());
+
+  }
+}
+
+void ManageFileWindow::on_buttonbrowsepath_clicked()
+{
+  BrowseFilesWindow browsefileswindow(this, device_, ui_.editpath->text());
+  if (browsefileswindow.exec() == QDialog::Accepted)
+  {
+    ui_.editpath->setText(browsefileswindow.GetLocation());
+
+  }
+}
+
+void ManageFileWindow::on_editpath_textEdited(const QString& text)
 {
   if (!device_->SupportsGetChildFolders())
   {
@@ -118,7 +147,7 @@ void ManageFileWindow::on_editpath_textChanged(const QString& text)
   if (i == requestpaths_.cend())
   {
     requestpaths_.push_back(parentpath);
-    getchildfoldersconnections_.push_back(device_->GetChildFolders(parentpath, [this](const std::chrono::steady_clock::duration latency, const monocle::client::GETCHILDFOLDERSRESPONSE& getchildfoldersresponse)
+    getchildfoldersconnections_.push_back(device_->GetChildFolders(parentpath, true, [this](const std::chrono::steady_clock::duration latency, const monocle::client::GETCHILDFOLDERSRESPONSE& getchildfoldersresponse)
     {
       if (getchildfoldersresponse.GetErrorCode() != monocle::ErrorCode::Success)
       {
@@ -154,8 +183,20 @@ void ManageFileWindow::on_checkfilldisk_toggled(const bool)
 
 void ManageFileWindow::on_buttonok_clicked()
 {
-  std::string mountpoint;
   const std::string path = ui_.editpath->text().toStdString();
+  if (path.empty())
+  {
+    QMessageBox(QMessageBox::Warning, tr("Error"), tr("Path required"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+    return;
+  }
+
+  if (path.back() == '/')
+  {
+    QMessageBox(QMessageBox::Warning, tr("Error"), tr("Path must represent a file, not a directory"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+    return;
+  }
+
+  std::string mountpoint;
   if (device_->IsLinux())
   {
     mountpoint = ui_.editmountpoint->text().toStdString();

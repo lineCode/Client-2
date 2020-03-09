@@ -82,8 +82,10 @@ struct ADDRECORDINGRESPONSE : public RESPONSE
 
 struct ADDRECORDINGJOBRESPONSE : public RESPONSE
 {
-  ADDRECORDINGJOBRESPONSE();
+  ADDRECORDINGJOBRESPONSE(const uint64_t recordingjobtoken);
   ADDRECORDINGJOBRESPONSE(const Error& error);
+
+  uint64_t recordingjobtoken_;
 
 };
 
@@ -93,6 +95,13 @@ struct ADDTRACKRESPONSE : public RESPONSE
   ADDTRACKRESPONSE(const Error& error);
 
   uint32_t token_;
+
+};
+
+struct ADDTRACK2RESPONSE : public RESPONSE
+{
+  ADDTRACK2RESPONSE();
+  ADDTRACK2RESPONSE(const Error& error);
 
 };
 
@@ -156,6 +165,13 @@ struct CHANGETRACKRESPONSE : public RESPONSE
 {
   CHANGETRACKRESPONSE();
   CHANGETRACKRESPONSE(const Error& error);
+
+};
+
+struct CHANGETRACK2RESPONSE : public RESPONSE
+{
+  CHANGETRACK2RESPONSE();
+  CHANGETRACK2RESPONSE(const Error& error);
 
 };
 
@@ -396,6 +412,13 @@ struct REMOVETRACKRESPONSE : public RESPONSE
 {
   REMOVETRACKRESPONSE();
   REMOVETRACKRESPONSE(const Error& error);
+
+};
+
+struct REMOVETRACKSRESPONSE : public RESPONSE
+{
+  REMOVETRACKSRESPONSE();
+  REMOVETRACKSRESPONSE(const Error& error);
 
 };
 

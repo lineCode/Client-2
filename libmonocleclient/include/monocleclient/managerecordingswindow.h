@@ -54,8 +54,6 @@ class ManageRecordingsWindow : public QDialog
   void on_tablerecordings_itemSelectionChanged();
   void on_buttonadd_clicked();
   void on_buttonedit_clicked();
-  void on_buttonmanagetracks_clicked();
-  void on_buttonmanagerecordingjobs_clicked();
   void on_buttonremove_clicked();
 
 

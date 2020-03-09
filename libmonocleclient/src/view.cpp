@@ -691,6 +691,7 @@ void View::GetMenu(QMenu& parent)
         }
         if (added)
         {
+
           break;
         }
       }

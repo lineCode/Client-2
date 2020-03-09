@@ -412,6 +412,11 @@ void FindMotionWindow::MPEG4Callback(const uint64_t streamtoken, const uint64_t 
   }
 }
 
+void FindMotionWindow::ObjectDetectorCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
+{
+
+}
+
 void FindMotionWindow::NewCodecIndexCallback(const uint64_t streamtoken, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp, void* callbackdata)
 {
   FindMotionWindow* findmotionwindow = reinterpret_cast<FindMotionWindow*>(callbackdata);
@@ -708,7 +713,7 @@ void FindMotionWindow::on_buttonsearch_clicked()
             getsnapshotconnections_.clear();
             findmotiontoken_ = createfindmotionresponse.token_;
           });
-        }, FindMotionWindow::ControlStreamEnd, FindMotionWindow::H265Callback, FindMotionWindow::H264Callback, FindMotionWindow::MetadataCallback, FindMotionWindow::JPEGCallback, FindMotionWindow::MPEG4Callback, FindMotionWindow::NewCodecIndexCallback, this);
+        }, FindMotionWindow::ControlStreamEnd, FindMotionWindow::H265Callback, FindMotionWindow::H264Callback, FindMotionWindow::MetadataCallback, FindMotionWindow::JPEGCallback, FindMotionWindow::MPEG4Callback, FindMotionWindow::ObjectDetectorCallback, FindMotionWindow::NewCodecIndexCallback, this);
       });
     });
   });

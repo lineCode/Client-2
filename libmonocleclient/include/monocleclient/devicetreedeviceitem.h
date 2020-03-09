@@ -109,7 +109,7 @@ class DeviceTreeDeviceItem : public DeviceTreeItem
   void RecordingAdded(QSharedPointer<client::Recording>& recording);
   void RecordingChanged(QSharedPointer<client::Recording>& recording);
   void RecordingRemoved(const uint64_t token);
-  void StateChanged(const DEVICESTATE state, const QString& message);
+  void StateChanged(const client::DEVICESTATE state, const QString& message);
   void LicenseStateChanged(const bool valid);
 
 };

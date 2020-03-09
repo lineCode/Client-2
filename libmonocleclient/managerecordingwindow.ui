@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>627</width>
-    <height>169</height>
+    <height>123</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>100</width>
-    <height>169</height>
+    <height>123</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -28,20 +28,6 @@
   <layout class="QGridLayout" name="gridLayout">
    <item row="8" column="0" colspan="2">
     <layout class="QGridLayout" name="gridLayout_2">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>Name:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Location:</string>
-       </property>
-      </widget>
-     </item>
      <item row="2" column="1">
       <widget class="QLineEdit" name="editlocation">
        <property name="toolTip">
@@ -56,27 +42,7 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="editname"/>
-     </item>
-     <item row="3" column="0" rowspan="2" colspan="2">
-      <widget class="QCheckBox" name="checkcreatedefaulttracks">
-       <property name="text">
-        <string>Create Default Tracks</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QSpinBox" name="spinretentiontime">
-       <property name="toolTip">
-        <string>Zero represents no forced retention time</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0" colspan="2">
+     <item row="3" column="0" colspan="2">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QPushButton" name="buttonok">
@@ -94,13 +60,27 @@
        </item>
       </layout>
      </item>
-     <item row="5" column="0" colspan="2">
-      <widget class="QCheckBox" name="checkcreatedefaultjob">
+     <item row="2" column="0">
+      <widget class="QLabel" name="label">
        <property name="text">
-        <string>Create Default Job</string>
+        <string>Location:</string>
        </property>
-       <property name="checked">
-        <bool>true</bool>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QSpinBox" name="spinretentiontime">
+       <property name="toolTip">
+        <string>Zero represents no forced retention time</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="editname"/>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Name:</string>
        </property>
       </widget>
      </item>
@@ -112,7 +92,6 @@
   <tabstop>editname</tabstop>
   <tabstop>spinretentiontime</tabstop>
   <tabstop>editlocation</tabstop>
-  <tabstop>checkcreatedefaulttracks</tabstop>
   <tabstop>buttonok</tabstop>
   <tabstop>buttoncancel</tabstop>
  </tabstops>

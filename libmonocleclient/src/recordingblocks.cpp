@@ -91,6 +91,11 @@ void RecordingBlocks::Init()
       recordingtracks_.emplace(metadatatrack->GetId(), InitRecordingBlocks(metadatatrack));
 
     }
+    for (const QSharedPointer<RecordingTrack>& objectdetectortrack : videoview->GetRecording()->GetObjectDetectorTracks())
+    {
+      recordingtracks_.emplace(objectdetectortrack->GetId(), InitRecordingBlocks(objectdetectortrack));
+
+    }
   }
 
   recordingblockvertices_.create();
@@ -273,7 +278,7 @@ void RecordingBlocks::JobSourceTrackStateChanged(const QSharedPointer<client::Re
   const boost::optional< std::pair<uint64_t, uint64_t> > startendtime = playbackwidget_->GetStartEndTime();
   if (state == monocle::RecordingJobState::Active) // Create or extend the RecordingBlock
   {
-    const bool metadata = track->GetTrack()->GetTrackType() == monocle::TrackType::Metadata;
+    const bool metadata = (track->GetTrack()->GetTrackType() == monocle::TrackType::Metadata) || (track->GetTrack()->GetTrackType() == monocle::TrackType::ObjectDetector);
     if (recordingtrack->second.empty())
     {
       std::unique_ptr<RecordingBlock> rb = std::make_unique<RecordingBlock>(metadata, time, playbackwidget_->GetGlobalEndTime());
@@ -351,7 +356,7 @@ void RecordingBlocks::TrackDeleteData(const QSharedPointer<client::RecordingTrac
   recordingtrack->second.erase(std::remove_if(recordingtrack->second.begin(), recordingtrack->second.end(), [s, e](const std::unique_ptr<RecordingBlock>& index) { return ((index->GetStartTime() >= s) && (index->GetEndTime() <= e)); }), recordingtrack->second.end()); // Remove any indices that are completely out of scope
 
   // If we are cutting an index from both sides, we need to split it. This can only happen if both start and end are both not chopping indefinitely
-  const bool metadata = track->GetTrackType() == monocle::TrackType::Metadata;
+  const bool metadata = (track->GetTrackType() == monocle::TrackType::Metadata) || (track->GetTrackType() == monocle::TrackType::ObjectDetector);
   if (start.is_initialized() && end.is_initialized())
   {
     std::vector< std::pair<uint64_t, uint64_t> > splitindices;
@@ -406,7 +411,7 @@ void RecordingBlocks::TrackDeleteData(const QSharedPointer<client::RecordingTrac
 
 std::vector< std::unique_ptr<RecordingBlock> > RecordingBlocks::InitRecordingBlocks(const QSharedPointer<client::RecordingTrack> track) const
 {
-  const bool metadata = track->GetTrackType() == monocle::TrackType::Metadata;
+  const bool metadata = (track->GetTrackType() == monocle::TrackType::Metadata) || (track->GetTrackType() == monocle::TrackType::ObjectDetector);
   const int64_t offset = qSharedPointerCast<VideoView>(view_)->GetDevice()->GetTimeOffset();
   std::vector< std::unique_ptr<RecordingBlock> > recordingblocks;
   for (const std::pair<uint64_t, uint64_t>& index : track->GetIndices())

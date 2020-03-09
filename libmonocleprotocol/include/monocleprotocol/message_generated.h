@@ -74,6 +74,9 @@ enum class Message : uint16_t {
   GETSNAPSHOT = 62,
   CREATEFINDOBJECT = 63,
   DESTROYFINDOBJECT = 64,
+  ADDTRACK2 = 65,
+  CHANGETRACK2 = 66,
+  REMOVETRACKS = 67,
   CONTROLSTREAMEND = 8000,
   DISCOVERYHELLO = 8001,
   FILEADDED = 8002,
@@ -139,11 +142,12 @@ enum class Message : uint16_t {
   FINDOBJECTPROGRESS = 8063,
   RECORDINGTRACKCODECADDED = 8064,
   RECORDINGTRACKCODECREMOVED = 8065,
+  OBJECTDETECTORFRAME = 8066,
   MIN = ADDFILE,
-  MAX = RECORDINGTRACKCODECREMOVED
+  MAX = OBJECTDETECTORFRAME
 };
 
-inline const Message (&EnumValuesMessage())[130] {
+inline const Message (&EnumValuesMessage())[134] {
   static const Message values[] = {
     Message::ADDFILE,
     Message::ADDGROUP,
@@ -210,6 +214,9 @@ inline const Message (&EnumValuesMessage())[130] {
     Message::GETSNAPSHOT,
     Message::CREATEFINDOBJECT,
     Message::DESTROYFINDOBJECT,
+    Message::ADDTRACK2,
+    Message::CHANGETRACK2,
+    Message::REMOVETRACKS,
     Message::CONTROLSTREAMEND,
     Message::DISCOVERYHELLO,
     Message::FILEADDED,
@@ -274,7 +281,8 @@ inline const Message (&EnumValuesMessage())[130] {
     Message::FINDOBJECTRESULT,
     Message::FINDOBJECTPROGRESS,
     Message::RECORDINGTRACKCODECADDED,
-    Message::RECORDINGTRACKCODECREMOVED
+    Message::RECORDINGTRACKCODECREMOVED,
+    Message::OBJECTDETECTORFRAME
   };
   return values;
 }
@@ -346,6 +354,9 @@ inline const char *EnumNameMessage(Message e) {
     case Message::GETSNAPSHOT: return "GETSNAPSHOT";
     case Message::CREATEFINDOBJECT: return "CREATEFINDOBJECT";
     case Message::DESTROYFINDOBJECT: return "DESTROYFINDOBJECT";
+    case Message::ADDTRACK2: return "ADDTRACK2";
+    case Message::CHANGETRACK2: return "CHANGETRACK2";
+    case Message::REMOVETRACKS: return "REMOVETRACKS";
     case Message::CONTROLSTREAMEND: return "CONTROLSTREAMEND";
     case Message::DISCOVERYHELLO: return "DISCOVERYHELLO";
     case Message::FILEADDED: return "FILEADDED";
@@ -411,6 +422,7 @@ inline const char *EnumNameMessage(Message e) {
     case Message::FINDOBJECTPROGRESS: return "FINDOBJECTPROGRESS";
     case Message::RECORDINGTRACKCODECADDED: return "RECORDINGTRACKCODECADDED";
     case Message::RECORDINGTRACKCODECREMOVED: return "RECORDINGTRACKCODECREMOVED";
+    case Message::OBJECTDETECTORFRAME: return "OBJECTDETECTORFRAME";
     default: return "";
   }
 }

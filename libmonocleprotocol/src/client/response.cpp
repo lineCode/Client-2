@@ -95,14 +95,16 @@ ADDRECORDINGRESPONSE::ADDRECORDINGRESPONSE(const Error& error) :
 
 }
 
-ADDRECORDINGJOBRESPONSE::ADDRECORDINGJOBRESPONSE() :
-  RESPONSE(Error(ErrorCode::Success, std::string()))
+ADDRECORDINGJOBRESPONSE::ADDRECORDINGJOBRESPONSE(const uint64_t recordingjobtoken) :
+  RESPONSE(Error(ErrorCode::Success, std::string())),
+  recordingjobtoken_(recordingjobtoken)
 {
 
 }
 
 ADDRECORDINGJOBRESPONSE::ADDRECORDINGJOBRESPONSE(const Error& error) :
-  RESPONSE(error)
+  RESPONSE(error),
+  recordingjobtoken_(0)
 {
 
 }
@@ -117,6 +119,18 @@ ADDTRACKRESPONSE::ADDTRACKRESPONSE(const uint32_t token) :
 ADDTRACKRESPONSE::ADDTRACKRESPONSE(const Error& error) :
   RESPONSE(error),
   token_(0)
+{
+
+}
+
+ADDTRACK2RESPONSE::ADDTRACK2RESPONSE() :
+  RESPONSE(Error(ErrorCode::Success, std::string()))
+{
+
+}
+
+ADDTRACK2RESPONSE::ADDTRACK2RESPONSE(const Error& error) :
+  RESPONSE(error)
 {
 
 }
@@ -224,6 +238,18 @@ CHANGETRACKRESPONSE::CHANGETRACKRESPONSE() :
 }
 
 CHANGETRACKRESPONSE::CHANGETRACKRESPONSE(const Error& error) :
+  RESPONSE(error)
+{
+
+}
+
+CHANGETRACK2RESPONSE::CHANGETRACK2RESPONSE() :
+  RESPONSE(Error(ErrorCode::Success, std::string()))
+{
+
+}
+
+CHANGETRACK2RESPONSE::CHANGETRACK2RESPONSE(const Error& error) :
   RESPONSE(error)
 {
 
@@ -593,6 +619,18 @@ REMOVETRACKRESPONSE::REMOVETRACKRESPONSE() :
 }
 
 REMOVETRACKRESPONSE::REMOVETRACKRESPONSE(const Error& error) :
+  RESPONSE(error)
+{
+
+}
+
+REMOVETRACKSRESPONSE::REMOVETRACKSRESPONSE() :
+  RESPONSE(Error(ErrorCode::Success, std::string()))
+{
+
+}
+
+REMOVETRACKSRESPONSE::REMOVETRACKSRESPONSE(const Error& error) :
   RESPONSE(error)
 {
 

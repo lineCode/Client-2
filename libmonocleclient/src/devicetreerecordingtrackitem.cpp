@@ -5,12 +5,16 @@
 
 #include "monocleclient/devicetreerecordingtrackitem.h"
 
+#include <network/uri.hpp>
 #include <QMenu>
 #include <QMessageBox>
 
 #include "monocleclient/mainwindow.h"
-#include "monocleclient/managerecordingtrackwindow.h"
+#include "monocleclient/manageonvifwindow.h"
+#include "monocleclient/managetrackwindow.h"
+#include "monocleclient/receiver.h"
 #include "monocleclient/recording.h"
+#include "monocleclient/recordingjobsource.h"
 #include "monocleclient/recordinglogwindow.h"
 #include "monocleclient/recordingtrack.h"
 
@@ -21,19 +25,26 @@ namespace client
 
 ///// Methods /////
 
-DeviceTreeRecordingTrackItem::DeviceTreeRecordingTrackItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingTrack>& track) :
+DeviceTreeRecordingTrackItem::DeviceTreeRecordingTrackItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource, const QSharedPointer<client::RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<client::RecordingTrack>& track, const QIcon& cameraicon) :
   DeviceTreeItem(parent, GetName(track)),
   device_(device),
   recording_(recording),
+  recordingjob_(recordingjob),
+  recordingjobsource_(recordingjobsource),
+  recordingjobsourcetrack_(recordingjobsourcetrack),
   track_(track),
   edit_(new QAction("Edit", this)),
   remove_(new QAction("Remove", this)),
+  managedevice_(new QAction("Manage Device", this)),
   viewlog_(new QAction("View Log", this))
 {
   connect(edit_, &QAction::triggered, this, &DeviceTreeRecordingTrackItem::Edit);
   connect(remove_, &QAction::triggered, this, &DeviceTreeRecordingTrackItem::Remove);
+  connect(managedevice_, &QAction::triggered, this, &DeviceTreeRecordingTrackItem::ManageDevice);
   connect(viewlog_, &QAction::triggered, this, &DeviceTreeRecordingTrackItem::ViewLog);
   connect(recording.get(), &Recording::TrackChanged, this, &DeviceTreeRecordingTrackItem::TrackChanged);
+
+  setIcon(0, cameraicon);
 }
 
 DeviceTreeRecordingTrackItem::~DeviceTreeRecordingTrackItem()
@@ -44,9 +55,21 @@ DeviceTreeRecordingTrackItem::~DeviceTreeRecordingTrackItem()
 
 void DeviceTreeRecordingTrackItem::ContextMenuEvent(const QPoint& pos)
 {
+  const QSharedPointer<Receiver> receiver = device_->GetReceiver(recordingjobsource_->GetReceiverToken());
+  if (!receiver)
+  {
+    QMessageBox(QMessageBox::Warning, tr("Error"), tr("Unable to find receiver: ") + QString::number(recordingjobsource_->GetReceiverToken()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+    return;
+  }
+
   QMenu* menu = new QMenu(treeWidget());
   menu->addAction(edit_);
   menu->addAction(remove_);
+  if (IsONVIF(receiver->GetMediaUri().toStdString()))
+  {
+    menu->addAction(managedevice_);
+
+  }
   menu->addAction(viewlog_);
   menu->exec(pos);
 }
@@ -73,12 +96,44 @@ void DeviceTreeRecordingTrackItem::DoubleClicked()
 
 QString DeviceTreeRecordingTrackItem::GetName(const QSharedPointer<client::RecordingTrack>& track) const
 {
-  return (track->GetDescription() + "(" + monocle::EnumNameTrackType(track->GetTrackType()) + ")");
+  if (track->GetDescription().isEmpty())
+  {
+
+    return monocle::EnumNameTrackType(track->GetTrackType());
+  }
+  else
+  {
+
+    return track->GetDescription();
+  }
+}
+
+bool DeviceTreeRecordingTrackItem::IsONVIF(const std::string& mediauri) const
+{
+  try
+  {
+    const network::uri uri(mediauri);
+    if (uri.has_scheme() && (uri.scheme().compare("http") == 0) && uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))
+    {
+
+      return true;
+    }
+    else
+    {
+
+      return false;
+    }
+  }
+  catch (...)
+  {
+
+    return false;
+  }
 }
 
 void DeviceTreeRecordingTrackItem::Edit(bool)
 {
-  ManageRecordingTrackWindow(treeWidget(), device_, recording_, track_).exec();
+  ManageTrackWindow(treeWidget(), device_, recording_, recordingjob_, recordingjobsource_, recordingjobsourcetrack_, track_, QString()).exec();
 
 }
 
@@ -86,15 +141,43 @@ void DeviceTreeRecordingTrackItem::Remove(bool)
 {
   if (QMessageBox::question(treeWidget(), tr("Remove"), tr("Are you sure?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
   {
-    removetrackconnection_ = device_->RemoveTrack(recording_->GetToken(), track_->GetId(), [](const std::chrono::steady_clock::duration latency, const monocle::client::REMOVETRACKRESPONSE& removetrackresponse)
+    std::vector<uint32_t> removetracks = { track_->GetId() };
+    for (const QSharedPointer<RecordingTrack>& track : recording_->GetObjectDetectorTracks())
     {
-      if (removetrackresponse.GetErrorCode() != monocle::ErrorCode::Success)
+      if (track->GetToken() == QString::number(track_->GetId()))
       {
-        QMessageBox(QMessageBox::Warning, tr("Error"), tr("Remove failed: ") + QString::fromStdString(removetrackresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+        removetracks.push_back(track->GetId());
+
+      }
+    }
+
+    removetrackconnection_ = device_->RemoveTracks(recording_->GetToken(), removetracks, [](const std::chrono::steady_clock::duration latency, const monocle::client::REMOVETRACKSRESPONSE& removetracksresponse)
+    {
+      if (removetracksresponse.GetErrorCode() != monocle::ErrorCode::Success)
+      {
+        QMessageBox(QMessageBox::Warning, tr("Error"), tr("Remove failed: ") + QString::fromStdString(removetracksresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
         return;
       }
     });
   }
+}
+
+void DeviceTreeRecordingTrackItem::ManageDevice(bool)
+{
+  const QSharedPointer<Receiver> receiver = device_->GetReceiver(recordingjobsource_->GetReceiverToken());
+  if (!receiver)
+  {
+    QMessageBox(QMessageBox::Warning, tr("Error"), tr("Unable to find receiver: ") + QString::number(recordingjobsource_->GetReceiverToken()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+    return;
+  }
+
+  if (!IsONVIF(receiver->GetMediaUri().toStdString()))
+  {
+
+    return;
+  }
+  
+  ManageONVIFWindow(treeWidget(), sock::ProxyParams(sock::PROXYTYPE_HTTP, device_->GetAddress().toStdString(), device_->GetPort(), true, device_->GetUsername().toStdString(), device_->GetPassword().toStdString()), receiver->GetMediaUri(), receiver->GetUsername(), receiver->GetPassword()).exec();
 }
 
 void DeviceTreeRecordingTrackItem::ViewLog(bool)

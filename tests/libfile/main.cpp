@@ -112,7 +112,7 @@ TEST(TestFile, Frames)
           std::sort(frameheaders.begin(), frameheaders.end(), [](const std::shared_ptr<file::FRAMEHEADER>& lhs, const std::shared_ptr<file::FRAMEHEADER>& rhs) { return (lhs->time_ < rhs->time_); });
           tracks.insert(file::TRACK(track, std::to_string(track), codecs, frameheaders));
         }
-        recordings.insert(file::RECORDING(recording, std::to_string(recording), std::to_string(recording), tracks, boost::container::flat_set<file::TRACK>(), boost::container::flat_set<file::TRACK>()));
+        recordings.insert(file::RECORDING(recording, std::to_string(recording), std::to_string(recording), tracks, boost::container::flat_set<file::TRACK>(), boost::container::flat_set<file::TRACK>(), boost::container::flat_set<file::TRACK>()));
       }
       file.devices_.insert(file::DEVICE(device, "name", "address", "signingkey", recordings));
     }

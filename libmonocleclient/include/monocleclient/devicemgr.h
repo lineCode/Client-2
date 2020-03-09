@@ -6,8 +6,10 @@
 
 ///// Includes /////
 
+#include <boost/asio/ip/address.hpp>
 #include <boost/optional.hpp>
 #include <memory>
+#include <mutex>
 #include <socket/proxyparams.hpp>
 #include <QObject>
 #include <QStringList>
@@ -40,12 +42,12 @@ class DeviceMgr : public QObject
 
   void Save();
 
-  boost::shared_ptr<Device> AddDevice(const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port, const QString& username, const QString& password, bool save);
+  boost::shared_ptr<Device> AddDevice(const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port, const QString& username, const QString& password, const uint64_t identifier, bool save);
   int RemoveDevice(boost::shared_ptr<Device>& device);
 
   inline std::vector< boost::shared_ptr<Device> >& GetDevices() { return devices_; }
+  std::vector< boost::shared_ptr<Device> > GetDevices(const std::vector< std::pair<boost::asio::ip::address, uint16_t> >& addresses, const uint64_t identifier); // <address, port>
   std::vector< boost::shared_ptr<Device> > GetDevices(const uint64_t identifier);
-
   boost::shared_ptr<Device> GetDevice(const uint64_t identifier) const;
 
   QStringList GetLocations() const;
@@ -55,6 +57,7 @@ class DeviceMgr : public QObject
 
  private:
 
+  mutable std::recursive_mutex mutex_;
   std::vector< boost::shared_ptr<Device> > devices_;
 
  signals:

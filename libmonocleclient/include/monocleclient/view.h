@@ -58,10 +58,10 @@ class VideoWidget;
 
 enum class ROTATION : int
 {
-  _0,
-  _90,
-  _180,
-  _270
+  _0 = 0,
+  _90 = 90,
+  _180 = 180,
+  _270 = 270
 };
 
 enum VIEWTYPE

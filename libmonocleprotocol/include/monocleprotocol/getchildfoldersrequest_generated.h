@@ -12,15 +12,20 @@ struct GetChildFoldersRequest;
 
 struct GetChildFoldersRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_PATH = 4
+    VT_PATH = 4,
+    VT_PARENTPATHS = 6
   };
   const flatbuffers::String *path() const {
     return GetPointer<const flatbuffers::String *>(VT_PATH);
+  }
+  bool parentpaths() const {
+    return GetField<uint8_t>(VT_PARENTPATHS, 1) != 0;
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_PATH) &&
            verifier.VerifyString(path()) &&
+           VerifyField<uint8_t>(verifier, VT_PARENTPATHS) &&
            verifier.EndTable();
   }
 };
@@ -30,6 +35,9 @@ struct GetChildFoldersRequestBuilder {
   flatbuffers::uoffset_t start_;
   void add_path(flatbuffers::Offset<flatbuffers::String> path) {
     fbb_.AddOffset(GetChildFoldersRequest::VT_PATH, path);
+  }
+  void add_parentpaths(bool parentpaths) {
+    fbb_.AddElement<uint8_t>(GetChildFoldersRequest::VT_PARENTPATHS, static_cast<uint8_t>(parentpaths), 1);
   }
   explicit GetChildFoldersRequestBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -45,19 +53,23 @@ struct GetChildFoldersRequestBuilder {
 
 inline flatbuffers::Offset<GetChildFoldersRequest> CreateGetChildFoldersRequest(
     flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::String> path = 0) {
+    flatbuffers::Offset<flatbuffers::String> path = 0,
+    bool parentpaths = true) {
   GetChildFoldersRequestBuilder builder_(_fbb);
   builder_.add_path(path);
+  builder_.add_parentpaths(parentpaths);
   return builder_.Finish();
 }
 
 inline flatbuffers::Offset<GetChildFoldersRequest> CreateGetChildFoldersRequestDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
-    const char *path = nullptr) {
+    const char *path = nullptr,
+    bool parentpaths = true) {
   auto path__ = path ? _fbb.CreateString(path) : 0;
   return monocle::CreateGetChildFoldersRequest(
       _fbb,
-      path__);
+      path__,
+      parentpaths);
 }
 
 }  // namespace monocle

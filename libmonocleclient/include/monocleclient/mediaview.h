@@ -136,7 +136,7 @@ class MediaView : public View
 
   };
 
-  Q_INVOKABLE void MetadataCallback(const uint64_t playrequestindex, const size_t streamindex, const size_t frame);
+  Q_INVOKABLE void ObjectDetectorCallback(const uint64_t playrequestindex, const size_t streamindex, const size_t frame);
 
   void Init(const size_t deviceindex, const size_t recordingindex, const size_t trackindex, boost::optional<uint64_t> starttime);
   void FrameStepForwards(const bool mainstream, const uint64_t playrequestindex, const boost::shared_ptr<MediaStream>& stream, size_t& frame, std::unique_ptr< uint8_t[], utility::DeleteAligned<uint8_t> >& buffer, size_t& buffersize);

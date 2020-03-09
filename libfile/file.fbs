@@ -6,13 +6,18 @@ enum FrameHeaderType : byte
   JPEG = 2,
   METADATA = 3,
   MPEG4 = 4,
-  H265 = 5
+  H265 = 5,
+  OBJECTDETECTOR = 6
 }
 
 enum MetadataFrameType : uint16
 {
-  ONVIF_XML = 1,
-  OBJECT_DETECTION = 2
+  ONVIF_XML = 1
+}
+
+enum ObjectDetectorFrameType : uint16
+{
+  OBJECT_DETECTOR = 1
 }
 
 table Codec
@@ -77,6 +82,15 @@ table MPEG4Frame
   data:[ubyte] (id:4);
 }
 
+table ObjectDetectorFrame
+{
+  codecindex:uint64 (id:0);
+  time:uint64 (id:1);
+  signature:[ubyte] (id:2);
+  objectdetectorframetype:ObjectDetectorFrameType = OBJECT_DETECTOR (id:3);
+  data:[ubyte] (id:4);
+}
+
 table FrameHeader
 {
   offset:uint64 (id:0);
@@ -93,6 +107,7 @@ table Track
   jpegframeheaders:[FrameHeader] (id:5);
   metadataframeheaders:[FrameHeader] (id:6);
   mpeg4frameheaders:[FrameHeader] (id:7);
+  objectdetectorframeheaders:[FrameHeader] (id:8);
 }
 
 table Recording
@@ -103,6 +118,7 @@ table Recording
   videotracks:[Track] (id:3);
   audiotracks:[Track] (id:4);
   metadatatracks:[Track] (id:5);
+  objectdetectortracks:[Track] (id:6);
 }
 
 table Device

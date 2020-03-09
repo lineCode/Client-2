@@ -19,13 +19,20 @@
 #include <QStandardPaths>
 #include <QTimer>
 #include <QToolBar>
+#include <random>
 #include <utility/ioservicepool.hpp>
 
 #include "monocleclient/aboutwindow.h"
 #include "monocleclient/devicemgr.h"
 #include "monocleclient/editdevicewindow.h"
+#include "monocleclient/managetrackwindow.h"
+#include "monocleclient/newcameraquestionwindow.h"
 #include "monocleclient/options.h"
 #include "monocleclient/optionswindow.h"
+#include "monocleclient/receiver.h"
+#include "monocleclient/recording.h"
+#include "monocleclient/recordingjob.h"
+#include "monocleclient/recordingjobsource.h"
 #include "monocleclient/updatewindow.h"
 
 ///// Defines /////
@@ -52,6 +59,10 @@ static const QString MAINVIDEOWINDOWWIDTH("mainvideowindowwidth");
 static const QString MAINVIDEOWINDOWHEIGHT("videowindowheight");
 static const QString MAINVIDEOWINDOWSHOWTOOLBAR("videowindowshowtoolbar");
 static const QString MAINSHOWTOOLBAR("showtoolbar");
+static const QString NEWDEVICEIDENTIFIERS("newdeviceidentifiers");
+static const QString NEWCAMERAS("newcameras");
+
+static const std::chrono::seconds DISCOVERY_DELAY(30);
 
 ///// Methods /////
 
@@ -79,8 +90,11 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   translationsdirectory_((QCoreApplication::applicationDirPath() + QString("/translations"))),
   arial_(new QResource(":/arial.ttf")),
   showfullscreen_(":/showfullscreen.png"),
+  cameraicon_(":/camera.png"),
   gen_(rd_()),
-  hsvcolordist_(0.0, 1.0),
+  hcolordist_(0.0, 1.0),
+  scolordist_(0.4, 1.0),
+  vcolordist_(0.6, 1.0),
   ioservicepool_(numioservices, numioservicethreads, [](){}, [](){}),
   guiioservice_(0),
   tray_(new QSystemTrayIcon(QIcon(":/icon.ico"), this)),
@@ -88,7 +102,9 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   qttranslator_(new QTranslator(this)),
   videowidgetsmgr_(arial_, showfullscreen_),
   checkforupdate_(version_),
-  colourpickercolour_(2.0f, 2.0f, 2.0f)
+  colourpickercolour_(2.0f, 2.0f, 2.0f),
+  discoverytimer_(-1),
+  iotimer_(-1)
 {
   instance_ = this;
 
@@ -126,6 +142,9 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
     LOG_GUI_WARNING(tr("Failed to load font: IBMPlexSans-Regular.ttf"));
 
   }
+
+  ui_.editdevicetreefilter->addAction(QIcon(":/magnifyingglass.png"), QLineEdit::LeadingPosition);
+  ui_.editdevicetreefilter->setPlaceholderText("Filter...");
 
   // Collect all short month names for later
   std::array<char, 256> buffer;
@@ -246,6 +265,26 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   ui_.actionplayback->setChecked(ui_.dockplayback->isVisible());
   ui_.actiontoolbar->setChecked(ui_.toolbar->isVisible());
 
+  // Devices to not the warn the user about
+  for (const QString& newdeviceidentifier : settings.value(NEWDEVICEIDENTIFIERS).toStringList())
+  {
+    try
+    {
+      newdeviceidentifiers_.push_back(boost::lexical_cast<uint64_t>(newdeviceidentifier.toStdString()));
+
+    }
+    catch (...)
+    {
+
+    }
+  }
+
+  for (const QString& newcamera : settings.value(NEWCAMERAS).toStringList())
+  {
+    newcameras_.push_back(std::make_pair(true, newcamera));
+
+  }
+
   // Translations
   QActionGroup* langgroup = new QActionGroup(ui_.menulanguage);
   langgroup->setExclusive(true);
@@ -354,7 +393,20 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
 
   }
 
-  startTimer(100);
+  discover_ = boost::make_shared<onvif::wsdiscover::WsDiscoverClient>(MainWindow::Instance()->GetGUIIOService());
+  discover_->hello_.connect([this](const std::vector<std::string>& addresses, const std::vector<std::string>& scopes) { DiscoverCallback(addresses, scopes); });
+  if (discover_->Init())
+  {
+    LOG_GUI_WARNING(QString("WsDiscoverClient::Init failed"));
+
+  }
+
+  if (Options::Instance().GetDiscoveryHelper())
+  {
+    discoverytimer_ = startTimer(DISCOVERY_DELAY);
+
+  }
+  iotimer_ = startTimer(100);
 }
 
 MainWindow::~MainWindow()
@@ -393,6 +445,26 @@ MainWindow::~MainWindow()
     }
   }
   cudadevices_.clear();
+}
+
+void MainWindow::SetDiscoveryHelper(const bool discoveryhelper)
+{
+  if (discoveryhelper)
+  {
+    if (discoverytimer_ == -1)
+    {
+      discoverytimer_ = startTimer(DISCOVERY_DELAY);
+
+    }
+  }
+  else
+  {
+    if (discoverytimer_ != -1)
+    {
+      killTimer(discoverytimer_);
+      discoverytimer_ = -1;
+    }
+  }
 }
 
 void MainWindow::ShortMonthName(const int mon, std::vector<char>& buffer) const
@@ -468,12 +540,12 @@ void MainWindow::ShowHideDocks()
 
 QColor MainWindow::GetRandomHSVColour()
 {
-  return QColor::fromHsvF(hsvcolordist_(gen_), hsvcolordist_(gen_), hsvcolordist_(gen_), 1.0f);
+  return QColor::fromHsvF(hcolordist_(gen_), scolordist_(gen_), vcolordist_(gen_), 1.0f);
 }
 
 QVector4D MainWindow::GetRandomHSVColour4D()
 {
-  const QColor colour = QColor::fromHsvF(hsvcolordist_(gen_), hsvcolordist_(gen_), hsvcolordist_(gen_), 1.0f).darker(300);
+  const QColor colour = QColor::fromHsvF(hcolordist_(gen_), scolordist_(gen_), vcolordist_(gen_), 1.0f);
   return QVector4D(colour.redF(), colour.greenF(), colour.blueF(), 1.0f);
 }
 
@@ -594,16 +666,16 @@ void MainWindow::closeEvent(QCloseEvent* event)
 
       }
     });
-    if (messagebox.exec() != QMessageBox::Yes)
-    {
-      event->ignore();
-      return;
-    }
-
+    const int ret = messagebox.exec();
     if (donotshowagain)
     {
       Options::Instance().SetHideMainWindowCloseDialog(true);
 
+    }
+    if (ret != QMessageBox::Yes)
+    {
+      event->ignore();
+      return;
     }
   }
 
@@ -672,8 +744,16 @@ void MainWindow::dropEvent(QDropEvent* event)
 
 void MainWindow::timerEvent(QTimerEvent* event)
 {
-  guiioservice_.reset();
-  guiioservice_.poll();
+  if (event->timerId() == discoverytimer_)
+  {
+    discover_->Broadcast();
+
+  }
+  else if (event->timerId() == iotimer_)
+  {
+    guiioservice_.reset();
+    guiioservice_.poll();
+  }
 }
 
 void MainWindow::AcceptDrop(QDragMoveEvent* event)
@@ -815,6 +895,487 @@ void MainWindow::ToolbarUpdated()
     colourpickercolour_ = QVector3D(2.0f, 2.0f, 2.0f); // Reset
 
   }
+}
+
+void MainWindow::DiscoverCallback(const std::vector<std::string>& addresses, const std::vector<std::string>& scopes)
+{
+  if (utility::Contains(scopes, "onvif://www.onvif.org/manufacturer/Monocle"))
+  {
+    std::vector<std::string>::const_iterator identifierscope = std::find_if(scopes.cbegin(), scopes.cend(), [](const std::string& scope) { return boost::starts_with(scope, "onvif://www.onvif.org/monocle/identifier/"); });
+    if (identifierscope == scopes.cend())
+    {
+
+      return;
+    }
+    uint64_t identifier = 0;
+    try
+    {
+      identifier = boost::lexical_cast<uint64_t>(identifierscope->substr(41));
+
+    }
+    catch (...)
+    {
+
+      return;
+    }
+
+    if (MainWindow::Instance()->GetDeviceMgr().GetDevice(identifier))
+    {
+      // We already have this device, ignore this
+      return;
+    }
+
+    std::vector< std::pair<boost::asio::ip::address, uint16_t> > localaddresses;
+    localaddresses.reserve(addresses.size());
+    for (const std::string& address : addresses)
+    {
+      network::uri uri(address);
+      try
+      {
+        uri = network::uri(address);
+
+      }
+      catch (...)
+      {
+
+        continue;
+      }
+
+      if (!uri.has_path())
+      {
+
+        continue;
+      }
+
+      if (uri.path().compare("/monocle_service"))
+      {
+
+        continue;
+      }
+
+      if (!uri.has_host())
+      {
+
+        continue;
+      }
+
+      boost::system::error_code err;
+      const std::string host = uri.host().to_string();
+      const boost::asio::ip::address a = boost::asio::ip::address::from_string(host, err);
+      if (err)
+      {
+
+        continue;
+      }
+
+      uint16_t port = 9854;
+      if (uri.has_port())
+      {
+        try
+        {
+          port = boost::lexical_cast<uint16_t>(uri.port());
+
+        }
+        catch (...)
+        {
+
+          continue;
+        }
+      }
+
+      if (utility::Contains(localaddresses, std::make_pair(a, port))) // Don't add duplicates
+      {
+
+        continue;
+      }
+
+      if (a.is_v4())
+      {
+        if (boost::starts_with(host, "192.168.") || boost::starts_with(host, "172.") || boost::starts_with(host, "10."))
+        {
+          localaddresses.push_back(std::make_pair(a, port));
+
+        }
+      }
+      else if (a.is_v6())
+      {
+        if (a.to_v6().is_site_local())
+        {
+          localaddresses.push_back(std::make_pair(a, port));
+
+        }
+      }
+    }
+
+    if (QApplication::activeWindow() != MainWindow::Instance()) // Only bother the user if they haven't got another window open...
+    {
+
+      return;
+    }
+
+    if (localaddresses.empty())
+    {
+
+      return;
+    }
+
+    if (MainWindow::Instance()->GetDeviceMgr().GetDevices(localaddresses, 0).size()) // If we have a device that has never connected before, but shares an address, we probably don't want to add this
+    {
+
+      return;
+    }
+
+    QMetaObject::invokeMethod(this, [this, identifier, localaddresses]()
+    {
+      if (utility::Contains(newdeviceidentifiers_, identifier)) // Ignore any devices that we have already queried the user with
+      {
+
+        return;
+      }
+      newdeviceidentifiers_.push_back(identifier);
+
+      QStringList localaddressestext;
+      for (const std::pair<boost::asio::ip::address, uint16_t>& localaddress : localaddresses)
+      {
+        localaddressestext.push_back(QString::fromStdString(localaddress.first.to_string()));
+
+      }
+
+      // If there are multiple devices to add, this will spam, but that's kind of ok I guess...
+      QCheckBox* checkbox = new QCheckBox("Do not show this again");
+      QMessageBox messagebox;
+      messagebox.setWindowTitle("New Device Discovery: " + localaddressestext.join(" "));
+      messagebox.setText("Would you like to add this device?");
+      messagebox.setIcon(QMessageBox::Icon::Question);
+      messagebox.addButton(QMessageBox::Yes);
+      messagebox.addButton(QMessageBox::No);
+      messagebox.setDefaultButton(QMessageBox::No);
+      messagebox.setCheckBox(checkbox);
+      bool donotshowagain = false;
+      QObject::connect(checkbox, &QCheckBox::stateChanged, [&donotshowagain](int state)
+      {
+        if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
+        {
+          donotshowagain = true;
+
+        }
+        else
+        {
+          donotshowagain = false;
+
+        }
+      });
+      const int ret = messagebox.exec();
+      if (donotshowagain)
+      {
+        QSettings settings(QSettings::IniFormat, QSettings::UserScope, QCoreApplication::organizationName(), QCoreApplication::applicationName());
+        QStringList newdeviceidentifiers;
+        newdeviceidentifiers.reserve(static_cast<int>(newdeviceidentifiers_.size()));
+        for (const uint64_t newdeviceidenfitier : newdeviceidentifiers_)
+        {
+          newdeviceidentifiers.push_back(QString::number(newdeviceidenfitier));
+
+        }
+        settings.setValue(NEWDEVICEIDENTIFIERS, newdeviceidentifiers);
+      }
+      if (ret != QMessageBox::Yes)
+      {
+
+        return;
+      }
+
+      // Kick off a bunch of Connections, which automatically adds the device if it can authenticate, otherwise brings up the window to add it
+      boost::shared_ptr< std::vector< boost::shared_ptr<sock::Connection> > > connections = boost::make_shared< std::vector< boost::shared_ptr<sock::Connection> > >();
+      boost::shared_ptr<bool> connecting = boost::make_shared<bool>(false);
+      const boost::shared_ptr<size_t> count = boost::make_shared<size_t>(localaddresses.size());
+      for (const std::pair<boost::asio::ip::address, uint16_t>& localaddress : localaddresses)
+      {
+        boost::shared_ptr<Connection> connection = boost::make_shared<Connection>(MainWindow::Instance()->GetGUIIOService(), sock::ProxyParams(), QString::fromStdString(localaddress.first.to_string()), localaddress.second);
+        connections->push_back(boost::make_shared<sock::Connection>(connection->Connect([identifier, count, connection, connections, connecting](const boost::system::error_code& err) mutable
+        {
+          if (*connecting)
+          {
+            // Another connection has stolen the show already, ignore this one
+            return;
+          }
+
+          if (err)
+          {
+            --(*count);
+            if (*count == 0) // If all connections failed, open the window
+            {
+              EditDeviceWindow(MainWindow::Instance(), connection->GetAddress(), connection->GetPort(), "admin", "password").exec();
+              return;
+            }
+          }
+          else
+          {
+            *connecting = true;
+
+            boost::shared_ptr<monocle::client::Connection> c = boost::make_shared<monocle::client::Connection>();
+            *c = connection->GetAuthenticationNonce([identifier, connection, c](const std::chrono::steady_clock::duration latency, const monocle::client::GETAUTHENTICATIONNONCERESPONSE& getauthenticationnonceresponse)
+            {
+              if (getauthenticationnonceresponse.GetErrorCode() != monocle::ErrorCode::Success)
+              {
+                EditDeviceWindow(MainWindow::Instance(), connection->GetAddress(), connection->GetPort(), "admin", "password").exec();
+                return;
+              }
+
+              const std::string clientnonce = utility::GenerateRandomString(32);
+              *c = connection->Authenticate("admin", clientnonce, monocle::AuthenticateDigest("admin", "password", getauthenticationnonceresponse.authenticatenonce_, clientnonce), [identifier, connection, c](const std::chrono::steady_clock::duration latency, const monocle::client::AUTHENTICATERESPONSE& authenticateresponse)
+              {
+                if (authenticateresponse.GetErrorCode() != monocle::ErrorCode::Success)
+                {
+                  EditDeviceWindow(MainWindow::Instance(), connection->GetAddress(), connection->GetPort(), "admin", "password").exec();
+                  return;
+                }
+
+                *c = connection->GetState([identifier, connection, c](const std::chrono::steady_clock::duration latency, const monocle::client::GETSTATERESPONSE& getstateresponse)
+                {
+                  if (getstateresponse.GetErrorCode() != monocle::ErrorCode::Success)
+                  {
+                    EditDeviceWindow(MainWindow::Instance(), connection->GetAddress(), connection->GetPort(), "admin", "password").exec();
+                    return;
+                  }
+
+                  if (identifier == getstateresponse.identifier_) // Make sure it is the device we discovered
+                  {
+                    MainWindow::Instance()->GetDeviceMgr().AddDevice(sock::ProxyParams(), connection->GetAddress(), connection->GetPort(), "admin", "password", 0, true);
+
+                  }
+                  else
+                  {
+                    EditDeviceWindow(MainWindow::Instance(), connection->GetAddress(), connection->GetPort(), "admin", "password").exec();
+
+                  }
+                });
+              });
+            });
+          }
+        })));
+      }
+    }, Qt::QueuedConnection);
+  }
+  else if (utility::Contains(scopes, "onvif://www.onvif.org/Profile/Streaming")) // Found an ONVIF Profile S device
+  {
+    QMetaObject::invokeMethod(this, [this, addresses, scopes]() 
+    {
+      std::random_device rd;
+      std::mt19937 gen(rd());
+      std::uniform_int_distribution<uint64_t> dist(0, 20 * 1000);
+      QTimer::singleShot(dist(gen), [this, addresses, scopes]() // We randomize the time we call this, because otherwise we potentially spam the user with windows
+      {
+        if (!Options::Instance().GetDiscoveryHelper()) // Possible this got disabled in the delay
+        {
+
+          return;
+        }
+
+        if (QApplication::activeWindow() != MainWindow::Instance()) // Only bother the user if they haven't got another window open...
+        {
+
+          return;
+        }
+
+        for (const std::pair<bool, QString>& newcamera : newcameras_) // If this camera contains an address on the ignore list, just leave
+        {
+          if (utility::Contains(addresses, newcamera.second.toStdString()))
+          {
+
+            return;
+          }
+        }
+
+        // Discover hostnames
+        std::vector<std::string> discoveryhostnames;
+        discoveryhostnames.reserve(addresses.size());
+        for (const std::string& address : addresses)
+        {
+          try
+          {
+            const network::uri uri(address);
+            if (uri.has_host())
+            {
+              discoveryhostnames.push_back(uri.host().to_string());
+
+            }
+          }
+          catch (...)
+          {
+
+          }
+        }
+
+        std::vector<std::string> devicehostnames;
+        for (const boost::shared_ptr<Device>& device : devicemgr_.GetDevices())
+        {
+          if (device->GetState() != DEVICESTATE::SUBSCRIBED) // Check all devices are subscribed, this makes it easier to determine what discovered devices are currently in use or not
+          {
+
+            return;
+          }
+
+          if (device->GetFiles().empty()) // The user must setup files on each device before helping them to setup cameras
+          {
+
+            return;
+          }
+
+          // Device hostnames
+          for (const QSharedPointer<Recording>& recording : device->GetRecordings())
+          {
+            for (const QSharedPointer<RecordingJob>& job : recording->GetJobs())
+            {
+              for (const QSharedPointer<RecordingJobSource>& source : job->GetSources())
+              {
+                const QSharedPointer<Receiver> receiver = device->GetReceiver(source->GetReceiverToken());
+                if (!receiver)
+                {
+
+                  continue;
+                }
+
+                try
+                {
+                  const network::uri uri(receiver->GetMediaUri().toStdString());
+                  if (uri.has_host())
+                  {
+                    devicehostnames.push_back(uri.host().to_string());
+
+                  }
+                }
+                catch (...)
+                {
+
+                }
+              }
+            }
+          }
+        }
+
+        if (!utility::Intersects(discoveryhostnames, devicehostnames)) // If no device has setup this discovered device before
+        {
+          std::vector<std::string>::const_iterator ipv4address = std::find_if(addresses.cbegin(), addresses.cend(), [](const std::string& address)
+          {
+            try
+            {
+              const network::uri uri(address);
+              if (!uri.has_host())
+              {
+
+                return false;
+              }
+
+              boost::system::error_code err;
+              const std::string host = uri.host().to_string();
+              boost::asio::ip::address_v4::from_string(host, err);
+              if (err)
+              {
+
+                return false;
+              }
+
+              if (boost::starts_with(host, "10.") || boost::starts_with(host, "172.16") || boost::starts_with(host, "192.168."))
+              {
+
+                return true;
+              }
+              else
+              {
+
+                return false;
+              }
+            }
+            catch (...)
+            {
+
+              return false;
+            }
+          });
+          if (ipv4address == addresses.cend())
+          {
+
+            return;
+          }
+
+          std::vector< boost::shared_ptr<Device> > devices; // This will contain a set of devices which
+          devices.reserve(devicemgr_.GetDevices().size());
+          for (const boost::shared_ptr<Device>& device : devicemgr_.GetDevices())
+          {
+            if (device->GetRecordings().size() < device->GetMaxRecordings()) // Do we have space for another recording on this device?
+            {
+              devices.push_back(device);
+
+            }
+          }
+
+          if (devices.empty()) // No devices to place this recording on
+          {
+
+            return;
+          }
+
+          NewCameraQuestionWindow newcameraquestionwindow(this, QString::fromStdString(*ipv4address), scopes);
+          if (newcameraquestionwindow.exec() == QDialog::Accepted)
+          {
+            if (newcameraquestionwindow.donotaskdevice_)
+            {
+              // Don't bother the user ever again with this camera
+              for (const std::string& address : addresses)
+              {
+                newcameras_.push_back(std::make_pair(true, QString::fromStdString(address)));
+
+              }
+              SaveNewCameras();
+            }
+
+            if (newcameraquestionwindow.donotask_) // Disable the discovery helper
+            {
+              Options::Instance().SetDiscoveryHelper(false);
+
+            }
+
+            if (devices.size() == 1)
+            {
+              ManageTrackWindow(this, devices.front(), nullptr, nullptr, nullptr, nullptr, nullptr, QString::fromStdString(*ipv4address)).exec();
+
+            }
+            else
+            {
+              ManageTrackWindow(this, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, QString::fromStdString(*ipv4address)).exec();
+
+            }
+          }
+          else
+          {
+            // Don't bother the user again with these addresses this session
+            for (const std::string& address : addresses)
+            {
+              newcameras_.push_back(std::make_pair(false, QString::fromStdString(address)));
+
+            }
+            SaveNewCameras();
+          }
+        }
+      });
+    }, Qt::QueuedConnection);
+  }
+}
+
+void MainWindow::SaveNewCameras() const
+{
+  QSettings settings(QSettings::IniFormat, QSettings::UserScope, QCoreApplication::organizationName(), QCoreApplication::applicationName());
+  QStringList newcameras;
+  newcameras.reserve(static_cast<int>(newcameras_.size()));
+  for (const std::pair<bool, QString>& newcamera : newcameras_)
+  {
+    if (newcamera.first)
+    {
+      newcameras.push_back(newcamera.second);
+
+    }
+  }
+  settings.setValue(NEWCAMERAS, newcameras);
 }
 
 void MainWindow::LanguageChanged(QAction* action)
@@ -988,13 +1549,13 @@ void MainWindow::on_actionfindobject_toggled()
 
 void MainWindow::on_editdevicetreefilter_textChanged(const QString&)
 {
-  ui_.devicetree->SetFilter(ui_.editdevicetreefilter->Text());
+  ui_.devicetree->SetFilter(ui_.editdevicetreefilter->text());
 
 }
 
 void MainWindow::on_editlocationtreefilter_textChanged(const QString&)
 {
-  ui_.locationtree->SetFilter(ui_.editlocationtreefilter->Text());
+  ui_.locationtree->SetFilter(ui_.editlocationtreefilter->text());
 
 }
 

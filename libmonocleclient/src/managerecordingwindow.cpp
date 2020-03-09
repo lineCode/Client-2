@@ -44,13 +44,6 @@ ManageRecordingWindow::ManageRecordingWindow(QWidget* parent, boost::shared_ptr<
 
   }
 
-  if (!device_->SupportsCreateDefaultJob())
-  {
-    ui_.checkcreatedefaultjob->setEnabled(false);
-    ui_.checkcreatedefaultjob->setChecked(false);
-    ui_.checkcreatedefaultjob->setToolTip("Please upgrade server for support of this option");
-  }
-
   if (token_.is_initialized())
   {
     setWindowTitle("Edit Recording");
@@ -59,20 +52,23 @@ ManageRecordingWindow::ManageRecordingWindow(QWidget* parent, boost::shared_ptr<
     connect(device.get(), QOverload<const uint64_t>::of(&Device::SignalRecordingRemoved), this, &ManageRecordingWindow::RecordingRemoved);
 
     QSharedPointer<client::Recording> recording = device_->GetRecording(*token_);
-    ui_.editname->setText(recording->GetName());
-    ui_.editlocation->setText(recording->GetLocation());
-    ui_.spinretentiontime->setValue(recording->GetRetentionTime() / (86400 * 1000));
-
-    ui_.checkcreatedefaulttracks->setHidden(true);
-    ui_.checkcreatedefaultjob->setHidden(true);
-    const QSize sizehint = sizeHint();
-    if (sizehint.isValid())
+    if (recording)
     {
-      resize(width(), sizehint.height());
-      setMinimumHeight(sizehint.height());
-      setMaximumHeight(sizehint.height());
+      ui_.editname->setText(recording->GetName());
+      ui_.editlocation->setText(recording->GetLocation());
+      ui_.spinretentiontime->setValue(recording->GetRetentionTime() / (86400 * 1000));
+
+      const QSize sizehint = sizeHint();
+      if (sizehint.isValid())
+      {
+        resize(width(), sizehint.height());
+        setMinimumHeight(sizehint.height());
+        setMaximumHeight(sizehint.height());
+      }
     }
   }
+
+  ui_.editname->setFocus(); // For some reason this isn't being focused initially in line with the tab order...
 }
 
 ManageRecordingWindow::~ManageRecordingWindow()
@@ -150,7 +146,7 @@ void ManageRecordingWindow::on_buttonok_clicked()
   }
   else
   {
-    recordingconnection_ = device_->AddRecording(std::string(), ui_.editname->text().toStdString(), ui_.editlocation->text().toStdString(), std::string(), std::string(), std::string(), retentiontime, ui_.checkcreatedefaulttracks->isChecked(), ui_.checkcreatedefaultjob->isChecked(), [this](const std::chrono::nanoseconds latency, const monocle::client::ADDRECORDINGRESPONSE& addrecordingresponse)
+    recordingconnection_ = device_->AddRecording(std::string(), ui_.editname->text().toStdString(), ui_.editlocation->text().toStdString(), std::string(), std::string(), std::string(), retentiontime, false, true, [this](const std::chrono::nanoseconds latency, const monocle::client::ADDRECORDINGRESPONSE& addrecordingresponse)
     {
       SetEnabled(true);
       if (addrecordingresponse.GetErrorCode() != monocle::ErrorCode::Success)

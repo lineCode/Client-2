@@ -1,0 +1,7 @@
+namespace monocle;
+
+table RemoveTracksRequest
+{
+  recordingtoken:uint64 (id:0);
+  ids:[uint32] (id:1);
+}

@@ -153,9 +153,24 @@ std::vector< QSharedPointer<client::RecordingTrack> > Recording::GetTracks(const
     if (track->GetTrackType() == tracktype)
     {
       tracks.push_back(track);
+
     }
   }
   return tracks;
+}
+
+unsigned int Recording::GetNumVideoTracks() const
+{
+  unsigned int numvideotracks = 0;
+  for (const QSharedPointer<client::RecordingTrack>& track : tracks_)
+  {
+    if (track->GetTrackType() == monocle::TrackType::Video)
+    {
+      ++numvideotracks;
+
+    }
+  }
+  return numvideotracks;
 }
 
 std::vector< QSharedPointer<client::RecordingTrack> > Recording::GetVideoTracks() const
@@ -174,6 +189,25 @@ std::vector< QSharedPointer<client::RecordingTrack> > Recording::GetMetadataTrac
 {
 
   return GetTracks(monocle::TrackType::Metadata);
+}
+
+std::vector< QSharedPointer<client::RecordingTrack> > Recording::GetObjectDetectorTracks() const
+{
+
+  return GetTracks(monocle::TrackType::ObjectDetector);
+}
+
+bool Recording::HasObjectDetectorTracks() const
+{
+  for (const QSharedPointer<client::RecordingTrack>& track : tracks_)
+  {
+    if (track->GetTrackType() == monocle::TrackType::ObjectDetector)
+    {
+
+      return true;
+    }
+  }
+  return false;
 }
 
 std::vector< QSharedPointer<client::Receiver> > Recording::GetActiveReceivers(const QSharedPointer<client::RecordingTrack>& track) const
@@ -226,10 +260,13 @@ std::vector<ROTATION> Recording::GetActiveRotations(const QSharedPointer<client:
 size_t Recording::GetNumObjectDetectors() const
 {
   size_t total = 0;
-  for (const QSharedPointer<RecordingJob>& job : jobs_)
+  for (const QSharedPointer<RecordingTrack>& track : tracks_)
   {
-    total += job->GetNumObjectDetectors();
+    if (track->GetTrackType() == monocle::TrackType::ObjectDetector)
+    {
+      ++total;
 
+    }
   }
   return total;
 }

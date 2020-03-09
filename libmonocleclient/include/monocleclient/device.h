@@ -76,12 +76,12 @@ class Device : public Connection
 
  public:
 
-  Device(const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port, const QString& username, const QString& password);
+  Device(const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port, const QString& username, const QString& password, const uint64_t identifier);
   ~Device();
 
   void DestroyData();
 
-  void Set(const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port, const QString& username, const QString& password);
+  void Set(const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port, const QString& username, const QString& password, const uint64_t identifier);
 
   virtual void Disconnected() override;
 
@@ -138,6 +138,7 @@ class Device : public Connection
   bool SupportsObjectDetection() const;
   bool SupportsCreateDefaultJob() const;
   bool SupportsTrackCodec() const; // Whether the codecs are put into the Track structure
+  bool SupportsGetChildFoldersFilter() const;
 
   // These methods look for the current user in the users_, find the group and figure out whether the current user has permission to do the operation
   bool CanManageUsers();
@@ -247,7 +248,7 @@ class Device : public Connection
   void SignalUserAdded(QSharedPointer<User>& user);
   void SignalUserChanged(QSharedPointer<User>& user);
   void SignalUserRemoved(const uint64_t token);
-  void SignalStateChanged(const DEVICESTATE state, const QString& message);
+  void SignalStateChanged(const client::DEVICESTATE state, const QString& message);
   void SignalLicenseStateChanged(const bool valid);
 
  private slots:
@@ -301,6 +302,7 @@ class Device : public Connection
   void SlotUserAdded(const uint64_t token, const QString& username, const uint64_t group);
   void SlotUserChanged(const uint64_t token, const uint64_t group);
   void SlotUserRemoved(const uint64_t token);
+  void SlotStateChanged(const client::DEVICESTATE state, const QString& message);
 
 };
 

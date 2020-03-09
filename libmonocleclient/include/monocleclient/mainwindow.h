@@ -17,6 +17,7 @@
 #include <QVector>
 #include <utility/ioservicepool.hpp>
 #include <utility/utility.hpp>
+#include <wsdiscover/wsdiscoverclient.hpp>
 
 #ifdef _WIN32
   #include <WinSock2.h>
@@ -140,6 +141,10 @@ class MainWindow : public QMainWindow
   inline utility::IoServicePool& GetIOServicePool() { return ioservicepool_; }
   inline boost::asio::io_service& GetGUIIOService() { return guiioservice_; }
 
+  inline const QIcon& GetCameraIcon() const { return cameraicon_; }
+
+  void SetDiscoveryHelper(const bool discoveryhelper);
+
   void ShortMonthName(const int mon, std::vector<char>& buffer) const;
   void ShortWeekDayName(const int mon, std::vector<char>& buffer) const;
 
@@ -208,16 +213,21 @@ class MainWindow : public QMainWindow
   bool SelectLanguage(const QString& language);
   void UnselectAllLanguages();
   void ToolbarUpdated();
+  void DiscoverCallback(const std::vector<std::string>& addresses, const std::vector<std::string>& scopes);
+  void SaveNewCameras() const;
 
   const utility::Version version_;
   const QDir translationsdirectory_;
   const boost::filesystem::path licensepath_;
   const QResource* arial_;
   const QIcon showfullscreen_;
+  const QIcon cameraicon_;
 
   std::random_device rd_;
   mutable std::mt19937 gen_;
-  std::uniform_real_distribution<double> hsvcolordist_;
+  std::uniform_real_distribution<double> hcolordist_;
+  std::uniform_real_distribution<double> scolordist_;
+  std::uniform_real_distribution<double> vcolordist_;
 
   Ui::MainWindow ui_;
 
@@ -249,6 +259,15 @@ class MainWindow : public QMainWindow
   CheckForUpdate checkforupdate_;
 
   QVector3D colourpickercolour_;
+
+  boost::shared_ptr<onvif::wsdiscover::WsDiscoverClient> discover_;
+
+  int discoverytimer_;
+  int iotimer_;
+
+  std::vector<uint64_t> newdeviceidentifiers_; // A list of devices we have asked the user to add
+  std::vector< std::pair<bool, QString> > newcameras_; // A list of cameras we have asked the user to add <Save to disk, address>
+
 
  private slots:
 

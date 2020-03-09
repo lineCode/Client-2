@@ -250,7 +250,7 @@ void JPEGHeader(const uint16_t restartinterval, const uint32_t typespecificfragm
 
 ///// Methods /////
 
-Stream::Stream(const uint64_t token, const CONTROLSTREAMEND controlstreamendcallback, const H265CALLBACK h265callback, const H264CALLBACK h264callback, const METADATACALLBACK metadatacallback, const JPEGCALLBACK jpegcallback, const MPEG4CALLBACK mpeg4callback, const NEWCODECINDEX newcodecindexcallback, void* callbackdata) :
+Stream::Stream(const uint64_t token, const CONTROLSTREAMEND controlstreamendcallback, const H265CALLBACK h265callback, const H264CALLBACK h264callback, const METADATACALLBACK metadatacallback, const JPEGCALLBACK jpegcallback, const MPEG4CALLBACK mpeg4callback, const OBJECTDETECTORCALLBACK objectdetectorcallback, const NEWCODECINDEX newcodecindexcallback, void* callbackdata) :
   token_(token),
   controlstreamendcallback_(controlstreamendcallback),
   h265callback_(h265callback),
@@ -258,6 +258,7 @@ Stream::Stream(const uint64_t token, const CONTROLSTREAMEND controlstreamendcall
   metadatacallback_(metadatacallback),
   jpegcallback_(jpegcallback),
   mpeg4callback_(mpeg4callback),
+  objectdetectorcallback_(objectdetectorcallback),
   newcodecindexcallback_(newcodecindexcallback),
   callbackdata_(callbackdata)
 {
@@ -272,6 +273,7 @@ Stream::Stream(const Stream& rhs) :
   metadatacallback_(rhs.metadatacallback_),
   jpegcallback_(rhs.jpegcallback_),
   mpeg4callback_(rhs.mpeg4callback_),
+  objectdetectorcallback_(rhs.objectdetectorcallback_),
   newcodecindexcallback_(rhs.newcodecindexcallback_),
   callbackdata_(rhs.callbackdata_)
 {
@@ -366,6 +368,15 @@ void Stream::MPEG4Frame(const uint64_t playrequestindex, const uint64_t codecind
   }
 }
 
+void Stream::ObjectDetectorFrame(const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* data, const size_t size) const
+{
+  if (objectdetectorcallback_)
+  {
+    objectdetectorcallback_(token_, playrequestindex, codecindex, timestamp, sequencenum, progress, signature, signaturesize, objectdetectorframetype, data, size, data, size, callbackdata_);
+
+  }
+}
+
 void Stream::NewCodecIndex(const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp)
 {
   if (newcodecindexcallback_)
@@ -384,6 +395,7 @@ Stream& Stream::operator=(const Stream& rhs)
   metadatacallback_ = rhs.metadatacallback_;
   jpegcallback_ = rhs.jpegcallback_;
   mpeg4callback_ = rhs.mpeg4callback_;
+  objectdetectorcallback_ = rhs.objectdetectorcallback_;
   callbackdata_ = rhs.callbackdata_;
   return *this;
 }

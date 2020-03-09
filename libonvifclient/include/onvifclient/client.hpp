@@ -579,6 +579,30 @@ class Client
       return nullptr;
     }
 
+    if (curl_easy_setopt(request->handle_, CURLOPT_SSL_VERIFYHOST, 0))
+    {
+      delete request;
+      return nullptr;
+    }
+
+    if (curl_easy_setopt(request->handle_, CURLOPT_SSL_VERIFYPEER, 0))
+    {
+      delete request;
+      return nullptr;
+    }
+
+    if (curl_easy_setopt(request->handle_, CURLOPT_PROXY_SSL_VERIFYHOST, 0))
+    {
+      delete request;
+      return nullptr;
+    }
+
+    if (curl_easy_setopt(request->handle_, CURLOPT_PROXY_SSL_VERIFYPEER, 0))
+    {
+      delete request;
+      return nullptr;
+    }
+
     // Headers
     request->FreeHeaders();
     if (mtomdatas.empty())

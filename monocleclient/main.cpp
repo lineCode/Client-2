@@ -6,11 +6,13 @@
 #include "main.h"
 
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem/path.hpp>
 #include <boost/predef.h>
 #include <boost/program_options.hpp>
 #include <boost/system/error_code.hpp>
 #include <iostream>
 #include <stdint.h>
+#include <monocleclient/device.h>
 #include <monocleclient/log.h>
 #include <monocleclient/mainwindow.h>
 #include <monocleclient/options.h>
@@ -25,6 +27,7 @@
 #include <QFile>
 #include <QString>
 #include <QTextStream>
+#include <utility/externalwindow.hpp>
 #include <vector>
 
 extern "C"
@@ -40,6 +43,7 @@ Q_DECLARE_METATYPE(boost::optional<QString>)
 Q_DECLARE_METATYPE(boost::optional<uint64_t>)
 Q_DECLARE_METATYPE(boost::system::error_code)
 Q_DECLARE_METATYPE(client::LOGLEVEL)
+Q_DECLARE_METATYPE(client::DEVICESTATE)
 Q_DECLARE_METATYPE(const char*)
 Q_DECLARE_METATYPE(monocle::FileState)
 Q_DECLARE_METATYPE(monocle::FileMonitorState)
@@ -50,12 +54,14 @@ Q_DECLARE_METATYPE(QSharedPointer<client::RecordingJob>)
 Q_DECLARE_METATYPE(QSharedPointer<client::RecordingJobSource>)
 Q_DECLARE_METATYPE(QSharedPointer<client::RecordingJobSourceTrack>)
 Q_DECLARE_METATYPE(QSharedPointer<client::RecordingTrack>)
+Q_DECLARE_METATYPE(monocle::Codec)
 Q_DECLARE_METATYPE(monocle::ReceiverMode)
 Q_DECLARE_METATYPE(monocle::ReceiverState)
 Q_DECLARE_METATYPE(monocle::Severity)
 Q_DECLARE_METATYPE(std::chrono::steady_clock::duration)
 Q_DECLARE_METATYPE(boost::shared_ptr<client::Device>)
 Q_DECLARE_METATYPE(std::string)
+Q_DECLARE_METATYPE(std::vector<monocle::CODECINDEX>)
 Q_DECLARE_METATYPE(std::vector<monocle::DISKSTAT>)
 Q_DECLARE_METATYPE(std::vector<monocle::INDEX>)
 Q_DECLARE_METATYPE(std::vector<monocle::RECORDINGJOBSOURCE>)
@@ -85,7 +91,13 @@ int main(int argc, char** argv)
   client::RunGuard runguard(QString("3fa94d34-4753-4dbb-98c6-48b3acb65bf8"));
   if (!runguard.Run())
   {
+    // Find the appropriate client window in another process and maximise it
+    std::vector<utility::ExternalWindow> externalwindows = utility::GetExternalWindows("monocleclient.exe", "Qt5QWindowIcon");
+    if (externalwindows.size())
+    {
+      externalwindows.front().Show();
 
+    }
     return 0;
   }
 
@@ -99,6 +111,7 @@ int main(int argc, char** argv)
   qRegisterMetaType< boost::system::error_code >();
   qRegisterMetaType<client::LOGLEVEL>("monocle::LOGLEVEL");
   qRegisterMetaType<const char*>();
+  qRegisterMetaType<client::DEVICESTATE>();
   qRegisterMetaType<monocle::FileState>();
   qRegisterMetaType<monocle::FileMonitorState>();
   qRegisterMetaType< QVector<int> >();
@@ -109,11 +122,13 @@ int main(int argc, char** argv)
   qRegisterMetaType< const QSharedPointer<client::RecordingJobSourceTrack>& >();
   qRegisterMetaType< QSharedPointer<client::RecordingJobSourceTrack> >();
   qRegisterMetaType< const QSharedPointer<client::RecordingTrack>& >();
+  qRegisterMetaType<monocle::Codec>("monocle::Codec");
   qRegisterMetaType<monocle::ReceiverMode>("monocle::ReceiverMode");
   qRegisterMetaType<monocle::ReceiverState>("monocle::ReceiverState");
   qRegisterMetaType<std::chrono::steady_clock::duration>();
   qRegisterMetaType< boost::shared_ptr<client::Device> >();
   qRegisterMetaType<std::string>();
+  qRegisterMetaType< std::vector<monocle::CODECINDEX> >();
   qRegisterMetaType< std::vector<monocle::DISKSTAT> >();
   qRegisterMetaType< std::vector<monocle::INDEX> >();
   qRegisterMetaType< std::vector<monocle::RECORDINGJOBSOURCE> >();

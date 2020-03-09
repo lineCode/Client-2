@@ -28,6 +28,7 @@ namespace monocle
 ///// Declarations /////
 
 enum class MetadataFrameType : uint16_t;
+enum class ObjectDetectorFrameType : uint16_t;
 
 ///// Namespaces /////
 
@@ -81,8 +82,9 @@ class Connection : public boost::enable_shared_from_this<Connection>
   virtual Error AddONVIFUser(const std::string& username, const std::string& password, const ONVIFUserlevel onvifuserlevel) = 0;
   virtual Error AddReceiver(const monocle::ReceiverMode mode, const std::string& uri, const std::string& username, const std::string& password, const std::vector<std::string>& parameters) = 0;
   virtual std::pair<Error, uint64_t> AddRecording(const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool createdefaulttracks, const bool createdefaultjob) = 0;
-  virtual Error AddRecordingJob(const uint64_t recordingtoken, const std::string& name, const bool enabled, const uint64_t priority, const std::vector<ADDRECORDINGJOBSOURCE>& sources) = 0;
+  virtual std::pair<Error, uint64_t> AddRecordingJob(const uint64_t recordingtoken, const std::string& name, const bool enabled, const uint64_t priority, const std::vector<ADDRECORDINGJOBSOURCE>& sources) = 0;
   virtual std::pair<Error, uint32_t> AddTrack(const uint64_t recordingtoken, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files) = 0;
+  virtual Error AddTrack2(const uint64_t recordingtoken, const uint64_t recordingjobtoken, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::string& mediauri, const std::string& username, const std::string& password, const std::vector<std::string>& receiverparameters, const std::vector<std::string>& sourceparameters, const std::vector<std::string>& objectdetectorsourceparameters) = 0;
   virtual Error AddUser(const std::string& username, const std::string& digest, const uint64_t group) = 0;
   virtual std::pair<Error, AUTHENTICATERESPONSE> Authenticate(const std::string& username, const std::string& clientnonce, const std::string& authdigest) = 0;
   virtual Error ChangeGroup(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings) = 0;
@@ -92,6 +94,7 @@ class Connection : public boost::enable_shared_from_this<Connection>
   virtual Error ChangeRecording(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime) = 0;
   virtual Error ChangeRecordingJob(const uint64_t recordingtoken, const uint64_t token, const std::string& name, const bool enabled, const uint64_t priority, const std::vector<CHANGERECORDINGJOBSOURCE>& sources) = 0;
   virtual Error ChangeTrack(const uint64_t recordingtoken, const uint32_t id, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files) = 0;
+  virtual Error ChangeTrack2(const uint64_t recordingtoken, const uint32_t trackid, const uint64_t recordingjobtoken, const uint64_t recordingjobsourcetoken, const uint64_t recordingjobsourcetracktoken, const uint32_t objectdetectortrackid, const uint64_t objectdetectorrecordingjobsourcetoken, const uint64_t objectdetectorrecordingjobsourcetracktoken, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::string& mediauri, const std::string& username, const std::string& password, const std::vector<std::string>& receiverparameters, const std::vector<std::string>& sourceparameters, const std::vector<std::string>& objectdetectorsourceparameters) = 0;
   virtual Error ChangeUser(const uint64_t token, const boost::optional<std::string>& digest, const uint64_t group) = 0;
   virtual Error ControlStream(const uint64_t streamtoken, const uint64_t playrequestindex, const bool fetchmarker, const bool ratecontrol, const boost::optional<bool>& forwards, const boost::optional<uint64_t>& starttime, const boost::optional<uint64_t>& endtime, const boost::optional<uint64_t>& numframes, const bool iframes) = 0;
   virtual Error ControlStreamFrameStep(const uint64_t streamtoken, const uint64_t playrequestindex, const bool forwards, const uint64_t sequencenum) = 0;
@@ -105,7 +108,7 @@ class Connection : public boost::enable_shared_from_this<Connection>
   virtual Error DestroyStream(const uint64_t streamtoken) = 0;
   virtual Error DiscoveryBroadcast() = 0;
   virtual std::string GetAuthenticationNonce() = 0;
-  virtual std::pair< Error, std::vector<std::string> > GetChildFolders(const std::string& path) = 0;
+  virtual std::pair< Error, std::vector<std::string> > GetChildFolders(const std::string& path, const bool parentpaths) = 0;
   virtual std::pair< Error, std::vector<FILE> > GetFiles() = 0;
   virtual std::pair< Error, std::vector<RECEIVER> > GetReceivers() = 0;
   virtual std::pair<Error, RECORDING> GetRecording(const uint64_t token) = 0;
@@ -123,6 +126,7 @@ class Connection : public boost::enable_shared_from_this<Connection>
   virtual Error RemoveRecordingJob(const uint64_t recordingtoken, const uint64_t token) = 0;
   virtual Error RemoveRecordingJobSource(const uint64_t recordingtoken, const uint64_t recordingjobtoken, const uint64_t token) = 0;
   virtual Error RemoveTrack(const uint64_t recordingtoken, const uint32_t id) = 0;
+  virtual Error RemoveTracks(const uint64_t recordingtoken, const std::vector<uint32_t>& ids) = 0;
   virtual Error RemoveUser(const uint64_t token) = 0;
   virtual Error SetLocation(const std::string& latitude, const std::string& longitude) = 0;
   virtual Error SetName(const std::string& name) = 0;
@@ -173,6 +177,7 @@ class Connection : public boost::enable_shared_from_this<Connection>
   boost::system::error_code SendMPEG4Frame(const uint64_t stream, const uint64_t playrequest, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const boost::optional<uint64_t>& sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* data, const size_t size);
   boost::system::error_code SendNameChanged(const std::string& name);
   boost::system::error_code SendNewCodecIndex(const uint64_t stream, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp);
+  boost::system::error_code SendObjectDetectorFrame(const uint64_t stream, const uint64_t playrequest, const uint64_t codecindex, const uint64_t timestamp, const boost::optional<uint64_t>& sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* data, const size_t size);
   boost::system::error_code SendONVIFUserAdded(const uint64_t token, const std::string& username, const ONVIFUserlevel onvifuserlevel);
   boost::system::error_code SendONVIFUserChanged(const uint64_t token, const boost::optional<std::string>& username, const ONVIFUserlevel onvifuserlevel);
   boost::system::error_code SendONVIFUserRemoved(const uint64_t token);
@@ -199,8 +204,8 @@ class Connection : public boost::enable_shared_from_this<Connection>
   boost::system::error_code SendRecordingTrackCodecRemoved(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id);
   boost::system::error_code SendRecordingTrackLogMessage(const uint64_t recordingtoken, const uint32_t id, const std::chrono::system_clock::time_point time, const monocle::Severity severity, const std::string& message);
   boost::system::error_code SendServerLogMessage(const std::chrono::system_clock::time_point time, const monocle::Severity severity, const std::string& message);
-  boost::system::error_code SendTrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency);
-  boost::system::error_code SendTrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency);
+  boost::system::error_code SendTrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files);
+  boost::system::error_code SendTrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files);
   boost::system::error_code SendTrackRemoved(const uint64_t recordingtoken, const uint32_t id);
   boost::system::error_code SendTrackSetData(const uint64_t recording, const uint32_t trackid, const std::vector<monocle::INDEX>& indices);
   boost::system::error_code SendTrackDeleteData(const uint64_t recording, const uint32_t trackid, const boost::optional<uint64_t>& start, const boost::optional<uint64_t>& end);

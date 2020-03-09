@@ -3,4 +3,5 @@ namespace monocle;
 table GetChildFoldersRequest
 {
   path:string (id:0);
+  parentpaths:bool = true (id:1);
 }

@@ -293,7 +293,7 @@ ExportProgressWindow::ExportProgressWindow(QWidget* parent, const QString& direc
                 }
               });
               exporttrackconnection->state_ = EXPORTTRACKSTATE_STREAMING;
-            }, ExportProgressWindow::ControlStreamEndCallback, ExportProgressWindow::H265Callback, ExportProgressWindow::H264Callback, ExportProgressWindow::MetadataCallback, ExportProgressWindow::JPEGCallback, ExportProgressWindow::MPEG4Callback, ExportProgressWindow::NewCodecIndexCallback, exporttrackconnection.get());
+            }, ExportProgressWindow::ControlStreamEndCallback, ExportProgressWindow::H265Callback, ExportProgressWindow::H264Callback, ExportProgressWindow::MetadataCallback, ExportProgressWindow::JPEGCallback, ExportProgressWindow::MPEG4Callback, ExportProgressWindow::ObjectDetectorCallback, ExportProgressWindow::NewCodecIndexCallback, exporttrackconnection.get());
           });
         });
       });
@@ -407,6 +407,11 @@ void ExportProgressWindow::timerEvent(QTimerEvent*)
           else if (exporttrackconnection->tracktype_ == monocle::TrackType::Metadata)
           {
             recording->metadatatracks_.insert(file::TRACK(exporttrackconnection->trackid_, exporttrackconnection->trackdescription_.toStdString(), codecsindices));
+
+          }
+          else if (exporttrackconnection->tracktype_ == monocle::TrackType::ObjectDetector)
+          {
+            recording->objectdetectortracks_.insert(file::TRACK(exporttrackconnection->trackid_, exporttrackconnection->trackdescription_.toStdString(), codecsindices));
 
           }
         }
@@ -822,6 +827,28 @@ void ExportProgressWindow::MPEG4Callback(const uint64_t streamtoken, const uint6
 
       exporttrackconnection->AddFrame(imagebuffer, progress, timestamp, size);
       exporttrackconnection->freeframebuffer_.AddFreeImage(imagebuffer);
+      break;
+    }
+  }
+}
+
+void ExportProgressWindow::ObjectDetectorCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
+{
+  ExportTrackConnection* exporttrackconnection = reinterpret_cast<ExportTrackConnection*>(callbackdata);
+  switch (exporttrackconnection->exportformat_)
+  {
+    case EXPORTFORMAT_MONOCLE:
+    {
+      std::lock_guard<std::recursive_mutex> lock(*exporttrackconnection->filewritermutex_);
+      if (exporttrackconnection->filewriter_->WriteObjectDetectorFrame(exporttrackconnection->deviceindex_, exporttrackconnection->recordingtoken_, exporttrackconnection->trackid_, codecindex, reinterpret_cast<const uint8_t*>(signaturedata), signaturedatasize, timestamp, static_cast<file::ObjectDetectorFrameType>(objectdetectorframetype), Signature(signature, signaturesize)))
+      {
+        exporttrackconnection->audit_.push_back("FileWrite::WriteFrame failed");
+        exporttrackconnection->state_ = EXPORTTRACKSTATE_ERROR;
+        return;
+      }
+      exporttrackconnection->currentprogress_ = std::min(1.0f, progress);
+      exporttrackconnection->totalsize_ += size;
+      exporttrackconnection->currentspeed_.push_back(std::make_pair(std::chrono::steady_clock::now(), size));
       break;
     }
   }

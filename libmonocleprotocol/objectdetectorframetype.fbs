@@ -1,0 +1,6 @@
+namespace monocle;
+
+enum ObjectDetectorFrameType : uint16
+{
+  OBJECT_DETECTION = 1
+}

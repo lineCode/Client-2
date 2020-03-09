@@ -38,47 +38,6 @@
       <layout class="QGridLayout" name="gridLayout_3">
        <item row="0" column="0">
         <layout class="QGridLayout" name="gridLayout_2">
-         <item row="9" column="0" colspan="2">
-          <widget class="QCheckBox" name="checkhidemainwindowclosedialog">
-           <property name="text">
-            <string>Hide main window close confirmation dialog</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QSpinBox" name="spinupdatefrequency">
-           <property name="suffix">
-            <string>ms</string>
-           </property>
-           <property name="maximum">
-            <number>100</number>
-           </property>
-           <property name="value">
-            <number>33</number>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="0" colspan="2">
-          <widget class="QCheckBox" name="checkhidemediaclosedialog">
-           <property name="text">
-            <string>Hide media close confirmation dialog</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QComboBox" name="combodoubleclickaction">
-           <item>
-            <property name="text">
-             <string>Stream</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Expand</string>
-            </property>
-           </item>
-          </widget>
-         </item>
          <item row="5" column="0" colspan="2">
           <widget class="QCheckBox" name="checkcheckforupdateonstartup">
            <property name="text">
@@ -86,13 +45,17 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
-          <widget class="QSpinBox" name="spindefaultvideowindowheight">
-           <property name="minimum">
-            <number>1</number>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Default Video Window Height:</string>
            </property>
-           <property name="maximum">
-            <number>25</number>
+          </widget>
+         </item>
+         <item row="9" column="0" colspan="2">
+          <widget class="QCheckBox" name="checkhidemainwindowclosedialog">
+           <property name="text">
+            <string>Hide main window close confirmation dialog</string>
            </property>
           </widget>
          </item>
@@ -113,7 +76,86 @@
            </property>
           </widget>
          </item>
+         <item row="7" column="0" colspan="2">
+          <widget class="QCheckBox" name="checkhidemediaclosedialog">
+           <property name="text">
+            <string>Hide media close confirmation dialog</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0" colspan="2">
+          <widget class="QCheckBox" name="checkshowtokens">
+           <property name="text">
+            <string>Show Token Columns</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSpinBox" name="spindefaultvideowindowheight">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>25</number>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Default Video Window Width:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0" colspan="2">
+          <widget class="QCheckBox" name="checkhidevideowindowclosedialog">
+           <property name="text">
+            <string>Hide video window close confirmation dialog</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="combodoubleclickaction">
+           <item>
+            <property name="text">
+             <string>Stream</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Expand</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="spinupdatefrequency">
+           <property name="suffix">
+            <string>ms</string>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>33</number>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Update Frequency:</string>
+           </property>
+          </widget>
+         </item>
          <item row="10" column="0" colspan="2">
+          <widget class="QCheckBox" name="checkhidenewdevicewindow">
+           <property name="text">
+            <string>Hide new device window helper dialog</string>
+           </property>
+          </widget>
+         </item>
+         <item row="12" column="0" colspan="2">
           <spacer name="verticalSpacer">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -126,34 +168,6 @@
            </property>
           </spacer>
          </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>Default Video Window Width:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0" colspan="2">
-          <widget class="QCheckBox" name="checkshowtokens">
-           <property name="text">
-            <string>Show Token Columns</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>Update Frequency:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_4">
-           <property name="text">
-            <string>Default Video Window Height:</string>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="0">
           <widget class="QLabel" name="label_2">
            <property name="text">
@@ -161,10 +175,10 @@
            </property>
           </widget>
          </item>
-         <item row="8" column="0" colspan="2">
-          <widget class="QCheckBox" name="checkhidevideowindowclosedialog">
+         <item row="11" column="0" colspan="2">
+          <widget class="QCheckBox" name="checkdiscoveryhelper">
            <property name="text">
-            <string>Hide video window close confirmation dialog</string>
+            <string>Discovery Helper</string>
            </property>
           </widget>
          </item>

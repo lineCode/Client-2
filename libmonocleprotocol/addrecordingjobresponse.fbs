@@ -1,0 +1,6 @@
+namespace monocle;
+
+table AddRecordingJobResponse
+{
+  recordingjobtoken:uint64 (id:0);
+}

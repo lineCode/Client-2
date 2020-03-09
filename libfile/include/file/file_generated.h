@@ -20,6 +20,8 @@ struct MetadataFrame;
 
 struct MPEG4Frame;
 
+struct ObjectDetectorFrame;
+
 struct FrameHeader;
 
 struct Track;
@@ -36,67 +38,94 @@ enum class FrameHeaderType : int8_t {
   METADATA = 3,
   MPEG4 = 4,
   H265 = 5,
+  OBJECTDETECTOR = 6,
   MIN = H264,
-  MAX = H265
+  MAX = OBJECTDETECTOR
 };
 
-inline const FrameHeaderType (&EnumValuesFrameHeaderType())[5] {
+inline const FrameHeaderType (&EnumValuesFrameHeaderType())[6] {
   static const FrameHeaderType values[] = {
     FrameHeaderType::H264,
     FrameHeaderType::JPEG,
     FrameHeaderType::METADATA,
     FrameHeaderType::MPEG4,
-    FrameHeaderType::H265
+    FrameHeaderType::H265,
+    FrameHeaderType::OBJECTDETECTOR
   };
   return values;
 }
 
 inline const char * const *EnumNamesFrameHeaderType() {
-  static const char * const names[6] = {
+  static const char * const names[7] = {
     "H264",
     "JPEG",
     "METADATA",
     "MPEG4",
     "H265",
+    "OBJECTDETECTOR",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameFrameHeaderType(FrameHeaderType e) {
-  if (e < FrameHeaderType::H264 || e > FrameHeaderType::H265) return "";
+  if (e < FrameHeaderType::H264 || e > FrameHeaderType::OBJECTDETECTOR) return "";
   const size_t index = static_cast<size_t>(e) - static_cast<size_t>(FrameHeaderType::H264);
   return EnumNamesFrameHeaderType()[index];
 }
 
 enum class MetadataFrameType : uint16_t {
   ONVIF_XML = 1,
-  OBJECT_DETECTION = 2,
   MIN = ONVIF_XML,
-  MAX = OBJECT_DETECTION
+  MAX = ONVIF_XML
 };
 
-inline const MetadataFrameType (&EnumValuesMetadataFrameType())[2] {
+inline const MetadataFrameType (&EnumValuesMetadataFrameType())[1] {
   static const MetadataFrameType values[] = {
-    MetadataFrameType::ONVIF_XML,
-    MetadataFrameType::OBJECT_DETECTION
+    MetadataFrameType::ONVIF_XML
   };
   return values;
 }
 
 inline const char * const *EnumNamesMetadataFrameType() {
-  static const char * const names[3] = {
+  static const char * const names[2] = {
     "ONVIF_XML",
-    "OBJECT_DETECTION",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameMetadataFrameType(MetadataFrameType e) {
-  if (e < MetadataFrameType::ONVIF_XML || e > MetadataFrameType::OBJECT_DETECTION) return "";
+  if (e < MetadataFrameType::ONVIF_XML || e > MetadataFrameType::ONVIF_XML) return "";
   const size_t index = static_cast<size_t>(e) - static_cast<size_t>(MetadataFrameType::ONVIF_XML);
   return EnumNamesMetadataFrameType()[index];
+}
+
+enum class ObjectDetectorFrameType : uint16_t {
+  OBJECT_DETECTOR = 1,
+  MIN = OBJECT_DETECTOR,
+  MAX = OBJECT_DETECTOR
+};
+
+inline const ObjectDetectorFrameType (&EnumValuesObjectDetectorFrameType())[1] {
+  static const ObjectDetectorFrameType values[] = {
+    ObjectDetectorFrameType::OBJECT_DETECTOR
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesObjectDetectorFrameType() {
+  static const char * const names[2] = {
+    "OBJECT_DETECTOR",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameObjectDetectorFrameType(ObjectDetectorFrameType e) {
+  if (e < ObjectDetectorFrameType::OBJECT_DETECTOR || e > ObjectDetectorFrameType::OBJECT_DETECTOR) return "";
+  const size_t index = static_cast<size_t>(e) - static_cast<size_t>(ObjectDetectorFrameType::OBJECT_DETECTOR);
+  return EnumNamesObjectDetectorFrameType()[index];
 }
 
 struct Codec FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
@@ -801,6 +830,106 @@ inline flatbuffers::Offset<MPEG4Frame> CreateMPEG4FrameDirect(
       data__);
 }
 
+struct ObjectDetectorFrame FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CODECINDEX = 4,
+    VT_TIME = 6,
+    VT_SIGNATURE = 8,
+    VT_OBJECTDETECTORFRAMETYPE = 10,
+    VT_DATA = 12
+  };
+  uint64_t codecindex() const {
+    return GetField<uint64_t>(VT_CODECINDEX, 0);
+  }
+  uint64_t time() const {
+    return GetField<uint64_t>(VT_TIME, 0);
+  }
+  const flatbuffers::Vector<uint8_t> *signature() const {
+    return GetPointer<const flatbuffers::Vector<uint8_t> *>(VT_SIGNATURE);
+  }
+  file::ObjectDetectorFrameType objectdetectorframetype() const {
+    return static_cast<file::ObjectDetectorFrameType>(GetField<uint16_t>(VT_OBJECTDETECTORFRAMETYPE, 1));
+  }
+  const flatbuffers::Vector<uint8_t> *data() const {
+    return GetPointer<const flatbuffers::Vector<uint8_t> *>(VT_DATA);
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_CODECINDEX) &&
+           VerifyField<uint64_t>(verifier, VT_TIME) &&
+           VerifyOffset(verifier, VT_SIGNATURE) &&
+           verifier.VerifyVector(signature()) &&
+           VerifyField<uint16_t>(verifier, VT_OBJECTDETECTORFRAMETYPE) &&
+           VerifyOffset(verifier, VT_DATA) &&
+           verifier.VerifyVector(data()) &&
+           verifier.EndTable();
+  }
+};
+
+struct ObjectDetectorFrameBuilder {
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_codecindex(uint64_t codecindex) {
+    fbb_.AddElement<uint64_t>(ObjectDetectorFrame::VT_CODECINDEX, codecindex, 0);
+  }
+  void add_time(uint64_t time) {
+    fbb_.AddElement<uint64_t>(ObjectDetectorFrame::VT_TIME, time, 0);
+  }
+  void add_signature(flatbuffers::Offset<flatbuffers::Vector<uint8_t>> signature) {
+    fbb_.AddOffset(ObjectDetectorFrame::VT_SIGNATURE, signature);
+  }
+  void add_objectdetectorframetype(file::ObjectDetectorFrameType objectdetectorframetype) {
+    fbb_.AddElement<uint16_t>(ObjectDetectorFrame::VT_OBJECTDETECTORFRAMETYPE, static_cast<uint16_t>(objectdetectorframetype), 1);
+  }
+  void add_data(flatbuffers::Offset<flatbuffers::Vector<uint8_t>> data) {
+    fbb_.AddOffset(ObjectDetectorFrame::VT_DATA, data);
+  }
+  explicit ObjectDetectorFrameBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ObjectDetectorFrameBuilder &operator=(const ObjectDetectorFrameBuilder &);
+  flatbuffers::Offset<ObjectDetectorFrame> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<ObjectDetectorFrame>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<ObjectDetectorFrame> CreateObjectDetectorFrame(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t codecindex = 0,
+    uint64_t time = 0,
+    flatbuffers::Offset<flatbuffers::Vector<uint8_t>> signature = 0,
+    file::ObjectDetectorFrameType objectdetectorframetype = file::ObjectDetectorFrameType::OBJECT_DETECTOR,
+    flatbuffers::Offset<flatbuffers::Vector<uint8_t>> data = 0) {
+  ObjectDetectorFrameBuilder builder_(_fbb);
+  builder_.add_time(time);
+  builder_.add_codecindex(codecindex);
+  builder_.add_data(data);
+  builder_.add_signature(signature);
+  builder_.add_objectdetectorframetype(objectdetectorframetype);
+  return builder_.Finish();
+}
+
+inline flatbuffers::Offset<ObjectDetectorFrame> CreateObjectDetectorFrameDirect(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t codecindex = 0,
+    uint64_t time = 0,
+    const std::vector<uint8_t> *signature = nullptr,
+    file::ObjectDetectorFrameType objectdetectorframetype = file::ObjectDetectorFrameType::OBJECT_DETECTOR,
+    const std::vector<uint8_t> *data = nullptr) {
+  auto signature__ = signature ? _fbb.CreateVector<uint8_t>(*signature) : 0;
+  auto data__ = data ? _fbb.CreateVector<uint8_t>(*data) : 0;
+  return file::CreateObjectDetectorFrame(
+      _fbb,
+      codecindex,
+      time,
+      signature__,
+      objectdetectorframetype,
+      data__);
+}
+
 struct FrameHeader FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_OFFSET = 4,
@@ -860,7 +989,8 @@ struct Track FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_H264FRAMEHEADERS = 12,
     VT_JPEGFRAMEHEADERS = 14,
     VT_METADATAFRAMEHEADERS = 16,
-    VT_MPEG4FRAMEHEADERS = 18
+    VT_MPEG4FRAMEHEADERS = 18,
+    VT_OBJECTDETECTORFRAMEHEADERS = 20
   };
   uint64_t index() const {
     return GetField<uint64_t>(VT_INDEX, 0);
@@ -886,6 +1016,9 @@ struct Track FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const flatbuffers::Vector<flatbuffers::Offset<file::FrameHeader>> *mpeg4frameheaders() const {
     return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<file::FrameHeader>> *>(VT_MPEG4FRAMEHEADERS);
   }
+  const flatbuffers::Vector<flatbuffers::Offset<file::FrameHeader>> *objectdetectorframeheaders() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<file::FrameHeader>> *>(VT_OBJECTDETECTORFRAMEHEADERS);
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_INDEX) &&
@@ -909,6 +1042,9 @@ struct Track FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyOffset(verifier, VT_MPEG4FRAMEHEADERS) &&
            verifier.VerifyVector(mpeg4frameheaders()) &&
            verifier.VerifyVectorOfTables(mpeg4frameheaders()) &&
+           VerifyOffset(verifier, VT_OBJECTDETECTORFRAMEHEADERS) &&
+           verifier.VerifyVector(objectdetectorframeheaders()) &&
+           verifier.VerifyVectorOfTables(objectdetectorframeheaders()) &&
            verifier.EndTable();
   }
 };
@@ -940,6 +1076,9 @@ struct TrackBuilder {
   void add_mpeg4frameheaders(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<file::FrameHeader>>> mpeg4frameheaders) {
     fbb_.AddOffset(Track::VT_MPEG4FRAMEHEADERS, mpeg4frameheaders);
   }
+  void add_objectdetectorframeheaders(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<file::FrameHeader>>> objectdetectorframeheaders) {
+    fbb_.AddOffset(Track::VT_OBJECTDETECTORFRAMEHEADERS, objectdetectorframeheaders);
+  }
   explicit TrackBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -961,9 +1100,11 @@ inline flatbuffers::Offset<Track> CreateTrack(
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<file::FrameHeader>>> h264frameheaders = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<file::FrameHeader>>> jpegframeheaders = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<file::FrameHeader>>> metadataframeheaders = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<file::FrameHeader>>> mpeg4frameheaders = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<file::FrameHeader>>> mpeg4frameheaders = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<file::FrameHeader>>> objectdetectorframeheaders = 0) {
   TrackBuilder builder_(_fbb);
   builder_.add_index(index);
+  builder_.add_objectdetectorframeheaders(objectdetectorframeheaders);
   builder_.add_mpeg4frameheaders(mpeg4frameheaders);
   builder_.add_metadataframeheaders(metadataframeheaders);
   builder_.add_jpegframeheaders(jpegframeheaders);
@@ -983,7 +1124,8 @@ inline flatbuffers::Offset<Track> CreateTrackDirect(
     const std::vector<flatbuffers::Offset<file::FrameHeader>> *h264frameheaders = nullptr,
     const std::vector<flatbuffers::Offset<file::FrameHeader>> *jpegframeheaders = nullptr,
     const std::vector<flatbuffers::Offset<file::FrameHeader>> *metadataframeheaders = nullptr,
-    const std::vector<flatbuffers::Offset<file::FrameHeader>> *mpeg4frameheaders = nullptr) {
+    const std::vector<flatbuffers::Offset<file::FrameHeader>> *mpeg4frameheaders = nullptr,
+    const std::vector<flatbuffers::Offset<file::FrameHeader>> *objectdetectorframeheaders = nullptr) {
   auto description__ = description ? _fbb.CreateString(description) : 0;
   auto codecs__ = codecs ? _fbb.CreateVector<flatbuffers::Offset<file::Codec>>(*codecs) : 0;
   auto h265frameheaders__ = h265frameheaders ? _fbb.CreateVector<flatbuffers::Offset<file::FrameHeader>>(*h265frameheaders) : 0;
@@ -991,6 +1133,7 @@ inline flatbuffers::Offset<Track> CreateTrackDirect(
   auto jpegframeheaders__ = jpegframeheaders ? _fbb.CreateVector<flatbuffers::Offset<file::FrameHeader>>(*jpegframeheaders) : 0;
   auto metadataframeheaders__ = metadataframeheaders ? _fbb.CreateVector<flatbuffers::Offset<file::FrameHeader>>(*metadataframeheaders) : 0;
   auto mpeg4frameheaders__ = mpeg4frameheaders ? _fbb.CreateVector<flatbuffers::Offset<file::FrameHeader>>(*mpeg4frameheaders) : 0;
+  auto objectdetectorframeheaders__ = objectdetectorframeheaders ? _fbb.CreateVector<flatbuffers::Offset<file::FrameHeader>>(*objectdetectorframeheaders) : 0;
   return file::CreateTrack(
       _fbb,
       index,
@@ -1000,7 +1143,8 @@ inline flatbuffers::Offset<Track> CreateTrackDirect(
       h264frameheaders__,
       jpegframeheaders__,
       metadataframeheaders__,
-      mpeg4frameheaders__);
+      mpeg4frameheaders__,
+      objectdetectorframeheaders__);
 }
 
 struct Recording FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
@@ -1010,7 +1154,8 @@ struct Recording FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_LOCATION = 8,
     VT_VIDEOTRACKS = 10,
     VT_AUDIOTRACKS = 12,
-    VT_METADATATRACKS = 14
+    VT_METADATATRACKS = 14,
+    VT_OBJECTDETECTORTRACKS = 16
   };
   uint64_t index() const {
     return GetField<uint64_t>(VT_INDEX, 0);
@@ -1030,6 +1175,9 @@ struct Recording FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const flatbuffers::Vector<flatbuffers::Offset<file::Track>> *metadatatracks() const {
     return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<file::Track>> *>(VT_METADATATRACKS);
   }
+  const flatbuffers::Vector<flatbuffers::Offset<file::Track>> *objectdetectortracks() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<file::Track>> *>(VT_OBJECTDETECTORTRACKS);
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_INDEX) &&
@@ -1046,6 +1194,9 @@ struct Recording FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyOffset(verifier, VT_METADATATRACKS) &&
            verifier.VerifyVector(metadatatracks()) &&
            verifier.VerifyVectorOfTables(metadatatracks()) &&
+           VerifyOffset(verifier, VT_OBJECTDETECTORTRACKS) &&
+           verifier.VerifyVector(objectdetectortracks()) &&
+           verifier.VerifyVectorOfTables(objectdetectortracks()) &&
            verifier.EndTable();
   }
 };
@@ -1071,6 +1222,9 @@ struct RecordingBuilder {
   void add_metadatatracks(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<file::Track>>> metadatatracks) {
     fbb_.AddOffset(Recording::VT_METADATATRACKS, metadatatracks);
   }
+  void add_objectdetectortracks(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<file::Track>>> objectdetectortracks) {
+    fbb_.AddOffset(Recording::VT_OBJECTDETECTORTRACKS, objectdetectortracks);
+  }
   explicit RecordingBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -1090,9 +1244,11 @@ inline flatbuffers::Offset<Recording> CreateRecording(
     flatbuffers::Offset<flatbuffers::String> location = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<file::Track>>> videotracks = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<file::Track>>> audiotracks = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<file::Track>>> metadatatracks = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<file::Track>>> metadatatracks = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<file::Track>>> objectdetectortracks = 0) {
   RecordingBuilder builder_(_fbb);
   builder_.add_index(index);
+  builder_.add_objectdetectortracks(objectdetectortracks);
   builder_.add_metadatatracks(metadatatracks);
   builder_.add_audiotracks(audiotracks);
   builder_.add_videotracks(videotracks);
@@ -1108,12 +1264,14 @@ inline flatbuffers::Offset<Recording> CreateRecordingDirect(
     const char *location = nullptr,
     const std::vector<flatbuffers::Offset<file::Track>> *videotracks = nullptr,
     const std::vector<flatbuffers::Offset<file::Track>> *audiotracks = nullptr,
-    const std::vector<flatbuffers::Offset<file::Track>> *metadatatracks = nullptr) {
+    const std::vector<flatbuffers::Offset<file::Track>> *metadatatracks = nullptr,
+    const std::vector<flatbuffers::Offset<file::Track>> *objectdetectortracks = nullptr) {
   auto name__ = name ? _fbb.CreateString(name) : 0;
   auto location__ = location ? _fbb.CreateString(location) : 0;
   auto videotracks__ = videotracks ? _fbb.CreateVector<flatbuffers::Offset<file::Track>>(*videotracks) : 0;
   auto audiotracks__ = audiotracks ? _fbb.CreateVector<flatbuffers::Offset<file::Track>>(*audiotracks) : 0;
   auto metadatatracks__ = metadatatracks ? _fbb.CreateVector<flatbuffers::Offset<file::Track>>(*metadatatracks) : 0;
+  auto objectdetectortracks__ = objectdetectortracks ? _fbb.CreateVector<flatbuffers::Offset<file::Track>>(*objectdetectortracks) : 0;
   return file::CreateRecording(
       _fbb,
       index,
@@ -1121,7 +1279,8 @@ inline flatbuffers::Offset<Recording> CreateRecordingDirect(
       location__,
       videotracks__,
       audiotracks__,
-      metadatatracks__);
+      metadatatracks__,
+      objectdetectortracks__);
 }
 
 struct Device FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {

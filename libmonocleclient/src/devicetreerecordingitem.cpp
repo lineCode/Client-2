@@ -9,12 +9,10 @@
 #include <QMessageBox>
 #include <QStringList>
 
+#include "monocleclient/devicetreerecordingtrackitem.h"
 #include "monocleclient/mainwindow.h"
-#include "monocleclient/managerecordingjobswindow.h"
 #include "monocleclient/managerecordingwindow.h"
-#include "monocleclient/managerecordingtrackswindow.h"
-#include "monocleclient/devicetreerecordingjobsitem.h"
-#include "monocleclient/devicetreerecordingtracksitem.h"
+#include "monocleclient/managetrackwindow.h"
 #include "monocleclient/receiver.h"
 #include "monocleclient/recording.h"
 #include "monocleclient/recordingjob.h"
@@ -29,30 +27,31 @@ namespace client
 
 ///// Methods /////
 
-DeviceTreeRecordingItem::DeviceTreeRecordingItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QIcon& recordingicon) :
+DeviceTreeRecordingItem::DeviceTreeRecordingItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QIcon& recordingicon, const QIcon& cameraicon) :
   DeviceTreeItem(parent, recording->GetName()),
   device_(device),
   recording_(recording),
+  cameraicon_(cameraicon),
   edit_(new QAction("Edit", this)),
-  managetracks_(new QAction("Manage Tracks", this)),
-  managejobs_(new QAction("Manage Jobs", this)),
+  addvideotrack_(new QAction("Add Video Track", this)),
   remove_(new QAction("Remove", this)),
   viewlog_(new QAction("View Log", this))
 {
+  connect(recording_.data(), &Recording::TrackAdded, this, &DeviceTreeRecordingItem::TrackAdded);
+  connect(recording_.data(), &Recording::TrackRemoved, this, &DeviceTreeRecordingItem::TrackRemoved);
+  connect(recording_.data(), &Recording::JobSourceTrackAdded, this, &DeviceTreeRecordingItem::JobSourceTrackAdded);
+  connect(recording_.data(), &Recording::JobSourceTrackRemoved, this, &DeviceTreeRecordingItem::JobSourceTrackRemoved);
   connect(recording_.data(), &Recording::ActiveJobChanged, this, &DeviceTreeRecordingItem::ActiveJobChanged);
   connect(recording_.data(), &Recording::JobSourceAdded, this, &DeviceTreeRecordingItem::RecordingJobSourceAdded);
   connect(recording_.data(), &Recording::JobSourceRemoved, this, &DeviceTreeRecordingItem::RecordingJobSourceRemoved);
   connect(recording_.data(), &Recording::JobSourceTrackStateChanged, this, &DeviceTreeRecordingItem::RecordingJobSourceTrackStateChanged);
 
   connect(edit_, &QAction::triggered, this, &DeviceTreeRecordingItem::Edit);
-  connect(managetracks_, &QAction::triggered, this, &DeviceTreeRecordingItem::ManageTracks);
-  connect(managejobs_, &QAction::triggered, this, &DeviceTreeRecordingItem::ManageJobs);
+  connect(addvideotrack_, &QAction::triggered, this, &DeviceTreeRecordingItem::AddVideoTrack);
   connect(remove_, &QAction::triggered, this, &DeviceTreeRecordingItem::Remove);
   connect(viewlog_, &QAction::triggered, this, &DeviceTreeRecordingItem::ViewLog);
 
-  addChild(new DeviceTreeRecordingTracksItem(this, device_, recording_));
-  addChild(new DeviceTreeRecordingJobsItem(this, device_, recording_));
-
+  UpdateChildren();
   UpdateToolTip();
 
   setIcon(0, recordingicon);
@@ -68,8 +67,11 @@ void DeviceTreeRecordingItem::ContextMenuEvent(const QPoint& pos)
 {
   QMenu* menu = new QMenu(treeWidget());
   menu->addAction(edit_);
-  menu->addAction(managetracks_);
-  menu->addAction(managejobs_);
+  if (recording_->GetNumVideoTracks() < 5)
+  {
+    menu->addAction(addvideotrack_);
+
+  }
   menu->addAction(remove_);
   menu->addAction(viewlog_);
   menu->exec(pos);
@@ -136,6 +138,18 @@ void DeviceTreeRecordingItem::UpdateToolTip()
 
       for (const QSharedPointer<client::RecordingJobSourceTrack>& track : source->GetTracks())
       {
+        if (!track->GetTrack())
+        {
+
+          continue;
+        }
+
+        if (track->GetTrack()->GetTrackType() == monocle::TrackType::ObjectDetector)
+        {
+
+          continue;
+        }
+
         monocle::TrackType tracktype = monocle::TrackType::Video;
         if (track->GetTrack() && (track->GetTrack()->GetTrackType() == monocle::TrackType::Metadata))
         {
@@ -145,21 +159,21 @@ void DeviceTreeRecordingItem::UpdateToolTip()
 
         if (track->GetState() == monocle::RecordingJobState::Idle)
         {
-          if (tracktype != monocle::TrackType::Metadata) // Metadata might not send frames for long durations and may become idle
+          if ((tracktype != monocle::TrackType::Metadata) && !receiver->GetMediaUri().isEmpty()) // Metadata might not send frames for long durations and may become idle. Empty URI is ok to be idle as well
           {
             error = true;
 
           }
-          tooltips.append(receiver->GetMediaUri() + ": Idle");
+          tooltips.append(Tooltip(receiver->GetMediaUri(), "Idle"));
         }
         else if (track->GetState() == monocle::RecordingJobState::Error)
         {
           error = true;
-          tooltips.append(receiver->GetMediaUri() + ": Error " + track->GetError());
+          tooltips.append(Tooltip(receiver->GetMediaUri(), "Error " + track->GetError()));
         }
         else // if (track->GetState() == monocle::RecordingJobState::Active)
         {
-          tooltips.append(receiver->GetMediaUri() + ": Active");
+          tooltips.append(Tooltip(receiver->GetMediaUri(), "Active"));
 
         }
       }
@@ -183,6 +197,116 @@ void DeviceTreeRecordingItem::UpdateToolTip()
   }
 }
 
+void DeviceTreeRecordingItem::UpdateChildren()
+{
+  // Add any children
+  for (const QSharedPointer<RecordingJob>& job : recording_->GetJobs())
+  {
+    for (const QSharedPointer<RecordingJobSource>& source : job->GetSources())
+    {
+      for (const QSharedPointer<RecordingJobSourceTrack>& sourcetrack : source->GetTracks())
+      {
+        const QSharedPointer<RecordingTrack>& track = sourcetrack->GetTrack();
+        if (track->GetTrackType() != monocle::TrackType::Video)
+        {
+
+          continue;
+        }
+
+        if (GetChild(sourcetrack, track)) // If we already have this child, ignore this
+        {
+
+          continue;
+        }
+
+        addChild(new DeviceTreeRecordingTrackItem(this, device_, recording_, job, source, sourcetrack, track, cameraicon_));
+      }
+    }
+  }
+
+  // Clear up any that may have disappeared
+  for (int i = (childCount() - 1); i >= 0; --i)
+  {
+    DeviceTreeRecordingTrackItem* item = static_cast<DeviceTreeRecordingTrackItem*>(child(i));
+    if (!Exists(item->GetRecordingJobSourceTrack(), item->GetTrack()))
+    {
+      removeChild(item);
+
+    }
+  }
+}
+
+DeviceTreeRecordingTrackItem* DeviceTreeRecordingItem::GetChild(const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& track) const
+{
+  for (int i = 0; i < childCount(); ++i)
+  {
+    DeviceTreeRecordingTrackItem* item = static_cast<DeviceTreeRecordingTrackItem*>(child(i));
+    if ((item->GetRecordingJobSourceTrack() == recordingjobsourcetrack) && (item->GetTrack() == track))
+    {
+
+      return item;
+    }
+  }
+  return nullptr;
+}
+
+bool DeviceTreeRecordingItem::Exists(const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& track) const
+{
+  for (const QSharedPointer<RecordingJob>& job : recording_->GetJobs())
+  {
+    for (const QSharedPointer<RecordingJobSource>& source : job->GetSources())
+    {
+      for (const QSharedPointer<RecordingJobSourceTrack>& sourcetrack : source->GetTracks())
+      {
+        if ((recordingjobsourcetrack == sourcetrack) && (sourcetrack->GetTrack() == track))
+        {
+
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
+QString DeviceTreeRecordingItem::Tooltip(const QString& mediauri, const QString& status) const
+{
+  if (mediauri.isEmpty())
+  {
+
+    return status;
+  }
+  else
+  {
+
+    return (mediauri + ": " + status);
+  }
+}
+
+void DeviceTreeRecordingItem::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)
+{
+  UpdateChildren();
+  UpdateToolTip();
+}
+
+void DeviceTreeRecordingItem::TrackRemoved(const uint32_t id)
+{
+  UpdateChildren();
+  UpdateToolTip();
+}
+
+void DeviceTreeRecordingItem::JobSourceTrackAdded(const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource, const QSharedPointer<client::RecordingJobSourceTrack>& recordingjobsourcetrack)
+{
+  UpdateChildren();
+  UpdateToolTip();
+}
+
+void DeviceTreeRecordingItem::JobSourceTrackRemoved(const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource, const uint64_t token)
+{
+  UpdateChildren();
+  UpdateToolTip();
+}
+
 void DeviceTreeRecordingItem::ActiveJobChanged(const QSharedPointer<client::RecordingJob>& activejob)
 {
   UpdateToolTip();
@@ -191,20 +315,20 @@ void DeviceTreeRecordingItem::ActiveJobChanged(const QSharedPointer<client::Reco
 
 void DeviceTreeRecordingItem::RecordingJobSourceAdded(const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource)
 {
+  UpdateChildren();
   UpdateToolTip();
-
 }
 
 void DeviceTreeRecordingItem::RecordingJobSourceRemoved(const QSharedPointer<client::RecordingJob>& recordingjob, const uint64_t token)
 {
+  UpdateChildren();
   UpdateToolTip();
-
 }
 
 void DeviceTreeRecordingItem::RecordingJobSourceTrackStateChanged(const QSharedPointer<client::RecordingJob>& job, const QSharedPointer<client::RecordingJobSource>& source, const QSharedPointer<client::RecordingJobSourceTrack>& track, const uint64_t time, const monocle::RecordingJobState state, const QString& error, const monocle::RecordingJobState prevstate)
 {
+  UpdateChildren();
   UpdateToolTip();
-
 }
 
 void DeviceTreeRecordingItem::Edit(bool)
@@ -213,15 +337,9 @@ void DeviceTreeRecordingItem::Edit(bool)
 
 }
 
-void DeviceTreeRecordingItem::ManageTracks(bool)
+void DeviceTreeRecordingItem::AddVideoTrack(bool)
 {
-  ManageRecordingTracksWindow(treeWidget(), device_, recording_).exec();
-
-}
-
-void DeviceTreeRecordingItem::ManageJobs(bool)
-{
-  ManageRecordingJobsWindow(treeWidget(), device_, recording_).exec();
+  ManageTrackWindow(treeWidget(), device_, recording_, nullptr, nullptr, nullptr, nullptr, QString()).exec();
 
 }
 
