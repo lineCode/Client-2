@@ -13130,47 +13130,54 @@ const std::string& ToString(const OPERATINGSYSTEM operatingsystem)
 
 const std::string& GetCompiler()
 {
-#ifdef BOOST_COMP_MSVC
-  #if (_MSC_VER >= 1900)
-  static const std::string compiler("MSVC 14");
-  return compiler;
-  #elif (_MSC_VER >= 1800)
-  static const std::string compiler("MSVC 12");
-  return compiler;
-  #elif (_MSC_VER >= 1700)
-  static const std::string compiler("MSVC 11");
-  return compiler;
-  #elif (_MSC_VER >= 1600)
-  static const std::string compiler("MSVC 10");
-  return compiler;
-  #elif (_MSC_VER >= 1500)
-  static const std::string compiler("MSVC 9");
-  return compiler;
-  #elif (_MSC_VER >= 1400)
-  static const std::string compiler("MSVC 8");
-  return compiler;
-  #elif (_MSC_VER >= 1310)
-  static const std::string compiler("MSVC 7.1");
-  return compiler;
-  #elif (_MSC_VER >= 1300)
-  static const std::string compiler("MSVC 7");
-  return compiler;
-  #elif (_MSC_VER >= 1200)
-  static const std::string compiler("MSVC 6");
-  return compiler;
-  #elif (_MSC_VER >= 1100)
-  static const std::string compiler("MSVC 5");
-  return compiler;
+#ifdef _WIN32
+  #ifdef BOOST_COMP_MSVC
+    #if (_MSC_VER >= 1900)
+    static const std::string compiler("MSVC 14");
+    return compiler;
+    #elif (_MSC_VER >= 1800)
+    static const std::string compiler("MSVC 12");
+    return compiler;
+    #elif (_MSC_VER >= 1700)
+    static const std::string compiler("MSVC 11");
+    return compiler;
+    #elif (_MSC_VER >= 1600)
+    static const std::string compiler("MSVC 10");
+    return compiler;
+    #elif (_MSC_VER >= 1500)
+    static const std::string compiler("MSVC 9");
+    return compiler;
+    #elif (_MSC_VER >= 1400)
+    static const std::string compiler("MSVC 8");
+    return compiler;
+    #elif (_MSC_VER >= 1310)
+    static const std::string compiler("MSVC 7.1");
+    return compiler;
+    #elif (_MSC_VER >= 1300)
+    static const std::string compiler("MSVC 7");
+    return compiler;
+    #elif (_MSC_VER >= 1200)
+    static const std::string compiler("MSVC 6");
+    return compiler;
+    #elif (_MSC_VER >= 1100)
+    static const std::string compiler("MSVC 5");
+    return compiler;
+    #else
+    static const std::string compiler("MSVC");
+    return compiler;
+    #endif
   #else
-  static const std::string compiler("MSVC");
-  return compiler;
+    static const std::string compiler("Unknown");
+    return compiler;
   #endif
-#elif BOOST_COMP_GNUC
-  static const std::string compiler(std::string("GCC ") + std::to_string(__GNUC__) + std::string(" ") + std::to_string(__GNUC_MINOR__));
-  return compiler;
 #else
-  static const std::string compiler("Unknown");
-  return compiler;
+  #if BOOST_COMP_GNUC
+    static const std::string compiler(std::string("GCC ") + std::to_string(__GNUC__) + std::string(" ") + std::to_string(__GNUC_MINOR__));
+    return compiler;
+  #else
+    static const std::string compiler("Unknown");
+    return compiler;
+  #endif
 #endif
 }
 

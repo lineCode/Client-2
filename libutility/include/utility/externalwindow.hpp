@@ -29,7 +29,7 @@ class ExternalWindow
 #ifdef _WIN32
   ExternalWindow(const HWND hwnd);
 #else
-  ExternalWindow(const Window* hwnd);
+  ExternalWindow(Window* hwnd);
 #endif
 
   void Show();

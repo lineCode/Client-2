@@ -12,6 +12,7 @@
 #include <boost/system/error_code.hpp>
 #include <iostream>
 #include <stdint.h>
+#include <monocleclient/device.h>
 #include <monocleclient/log.h>
 #include <monocleclient/mainwindow.h>
 #include <monocleclient/options.h>
@@ -42,6 +43,7 @@ Q_DECLARE_METATYPE(boost::optional<QString>)
 Q_DECLARE_METATYPE(boost::optional<uint64_t>)
 Q_DECLARE_METATYPE(boost::system::error_code)
 Q_DECLARE_METATYPE(client::LOGLEVEL)
+Q_DECLARE_METATYPE(client::DEVICESTATE)
 Q_DECLARE_METATYPE(const char*)
 Q_DECLARE_METATYPE(monocle::FileState)
 Q_DECLARE_METATYPE(monocle::FileMonitorState)

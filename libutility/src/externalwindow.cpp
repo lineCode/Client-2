@@ -109,7 +109,7 @@ std::vector<ExternalWindow> GetExternalWindows(const std::string& executablename
 #ifdef _WIN32
 ExternalWindow::ExternalWindow(const HWND hwnd) :
 #else
-ExternalWindow::ExternalWindow(const Window* hwnd) :
+ExternalWindow::ExternalWindow(Window* hwnd) :
 #endif
   hwnd_(hwnd)
 {
