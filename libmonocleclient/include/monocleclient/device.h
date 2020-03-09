@@ -50,8 +50,6 @@ enum class DEVICESTATE : int
   SUBSCRIBED
 };
 
-Q_DECLARE_METATYPE(client::DEVICESTATE)
-
 ///// Structures /////
 
 struct MOUNTPOINT

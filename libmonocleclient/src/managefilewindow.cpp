@@ -183,11 +183,20 @@ void ManageFileWindow::on_checkfilldisk_toggled(const bool)
 
 void ManageFileWindow::on_buttonok_clicked()
 {
-  //TODO make sure editpath contains a proper path with a leaf thing
-    //TODO windows nad linux treat things differently, definitely can't use boost, can we use Qt?
+  const std::string path = ui_.editpath->text().toStdString();
+  if (path.empty())
+  {
+    QMessageBox(QMessageBox::Warning, tr("Error"), tr("Path required"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+    return;
+  }
+
+  if (path.back() == '/')
+  {
+    QMessageBox(QMessageBox::Warning, tr("Error"), tr("Path must represent a file, not a directory"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+    return;
+  }
 
   std::string mountpoint;
-  const std::string path = ui_.editpath->text().toStdString();
   if (device_->IsLinux())
   {
     mountpoint = ui_.editmountpoint->text().toStdString();
