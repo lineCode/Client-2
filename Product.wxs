@@ -231,7 +231,7 @@
         <File
           Id="nvcuda"
           Name="nvcuda.dll"
-          Source="C:/Windows/System32/nvcuda.dll"
+          Source="nvcuda.dll"
           DiskId="1"
           Vital="yes"
           KeyPath="yes" />
@@ -241,7 +241,7 @@
         <File
           Id="nvfatbinaryLoader"
           Name="nvfatbinaryLoader.dll"
-          Source="C:/Windows/System32/nvfatbinaryLoader.dll"
+          Source="nvfatbinaryLoader.dll"
           DiskId="1"
           Vital="yes"
           KeyPath="yes" />
@@ -279,9 +279,9 @@
 
       <Component Directory="INSTALLFOLDER" Guid="5a7db52e-bffe-489d-8cd1-7629b7742c79">
         <File
-          Id="libGLESv2"
-          Name="libGLESv2.dll"
-          Source="$(env.QT_DIR)/bin/libGLESv2.dll"
+          Id="libGLESV2"
+          Name="libGLESV2.dll"
+          Source="$(env.QT_DIR)/bin/libGLESV2.dll"
           DiskId="1"
           Vital="yes"
           KeyPath="yes" />
@@ -381,17 +381,17 @@
         <File
           Id="msvcp140"
           Name="msvcp140.dll"
-          Source="C:/Windows/System32/msvcp140.dll"
+          Source="msvcp140.dll"
           DiskId="1"
           Vital="yes"
           KeyPath="yes" />
       </Component>
 
-      <Component Id="msvcp" Directory="INSTALLFOLDER" Guid="713d687f-49c7-4e57-8fc7-e594b4d4f421">
+      <Component Id="vcruntime" Directory="INSTALLFOLDER" Guid="713d687f-49c7-4e57-8fc7-e594b4d4f421">
         <File
           Id="vcruntime140"
           Name="vcruntime140.dll"
-          Source="C:/Windows/System32/vcruntime140.dll"
+          Source="vcruntime140.dll"
           DiskId="1"
           Vital="yes"
           KeyPath="yes" />
