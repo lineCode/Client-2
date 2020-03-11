@@ -1,0 +1,12 @@
+namespace monocle;
+
+table GPUStat
+{
+  uuid:string (id:0);
+  name:string (id:1);
+  gpuusage:uint (id:2);
+  memoryusage:uint (id:3);
+  freememory:uint64 (id:4);
+  totalmemory:uint64 (id:5);
+  usedmemory:uint64 (id:6);
+}

@@ -162,9 +162,9 @@ void Connection::H264Frame(const uint64_t token, const uint64_t playrequestindex
   stream->H264Frame(playrequestindex, codecindex, marker, timestamp, sequencenum, progress, signature, signaturesize, offsets, numoffsets, data, size);
 }
 
-void Connection::HardwareStatsMessage(const uint64_t time, const std::vector<monocle::DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory, const uint64_t availablememory)
+void Connection::HardwareStatsMessage(const uint64_t time, const std::vector<monocle::DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory, const uint64_t availablememory, const std::vector<monocle::GPUSTAT>& gpustats)
 {
-  emit SignalHardwareStats(time, diskstats, cpuusage, totalmemory, availablememory);
+  emit SignalHardwareStats(time, diskstats, cpuusage, totalmemory, availablememory, gpustats);
 
 }
 

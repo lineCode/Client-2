@@ -543,7 +543,7 @@ boost::system::error_code Connection::SendH264Frame(const uint64_t stream, const
   return err;
 }
 
-boost::system::error_code Connection::SendHardwareStats(const uint64_t timestamp, const std::vector<monocle::DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory, const uint64_t availablememory)
+boost::system::error_code Connection::SendHardwareStats(const uint64_t timestamp, const std::vector<monocle::DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory, const uint64_t availablememory, const std::vector<monocle::GPUSTAT>& gpustats)
 {
   std::lock_guard<std::mutex> lock(writemutex_);
   std::vector< flatbuffers::Offset<monocle::DiskStat> > diskstatsbuffer;
@@ -554,7 +554,14 @@ boost::system::error_code Connection::SendHardwareStats(const uint64_t timestamp
 
   }
 
-  fbb_.Finish(CreateHardwareStats(fbb_, timestamp, fbb_.CreateVector(diskstatsbuffer), cpuusage, totalmemory, availablememory));
+  std::vector< flatbuffers::Offset<monocle::GPUStat> > gputatsbuffer;
+  for (const GPUSTAT& gpustat : gpustats)
+  {
+    gputatsbuffer.push_back(CreateGPUStat(fbb_, fbb_.CreateString(gpustat.uuid_), fbb_.CreateString(gpustat.name_), gpustat.gpuusage_, gpustat.memoryusage_, gpustat.freememory_, gpustat.totalmemory_, gpustat.usedmemory_));
+
+  }
+
+  fbb_.Finish(CreateHardwareStats(fbb_, timestamp, fbb_.CreateVector(diskstatsbuffer), cpuusage, totalmemory, availablememory, fbb_.CreateVector(gputatsbuffer)));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::HARDWARESTATS, ++sequence_);
   const std::array<boost::asio::const_buffer, 2> buffers =

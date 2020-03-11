@@ -7,6 +7,7 @@
 #include "flatbuffers/flatbuffers.h"
 
 #include "diskstat_generated.h"
+#include "gpustat_generated.h"
 #include "hardwarestats_generated.h"
 
 namespace monocle {
