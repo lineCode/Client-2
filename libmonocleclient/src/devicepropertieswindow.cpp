@@ -27,12 +27,22 @@ DISKSERIES::DISKSERIES(const QString& device) :
 
 }
 
+GPUSERIES::GPUSERIES(const QString& uuid, const QString& name) :
+  uuid_(uuid),
+  name_(name)
+{
+
+}
+
 DevicePropertiesWindow::DevicePropertiesWindow(QWidget* parent, boost::shared_ptr<Device>& device) :
   QDialog(parent),
   device_(device),
-  hardwareaxisx_(new QValueAxis(this)),
+  cpuaxisx_(new QValueAxis(this)),
   cpuaxisy_(new QValueAxis(this)),
-  memoryaxisy_(new QValueAxis(this)),
+  cpumemoryaxisy_(new QValueAxis(this)),
+  gpuaxisx_(new QValueAxis(this)),
+  gpuaxisy_(new QValueAxis(this)),
+  gpumemoryaxisy_(new QValueAxis(this)),
   diskaxisx_(new QValueAxis(this)),
   utilityaxisy_(new QValueAxis(this)),
   speedaxisy_(new QValueAxis(this)),
@@ -124,35 +134,56 @@ DevicePropertiesWindow::DevicePropertiesWindow(QWidget* parent, boost::shared_pt
     }
   }
 
-  // Hardware Chart
-  ui_.chartviewhardwarestatistics->chart()->addSeries(cpu_);
-  ui_.chartviewhardwarestatistics->chart()->addSeries(memory_);
+  // CPU Chart
+  ui_.chartviewcpustatistics->chart()->addSeries(cpu_);
+  ui_.chartviewcpustatistics->chart()->addSeries(memory_);
   cpu_->setName("CPU");
   memory_->setName("Memory");
 
-  hardwareaxisx_->setTitleText("Seconds");
-  ui_.chartviewhardwarestatistics->chart()->addAxis(hardwareaxisx_, Qt::AlignBottom);
-  hardwareaxisx_->setReverse(true);
-  hardwareaxisx_->setMin(0.0);
-  hardwareaxisx_->setMax(60.0);
+  cpuaxisx_->setTitleText("Seconds");
+  ui_.chartviewcpustatistics->chart()->addAxis(cpuaxisx_, Qt::AlignBottom);
+  cpuaxisx_->setReverse(true);
+  cpuaxisx_->setMin(0.0);
+  cpuaxisx_->setMax(60.0);
 
   // CPU
   cpuaxisy_->setLabelFormat("%d%%");
   cpuaxisy_->setTitleText("CPU");
   cpuaxisy_->setMin(0.0);
   cpuaxisy_->setMax(100.0);
-  ui_.chartviewhardwarestatistics->chart()->addAxis(cpuaxisy_, Qt::AlignLeft);
-  cpu_->attachAxis(hardwareaxisx_);
+  ui_.chartviewcpustatistics->chart()->addAxis(cpuaxisy_, Qt::AlignLeft);
+  cpu_->attachAxis(cpuaxisx_);
   cpu_->attachAxis(cpuaxisy_);
 
-  // Memory
-  memoryaxisy_->setLabelFormat("%dMB");
-  memoryaxisy_->setTitleText("Memory");
-  memoryaxisy_->setMin(0.0);
-  memoryaxisy_->setMax(1024.0);
-  ui_.chartviewhardwarestatistics->chart()->addAxis(memoryaxisy_, Qt::AlignRight);
-  memory_->attachAxis(hardwareaxisx_);
-  memory_->attachAxis(memoryaxisy_);
+  // CPU Memory
+  cpumemoryaxisy_->setLabelFormat("%dMB");
+  cpumemoryaxisy_->setTitleText("Memory");
+  cpumemoryaxisy_->setMin(0.0);
+  cpumemoryaxisy_->setMax(1024.0);
+  ui_.chartviewcpustatistics->chart()->addAxis(cpumemoryaxisy_, Qt::AlignRight);
+  memory_->attachAxis(cpuaxisx_);
+  memory_->attachAxis(cpumemoryaxisy_);
+
+  // GPU Chart
+  gpuaxisx_->setTitleText("Seconds");
+  ui_.chartviewgpustatistics->chart()->addAxis(gpuaxisx_, Qt::AlignBottom);
+  gpuaxisx_->setReverse(true);
+  gpuaxisx_->setMin(0.0);
+  gpuaxisx_->setMax(60.0);
+
+  // GPU
+  gpuaxisy_->setLabelFormat("%d%%");
+  gpuaxisy_->setTitleText("GPU");
+  gpuaxisy_->setMin(0.0);
+  gpuaxisy_->setMax(100.0);
+  ui_.chartviewgpustatistics->chart()->addAxis(gpuaxisy_, Qt::AlignLeft);
+
+  // GPU Memory
+  gpumemoryaxisy_->setLabelFormat("%dMB");
+  gpumemoryaxisy_->setTitleText("Memory");
+  gpumemoryaxisy_->setMin(0.0);
+  gpumemoryaxisy_->setMax(1024.0);
+  ui_.chartviewgpustatistics->chart()->addAxis(gpumemoryaxisy_, Qt::AlignRight);
 
   // Disk Chart
   diskaxisx_->setTitleText("Seconds");
@@ -175,7 +206,9 @@ DevicePropertiesWindow::DevicePropertiesWindow(QWidget* parent, boost::shared_pt
   speedaxisy_->setMax(maxspeed_);
   ui_.chartviewdiskstatistics->chart()->addAxis(speedaxisy_, Qt::AlignRight);
 
-  ui_.chartviewhardwarestatistics->setRenderHint(QPainter::Antialiasing);
+  ui_.chartviewcpustatistics->setRenderHint(QPainter::Antialiasing);
+  ui_.chartviewgpustatistics->setRenderHint(QPainter::Antialiasing);
+  ui_.chartviewdiskstatistics->setRenderHint(QPainter::Antialiasing);
 
   // Hardware stats
   subscribehardwarestats_ = device_->SubscribeHardwareStats([this](const std::chrono::steady_clock::duration latency, const monocle::client::SUBSCRIBEHARDWARESTATSRESPONSE& subscribehardwarestatsresponse)
@@ -187,12 +220,18 @@ DevicePropertiesWindow::DevicePropertiesWindow(QWidget* parent, boost::shared_pt
     }
 
     prevtime_ = subscribehardwarestatsresponse.currenthardwarestats_.time_;
-    memoryaxisy_->setMax(subscribehardwarestatsresponse.currenthardwarestats_.totalmemory_ / (1024.0 * 1024.0));
+    cpumemoryaxisy_->setMax(subscribehardwarestatsresponse.currenthardwarestats_.totalmemory_ / (1024.0 * 1024.0));
 
     cpu_->append(0.0, subscribehardwarestatsresponse.currenthardwarestats_.cpuusage_ * 100.0);
     cpupoints_.push_back(QPointF(0.0, subscribehardwarestatsresponse.currenthardwarestats_.cpuusage_ * 100.0));
     memory_->append(0.0, (subscribehardwarestatsresponse.currenthardwarestats_.totalmemory_ - subscribehardwarestatsresponse.currenthardwarestats_.availablememory_) / (1024.0 * 1024.0));
     memorypoints_.push_back(QPointF(0.0, (subscribehardwarestatsresponse.currenthardwarestats_.totalmemory_ - subscribehardwarestatsresponse.currenthardwarestats_.availablememory_) / (1024.0 * 1024.0)));
+
+    for (const monocle::GPUSTAT& gpustat : subscribehardwarestatsresponse.currenthardwarestats_.gpustats_)
+    {
+      AddSeries(gpustat);
+
+    }
 
     for (const monocle::DISKSTAT& diskstat : subscribehardwarestatsresponse.currenthardwarestats_.diskstats_)
     {
@@ -207,6 +246,54 @@ DevicePropertiesWindow::~DevicePropertiesWindow()
   subscribehardwarestats_.Close();
 
   device_->UnsubscribeHardwareStats(); // We don't really care if this fails, we are leaving this window
+}
+
+void DevicePropertiesWindow::AddSeries(const monocle::GPUSTAT& gpustat)
+{
+  std::unique_ptr<GPUSERIES> gpuseries = std::make_unique<GPUSERIES>(QString::fromStdString(gpustat.uuid_), QString::fromStdString(gpustat.name_));
+  gpuseries->usage_ = new QLineSeries(this);
+  gpuseries->memoryusage_ = new QLineSeries(this);
+  gpuseries->memory_ = new QLineSeries(this);
+
+  ui_.chartviewgpustatistics->chart()->addSeries(gpuseries->usage_);
+  ui_.chartviewgpustatistics->chart()->addSeries(gpuseries->memoryusage_);
+  ui_.chartviewgpustatistics->chart()->addSeries(gpuseries->memory_);
+
+  gpuseries->usage_->setName(gpuseries->name_);
+  gpuseries->memoryusage_->setName(gpuseries->name_);
+  gpuseries->memory_->setName(gpuseries->name_);
+
+  gpuseries->usage_->attachAxis(gpuaxisx_);
+  gpuseries->memoryusage_->attachAxis(gpuaxisx_);
+  gpuseries->memory_->attachAxis(gpuaxisx_);
+
+  gpuseries->usage_->attachAxis(gpuaxisy_);
+  gpuseries->memoryusage_->attachAxis(gpuaxisy_);
+  gpuseries->memory_->attachAxis(gpumemoryaxisy_);
+
+  // Each device gets one color
+  gpuseries->memoryusage_->setColor(gpuseries->usage_->color());
+  gpuseries->memory_->setColor(gpuseries->usage_->color());
+
+  gpuseries->usagepoints_.push_back(QPointF(0.0, gpustat.gpuusage_));
+  gpuseries->memoryusagepoints_.push_back(QPointF(0.0, gpustat.memoryusage_));
+  gpuseries->memorypoints_.push_back(QPointF(0.0, gpustat.usedmemory_ / (1024 * 1024)));
+
+  gpuseries->usage_->replace(gpuseries->usagepoints_);
+  gpuseries->memoryusage_->replace(gpuseries->memoryusagepoints_);
+  gpuseries->memory_->replace(gpuseries->memorypoints_);
+
+  // Only show one of the series in the legend as they all share the same color
+  for (QtCharts::QLegendMarker* marker : ui_.chartviewgpustatistics->chart()->legend()->markers())
+  {
+    if ((marker->series() == gpuseries->memoryusage_) || (marker->series() == gpuseries->memory_))
+    {
+      marker->setVisible(false);
+
+    }
+  }
+
+  gpuseries_.emplace_back(std::move(gpuseries));
 }
 
 void DevicePropertiesWindow::AddSeries(const monocle::DISKSTAT& diskstat)
@@ -258,9 +345,66 @@ void DevicePropertiesWindow::AddSeries(const monocle::DISKSTAT& diskstat)
   diskseries_.emplace_back(std::move(diskseries));
 }
 
+void DevicePropertiesWindow::on_checkgpuusage_stateChanged(int state)
+{
+  const bool visible = (state == Qt::Checked);
+  for (std::unique_ptr<GPUSERIES>& gpuseries : gpuseries_)
+  {
+    gpuseries->usage_->setVisible(visible);
+
+    // Maintain the correct visibility
+    for (QtCharts::QLegendMarker* marker : ui_.chartviewgpustatistics->chart()->legend()->markers())
+    {
+      if (marker->series() == gpuseries->usage_)
+      {
+        marker->setVisible(true);
+
+      }
+    }
+  }
+}
+
+void DevicePropertiesWindow::on_checkgpumemoryusage_stateChanged(int state)
+{
+  const bool visible = (state == Qt::Checked);
+  for (std::unique_ptr<GPUSERIES>& gpuseries : gpuseries_)
+  {
+    gpuseries->memoryusage_->setVisible(visible);
+
+    // Maintain the correct visibility
+    for (QtCharts::QLegendMarker* marker : ui_.chartviewgpustatistics->chart()->legend()->markers())
+    {
+      if (marker->series() == gpuseries->memoryusage_)
+      {
+        marker->setVisible(false);
+
+      }
+    }
+  }
+}
+
+void DevicePropertiesWindow::on_checkgpumemory_stateChanged(int state)
+{
+  const bool visible = (state == Qt::Checked);
+  for (std::unique_ptr<GPUSERIES>& gpuseries : gpuseries_)
+  {
+    gpuseries->memory_->setVisible(visible);
+
+    // Maintain the correct visibility
+    for (QtCharts::QLegendMarker* marker : ui_.chartviewgpustatistics->chart()->legend()->markers())
+    {
+      if (marker->series() == gpuseries->memory_)
+      {
+        marker->setVisible(false);
+
+      }
+    }
+  }
+}
+
 void DevicePropertiesWindow::on_checkutility_stateChanged(int state)
 {
-  const bool visible = state == Qt::Checked;
+  const bool visible = (state == Qt::Checked);
   for (std::unique_ptr<DISKSERIES>& diskseries : diskseries_)
   {
     diskseries->utility_->setVisible(visible);
@@ -315,12 +459,13 @@ void DevicePropertiesWindow::on_checkwritespeed_stateChanged(int state)
   }
 }
 
-void DevicePropertiesWindow::SlotHardwareStats(const uint64_t time, const std::vector<monocle::DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory, const uint64_t availablememory)
+void DevicePropertiesWindow::SlotHardwareStats(const uint64_t time, const std::vector<monocle::DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory, const uint64_t availablememory, const std::vector<monocle::GPUSTAT>& gpustats)
 {
   if (time < prevtime_) // If the server has gone back in time(someone reset the utc clock) clear up and start again
   {
     cpupoints_.clear();
     memorypoints_.clear();
+    gpuseries_.clear();
     diskseries_.clear();
     prevtime_ = time;
   }
@@ -336,6 +481,45 @@ void DevicePropertiesWindow::SlotHardwareStats(const uint64_t time, const std::v
   {
     memorypoint.setX(memorypoint.x() + diff);
 
+  }
+
+  for (const monocle::GPUSTAT& gpustat : gpustats)
+  {
+    std::vector< std::unique_ptr<GPUSERIES> >::iterator gpuseries = std::find_if(gpuseries_.begin(), gpuseries_.end(), [&gpustat](const std::unique_ptr<GPUSERIES>& gpuseries) { return (gpuseries->uuid_ == QString::fromStdString(gpustat.uuid_)); });
+    if (gpuseries == gpuseries_.end())
+    {
+      AddSeries(gpustat);
+
+    }
+    else
+    {
+      // Move the current set of points backwards
+      for (QPointF& usagepoint : (*gpuseries)->usagepoints_)
+      {
+        usagepoint.setX(usagepoint.x() + diff);
+
+      }
+      for (QPointF& memoryusagepoint : (*gpuseries)->memoryusagepoints_)
+      {
+        memoryusagepoint.setX(memoryusagepoint.x() + diff);
+
+      }
+      for (QPointF& memorypoint : (*gpuseries)->memorypoints_)
+      {
+        memorypoint.setX(memorypoint.x() + diff);
+
+      }
+
+      (*gpuseries)->usagepoints_.push_back(QPointF(0.0, gpustat.gpuusage_));
+      (*gpuseries)->memoryusagepoints_.push_back(QPointF(0.0, gpustat.memoryusage_));
+      (*gpuseries)->memorypoints_.push_back(QPointF(0.0, gpustat.usedmemory_ / (1024 * 1024)));
+
+      (*gpuseries)->usage_->replace((*gpuseries)->usagepoints_);
+      (*gpuseries)->memoryusage_->replace((*gpuseries)->memoryusagepoints_);
+      (*gpuseries)->memory_->replace((*gpuseries)->memorypoints_);
+
+      gpumemoryaxisy_->setMax(std::max(gpumemoryaxisy_->max(), static_cast<qreal>(gpustat.totalmemory_ / (1024 * 1024))));
+    }
   }
 
   for (const monocle::DISKSTAT& diskstat : diskstats)
@@ -387,7 +571,7 @@ void DevicePropertiesWindow::SlotHardwareStats(const uint64_t time, const std::v
   cpu_->replace(cpupoints_);
   memory_->replace(memorypoints_);
 
-  hardwareaxisx_->setMax(std::max(60.0, cpupoints_.front().x()));
+  cpuaxisx_->setMax(std::max(60.0, cpupoints_.front().x()));
 
   prevtime_ = time;
 }

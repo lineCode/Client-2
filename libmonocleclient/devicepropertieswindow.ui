@@ -80,13 +80,53 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tabhardwarestatistics">
+     <widget class="QWidget" name="tabcpustatistics">
       <attribute name="title">
-       <string>Hardware Statistics</string>
+       <string>CPU Statistics</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_4">
        <item row="0" column="0">
-        <widget class="QChartView" name="chartviewhardwarestatistics"/>
+        <widget class="QChartView" name="chartviewcpustatistics"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabgpustatistics">
+      <attribute name="title">
+       <string>GPU Statistics</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="1" column="1">
+        <widget class="QCheckBox" name="checkgpumemoryusage">
+         <property name="text">
+          <string>Memory Usage</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QCheckBox" name="checkgpuusage">
+         <property name="text">
+          <string>GPU Usage</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QCheckBox" name="checkgpumemory">
+         <property name="text">
+          <string>Memory</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="3">
+        <widget class="QChartView" name="chartviewgpustatistics"/>
        </item>
       </layout>
      </widget>

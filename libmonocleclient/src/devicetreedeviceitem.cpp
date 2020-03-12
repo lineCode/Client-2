@@ -121,8 +121,8 @@ void DeviceTreeDeviceItem::ContextMenuEvent(const QPoint& pos)
     }
 
     menu->addAction(viewlog_);
+    menu->addAction(properties_);
   }
-  menu->addAction(properties_);
   menu->exec(pos);
 }
 
