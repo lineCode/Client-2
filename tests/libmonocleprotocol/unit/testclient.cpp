@@ -143,7 +143,7 @@ void TestClient::H264Frame(const uint64_t token, const uint64_t playrequest, con
 
 }
 
-void TestClient::HardwareStatsMessage(const uint64_t time, const std::vector<monocle::DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory, const uint64_t availablememory)
+void TestClient::HardwareStatsMessage(const uint64_t time, const std::vector<monocle::DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory, const uint64_t availablememory, const std::vector<monocle::GPUSTAT>& gpustats)
 {
 
 }

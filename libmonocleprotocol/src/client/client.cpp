@@ -73,6 +73,7 @@
 #include "monocleprotocol/getsnapshotresponse_generated.h"
 #include "monocleprotocol/getstateresponse_generated.h"
 #include "monocleprotocol/gettimeresponse_generated.h"
+#include "monocleprotocol/gpustat_generated.h"
 #include "monocleprotocol/groupadded_generated.h"
 #include "monocleprotocol/groupchanged_generated.h"
 #include "monocleprotocol/groupremoved_generated.h"
@@ -4874,25 +4875,43 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       }
 
       const monocle::HardwareStats* hardwarestats = flatbuffers::GetRoot<monocle::HardwareStats>(data);
-      if (!hardwarestats || (hardwarestats->diskstats() == nullptr))
+      if (!hardwarestats)
       {
 
         return;
       }
 
       std::vector<monocle::DISKSTAT> diskstats;
-      diskstats.reserve(hardwarestats->diskstats()->size());
-      for (const monocle::DiskStat* diskstat : *hardwarestats->diskstats())
+      if (hardwarestats->diskstats())
       {
-        if (!diskstat->device())
+        diskstats.reserve(hardwarestats->diskstats()->size());
+        for (const monocle::DiskStat* diskstat : *hardwarestats->diskstats())
         {
-          // Something is very wrong, just ignore this message
-          return;
+          if (!diskstat->device())
+          {
+
+            continue;
+          }
+          diskstats.push_back(monocle::DISKSTAT(diskstat->device()->str(), diskstat->utility(), diskstat->readspeed(), diskstat->writespeed()));
         }
-        diskstats.push_back(monocle::DISKSTAT(diskstat->device()->str(), diskstat->utility(), diskstat->readspeed(), diskstat->writespeed()));
       }
 
-      HardwareStatsMessage(hardwarestats->time(), diskstats, hardwarestats->cpuusage(), hardwarestats->totalmemory(), hardwarestats->availablememory());
+      std::vector<monocle::GPUSTAT> gpustats;
+      if (hardwarestats->gpustats())
+      {
+        gpustats.reserve(hardwarestats->gpustats()->size());
+        for (const monocle::GPUStat* gpustat : *hardwarestats->gpustats())
+        {
+          if (!gpustat->uuid() || !gpustat->name())
+          {
+
+            continue;
+          }
+          gpustats.push_back(monocle::GPUSTAT(gpustat->uuid()->str(), gpustat->name()->str(), gpustat->gpuusage(), gpustat->memoryusage(), gpustat->freememory(), gpustat->totalmemory(), gpustat->usedmemory()));
+        }
+      }
+
+      HardwareStatsMessage(hardwarestats->time(), diskstats, hardwarestats->cpuusage(), hardwarestats->totalmemory(), hardwarestats->availablememory(), gpustats);
       break;
     }
     case Message::JPEGFRAME:
@@ -6581,17 +6600,36 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       }
 
       std::vector<monocle::DISKSTAT> diskstats;
-      diskstats.reserve(subscribehardwarestatsresponse->currenthardwarestats()->diskstats()->size());
-      for (const monocle::DiskStat* diskstat : *subscribehardwarestatsresponse->currenthardwarestats()->diskstats())
+      if (subscribehardwarestatsresponse->currenthardwarestats()->diskstats())
       {
-        if (!diskstat->device())
+        diskstats.reserve(subscribehardwarestatsresponse->currenthardwarestats()->diskstats()->size());
+        for (const monocle::DiskStat* diskstat : *subscribehardwarestatsresponse->currenthardwarestats()->diskstats())
         {
-          // Something is very wrong, just ignore this message
-          return;
+          if (!diskstat->device())
+          {
+            // Something is very wrong, just ignore this message
+            return;
+          }
+          diskstats.push_back(monocle::DISKSTAT(diskstat->device()->str(), diskstat->utility(), diskstat->readspeed(), diskstat->writespeed()));
         }
-        diskstats.push_back(monocle::DISKSTAT(diskstat->device()->str(), diskstat->utility(), diskstat->readspeed(), diskstat->writespeed()));
       }
-      subscribehardwarestats_.Response(sequence, SUBSCRIBEHARDWARESTATSRESPONSE(HARDWARESTATS(subscribehardwarestatsresponse->currenthardwarestats()->time(), diskstats, subscribehardwarestatsresponse->currenthardwarestats()->cpuusage(), subscribehardwarestatsresponse->currenthardwarestats()->totalmemory(), subscribehardwarestatsresponse->currenthardwarestats()->availablememory())));
+
+      std::vector<monocle::GPUSTAT> gpustats;
+      if (subscribehardwarestatsresponse->currenthardwarestats()->gpustats())
+      {
+        gpustats.reserve(subscribehardwarestatsresponse->currenthardwarestats()->diskstats()->size());
+        for (const monocle::GPUStat* gpustat : *subscribehardwarestatsresponse->currenthardwarestats()->gpustats())
+        {
+          if (!gpustat->uuid())
+          {
+            // Something is very wrong, just ignore this message
+            return;
+          }
+          gpustats.push_back(monocle::GPUSTAT(gpustat->uuid()->str(), gpustat->name()->str(), gpustat->gpuusage(), gpustat->memoryusage(), gpustat->freememory(), gpustat->totalmemory(), gpustat->usedmemory()));
+        }
+      }
+
+      subscribehardwarestats_.Response(sequence, SUBSCRIBEHARDWARESTATSRESPONSE(HARDWARESTATS(subscribehardwarestatsresponse->currenthardwarestats()->time(), diskstats, subscribehardwarestatsresponse->currenthardwarestats()->cpuusage(), subscribehardwarestatsresponse->currenthardwarestats()->totalmemory(), subscribehardwarestatsresponse->currenthardwarestats()->availablememory(), gpustats)));
       break;
     }
     case Message::SUBSCRIBERECORDINGJOBLOG:

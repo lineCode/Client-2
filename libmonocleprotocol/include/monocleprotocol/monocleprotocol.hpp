@@ -72,9 +72,23 @@ struct Error
 
 };
 
+struct GPUSTAT
+{
+  GPUSTAT(const std::string& uuid, const std::string& name, const unsigned int gpuusage, const unsigned int memoryusage, const unsigned long long freememory, const unsigned long long totalmemory, const unsigned long long usedmemory);
+
+  std::string uuid_;
+  std::string name_;
+  unsigned int gpuusage_;
+  unsigned int memoryusage_;
+  unsigned long long freememory_;
+  unsigned long long totalmemory_;
+  unsigned long long usedmemory_;
+
+};
+
 struct HARDWARESTATS
 {
-  HARDWARESTATS(const uint64_t time, const std::vector<DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory,  const uint64_t availablememory);
+  HARDWARESTATS(const uint64_t time, const std::vector<DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory,  const uint64_t availablememory, const std::vector<GPUSTAT>& gpustats);
   HARDWARESTATS();
 
   uint64_t time_;
@@ -82,6 +96,7 @@ struct HARDWARESTATS
   double cpuusage_;
   uint64_t totalmemory_;
   uint64_t availablememory_;
+  std::vector<GPUSTAT> gpustats_;
 
 };
 

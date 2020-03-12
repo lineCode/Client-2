@@ -26,7 +26,7 @@
     <major>1</major>
     <minor>11</minor>
     <build>0</build>
-    <date>Wed Oct 09 2019</date>
+    <date>Wed Mar 11 2020</date>
     <windowsfilename>MonocleClient_1_11_0.msi</windowsfilename>
     <changes>
       <change>Improved decoding performance on CUDA GPUs</change>
@@ -35,6 +35,16 @@
       <change>Improved colours for video view and timeline</change>
       <change>Improved setup and management of devices</change>
       <change>Added support for ONVIF over HTTPS</change>
+    </changes>
+  </version>
+  <version>
+    <major>1</major>
+    <minor>12</minor>
+    <build>0</build>
+    <date>Thur Mar 12 2020</date>
+    <windowsfilename>MonocleClient_1_12_0.msi</windowsfilename>
+    <changes>
+      <change>Added monitoring of NVIDIA GPUs</change>
     </changes>
   </version>
 </versions>

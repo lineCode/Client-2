@@ -7,6 +7,7 @@
 #include "flatbuffers/flatbuffers.h"
 
 #include "diskstat_generated.h"
+#include "gpustat_generated.h"
 
 namespace monocle {
 
@@ -18,7 +19,8 @@ struct HardwareStats FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_DISKSTATS = 6,
     VT_CPUUSAGE = 8,
     VT_TOTALMEMORY = 10,
-    VT_AVAILABLEMEMORY = 12
+    VT_AVAILABLEMEMORY = 12,
+    VT_GPUSTATS = 14
   };
   uint64_t time() const {
     return GetField<uint64_t>(VT_TIME, 0);
@@ -35,6 +37,9 @@ struct HardwareStats FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint64_t availablememory() const {
     return GetField<uint64_t>(VT_AVAILABLEMEMORY, 0);
   }
+  const flatbuffers::Vector<flatbuffers::Offset<monocle::GPUStat>> *gpustats() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::GPUStat>> *>(VT_GPUSTATS);
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_TIME) &&
@@ -44,6 +49,9 @@ struct HardwareStats FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyField<double>(verifier, VT_CPUUSAGE) &&
            VerifyField<uint64_t>(verifier, VT_TOTALMEMORY) &&
            VerifyField<uint64_t>(verifier, VT_AVAILABLEMEMORY) &&
+           VerifyOffset(verifier, VT_GPUSTATS) &&
+           verifier.VerifyVector(gpustats()) &&
+           verifier.VerifyVectorOfTables(gpustats()) &&
            verifier.EndTable();
   }
 };
@@ -66,6 +74,9 @@ struct HardwareStatsBuilder {
   void add_availablememory(uint64_t availablememory) {
     fbb_.AddElement<uint64_t>(HardwareStats::VT_AVAILABLEMEMORY, availablememory, 0);
   }
+  void add_gpustats(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::GPUStat>>> gpustats) {
+    fbb_.AddOffset(HardwareStats::VT_GPUSTATS, gpustats);
+  }
   explicit HardwareStatsBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -84,12 +95,14 @@ inline flatbuffers::Offset<HardwareStats> CreateHardwareStats(
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::DiskStat>>> diskstats = 0,
     double cpuusage = 0.0,
     uint64_t totalmemory = 0,
-    uint64_t availablememory = 0) {
+    uint64_t availablememory = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::GPUStat>>> gpustats = 0) {
   HardwareStatsBuilder builder_(_fbb);
   builder_.add_availablememory(availablememory);
   builder_.add_totalmemory(totalmemory);
   builder_.add_cpuusage(cpuusage);
   builder_.add_time(time);
+  builder_.add_gpustats(gpustats);
   builder_.add_diskstats(diskstats);
   return builder_.Finish();
 }
@@ -100,15 +113,18 @@ inline flatbuffers::Offset<HardwareStats> CreateHardwareStatsDirect(
     const std::vector<flatbuffers::Offset<monocle::DiskStat>> *diskstats = nullptr,
     double cpuusage = 0.0,
     uint64_t totalmemory = 0,
-    uint64_t availablememory = 0) {
+    uint64_t availablememory = 0,
+    const std::vector<flatbuffers::Offset<monocle::GPUStat>> *gpustats = nullptr) {
   auto diskstats__ = diskstats ? _fbb.CreateVector<flatbuffers::Offset<monocle::DiskStat>>(*diskstats) : 0;
+  auto gpustats__ = gpustats ? _fbb.CreateVector<flatbuffers::Offset<monocle::GPUStat>>(*gpustats) : 0;
   return monocle::CreateHardwareStats(
       _fbb,
       time,
       diskstats__,
       cpuusage,
       totalmemory,
-      availablememory);
+      availablememory,
+      gpustats__);
 }
 
 }  // namespace monocle

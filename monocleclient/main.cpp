@@ -63,6 +63,7 @@ Q_DECLARE_METATYPE(boost::shared_ptr<client::Device>)
 Q_DECLARE_METATYPE(std::string)
 Q_DECLARE_METATYPE(std::vector<monocle::CODECINDEX>)
 Q_DECLARE_METATYPE(std::vector<monocle::DISKSTAT>)
+Q_DECLARE_METATYPE(std::vector<monocle::GPUSTAT>)
 Q_DECLARE_METATYPE(std::vector<monocle::INDEX>)
 Q_DECLARE_METATYPE(std::vector<monocle::RECORDINGJOBSOURCE>)
 Q_DECLARE_METATYPE(std::vector<QString>)
@@ -130,6 +131,7 @@ int main(int argc, char** argv)
   qRegisterMetaType<std::string>();
   qRegisterMetaType< std::vector<monocle::CODECINDEX> >();
   qRegisterMetaType< std::vector<monocle::DISKSTAT> >();
+  qRegisterMetaType< std::vector<monocle::GPUSTAT> >();
   qRegisterMetaType< std::vector<monocle::INDEX> >();
   qRegisterMetaType< std::vector<monocle::RECORDINGJOBSOURCE> >();
   qRegisterMetaType< std::vector<QString> >();

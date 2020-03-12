@@ -259,6 +259,19 @@ Error::Error(const ErrorCode code, const std::string& text) :
 
 }
 
+GPUSTAT::GPUSTAT(const std::string& uuid, const std::string& name, const unsigned int gpuusage, const unsigned int memoryusage, const unsigned long long freememory, const unsigned long long totalmemory, const unsigned long long usedmemory) :
+  uuid_(uuid),
+  name_(name),
+  gpuusage_(gpuusage),
+  memoryusage_(memoryusage),
+  freememory_(freememory),
+  totalmemory_(totalmemory),
+  usedmemory_(usedmemory)
+{
+
+}
+
+
 GETSTATE::GETSTATE()
 {
 
@@ -291,12 +304,13 @@ GETSTATE::GETSTATE(const std::string& name, const std::string& publickey, const 
 
 }
 
-HARDWARESTATS::HARDWARESTATS(const uint64_t time, const std::vector<DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory, const uint64_t availablememory) :
+HARDWARESTATS::HARDWARESTATS(const uint64_t time, const std::vector<DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory, const uint64_t availablememory, const std::vector<GPUSTAT>& gpustats) :
   time_(time),
   diskstats_(diskstats),
   cpuusage_(cpuusage),
   totalmemory_(totalmemory),
-  availablememory_(availablememory)
+  availablememory_(availablememory),
+  gpustats_(gpustats)
 {
 
 }

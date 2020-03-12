@@ -43,6 +43,22 @@ struct DISKSERIES
 
 };
 
+struct GPUSERIES
+{
+  GPUSERIES(const QString& uuid, const QString& name);
+
+  QString uuid_;
+  QString name_;
+  QLineSeries* usage_;
+  QLineSeries* memoryusage_;
+  QLineSeries* memory_;
+
+  QVector<QPointF> usagepoints_; // <time, value>
+  QVector<QPointF> memoryusagepoints_; // <time, value>
+  QVector<QPointF> memorypoints_; // <time, value>
+
+};
+
 ///// Classes /////
 
 class DevicePropertiesWindow : public QDialog
@@ -56,6 +72,7 @@ class DevicePropertiesWindow : public QDialog
 
  private:
 
+  void AddSeries(const monocle::GPUSTAT& gpustat);
   void AddSeries(const monocle::DISKSTAT& diskstat);
 
   Ui::DevicePropertiesWindow ui_;
@@ -64,16 +81,22 @@ class DevicePropertiesWindow : public QDialog
 
   monocle::client::Connection subscribehardwarestats_;
 
-  // Hardware Statistics
-  QValueAxis* hardwareaxisx_;
+  // CPU Statistics
+  QValueAxis* cpuaxisx_;
   QValueAxis* cpuaxisy_;
-  QValueAxis* memoryaxisy_;
+  QValueAxis* cpumemoryaxisy_;
 
   QLineSeries* cpu_;
   QLineSeries* memory_;
-
   QVector<QPointF> cpupoints_; // <time, value>
   QVector<QPointF> memorypoints_; // <time, value>
+
+  // GPU Statistics
+  QValueAxis* gpuaxisx_;
+  QValueAxis* gpuaxisy_;
+  QValueAxis* gpumemoryaxisy_;
+
+  std::vector< std::unique_ptr<GPUSERIES> > gpuseries_;
 
   // Disk Statistics
   QValueAxis* diskaxisx_;
@@ -87,10 +110,13 @@ class DevicePropertiesWindow : public QDialog
   
  private slots:
 
+  void on_checkgpuusage_stateChanged(int state);
+  void on_checkgpumemoryusage_stateChanged(int state);
+  void on_checkgpumemory_stateChanged(int state);
   void on_checkutility_stateChanged(int state);
   void on_checkreadspeed_stateChanged(int state);
   void on_checkwritespeed_stateChanged(int state);
-  void SlotHardwareStats(const uint64_t time, const std::vector<monocle::DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory, const uint64_t availablememory);
+  void SlotHardwareStats(const uint64_t time, const std::vector<monocle::DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory, const uint64_t availablememory, const std::vector<monocle::GPUSTAT>& gpustats);
 
 };
 
