@@ -1,0 +1,19 @@
+namespace monocle;
+
+table TrackStatistics
+{
+  id:uint32 (id:0);
+  totaldatareceived:uint64 (id:1);
+}
+
+table RecordingStatistics
+{
+  recordingtoken:uint64 (id:0);
+  trackstatistics:[TrackStatistics] (id:1);
+}
+
+table RecordingsStatistics
+{
+  time:uint64 (id:0);
+  recordingsstatistics:[RecordingStatistics] (id:1);
+}

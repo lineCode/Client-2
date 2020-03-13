@@ -397,6 +397,12 @@ void Connection::RecordingRemoved(const uint64_t token)
 
 }
 
+void Connection::RecordingsStatistics(const uint64_t time, const std::vector<monocle::RECORDINGSTATISTICS>& recordingsstatistics)
+{
+  emit SignalRecordingStatistics(time, recordingsstatistics);
+
+}
+
 void Connection::RecordingLogMessage(const uint64_t token, const uint64_t time, const monocle::Severity severity, const std::string& message)
 {
   emit SignalRecordingLogMessage(token, time, severity, QString::fromStdString(message));
@@ -427,15 +433,15 @@ void Connection::ServerLogMessage(const uint64_t time, const monocle::Severity s
 
 }
 
-void Connection::TrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices)
+void Connection::TrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices, const std::pair<uint32_t, uint64_t>& totaltrackdata)
 {
-  emit SignalTrackAdded(recordingtoken, id, token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files, codecindices);
+  emit SignalTrackAdded(recordingtoken, id, token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files, codecindices, totaltrackdata);
 
 }
 
-void Connection::TrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices)
+void Connection::TrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices, const std::pair<uint32_t, uint64_t>& totaltrackdata)
 {
-  emit SignalTrackChanged(recordingtoken, id, token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files, codecindices);
+  emit SignalTrackChanged(recordingtoken, id, token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files, codecindices, totaltrackdata);
 
 }
 

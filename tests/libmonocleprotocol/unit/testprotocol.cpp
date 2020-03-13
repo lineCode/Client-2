@@ -77,8 +77,8 @@ TestProtocol::TestProtocol() :
                                              })
                               },
                               {
-                                RECORDINGTRACK(0, "token", TrackType::Video, "description", true, true, true, 5, { 0 }, { monocle::INDEX(1, 2) }, { monocle::CODECINDEX(1, monocle::Codec::H265, "parameters", 2) }),
-                                RECORDINGTRACK(0, "token", TrackType::Metadata, "description", false, false, false, 6, { 1 }, { monocle::INDEX(2, 3) }, { })
+                                RECORDINGTRACK(0, "token", TrackType::Video, "description", true, true, true, 5, { 0 }, { monocle::INDEX(1, 2) }, { monocle::CODECINDEX(1, monocle::Codec::H265, "parameters", 2) }, std::make_pair(1, 2)),
+                                RECORDINGTRACK(0, "token", TrackType::Metadata, "description", false, false, false, 6, { 1 }, { monocle::INDEX(2, 3) }, { }, std::make_pair(3, 4))
                               },
                               5)
     }),

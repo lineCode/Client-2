@@ -42,10 +42,10 @@ class RecordingTrack : public QObject
 
  public:
 
-  RecordingTrack(const uint32_t id, const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector< std::pair<uint64_t, uint64_t> >& indices, const std::vector<monocle::CODECINDEX>& codecindices);
+  RecordingTrack(const uint32_t id, const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector< std::pair<uint64_t, uint64_t> >& indices, const std::vector<monocle::CODECINDEX>& codecindices, const std::pair<uint64_t, uint64_t>& totaltrackdata);
   ~RecordingTrack();
 
-  void ChangeTrack(const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices);
+  void ChangeTrack(const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices, const std::pair<uint64_t, uint64_t>& totaltrackdata);
   void SetData(const std::vector<monocle::INDEX>& indices);
   void DeleteData(const monocle::RecordingJobState state, const boost::optional<uint64_t>& start, const boost::optional<uint64_t>& end);
   void SetState(const uint64_t time, const monocle::RecordingJobState state, const monocle::RecordingJobState prevstate);
@@ -69,6 +69,9 @@ class RecordingTrack : public QObject
   inline const std::vector< std::pair<uint64_t, uint64_t> >& GetIndices() const { return indices_; } // If any RecordingJobSourceTrack is actively recording to this track, the final index in this list should be extended to the current time by the caller. The value stored here is the one that was retrieved at a single point
   inline const std::vector<monocle::CODECINDEX>& GetCodecIndices() const { return codecindices_; }
   std::vector<monocle::CODECINDEX> GetCodecIndices(const monocle::Codec id) const;
+  void SetTotalTrackData(const std::pair<uint64_t, uint64_t>& totaltrackdata); // Returns the rate in bytes/sec
+  inline const std::pair<uint64_t, uint64_t>& GetTotalTrackData() const { return totaltrackdata_; }
+  inline uint64_t GetDataRate() const { return datarate_; }
   void AddCodec(const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp);
   void RemoveCodec(const uint64_t id);
   bool HasFile(const uint64_t file) const;
@@ -90,11 +93,12 @@ class RecordingTrack : public QObject
   std::vector<uint64_t> files_;
   std::vector< std::pair<uint64_t, uint64_t> > indices_;
   std::vector<monocle::CODECINDEX> codecindices_; // This only gets filled in at version 1.11.0
+  std::pair<uint64_t, uint64_t> totaltrackdata_; // <time, bytes>
+  uint64_t datarate_; // Bytes/sec
  
  signals:
 
-  
-
+  void DataRate(const uint64_t datarate);
 
 };
 

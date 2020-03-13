@@ -16,4 +16,6 @@ table TrackAdded
   flushfrequency:uint32 (id:8);
   files:[uint64] (id:9);
   codecindices:[CodecIndex] (id:10);
+  totaltrackdatatime:uint64 (id:11);
+  totaltrackdata:uint64 (id:12);
 }

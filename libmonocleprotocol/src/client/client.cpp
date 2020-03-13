@@ -103,6 +103,7 @@
 #include "monocleprotocol/recordingchanged_generated.h"
 #include "monocleprotocol/recordingjobadded_generated.h"
 #include "monocleprotocol/recordingjobchanged_generated.h"
+#include "monocleprotocol/recordingjoblogmessage_generated.h"
 #include "monocleprotocol/recordingjobremoved_generated.h"
 #include "monocleprotocol/recordingjobsourceadded_generated.h"
 #include "monocleprotocol/recordingjobsourceremoved_generated.h"
@@ -111,9 +112,9 @@
 #include "monocleprotocol/recordingjobsourcetracklogmessage_generated.h"
 #include "monocleprotocol/recordingjobsourcetrackremoved_generated.h"
 #include "monocleprotocol/recordingjobsourcetrackstatechanged_generated.h"
-#include "monocleprotocol/recordingremoved_generated.h"
-#include "monocleprotocol/recordingjoblogmessage_generated.h"
 #include "monocleprotocol/recordinglogmessage_generated.h"
+#include "monocleprotocol/recordingremoved_generated.h"
+#include "monocleprotocol/recordingsstatistics_generated.h"
 #include "monocleprotocol/recordingtrackcodecadded_generated.h"
 #include "monocleprotocol/recordingtrackcodecremoved_generated.h"
 #include "monocleprotocol/recordingtracklogmessage_generated.h"
@@ -6142,6 +6143,50 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       RecordingTrackCodecRemoved(recordingtrackcodecremoved->recordingtoken(), recordingtrackcodecremoved->trackid(), recordingtrackcodecremoved->id());
       break;
     }
+    case Message::RECORDINGSTATISTICS:
+    {
+      if (error)
+      {
+        // Ignore this because it can't really happen...
+        return;
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<monocle::RecordingsStatistics>(nullptr))
+      {
+
+        return;
+      }
+
+      const monocle::RecordingsStatistics* recordingsstatistics = flatbuffers::GetRoot<monocle::RecordingsStatistics>(data);
+      if (!recordingsstatistics)
+      {
+
+        return;
+      }
+
+      std::vector<RECORDINGSTATISTICS> recordingsstatisticstmp;
+      if (recordingsstatistics->recordingsstatistics())
+      {
+        recordingsstatisticstmp.reserve(recordingsstatistics->recordingsstatistics()->size());
+        for (const RecordingStatistics* recordingstatistics : *recordingsstatistics->recordingsstatistics())
+        {
+          std::vector<TRACKSTATISTICS> trackstatisticstmp;
+          if (recordingstatistics->trackstatistics())
+          {
+            trackstatisticstmp.reserve(recordingstatistics->trackstatistics()->size());
+            for (const TrackStatistics* trackstatistics : *recordingstatistics->trackstatistics())
+            {
+              trackstatisticstmp.push_back(TRACKSTATISTICS(trackstatistics->id(), trackstatistics->totaldatareceived()));
+
+            }
+          }
+          recordingsstatisticstmp.push_back(RECORDINGSTATISTICS(recordingstatistics->recordingtoken(), trackstatisticstmp));
+        }
+      }
+
+      RecordingsStatistics(recordingsstatistics->time(), recordingsstatisticstmp);
+      break;
+    }
     case Message::RECORDINGTRACKLOGMESSAGE:
     {
       if (error)
@@ -6851,7 +6896,7 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         }
       }
 
-      TrackAdded(trackadded->recordingtoken(), trackadded->id(), token, trackadded->tracktype(), description, trackadded->fixedfiles(), trackadded->digitalsigning(), trackadded->encrypt(), trackadded->flushfrequency(), files, codecindices);
+      TrackAdded(trackadded->recordingtoken(), trackadded->id(), token, trackadded->tracktype(), description, trackadded->fixedfiles(), trackadded->digitalsigning(), trackadded->encrypt(), trackadded->flushfrequency(), files, codecindices, std::make_pair(trackadded->totaltrackdatatime(), trackadded->totaltrackdata()));
       break;
     }
     case Message::TRACKCHANGED:
@@ -6911,7 +6956,7 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         }
       }
 
-      TrackChanged(trackchanged->recordingtoken(), trackchanged->id(), token, trackchanged->tracktype(), description, trackchanged->fixedfiles(), trackchanged->digitalsigning(), trackchanged->encrypt(), trackchanged->flushfrequency(), files, codecindices);
+      TrackChanged(trackchanged->recordingtoken(), trackchanged->id(), token, trackchanged->tracktype(), description, trackchanged->fixedfiles(), trackchanged->digitalsigning(), trackchanged->encrypt(), trackchanged->flushfrequency(), files, codecindices, std::make_pair(trackchanged->totaltrackdatatime(), trackchanged->totaltrackdata()));
       break;
     }
     case Message::TRACKREMOVED:
@@ -7395,7 +7440,7 @@ std::pair< Error, std::vector<RECORDING> > Client::GetRecordingsBuffer(const fla
 
         return std::make_pair(Error(ErrorCode::InvalidMessage, "GetRecordingsResponse invalid RecordingTrack(video)"), std::vector<RECORDING>());
       }
-      tracks.push_back(RECORDINGTRACK(track->id(), track->token()->str(), track->tracktype(), track->description()->str(), track->fixedfiles(), track->digitalsigning(), track->encrypt(), track->flushfrequency(), ToVector(*track->files()), ToVector(*track->indices()), ToVector(track->codecindices())));
+      tracks.push_back(RECORDINGTRACK(track->id(), track->token()->str(), track->tracktype(), track->description()->str(), track->fixedfiles(), track->digitalsigning(), track->encrypt(), track->flushfrequency(), ToVector(*track->files()), ToVector(*track->indices()), ToVector(track->codecindices()), std::make_pair(track->totaltrackdatatime(), track->totaltrackdata())));
     }
 
     recordings.push_back(RECORDING(recording->token(), recording->sourceid()->str(), recording->name()->str(), recording->location()->str(), recording->description()->str(), recording->address()->str(), recording->content()->str(), recording->retentiontime(), jobs, tracks, recording->activejob() ? boost::optional<uint64_t>(recording->activejob()->token()) : boost::none));

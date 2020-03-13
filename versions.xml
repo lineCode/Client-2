@@ -44,6 +44,7 @@
     <date>Thur Mar 12 2020</date>
     <windowsfilename>MonocleClient_1_12_0.msi</windowsfilename>
     <changes>
+      <change>Added device tree tooltip which shows the bandwidth</change>
       <change>Added monitoring of NVIDIA GPUs</change>
     </changes>
   </version>

@@ -43,6 +43,7 @@ DeviceTreeRecordingTrackItem::DeviceTreeRecordingTrackItem(DeviceTreeItem* paren
   connect(managedevice_, &QAction::triggered, this, &DeviceTreeRecordingTrackItem::ManageDevice);
   connect(viewlog_, &QAction::triggered, this, &DeviceTreeRecordingTrackItem::ViewLog);
   connect(recording.get(), &Recording::TrackChanged, this, &DeviceTreeRecordingTrackItem::TrackChanged);
+  connect(track.get(), &RecordingTrack::DataRate, this, &DeviceTreeRecordingTrackItem::DataRate);
 
   setIcon(0, cameraicon);
 }
@@ -194,6 +195,12 @@ void DeviceTreeRecordingTrackItem::TrackChanged(const QSharedPointer<client::Rec
     return;
   }
   setText(0, GetName(track));
+}
+
+void DeviceTreeRecordingTrackItem::DataRate(const uint64_t datarate)
+{
+  setToolTip(0, QString::number(datarate / 1024) + "kB/s");
+
 }
 
 }

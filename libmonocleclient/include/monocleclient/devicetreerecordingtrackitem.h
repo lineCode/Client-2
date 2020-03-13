@@ -87,6 +87,7 @@ class DeviceTreeRecordingTrackItem : public DeviceTreeItem
   void ManageDevice(bool);
   void ViewLog(bool);
   void TrackChanged(const QSharedPointer<client::RecordingTrack>& track);
+  void DataRate(const uint64_t datarate);
 
 };
 

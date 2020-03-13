@@ -143,11 +143,12 @@ enum class Message : uint16_t {
   RECORDINGTRACKCODECADDED = 8064,
   RECORDINGTRACKCODECREMOVED = 8065,
   OBJECTDETECTORFRAME = 8066,
+  RECORDINGSTATISTICS = 8067,
   MIN = ADDFILE,
-  MAX = OBJECTDETECTORFRAME
+  MAX = RECORDINGSTATISTICS
 };
 
-inline const Message (&EnumValuesMessage())[134] {
+inline const Message (&EnumValuesMessage())[135] {
   static const Message values[] = {
     Message::ADDFILE,
     Message::ADDGROUP,
@@ -282,7 +283,8 @@ inline const Message (&EnumValuesMessage())[134] {
     Message::FINDOBJECTPROGRESS,
     Message::RECORDINGTRACKCODECADDED,
     Message::RECORDINGTRACKCODECREMOVED,
-    Message::OBJECTDETECTORFRAME
+    Message::OBJECTDETECTORFRAME,
+    Message::RECORDINGSTATISTICS
   };
   return values;
 }
@@ -423,6 +425,7 @@ inline const char *EnumNameMessage(Message e) {
     case Message::RECORDINGTRACKCODECADDED: return "RECORDINGTRACKCODECADDED";
     case Message::RECORDINGTRACKCODECREMOVED: return "RECORDINGTRACKCODECREMOVED";
     case Message::OBJECTDETECTORFRAME: return "OBJECTDETECTORFRAME";
+    case Message::RECORDINGSTATISTICS: return "RECORDINGSTATISTICS";
     default: return "";
   }
 }

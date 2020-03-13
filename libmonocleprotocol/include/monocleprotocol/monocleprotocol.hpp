@@ -154,6 +154,29 @@ struct ONVIFUSER
 
 };
 
+struct TRACKSTATISTICS
+{
+  TRACKSTATISTICS(const uint32_t trackid, const uint64_t trackdatareceived);
+
+  bool operator==(const TRACKSTATISTICS& rhs) const;
+
+  uint32_t trackid_;
+  uint64_t trackdatareceived_;
+
+};
+
+struct RECORDINGSTATISTICS
+{
+  RECORDINGSTATISTICS();
+  RECORDINGSTATISTICS(const uint64_t token, const std::vector<TRACKSTATISTICS>& tracksstatistics);
+
+  bool operator==(const RECORDINGSTATISTICS& rhs) const;
+
+  uint64_t token_;
+  std::vector<TRACKSTATISTICS> tracksstatistics_;
+
+};
+
 struct USER
 {
   USER(const uint64_t token, const std::string& username, const uint64_t grouptoken);
@@ -308,7 +331,7 @@ struct CODECINDEX
 struct RECORDINGTRACK
 {
   RECORDINGTRACK();
-  RECORDINGTRACK(const uint32_t id, const std::string& token, const TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsignature, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<INDEX>& indices, const std::vector<CODECINDEX>& codecindices);
+  RECORDINGTRACK(const uint32_t id, const std::string& token, const TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsignature, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<INDEX>& indices, const std::vector<CODECINDEX>& codecindices, const std::pair<uint64_t, uint64_t>& totaltrackdata);
 
   bool operator==(const RECORDINGTRACK& rhs) const;
 
@@ -323,6 +346,7 @@ struct RECORDINGTRACK
   std::vector<uint64_t> files_;
   std::vector<INDEX> indices_; // <starttime, endtime>
   std::vector<CODECINDEX> codecindices_;
+  std::pair<uint64_t, uint64_t> totaltrackdata_;
 
 };
 

@@ -45,6 +45,7 @@ DeviceTreeRecordingItem::DeviceTreeRecordingItem(DeviceTreeItem* parent, const b
   connect(recording_.data(), &Recording::JobSourceAdded, this, &DeviceTreeRecordingItem::RecordingJobSourceAdded);
   connect(recording_.data(), &Recording::JobSourceRemoved, this, &DeviceTreeRecordingItem::RecordingJobSourceRemoved);
   connect(recording_.data(), &Recording::JobSourceTrackStateChanged, this, &DeviceTreeRecordingItem::RecordingJobSourceTrackStateChanged);
+  connect(recording_.get(), &Recording::DataRate, this, &DeviceTreeRecordingItem::DataRate);
 
   connect(edit_, &QAction::triggered, this, &DeviceTreeRecordingItem::Edit);
   connect(addvideotrack_, &QAction::triggered, this, &DeviceTreeRecordingItem::AddVideoTrack);
@@ -157,6 +158,8 @@ void DeviceTreeRecordingItem::UpdateToolTip()
 
         }
 
+        const QString datarate = QString(" ") + QString::number(track->GetTrack()->GetDataRate() / 1024) + "kB/s";
+
         if (track->GetState() == monocle::RecordingJobState::Idle)
         {
           if ((tracktype != monocle::TrackType::Metadata) && !receiver->GetMediaUri().isEmpty()) // Metadata might not send frames for long durations and may become idle. Empty URI is ok to be idle as well
@@ -164,16 +167,16 @@ void DeviceTreeRecordingItem::UpdateToolTip()
             error = true;
 
           }
-          tooltips.append(Tooltip(receiver->GetMediaUri(), "Idle"));
+          tooltips.append(Tooltip(receiver->GetMediaUri(), "Idle") + datarate);
         }
         else if (track->GetState() == monocle::RecordingJobState::Error)
         {
           error = true;
-          tooltips.append(Tooltip(receiver->GetMediaUri(), "Error " + track->GetError()));
+          tooltips.append(Tooltip(receiver->GetMediaUri(), "Error " + track->GetError()) + datarate);
         }
         else // if (track->GetState() == monocle::RecordingJobState::Active)
         {
-          tooltips.append(Tooltip(receiver->GetMediaUri(), "Active"));
+          tooltips.append(Tooltip(receiver->GetMediaUri(), "Active") + datarate);
 
         }
       }
@@ -329,6 +332,12 @@ void DeviceTreeRecordingItem::RecordingJobSourceTrackStateChanged(const QSharedP
 {
   UpdateChildren();
   UpdateToolTip();
+}
+
+void DeviceTreeRecordingItem::DataRate()
+{
+  UpdateToolTip();
+
 }
 
 void DeviceTreeRecordingItem::Edit(bool)

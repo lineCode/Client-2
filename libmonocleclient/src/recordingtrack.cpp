@@ -16,7 +16,7 @@ namespace client
 
 ///// Methods /////
 
-RecordingTrack::RecordingTrack(const uint32_t id, const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector< std::pair<uint64_t, uint64_t> >& indices, const std::vector<monocle::CODECINDEX>& codecindices) :
+RecordingTrack::RecordingTrack(const uint32_t id, const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector< std::pair<uint64_t, uint64_t> >& indices, const std::vector<monocle::CODECINDEX>& codecindices, const std::pair<uint64_t, uint64_t>& totaltrackdata) :
   id_(id),
   token_(token),
   tracktype_(tracktype),
@@ -27,7 +27,9 @@ RecordingTrack::RecordingTrack(const uint32_t id, const QString& token, const mo
   flushfrequency_(flushfrequency),
   files_(files),
   indices_(indices),
-  codecindices_(codecindices)
+  codecindices_(codecindices),
+  totaltrackdata_(totaltrackdata),
+  datarate_(0)
 {
 
 }
@@ -37,7 +39,7 @@ RecordingTrack::~RecordingTrack()
 
 }
 
-void RecordingTrack::ChangeTrack(const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices)
+void RecordingTrack::ChangeTrack(const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices, const std::pair<uint64_t, uint64_t>& totaltrackdata)
 {
   token_ = token;
   tracktype_ = tracktype;
@@ -48,6 +50,7 @@ void RecordingTrack::ChangeTrack(const QString& token, const monocle::TrackType 
   flushfrequency_ = flushfrequency;
   files_ = files;
   codecindices_ = codecindices;
+  totaltrackdata_ = totaltrackdata;
 }
 
 void RecordingTrack::SetData(const std::vector<monocle::INDEX>& indices)
@@ -147,6 +150,22 @@ void RecordingTrack::SetState(const uint64_t time, const monocle::RecordingJobSt
 
     }
   }
+}
+
+void RecordingTrack::SetTotalTrackData(const std::pair<uint64_t, uint64_t>& totaltrackdata)
+{
+  if (totaltrackdata_.first && (totaltrackdata.first > totaltrackdata_.first) && (totaltrackdata.second > totaltrackdata_.second))
+  {
+    datarate_ = (totaltrackdata.second - totaltrackdata_.second) / ((totaltrackdata.first - totaltrackdata_.first) / 1000);
+
+  }
+  else
+  {
+    datarate_ = 0;
+
+  }
+  totaltrackdata_ = totaltrackdata;
+  emit DataRate(datarate_);
 }
 
 void RecordingTrack::AddCodec(const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp)

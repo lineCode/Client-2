@@ -160,7 +160,7 @@ std::vector< flatbuffers::Offset<Recording> > GetRecordingBuffers(const std::vec
         codecindices.push_back(CreateCodecIndex(fbb, codecindex.id_, codecindex.codec_, fbb.CreateString(codecindex.parameters_), codecindex.timestamp_));
 
       }
-      tracks.push_back(CreateRecordingTrack(fbb, track.id_, fbb.CreateString(track.token_), track.tracktype_, fbb.CreateString(track.description_), track.fixedfiles_, track.digitalsignature_, track.encrypt_, track.flushfrequency_, fbb.CreateVector(track.files_), fbb.CreateVectorOfStructs(track.indices_), fbb.CreateVector(codecindices)));
+      tracks.push_back(CreateRecordingTrack(fbb, track.id_, fbb.CreateString(track.token_), track.tracktype_, fbb.CreateString(track.description_), track.fixedfiles_, track.digitalsignature_, track.encrypt_, track.flushfrequency_, fbb.CreateVector(track.files_), fbb.CreateVectorOfStructs(track.indices_), fbb.CreateVector(codecindices), track.totaltrackdata_.first, track.totaltrackdata_.second));
     }
 
     std::unique_ptr<monocle::TOKEN> activejob;
@@ -382,6 +382,37 @@ bool MAP::operator==(const MAP& rhs) const
   return ((token_ == rhs.token_) && (name_ == rhs.name_) && (location_ == rhs.location_) && (imagemd5_ == rhs.imagemd5_));
 }
 
+TRACKSTATISTICS::TRACKSTATISTICS(const uint32_t trackid, const uint64_t trackdatareceived) :
+  trackid_(trackid),
+  trackdatareceived_(trackdatareceived)
+{
+
+}
+
+bool TRACKSTATISTICS::operator==(const TRACKSTATISTICS& rhs) const
+{
+  return ((trackid_ == rhs.trackid_) && (trackdatareceived_ == rhs.trackdatareceived_));
+}
+
+RECORDINGSTATISTICS::RECORDINGSTATISTICS(const uint64_t token, const std::vector<TRACKSTATISTICS>& tracksstatistics) :
+  token_(token),
+  tracksstatistics_(tracksstatistics)
+{
+
+}
+
+RECORDINGSTATISTICS::RECORDINGSTATISTICS() :
+  token_(0)
+{
+
+}
+
+bool RECORDINGSTATISTICS::operator==(const RECORDINGSTATISTICS& rhs) const
+{
+  return ((token_ == rhs.token_) && (tracksstatistics_ == rhs.tracksstatistics_));
+}
+
+
 USER::USER(const uint64_t token, const std::string& username, const uint64_t grouptoken) :
   token_(token),
   username_(username),
@@ -551,7 +582,7 @@ RECORDINGTRACK::RECORDINGTRACK() :
 
 }
 
-RECORDINGTRACK::RECORDINGTRACK(const uint32_t id, const std::string& token, const TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsignature, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<INDEX>& indices, const std::vector<CODECINDEX>& codecindices) :
+RECORDINGTRACK::RECORDINGTRACK(const uint32_t id, const std::string& token, const TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsignature, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<INDEX>& indices, const std::vector<CODECINDEX>& codecindices, const std::pair<uint64_t, uint64_t>& totaltrackdata) :
   id_(id),
   token_(token),
   tracktype_(tracktype),
@@ -562,14 +593,15 @@ RECORDINGTRACK::RECORDINGTRACK(const uint32_t id, const std::string& token, cons
   flushfrequency_(flushfrequency),
   files_(files),
   indices_(indices),
-  codecindices_(codecindices)
+  codecindices_(codecindices),
+  totaltrackdata_(totaltrackdata)
 {
 
 }
 
 bool RECORDINGTRACK::operator==(const RECORDINGTRACK& rhs) const
 {
-  return ((id_ == rhs.id_) && (token_ == rhs.token_) && (tracktype_ == rhs.tracktype_) && (description_ == rhs.description_) && (fixedfiles_ == rhs.fixedfiles_) && (digitalsignature_ == rhs.digitalsignature_) && (encrypt_ == rhs.encrypt_) && (flushfrequency_ == rhs.flushfrequency_) && std::is_permutation(files_.cbegin(), files_.cend(), rhs.files_.cbegin(), rhs.files_.cend()) && std::is_permutation(codecindices_.cbegin(), codecindices_.cend(), rhs.codecindices_.cbegin(), rhs.codecindices_.cend()));
+  return ((id_ == rhs.id_) && (token_ == rhs.token_) && (tracktype_ == rhs.tracktype_) && (description_ == rhs.description_) && (fixedfiles_ == rhs.fixedfiles_) && (digitalsignature_ == rhs.digitalsignature_) && (encrypt_ == rhs.encrypt_) && (flushfrequency_ == rhs.flushfrequency_) && std::is_permutation(files_.cbegin(), files_.cend(), rhs.files_.cbegin(), rhs.files_.cend()) && std::is_permutation(codecindices_.cbegin(), codecindices_.cend(), rhs.codecindices_.cbegin(), rhs.codecindices_.cend()) && (totaltrackdata_ == rhs.totaltrackdata_));
 }
 
 RECORDING::RECORDING() :

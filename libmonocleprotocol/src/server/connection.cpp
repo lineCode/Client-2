@@ -110,6 +110,7 @@
 #include "monocleprotocol/recordingjoblogmessage_generated.h"
 #include "monocleprotocol/recordinglogmessage_generated.h"
 #include "monocleprotocol/recordingremoved_generated.h"
+#include "monocleprotocol/recordingsstatistics_generated.h"
 #include "monocleprotocol/recordingtracklogmessage_generated.h"
 #include "monocleprotocol/recordingtrackcodecadded_generated.h"
 #include "monocleprotocol/recordingtrackcodecremoved_generated.h"
@@ -1225,6 +1226,38 @@ boost::system::error_code Connection::SendRecordingRemoved(const uint64_t token)
   return err;
 }
 
+boost::system::error_code Connection::SendRecordingStatistics(const uint64_t time, const std::vector<monocle::RECORDINGSTATISTICS>& recordingsstatistics)
+{
+  std::lock_guard<std::mutex> lock(writemutex_);
+  fbb_.Clear();
+
+  std::vector< flatbuffers::Offset<monocle::RecordingStatistics> > recordingstatisticsbuffer;
+  recordingstatisticsbuffer.reserve(recordingsstatistics.size());
+  for (const RECORDINGSTATISTICS& recordingstatistics : recordingsstatistics)
+  {
+    std::vector< flatbuffers::Offset<monocle::TrackStatistics> > trackstatisticsbuffer;
+    trackstatisticsbuffer.reserve(recordingstatistics.tracksstatistics_.size());
+    for (const TRACKSTATISTICS& trackstatistics : recordingstatistics.tracksstatistics_)
+    {
+      trackstatisticsbuffer.push_back(CreateTrackStatistics(fbb_, trackstatistics.trackid_, trackstatistics.trackdatareceived_));
+
+    }
+    recordingstatisticsbuffer.push_back(CreateRecordingStatistics(fbb_, recordingstatistics.token_, fbb_.CreateVector(trackstatisticsbuffer)));
+  }
+
+  fbb_.Finish(CreateRecordingsStatistics(fbb_, time, fbb_.CreateVector(recordingstatisticsbuffer)));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::RECORDINGSTATISTICS, ++sequence_);
+  const std::array<boost::asio::const_buffer, 2> buffers =
+  {
+    boost::asio::const_buffer(&header, sizeof(HEADER)),
+    boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
+  };
+  boost::system::error_code err;
+  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
+  return err;
+}
+
 boost::system::error_code Connection::SendRecordingTrackLogMessage(const uint64_t recordingtoken, const uint32_t id, const std::chrono::system_clock::time_point time, const monocle::Severity severity, const std::string& message)
 {
   std::lock_guard<std::mutex> lock(writemutex_);
@@ -1259,11 +1292,11 @@ boost::system::error_code Connection::SendServerLogMessage(const std::chrono::sy
   return err;
 }
 
-boost::system::error_code Connection::SendTrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files)
+boost::system::error_code Connection::SendTrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::pair<uint64_t, uint64_t>& totaltrackdata)
 {
   std::lock_guard<std::mutex> lock(writemutex_);
   fbb_.Clear();
-  fbb_.Finish(CreateTrackAdded(fbb_, recordingtoken, id, fbb_.CreateString(token), tracktype, fbb_.CreateString(description), fixedfiles, digitalsigning, encrypt, flushfrequency, fbb_.CreateVector(files)));
+  fbb_.Finish(CreateTrackAdded(fbb_, recordingtoken, id, fbb_.CreateString(token), tracktype, fbb_.CreateString(description), fixedfiles, digitalsigning, encrypt, flushfrequency, fbb_.CreateVector(files), 0, totaltrackdata.first, totaltrackdata.second));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::TRACKADDED, ++sequence_);
   const std::array<boost::asio::const_buffer, 2> buffers =
@@ -1276,11 +1309,11 @@ boost::system::error_code Connection::SendTrackAdded(const uint64_t recordingtok
   return err;
 }
 
-boost::system::error_code Connection::SendTrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files)
+boost::system::error_code Connection::SendTrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::pair<uint64_t, uint64_t>& totaltrackdata)
 {
   std::lock_guard<std::mutex> lock(writemutex_);
   fbb_.Clear();
-  fbb_.Finish(CreateTrackChanged(fbb_, recordingtoken, id, fbb_.CreateString(token), tracktype, fbb_.CreateString(description), fixedfiles, digitalsigning, encrypt, flushfrequency, fbb_.CreateVector(files)));
+  fbb_.Finish(CreateTrackChanged(fbb_, recordingtoken, id, fbb_.CreateString(token), tracktype, fbb_.CreateString(description), fixedfiles, digitalsigning, encrypt, flushfrequency, fbb_.CreateVector(files), 0, totaltrackdata.first, totaltrackdata.second));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::TRACKCHANGED, ++sequence_);
   const std::array<boost::asio::const_buffer, 2> buffers =

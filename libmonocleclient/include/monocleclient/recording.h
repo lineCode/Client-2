@@ -44,7 +44,7 @@ class Recording : public QObject
   monocle::RecordingJobState GetState(const QSharedPointer<client::RecordingTrack>& track) const;
 
   QSharedPointer<client::RecordingTrack> AddTrack(const monocle::RECORDINGTRACK& track);
-  QSharedPointer<client::RecordingTrack> ChangeTrack(const uint32_t id, const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices);
+  QSharedPointer<client::RecordingTrack> ChangeTrack(const uint32_t id, const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices, const std::pair<uint64_t, uint64_t>& totaltrackdata);
   void AddJob(const QSharedPointer<client::RecordingJob>& job);
   QSharedPointer<client::RecordingJob> ChangeJob(const uint64_t token, const QString& name, const bool enabled, const uint64_t priority);
   void RemoveJob(const uint64_t token);
@@ -126,6 +126,7 @@ class Recording : public QObject
   void TrackLogMessage(const QSharedPointer<client::RecordingTrack>& recordingtrack, const uint64_t time, const monocle::Severity severity, const QString& message);
   void TrackSetData(const QSharedPointer<client::RecordingTrack> track, const std::vector<monocle::INDEX>& indices);
   void TrackDeleteData(const QSharedPointer<client::RecordingTrack> track, const monocle::RecordingJobState state, const boost::optional<uint64_t>& start, const boost::optional<uint64_t>& end);
+  void DataRate();
 
 };
 

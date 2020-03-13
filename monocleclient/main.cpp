@@ -23,6 +23,7 @@
 #include <monocleclient/recordingjobsourcetrack.h>
 #include <monocleclient/recordingtrack.h>
 #include <monocleclient/streamingprotocol.h>
+#include <monocleprotocol/monocleprotocol.hpp>
 #include <monocleprotocol/streamingprotocol_generated.h>
 #include <QFile>
 #include <QString>
@@ -57,6 +58,7 @@ Q_DECLARE_METATYPE(QSharedPointer<client::RecordingTrack>)
 Q_DECLARE_METATYPE(monocle::Codec)
 Q_DECLARE_METATYPE(monocle::ReceiverMode)
 Q_DECLARE_METATYPE(monocle::ReceiverState)
+Q_DECLARE_METATYPE(monocle::RECORDINGSTATISTICS)
 Q_DECLARE_METATYPE(monocle::Severity)
 Q_DECLARE_METATYPE(std::chrono::steady_clock::duration)
 Q_DECLARE_METATYPE(boost::shared_ptr<client::Device>)
@@ -66,6 +68,7 @@ Q_DECLARE_METATYPE(std::vector<monocle::DISKSTAT>)
 Q_DECLARE_METATYPE(std::vector<monocle::GPUSTAT>)
 Q_DECLARE_METATYPE(std::vector<monocle::INDEX>)
 Q_DECLARE_METATYPE(std::vector<monocle::RECORDINGJOBSOURCE>)
+Q_DECLARE_METATYPE(std::vector<monocle::RECORDINGSTATISTICS>)
 Q_DECLARE_METATYPE(std::vector<QString>)
 Q_DECLARE_METATYPE(std::vector<std::string>)
 Q_DECLARE_METATYPE(std::vector<uint64_t>)
@@ -134,6 +137,7 @@ int main(int argc, char** argv)
   qRegisterMetaType< std::vector<monocle::GPUSTAT> >();
   qRegisterMetaType< std::vector<monocle::INDEX> >();
   qRegisterMetaType< std::vector<monocle::RECORDINGJOBSOURCE> >();
+  qRegisterMetaType< std::vector<monocle::RECORDINGSTATISTICS> >();
   qRegisterMetaType< std::vector<QString> >();
   qRegisterMetaType< std::vector<std::string> >();
   qRegisterMetaType< std::vector<uint64_t> >();
@@ -142,6 +146,7 @@ int main(int argc, char** argv)
   qRegisterMetaType<client::STREAMINGPROTOCOL>("client::STREAMINGPROTOCOL");
   qRegisterMetaType<monocle::RecordingJobMode>("monocle::RecordingJobMode");
   qRegisterMetaType<monocle::RecordingJobState>("monocle::RecordingJobState");
+  qRegisterMetaType<monocle::RECORDINGSTATISTICS>("monocle::RECORDINGSTATISTICS");
   qRegisterMetaType<monocle::Severity>("monocle::Severity");
   qRegisterMetaType<monocle::TrackType>("monocle::TrackType");
   qRegisterMetaType<uint32_t>("uint32_t");

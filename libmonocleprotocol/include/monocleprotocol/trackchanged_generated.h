@@ -26,7 +26,9 @@ struct TrackChanged FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_ENCRYPT = 18,
     VT_FLUSHFREQUENCY = 20,
     VT_FILES = 22,
-    VT_CODECINDICES = 24
+    VT_CODECINDICES = 24,
+    VT_TOTALTRACKDATATIME = 26,
+    VT_TOTALTRACKDATA = 28
   };
   uint64_t recordingtoken() const {
     return GetField<uint64_t>(VT_RECORDINGTOKEN, 0);
@@ -61,6 +63,12 @@ struct TrackChanged FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const flatbuffers::Vector<flatbuffers::Offset<monocle::CodecIndex>> *codecindices() const {
     return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::CodecIndex>> *>(VT_CODECINDICES);
   }
+  uint64_t totaltrackdatatime() const {
+    return GetField<uint64_t>(VT_TOTALTRACKDATATIME, 0);
+  }
+  uint64_t totaltrackdata() const {
+    return GetField<uint64_t>(VT_TOTALTRACKDATA, 0);
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_RECORDINGTOKEN) &&
@@ -79,6 +87,8 @@ struct TrackChanged FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyOffset(verifier, VT_CODECINDICES) &&
            verifier.VerifyVector(codecindices()) &&
            verifier.VerifyVectorOfTables(codecindices()) &&
+           VerifyField<uint64_t>(verifier, VT_TOTALTRACKDATATIME) &&
+           VerifyField<uint64_t>(verifier, VT_TOTALTRACKDATA) &&
            verifier.EndTable();
   }
 };
@@ -119,6 +129,12 @@ struct TrackChangedBuilder {
   void add_codecindices(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::CodecIndex>>> codecindices) {
     fbb_.AddOffset(TrackChanged::VT_CODECINDICES, codecindices);
   }
+  void add_totaltrackdatatime(uint64_t totaltrackdatatime) {
+    fbb_.AddElement<uint64_t>(TrackChanged::VT_TOTALTRACKDATATIME, totaltrackdatatime, 0);
+  }
+  void add_totaltrackdata(uint64_t totaltrackdata) {
+    fbb_.AddElement<uint64_t>(TrackChanged::VT_TOTALTRACKDATA, totaltrackdata, 0);
+  }
   explicit TrackChangedBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -143,8 +159,12 @@ inline flatbuffers::Offset<TrackChanged> CreateTrackChanged(
     bool encrypt = false,
     uint32_t flushfrequency = 0,
     flatbuffers::Offset<flatbuffers::Vector<uint64_t>> files = 0,
-    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::CodecIndex>>> codecindices = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::CodecIndex>>> codecindices = 0,
+    uint64_t totaltrackdatatime = 0,
+    uint64_t totaltrackdata = 0) {
   TrackChangedBuilder builder_(_fbb);
+  builder_.add_totaltrackdata(totaltrackdata);
+  builder_.add_totaltrackdatatime(totaltrackdatatime);
   builder_.add_recordingtoken(recordingtoken);
   builder_.add_codecindices(codecindices);
   builder_.add_files(files);
@@ -171,7 +191,9 @@ inline flatbuffers::Offset<TrackChanged> CreateTrackChangedDirect(
     bool encrypt = false,
     uint32_t flushfrequency = 0,
     const std::vector<uint64_t> *files = nullptr,
-    const std::vector<flatbuffers::Offset<monocle::CodecIndex>> *codecindices = nullptr) {
+    const std::vector<flatbuffers::Offset<monocle::CodecIndex>> *codecindices = nullptr,
+    uint64_t totaltrackdatatime = 0,
+    uint64_t totaltrackdata = 0) {
   auto token__ = token ? _fbb.CreateString(token) : 0;
   auto description__ = description ? _fbb.CreateString(description) : 0;
   auto files__ = files ? _fbb.CreateVector<uint64_t>(*files) : 0;
@@ -188,7 +210,9 @@ inline flatbuffers::Offset<TrackChanged> CreateTrackChangedDirect(
       encrypt,
       flushfrequency,
       files__,
-      codecindices__);
+      codecindices__,
+      totaltrackdatatime,
+      totaltrackdata);
 }
 
 }  // namespace monocle
