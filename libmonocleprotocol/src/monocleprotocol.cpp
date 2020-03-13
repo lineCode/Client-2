@@ -87,6 +87,18 @@ std::vector< flatbuffers::Offset<DiskStat> > GetDiskStatsBuffer(const std::vecto
   return diskstatsbuffer;
 }
 
+std::vector< flatbuffers::Offset<GPUStat> > GetGPUStatsBuffer(const std::vector<GPUSTAT>& gpustats, flatbuffers::FlatBufferBuilder& fbb)
+{
+  std::vector< flatbuffers::Offset<GPUStat> > gpustatsbuffer;
+  gpustatsbuffer.reserve(gpustats.size());
+  for (const GPUSTAT& gpustat : gpustats)
+  {
+    gpustatsbuffer.push_back(CreateGPUStat(fbb, fbb.CreateString(gpustat.uuid_), fbb.CreateString(gpustat.name_), gpustat.gpuusage_, gpustat.memoryusage_, gpustat.totalmemory_, gpustat.usedmemory_));
+
+  }
+  return gpustatsbuffer;
+}
+
 std::vector< flatbuffers::Offset<Group> > GetGroupBuffers(const std::vector<GROUP>& groups, flatbuffers::FlatBufferBuilder& fbb)
 {
   std::vector< flatbuffers::Offset<Group> > groupbuffers;

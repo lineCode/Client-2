@@ -20,6 +20,7 @@
 #include "monocleprotocol/filestate_generated.h"
 #include "monocleprotocol/filemonitorstate_generated.h"
 #include "monocleprotocol/group_generated.h"
+#include "monocleprotocol/gpustat_generated.h"
 #include "monocleprotocol/header_generated.h"
 #include "monocleprotocol/logmessage_generated.h"
 #include "monocleprotocol/onvifuser_generated.h"
@@ -511,6 +512,7 @@ std::string AuthenticateDigest(const std::string& username, const std::string& p
 std::string AuthenticateDigest(const std::string& username, const std::string& password, const std::string& nonce, const std::string& clientnonce);
 std::string AuthenticateDigest(const std::string& digest, const std::string& nonce, const std::string& clientnonce);
 std::vector< flatbuffers::Offset<DiskStat> > GetDiskStatsBuffer(const std::vector<DISKSTAT>& diskstats, flatbuffers::FlatBufferBuilder& fbb);
+std::vector< flatbuffers::Offset<GPUStat> > GetGPUStatsBuffer(const std::vector<GPUSTAT>& gpustats, flatbuffers::FlatBufferBuilder& fbb);
 std::vector< flatbuffers::Offset<ONVIFUser> > GetONVIFUserBuffers(const std::vector<ONVIFUSER>& onvifusers, flatbuffers::FlatBufferBuilder& fbb);
 std::vector< flatbuffers::Offset<User> > GetUserBuffers(const std::vector<USER>& users, flatbuffers::FlatBufferBuilder& fbb);
 std::vector< flatbuffers::Offset<Group> > GetGroupBuffers(const std::vector<GROUP>& groups, flatbuffers::FlatBufferBuilder& fbb);

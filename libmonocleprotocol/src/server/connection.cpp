@@ -3581,7 +3581,7 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
 
       std::lock_guard<std::mutex> lock(writemutex_);
       fbb_.Clear();
-      fbb_.Finish(CreateSubscribeHardwareStatsResponse(fbb_, CreateHardwareStats(fbb_, hardwarestats.second.time_, fbb_.CreateVector(GetDiskStatsBuffer(hardwarestats.second.diskstats_, fbb_)), hardwarestats.second.cpuusage_, hardwarestats.second.totalmemory_, hardwarestats.second.availablememory_)));
+      fbb_.Finish(CreateSubscribeHardwareStatsResponse(fbb_, CreateHardwareStats(fbb_, hardwarestats.second.time_, fbb_.CreateVector(GetDiskStatsBuffer(hardwarestats.second.diskstats_, fbb_)), hardwarestats.second.cpuusage_, hardwarestats.second.totalmemory_, hardwarestats.second.availablememory_, fbb_.CreateVector(GetGPUStatsBuffer(hardwarestats.second.gpustats_, fbb_)))));
       return SendResponse(false, Message::SUBSCRIBEHARDWARESTATS, sequence);
     }
     case Message::SUBSCRIBERECORDINGJOBLOG:
