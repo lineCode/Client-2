@@ -4908,7 +4908,7 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
 
             continue;
           }
-          gpustats.push_back(monocle::GPUSTAT(gpustat->uuid()->str(), gpustat->name()->str(), gpustat->gpuusage(), gpustat->memoryusage(), gpustat->freememory(), gpustat->totalmemory(), gpustat->usedmemory()));
+          gpustats.push_back(monocle::GPUSTAT(gpustat->uuid()->str(), gpustat->name()->str(), gpustat->gpuusage(), gpustat->memoryusage(), gpustat->totalmemory(), gpustat->usedmemory()));
         }
       }
 
@@ -6670,7 +6670,7 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
             // Something is very wrong, just ignore this message
             return;
           }
-          gpustats.push_back(monocle::GPUSTAT(gpustat->uuid()->str(), gpustat->name()->str(), gpustat->gpuusage(), gpustat->memoryusage(), gpustat->freememory(), gpustat->totalmemory(), gpustat->usedmemory()));
+          gpustats.push_back(monocle::GPUSTAT(gpustat->uuid()->str(), gpustat->name()->str(), gpustat->gpuusage(), gpustat->memoryusage(), gpustat->totalmemory(), gpustat->usedmemory()));
         }
       }
 

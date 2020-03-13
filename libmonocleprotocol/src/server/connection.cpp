@@ -558,7 +558,7 @@ boost::system::error_code Connection::SendHardwareStats(const uint64_t timestamp
   std::vector< flatbuffers::Offset<monocle::GPUStat> > gputatsbuffer;
   for (const GPUSTAT& gpustat : gpustats)
   {
-    gputatsbuffer.push_back(CreateGPUStat(fbb_, fbb_.CreateString(gpustat.uuid_), fbb_.CreateString(gpustat.name_), gpustat.gpuusage_, gpustat.memoryusage_, gpustat.freememory_, gpustat.totalmemory_, gpustat.usedmemory_));
+    gputatsbuffer.push_back(CreateGPUStat(fbb_, fbb_.CreateString(gpustat.uuid_), fbb_.CreateString(gpustat.name_), gpustat.gpuusage_, gpustat.memoryusage_, gpustat.totalmemory_, gpustat.usedmemory_));
 
   }
 

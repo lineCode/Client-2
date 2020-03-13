@@ -74,13 +74,12 @@ struct Error
 
 struct GPUSTAT
 {
-  GPUSTAT(const std::string& uuid, const std::string& name, const unsigned int gpuusage, const unsigned int memoryusage, const unsigned long long freememory, const unsigned long long totalmemory, const unsigned long long usedmemory);
+  GPUSTAT(const std::string& uuid, const std::string& name, const unsigned int gpuusage, const unsigned int memoryusage, const unsigned long long totalmemory, const unsigned long long usedmemory);
 
   std::string uuid_;
   std::string name_;
   unsigned int gpuusage_;
   unsigned int memoryusage_;
-  unsigned long long freememory_;
   unsigned long long totalmemory_;
   unsigned long long usedmemory_;
 

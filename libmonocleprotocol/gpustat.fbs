@@ -6,7 +6,6 @@ table GPUStat
   name:string (id:1);
   gpuusage:uint (id:2);
   memoryusage:uint (id:3);
-  freememory:uint64 (id:4);
-  totalmemory:uint64 (id:5);
-  usedmemory:uint64 (id:6);
+  totalmemory:uint64 (id:4);
+  usedmemory:uint64 (id:5);
 }

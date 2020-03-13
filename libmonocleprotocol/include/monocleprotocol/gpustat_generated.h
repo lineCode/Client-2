@@ -16,9 +16,8 @@ struct GPUStat FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_NAME = 6,
     VT_GPUUSAGE = 8,
     VT_MEMORYUSAGE = 10,
-    VT_FREEMEMORY = 12,
-    VT_TOTALMEMORY = 14,
-    VT_USEDMEMORY = 16
+    VT_TOTALMEMORY = 12,
+    VT_USEDMEMORY = 14
   };
   const flatbuffers::String *uuid() const {
     return GetPointer<const flatbuffers::String *>(VT_UUID);
@@ -31,9 +30,6 @@ struct GPUStat FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   }
   uint32_t memoryusage() const {
     return GetField<uint32_t>(VT_MEMORYUSAGE, 0);
-  }
-  uint64_t freememory() const {
-    return GetField<uint64_t>(VT_FREEMEMORY, 0);
   }
   uint64_t totalmemory() const {
     return GetField<uint64_t>(VT_TOTALMEMORY, 0);
@@ -49,7 +45,6 @@ struct GPUStat FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            verifier.VerifyString(name()) &&
            VerifyField<uint32_t>(verifier, VT_GPUUSAGE) &&
            VerifyField<uint32_t>(verifier, VT_MEMORYUSAGE) &&
-           VerifyField<uint64_t>(verifier, VT_FREEMEMORY) &&
            VerifyField<uint64_t>(verifier, VT_TOTALMEMORY) &&
            VerifyField<uint64_t>(verifier, VT_USEDMEMORY) &&
            verifier.EndTable();
@@ -70,9 +65,6 @@ struct GPUStatBuilder {
   }
   void add_memoryusage(uint32_t memoryusage) {
     fbb_.AddElement<uint32_t>(GPUStat::VT_MEMORYUSAGE, memoryusage, 0);
-  }
-  void add_freememory(uint64_t freememory) {
-    fbb_.AddElement<uint64_t>(GPUStat::VT_FREEMEMORY, freememory, 0);
   }
   void add_totalmemory(uint64_t totalmemory) {
     fbb_.AddElement<uint64_t>(GPUStat::VT_TOTALMEMORY, totalmemory, 0);
@@ -98,13 +90,11 @@ inline flatbuffers::Offset<GPUStat> CreateGPUStat(
     flatbuffers::Offset<flatbuffers::String> name = 0,
     uint32_t gpuusage = 0,
     uint32_t memoryusage = 0,
-    uint64_t freememory = 0,
     uint64_t totalmemory = 0,
     uint64_t usedmemory = 0) {
   GPUStatBuilder builder_(_fbb);
   builder_.add_usedmemory(usedmemory);
   builder_.add_totalmemory(totalmemory);
-  builder_.add_freememory(freememory);
   builder_.add_memoryusage(memoryusage);
   builder_.add_gpuusage(gpuusage);
   builder_.add_name(name);
@@ -118,7 +108,6 @@ inline flatbuffers::Offset<GPUStat> CreateGPUStatDirect(
     const char *name = nullptr,
     uint32_t gpuusage = 0,
     uint32_t memoryusage = 0,
-    uint64_t freememory = 0,
     uint64_t totalmemory = 0,
     uint64_t usedmemory = 0) {
   auto uuid__ = uuid ? _fbb.CreateString(uuid) : 0;
@@ -129,7 +118,6 @@ inline flatbuffers::Offset<GPUStat> CreateGPUStatDirect(
       name__,
       gpuusage,
       memoryusage,
-      freememory,
       totalmemory,
       usedmemory);
 }
