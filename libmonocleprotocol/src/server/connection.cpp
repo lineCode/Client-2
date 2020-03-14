@@ -11,6 +11,7 @@
 
 #include "monocleprotocol/addfilerequest_generated.h"
 #include "monocleprotocol/addgrouprequest_generated.h"
+#include "monocleprotocol/addlayoutrequest_generated.h"
 #include "monocleprotocol/addmaprequest_generated.h"
 #include "monocleprotocol/addonvifuserrequest_generated.h"
 #include "monocleprotocol/addreceiverrequest_generated.h"
@@ -76,6 +77,7 @@
 #include "monocleprotocol/h264frameheader_generated.h"
 #include "monocleprotocol/hardwarestats_generated.h"
 #include "monocleprotocol/jpegframeheader_generated.h"
+#include "monocleprotocol/layoutadded_generated.h"
 #include "monocleprotocol/locationchanged_generated.h"
 #include "monocleprotocol/mapadded_generated.h"
 #include "monocleprotocol/mapchanged_generated.h"
@@ -603,6 +605,47 @@ boost::system::error_code Connection::SendLocationChanged(const std::string& lat
   fbb_.Finish(CreateLocationChanged(fbb_, fbb_.CreateString(latitude), fbb_.CreateString(location)));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::LOCATIONCHANGED, ++sequence_);
+  const std::array<boost::asio::const_buffer, 2> buffers =
+  {
+    boost::asio::const_buffer(&header, sizeof(HEADER)),
+    boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
+  };
+  boost::system::error_code err;
+  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
+  return err;
+}
+
+boost::system::error_code Connection::SendLayoutAdded(const monocle::LAYOUT& layout)
+{
+  std::lock_guard<std::mutex> lock(writemutex_);
+  fbb_.Clear();
+
+  std::vector< flatbuffers::Offset<monocle::LayoutWindow> > windows;
+  windows.reserve(layout.windows_.size());
+  for (const monocle::LAYOUTWINDOW& window : layout.windows_)
+  {
+    std::vector< flatbuffers::Offset<monocle::LayoutView> > maps;
+    maps.reserve(window.maps_.size());
+    for (const monocle::LAYOUTVIEW& map : window.maps_)
+    {
+      maps.push_back(CreateLayoutView(fbb_, map.token_, map.x_, map.y_, map.width_, map.height_));
+
+    }
+
+    std::vector< flatbuffers::Offset<monocle::LayoutView> > recordings;
+    recordings.reserve(window.recordings_.size());
+    for (const monocle::LAYOUTVIEW& recording : window.recordings_)
+    {
+      recordings.push_back(CreateLayoutView(fbb_, recording.token_, recording.x_, recording.y_, recording.width_, recording.height_));
+
+    }
+
+    windows.push_back(CreateLayoutWindow(fbb_, window.token_, window.screenx_, window.screeny_, window.screenwidth_, window.screenheight_, window.x_, window.y_, window.width_, window.height_, window.gridwidth_, window.gridheight_, fbb_.CreateVector(maps), fbb_.CreateVector(recordings)));
+  }
+
+  fbb_.Finish(CreateLayoutAdded(fbb_, CreateLayout(fbb_, layout.token_, fbb_.CreateString(layout.name_), fbb_.CreateVector(windows))));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::LAYOUTADDED, ++sequence_);
   const std::array<boost::asio::const_buffer, 2> buffers =
   {
     boost::asio::const_buffer(&header, sizeof(HEADER)),
@@ -1603,6 +1646,69 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       }
 
       return SendHeaderResponse(HEADER(0, false, false, Message::ADDGROUP, sequence));
+    }
+    case Message::ADDLAYOUT:
+    {
+      if (data == nullptr)
+      {
+
+        return SendErrorResponse(Message::ADDLAYOUT, sequence, Error(ErrorCode::MissingMessage, "Missing message"));
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<AddLayoutRequest>(nullptr))
+      {
+
+        return SendErrorResponse(Message::ADDLAYOUT, sequence, Error(ErrorCode::InvalidMessage, "Invalid message"));
+      }
+
+      const AddLayoutRequest* addlayoutrequest = flatbuffers::GetRoot<AddLayoutRequest>(data);
+      if ((addlayoutrequest == nullptr) || (addlayoutrequest->layout() == nullptr))
+      {
+
+        return SendErrorResponse(Message::ADDLAYOUT, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
+      }
+
+      std::vector<LAYOUTWINDOW> windows;
+      if (addlayoutrequest->layout()->windows())
+      {
+        windows.reserve(addlayoutrequest->layout()->windows()->size());
+        for (const monocle::LayoutWindow* window : *addlayoutrequest->layout()->windows())
+        {
+          std::vector<LAYOUTVIEW> maps;
+          if (window->maps())
+          {
+            maps.reserve(window->maps()->size());
+            for (const monocle::LayoutView* map : *window->maps())
+            {
+              maps.push_back(LAYOUTVIEW(map->token(), map->x(), map->y(), map->width(), map->height()));
+            
+            }
+          }
+
+          std::vector<LAYOUTVIEW> recordings;
+          if (window->recordings())
+          {
+            recordings.reserve(window->recordings()->size());
+            for (const monocle::LayoutView* recording : *window->recordings())
+            {
+              recordings.push_back(LAYOUTVIEW(recording->token(), recording->x(), recording->y(), recording->width(), recording->height()));
+
+            }
+          }
+
+          windows.push_back(LAYOUTWINDOW(window->token(), window->screenx(), window->screeny(), window->screenwidth(), window->screenheight(), window->x(), window->y(), window->width(), window->height(), window->gridwidth(), window->gridheight(), maps, recordings));
+        }
+      }
+
+      const LAYOUT layout(addlayoutrequest->layout()->token(), addlayoutrequest->layout()->name() ? addlayoutrequest->layout()->name()->str() : std::string(), windows);
+      const Error error = AddLayout(layout);
+      if (error.code_ != ErrorCode::Success)
+      {
+
+        return SendErrorResponse(Message::ADDLAYOUT, sequence, error);
+      }
+
+      return SendHeaderResponse(HEADER(0, false, false, Message::ADDLAYOUT, sequence));
     }
     case Message::ADDMAP:
     {

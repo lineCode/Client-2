@@ -105,8 +105,10 @@ struct LayoutWindow FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_Y = 16,
     VT_WIDTH = 18,
     VT_HEIGHT = 20,
-    VT_MAPS = 22,
-    VT_RECORDINGS = 24
+    VT_GRIDWIDTH = 22,
+    VT_GRIDHEIGHT = 24,
+    VT_MAPS = 26,
+    VT_RECORDINGS = 28
   };
   uint64_t token() const {
     return GetField<uint64_t>(VT_TOKEN, 0);
@@ -135,6 +137,12 @@ struct LayoutWindow FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   int32_t height() const {
     return GetField<int32_t>(VT_HEIGHT, 0);
   }
+  uint32_t gridwidth() const {
+    return GetField<uint32_t>(VT_GRIDWIDTH, 0);
+  }
+  uint32_t gridheight() const {
+    return GetField<uint32_t>(VT_GRIDHEIGHT, 0);
+  }
   const flatbuffers::Vector<flatbuffers::Offset<monocle::LayoutView>> *maps() const {
     return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::LayoutView>> *>(VT_MAPS);
   }
@@ -152,6 +160,8 @@ struct LayoutWindow FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyField<int32_t>(verifier, VT_Y) &&
            VerifyField<int32_t>(verifier, VT_WIDTH) &&
            VerifyField<int32_t>(verifier, VT_HEIGHT) &&
+           VerifyField<uint32_t>(verifier, VT_GRIDWIDTH) &&
+           VerifyField<uint32_t>(verifier, VT_GRIDHEIGHT) &&
            VerifyOffset(verifier, VT_MAPS) &&
            verifier.VerifyVector(maps()) &&
            verifier.VerifyVectorOfTables(maps()) &&
@@ -192,6 +202,12 @@ struct LayoutWindowBuilder {
   void add_height(int32_t height) {
     fbb_.AddElement<int32_t>(LayoutWindow::VT_HEIGHT, height, 0);
   }
+  void add_gridwidth(uint32_t gridwidth) {
+    fbb_.AddElement<uint32_t>(LayoutWindow::VT_GRIDWIDTH, gridwidth, 0);
+  }
+  void add_gridheight(uint32_t gridheight) {
+    fbb_.AddElement<uint32_t>(LayoutWindow::VT_GRIDHEIGHT, gridheight, 0);
+  }
   void add_maps(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::LayoutView>>> maps) {
     fbb_.AddOffset(LayoutWindow::VT_MAPS, maps);
   }
@@ -221,12 +237,16 @@ inline flatbuffers::Offset<LayoutWindow> CreateLayoutWindow(
     int32_t y = 0,
     int32_t width = 0,
     int32_t height = 0,
+    uint32_t gridwidth = 0,
+    uint32_t gridheight = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::LayoutView>>> maps = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::LayoutView>>> recordings = 0) {
   LayoutWindowBuilder builder_(_fbb);
   builder_.add_token(token);
   builder_.add_recordings(recordings);
   builder_.add_maps(maps);
+  builder_.add_gridheight(gridheight);
+  builder_.add_gridwidth(gridwidth);
   builder_.add_height(height);
   builder_.add_width(width);
   builder_.add_y(y);
@@ -249,6 +269,8 @@ inline flatbuffers::Offset<LayoutWindow> CreateLayoutWindowDirect(
     int32_t y = 0,
     int32_t width = 0,
     int32_t height = 0,
+    uint32_t gridwidth = 0,
+    uint32_t gridheight = 0,
     const std::vector<flatbuffers::Offset<monocle::LayoutView>> *maps = nullptr,
     const std::vector<flatbuffers::Offset<monocle::LayoutView>> *recordings = nullptr) {
   auto maps__ = maps ? _fbb.CreateVector<flatbuffers::Offset<monocle::LayoutView>>(*maps) : 0;
@@ -264,6 +286,8 @@ inline flatbuffers::Offset<LayoutWindow> CreateLayoutWindowDirect(
       y,
       width,
       height,
+      gridwidth,
+      gridheight,
       maps__,
       recordings__);
 }

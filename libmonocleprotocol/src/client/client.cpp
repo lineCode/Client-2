@@ -82,6 +82,7 @@
 #include "monocleprotocol/h264frameheader_generated.h"
 #include "monocleprotocol/hardwarestats_generated.h"
 #include "monocleprotocol/jpegframeheader_generated.h"
+#include "monocleprotocol/layoutadded_generated.h"
 #include "monocleprotocol/locationchanged_generated.h"
 #include "monocleprotocol/mapadded_generated.h"
 #include "monocleprotocol/mapchanged_generated.h"
@@ -1983,13 +1984,12 @@ boost::system::error_code Client::AddLayoutSend(const LAYOUT& layout)
 
     }
 
-    layoutwindows.push_back(CreateLayoutWindow(fbb_, window.token_, window.screenx_, window.screeny_, window.screenwidth_, window.screenheight_, window.x_, window.y_, window.width_, window.height_, fbb_.CreateVector(maps), fbb_.CreateVector(recordings)));
-
+    layoutwindows.push_back(CreateLayoutWindow(fbb_, window.token_, window.screenx_, window.screeny_, window.screenwidth_, window.screenheight_, window.x_, window.y_, window.width_, window.height_, window.gridwidth_, window.gridheight_, fbb_.CreateVector(maps), fbb_.CreateVector(recordings)));
   }
 
   fbb_.Finish(CreateAddLayoutRequest(fbb_, CreateLayout(fbb_, layout.token_, fbb_.CreateString(layout.name_), fbb_.CreateVector(layoutwindows))));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
-  const HEADER header(messagesize, false, false, Message::ADDMAP, ++sequence_);
+  const HEADER header(messagesize, false, false, Message::ADDLAYOUT, ++sequence_);
   boost::system::error_code err;
   boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
   if (err)
@@ -5072,6 +5072,62 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       }
 
       LocationChanged(latitude, longitude);
+      break;
+    }
+    case Message::LAYOUTADDED:
+    {
+      if (error)
+      {
+        // Ignore this because it can't really happen...
+        return;
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<monocle::LayoutAdded>(nullptr))
+      {
+
+        return;
+      }
+
+      const monocle::LayoutAdded* layoutadded = flatbuffers::GetRoot<monocle::LayoutAdded>(data);
+      if ((layoutadded == nullptr) || (layoutadded->layout() == nullptr))
+      {
+
+        return;
+      }
+
+      std::vector<monocle::LAYOUTWINDOW> windows;
+      if (layoutadded->layout()->windows())
+      {
+        windows.reserve(layoutadded->layout()->windows()->size());
+        for (const monocle::LayoutWindow* window : *layoutadded->layout()->windows())
+        {
+          std::vector<monocle::LAYOUTVIEW> maps;
+          if (window->maps())
+          {
+            maps.reserve(window->maps()->size());
+            for (const monocle::LayoutView* map : *window->maps())
+            {
+              maps.push_back(monocle::LAYOUTVIEW(map->token(), map->x(), map->y(), map->width(), map->height()));
+
+            }
+          }
+
+          std::vector<monocle::LAYOUTVIEW> recordings;
+          if (window->recordings())
+          {
+            recordings.reserve(window->recordings()->size());
+            for (const monocle::LayoutView* recording : *window->recordings())
+            {
+              recordings.push_back(monocle::LAYOUTVIEW(recording->token(), recording->x(), recording->y(), recording->width(), recording->height()));
+
+            }
+          }
+
+          windows.push_back(monocle::LAYOUTWINDOW(window->token(), window->screenx(), window->screeny(), window->screenwidth(), window->screenheight(), window->x(), window->y(), window->width(), window->height(), window->gridwidth(), window->gridheight(), maps, recordings));
+        }
+      }
+
+      LayoutAdded(monocle::LAYOUT(layoutadded->layout()->token(), layoutadded->layout()->name() ? layoutadded->layout()->name()->str() : std::string(), windows));
       break;
     }
     case Message::MAPADDED:

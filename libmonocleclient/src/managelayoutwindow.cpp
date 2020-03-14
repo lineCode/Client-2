@@ -7,6 +7,7 @@
 
 #include <QMessageBox>
 #include <QScreen>
+#include <random>
 #include <utility/utility.hpp>
 
 #include "monocleclient/mainwindow.h"
@@ -37,23 +38,12 @@ ManageLayoutWindow::ManageLayoutWindow(QWidget* parent) :
 
 ManageLayoutWindow::~ManageLayoutWindow()
 {
-
-}
-
-uint64_t ManageLayoutWindow::GetWindowToken(const std::vector<monocle::LAYOUTWINDOW>& windows) const
-{
-  std::mt19937 gen(rd_());
-  std::uniform_int_distribution<uint64_t> dist(1, std::numeric_limits<uint64_t>::max());
-
-  while (true)
+  for (monocle::client::Connection& connection : connections_)
   {
-    const uint64_t token = dist(gen);
-    if (std::find_if(windows.cbegin(), windows.cend(), [token](const monocle::LAYOUTWINDOW& window) { return (window.token_ == token); }) == windows.cend())
-    {
+    connection.Close();
 
-      return token;
-    }
   }
+  connections_.clear();
 }
 
 void ManageLayoutWindow::on_buttonok_clicked()
@@ -63,6 +53,12 @@ void ManageLayoutWindow::on_buttonok_clicked()
     QMessageBox(QMessageBox::Warning, tr("Error"), tr("Please fill in a name for the layout"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
     return;
   }
+
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<uint64_t> dist(1, std::numeric_limits<uint64_t>::max());
+
+  std::vector< std::pair<uint64_t, QScreen*> > screens;
 
   const uint64_t token = MainWindow::Instance()->GetDeviceMgr().GetUniqueLayoutToken();
   std::vector< std::pair< boost::shared_ptr<Device>, monocle::LAYOUT> > layouts;
@@ -106,8 +102,29 @@ void ManageLayoutWindow::on_buttonok_clicked()
 
       if (videoviews.size() || mapviews.size())
       {
+        // Make sure the screen token is the same for every window on every device
+        uint64_t windowtoken = 0;
+        auto s = std::find_if(screens.cbegin(), screens.cend(), [screen](const std::pair<uint64_t, QScreen*>& s) { return (s.second == screen); });
+        if (s == screens.cend())
+        {
+          while (true)
+          {
+            windowtoken = dist(gen);
+            if (std::find_if(windows.cbegin(), windows.cend(), [windowtoken](const monocle::LAYOUTWINDOW& window) { return (window.token_ == windowtoken); }) == windows.cend())
+            {
+              screens.push_back(std::make_pair(windowtoken, screen));
+              break;
+            }
+          }
+        }
+        else
+        {
+          windowtoken = s->first;
+
+        }
+
         const QRect geometry = screen->geometry();
-        windows.push_back(monocle::LAYOUTWINDOW(GetWindowToken(windows), geometry.x(), geometry.y(), geometry.width(), geometry.height(), window->x(), window->y(), window->width(), window->height(), videowidget->GetWidth(), videowidget->GetHeight(), mapviews, videoviews));
+        windows.push_back(monocle::LAYOUTWINDOW(windowtoken, geometry.x(), geometry.y(), geometry.width(), geometry.height(), window->x(), window->y(), window->width(), window->height(), videowidget->GetWidth(), videowidget->GetHeight(), mapviews, videoviews));
       }
     }
 
@@ -118,16 +135,27 @@ void ManageLayoutWindow::on_buttonok_clicked()
     }
   }
 
-  for (const std::pair< boost::shared_ptr<Device>, monocle::LAYOUT>& layout : layouts)
+  if (layouts.empty())
   {
-
-
-    //TODO send away, shared_ptr the result until we have all of them, then disappear or error message...
-
-
+    //TODO error message?
+    return;
   }
 
+  for (const std::pair< boost::shared_ptr<Device>, monocle::LAYOUT>& layout : layouts)
+  {
+    connections_.push_back(layout.first->AddLayout(layout.second, [](const std::chrono::steady_clock::duration latency, const monocle::client::ADDLAYOUTRESPONSE& addlayoutresponse)
+    {
+      if (addlayoutresponse.GetErrorCode() != monocle::ErrorCode::Success)
+      {
+        //TODO accumulate a failure here...
+        return;
+      }
 
+      //TODO accumulate all the responses here
+        //TODO if any of them fail, then delete the ones that didn't fail... or at least attempt too
+
+    }));
+  }
 }
 
 }

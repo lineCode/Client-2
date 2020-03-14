@@ -20,8 +20,10 @@ table LayoutWindow
   y:int32 (id:6);
   width:int32 (id:7);
   height:int32 (id:8);
-  maps:[LayoutView] (id:9);
-  recordings:[LayoutView] (id:10);
+  gridwidth: uint32 (id:9);
+  gridheight: uint32 (id:10);
+  maps:[LayoutView] (id:11);
+  recordings:[LayoutView] (id:12);
 }
 
 table Layout

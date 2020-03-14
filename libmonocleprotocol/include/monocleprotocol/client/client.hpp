@@ -143,7 +143,7 @@ class Client : public boost::enable_shared_from_this<Client>
   virtual void H264Frame(const uint64_t token, const uint64_t playrequest, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const uint32_t* offsets, const size_t numoffsets, const char* data, const size_t size) = 0;
   virtual void HardwareStatsMessage(const uint64_t time, const std::vector<monocle::DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory, const uint64_t availablememory, const std::vector<monocle::GPUSTAT>& gpustats) = 0;
   virtual void JPEGFrame(const uint64_t token, const uint64_t playrequest, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const uint8_t* lqt, const uint8_t* cqt, const char* data, const size_t size) = 0;
-  //TODO LayoutAdded
+  virtual void LayoutAdded(const monocle::LAYOUT& layout) = 0;
   virtual void MapAdded(const uint64_t token, const std::string& name, const std::string& location, const std::string& imagemd5) = 0;
   virtual void MapChanged(const uint64_t token, const std::string& name, const std::string& location, const std::string& imagemd5) = 0;
   virtual void MapRemoved(const uint64_t token) = 0;
