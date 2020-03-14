@@ -47,6 +47,7 @@ class Client : public boost::enable_shared_from_this<Client>
 {
  friend class Signal<Client, ADDFILERESPONSE>;
  friend class Signal<Client, ADDGROUPRESPONSE>;
+ friend class Signal<Client, ADDLAYOUTRESPONSE>;
  friend class Signal<Client, ADDMAPRESPONSE>;
  friend class Signal<Client, ADDONVIFUSERRESPONSE>;
  friend class Signal<Client, ADDRECEIVERRESPONSE>;
@@ -142,6 +143,7 @@ class Client : public boost::enable_shared_from_this<Client>
   virtual void H264Frame(const uint64_t token, const uint64_t playrequest, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const uint32_t* offsets, const size_t numoffsets, const char* data, const size_t size) = 0;
   virtual void HardwareStatsMessage(const uint64_t time, const std::vector<monocle::DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory, const uint64_t availablememory, const std::vector<monocle::GPUSTAT>& gpustats) = 0;
   virtual void JPEGFrame(const uint64_t token, const uint64_t playrequest, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const uint8_t* lqt, const uint8_t* cqt, const char* data, const size_t size) = 0;
+  //TODO LayoutAdded
   virtual void MapAdded(const uint64_t token, const std::string& name, const std::string& location, const std::string& imagemd5) = 0;
   virtual void MapChanged(const uint64_t token, const std::string& name, const std::string& location, const std::string& imagemd5) = 0;
   virtual void MapRemoved(const uint64_t token) = 0;
@@ -191,6 +193,7 @@ class Client : public boost::enable_shared_from_this<Client>
 
   boost::unique_future<ADDFILERESPONSE> AddFile(const std::string& mountpoint, const std::string& path, const bool filldisk, const uint64_t numchunks, const uint64_t chunksize, const bool automount);
   boost::unique_future<ADDGROUPRESPONSE> AddGroup(const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
+  boost::unique_future<ADDLAYOUTRESPONSE> AddLayout(const LAYOUT& layout);
   boost::unique_future<ADDMAPRESPONSE> AddMap(const std::string& name, const std::string& location, const std::vector<int8_t>& image);
   boost::unique_future<ADDONVIFUSERRESPONSE> AddONVIFUser(const std::string& username, const std::string& password, const ONVIFUserlevel onvifuserlevel);
   boost::unique_future<ADDRECEIVERRESPONSE> AddReceiver(const monocle::ReceiverMode mode, const std::string& uri, const std::string& username, const std::string& password, const std::vector<std::string>& parameters);
@@ -260,6 +263,7 @@ class Client : public boost::enable_shared_from_this<Client>
 
   Connection AddFile(const std::string& mountpoint, const std::string& path, const bool filldisk, const uint64_t numchunks, const uint64_t chunksize, const bool automount, boost::function<void(const std::chrono::steady_clock::duration, const ADDFILERESPONSE&)> callback);
   Connection AddGroup(const std::string& name, const bool manageusers, const bool managerecordings, const bool allrecordings, const bool managemaps, const bool managedevice, const std::vector<uint64_t>& recordings, boost::function<void(const std::chrono::steady_clock::duration, const ADDGROUPRESPONSE&)> callback);
+  Connection AddLayout(const LAYOUT& layout, boost::function<void(const std::chrono::steady_clock::duration, const ADDLAYOUTRESPONSE&)> callback);
   Connection AddMap(const std::string& name, const std::string& location, const std::vector<int8_t>& image, boost::function<void(const std::chrono::steady_clock::duration, const ADDMAPRESPONSE&)> callback);
   Connection AddONVIFUser(const std::string& username, const std::string& password, const ONVIFUserlevel onvifuserlevel, boost::function<void(const std::chrono::steady_clock::duration, const ADDONVIFUSERRESPONSE&)> callback);
   Connection AddReceiver(const monocle::ReceiverMode mode, const std::string& uri, const std::string& username, const std::string& password, const std::vector<std::string>& parameters, boost::function<void(const std::chrono::steady_clock::duration, const ADDRECEIVERRESPONSE&)> callback);
@@ -337,6 +341,7 @@ class Client : public boost::enable_shared_from_this<Client>
 
   boost::system::error_code AddFileSend(const std::string& mountpoint, const std::string& path, const bool fillfisk, const uint64_t numchunks, const uint64_t chunksize, const bool automount);
   boost::system::error_code AddGroupSend(const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
+  boost::system::error_code AddLayoutSend(const LAYOUT& layout);
   boost::system::error_code AddMapSend(const std::string& name, const std::string& location, const std::vector<int8_t>& image);
   boost::system::error_code AddONVIFUserSend(const std::string& username, const std::string& password, const ONVIFUserlevel onvifuserlevel);
   boost::system::error_code AddReceiverSend(const monocle::ReceiverMode mode, const std::string& uri, const std::string& username, const std::string& password, const std::vector<std::string>& parameters);
@@ -455,6 +460,7 @@ class Client : public boost::enable_shared_from_this<Client>
 
   Signal<Client, ADDFILERESPONSE> addfile_;
   Signal<Client, ADDGROUPRESPONSE> addgroup_;
+  Signal<Client, ADDLAYOUTRESPONSE> addlayout_;
   Signal<Client, ADDMAPRESPONSE> addmap_;
   Signal<Client, ADDONVIFUSERRESPONSE> addonvifuser_;
   Signal<Client, ADDRECEIVERRESPONSE> addreceiver_;

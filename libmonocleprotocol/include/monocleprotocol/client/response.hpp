@@ -50,6 +50,13 @@ struct ADDGROUPRESPONSE : public RESPONSE
 
 };
 
+struct ADDLAYOUTRESPONSE : public RESPONSE
+{
+  ADDLAYOUTRESPONSE();
+  ADDLAYOUTRESPONSE(const Error& error);
+
+};
+
 struct ADDMAPRESPONSE : public RESPONSE
 {
   ADDMAPRESPONSE();

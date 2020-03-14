@@ -455,6 +455,42 @@ bool FILE::operator==(const FILE& rhs) const
   return ((token_ == rhs.token_) && (path_ == rhs.path_) && (mountpoint_ == rhs.mountpoint_) && (numchunks_ == rhs.numchunks_) && (chunksize_ == rhs.chunksize_) && (automount_ == rhs.automount_) && (state_ == rhs.state_) && (monitorstate_ == rhs.monitorstate_));
 }
 
+LAYOUTVIEW::LAYOUTVIEW(const uint64_t token, const uint32_t x, const uint32_t y, const uint32_t width, const uint32_t height) :
+  token_(token),
+  x_(x),
+  y_(y),
+  width_(width),
+  height_(height)
+{
+
+}
+
+LAYOUTWINDOW::LAYOUTWINDOW(const uint64_t token, const int32_t screenx, const int32_t screeny, const int32_t screenwidth, const int32_t screenheight, const int32_t x, const int32_t y, const int32_t width, const int32_t height, const uint32_t gridwidth, const uint32_t gridheight, const std::vector<LAYOUTVIEW>& maps, const std::vector<LAYOUTVIEW>& recordings) :
+  token_(token),
+  screenx_(screenx),
+  screeny_(screeny),
+  screenwidth_(screenwidth),
+  screenheight_(screenheight),
+  x_(x),
+  y_(y),
+  width_(width),
+  height_(height),
+  gridwidth_(gridwidth),
+  gridheight_(gridheight),
+  maps_(maps),
+  recordings_(recordings)
+{
+
+}
+
+LAYOUT::LAYOUT(const uint64_t token, const std::string& name, const std::vector<LAYOUTWINDOW>& windows) :
+  token_(token),
+  name_(name),
+  windows_(windows)
+{
+
+}
+
 HEADER::HEADER(const uint32_t size, const bool error, const bool compressed, const Message message, const uint16_t sequence) :
   size_(size),
   flags_((error ? static_cast<uint32_t>(monocle::HeaderFlags::FLAG_ERROR) : 0) | (compressed ? static_cast<uint32_t>(monocle::HeaderFlags::FLAG_COMPRESSED) : 0)),

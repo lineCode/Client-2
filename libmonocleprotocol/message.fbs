@@ -72,6 +72,7 @@ enum Message : uint16
   ADDTRACK2 = 65,
   CHANGETRACK2 = 66,
   REMOVETRACKS = 67,
+  ADDLAYOUT = 68,
   
   // Server to client
   CONTROLSTREAMEND = 8000,

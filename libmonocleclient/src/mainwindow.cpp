@@ -15,6 +15,7 @@
 #include <QLocale>
 #include <QMessageBox>
 #include <QMimeData>
+#include <QScreen>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QTimer>
@@ -25,6 +26,7 @@
 #include "monocleclient/aboutwindow.h"
 #include "monocleclient/devicemgr.h"
 #include "monocleclient/editdevicewindow.h"
+#include "monocleclient/managelayoutwindow.h"
 #include "monocleclient/managetrackwindow.h"
 #include "monocleclient/newcameraquestionwindow.h"
 #include "monocleclient/options.h"
@@ -232,6 +234,9 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   
   Options::Instance().Load();
 
+  connect(&videowidgetsmgr_, &VideoWidgetsMgr::ViewDestroyed, this, &MainWindow::ViewDestroyed);
+  connect(&videowidgetsmgr_, &VideoWidgetsMgr::VideoViewCreated, this, &MainWindow::VideoViewCreated);
+  connect(&videowidgetsmgr_, &VideoWidgetsMgr::ViewDestroyed, this, &MainWindow::ViewDestroyed);
   connect(&checkforupdate_, &CheckForUpdate::UpdateAvailable, this, &MainWindow::UpdateAvailable);
   connect(ui_.actionexit, &QAction::triggered, this, &QMainWindow::close);
   connect(ui_.buttonframestepbackwards, &QPushButton::clicked, ui_.playbackwidget, &PlaybackWidget::on_buttonframestepbackwards_clicked);
@@ -1403,6 +1408,32 @@ void MainWindow::LanguageChanged(QAction* action)
   }
 }
 
+void MainWindow::MapViewCreated(const QSharedPointer<MapView>& mapview)
+{
+  ui_.actionsavecurrentlayoutas->setEnabled(true);
+
+}
+
+void MainWindow::VideoViewCreated(const QSharedPointer<VideoView>& videoview)
+{
+  ui_.actionsavecurrentlayoutas->setEnabled(true);
+
+}
+
+void MainWindow::ViewDestroyed(const QSharedPointer<View>& view)
+{
+  if (videowidgetsmgr_.GetNumViews({ VIEWTYPE::VIEWTYPE_MONOCLE, VIEWTYPE::VIEWTYPE_MAP }) == 0)
+  {
+    ui_.actionsavecurrentlayoutas->setEnabled(false);
+
+  }
+  else
+  {
+    ui_.actionsavecurrentlayoutas->setEnabled(true); // Shouldn't be necessary, but lets do it anyway
+
+  }
+}
+
 void MainWindow::TrayActivated(QSystemTrayIcon::ActivationReason reason)
 {
   switch (reason)
@@ -1512,6 +1543,41 @@ void MainWindow::on_actiontoolbar_triggered()
 {
   ui_.toolbar->setVisible(!ui_.toolbar->isVisible());
 
+}
+
+void MainWindow::on_actionsavecurrentlayout_triggered()
+{
+  //TODO look at currentlayout_
+
+}
+
+void MainWindow::on_actionsavecurrentlayoutas_triggered()
+{
+
+  //TODO I think the Device has a layouts_ and a new class Layout
+
+  //TODO how do we save over a previous layout...
+    //TODO do we need a "save as" + "save", which then saves over the previously selected layout?
+      //TODO if so, we may need to delete layouts from previous devices that now have no views...
+      //TODO we also want to rename the ui_.savelayout->setName("Save Layout(#nameoflayout#)") to save over it
+
+  //TODO present the user with a dialog asking for a "name" and whether they want this to be loaded up on startup
+    //TODO if it is loading it up on future startups, database needs to remove any older layouts that were designated to load up on startup before
+
+  //TODO batch it up, then pass it into the Connection
+  for (VideoWidget* videowidget : videowidgetsmgr_.GetVideoWidgets())
+  {
+    QWidget* window = static_cast<QWidget*>(videowidget->parent()->parent());
+    //TODO qDebug() << (window->isMaximized() ? "MAX" : "NO") << window->x() << window->y() << window->width() << window->height();//TODO x y width height
+    qDebug() << window->screen()->manufacturer() << window->screen()->geometry() << window->screen()->serialNumber();
+    //TODO grab all the video views and map views that are present on this videowidget and their positions
+    
+      //TODO we need to know which desktop or something it is on, and the relative position on that desktop I think?
+
+  }
+  //TODO in the successful response to setting the layout, this should become the currentlayout_, at which point that should enable the savelayout button(not the saveaslayout button)
+
+  ManageLayoutWindow(this).exec();//TODO will need to pass in nullptr at some point when editing a layout
 }
 
 void MainWindow::on_actionfindmotion_toggled()

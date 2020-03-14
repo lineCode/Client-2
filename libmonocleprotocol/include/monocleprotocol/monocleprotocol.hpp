@@ -86,6 +86,23 @@ struct GPUSTAT
 
 };
 
+struct GROUP
+{
+  GROUP(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
+
+  bool operator==(const GROUP& rhs) const;
+
+  uint64_t token_;
+  std::string name_;
+  bool manageusers_;
+  bool managerecordings_;
+  bool managemaps_;
+  bool managedevice_;
+  bool allrecordings_;
+  std::vector<uint64_t> recordings_;
+
+};
+
 struct HARDWARESTATS
 {
   HARDWARESTATS(const uint64_t time, const std::vector<DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory,  const uint64_t availablememory, const std::vector<GPUSTAT>& gpustats);
@@ -109,23 +126,6 @@ struct LOGMESSAGE
   uint64_t time_;
   monocle::Severity severity_;
   std::string message_;
-
-};
-
-struct GROUP
-{
-  GROUP(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
-
-  bool operator==(const GROUP& rhs) const;
-
-  uint64_t token_;
-  std::string name_;
-  bool manageusers_;
-  bool managerecordings_;
-  bool managemaps_;
-  bool managedevice_;
-  bool allrecordings_;
-  std::vector<uint64_t> recordings_;
 
 };
 
@@ -203,6 +203,48 @@ struct FILE
   bool automount_;
   monocle::FileState state_;
   monocle::FileMonitorState monitorstate_;
+
+};
+
+struct LAYOUTVIEW
+{
+  LAYOUTVIEW(const uint64_t token, const uint32_t x, const uint32_t y, const uint32_t width, const uint32_t height);
+
+  uint64_t token_; // Token of the map or the recording
+  uint32_t x_;
+  uint32_t y_;
+  uint32_t width_;
+  uint32_t height_;
+
+};
+
+struct LAYOUTWINDOW
+{
+  LAYOUTWINDOW(const uint64_t token, const int32_t screenx, const int32_t screeny, const int32_t screenwidth, const int32_t screenheight, const int32_t x, const int32_t y, const int32_t width, const int32_t height, const uint32_t gridwidth, const uint32_t gridheight, const std::vector<LAYOUTVIEW>& maps, const std::vector<LAYOUTVIEW>& recordings);
+
+  uint64_t token_;
+  int32_t screenx_;
+  int32_t screeny_;
+  int32_t screenwidth_;
+  int32_t screenheight_;
+  int32_t x_;
+  int32_t y_;
+  int32_t width_;
+  int32_t height_;
+  uint32_t gridwidth_;
+  uint32_t gridheight_;
+  std::vector<LAYOUTVIEW> maps_;
+  std::vector<LAYOUTVIEW> recordings_;
+
+};
+
+struct LAYOUT
+{
+  LAYOUT(const uint64_t token, const std::string& name, const std::vector<LAYOUTWINDOW>& windows);
+
+  uint64_t token_; // The client chooses this, so when necessary, it will match accross devices and the client can then match them back up
+  std::string name_;
+  std::vector<LAYOUTWINDOW> windows_;
 
 };
 

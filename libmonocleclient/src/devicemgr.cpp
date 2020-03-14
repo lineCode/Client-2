@@ -204,4 +204,38 @@ QStringList DeviceMgr::GetLocations() const
   return locations;
 }
 
+std::vector< QSharedPointer<Layout> > DeviceMgr::GetLayouts(const uint64_t token) const
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  std::vector< QSharedPointer<Layout> > layouts;
+  for (const boost::shared_ptr<Device>& device : devices_)
+  {
+    const QSharedPointer<Layout> layout = device->GetLayout(token);
+    if (layout)
+    {
+      layouts.push_back(layout);
+
+    }
+  }
+  return layouts;
+}
+
+uint64_t DeviceMgr::GetUniqueLayoutToken() const
+{
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<uint64_t> dist(1, std::numeric_limits<uint64_t>::max());
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  uint64_t newtoken = 0;
+  while (true)
+  {
+    newtoken = dist(gen);
+    if (GetLayouts(newtoken).size() == 0)
+    {
+
+      return newtoken;
+    }
+  }
+}
+
 }

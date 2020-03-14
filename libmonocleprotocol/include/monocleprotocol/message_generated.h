@@ -77,6 +77,7 @@ enum class Message : uint16_t {
   ADDTRACK2 = 65,
   CHANGETRACK2 = 66,
   REMOVETRACKS = 67,
+  ADDLAYOUT = 68,
   CONTROLSTREAMEND = 8000,
   DISCOVERYHELLO = 8001,
   FILEADDED = 8002,
@@ -148,7 +149,7 @@ enum class Message : uint16_t {
   MAX = RECORDINGSTATISTICS
 };
 
-inline const Message (&EnumValuesMessage())[135] {
+inline const Message (&EnumValuesMessage())[136] {
   static const Message values[] = {
     Message::ADDFILE,
     Message::ADDGROUP,
@@ -218,6 +219,7 @@ inline const Message (&EnumValuesMessage())[135] {
     Message::ADDTRACK2,
     Message::CHANGETRACK2,
     Message::REMOVETRACKS,
+    Message::ADDLAYOUT,
     Message::CONTROLSTREAMEND,
     Message::DISCOVERYHELLO,
     Message::FILEADDED,
@@ -359,6 +361,7 @@ inline const char *EnumNameMessage(Message e) {
     case Message::ADDTRACK2: return "ADDTRACK2";
     case Message::CHANGETRACK2: return "CHANGETRACK2";
     case Message::REMOVETRACKS: return "REMOVETRACKS";
+    case Message::ADDLAYOUT: return "ADDLAYOUT";
     case Message::CONTROLSTREAMEND: return "CONTROLSTREAMEND";
     case Message::DISCOVERYHELLO: return "DISCOVERYHELLO";
     case Message::FILEADDED: return "FILEADDED";

@@ -272,6 +272,9 @@ class MainWindow : public QMainWindow
  private slots:
 
   void LanguageChanged(QAction* action);
+  void MapViewCreated(const QSharedPointer<MapView>& mapview);
+  void VideoViewCreated(const QSharedPointer<VideoView>& videoview);
+  void ViewDestroyed(const QSharedPointer<View>& view);
   void TrayActivated(QSystemTrayIcon::ActivationReason reason);
   void TrayRestore();
   void TrayMaximise();
@@ -286,6 +289,8 @@ class MainWindow : public QMainWindow
   void on_actionlog_triggered();
   void on_actionplayback_triggered();
   void on_actiontoolbar_triggered();
+  void on_actionsavecurrentlayout_triggered();
+  void on_actionsavecurrentlayoutas_triggered();
   void on_actionfindmotion_toggled();
   void on_actionfindobject_toggled();
   void on_actioncolourpicker_toggled();

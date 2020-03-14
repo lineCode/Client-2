@@ -30,6 +30,7 @@ namespace client
 class File;
 class Group;
 class ONVIFUser;
+class Layout;
 class Receiver;
 class Recording;
 class RecordingJob;
@@ -119,12 +120,14 @@ class Device : public Connection
   inline uint32_t GetMaxRecordings() const { return maxrecordings_; }
   inline const std::vector< QSharedPointer<Map> >& GetMaps() const { return maps_; }
   inline const std::vector<MOUNTPOINT> GetMountPoints() const { return mountpoints_; }
+  inline const std::vector< QSharedPointer<Layout> > GetLayouts() const { return layouts_; }
 
   QSharedPointer<Group> GetGroup(const uint64_t token) const;
   QSharedPointer<ONVIFUser> GetONVIFUser(const uint64_t token) const;
   QSharedPointer<client::Receiver> GetReceiver(const uint64_t token) const;
   QSharedPointer<User> GetUser(const uint64_t token) const;
   QSharedPointer<Map> GetMap(const uint64_t token) const;
+  QSharedPointer<Layout> GetLayout(const uint64_t token) const;
 
   QStringList GetLocations() const;
 
@@ -200,6 +203,7 @@ class Device : public Connection
   uint32_t maxrecordings_;
   std::vector< QSharedPointer<Map> > maps_;
   std::vector<MOUNTPOINT> mountpoints_;
+  std::vector< QSharedPointer<Layout> > layouts_;
 
  signals:
 
@@ -214,6 +218,7 @@ class Device : public Connection
   void SignalGroupChanged(QSharedPointer<Group>& group);
   void SignalGroupRemoved(const uint64_t token);
   void SignalLatency(const std::chrono::steady_clock::duration latency);
+  //TODO layout signals
   void SignalMapAdded(const QSharedPointer<Map>& map);
   void SignalMapChanged(const QSharedPointer<Map>& map);
   void SignalMapRemoved(const uint64_t token);
@@ -266,6 +271,7 @@ class Device : public Connection
   void SlotMapRemoved(const uint64_t token);
   void SlotMountPointAdded(const uint64_t id, const uint64_t parentid, const uint64_t majorstdev, const uint64_t minorstdev, const QString& path, const QString& type, const QString& source);
   void SlotMountPointRemoved(const uint64_t id, const uint64_t parentid, const uint64_t majorstdev, const uint64_t minorstdev, const QString& path, const QString& type, const QString& source);
+  //TODO layout slots
   void SlotLocationChanged(const QString& latitude, const QString& longitude);
   void SlotNameChanged(const QString& name);
   void SlotONVIFUserAdded(const uint64_t token, const QString& username, const monocle::ONVIFUserlevel onvifuserlevel);

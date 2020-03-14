@@ -212,10 +212,18 @@
      <string>Language</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuLayouts">
+    <property name="title">
+     <string>Layouts</string>
+    </property>
+    <addaction name="actionsavecurrentlayout"/>
+    <addaction name="actionsavecurrentlayoutas"/>
+   </widget>
    <addaction name="menfile"/>
    <addaction name="menutools"/>
    <addaction name="menuwindow"/>
    <addaction name="menulanguage"/>
+   <addaction name="menuLayouts"/>
    <addaction name="menuhelp"/>
   </widget>
   <widget class="QDockWidget" name="dockdevices">
@@ -922,6 +930,19 @@
    </property>
    <property name="toolTip">
     <string>Find Object</string>
+   </property>
+  </action>
+  <action name="actionsavecurrentlayout">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Save Current Layout</string>
+   </property>
+  </action>
+  <action name="actionsavecurrentlayoutas">
+   <property name="text">
+    <string>Save Current Layout As</string>
    </property>
   </action>
  </widget>

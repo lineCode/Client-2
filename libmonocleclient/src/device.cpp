@@ -14,6 +14,8 @@
 
 #include "monocleclient/file.h"
 #include "monocleclient/group.h"
+#include "monocleclient/layout.h"
+#include "monocleclient/mainwindow.h"
 #include "monocleclient/mainwindow.h"
 #include "monocleclient/managefilewindow.h"
 #include "monocleclient/onvifuser.h"
@@ -252,6 +254,13 @@ void Device::DestroyData()
     const uint64_t token = receivers_.front()->GetToken();
     receivers_.erase(receivers_.begin());
     emit SignalReceiverRemoved(token);
+  }
+
+  while (!layouts_.empty())
+  {
+    const uint64_t token = layouts_.front()->GetToken();
+    layouts_.erase(layouts_.begin());
+    //TODO emit SignalLayoutRemoved(token);
   }
 
   while (!onvifusers_.empty())
@@ -985,6 +994,8 @@ void Device::Subscribe()
             }
           }
 
+          //TODO layouts... copy how receivers work inside this function
+
           SetState(DEVICESTATE::SUBSCRIBED, QString());
           emit SignalLicenseStateChanged(IsValidLicense());
         });
@@ -1088,6 +1099,17 @@ QSharedPointer<Map> Device::GetMap(const uint64_t token) const
     return nullptr;
   }
   return *map;
+}
+
+QSharedPointer<Layout> Device::GetLayout(const uint64_t token) const
+{
+  std::vector< QSharedPointer<Layout> >::const_iterator layout = std::find_if(layouts_.cbegin(), layouts_.cend(), [token](const QSharedPointer<Layout>& layout) { return (layout->GetToken() == token); });
+  if (layout == layouts_.cend())
+  {
+
+    return nullptr;
+  }
+  return *layout;
 }
 
 QStringList Device::GetLocations() const
@@ -1773,7 +1795,7 @@ void Device::SlotNameChanged(const QString& name)
   name_ = name;
 
 }
-
+//TODO layout copy
 void Device::SlotReceiverAdded(const uint64_t token, const monocle::ReceiverMode mode, const QString& mediauri, const bool autocreated, const QString& username, const QString& password, const std::vector<QString>& parameters, const monocle::ReceiverState state)
 {
   if (state_ != DEVICESTATE::SUBSCRIBED)
@@ -1805,7 +1827,7 @@ void Device::SlotReceiverAdded(const uint64_t token, const monocle::ReceiverMode
     }
   }
 }
-
+//TODO layout copy
 void Device::SlotReceiverChanged(const uint64_t token, const monocle::ReceiverMode mode, const QString& mediauri, const bool autocreated, const QString& username, const QString& password, const std::vector<QString>& parameters)
 {
   if (state_ != DEVICESTATE::SUBSCRIBED)
@@ -1824,7 +1846,7 @@ void Device::SlotReceiverChanged(const uint64_t token, const monocle::ReceiverMo
   (*r)->SetConfiguration(mode, mediauri, autocreated, username, password, parameters);
   emit SignalReceiverChanged(*r);
 }
-
+//TODO layout copy
 void Device::SlotReceiverRemoved(const uint64_t token)
 {
   if (state_ != DEVICESTATE::SUBSCRIBED)

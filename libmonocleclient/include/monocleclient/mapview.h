@@ -49,6 +49,7 @@ class MapView : public View
   virtual void Stop() override;
   virtual void Scrub(const uint64_t time) override;
 
+  inline const boost::shared_ptr<Device>& GetDevice() const { return device_; }
   inline const QSharedPointer<Map>& GetMap() const { return map_; }
 
  private:

@@ -1,0 +1,32 @@
+namespace monocle;
+
+table LayoutView
+{
+  token:uint64 (id:0);
+  x:uint32 (id:1);
+  y:uint32 (id:2);
+  width:uint32 (id:3);
+  height:uint32 (id:4);
+}
+
+table LayoutWindow
+{
+  token:uint64 (id:0);
+  screenx:int32 (id:1);
+  screeny:int32 (id:2);
+  screenwidth:int32 (id:3);
+  screenheight:int32 (id:4);
+  x:int32 (id:5);
+  y:int32 (id:6);
+  width:int32 (id:7);
+  height:int32 (id:8);
+  maps:[LayoutView] (id:9);
+  recordings:[LayoutView] (id:10);
+}
+
+table Layout
+{
+  token:uint64 (id:0);
+  name:string (id:1);
+  windows:[LayoutWindow] (id:2);
+}

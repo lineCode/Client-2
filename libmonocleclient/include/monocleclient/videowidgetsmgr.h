@@ -44,6 +44,8 @@ class VideoWidgetsMgr : public QObject
 
   const std::vector<VideoWidget*>& GetVideoWidgets() const { return videowidgets_; }
 
+  uint64_t GetNumViews(const std::vector<VIEWTYPE>& viewtypes) const;
+
   void ResetViews();
 
   std::vector< QSharedPointer<View> > GetViews(); // Returns all video views from all video widgets
@@ -87,6 +89,9 @@ class VideoWidgetsMgr : public QObject
 
  signals:
 
+  void MapViewCreated(const QSharedPointer<MapView>& mapview);
+  void MediaViewCreated(const QSharedPointer<MediaView>& mediaview);
+  void VideoViewCreated(const QSharedPointer<VideoView>& videoview);
   void ViewDestroyed(const QSharedPointer<View>& view);
   void Selected(QSharedPointer<View>& view, bool select);
 

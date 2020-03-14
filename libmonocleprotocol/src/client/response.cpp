@@ -45,6 +45,18 @@ ADDGROUPRESPONSE::ADDGROUPRESPONSE(const Error& error) :
 
 }
 
+ADDLAYOUTRESPONSE::ADDLAYOUTRESPONSE() :
+  RESPONSE(Error(ErrorCode::Success, std::string()))
+{
+
+}
+
+ADDLAYOUTRESPONSE::ADDLAYOUTRESPONSE(const Error& error) :
+  RESPONSE(error)
+{
+
+}
+
 ADDMAPRESPONSE::ADDMAPRESPONSE() :
   RESPONSE(Error(ErrorCode::Success, std::string()))
 {

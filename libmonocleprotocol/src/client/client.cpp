@@ -15,6 +15,7 @@
 
 #include "monocleprotocol/addfilerequest_generated.h"
 #include "monocleprotocol/addgrouprequest_generated.h"
+#include "monocleprotocol/addlayoutrequest_generated.h"
 #include "monocleprotocol/addmaprequest_generated.h"
 #include "monocleprotocol/addonvifuserrequest_generated.h"
 #include "monocleprotocol/addreceiverrequest_generated.h"
@@ -187,6 +188,7 @@ Client::Client(boost::asio::io_service& io) :
   sequence_(0),
   addfile_(DEFAULT_TIMEOUT, this),
   addgroup_(DEFAULT_TIMEOUT, this),
+  addlayout_(DEFAULT_TIMEOUT, this),
   addmap_(DEFAULT_TIMEOUT, this),
   addonvifuser_(DEFAULT_TIMEOUT, this),
   addreceiver_(DEFAULT_TIMEOUT, this),
@@ -328,6 +330,7 @@ void Client::Destroy()
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     addfile_.Destroy();
     addgroup_.Destroy();
+    addlayout_.Destroy();
     addmap_.Destroy();
     addonvifuser_.Destroy();
     addonvifuser_.Destroy();
@@ -410,6 +413,17 @@ boost::unique_future<ADDGROUPRESPONSE> Client::AddGroup(const std::string& name,
     return boost::make_ready_future(ADDGROUPRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
   }
   return addgroup_.CreateFuture(sequence_);
+}
+
+boost::unique_future<ADDLAYOUTRESPONSE> Client::AddLayout(const LAYOUT& layout)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (AddLayoutSend(layout))
+  {
+
+    return boost::make_ready_future(ADDLAYOUTRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+  }
+  return addlayout_.CreateFuture(sequence_);
 }
 
 boost::unique_future<ADDMAPRESPONSE> Client::AddMap(const std::string& name, const std::string& location, const std::vector<int8_t>& image)
@@ -1159,6 +1173,17 @@ Connection Client::AddGroup(const std::string& name, const bool manageusers, con
     return Connection();
   }
   return addgroup_.CreateCallback(sequence_, callback);
+}
+
+Connection Client::AddLayout(const LAYOUT& layout, boost::function<void(const std::chrono::steady_clock::duration, const ADDLAYOUTRESPONSE&)> callback)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (AddLayoutSend(layout))
+  {
+    callback(std::chrono::steady_clock::duration(), ADDLAYOUTRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+    return Connection();
+  }
+  return addlayout_.CreateCallback(sequence_, callback);
 }
 
 Connection Client::AddMap(const std::string& name, const std::string& location, const std::vector<int8_t>& image, boost::function<void(const std::chrono::steady_clock::duration, const ADDMAPRESPONSE&)> callback)
@@ -1918,6 +1943,53 @@ boost::system::error_code Client::AddGroupSend(const std::string& name, const bo
   fbb_.Finish(CreateAddGroupRequest(fbb_, fbb_.CreateString(name), manageusers, managerecordings, allrecordings, fbb_.CreateVector(recordings), managemaps, managedevice));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::ADDGROUP, ++sequence_);
+  boost::system::error_code err;
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(fbb_.GetBufferPointer(), messagesize), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  return err;
+}
+
+boost::system::error_code Client::AddLayoutSend(const LAYOUT& layout)
+{
+  fbb_.Clear();
+
+  std::vector< flatbuffers::Offset<LayoutWindow> > layoutwindows;
+  layoutwindows.reserve(layout.windows_.size());
+  for (const LAYOUTWINDOW& window : layout.windows_)
+  {
+    std::vector< flatbuffers::Offset<LayoutView> > maps;
+    maps.reserve(window.maps_.size());
+    for (const LAYOUTVIEW& map : window.maps_)
+    {
+      maps.push_back(CreateLayoutView(fbb_, map.token_, map.x_, map.y_, map.width_, map.height_));
+
+    }
+
+    std::vector< flatbuffers::Offset<LayoutView> > recordings;
+    recordings.reserve(window.recordings_.size());
+    for (const LAYOUTVIEW& recording : window.recordings_)
+    {
+      recordings.push_back(CreateLayoutView(fbb_, recording.token_, recording.x_, recording.y_, recording.width_, recording.height_));
+
+    }
+
+    layoutwindows.push_back(CreateLayoutWindow(fbb_, window.token_, window.screenx_, window.screeny_, window.screenwidth_, window.screenheight_, window.x_, window.y_, window.width_, window.height_, fbb_.CreateVector(maps), fbb_.CreateVector(recordings)));
+
+  }
+
+  fbb_.Finish(CreateAddLayoutRequest(fbb_, CreateLayout(fbb_, layout.token_, fbb_.CreateString(layout.name_), fbb_.CreateVector(layoutwindows))));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::ADDMAP, ++sequence_);
   boost::system::error_code err;
   boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
   if (err)
@@ -3474,6 +3546,17 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       }
 
       addgroup_.Response(sequence, ADDGROUPRESPONSE());
+      break;
+    }
+    case Message::ADDLAYOUT:
+    {
+      if (error)
+      {
+        HandleError(addlayout_, sequence, data, datasize);
+        return;
+      }
+
+      addlayout_.Response(sequence, ADDLAYOUTRESPONSE());
       break;
     }
     case Message::ADDMAP:

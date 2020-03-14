@@ -16,6 +16,7 @@
 #include "monocleclient/mainwindow.h"
 #include "monocleclient/recording.h"
 #include "monocleclient/recordingtrack.h"
+#include "monocleclient/view.h"
 
 ///// Namespaces /////
 
@@ -49,9 +50,15 @@ void VideoWidgetsMgr::CreateMapView(const boost::shared_ptr<Device>& device, con
     const auto location = GetEmptyVideoLocation(videowidget, 1, 1);
     if (location.is_initialized())
     {
-      if (!videowidget->CreateMapView(location->x(), location->y(), 1, 1, Options::Instance().GetStretchVideo(), device, map))
+      QSharedPointer<MapView> mapview = videowidget->CreateMapView(location->x(), location->y(), 1, 1, Options::Instance().GetStretchVideo(), device, map);
+      if (!mapview)
       {
         LOG_GUI_WARNING(QString("VideoWidget::CreateMapView failed"));
+
+      }
+      else
+      {
+        emit MapViewCreated(mapview);
 
       }
       return;
@@ -60,9 +67,15 @@ void VideoWidgetsMgr::CreateMapView(const boost::shared_ptr<Device>& device, con
 
   // If we couldn't find somewhere to put it, create a video window for it
   VideoWindow* videowindow = MainWindow::Instance()->GetVideoWindowMgr().CreateVideoWindow(boost::none, arial_, showfullscreen_, Options::Instance().GetDefaultVideoWindowWidth(), Options::Instance().GetDefaultVideoWindowHeight(), Options::Instance().GetDefaultShowToolbar());
-  if (!videowindow->GetVideoWidget()->CreateMapView(0, 0, 1, 1, Options::Instance().GetStretchVideo(), device, map))
+  QSharedPointer<MapView> mapview = videowindow->GetVideoWidget()->CreateMapView(0, 0, 1, 1, Options::Instance().GetStretchVideo(), device, map);
+  if (!mapview)
   {
     LOG_GUI_WARNING(QString("VideoWidget::CreateMapView failed"));
+
+  }
+  else
+  {
+    emit MapViewCreated(mapview);
 
   }
 }
@@ -75,9 +88,15 @@ void VideoWidgetsMgr::CreateMediaView(const QSharedPointer<Media>& media, const 
     const auto location = GetEmptyVideoLocation(videowidget, 1, 1);
     if (location.is_initialized())
     {
-      if (!videowidget->CreateMediaView(location->x(), location->y(), 1, 1, Options::Instance().GetStretchVideo(), media, deviceindex, recordingindex, trackindex))
+      QSharedPointer<MediaView> mediaview = videowidget->CreateMediaView(location->x(), location->y(), 1, 1, Options::Instance().GetStretchVideo(), media, deviceindex, recordingindex, trackindex);
+      if (!mediaview)
       {
         LOG_GUI_WARNING(QString("VideoWidget::CreateMediaView failed"));
+
+      }
+      else
+      {
+        emit MediaViewCreated(mediaview);
 
       }
       return;
@@ -86,9 +105,15 @@ void VideoWidgetsMgr::CreateMediaView(const QSharedPointer<Media>& media, const 
 
   // If we couldn't find somewhere to put it, create a video window for it
   VideoWindow* videowindow = MainWindow::Instance()->GetVideoWindowMgr().CreateVideoWindow(boost::none, arial_, showfullscreen_, Options::Instance().GetDefaultVideoWindowWidth(), Options::Instance().GetDefaultVideoWindowHeight(), Options::Instance().GetDefaultShowToolbar());
-  if (!videowindow->GetVideoWidget()->CreateMediaView(0, 0, 1, 1, Options::Instance().GetStretchVideo(), media, deviceindex, recordingindex, trackindex))
+  QSharedPointer<MediaView> mediaview = videowindow->GetVideoWidget()->CreateMediaView(0, 0, 1, 1, Options::Instance().GetStretchVideo(), media, deviceindex, recordingindex, trackindex);
+  if (!mediaview)
   {
     LOG_GUI_WARNING(QString("VideoWidget::CreateMediaView failed"));
+
+  }
+  else
+  {
+    emit MediaViewCreated(mediaview);
 
   }
 }
@@ -101,9 +126,15 @@ void VideoWidgetsMgr::CreateVideoView(const boost::shared_ptr<Device>& device, c
     const auto location = GetEmptyVideoLocation(videowidget, 1, 1);
     if (location.is_initialized())
     {
-      if (!videowidget->CreateVideoView(location->x(), location->y(), 1, 1, Options::Instance().GetStretchVideo(), device, recording, track))
+      QSharedPointer<VideoView> videoview = videowidget->CreateVideoView(location->x(), location->y(), 1, 1, Options::Instance().GetStretchVideo(), device, recording, track);
+      if (!videoview)
       {
         LOG_GUI_WARNING_SOURCE(device, QString("VideoWidget::CreateVideoView failed"));
+
+      }
+      else
+      {
+        emit VideoViewCreated(videoview);
 
       }
       return;
@@ -112,21 +143,43 @@ void VideoWidgetsMgr::CreateVideoView(const boost::shared_ptr<Device>& device, c
 
   // If we couldn't find somewhere to put it, create a video window for it
   VideoWindow* videowindow = MainWindow::Instance()->GetVideoWindowMgr().CreateVideoWindow(boost::none, arial_, showfullscreen_, Options::Instance().GetDefaultVideoWindowWidth(), Options::Instance().GetDefaultVideoWindowHeight(), Options::Instance().GetDefaultShowToolbar());
-  if (!videowindow->GetVideoWidget()->CreateVideoView(0, 0, 1, 1, Options::Instance().GetStretchVideo(), device, recording, track))
+  QSharedPointer<VideoView> videoview = videowindow->GetVideoWidget()->CreateVideoView(0, 0, 1, 1, Options::Instance().GetStretchVideo(), device, recording, track);
+  if (!videoview)
   {
     LOG_GUI_WARNING_SOURCE(device, QString("VideoWidget::CreateVideoView"));
     
   }
+  else
+  {
+    emit VideoViewCreated(videoview);
+    
+  }
+}
+
+uint64_t VideoWidgetsMgr::GetNumViews(const std::vector<VIEWTYPE>& viewtypes) const
+{
+  uint64_t count = 0;
+  for (VideoWidget* videowidget : videowidgets_)
+  {
+    for (QSharedPointer<View>& view : videowidget->GetViews())
+    {
+      if (utility::Contains(viewtypes, view->GetViewType()))
+      {
+        ++count;
+
+      }
+    }
+  }
+  return count;
 }
 
 void VideoWidgetsMgr::ResetViews()
 {
-  for (auto& videowidget : videowidgets_)
+  for (VideoWidget* videowidget : videowidgets_)
   {
     videowidget->makeCurrent();
-    for (auto& view : videowidget->GetViews())
+    for (QSharedPointer<View>& view : videowidget->GetViews())
     {
-
       view->ResetPosition(false);
 
     }
