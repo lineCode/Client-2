@@ -1554,9 +1554,6 @@ void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
       const uint32_t gridheight = GridHeight(fittedwindow.second);
       fittedwindow.first->SetGridSize(gridwidth, gridheight);
 
-      //TODO we need to check for overlapping in here...
-        //TODO well it's easy, we just remove anyone that is in our way I guess...
-          //TODO but what if we overwrite ourselves..? we want a warning...
       for (const QSharedPointer<LayoutWindow>& layout : fittedwindow.second)
       {
         for (const QSharedPointer<LayoutView>& map : layout->maps_)
@@ -1582,6 +1579,7 @@ void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
             continue;
           }
 
+          //TODO I think we pass in a boolean to this method to clear up anything that might be in the way
           QSharedPointer<VideoView> videoview = fittedwindow.first->CreateVideoView(recordingview->GetX(), recordingview->GetY(), recordingview->GetWidth(), recordingview->GetHeight(), Options::Instance().GetStretchVideo(), layout->device_, recording, videotracks.front());
           if (!videoview)
           {
