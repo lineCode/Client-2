@@ -111,8 +111,9 @@ class VideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   QPoint GetLocation(unsigned int x, unsigned int y); // Get the element location at a pixel location
   QSharedPointer<View> GetView(const QPoint& pos); // Get video view at location(in pixels)
   QSharedPointer<View> GetView(const QPoint& pos) const; // Get video view at location(in pixels)
-  QSharedPointer<View> GetView(unsigned int x, unsigned int y); // Get the video view at location(in elements)
-  QSharedPointer<View> GetView(unsigned int x, unsigned int y) const; // Get the video view at location(in elements)
+  QSharedPointer<View> GetView(const unsigned int x, const unsigned int y); // Get the video view at location(in elements)
+  QSharedPointer<View> GetView(const unsigned int x, const unsigned int y) const; // Get the video view at location(in elements)
+  std::vector< QSharedPointer<View> > GetViews(const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height) const;
 
   bool AllSelected() const; // Are all the Views selected
 

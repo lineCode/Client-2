@@ -58,11 +58,12 @@ void ManageLayoutWindow::on_buttonok_clicked()
   std::mt19937 gen(rd());
   std::uniform_int_distribution<uint64_t> dist(1, std::numeric_limits<uint64_t>::max());
 
-  std::vector< std::pair<uint64_t, QScreen*> > screens;
+  std::vector< std::pair<uint64_t, VideoWidget*> > videowidgets;
 
   const uint64_t token = MainWindow::Instance()->GetDeviceMgr().GetUniqueLayoutToken();
   std::vector< std::pair< boost::shared_ptr<Device>, monocle::LAYOUT> > layouts;
 
+  // We want to gather up all the views from all the windows and dispatch them to the relevant devices, but then have the ability to piece it back together once we later select this layout
   for (const boost::shared_ptr<Device>& device : MainWindow::Instance()->GetDeviceMgr().GetDevices())
   {
     std::vector<monocle::LAYOUTWINDOW> windows;
@@ -70,7 +71,6 @@ void ManageLayoutWindow::on_buttonok_clicked()
     for (VideoWidget* videowidget : MainWindow::Instance()->GetVideoWidgetsMgr().GetVideoWidgets())
     {
       QWidget* window = static_cast<QWidget*>(videowidget->parent()->parent());
-      QScreen* screen = window->screen();
 
       std::vector<monocle::LAYOUTVIEW> videoviews;
       std::vector<monocle::LAYOUTVIEW> mapviews;
@@ -104,15 +104,15 @@ void ManageLayoutWindow::on_buttonok_clicked()
       {
         // Make sure the screen token is the same for every window on every device
         uint64_t windowtoken = 0;
-        auto s = std::find_if(screens.cbegin(), screens.cend(), [screen](const std::pair<uint64_t, QScreen*>& s) { return (s.second == screen); });
-        if (s == screens.cend())
+        auto s = std::find_if(videowidgets.cbegin(), videowidgets.cend(), [videowidget](const std::pair<uint64_t, VideoWidget*>& vw) { return (vw.second == videowidget); });
+        if (s == videowidgets.cend())
         {
           while (true)
           {
             windowtoken = dist(gen);
             if (std::find_if(windows.cbegin(), windows.cend(), [windowtoken](const monocle::LAYOUTWINDOW& window) { return (window.token_ == windowtoken); }) == windows.cend())
             {
-              screens.push_back(std::make_pair(windowtoken, screen));
+              videowidgets.push_back(std::make_pair(windowtoken, videowidget));
               break;
             }
           }
@@ -123,7 +123,7 @@ void ManageLayoutWindow::on_buttonok_clicked()
 
         }
 
-        const QRect geometry = screen->geometry();
+        const QRect geometry = window->screen()->geometry();
         windows.push_back(monocle::LAYOUTWINDOW(windowtoken, videowidget == MainWindow::Instance()->GetVideoWidget(), window->isMaximized(), geometry.x(), geometry.y(), geometry.width(), geometry.height(), window->x(), window->y(), window->width(), window->height(), videowidget->GetWidth(), videowidget->GetHeight(), mapviews, videoviews));
       }
     }

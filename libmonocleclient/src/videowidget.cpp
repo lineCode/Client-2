@@ -776,7 +776,7 @@ QSharedPointer<View> VideoWidget::GetView(const QPoint& pos) const
   return QSharedPointer<View>();
 }
 
-QSharedPointer<View> VideoWidget::GetView(unsigned int x, unsigned int y)
+QSharedPointer<View> VideoWidget::GetView(const unsigned int x, const unsigned int y)
 {
   for (auto view : views_)
   {
@@ -790,7 +790,7 @@ QSharedPointer<View> VideoWidget::GetView(unsigned int x, unsigned int y)
   return QSharedPointer<View>();
 }
 
-QSharedPointer<View> VideoWidget::GetView(unsigned int x, unsigned int y) const
+QSharedPointer<View> VideoWidget::GetView(const unsigned int x, const unsigned int y) const
 {
   for (auto view : views_)
   {
@@ -802,6 +802,24 @@ QSharedPointer<View> VideoWidget::GetView(unsigned int x, unsigned int y) const
   }
 
   return QSharedPointer<View>();
+}
+
+std::vector< QSharedPointer<View> > VideoWidget::GetViews(const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height) const
+{
+  std::vector< QSharedPointer<View> > views;
+  for (unsigned int i = x; i < (x + width); ++i)
+  {
+    for (unsigned int j = y; j < (y + height); ++j)
+    {
+      const QSharedPointer<View> v = GetView(i, j);
+      if (v && !utility::Contains(views, v))
+      {
+        views.push_back(v);
+
+      }
+    }
+  }
+  return views;
 }
 
 bool VideoWidget::AllSelected() const

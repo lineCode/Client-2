@@ -1486,6 +1486,7 @@ void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
 
     }
 
+    // Find any exact matches for windows
     for (auto window = windows.cbegin(); window != windows.cend();)
     {
       // If there is currently an exact match for a window, use it
@@ -1510,7 +1511,8 @@ void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
       {
         const uint32_t gridwidth = GridWidth(window.second);
         const uint32_t gridheight = GridHeight(window.second);
-        videowindowmgr_.CreateVideoWindow(QPoint(window.second.front()->x_, window.second.front()->y_), arial_, showfullscreen_, gridwidth, gridheight, Options::Instance().GetDefaultShowToolbar());
+        VideoWindow* videowindow = videowindowmgr_.CreateVideoWindow(QPoint(window.second.front()->x_, window.second.front()->y_), arial_, showfullscreen_, gridwidth, gridheight, Options::Instance().GetDefaultShowToolbar());
+        fittedwindows.push_back(std::make_pair(videowindow->GetVideoWidget(), window.second));
       }
       else
       {
@@ -1559,7 +1561,7 @@ void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
         for (const QSharedPointer<LayoutView>& map : layout->maps_)
         {
           const QSharedPointer<Map> map = layout->device_->GetMap(map->GetToken());
-          //TODO
+          //TODO same as below
 
         }
 
@@ -1579,7 +1581,13 @@ void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
             continue;
           }
 
-          //TODO I think we pass in a boolean to this method to clear up anything that might be in the way
+          //TODO if we have an exact match already, we don't need to remove or add anything...
+          for (const QSharedPointer<View> view : fittedwindow.first->GetViews(recordingview->GetX(), recordingview->GetY(), recordingview->GetWidth(), recordingview->GetHeight())) // Remove any views that might get in the way
+          {
+            fittedwindow.first->RemoveView(view);
+
+          }
+
           QSharedPointer<VideoView> videoview = fittedwindow.first->CreateVideoView(recordingview->GetX(), recordingview->GetY(), recordingview->GetWidth(), recordingview->GetHeight(), Options::Instance().GetStretchVideo(), layout->device_, recording, videotracks.front());
           if (!videoview)
           {
@@ -1593,11 +1601,6 @@ void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
           }
         }
       }
-
-      //TODO begin putting the maps and views into the correct location
-        //TODO make sure we remove anything in the way first
-        //TODO if one of the locations inside where we are putting things already contains the device+recording we want, then we can use it and resize it
-
     }
 
     //TODO set currentlayout_ to the token(NOT the QSharedPointer, because it would be specific to only one device
