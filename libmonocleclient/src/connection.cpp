@@ -181,7 +181,7 @@ void Connection::JPEGFrame(const uint64_t token, const uint64_t playrequestindex
 
 void Connection::LayoutAdded(const monocle::LAYOUT& layout)
 {
-  int i = 0;//TODO
+  emit SignalLayoutAdded(layout);
 
 }
 

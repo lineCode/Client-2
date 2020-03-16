@@ -98,6 +98,7 @@ Device::Device(const sock::ProxyParams& proxyparams, const QString& address, con
   connect(this, &Connection::SignalGroupAdded, this, QOverload<const uint64_t, const QString&, const bool, const bool, const bool, const bool, const bool, const std::vector<uint64_t>&>::of(&Device::SlotGroupAdded), Qt::QueuedConnection);
   connect(this, &Connection::SignalGroupChanged, this, QOverload<const uint64_t, const QString&, const bool, const bool, const bool, const bool, const bool, const std::vector<uint64_t>&>::of(&Device::SlotGroupChanged), Qt::QueuedConnection);
   connect(this, &Connection::SignalGroupRemoved, this, QOverload<const uint64_t>::of(&Device::SlotGroupRemoved), Qt::QueuedConnection);
+  connect(this, &Connection::SignalLayoutAdded, this, &Device::SlotLayoutAdded, Qt::QueuedConnection);
   connect(this, &Connection::SignalMapAdded, this, QOverload<const uint64_t, const QString&, const QString&, const QString&>::of(&Device::SlotMapAdded), Qt::QueuedConnection);
   connect(this, &Connection::SignalMapChanged, this, QOverload<const uint64_t, const QString&, const QString&, const QString&>::of(&Device::SlotMapChanged), Qt::QueuedConnection);
   connect(this, &Connection::SignalMapRemoved, this, QOverload<const uint64_t>::of(&Device::SlotMapRemoved), Qt::QueuedConnection);
@@ -1707,6 +1708,54 @@ void Device::SlotONVIFUserRemoved(const uint64_t token)
   emit SignalONVIFUserRemoved(token);
 }
 
+void Device::SlotLayoutAdded(const monocle::LAYOUT& layout)
+{
+  if (state_ != DEVICESTATE::SUBSCRIBED)
+  {
+
+    return;
+  }
+
+  std::vector< QSharedPointer<Layout> >::iterator i = std::find_if(layouts_.begin(), layouts_.end(), [&layout](const QSharedPointer<Layout>& l) { return (l->GetToken() == layout.token_); });
+  if (i == layouts_.end())
+  {
+    std::vector< QSharedPointer<LayoutWindow> > windows;
+    windows.reserve(layout.windows_.size());
+    for (const monocle::LAYOUTWINDOW& window : layout.windows_)
+    {
+      std::vector< QSharedPointer<LayoutView> > maps;
+      for (const monocle::LAYOUTVIEW& map : window.maps_)
+      {
+        maps.push_back(QSharedPointer<LayoutView>::create(map.token_, map.x_, map.y_, map.width_, map.height_));
+
+      }
+
+      std::vector< QSharedPointer<LayoutView> > recordings;
+      for (const monocle::LAYOUTVIEW& recording : window.recordings_)
+      {
+        recordings.push_back(QSharedPointer<LayoutView>::create(recording.token_, recording.x_, recording.y_, recording.width_, recording.height_));
+
+      }
+
+      windows.push_back(QSharedPointer<LayoutWindow>::create(window.token_, window.mainwindow_, window.maximised_, window.screenx_, window.screeny_, window.screenwidth_, window.screenheight_, window.x_, window.y_, window.width_, window.height_, window.gridwidth_, window.gridheight_, maps, recordings));
+    }
+
+    QSharedPointer<Layout> l = QSharedPointer<Layout>::create(layout.token_, QString::fromStdString(layout.name_), windows);
+    layouts_.push_back(l);
+    emit SignalLayoutAdded(l);
+    emit MainWindow::Instance()->GetDeviceMgr().LayoutAdded(l);
+  }
+  else
+  {
+    //TODO if (((*i)->GetName().toStdString() != layout.name_) || ((*i)->GetWindows() != layout.windows_))
+    {
+      //TODO (*m)->SetConfiguration(QString::fromStdString(layout.name_), layout.windows_);
+      //TODO emit SignalLayoutChanged(*i);
+      //TODO emit MainWindow::Instance()->GetDeviceMgr().LayoutChanged(*i);
+    }
+  }
+}
+
 void Device::SlotMapAdded(const uint64_t token, const QString& name, const QString& location, const QString& imagemd5)
 {
   if (state_ != DEVICESTATE::SUBSCRIBED)
@@ -1729,7 +1778,7 @@ void Device::SlotMapAdded(const uint64_t token, const QString& name, const QStri
       (*m)->SetName(name);
       (*m)->SetLocation(location);
       (*m)->SetImageMD5(imagemd5);
-      emit SignalMapAdded(*m);
+      emit SignalMapChanged(*m);
     }
   }
 }

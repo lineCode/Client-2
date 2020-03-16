@@ -220,9 +220,11 @@ struct LAYOUTVIEW
 
 struct LAYOUTWINDOW
 {
-  LAYOUTWINDOW(const uint64_t token, const int32_t screenx, const int32_t screeny, const int32_t screenwidth, const int32_t screenheight, const int32_t x, const int32_t y, const int32_t width, const int32_t height, const uint32_t gridwidth, const uint32_t gridheight, const std::vector<LAYOUTVIEW>& maps, const std::vector<LAYOUTVIEW>& recordings);
+  LAYOUTWINDOW(const uint64_t token, const bool mainwindow, const bool maximised, const int32_t screenx, const int32_t screeny, const int32_t screenwidth, const int32_t screenheight, const int32_t x, const int32_t y, const int32_t width, const int32_t height, const uint32_t gridwidth, const uint32_t gridheight, const std::vector<LAYOUTVIEW>& maps, const std::vector<LAYOUTVIEW>& recordings);
 
   uint64_t token_;
+  bool mainwindow_;
+  bool maximised_;
   int32_t screenx_;
   int32_t screeny_;
   int32_t screenwidth_;
@@ -240,6 +242,7 @@ struct LAYOUTWINDOW
 
 struct LAYOUT
 {
+  LAYOUT();
   LAYOUT(const uint64_t token, const std::string& name, const std::vector<LAYOUTWINDOW>& windows);
 
   uint64_t token_; // The client chooses this, so when necessary, it will match accross devices and the client can then match them back up

@@ -212,18 +212,19 @@
      <string>Language</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menuLayouts">
+   <widget class="QMenu" name="menulayouts">
     <property name="title">
      <string>Layouts</string>
     </property>
     <addaction name="actionsavecurrentlayout"/>
     <addaction name="actionsavecurrentlayoutas"/>
+    <addaction name="separator"/>
    </widget>
    <addaction name="menfile"/>
    <addaction name="menutools"/>
    <addaction name="menuwindow"/>
    <addaction name="menulanguage"/>
-   <addaction name="menuLayouts"/>
+   <addaction name="menulayouts"/>
    <addaction name="menuhelp"/>
   </widget>
   <widget class="QDockWidget" name="dockdevices">

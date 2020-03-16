@@ -26,6 +26,7 @@
 #include "monocleclient/aboutwindow.h"
 #include "monocleclient/devicemgr.h"
 #include "monocleclient/editdevicewindow.h"
+#include "monocleclient/layout.h"
 #include "monocleclient/managelayoutwindow.h"
 #include "monocleclient/managetrackwindow.h"
 #include "monocleclient/newcameraquestionwindow.h"
@@ -234,6 +235,7 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   
   Options::Instance().Load();
 
+  connect(&devicemgr_, &DeviceMgr::LayoutAdded, this, &MainWindow::LayoutAdded);
   connect(&videowidgetsmgr_, &VideoWidgetsMgr::ViewDestroyed, this, &MainWindow::ViewDestroyed);
   connect(&videowidgetsmgr_, &VideoWidgetsMgr::VideoViewCreated, this, &MainWindow::VideoViewCreated);
   connect(&videowidgetsmgr_, &VideoWidgetsMgr::ViewDestroyed, this, &MainWindow::ViewDestroyed);
@@ -1407,6 +1409,150 @@ void MainWindow::LanguageChanged(QAction* action)
     return;
   }
 }
+
+void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
+{
+  const uint64_t token = layout->GetToken();
+  for (const QAction* action : ui_.menulayouts->actions())
+  {
+    if (action->data().toULongLong() == token) // If we already have a menu item representing this layout, ignore this message
+    {
+
+      return;
+    }
+  }
+
+  QAction* action = ui_.menulayouts->addAction(layout->GetName(), [this, token]()
+  {
+    // Gather up the windows from the layouts from all the devices for the selected token
+    const std::vector< QSharedPointer<Layout> > layouts = MainWindow::Instance()->GetDeviceMgr().GetLayouts(token);
+    if (layouts.empty())
+    {
+      QMessageBox(QMessageBox::Warning, tr("Error"), tr("Unable to find layout: ") + QString::number(token), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+      return;
+    }
+
+    std::map< uint64_t, std::vector< QSharedPointer<LayoutWindow> > > windows;
+    for (const QSharedPointer<Layout>& layout : layouts)
+    {
+      for (const QSharedPointer<LayoutWindow>& layoutwindow : layout->GetWindows())
+      {
+        auto window = windows.find(layout->GetToken());
+        if (window == windows.end())
+        {
+          windows[layoutwindow->token_] = std::vector< QSharedPointer<LayoutWindow> >({ layoutwindow });
+
+        }
+        else
+        {
+          window->second.push_back(layoutwindow);
+
+        }
+      }
+    }
+
+    // Find whether we can match the windows we want to exist, with ones that are currently there already
+    std::vector<VideoWidget*> videowidgets;
+    videowidgets.reserve(videowindowmgr_.GetVideoWindows().size());
+    for (VideoWindow* videowindow : videowindowmgr_.GetVideoWindows())
+    {
+      videowidgets.push_back(videowindow->GetVideoWidget());
+
+    }
+    
+    // There should only be one MainWindow
+    std::vector< std::pair< VideoWidget*, std::vector< QSharedPointer<LayoutWindow> > > > fittedwindows;
+    fittedwindows.reserve(videowidgets.size() + 1);
+    auto mainwindow = std::find_if(windows.cbegin(), windows.cend(), [this](const std::pair<uint64_t, std::vector< QSharedPointer<LayoutWindow> > >& window) { return (window.second.front()->mainwindow_); });
+    if (mainwindow != windows.cend())
+    {
+      fittedwindows.push_back(std::make_pair(ui_.videowidget, mainwindow->second));
+      windows.erase(mainwindow);
+    }
+    else
+    {
+      //TODO I don't think we want to do this...
+      //TODO videowidgets.push_back(GetVideoWidget()); // If we didn't find a MainWindow, which is entirely possible, then we need to add it to the list
+
+    }
+
+    for (auto window = windows.cbegin(); window != windows.cend();)
+    {
+      // If there is currently an exact match for a window, use it
+      auto videowidget = std::find_if(videowidgets.cbegin(), videowidgets.cend(), [window](const VideoWidget* videowidget) { return ((videowidget->GetVideoWindowX() == window->second.front()->screenx_) && (videowidget->GetVideoWindowY() == window->second.front()->screeny_) && (videowidget->GetVideoWindowWidth() == window->second.front()->screenwidth_) && (videowidget->GetVideoWindowHeight() == window->second.front()->screenheight_)); });
+      if (videowidget != videowidgets.cend())
+      {
+        fittedwindows.push_back(std::make_pair(*videowidget, window->second));
+        videowidgets.erase(videowidget);
+        window = windows.erase(window);
+      }
+      else
+      {
+        ++window;
+      
+      }
+    }
+
+    // Now find any spare window, or create one
+    for (const std::pair<uint64_t, std::vector< QSharedPointer<LayoutWindow> > >& window : windows)
+    {
+      if (videowidgets.empty())
+      {
+        //TODO videowindowmgr_.CreateVideoWindow()
+        //TODO videowidgetsmgr_.CreateMapView()
+        //TODO create a window in the right place for this
+
+      }
+      else
+      {
+        fittedwindows.push_back(std::make_pair(videowidgets.front(), window.second));
+        videowidgets.erase(videowidgets.begin());
+      }
+    }
+    windows.clear();
+
+    //TODO if we have some windows left over, just grab as many as we can, who cares about much else
+    //TODO now try again, but this time store a nullptr if we fail, or if we find one "nearby" enough we are ok...
+    //TODO If we still need more windows than we have available, create some new ones
+
+    for (const std::pair< VideoWidget*, std::vector< QSharedPointer<LayoutWindow> > >& fittedwindow : fittedwindows)
+    {
+      //TODO check it fits onto a screen, otherwise just place it on the main screen
+
+      fittedwindow.first->VideoWindowMove(fittedwindow.second.front()->x_, fittedwindow.second.front()->y_);
+      fittedwindow.first->VideoWindowResize(fittedwindow.second.front()->width_, fittedwindow.second.front()->height_);
+      fittedwindow.first->repaint();
+      fittedwindow.first->update();
+      if (fittedwindow.second.front()->maximised_)
+      {
+        fittedwindow.first->setWindowState(Qt::WindowMaximized);
+
+      }
+
+      const uint32_t gridwidth = (*std::max_element(fittedwindow.second.cbegin(), fittedwindow.second.cend(), [](const QSharedPointer<LayoutWindow>& lhs, const QSharedPointer<LayoutWindow>& rhs) { return (lhs->gridwidth_ < rhs->gridwidth_); }))->gridwidth_;
+      const uint32_t gridheight = (*std::max_element(fittedwindow.second.cbegin(), fittedwindow.second.cend(), [](const QSharedPointer<LayoutWindow>& lhs, const QSharedPointer<LayoutWindow>& rhs) { return (lhs->gridheight_ < rhs->gridheight_); }))->gridheight_;
+      //TODO check these values are reasonable, otherwise trim to MAX_GRID_WIDTH etc
+
+      //TODO do we want to just clear up the windows...
+      //TODO fittedwindow.first->SetGridSize(gridwidth, gridheight);//TODO we want a SetGridSize now
+      //TODO delete any views that would get in the way
+
+      //TODO delete any views that would fail a resize
+
+      //TODO begin putting the maps and views into the correct location
+        //TODO make sure we remove anything in the way first
+        //TODO if one of the locations inside where we are putting things already contains the device+recording we want, then we can use it and resize it
+
+    }
+
+    //TODO set currentlayout_ to the token(NOT the QSharedPointer, because it would be specific to only one device
+  
+  });
+  action->setData(layout->GetToken());
+}
+
+//TODO LayoutRemoved needs to clear it up now!
+  //TODO if the currentlayout_ is the one removed, make sure to clear it
 
 void MainWindow::MapViewCreated(const QSharedPointer<MapView>& mapview)
 {

@@ -148,6 +148,7 @@ class Connection : public QObject, public monocle::client::Client
   void SignalGroupChanged(const uint64_t token, const QString& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
   void SignalGroupRemoved(const uint64_t token);
   void SignalHardwareStats(const uint64_t time, const std::vector<monocle::DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory, const uint64_t availablememory, const std::vector<monocle::GPUSTAT>& gpustats);
+  void SignalLayoutAdded(const monocle::LAYOUT& layout);
   void SignalLocationChanged(const QString& latitude, const QString& longitude);
   void SignalMapAdded(const uint64_t token, const QString& name, const QString& location, const QString& imagemd5);
   void SignalMapChanged(const uint64_t token, const QString& name, const QString& location, const QString& imagemd5);

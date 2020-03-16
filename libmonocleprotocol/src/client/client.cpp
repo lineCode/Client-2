@@ -1984,7 +1984,7 @@ boost::system::error_code Client::AddLayoutSend(const LAYOUT& layout)
 
     }
 
-    layoutwindows.push_back(CreateLayoutWindow(fbb_, window.token_, window.screenx_, window.screeny_, window.screenwidth_, window.screenheight_, window.x_, window.y_, window.width_, window.height_, window.gridwidth_, window.gridheight_, fbb_.CreateVector(maps), fbb_.CreateVector(recordings)));
+    layoutwindows.push_back(CreateLayoutWindow(fbb_, window.token_, window.mainwindow_, window.maximised_, window.screenx_, window.screeny_, window.screenwidth_, window.screenheight_, window.x_, window.y_, window.width_, window.height_, window.gridwidth_, window.gridheight_, fbb_.CreateVector(maps), fbb_.CreateVector(recordings)));
   }
 
   fbb_.Finish(CreateAddLayoutRequest(fbb_, CreateLayout(fbb_, layout.token_, fbb_.CreateString(layout.name_), fbb_.CreateVector(layoutwindows))));
@@ -5123,7 +5123,7 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
             }
           }
 
-          windows.push_back(monocle::LAYOUTWINDOW(window->token(), window->screenx(), window->screeny(), window->screenwidth(), window->screenheight(), window->x(), window->y(), window->width(), window->height(), window->gridwidth(), window->gridheight(), maps, recordings));
+          windows.push_back(monocle::LAYOUTWINDOW(window->token(), window->mainwindow(), window->maximised(), window->screenx(), window->screeny(), window->screenwidth(), window->screenheight(), window->x(), window->y(), window->width(), window->height(), window->gridwidth(), window->gridheight(), maps, recordings));
         }
       }
 

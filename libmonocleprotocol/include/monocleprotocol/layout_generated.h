@@ -97,21 +97,29 @@ inline flatbuffers::Offset<LayoutView> CreateLayoutView(
 struct LayoutWindow FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
-    VT_SCREENX = 6,
-    VT_SCREENY = 8,
-    VT_SCREENWIDTH = 10,
-    VT_SCREENHEIGHT = 12,
-    VT_X = 14,
-    VT_Y = 16,
-    VT_WIDTH = 18,
-    VT_HEIGHT = 20,
-    VT_GRIDWIDTH = 22,
-    VT_GRIDHEIGHT = 24,
-    VT_MAPS = 26,
-    VT_RECORDINGS = 28
+    VT_MAINWINDOW = 6,
+    VT_MAXIMISED = 8,
+    VT_SCREENX = 10,
+    VT_SCREENY = 12,
+    VT_SCREENWIDTH = 14,
+    VT_SCREENHEIGHT = 16,
+    VT_X = 18,
+    VT_Y = 20,
+    VT_WIDTH = 22,
+    VT_HEIGHT = 24,
+    VT_GRIDWIDTH = 26,
+    VT_GRIDHEIGHT = 28,
+    VT_MAPS = 30,
+    VT_RECORDINGS = 32
   };
   uint64_t token() const {
     return GetField<uint64_t>(VT_TOKEN, 0);
+  }
+  bool mainwindow() const {
+    return GetField<uint8_t>(VT_MAINWINDOW, 0) != 0;
+  }
+  bool maximised() const {
+    return GetField<uint8_t>(VT_MAXIMISED, 0) != 0;
   }
   int32_t screenx() const {
     return GetField<int32_t>(VT_SCREENX, 0);
@@ -152,6 +160,8 @@ struct LayoutWindow FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_TOKEN) &&
+           VerifyField<uint8_t>(verifier, VT_MAINWINDOW) &&
+           VerifyField<uint8_t>(verifier, VT_MAXIMISED) &&
            VerifyField<int32_t>(verifier, VT_SCREENX) &&
            VerifyField<int32_t>(verifier, VT_SCREENY) &&
            VerifyField<int32_t>(verifier, VT_SCREENWIDTH) &&
@@ -177,6 +187,12 @@ struct LayoutWindowBuilder {
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
     fbb_.AddElement<uint64_t>(LayoutWindow::VT_TOKEN, token, 0);
+  }
+  void add_mainwindow(bool mainwindow) {
+    fbb_.AddElement<uint8_t>(LayoutWindow::VT_MAINWINDOW, static_cast<uint8_t>(mainwindow), 0);
+  }
+  void add_maximised(bool maximised) {
+    fbb_.AddElement<uint8_t>(LayoutWindow::VT_MAXIMISED, static_cast<uint8_t>(maximised), 0);
   }
   void add_screenx(int32_t screenx) {
     fbb_.AddElement<int32_t>(LayoutWindow::VT_SCREENX, screenx, 0);
@@ -229,6 +245,8 @@ struct LayoutWindowBuilder {
 inline flatbuffers::Offset<LayoutWindow> CreateLayoutWindow(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t token = 0,
+    bool mainwindow = false,
+    bool maximised = false,
     int32_t screenx = 0,
     int32_t screeny = 0,
     int32_t screenwidth = 0,
@@ -255,12 +273,16 @@ inline flatbuffers::Offset<LayoutWindow> CreateLayoutWindow(
   builder_.add_screenwidth(screenwidth);
   builder_.add_screeny(screeny);
   builder_.add_screenx(screenx);
+  builder_.add_maximised(maximised);
+  builder_.add_mainwindow(mainwindow);
   return builder_.Finish();
 }
 
 inline flatbuffers::Offset<LayoutWindow> CreateLayoutWindowDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t token = 0,
+    bool mainwindow = false,
+    bool maximised = false,
     int32_t screenx = 0,
     int32_t screeny = 0,
     int32_t screenwidth = 0,
@@ -278,6 +300,8 @@ inline flatbuffers::Offset<LayoutWindow> CreateLayoutWindowDirect(
   return monocle::CreateLayoutWindow(
       _fbb,
       token,
+      mainwindow,
+      maximised,
       screenx,
       screeny,
       screenwidth,

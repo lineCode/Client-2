@@ -35,7 +35,7 @@ ManageLayoutWindow::ManageLayoutWindow(QWidget* parent) :
   connect(ui_.buttoncancel, &QPushButton::clicked, this, &QDialog::reject);
 
 }
-
+//TODO remove the checkbox for load on startup
 ManageLayoutWindow::~ManageLayoutWindow()
 {
   for (monocle::client::Connection& connection : connections_)
@@ -124,7 +124,7 @@ void ManageLayoutWindow::on_buttonok_clicked()
         }
 
         const QRect geometry = screen->geometry();
-        windows.push_back(monocle::LAYOUTWINDOW(windowtoken, geometry.x(), geometry.y(), geometry.width(), geometry.height(), window->x(), window->y(), window->width(), window->height(), videowidget->GetWidth(), videowidget->GetHeight(), mapviews, videoviews));
+        windows.push_back(monocle::LAYOUTWINDOW(windowtoken, videowidget == MainWindow::Instance()->GetVideoWidget(), window->isMaximized(), geometry.x(), geometry.y(), geometry.width(), geometry.height(), window->x(), window->y(), window->width(), window->height(), videowidget->GetWidth(), videowidget->GetHeight(), mapviews, videoviews));
       }
     }
 

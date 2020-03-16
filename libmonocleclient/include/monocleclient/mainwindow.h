@@ -113,6 +113,10 @@ enum MOUSESTATE
 namespace client
 {
 
+///// Declarations /////
+
+class Layout;
+
 ///// Structures /////
 
 struct CUDADEVICE
@@ -272,6 +276,7 @@ class MainWindow : public QMainWindow
  private slots:
 
   void LanguageChanged(QAction* action);
+  void LayoutAdded(const QSharedPointer<Layout>& layout);
   void MapViewCreated(const QSharedPointer<MapView>& mapview);
   void VideoViewCreated(const QSharedPointer<VideoView>& videoview);
   void ViewDestroyed(const QSharedPointer<View>& view);

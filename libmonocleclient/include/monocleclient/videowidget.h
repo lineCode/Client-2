@@ -68,6 +68,7 @@ class MapView;
 class Media;
 class MediaView;
 class VideoView;
+class VideoWindow;
 class View;
 
 ///// Prototypes /////
@@ -98,6 +99,12 @@ class VideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   QSharedPointer<VideoView> CreateVideoView(unsigned int x, unsigned int y, unsigned int width, unsigned int height, bool stretch, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingTrack>& track);
   bool RemoveView(const QSharedPointer<View>& view);
 
+  void VideoWindowMove(const int32_t x, const int32_t y);
+  void VideoWindowResize(const int32_t width, const int32_t height);
+  int GetVideoWindowX() const;
+  int GetVideoWindowY() const;
+  int GetVideoWindowWidth() const;
+  int GetVideoWindowHeight() const;
   VideoWidgetToolbar* GetToolbar();
 
   bool IsEmpty(const QSharedPointer<View>& ignoreview, unsigned int x, unsigned int y, unsigned int width, unsigned int height) const; // Pass in a video view if you're ok with overwriting one video view, otherwise pass in null

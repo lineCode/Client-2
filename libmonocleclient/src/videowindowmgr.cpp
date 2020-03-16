@@ -27,7 +27,7 @@ VideoWindowMgr::~VideoWindowMgr()
 
 void VideoWindowMgr::Destroy()
 {
-  for (auto videowindow : videowindows_)
+  for (VideoWindow* videowindow : videowindows_)
   {
     videowindow->close();
 

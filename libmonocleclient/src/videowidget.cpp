@@ -629,6 +629,98 @@ bool VideoWidget::RemoveView(const QSharedPointer<View>& view)
   return true;
 }
 
+void VideoWidget::VideoWindowMove(const int32_t x, const int32_t y)
+{
+  if (parent()->parent()->metaObject() == &VideoWindow::staticMetaObject)
+  {
+    VideoWindow* videowindow = static_cast<VideoWindow*>(parent()->parent());
+    return videowindow->move(x, y);
+  }
+  else if (parent()->parent()->metaObject() == &MainWindow::staticMetaObject)//TODO might need to check this one works
+  {
+    MainWindow* mainwindow = static_cast<MainWindow*>(parent()->parent());
+    return mainwindow->move(x, y);
+  }
+}
+
+void VideoWidget::VideoWindowResize(const int32_t width, const int32_t height)
+{
+  if (parent()->parent()->metaObject() == &VideoWindow::staticMetaObject)
+  {
+    VideoWindow* videowindow = static_cast<VideoWindow*>(parent()->parent());
+    return videowindow->resize(width, height);
+  }
+  else if (parent()->parent()->metaObject() == &MainWindow::staticMetaObject)//TODO might need to check this one works
+  {
+    MainWindow* mainwindow = static_cast<MainWindow*>(parent()->parent());
+    return mainwindow->resize(width, height);
+  }
+}
+
+int VideoWidget::GetVideoWindowX() const
+{
+  if (parent()->parent()->metaObject() == &VideoWindow::staticMetaObject)
+  {
+    VideoWindow* videowindow = static_cast<VideoWindow*>(parent()->parent());
+    return videowindow->x();
+  }
+  else if (parent()->parent()->metaObject() == &MainWindow::staticMetaObject)//TODO might need to check this one works
+  {
+    MainWindow* mainwindow = static_cast<MainWindow*>(parent()->parent());
+    return mainwindow->x();
+  }
+
+  return 0;
+}
+
+int VideoWidget::GetVideoWindowY() const
+{
+  if (parent()->parent()->metaObject() == &VideoWindow::staticMetaObject)
+  {
+    VideoWindow* videowindow = static_cast<VideoWindow*>(parent()->parent());
+    return videowindow->y();
+  }
+  else if (parent()->parent()->metaObject() == &MainWindow::staticMetaObject)//TODO might need to check this one works
+  {
+    MainWindow* mainwindow = static_cast<MainWindow*>(parent()->parent());
+    return mainwindow->y();
+  }
+
+  return 0;
+}
+
+int VideoWidget::GetVideoWindowWidth() const
+{
+  if (parent()->parent()->metaObject() == &VideoWindow::staticMetaObject)
+  {
+    VideoWindow* videowindow = static_cast<VideoWindow*>(parent()->parent());
+    return videowindow->width();
+  }
+  else if (parent()->parent()->metaObject() == &MainWindow::staticMetaObject)//TODO might need to check this one works
+  {
+    MainWindow* mainwindow = static_cast<MainWindow*>(parent()->parent());
+    return mainwindow->width();
+  }
+
+  return 0;
+}
+
+int VideoWidget::GetVideoWindowHeight() const
+{
+  if (parent()->parent()->metaObject() == &VideoWindow::staticMetaObject)
+  {
+    VideoWindow* videowindow = static_cast<VideoWindow*>(parent()->parent());
+    return videowindow->height();
+  }
+  else if (parent()->parent()->metaObject() == &MainWindow::staticMetaObject)//TODO might need to check this one works
+  {
+    MainWindow* mainwindow = static_cast<MainWindow*>(parent()->parent());
+    return mainwindow->height();
+  }
+
+  return 0;
+}
+
 VideoWidgetToolbar* VideoWidget::GetToolbar()
 {
   return parent()->findChild<VideoWidgetToolbar*>(QString("widgettoolbar"), Qt::FindDirectChildrenOnly);

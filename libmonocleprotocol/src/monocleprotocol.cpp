@@ -465,8 +465,10 @@ LAYOUTVIEW::LAYOUTVIEW(const uint64_t token, const uint32_t x, const uint32_t y,
 
 }
 
-LAYOUTWINDOW::LAYOUTWINDOW(const uint64_t token, const int32_t screenx, const int32_t screeny, const int32_t screenwidth, const int32_t screenheight, const int32_t x, const int32_t y, const int32_t width, const int32_t height, const uint32_t gridwidth, const uint32_t gridheight, const std::vector<LAYOUTVIEW>& maps, const std::vector<LAYOUTVIEW>& recordings) :
+LAYOUTWINDOW::LAYOUTWINDOW(const uint64_t token, const bool mainwindow, const bool maximised, const int32_t screenx, const int32_t screeny, const int32_t screenwidth, const int32_t screenheight, const int32_t x, const int32_t y, const int32_t width, const int32_t height, const uint32_t gridwidth, const uint32_t gridheight, const std::vector<LAYOUTVIEW>& maps, const std::vector<LAYOUTVIEW>& recordings) :
   token_(token),
+  mainwindow_(mainwindow),
+  maximised_(maximised),
   screenx_(screenx),
   screeny_(screeny),
   screenwidth_(screenwidth),
@@ -479,6 +481,12 @@ LAYOUTWINDOW::LAYOUTWINDOW(const uint64_t token, const int32_t screenx, const in
   gridheight_(gridheight),
   maps_(maps),
   recordings_(recordings)
+{
+
+}
+
+LAYOUT::LAYOUT() :
+  token_(0)
 {
 
 }

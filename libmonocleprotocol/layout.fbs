@@ -12,18 +12,20 @@ table LayoutView
 table LayoutWindow
 {
   token:uint64 (id:0);
-  screenx:int32 (id:1);
-  screeny:int32 (id:2);
-  screenwidth:int32 (id:3);
-  screenheight:int32 (id:4);
-  x:int32 (id:5);
-  y:int32 (id:6);
-  width:int32 (id:7);
-  height:int32 (id:8);
-  gridwidth: uint32 (id:9);
-  gridheight: uint32 (id:10);
-  maps:[LayoutView] (id:11);
-  recordings:[LayoutView] (id:12);
+  mainwindow:bool (id:1);
+  maximised:bool (id:2);
+  screenx:int32 (id:3);
+  screeny:int32 (id:4);
+  screenwidth:int32 (id:5);
+  screenheight:int32 (id:6);
+  x:int32 (id:7);
+  y:int32 (id:8);
+  width:int32 (id:9);
+  height:int32 (id:10);
+  gridwidth: uint32 (id:11);
+  gridheight: uint32 (id:12);
+  maps:[LayoutView] (id:13);
+  recordings:[LayoutView] (id:14);
 }
 
 table Layout

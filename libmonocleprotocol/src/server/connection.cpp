@@ -640,7 +640,7 @@ boost::system::error_code Connection::SendLayoutAdded(const monocle::LAYOUT& lay
 
     }
 
-    windows.push_back(CreateLayoutWindow(fbb_, window.token_, window.screenx_, window.screeny_, window.screenwidth_, window.screenheight_, window.x_, window.y_, window.width_, window.height_, window.gridwidth_, window.gridheight_, fbb_.CreateVector(maps), fbb_.CreateVector(recordings)));
+    windows.push_back(CreateLayoutWindow(fbb_, window.token_, window.mainwindow_, window.maximised_, window.screenx_, window.screeny_, window.screenwidth_, window.screenheight_, window.x_, window.y_, window.width_, window.height_, window.gridwidth_, window.gridheight_, fbb_.CreateVector(maps), fbb_.CreateVector(recordings)));
   }
 
   fbb_.Finish(CreateLayoutAdded(fbb_, CreateLayout(fbb_, layout.token_, fbb_.CreateString(layout.name_), fbb_.CreateVector(windows))));
@@ -1696,7 +1696,7 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
             }
           }
 
-          windows.push_back(LAYOUTWINDOW(window->token(), window->screenx(), window->screeny(), window->screenwidth(), window->screenheight(), window->x(), window->y(), window->width(), window->height(), window->gridwidth(), window->gridheight(), maps, recordings));
+          windows.push_back(LAYOUTWINDOW(window->token(), window->mainwindow(), window->maximised(), window->screenx(), window->screeny(), window->screenwidth(), window->screenheight(), window->x(), window->y(), window->width(), window->height(), window->gridwidth(), window->gridheight(), maps, recordings));
         }
       }
 
