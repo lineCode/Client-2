@@ -6,6 +6,7 @@
 
 ///// Includes /////
 
+#include <boost/shared_ptr.hpp>
 #include <QObject>
 #include <QSharedPointer>
 #include <QString>
@@ -16,6 +17,10 @@
 namespace client
 {
 
+///// Declarations /////
+
+class Device;
+
 ///// Classes /////
 
 class LayoutView
@@ -23,6 +28,12 @@ class LayoutView
  public:
 
   LayoutView(const uint64_t token, const int32_t x, const int32_t y, const int32_t width, const int32_t height);
+
+  inline uint64_t GetToken() const { return token_; }
+  inline int32_t GetX() const { return x_; }
+  inline int32_t GetY() const { return y_; }
+  inline int32_t GetWidth() const { return width_; }
+  inline int32_t GetHeight() const { return height_; }
 
   uint64_t token_; // This is the token of the recording or map, not of this entity
   int32_t x_;
@@ -36,8 +47,9 @@ class LayoutWindow
 {
  public:
 
-  LayoutWindow(const uint64_t token, const bool mainwindow, const bool maximised, const int32_t screenx, const int32_t screeny, const int32_t screenwidth, const int32_t screenheight, const int32_t x, const int32_t y, const int32_t width, const int32_t height, const uint32_t gridwidth, const uint32_t gridheight, const std::vector< QSharedPointer<LayoutView> >& maps, const std::vector< QSharedPointer<LayoutView> >& recordings);
+  LayoutWindow(const boost::shared_ptr<Device>& device, const uint64_t token, const bool mainwindow, const bool maximised, const int32_t screenx, const int32_t screeny, const int32_t screenwidth, const int32_t screenheight, const int32_t x, const int32_t y, const int32_t width, const int32_t height, const uint32_t gridwidth, const uint32_t gridheight, const std::vector< QSharedPointer<LayoutView> >& maps, const std::vector< QSharedPointer<LayoutView> >& recordings);
 
+  boost::shared_ptr<Device> device_;
   uint64_t token_;
   bool mainwindow_;
   bool maximised_;
@@ -62,7 +74,7 @@ class Layout : public QObject
 
  public:
 
-  Layout(const uint64_t token, const QString& name, const std::vector< QSharedPointer<LayoutWindow> >& windows);
+  Layout(const boost::shared_ptr<Device>& device, const uint64_t token, const QString& name, const std::vector< QSharedPointer<LayoutWindow> >& windows);
   ~Layout();
 
   inline uint64_t GetToken() const { return token_; }
@@ -71,6 +83,7 @@ class Layout : public QObject
 
  private:
 
+  boost::shared_ptr<Device> device_;
   uint64_t token_;
   QString name_;
   std::vector< QSharedPointer<LayoutWindow> > windows_;

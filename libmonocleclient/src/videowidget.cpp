@@ -615,17 +615,6 @@ QSharedPointer<VideoView> VideoWidget::CreateVideoView(unsigned int x, unsigned 
   return videoview;
 }
 
-QSharedPointer<View> VideoWidget::GetView(const unsigned int x, const unsigned int y)
-{
-  auto view = std::find(views_.begin(), views_.end(), [x, y](const QSharedPointer<View>& view) { return view->GetRect().contains(x, y); });
-  if (view != views_.end())
-  {
-
-    return *view;
-  }
-  return nullptr;
-}
-
 bool VideoWidget::RemoveView(const QSharedPointer<View>& view)
 {
   auto i = std::find(views_.begin(), views_.end(), view);
@@ -866,9 +855,9 @@ void VideoWidget::SetGridSize(const unsigned int width, const unsigned int heigh
   }
 
   // Make sure no video views are in the way
-  for (unsigned int x = width_; x < width; ++x)//TODO make sure this works correctly...
+  for (unsigned int x = width; x < width_; ++x)//TODO make sure this works correctly...
   {
-    for (unsigned int y = height_; y < height; ++y)
+    for (unsigned int y = height; y < height_; ++y)
     {
       QSharedPointer<View> view = GetView(x, y);
       if (view)

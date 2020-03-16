@@ -1737,10 +1737,10 @@ void Device::SlotLayoutAdded(const monocle::LAYOUT& layout)
 
       }
 
-      windows.push_back(QSharedPointer<LayoutWindow>::create(window.token_, window.mainwindow_, window.maximised_, window.screenx_, window.screeny_, window.screenwidth_, window.screenheight_, window.x_, window.y_, window.width_, window.height_, window.gridwidth_, window.gridheight_, maps, recordings));
+      windows.push_back(QSharedPointer<LayoutWindow>::create(boost::static_pointer_cast<Device>(shared_from_this()), window.token_, window.mainwindow_, window.maximised_, window.screenx_, window.screeny_, window.screenwidth_, window.screenheight_, window.x_, window.y_, window.width_, window.height_, window.gridwidth_, window.gridheight_, maps, recordings));
     }
 
-    QSharedPointer<Layout> l = QSharedPointer<Layout>::create(layout.token_, QString::fromStdString(layout.name_), windows);
+    QSharedPointer<Layout> l = QSharedPointer<Layout>::create(boost::static_pointer_cast<Device>(shared_from_this()), layout.token_, QString::fromStdString(layout.name_), windows);
     layouts_.push_back(l);
     emit SignalLayoutAdded(l);
     emit MainWindow::Instance()->GetDeviceMgr().LayoutAdded(l);

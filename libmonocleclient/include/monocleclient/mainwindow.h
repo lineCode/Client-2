@@ -116,6 +116,8 @@ namespace client
 ///// Declarations /////
 
 class Layout;
+class LayoutView;
+class LayoutWindow;
 
 ///// Structures /////
 

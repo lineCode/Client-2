@@ -1554,12 +1554,47 @@ void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
       const uint32_t gridheight = GridHeight(fittedwindow.second);
       fittedwindow.first->SetGridSize(gridwidth, gridheight);
 
+      //TODO we need to check for overlapping in here...
+        //TODO well it's easy, we just remove anyone that is in our way I guess...
+          //TODO but what if we overwrite ourselves..? we want a warning...
+      for (const QSharedPointer<LayoutWindow>& layout : fittedwindow.second)
+      {
+        for (const QSharedPointer<LayoutView>& map : layout->maps_)
+        {
+          const QSharedPointer<Map> map = layout->device_->GetMap(map->GetToken());
+          //TODO
 
-      //TODO grab the recording
-        //TODO grab the first track we find, if there are none, just load nullptr and make sure nullptr would work(I think it might already?)
+        }
 
-      //TODO need the device in the layout
-      //TODO videowidgetsmgr_.CreateVideoView(,,)
+        for (const QSharedPointer<LayoutView>& recordingview : layout->recordings_)
+        {
+          const QSharedPointer<Recording> recording = layout->device_->GetRecording(recordingview->GetToken());
+          if (!recording)
+          {
+            //TODO warning
+            continue;
+          }
+
+          const std::vector< QSharedPointer<RecordingTrack> > videotracks = recording->GetVideoTracks();
+          if (videotracks.empty())
+          {
+            //TODO warning
+            continue;
+          }
+
+          QSharedPointer<VideoView> videoview = fittedwindow.first->CreateVideoView(recordingview->GetX(), recordingview->GetY(), recordingview->GetWidth(), recordingview->GetHeight(), Options::Instance().GetStretchVideo(), layout->device_, recording, videotracks.front());
+          if (!videoview)
+          {
+            //TODO log something
+
+          }
+          else
+          {
+            emit videowidgetsmgr_.VideoViewCreated(videoview);
+
+          }
+        }
+      }
 
       //TODO begin putting the maps and views into the correct location
         //TODO make sure we remove anything in the way first
