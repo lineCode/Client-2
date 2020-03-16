@@ -211,6 +211,8 @@ class MainWindow : public QMainWindow
 
   static MainWindow* instance_;
 
+  uint32_t GridWidth(const std::vector< QSharedPointer<LayoutWindow> >& layouts);
+  uint32_t GridHeight(const std::vector< QSharedPointer<LayoutWindow> >& layouts);
   void AcceptDrop(QDragMoveEvent* event);
   int LoadLanguage(const QString& language);
   void LoadDefaultLanguage();

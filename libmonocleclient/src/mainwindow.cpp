@@ -763,6 +763,16 @@ void MainWindow::timerEvent(QTimerEvent* event)
   }
 }
 
+uint32_t MainWindow::GridWidth(const std::vector< QSharedPointer<LayoutWindow> >& layouts)
+{
+  return std::max(1u, std::min(MAXVIDEOWINDOWWIDTH, (*std::max_element(layouts.cbegin(), layouts.cend(), [](const QSharedPointer<LayoutWindow>& lhs, const QSharedPointer<LayoutWindow>& rhs) { return (lhs->gridwidth_ < rhs->gridwidth_); }))->gridwidth_));
+}
+
+uint32_t MainWindow::GridHeight(const std::vector< QSharedPointer<LayoutWindow> >& layouts)
+{
+  return std::max(1u, std::min(MAXVIDEOWINDOWHEIGHT, (*std::max_element(layouts.cbegin(), layouts.cend(), [](const QSharedPointer<LayoutWindow>& lhs, const QSharedPointer<LayoutWindow>& rhs) { return (lhs->gridheight_ < rhs->gridheight_); }))->gridheight_));
+}
+
 void MainWindow::AcceptDrop(QDragMoveEvent* event)
 {
   const QMimeData* mimedata = event->mimeData();
@@ -1498,10 +1508,9 @@ void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
     {
       if (videowidgets.empty())
       {
-        //TODO videowindowmgr_.CreateVideoWindow()
-        //TODO videowidgetsmgr_.CreateMapView()
-        //TODO create a window in the right place for this
-
+        const uint32_t gridwidth = GridWidth(window.second);
+        const uint32_t gridheight = GridHeight(window.second);
+        videowindowmgr_.CreateVideoWindow(QPoint(window.second.front()->x_, window.second.front()->y_), arial_, showfullscreen_, gridwidth, gridheight, Options::Instance().GetDefaultShowToolbar());
       }
       else
       {
@@ -1511,33 +1520,46 @@ void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
     }
     windows.clear();
 
-    //TODO if we have some windows left over, just grab as many as we can, who cares about much else
-    //TODO now try again, but this time store a nullptr if we fail, or if we find one "nearby" enough we are ok...
-    //TODO If we still need more windows than we have available, create some new ones
-
+    // Fill out all the windows
     for (const std::pair< VideoWidget*, std::vector< QSharedPointer<LayoutWindow> > >& fittedwindow : fittedwindows)
     {
-      //TODO check it fits onto a screen, otherwise just place it on the main screen
+      int32_t x = 0;
+      int32_t y = 0;
+      if (QApplication::screenAt(QPoint(fittedwindow.second.front()->x_, fittedwindow.second.front()->y_)) == nullptr) // If the point in the layout is not accessible in the current setup, place the window on the primary screen
+      {
+        x = fittedwindow.second.front()->x_;
+        y = fittedwindow.second.front()->y_;
+      }
+      else
+      {
+        QScreen* primaryscreen = QApplication::primaryScreen();
+        if (primaryscreen) // Just in case
+        {
+          const QRect geometry = primaryscreen->geometry();
+          x = geometry.x();
+          y = geometry.y();
+        }
+      }
 
       fittedwindow.first->VideoWindowMove(fittedwindow.second.front()->x_, fittedwindow.second.front()->y_);
       fittedwindow.first->VideoWindowResize(fittedwindow.second.front()->width_, fittedwindow.second.front()->height_);
-      fittedwindow.first->repaint();
-      fittedwindow.first->update();
+      fittedwindow.first->update(); // Not sure this is required, but can't hurt
       if (fittedwindow.second.front()->maximised_)
       {
         fittedwindow.first->setWindowState(Qt::WindowMaximized);
 
       }
 
-      const uint32_t gridwidth = (*std::max_element(fittedwindow.second.cbegin(), fittedwindow.second.cend(), [](const QSharedPointer<LayoutWindow>& lhs, const QSharedPointer<LayoutWindow>& rhs) { return (lhs->gridwidth_ < rhs->gridwidth_); }))->gridwidth_;
-      const uint32_t gridheight = (*std::max_element(fittedwindow.second.cbegin(), fittedwindow.second.cend(), [](const QSharedPointer<LayoutWindow>& lhs, const QSharedPointer<LayoutWindow>& rhs) { return (lhs->gridheight_ < rhs->gridheight_); }))->gridheight_;
-      //TODO check these values are reasonable, otherwise trim to MAX_GRID_WIDTH etc
+      const uint32_t gridwidth = GridWidth(fittedwindow.second);
+      const uint32_t gridheight = GridHeight(fittedwindow.second);
+      fittedwindow.first->SetGridSize(gridwidth, gridheight);
 
-      //TODO do we want to just clear up the windows...
-      //TODO fittedwindow.first->SetGridSize(gridwidth, gridheight);//TODO we want a SetGridSize now
-      //TODO delete any views that would get in the way
 
-      //TODO delete any views that would fail a resize
+      //TODO grab the recording
+        //TODO grab the first track we find, if there are none, just load nullptr and make sure nullptr would work(I think it might already?)
+
+      //TODO need the device in the layout
+      //TODO videowidgetsmgr_.CreateVideoView(,,)
 
       //TODO begin putting the maps and views into the correct location
         //TODO make sure we remove anything in the way first

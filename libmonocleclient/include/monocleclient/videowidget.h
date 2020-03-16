@@ -97,6 +97,7 @@ class VideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   QSharedPointer<MapView> CreateMapView(unsigned int x, unsigned int y, unsigned int width, unsigned int height, bool stretch, const boost::shared_ptr<Device>& device, const QSharedPointer<Map>& map);
   QSharedPointer<MediaView> CreateMediaView(unsigned int x, unsigned int y, unsigned int width, unsigned int height, bool stretch, const QSharedPointer<Media>& media, const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex);
   QSharedPointer<VideoView> CreateVideoView(unsigned int x, unsigned int y, unsigned int width, unsigned int height, bool stretch, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingTrack>& track);
+  QSharedPointer<View> GetView(const unsigned int x, const unsigned int y);
   bool RemoveView(const QSharedPointer<View>& view);
 
   void VideoWindowMove(const int32_t x, const int32_t y);
@@ -133,6 +134,8 @@ class VideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
 
   QAction* GetShowToolbarAction() { return showtoolbar_; }
   QAction* GetHideToolbarAction() { return hidetoolbar_; }
+
+  void SetGridSize(const unsigned int width, const unsigned int height); // If there are any views in the way of a reduction in size, they will be removed
 
  protected:
 

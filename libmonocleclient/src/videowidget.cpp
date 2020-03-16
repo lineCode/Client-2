@@ -615,6 +615,17 @@ QSharedPointer<VideoView> VideoWidget::CreateVideoView(unsigned int x, unsigned 
   return videoview;
 }
 
+QSharedPointer<View> VideoWidget::GetView(const unsigned int x, const unsigned int y)
+{
+  auto view = std::find(views_.begin(), views_.end(), [x, y](const QSharedPointer<View>& view) { return view->GetRect().contains(x, y); });
+  if (view != views_.end())
+  {
+
+    return *view;
+  }
+  return nullptr;
+}
+
 bool VideoWidget::RemoveView(const QSharedPointer<View>& view)
 {
   auto i = std::find(views_.begin(), views_.end(), view);
@@ -664,7 +675,7 @@ int VideoWidget::GetVideoWindowX() const
     VideoWindow* videowindow = static_cast<VideoWindow*>(parent()->parent());
     return videowindow->x();
   }
-  else if (parent()->parent()->metaObject() == &MainWindow::staticMetaObject)//TODO might need to check this one works
+  else if (parent()->parent()->metaObject() == &MainWindow::staticMetaObject)
   {
     MainWindow* mainwindow = static_cast<MainWindow*>(parent()->parent());
     return mainwindow->x();
@@ -680,7 +691,7 @@ int VideoWidget::GetVideoWindowY() const
     VideoWindow* videowindow = static_cast<VideoWindow*>(parent()->parent());
     return videowindow->y();
   }
-  else if (parent()->parent()->metaObject() == &MainWindow::staticMetaObject)//TODO might need to check this one works
+  else if (parent()->parent()->metaObject() == &MainWindow::staticMetaObject)
   {
     MainWindow* mainwindow = static_cast<MainWindow*>(parent()->parent());
     return mainwindow->y();
@@ -696,7 +707,7 @@ int VideoWidget::GetVideoWindowWidth() const
     VideoWindow* videowindow = static_cast<VideoWindow*>(parent()->parent());
     return videowindow->width();
   }
-  else if (parent()->parent()->metaObject() == &MainWindow::staticMetaObject)//TODO might need to check this one works
+  else if (parent()->parent()->metaObject() == &MainWindow::staticMetaObject)
   {
     MainWindow* mainwindow = static_cast<MainWindow*>(parent()->parent());
     return mainwindow->width();
@@ -712,7 +723,7 @@ int VideoWidget::GetVideoWindowHeight() const
     VideoWindow* videowindow = static_cast<VideoWindow*>(parent()->parent());
     return videowindow->height();
   }
-  else if (parent()->parent()->metaObject() == &MainWindow::staticMetaObject)//TODO might need to check this one works
+  else if (parent()->parent()->metaObject() == &MainWindow::staticMetaObject)
   {
     MainWindow* mainwindow = static_cast<MainWindow*>(parent()->parent());
     return mainwindow->height();
@@ -844,6 +855,42 @@ void VideoWidget::SetUpdateFrequency(const unsigned int frequency)
 
   }
   timer_ = startTimer(static_cast<int>(frequency));
+}
+
+void VideoWidget::SetGridSize(const unsigned int width, const unsigned int height)
+{
+  if (openglmajorversion_ < 3)
+  {
+
+    return;
+  }
+
+  // Make sure no video views are in the way
+  for (unsigned int x = width_; x < width; ++x)//TODO make sure this works correctly...
+  {
+    for (unsigned int y = height_; y < height; ++y)
+    {
+      QSharedPointer<View> view = GetView(x, y);
+      if (view)
+      {
+        RemoveView(view);
+
+      }
+    }
+  }
+
+  makeCurrent();
+  width_ = width;
+  height_ = height;
+  grid_.Generate(width, height, views_);
+
+  for (QSharedPointer<View>& videoview : views_)
+  {
+    videoview->ResetPosition(true);
+
+  }
+
+  doneCurrent();
 }
 
 void VideoWidget::dragEnterEvent(QDragEnterEvent* event)
