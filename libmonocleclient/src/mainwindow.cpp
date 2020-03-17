@@ -236,6 +236,7 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   Options::Instance().Load();
 
   connect(&devicemgr_, &DeviceMgr::LayoutAdded, this, &MainWindow::LayoutAdded);
+  connect(&devicemgr_, &DeviceMgr::LayoutRemoved, this, &MainWindow::LayoutRemoved);
   connect(&videowidgetsmgr_, &VideoWidgetsMgr::ViewDestroyed, this, &MainWindow::ViewDestroyed);
   connect(&videowidgetsmgr_, &VideoWidgetsMgr::VideoViewCreated, this, &MainWindow::VideoViewCreated);
   connect(&videowidgetsmgr_, &VideoWidgetsMgr::ViewDestroyed, this, &MainWindow::ViewDestroyed);
@@ -1445,20 +1446,20 @@ void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
     std::map< uint64_t, std::vector< QSharedPointer<LayoutWindow> > > windows;
     for (const QSharedPointer<Layout>& layout : layouts)
     {
-      for (const QSharedPointer<LayoutWindow>& layoutwindow : layout->GetWindows())
+    for (const QSharedPointer<LayoutWindow>& layoutwindow : layout->GetWindows())
+    {
+      auto window = windows.find(layout->GetToken());
+      if (window == windows.end())
       {
-        auto window = windows.find(layout->GetToken());
-        if (window == windows.end())
-        {
-          windows[layoutwindow->token_] = std::vector< QSharedPointer<LayoutWindow> >({ layoutwindow });
+        windows[layoutwindow->token_] = std::vector< QSharedPointer<LayoutWindow> >({ layoutwindow });
 
-        }
-        else
-        {
-          window->second.push_back(layoutwindow);
-
-        }
       }
+      else
+      {
+        window->second.push_back(layoutwindow);
+
+      }
+    }
     }
 
     // Find whether we can match the windows we want to exist, with ones that are currently there already
@@ -1469,7 +1470,7 @@ void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
       videowidgets.push_back(videowindow->GetVideoWidget());
 
     }
-    
+
     // There should only be one MainWindow
     std::vector< std::pair< VideoWidget*, std::vector< QSharedPointer<LayoutWindow> > > > fittedwindows;
     fittedwindows.reserve(videowidgets.size() + 1);
@@ -1500,7 +1501,7 @@ void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
       else
       {
         ++window;
-      
+
       }
     }
 
@@ -1543,14 +1544,19 @@ void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
         }
       }
 
-      fittedwindow.first->VideoWindowMove(fittedwindow.second.front()->x_, fittedwindow.second.front()->y_);
-      fittedwindow.first->VideoWindowResize(fittedwindow.second.front()->width_, fittedwindow.second.front()->height_);
-      fittedwindow.first->update(); // Not sure this is required, but can't hurt
-      if (fittedwindow.second.front()->maximised_)
+      if (!fittedwindow.second.front()->maximised_)
       {
-        fittedwindow.first->setWindowState(Qt::WindowMaximized);
+        fittedwindow.first->SetWindowState(Qt::WindowNoState);
 
       }
+      fittedwindow.first->VideoWindowMove(fittedwindow.second.front()->x_, fittedwindow.second.front()->y_);
+      fittedwindow.first->VideoWindowResize(fittedwindow.second.front()->width_, fittedwindow.second.front()->height_);
+      if (fittedwindow.second.front()->maximised_)
+      {
+        fittedwindow.first->SetWindowState(Qt::WindowMaximized);
+
+      }
+      fittedwindow.first->update(); // Not sure this is required, but can't hurt
 
       const uint32_t gridwidth = GridWidth(fittedwindow.second);
       const uint32_t gridheight = GridHeight(fittedwindow.second);
@@ -1609,8 +1615,26 @@ void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
   action->setData(layout->GetToken());
 }
 
-//TODO LayoutRemoved needs to clear it up now!
+void MainWindow::LayoutRemoved(const uint64_t token)
+{
+  std::vector<QAction*> removeactions;
+  for (QAction* action : ui_.menulayouts->actions())
+  {
+    if (action->data().toULongLong() == token)
+    {
+      removeactions.push_back(action);
+
+    }
+  }
+
+  for (QAction* action : removeactions)
+  {
+    ui_.menulayouts->removeAction(action);
+
+  }
+
   //TODO if the currentlayout_ is the one removed, make sure to clear it
+}
 
 void MainWindow::MapViewCreated(const QSharedPointer<MapView>& mapview)
 {

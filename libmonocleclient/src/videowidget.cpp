@@ -657,6 +657,20 @@ void VideoWidget::VideoWindowResize(const int32_t width, const int32_t height)
   }
 }
 
+void VideoWidget::SetWindowState(const Qt::WindowState windowstate)
+{
+  if (parent()->parent()->metaObject() == &VideoWindow::staticMetaObject)
+  {
+    VideoWindow* videowindow = static_cast<VideoWindow*>(parent()->parent());
+    videowindow->setWindowState(windowstate);
+  }
+  else if (parent()->parent()->metaObject() == &MainWindow::staticMetaObject)//TODO might need to check this one works
+  {
+    MainWindow* mainwindow = static_cast<MainWindow*>(parent()->parent());
+    mainwindow->setWindowState(windowstate);
+  }
+}
+
 int VideoWidget::GetVideoWindowX() const
 {
   if (parent()->parent()->metaObject() == &VideoWindow::staticMetaObject)

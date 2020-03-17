@@ -43,18 +43,42 @@ LayoutWindow::LayoutWindow(const boost::shared_ptr<Device>& device, const uint64
 
 }
 
-Layout::Layout(const boost::shared_ptr<Device>& device, const uint64_t token, const QString& name, const std::vector< QSharedPointer<LayoutWindow> >& windows) :
+Layout::Layout(const boost::shared_ptr<Device>& device, const monocle::LAYOUT& layout) :
   device_(device),
-  token_(token),
-  name_(name),
-  windows_(windows)
+  token_(layout.token_),
+  name_(QString::fromStdString(layout.name_)),
+  windows_(GetWindows(layout.windows_))
 {
-
 }
 
 Layout::~Layout()
 {
 
+}
+
+std::vector< QSharedPointer<LayoutWindow> > Layout::GetWindows(const std::vector<monocle::LAYOUTWINDOW>& layoutwindows) const
+{
+  std::vector< QSharedPointer<LayoutWindow> > windows;
+  windows.reserve(windows.size());
+  for (const monocle::LAYOUTWINDOW& window : layoutwindows)
+  {
+    std::vector< QSharedPointer<LayoutView> > maps;
+    for (const monocle::LAYOUTVIEW& map : window.maps_)
+    {
+      maps.push_back(QSharedPointer<LayoutView>::create(map.token_, map.x_, map.y_, map.width_, map.height_));
+
+    }
+
+    std::vector< QSharedPointer<LayoutView> > recordings;
+    for (const monocle::LAYOUTVIEW& recording : window.recordings_)
+    {
+      recordings.push_back(QSharedPointer<LayoutView>::create(recording.token_, recording.x_, recording.y_, recording.width_, recording.height_));
+
+    }
+
+    windows.push_back(QSharedPointer<LayoutWindow>::create(device_, window.token_, window.mainwindow_, window.maximised_, window.screenx_, window.screeny_, window.screenwidth_, window.screenheight_, window.x_, window.y_, window.width_, window.height_, window.gridwidth_, window.gridheight_, maps, recordings));
+  }
+  return windows;
 }
 
 }

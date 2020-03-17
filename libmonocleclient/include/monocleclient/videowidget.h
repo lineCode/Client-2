@@ -101,6 +101,7 @@ class VideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
 
   void VideoWindowMove(const int32_t x, const int32_t y);
   void VideoWindowResize(const int32_t width, const int32_t height);
+  void SetWindowState(const Qt::WindowState windowstate);
   int GetVideoWindowX() const;
   int GetVideoWindowY() const;
   int GetVideoWindowWidth() const;

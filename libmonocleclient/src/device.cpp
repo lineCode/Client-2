@@ -99,6 +99,7 @@ Device::Device(const sock::ProxyParams& proxyparams, const QString& address, con
   connect(this, &Connection::SignalGroupChanged, this, QOverload<const uint64_t, const QString&, const bool, const bool, const bool, const bool, const bool, const std::vector<uint64_t>&>::of(&Device::SlotGroupChanged), Qt::QueuedConnection);
   connect(this, &Connection::SignalGroupRemoved, this, QOverload<const uint64_t>::of(&Device::SlotGroupRemoved), Qt::QueuedConnection);
   connect(this, &Connection::SignalLayoutAdded, this, &Device::SlotLayoutAdded, Qt::QueuedConnection);
+  //TODO connect(this, &Connection::SignalLayoutRemoved, this, &Device::SlotLayoutRemoved, Qt::QueuedConnection);
   connect(this, &Connection::SignalMapAdded, this, QOverload<const uint64_t, const QString&, const QString&, const QString&>::of(&Device::SlotMapAdded), Qt::QueuedConnection);
   connect(this, &Connection::SignalMapChanged, this, QOverload<const uint64_t, const QString&, const QString&, const QString&>::of(&Device::SlotMapChanged), Qt::QueuedConnection);
   connect(this, &Connection::SignalMapRemoved, this, QOverload<const uint64_t>::of(&Device::SlotMapRemoved), Qt::QueuedConnection);
@@ -261,7 +262,8 @@ void Device::DestroyData()
   {
     const uint64_t token = layouts_.front()->GetToken();
     layouts_.erase(layouts_.begin());
-    //TODO emit SignalLayoutRemoved(token);
+    emit SignalLayoutRemoved(token);
+    emit MainWindow::Instance()->GetDeviceMgr().LayoutRemoved(token);
   }
 
   while (!onvifusers_.empty())
@@ -963,17 +965,18 @@ void Device::Subscribe()
             std::vector< QSharedPointer<Layout> >::iterator i = std::find_if(layouts_.begin(), layouts_.end(), [&l](const QSharedPointer<Layout>& layout) { return (layout->GetToken() == l.token_); });
             if (i == layouts_.end())
             {
-              QSharedPointer<Layout> layout = QSharedPointer<Layout>::create(boost::static_pointer_cast<Device>(shared_from_this()), l.token_, QString::fromStdString(l.name_), windows);
+              QSharedPointer<Layout> layout = QSharedPointer<Layout>::create(boost::static_pointer_cast<Device>(shared_from_this()), l);
               layouts_.push_back(layout);
               emit SignalLayoutAdded(layout);
+              emit MainWindow::Instance()->GetDeviceMgr().LayoutAdded(layout);
             }
             else
             {
-              if (((*i)->GetName().toStdString() != m.name_) || ((*i)->GetLocation().toStdString() != m.location_) || ((*i)->GetImageMD5().toStdString() != m.imagemd5_))
+              //TODO if (((*i)->GetName().toStdString() != m.name_) || ((*i)->GetLocation().toStdString() != m.location_) || ((*i)->GetImageMD5().toStdString() != m.imagemd5_))
               {
-                (*i)->SetName(QString::fromStdString(m.name_));
-                (*i)->SetLocation(QString::fromStdString(m.location_));
-                (*i)->SetImageMD5(QString::fromStdString(m.imagemd5_));
+                //TODO (*i)->SetName(QString::fromStdString(m.name_));
+                //TODO (*i)->SetLocation(QString::fromStdString(m.location_));
+                //TODO (*i)->SetImageMD5(QString::fromStdString(m.imagemd5_));
                 //TODO emit SignalLayoutChanged(*i);
               }
             }
@@ -1717,28 +1720,7 @@ void Device::SlotLayoutAdded(const monocle::LAYOUT& layout)
   std::vector< QSharedPointer<Layout> >::iterator i = std::find_if(layouts_.begin(), layouts_.end(), [&layout](const QSharedPointer<Layout>& l) { return (l->GetToken() == layout.token_); });
   if (i == layouts_.end())
   {
-    std::vector< QSharedPointer<LayoutWindow> > windows;//TODO we need this bunch of code elsewhere too
-    windows.reserve(layout.windows_.size());
-    for (const monocle::LAYOUTWINDOW& window : layout.windows_)
-    {
-      std::vector< QSharedPointer<LayoutView> > maps;
-      for (const monocle::LAYOUTVIEW& map : window.maps_)
-      {
-        maps.push_back(QSharedPointer<LayoutView>::create(map.token_, map.x_, map.y_, map.width_, map.height_));
-
-      }
-
-      std::vector< QSharedPointer<LayoutView> > recordings;
-      for (const monocle::LAYOUTVIEW& recording : window.recordings_)
-      {
-        recordings.push_back(QSharedPointer<LayoutView>::create(recording.token_, recording.x_, recording.y_, recording.width_, recording.height_));
-
-      }
-
-      windows.push_back(QSharedPointer<LayoutWindow>::create(boost::static_pointer_cast<Device>(shared_from_this()), window.token_, window.mainwindow_, window.maximised_, window.screenx_, window.screeny_, window.screenwidth_, window.screenheight_, window.x_, window.y_, window.width_, window.height_, window.gridwidth_, window.gridheight_, maps, recordings));
-    }
-    //TODO I think we just get the client::Layout to accept a monocle::LAYOUT in its constructor and we're good?
-    QSharedPointer<Layout> l = QSharedPointer<Layout>::create(boost::static_pointer_cast<Device>(shared_from_this()), layout.token_, QString::fromStdString(layout.name_), windows);
+    QSharedPointer<Layout> l = QSharedPointer<Layout>::create(boost::static_pointer_cast<Device>(shared_from_this()), layout);
     layouts_.push_back(l);
     emit SignalLayoutAdded(l);
     emit MainWindow::Instance()->GetDeviceMgr().LayoutAdded(l);
@@ -1842,7 +1824,7 @@ void Device::SlotNameChanged(const QString& name)
   name_ = name;
 
 }
-//TODO layout copy
+
 void Device::SlotReceiverAdded(const uint64_t token, const monocle::ReceiverMode mode, const QString& mediauri, const bool autocreated, const QString& username, const QString& password, const std::vector<QString>& parameters, const monocle::ReceiverState state)
 {
   if (state_ != DEVICESTATE::SUBSCRIBED)
@@ -1874,7 +1856,7 @@ void Device::SlotReceiverAdded(const uint64_t token, const monocle::ReceiverMode
     }
   }
 }
-//TODO layout copy
+
 void Device::SlotReceiverChanged(const uint64_t token, const monocle::ReceiverMode mode, const QString& mediauri, const bool autocreated, const QString& username, const QString& password, const std::vector<QString>& parameters)
 {
   if (state_ != DEVICESTATE::SUBSCRIBED)
@@ -1893,7 +1875,7 @@ void Device::SlotReceiverChanged(const uint64_t token, const monocle::ReceiverMo
   (*r)->SetConfiguration(mode, mediauri, autocreated, username, password, parameters);
   emit SignalReceiverChanged(*r);
 }
-//TODO layout copy
+
 void Device::SlotReceiverRemoved(const uint64_t token)
 {
   if (state_ != DEVICESTATE::SUBSCRIBED)

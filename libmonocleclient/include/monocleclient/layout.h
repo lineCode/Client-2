@@ -7,6 +7,7 @@
 ///// Includes /////
 
 #include <boost/shared_ptr.hpp>
+#include <monocleprotocol/monocleprotocol.hpp>
 #include <QObject>
 #include <QSharedPointer>
 #include <QString>
@@ -74,7 +75,7 @@ class Layout : public QObject
 
  public:
 
-  Layout(const boost::shared_ptr<Device>& device, const uint64_t token, const QString& name, const std::vector< QSharedPointer<LayoutWindow> >& windows);
+  Layout(const boost::shared_ptr<Device>& device, const monocle::LAYOUT& layout);
   ~Layout();
 
   inline uint64_t GetToken() const { return token_; }
@@ -82,6 +83,8 @@ class Layout : public QObject
   inline const std::vector< QSharedPointer<LayoutWindow> >& GetWindows() const { return windows_; }
 
  private:
+
+  std::vector< QSharedPointer<LayoutWindow> > GetWindows(const std::vector<monocle::LAYOUTWINDOW>& windows) const;
 
   boost::shared_ptr<Device> device_;
   uint64_t token_;
