@@ -224,7 +224,7 @@ uint64_t DeviceMgr::GetUniqueLayoutToken() const
 {
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_int_distribution<uint64_t> dist(1, std::numeric_limits<uint64_t>::max());
+  std::uniform_int_distribution<uint64_t> dist(1, std::numeric_limits<int64_t>::max());
   std::lock_guard<std::recursive_mutex> lock(mutex_);
   uint64_t newtoken = 0;
   while (true)

@@ -242,6 +242,39 @@ std::vector< flatbuffers::Offset<MountPoint> > GetMountPointBuffers(const std::v
   return mountpointsbuffer;
 }
 
+std::vector< flatbuffers::Offset<Layout> > GetLayoutBuffers(const std::vector<LAYOUT>& layouts, flatbuffers::FlatBufferBuilder& fbb)
+{
+  std::vector < flatbuffers::Offset<Layout> > layoutsbuffer;
+  layoutsbuffer.reserve(layouts.size());
+  for (const LAYOUT& layout : layouts)
+  {
+    std::vector< flatbuffers::Offset<LayoutWindow> > windowsbuffer;
+    windowsbuffer.reserve(layout.windows_.size());
+    for (const LAYOUTWINDOW& window : layout.windows_)
+    {
+      std::vector< flatbuffers::Offset<LayoutView> > mapsbuffer;
+      mapsbuffer.reserve(window.maps_.size());
+      for (const LAYOUTVIEW& map : window.maps_)
+      {
+        mapsbuffer.push_back(CreateLayoutView(fbb, map.token_, map.x_, map.y_, map.width_, map.height_));
+
+      }
+
+      std::vector< flatbuffers::Offset<LayoutView> > recordingsbuffer;
+      recordingsbuffer.reserve(window.recordings_.size());
+      for (const LAYOUTVIEW& recording : window.recordings_)
+      {
+        recordingsbuffer.push_back(CreateLayoutView(fbb, recording.token_, recording.x_, recording.y_, recording.width_, recording.height_));
+
+      }
+
+      windowsbuffer.push_back(CreateLayoutWindow(fbb, window.token_, window.mainwindow_, window.maximised_, window.screenx_, window.screeny_, window.screenwidth_, window.screenheight_, window.x_, window.y_, window.width_, window.height_, window.gridwidth_, window.gridheight_, fbb.CreateVector(mapsbuffer), fbb.CreateVector(recordingsbuffer)));
+    }
+    layoutsbuffer.push_back(CreateLayout(fbb, layout.token_, fbb.CreateString(layout.name_), fbb.CreateVector(windowsbuffer)));
+  }
+  return layoutsbuffer;
+}
+
 ///// Methods /////
 
 AUTHENTICATERESPONSE::AUTHENTICATERESPONSE()
@@ -288,7 +321,7 @@ GETSTATE::GETSTATE()
 
 }
 
-GETSTATE::GETSTATE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude) :
+GETSTATE::GETSTATE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<LAYOUT>& layouts, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude) :
   name_(name),
   publickey_(publickey),
   architecture_(architecture),
@@ -307,6 +340,7 @@ GETSTATE::GETSTATE(const std::string& name, const std::string& publickey, const 
   recordings_(recordings),
   serverlogmessages_(serverlogmessages),
   maxrecordings_(maxrecordings),
+  layouts_(layouts),
   maps_(maps),
   mountpoints_(mountpoints),
   latitude_(latitude),
@@ -725,7 +759,7 @@ SUBSCRIBE::SUBSCRIBE()
 
 }
 
-SUBSCRIBE::SUBSCRIBE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude, const unsigned int numcudadevices, const unsigned int numcldevices, const uint32_t maxobjectdetectors) :
+SUBSCRIBE::SUBSCRIBE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<LAYOUT>& layouts, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude, const unsigned int numcudadevices, const unsigned int numcldevices, const uint32_t maxobjectdetectors) :
   name_(name),
   publickey_(publickey),
   architecture_(architecture),
@@ -744,6 +778,7 @@ SUBSCRIBE::SUBSCRIBE(const std::string& name, const std::string& publickey, cons
   recordings_(recordings),
   serverlogmessages_(serverlogmessages),
   maxrecordings_(maxrecordings),
+  layouts_(layouts),
   maps_(maps),
   mountpoints_(mountpoints),
   latitude_(latitude),

@@ -308,7 +308,7 @@ struct GETSNAPSHOTRESPONSE : public RESPONSE
 
 struct GETSTATERESPONSE : public RESPONSE
 {
-  GETSTATERESPONSE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentalvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude);
+  GETSTATERESPONSE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentalvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<LAYOUT>& layouts, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude);
   GETSTATERESPONSE(const Error& error);
 
   std::string name_;
@@ -329,6 +329,7 @@ struct GETSTATERESPONSE : public RESPONSE
   std::vector<RECORDING> recordings_;
   std::vector<LOGMESSAGE> serverlogmessages_;
   uint32_t maxrecordings_;
+  std::vector<LAYOUT> layouts_;
   std::vector<MAP> maps_;
   std::vector<MOUNTPOINT> mountpoints_;
   std::string latitude_;
@@ -452,7 +453,7 @@ struct SETNAMERESPONSE : public RESPONSE
 
 struct SUBSCRIBERESPONSE : public RESPONSE
 {
-  SUBSCRIBERESPONSE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentalvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude, const unsigned int numcudadevices, const unsigned int numcldevices, const uint32_t maxobjectdetectors);
+  SUBSCRIBERESPONSE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentalvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<LAYOUT>& layouts, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude, const unsigned int numcudadevices, const unsigned int numcldevices, const uint32_t maxobjectdetectors);
   SUBSCRIBERESPONSE(const Error& error);
 
   std::string name_;
@@ -473,6 +474,7 @@ struct SUBSCRIBERESPONSE : public RESPONSE
   std::vector<RECORDING> recordings_;
   std::vector<LOGMESSAGE> serverlogmessages_;
   uint32_t maxrecordings_;
+  std::vector<LAYOUT> layouts_;
   std::vector<MAP> maps_;
   std::vector<MOUNTPOINT> mountpoints_;
   std::string latitude_;

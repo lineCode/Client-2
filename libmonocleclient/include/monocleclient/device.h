@@ -218,6 +218,7 @@ class Device : public Connection
   void SignalGroupChanged(QSharedPointer<Group>& group);
   void SignalGroupRemoved(const uint64_t token);
   void SignalLayoutAdded(const QSharedPointer<Layout>& layout);
+  void SignalLayoutRemoved(const uint64_t token);
   //TODO layout signals
   void SignalLatency(const std::chrono::steady_clock::duration latency);
   void SignalMapAdded(const QSharedPointer<Map>& map);

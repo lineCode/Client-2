@@ -928,44 +928,6 @@ void Device::Subscribe()
             }
           }
 
-          // Add and update maps
-          for (const monocle::MAP& m : subscriberesponse.maps_)
-          {
-            std::vector< QSharedPointer<Map> >::iterator i = std::find_if(maps_.begin(), maps_.end(), [&m](const QSharedPointer<Map>& map) { return (map->GetToken() == m.token_); });
-            if (i == maps_.end())
-            {
-              QSharedPointer<Map> map = QSharedPointer<Map>::create(boost::static_pointer_cast<Device>(shared_from_this()), m.token_, QString::fromStdString(m.name_), QString::fromStdString(m.location_), QString::fromStdString(m.imagemd5_));
-              maps_.push_back(map);
-              emit SignalMapAdded(map);
-            }
-            else
-            {
-              if (((*i)->GetName().toStdString() != m.name_) || ((*i)->GetLocation().toStdString() != m.location_) || ((*i)->GetImageMD5().toStdString() != m.imagemd5_))
-              {
-                (*i)->SetName(QString::fromStdString(m.name_));
-                (*i)->SetLocation(QString::fromStdString(m.location_));
-                (*i)->SetImageMD5(QString::fromStdString(m.imagemd5_));
-                emit SignalMapChanged(*i);
-              }
-            }
-          }
-
-          // Remove any maps which do not appear
-          for (std::vector< QSharedPointer<Map> >::iterator i = maps_.begin(); i != maps_.end();)
-          {
-            if (std::find_if(subscriberesponse.maps_.cbegin(), subscriberesponse.maps_.cend(), [i](const monocle::MAP& g) { return (g.token_ == (*i)->GetToken()); }) == subscriberesponse.maps_.cend())
-            {
-              const uint64_t token = (*i)->GetToken();
-              i = maps_.erase(i);
-              emit SignalMapRemoved(token);
-            }
-            else
-            {
-              ++i;
-
-            }
-          }
-
           // Add and update mount points
           for (const monocle::MOUNTPOINT& m : subscriberesponse.mountpoints_)
           {
@@ -978,7 +940,7 @@ void Device::Subscribe()
             }
           }
 
-          // Remove any maps which do not appear
+          // Remove any mount points which do not appear
           for (std::vector<MOUNTPOINT>::iterator i = mountpoints_.begin(); i != mountpoints_.end();)
           {
             const monocle::MOUNTPOINT mountpoint = monocle::MOUNTPOINT(i->id_, i->parentid_, i->majorstdev_, i->minorstdev_, i->path_.toStdString(), i->type_.toStdString(), i->source_.toStdString());
@@ -995,7 +957,43 @@ void Device::Subscribe()
             }
           }
 
-          //TODO layouts... copy how receivers work inside this function
+          // Add and update layouts
+          for (const monocle::LAYOUT& l : subscriberesponse.layouts_)
+          {
+            std::vector< QSharedPointer<Layout> >::iterator i = std::find_if(layouts_.begin(), layouts_.end(), [&l](const QSharedPointer<Layout>& layout) { return (layout->GetToken() == l.token_); });
+            if (i == layouts_.end())
+            {
+              QSharedPointer<Layout> layout = QSharedPointer<Layout>::create(boost::static_pointer_cast<Device>(shared_from_this()), l.token_, QString::fromStdString(l.name_), windows);
+              layouts_.push_back(layout);
+              emit SignalLayoutAdded(layout);
+            }
+            else
+            {
+              if (((*i)->GetName().toStdString() != m.name_) || ((*i)->GetLocation().toStdString() != m.location_) || ((*i)->GetImageMD5().toStdString() != m.imagemd5_))
+              {
+                (*i)->SetName(QString::fromStdString(m.name_));
+                (*i)->SetLocation(QString::fromStdString(m.location_));
+                (*i)->SetImageMD5(QString::fromStdString(m.imagemd5_));
+                //TODO emit SignalLayoutChanged(*i);
+              }
+            }
+          }
+
+          // Remove any layouts which do not appear
+          for (std::vector< QSharedPointer<Layout> >::iterator i = layouts_.begin(); i != layouts_.end();)
+          {
+            if (std::find_if(subscriberesponse.layouts_.cbegin(), subscriberesponse.layouts_.cend(), [i](const monocle::LAYOUT& l) { return (l.token_ == (*i)->GetToken()); }) == subscriberesponse.layouts_.cend())
+            {
+              const uint64_t token = (*i)->GetToken();
+              i = layouts_.erase(i);
+              emit SignalLayoutRemoved(token);
+            }
+            else
+            {
+              ++i;
+
+            }
+          }
 
           SetState(DEVICESTATE::SUBSCRIBED, QString());
           emit SignalLicenseStateChanged(IsValidLicense());
@@ -1719,7 +1717,7 @@ void Device::SlotLayoutAdded(const monocle::LAYOUT& layout)
   std::vector< QSharedPointer<Layout> >::iterator i = std::find_if(layouts_.begin(), layouts_.end(), [&layout](const QSharedPointer<Layout>& l) { return (l->GetToken() == layout.token_); });
   if (i == layouts_.end())
   {
-    std::vector< QSharedPointer<LayoutWindow> > windows;
+    std::vector< QSharedPointer<LayoutWindow> > windows;//TODO we need this bunch of code elsewhere too
     windows.reserve(layout.windows_.size());
     for (const monocle::LAYOUTWINDOW& window : layout.windows_)
     {
@@ -1739,7 +1737,7 @@ void Device::SlotLayoutAdded(const monocle::LAYOUT& layout)
 
       windows.push_back(QSharedPointer<LayoutWindow>::create(boost::static_pointer_cast<Device>(shared_from_this()), window.token_, window.mainwindow_, window.maximised_, window.screenx_, window.screeny_, window.screenwidth_, window.screenheight_, window.x_, window.y_, window.width_, window.height_, window.gridwidth_, window.gridheight_, maps, recordings));
     }
-
+    //TODO I think we just get the client::Layout to accept a monocle::LAYOUT in its constructor and we're good?
     QSharedPointer<Layout> l = QSharedPointer<Layout>::create(boost::static_pointer_cast<Device>(shared_from_this()), layout.token_, QString::fromStdString(layout.name_), windows);
     layouts_.push_back(l);
     emit SignalLayoutAdded(l);

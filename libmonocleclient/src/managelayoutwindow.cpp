@@ -56,7 +56,7 @@ void ManageLayoutWindow::on_buttonok_clicked()
 
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_int_distribution<uint64_t> dist(1, std::numeric_limits<uint64_t>::max());
+  std::uniform_int_distribution<uint64_t> dist(1, std::numeric_limits<int64_t>::max());
 
   std::vector< std::pair<uint64_t, VideoWidget*> > videowidgets;
 

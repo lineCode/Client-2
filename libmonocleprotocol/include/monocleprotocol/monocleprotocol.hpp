@@ -22,6 +22,7 @@
 #include "monocleprotocol/group_generated.h"
 #include "monocleprotocol/gpustat_generated.h"
 #include "monocleprotocol/header_generated.h"
+#include "monocleprotocol/layout_generated.h"
 #include "monocleprotocol/logmessage_generated.h"
 #include "monocleprotocol/onvifuser_generated.h"
 #include "monocleprotocol/map_generated.h"
@@ -445,7 +446,7 @@ struct MOUNTPOINT
 struct GETSTATE
 {
   GETSTATE();
-  GETSTATE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude);
+  GETSTATE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<LAYOUT>& layouts, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude);
 
   std::string name_;
   std::string publickey_;
@@ -465,6 +466,7 @@ struct GETSTATE
   std::vector<RECORDING> recordings_;
   std::vector<LOGMESSAGE> serverlogmessages_;
   uint32_t maxrecordings_;
+  std::vector<LAYOUT> layouts_;
   std::vector<MAP> maps_;
   std::vector<MOUNTPOINT> mountpoints_;
   std::string latitude_;
@@ -475,7 +477,7 @@ struct GETSTATE
 struct SUBSCRIBE
 {
   SUBSCRIBE();
-  SUBSCRIBE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude, const unsigned int numcudadevices, const unsigned int numcldevices, const uint32_t maxobjectdetectors);
+  SUBSCRIBE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<LAYOUT>& layouts, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude, const unsigned int numcudadevices, const unsigned int numcldevices, const uint32_t maxobjectdetectors);
 
   std::string name_;
   std::string publickey_;
@@ -495,6 +497,7 @@ struct SUBSCRIBE
   std::vector<RECORDING> recordings_;
   std::vector<LOGMESSAGE> serverlogmessages_;
   uint32_t maxrecordings_;
+  std::vector<LAYOUT> layouts_;
   std::vector<MAP> maps_;
   std::vector<MOUNTPOINT> mountpoints_;
   std::string latitude_;
@@ -568,6 +571,7 @@ std::vector< flatbuffers::Offset<RecordingJobSource> > GetRecordingJobSourceBuff
 std::vector< flatbuffers::Offset<LogMessage> > GetLogMessagesBuffer(const std::vector<LOGMESSAGE>& logmessages, flatbuffers::FlatBufferBuilder& fbb);
 std::vector< flatbuffers::Offset<Map> > GetMapBuffers(const std::vector<MAP>& maps, flatbuffers::FlatBufferBuilder& fbb);
 std::vector< flatbuffers::Offset<MountPoint> > GetMountPointBuffers(const std::vector<MOUNTPOINT>& mountpoints, flatbuffers::FlatBufferBuilder& fbb);
+std::vector< flatbuffers::Offset<Layout> > GetLayoutBuffers(const std::vector<LAYOUT>& layouts, flatbuffers::FlatBufferBuilder& fbb);
 
 }
 

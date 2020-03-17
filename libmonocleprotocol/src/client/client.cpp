@@ -4371,6 +4371,48 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         }
       }
 
+      // Layouts
+      std::vector<LAYOUT> layouts;
+      if (getstateresponse->layouts())
+      {
+        layouts.reserve(getstateresponse->layouts()->size());
+        for (const monocle::Layout* layout : *getstateresponse->layouts())
+        {
+          std::vector<LAYOUTWINDOW> windows;
+          if (layout->windows())
+          {
+            windows.reserve(layout->windows()->size());
+            for (const monocle::LayoutWindow* window : *layout->windows())
+            {
+              std::vector<LAYOUTVIEW> maps;
+              if (window->maps())
+              {
+                maps.reserve(window->maps()->size());
+                for (const monocle::LayoutView* map : *window->maps())
+                {
+                  maps.push_back(LAYOUTVIEW(map->token(), map->x(), map->y(), map->width(), map->height()));
+
+                }
+              }
+
+              std::vector<LAYOUTVIEW> recordings;
+              if (window->recordings())
+              {
+                recordings.reserve(window->recordings()->size());
+                for (const monocle::LayoutView* recording : *window->recordings())
+                {
+                  recordings.push_back(LAYOUTVIEW(recording->token(), recording->x(), recording->y(), recording->width(), recording->height()));
+
+                }
+              }
+
+              windows.push_back(LAYOUTWINDOW(window->token(), window->mainwindow(), window->maximised(), window->screenx(), window->screeny(), window->screenwidth(), window->screenheight(), window->x(), window->y(), window->width(), window->height(), window->gridwidth(), window->gridheight(), maps, recordings));
+            }
+          }
+          layouts.push_back(LAYOUT(layout->token(), layout->name() ? layout->name()->str() : std::string(), windows));
+        }
+      }
+
       // Maps
       std::vector<MAP> maps;
       if (getstateresponse->maps())
@@ -4426,7 +4468,7 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         longitude = getstateresponse->longitude()->str();
       }
 
-      getstate_.Response(sequence, GETSTATERESPONSE(name, publickey, architecture, getstateresponse->operatingsystem(), compiler, databasepath, version, getstateresponse->identifier(), environmentvariables, commandlinevariables, onvifusers.second, groups.second, users.second, files.second, receivers.second, recordings.second, serverlogmessages, getstateresponse->maxrecordings(), maps, mountpoints, latitude, longitude));
+      getstate_.Response(sequence, GETSTATERESPONSE(name, publickey, architecture, getstateresponse->operatingsystem(), compiler, databasepath, version, getstateresponse->identifier(), environmentvariables, commandlinevariables, onvifusers.second, groups.second, users.second, files.second, receivers.second, recordings.second, serverlogmessages, getstateresponse->maxrecordings(), layouts, maps, mountpoints, latitude, longitude));
       break;
     }
     case Message::GETTIME:
@@ -6694,6 +6736,48 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         }
       }
 
+      // Layouts
+      std::vector<LAYOUT> layouts;
+      if (subscriberesponse->layouts())
+      {
+        layouts.reserve(subscriberesponse->layouts()->size());
+        for (const monocle::Layout* layout : *subscriberesponse->layouts())
+        {
+          std::vector<LAYOUTWINDOW> windows;
+          if (layout->windows())
+          {
+            windows.reserve(layout->windows()->size());
+            for (const monocle::LayoutWindow* window : *layout->windows())
+            {
+              std::vector<LAYOUTVIEW> maps;
+              if (window->maps())
+              {
+                maps.reserve(window->maps()->size());
+                for (const monocle::LayoutView* map : *window->maps())
+                {
+                  maps.push_back(LAYOUTVIEW(map->token(), map->x(), map->y(), map->width(), map->height()));
+
+                }
+              }
+
+              std::vector<LAYOUTVIEW> recordings;
+              if (window->recordings())
+              {
+                recordings.reserve(window->recordings()->size());
+                for (const monocle::LayoutView* recording : *window->recordings())
+                {
+                  recordings.push_back(LAYOUTVIEW(recording->token(), recording->x(), recording->y(), recording->width(), recording->height()));
+
+                }
+              }
+
+              windows.push_back(LAYOUTWINDOW(window->token(), window->mainwindow(), window->maximised(), window->screenx(), window->screeny(), window->screenwidth(), window->screenheight(), window->x(), window->y(), window->width(), window->height(), window->gridwidth(), window->gridheight(), maps, recordings));
+            }
+          }
+          layouts.push_back(LAYOUT(layout->token(), layout->name() ? layout->name()->str() : std::string(), windows));
+        }
+      }
+
       // Maps
       std::vector<MAP> maps;
       if (subscriberesponse->maps())
@@ -6749,7 +6833,7 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         longitude = subscriberesponse->longitude()->str();
       }
 
-      subscribe_.Response(sequence, SUBSCRIBERESPONSE(name, publickey, architecture, subscriberesponse->operatingsystem(), compiler, databasepath, version, subscriberesponse->identifier(), environmentvariables, commandlinevariables, onvifusers.second, groups.second, users.second, files.second, receivers.second, recordings.second, serverlogmessages, subscriberesponse->maxrecordings(), maps, mountpoints, latitude, longitude, subscriberesponse->numcudadevices(), subscriberesponse->numcldevices(), subscriberesponse->maxobjectdetectors()));
+      subscribe_.Response(sequence, SUBSCRIBERESPONSE(name, publickey, architecture, subscriberesponse->operatingsystem(), compiler, databasepath, version, subscriberesponse->identifier(), environmentvariables, commandlinevariables, onvifusers.second, groups.second, users.second, files.second, receivers.second, recordings.second, serverlogmessages, subscriberesponse->maxrecordings(), layouts, maps, mountpoints, latitude, longitude, subscriberesponse->numcudadevices(), subscriberesponse->numcldevices(), subscriberesponse->maxobjectdetectors()));
       break;
     }
     case Message::SUBSCRIBEDISCOVERY:
