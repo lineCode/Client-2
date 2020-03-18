@@ -173,6 +173,8 @@ class Connection : public boost::enable_shared_from_this<Connection>
   boost::system::error_code SendJPEGFrame(const uint64_t stream, const uint64_t playrequest, const uint64_t codecindex, const uint64_t timestamp, const boost::optional<uint64_t>& sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const uint8_t* lqt, const uint8_t* cqt, const char* data, const size_t size);
   boost::system::error_code SendLocationChanged(const std::string& latitude, const std::string& location);
   boost::system::error_code SendLayoutAdded(const monocle::LAYOUT& layout);
+  boost::system::error_code SendLayoutChanged(const monocle::LAYOUT& layout);
+  boost::system::error_code SendLayoutNameChanged(const uint64_t usertoken, const uint64_t token, const std::string& name);
   boost::system::error_code SendLayoutRemoved(const uint64_t token);
   boost::system::error_code SendMapAdded(const uint64_t token, const std::string& name, const std::string& location, const std::string& imagemd5);
   boost::system::error_code SendMapChanged(const uint64_t token, const std::string& name, const std::string& location, const std::string& imagemd5);

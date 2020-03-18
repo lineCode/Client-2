@@ -81,6 +81,7 @@
 #include "monocleprotocol/jpegframeheader_generated.h"
 #include "monocleprotocol/layoutadded_generated.h"
 #include "monocleprotocol/layoutchanged_generated.h"
+#include "monocleprotocol/layoutnamechanged_generated.h"
 #include "monocleprotocol/layoutremoved_generated.h"
 #include "monocleprotocol/locationchanged_generated.h"
 #include "monocleprotocol/mapadded_generated.h"
@@ -659,6 +660,18 @@ boost::system::error_code Connection::SendLayoutAdded(const monocle::LAYOUT& lay
   boost::system::error_code err;
   boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
   return err;
+}
+
+boost::system::error_code Connection::SendLayoutChanged(const monocle::LAYOUT& layout)
+{
+  //TODO
+
+}
+
+boost::system::error_code Connection::SendLayoutNameChanged(const uint64_t usertoken, const uint64_t token, const std::string& name)
+{
+  //TODO
+
 }
 
 boost::system::error_code Connection::SendLayoutRemoved(const uint64_t token)
