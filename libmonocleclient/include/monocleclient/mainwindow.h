@@ -7,6 +7,7 @@
 ///// Includes /////
 
 #include <boost/filesystem/path.hpp>
+#include <boost/optional.hpp>
 #include <cuda.h>
 #include <memory>
 #include <QDir>
@@ -276,6 +277,7 @@ class MainWindow : public QMainWindow
   std::vector<uint64_t> newdeviceidentifiers_; // A list of devices we have asked the user to add
   std::vector< std::pair<bool, QString> > newcameras_; // A list of cameras we have asked the user to add <Save to disk, address>
 
+  boost::optional<uint64_t> currentlayout_;
 
  private slots:
 

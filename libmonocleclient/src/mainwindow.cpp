@@ -1610,8 +1610,8 @@ void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
       }
     }
 
-    //TODO set currentlayout_ to the token(NOT the QSharedPointer, because it would be specific to only one device
-  
+    currentlayout_ = token;
+    ui_.actionsavecurrentlayout->setEnabled(true);
   });
   action->setData(layout->GetToken());
 }
@@ -1634,7 +1634,11 @@ void MainWindow::LayoutRemoved(const uint64_t token)
 
   }
 
-  //TODO if the currentlayout_ is the one removed, make sure to clear it
+  if (currentlayout_.is_initialized() && (*currentlayout_ == token))
+  {
+    currentlayout_.reset();
+    ui_.actionsavecurrentlayout->setEnabled(false);
+  }
 }
 
 void MainWindow::MapViewCreated(const QSharedPointer<MapView>& mapview)
@@ -1782,7 +1786,14 @@ void MainWindow::on_actionmanagelayouts_triggered()
 
 void MainWindow::on_actionsavecurrentlayout_triggered()
 {
+  if (!currentlayout_.is_initialized()) // This shouldn't happen, but just in case...
+  {
+    on_actionsavecurrentlayoutas_triggered();
+    return;
+  }
+
   //TODO we will need to use ChangeLayout and AddLayout AND RemoveLayout as ManageLayoutWindow does
+    //TODO should look very similar to ManageLayoutWindow when it saves...
 
   //TODO look at currentlayout_
 
@@ -1790,10 +1801,12 @@ void MainWindow::on_actionsavecurrentlayout_triggered()
 
 void MainWindow::on_actionsavecurrentlayoutas_triggered()
 {
-  ManageLayoutWindow(this).exec();
-
-  //TODO set currentlayout_ I think
-
+  ManageLayoutWindow managelayoutwindow(this);
+  if (managelayoutwindow.exec())
+  {
+    currentlayout_ = managelayoutwindow.token_;
+    ui_.actionsavecurrentlayout->setEnabled(true);
+  }
 }
 
 void MainWindow::on_actionfindmotion_toggled()

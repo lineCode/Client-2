@@ -30,7 +30,8 @@ namespace client
 ///// Methods /////
 
 ManageLayoutWindow::ManageLayoutWindow(QWidget* parent) :
-  QDialog(parent)
+  QDialog(parent),
+  token_(0)
 {
   ui_.setupUi(this);
 
@@ -147,13 +148,14 @@ void ManageLayoutWindow::on_buttonok_clicked()
   for (const std::pair< boost::shared_ptr<Device>, monocle::LAYOUT>& layout : layouts)
   {
     ++(*count);
-    connections_.push_back(layout.first->AddLayout(layout.second, [this, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::ADDLAYOUTRESPONSE& addlayoutresponse)
+    connections_.push_back(layout.first->AddLayout(layout.second, [this, token, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::ADDLAYOUTRESPONSE& addlayoutresponse)
     {
       errors->push_back(addlayoutresponse.error_);
       if ((--(*count)) == 0)
       {
         if (std::all_of(errors->cbegin(), errors->cend(), [](const monocle::Error& error) { return (error.code_ == monocle::ErrorCode::Success); }))
         {
+          token_ = token;
           accept();
           return;
         }

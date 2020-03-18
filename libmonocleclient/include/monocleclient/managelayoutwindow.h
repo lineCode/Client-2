@@ -31,6 +31,8 @@ class ManageLayoutWindow : public QDialog
   ManageLayoutWindow(QWidget* parent);
   virtual ~ManageLayoutWindow();
 
+  uint64_t token_;
+
  private:
 
   Ui::ManageLayoutWindow ui_;
