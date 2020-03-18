@@ -49,11 +49,19 @@ Layout::Layout(const boost::shared_ptr<Device>& device, const monocle::LAYOUT& l
   name_(QString::fromStdString(layout.name_)),
   windows_(GetWindows(layout.windows_))
 {
+
 }
 
 Layout::~Layout()
 {
 
+}
+
+void Layout::SetConfiguration(const monocle::LAYOUT& layout)
+{
+  token_ = layout.token_;
+  name_ = QString::fromStdString(layout.name_);
+  windows_ = GetWindows(layout.windows_);
 }
 
 std::vector< QSharedPointer<LayoutWindow> > Layout::GetWindows(const std::vector<monocle::LAYOUTWINDOW>& layoutwindows) const

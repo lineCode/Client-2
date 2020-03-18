@@ -71,7 +71,7 @@ class DeviceMgr : public QObject
   void DeviceAdded(const boost::shared_ptr<Device>& device);
   void DeviceRemoved(const boost::shared_ptr<Device>& device);
   void LayoutAdded(const QSharedPointer<Layout>& layout);
-  //TODO LayoutChanged this is for renames in the menu
+  void LayoutChanged(const QSharedPointer<Layout>& layout);
   void LayoutRemoved(const uint64_t token);
   void RecordingRemoved(const boost::shared_ptr<Device>& device, const uint64_t recordingtoken);
   void TimeOffsetChanged(const boost::shared_ptr<Device>& device);

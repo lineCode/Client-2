@@ -1689,7 +1689,7 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
         return SendErrorResponse(Message::ADDLAYOUT, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
       }
 
-      const Error error = AddLayout(GetLayout(addlayoutrequest->layout()));
+      const Error error = AddLayout(GetLayout(*addlayoutrequest->layout()));
       if (error.code_ != ErrorCode::Success)
       {
 
@@ -2272,7 +2272,7 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
         return SendErrorResponse(Message::CHANGELAYOUT, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
       }
 
-      const Error error = ChangeLayout(GetLayout(changelayoutrequest->layout()));
+      const Error error = ChangeLayout(GetLayout(*changelayoutrequest->layout()));
       if (error.code_ != ErrorCode::Success)
       {
 
@@ -4125,42 +4125,6 @@ void Connection::InitCompression()
     // We make a fairly safe assumption that this will not fail
 
   }
-}
-
-monocle::LAYOUT Connection::GetLayout(const monocle::Layout* layout) const
-{
-  std::vector<monocle::LAYOUTWINDOW> windows;
-  if (layout->windows())
-  {
-    windows.reserve(layout->windows()->size());
-    for (const monocle::LayoutWindow* window : *layout->windows())
-    {
-      std::vector<monocle::LAYOUTVIEW> maps;
-      if (window->maps())
-      {
-        maps.reserve(window->maps()->size());
-        for (const monocle::LayoutView* map : *window->maps())
-        {
-          maps.push_back(monocle::LAYOUTVIEW(map->token(), map->x(), map->y(), map->width(), map->height()));
-
-        }
-      }
-
-      std::vector<monocle::LAYOUTVIEW> recordings;
-      if (window->recordings())
-      {
-        recordings.reserve(window->recordings()->size());
-        for (const monocle::LayoutView* recording : *window->recordings())
-        {
-          recordings.push_back(monocle::LAYOUTVIEW(recording->token(), recording->x(), recording->y(), recording->width(), recording->height()));
-
-        }
-      }
-
-      windows.push_back(monocle::LAYOUTWINDOW(window->token(), window->mainwindow(), window->maximised(), window->screenx(), window->screeny(), window->screenwidth(), window->screenheight(), window->x(), window->y(), window->width(), window->height(), window->gridwidth(), window->gridheight(), maps, recordings));
-    }
-  }
-  return monocle::LAYOUT(layout->token(), layout->name() ? layout->name()->str() : std::string(), windows);
 }
 
 }

@@ -36,7 +36,7 @@ ManageLayoutsWindow::ManageLayoutsWindow(QWidget* parent) :
 
   connect(ui_.buttonok, &QPushButton::clicked, this, &QDialog::accept);
   connect(&MainWindow::Instance()->GetDeviceMgr(), &DeviceMgr::LayoutAdded, this, &ManageLayoutsWindow::LayoutAdded);
-  //TODO connect(&MainWindow::Instance()->GetDeviceMgr(), &DeviceMgr::LayoutChanged, this, &ManageLayoutsWindow::LayoutChanged);
+  connect(&MainWindow::Instance()->GetDeviceMgr(), &DeviceMgr::LayoutChanged, this, &ManageLayoutsWindow::LayoutChanged);
   connect(&MainWindow::Instance()->GetDeviceMgr(), &DeviceMgr::LayoutRemoved, this, &ManageLayoutsWindow::LayoutRemoved);
   
   for (const QSharedPointer<Layout>& layout : MainWindow::Instance()->GetDeviceMgr().GetLayouts())

@@ -249,7 +249,6 @@ class Connection : public boost::enable_shared_from_this<Connection>
  private:
 
   void InitCompression();
-  monocle::LAYOUT GetLayout(const monocle::Layout* layout) const;
 
 };
 

@@ -1782,6 +1782,8 @@ void MainWindow::on_actionmanagelayouts_triggered()
 
 void MainWindow::on_actionsavecurrentlayout_triggered()
 {
+  //TODO we will need to use ChangeLayout and AddLayout AND RemoveLayout as ManageLayoutWindow does
+
   //TODO look at currentlayout_
 
 }

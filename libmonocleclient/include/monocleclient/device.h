@@ -218,8 +218,8 @@ class Device : public Connection
   void SignalGroupChanged(QSharedPointer<Group>& group);
   void SignalGroupRemoved(const uint64_t token);
   void SignalLayoutAdded(const QSharedPointer<Layout>& layout);
+  void SignalLayoutChanged(const QSharedPointer<Layout>& layout);
   void SignalLayoutRemoved(const uint64_t token);
-  //TODO layout signals
   void SignalLatency(const std::chrono::steady_clock::duration latency);
   void SignalMapAdded(const QSharedPointer<Map>& map);
   void SignalMapChanged(const QSharedPointer<Map>& map);
@@ -269,7 +269,7 @@ class Device : public Connection
   void SlotGroupChanged(const uint64_t token, const QString& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
   void SlotGroupRemoved(const uint64_t token);
   void SlotLayoutAdded(const monocle::LAYOUT& layout);
-  //TODO SlotLayoutChanged
+  void SlotLayoutChanged(const monocle::LAYOUT& layout);
   void SlotLayoutRemoved(const uint64_t token);
   void SlotMapAdded(const uint64_t token, const QString& name, const QString& location, const QString& imagemd5);
   void SlotMapChanged(const uint64_t token, const QString& name, const QString& location, const QString& imagemd5);

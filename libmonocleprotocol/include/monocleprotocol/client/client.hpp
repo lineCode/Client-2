@@ -545,10 +545,6 @@ class Client : public boost::enable_shared_from_this<Client>
   z_stream inflate_;
   std::vector<char> inflatebuffer_;
 
- private:
-
-  monocle::LAYOUT GetLayout(const monocle::Layout* layout) const;
-
 };
 
 }

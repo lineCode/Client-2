@@ -40,8 +40,6 @@ ManageLayoutWindow::ManageLayoutWindow(QWidget* parent, const boost::optional<ui
   {
     setWindowTitle("Edit Layout");
 
-    //TODO connect(&MainWindow::Instance()->GetDeviceMgr(), &DeviceMgr::LayoutChanged, this, &ManageMapWindow::LayoutChanged);
-
     const std::vector< QSharedPointer<Layout> > layouts = MainWindow::Instance()->GetDeviceMgr().GetLayouts(*token_);
     if (layouts.size())
     {

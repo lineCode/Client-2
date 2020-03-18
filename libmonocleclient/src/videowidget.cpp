@@ -636,7 +636,7 @@ void VideoWidget::VideoWindowMove(const int32_t x, const int32_t y)
     VideoWindow* videowindow = static_cast<VideoWindow*>(parent()->parent());
     return videowindow->move(x, y);
   }
-  else if (parent()->parent()->metaObject() == &MainWindow::staticMetaObject)//TODO might need to check this one works
+  else if (parent()->parent()->metaObject() == &MainWindow::staticMetaObject)
   {
     MainWindow* mainwindow = static_cast<MainWindow*>(parent()->parent());
     return mainwindow->move(x, y);
@@ -650,7 +650,7 @@ void VideoWidget::VideoWindowResize(const int32_t width, const int32_t height)
     VideoWindow* videowindow = static_cast<VideoWindow*>(parent()->parent());
     return videowindow->resize(width, height);
   }
-  else if (parent()->parent()->metaObject() == &MainWindow::staticMetaObject)//TODO might need to check this one works
+  else if (parent()->parent()->metaObject() == &MainWindow::staticMetaObject)
   {
     MainWindow* mainwindow = static_cast<MainWindow*>(parent()->parent());
     return mainwindow->resize(width, height);
@@ -664,7 +664,7 @@ void VideoWidget::SetWindowState(const Qt::WindowState windowstate)
     VideoWindow* videowindow = static_cast<VideoWindow*>(parent()->parent());
     videowindow->setWindowState(windowstate);
   }
-  else if (parent()->parent()->metaObject() == &MainWindow::staticMetaObject)//TODO might need to check this one works
+  else if (parent()->parent()->metaObject() == &MainWindow::staticMetaObject)
   {
     MainWindow* mainwindow = static_cast<MainWindow*>(parent()->parent());
     mainwindow->setWindowState(windowstate);

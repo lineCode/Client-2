@@ -185,6 +185,12 @@ void Connection::LayoutAdded(const monocle::LAYOUT& layout)
 
 }
 
+void Connection::LayoutChanged(const monocle::LAYOUT& layout)
+{
+  emit SignalLayoutChanged(layout);
+
+}
+
 void Connection::LayoutRemoved(const uint64_t token)
 {
   emit SignalLayoutRemoved(token);

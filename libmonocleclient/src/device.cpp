@@ -99,6 +99,7 @@ Device::Device(const sock::ProxyParams& proxyparams, const QString& address, con
   connect(this, &Connection::SignalGroupChanged, this, QOverload<const uint64_t, const QString&, const bool, const bool, const bool, const bool, const bool, const std::vector<uint64_t>&>::of(&Device::SlotGroupChanged), Qt::QueuedConnection);
   connect(this, &Connection::SignalGroupRemoved, this, QOverload<const uint64_t>::of(&Device::SlotGroupRemoved), Qt::QueuedConnection);
   connect(this, &Connection::SignalLayoutAdded, this, &Device::SlotLayoutAdded, Qt::QueuedConnection);
+  connect(this, &Connection::SignalLayoutChanged, this, &Device::SlotLayoutChanged, Qt::QueuedConnection);
   connect(this, &Connection::SignalLayoutRemoved, this, &Device::SlotLayoutRemoved, Qt::QueuedConnection);
   connect(this, &Connection::SignalMapAdded, this, QOverload<const uint64_t, const QString&, const QString&, const QString&>::of(&Device::SlotMapAdded), Qt::QueuedConnection);
   connect(this, &Connection::SignalMapChanged, this, QOverload<const uint64_t, const QString&, const QString&, const QString&>::of(&Device::SlotMapChanged), Qt::QueuedConnection);
@@ -972,13 +973,9 @@ void Device::Subscribe()
             }
             else
             {
-              //TODO if (((*i)->GetName().toStdString() != m.name_) || ((*i)->GetLocation().toStdString() != m.location_) || ((*i)->GetImageMD5().toStdString() != m.imagemd5_))
-              {
-                //TODO (*i)->SetName(QString::fromStdString(m.name_));
-                //TODO (*i)->SetLocation(QString::fromStdString(m.location_));
-                //TODO (*i)->SetImageMD5(QString::fromStdString(m.imagemd5_));
-                //TODO emit SignalLayoutChanged(*i);
-              }
+              (*i)->SetConfiguration(l);
+              emit SignalLayoutChanged(*i);
+              emit MainWindow::Instance()->GetDeviceMgr().LayoutChanged(*i);
             }
           }
 
@@ -1727,12 +1724,33 @@ void Device::SlotLayoutAdded(const monocle::LAYOUT& layout)
   }
   else
   {
-    //TODO if (((*i)->GetName().toStdString() != layout.name_) || ((*i)->GetWindows() != layout.windows_))
-    {
-      //TODO (*m)->SetConfiguration(QString::fromStdString(layout.name_), layout.windows_);
-      //TODO emit SignalLayoutChanged(*i);
-      //TODO emit MainWindow::Instance()->GetDeviceMgr().LayoutChanged(*i);
-    }
+    (*i)->SetConfiguration(layout);
+    emit SignalLayoutChanged(*i);
+    emit MainWindow::Instance()->GetDeviceMgr().LayoutChanged(*i);
+  }
+}
+
+void Device::SlotLayoutChanged(const monocle::LAYOUT& layout)
+{
+  if (state_ != DEVICESTATE::SUBSCRIBED)
+  {
+
+    return;
+  }
+
+  std::vector< QSharedPointer<Layout> >::iterator i = std::find_if(layouts_.begin(), layouts_.end(), [&layout](const QSharedPointer<Layout>& l) { return (l->GetToken() == layout.token_); });
+  if (i == layouts_.end())
+  {
+    QSharedPointer<Layout> l = QSharedPointer<Layout>::create(boost::static_pointer_cast<Device>(shared_from_this()), layout);
+    layouts_.push_back(l);
+    emit SignalLayoutAdded(l);
+    emit MainWindow::Instance()->GetDeviceMgr().LayoutAdded(l);
+  }
+  else
+  {
+    (*i)->SetConfiguration(layout);
+    emit SignalLayoutChanged(*i);
+    emit MainWindow::Instance()->GetDeviceMgr().LayoutChanged(*i);
   }
 }
 
