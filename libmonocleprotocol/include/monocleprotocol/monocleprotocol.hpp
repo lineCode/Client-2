@@ -573,6 +573,7 @@ std::vector< flatbuffers::Offset<Map> > GetMapBuffers(const std::vector<MAP>& ma
 std::vector< flatbuffers::Offset<MountPoint> > GetMountPointBuffers(const std::vector<MOUNTPOINT>& mountpoints, flatbuffers::FlatBufferBuilder& fbb);
 std::vector< flatbuffers::Offset<Layout> > GetLayoutBuffers(const std::vector<LAYOUT>& layouts, flatbuffers::FlatBufferBuilder& fbb);
 monocle::LAYOUT GetLayout(const Layout& layout);
+flatbuffers::Offset<Layout> GetLayoutBuffer(flatbuffers::FlatBufferBuilder& fbb, const LAYOUT& layout);
 
 }
 

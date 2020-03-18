@@ -625,31 +625,7 @@ boost::system::error_code Connection::SendLayoutAdded(const monocle::LAYOUT& lay
 {
   std::lock_guard<std::mutex> lock(writemutex_);
   fbb_.Clear();
-
-  std::vector< flatbuffers::Offset<monocle::LayoutWindow> > windows;
-  windows.reserve(layout.windows_.size());
-  for (const monocle::LAYOUTWINDOW& window : layout.windows_)
-  {
-    std::vector< flatbuffers::Offset<monocle::LayoutView> > maps;
-    maps.reserve(window.maps_.size());
-    for (const monocle::LAYOUTVIEW& map : window.maps_)
-    {
-      maps.push_back(CreateLayoutView(fbb_, map.token_, map.x_, map.y_, map.width_, map.height_));
-
-    }
-
-    std::vector< flatbuffers::Offset<monocle::LayoutView> > recordings;
-    recordings.reserve(window.recordings_.size());
-    for (const monocle::LAYOUTVIEW& recording : window.recordings_)
-    {
-      recordings.push_back(CreateLayoutView(fbb_, recording.token_, recording.x_, recording.y_, recording.width_, recording.height_));
-
-    }
-
-    windows.push_back(CreateLayoutWindow(fbb_, window.token_, window.mainwindow_, window.maximised_, window.screenx_, window.screeny_, window.screenwidth_, window.screenheight_, window.x_, window.y_, window.width_, window.height_, window.gridwidth_, window.gridheight_, fbb_.CreateVector(maps), fbb_.CreateVector(recordings)));
-  }
-
-  fbb_.Finish(CreateLayoutAdded(fbb_, CreateLayout(fbb_, layout.token_, fbb_.CreateString(layout.name_), fbb_.CreateVector(windows))));
+  fbb_.Finish(CreateLayoutAdded(fbb_, GetLayoutBuffer(fbb_, layout)));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::LAYOUTADDED, ++sequence_);
   const std::array<boost::asio::const_buffer, 2> buffers =
@@ -664,14 +640,36 @@ boost::system::error_code Connection::SendLayoutAdded(const monocle::LAYOUT& lay
 
 boost::system::error_code Connection::SendLayoutChanged(const monocle::LAYOUT& layout)
 {
-  //TODO
-
+  std::lock_guard<std::mutex> lock(writemutex_);
+  fbb_.Clear();
+  fbb_.Finish(CreateLayoutChanged(fbb_, GetLayoutBuffer(fbb_, layout)));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::LAYOUTCHANGED, ++sequence_);
+  const std::array<boost::asio::const_buffer, 2> buffers =
+  {
+    boost::asio::const_buffer(&header, sizeof(HEADER)),
+    boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
+  };
+  boost::system::error_code err;
+  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
+  return err;
 }
 
 boost::system::error_code Connection::SendLayoutNameChanged(const uint64_t usertoken, const uint64_t token, const std::string& name)
 {
-  //TODO
-
+  std::lock_guard<std::mutex> lock(writemutex_);
+  fbb_.Clear();
+  fbb_.Finish(CreateLayoutNameChanged(fbb_, token, fbb_.CreateString(name)));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::LAYOUTNAMECHANGED, ++sequence_);
+  const std::array<boost::asio::const_buffer, 2> buffers =
+  {
+    boost::asio::const_buffer(&header, sizeof(HEADER)),
+    boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
+  };
+  boost::system::error_code err;
+  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
+  return err;
 }
 
 boost::system::error_code Connection::SendLayoutRemoved(const uint64_t token)

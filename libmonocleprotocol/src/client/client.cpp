@@ -2041,31 +2041,7 @@ boost::system::error_code Client::AddGroupSend(const std::string& name, const bo
 boost::system::error_code Client::AddLayoutSend(const LAYOUT& layout)
 {
   fbb_.Clear();
-
-  std::vector< flatbuffers::Offset<LayoutWindow> > layoutwindows;
-  layoutwindows.reserve(layout.windows_.size());
-  for (const LAYOUTWINDOW& window : layout.windows_)
-  {
-    std::vector< flatbuffers::Offset<LayoutView> > maps;
-    maps.reserve(window.maps_.size());
-    for (const LAYOUTVIEW& map : window.maps_)
-    {
-      maps.push_back(CreateLayoutView(fbb_, map.token_, map.x_, map.y_, map.width_, map.height_));
-
-    }
-
-    std::vector< flatbuffers::Offset<LayoutView> > recordings;
-    recordings.reserve(window.recordings_.size());
-    for (const LAYOUTVIEW& recording : window.recordings_)
-    {
-      recordings.push_back(CreateLayoutView(fbb_, recording.token_, recording.x_, recording.y_, recording.width_, recording.height_));
-
-    }
-
-    layoutwindows.push_back(CreateLayoutWindow(fbb_, window.token_, window.mainwindow_, window.maximised_, window.screenx_, window.screeny_, window.screenwidth_, window.screenheight_, window.x_, window.y_, window.width_, window.height_, window.gridwidth_, window.gridheight_, fbb_.CreateVector(maps), fbb_.CreateVector(recordings)));
-  }
-
-  fbb_.Finish(CreateAddLayoutRequest(fbb_, CreateLayout(fbb_, layout.token_, fbb_.CreateString(layout.name_), fbb_.CreateVector(layoutwindows))));
+  fbb_.Finish(CreateAddLayoutRequest(fbb_, GetLayoutBuffer(fbb_, layout)));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::ADDLAYOUT, ++sequence_);
   boost::system::error_code err;
@@ -2330,31 +2306,7 @@ boost::system::error_code Client::ChangeGroupSend(const uint64_t token, const st
 boost::system::error_code Client::ChangeLayoutSend(const LAYOUT& layout)
 {
   fbb_.Clear();
-
-  std::vector< flatbuffers::Offset<LayoutWindow> > layoutwindows;
-  layoutwindows.reserve(layout.windows_.size());
-  for (const LAYOUTWINDOW& window : layout.windows_)
-  {
-    std::vector< flatbuffers::Offset<LayoutView> > maps;
-    maps.reserve(window.maps_.size());
-    for (const LAYOUTVIEW& map : window.maps_)
-    {
-      maps.push_back(CreateLayoutView(fbb_, map.token_, map.x_, map.y_, map.width_, map.height_));
-
-    }
-
-    std::vector< flatbuffers::Offset<LayoutView> > recordings;
-    recordings.reserve(window.recordings_.size());
-    for (const LAYOUTVIEW& recording : window.recordings_)
-    {
-      recordings.push_back(CreateLayoutView(fbb_, recording.token_, recording.x_, recording.y_, recording.width_, recording.height_));
-
-    }
-
-    layoutwindows.push_back(CreateLayoutWindow(fbb_, window.token_, window.mainwindow_, window.maximised_, window.screenx_, window.screeny_, window.screenwidth_, window.screenheight_, window.x_, window.y_, window.width_, window.height_, window.gridwidth_, window.gridheight_, fbb_.CreateVector(maps), fbb_.CreateVector(recordings)));
-  }
-
-  fbb_.Finish(CreateChangeLayoutRequest(fbb_, CreateLayout(fbb_, layout.token_, fbb_.CreateString(layout.name_), fbb_.CreateVector(layoutwindows))));
+  fbb_.Finish(CreateChangeLayoutRequest(fbb_, GetLayoutBuffer(fbb_, layout)));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::CHANGELAYOUT, ++sequence_);
   boost::system::error_code err;
@@ -3882,6 +3834,28 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       }
 
       changegroup_.Response(sequence, CHANGEGROUPRESPONSE());
+      break;
+    }
+    case Message::CHANGELAYOUT:
+    {
+      if (error)
+      {
+        HandleError(changelayout_, sequence, data, datasize);
+        return;
+      }
+
+      changelayout_.Response(sequence, CHANGELAYOUTRESPONSE());
+      break;
+    }
+    case Message::CHANGELAYOUTNAME:
+    {
+      if (error)
+      {
+        HandleError(changelayoutname_, sequence, data, datasize);
+        return;
+      }
+
+      changelayoutname_.Response(sequence, CHANGELAYOUTNAMERESPONSE());
       break;
     }
     case Message::CHANGEMAP:

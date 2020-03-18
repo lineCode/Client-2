@@ -248,29 +248,8 @@ std::vector< flatbuffers::Offset<Layout> > GetLayoutBuffers(const std::vector<LA
   layoutsbuffer.reserve(layouts.size());
   for (const LAYOUT& layout : layouts)
   {
-    std::vector< flatbuffers::Offset<LayoutWindow> > windowsbuffer;
-    windowsbuffer.reserve(layout.windows_.size());
-    for (const LAYOUTWINDOW& window : layout.windows_)
-    {
-      std::vector< flatbuffers::Offset<LayoutView> > mapsbuffer;
-      mapsbuffer.reserve(window.maps_.size());
-      for (const LAYOUTVIEW& map : window.maps_)
-      {
-        mapsbuffer.push_back(CreateLayoutView(fbb, map.token_, map.x_, map.y_, map.width_, map.height_));
+    layoutsbuffer.push_back(GetLayoutBuffer(fbb, layout));
 
-      }
-
-      std::vector< flatbuffers::Offset<LayoutView> > recordingsbuffer;
-      recordingsbuffer.reserve(window.recordings_.size());
-      for (const LAYOUTVIEW& recording : window.recordings_)
-      {
-        recordingsbuffer.push_back(CreateLayoutView(fbb, recording.token_, recording.x_, recording.y_, recording.width_, recording.height_));
-
-      }
-
-      windowsbuffer.push_back(CreateLayoutWindow(fbb, window.token_, window.mainwindow_, window.maximised_, window.screenx_, window.screeny_, window.screenwidth_, window.screenheight_, window.x_, window.y_, window.width_, window.height_, window.gridwidth_, window.gridheight_, fbb.CreateVector(mapsbuffer), fbb.CreateVector(recordingsbuffer)));
-    }
-    layoutsbuffer.push_back(CreateLayout(fbb, layout.token_, fbb.CreateString(layout.name_), fbb.CreateVector(windowsbuffer)));
   }
   return layoutsbuffer;
 }
@@ -877,6 +856,34 @@ monocle::LAYOUT GetLayout(const Layout& layout)
     }
   }
   return monocle::LAYOUT(layout.token(), layout.name() ? layout.name()->str() : std::string(), windows);
+}
+
+flatbuffers::Offset<Layout> GetLayoutBuffer(flatbuffers::FlatBufferBuilder& fbb, const LAYOUT& layout)
+{
+  std::vector< flatbuffers::Offset<monocle::LayoutWindow> > windows;
+  windows.reserve(layout.windows_.size());
+  for (const monocle::LAYOUTWINDOW& window : layout.windows_)
+  {
+    std::vector< flatbuffers::Offset<monocle::LayoutView> > maps;
+    maps.reserve(window.maps_.size());
+    for (const monocle::LAYOUTVIEW& map : window.maps_)
+    {
+      maps.push_back(CreateLayoutView(fbb, map.token_, map.x_, map.y_, map.width_, map.height_));
+
+    }
+
+    std::vector< flatbuffers::Offset<monocle::LayoutView> > recordings;
+    recordings.reserve(window.recordings_.size());
+    for (const monocle::LAYOUTVIEW& recording : window.recordings_)
+    {
+      recordings.push_back(CreateLayoutView(fbb, recording.token_, recording.x_, recording.y_, recording.width_, recording.height_));
+
+    }
+
+    windows.push_back(CreateLayoutWindow(fbb, window.token_, window.mainwindow_, window.maximised_, window.screenx_, window.screeny_, window.screenwidth_, window.screenheight_, window.x_, window.y_, window.width_, window.height_, window.gridwidth_, window.gridheight_, fbb.CreateVector(maps), fbb.CreateVector(recordings)));
+  }
+
+  return CreateLayout(fbb, layout.token_, fbb.CreateString(layout.name_), fbb.CreateVector(windows));
 }
 
 }
