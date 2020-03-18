@@ -237,6 +237,7 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   Options::Instance().Load();
 
   connect(&devicemgr_, &DeviceMgr::LayoutAdded, this, &MainWindow::LayoutAdded);
+  connect(&devicemgr_, &DeviceMgr::LayoutChanged, this, &MainWindow::LayoutChanged);
   connect(&devicemgr_, &DeviceMgr::LayoutRemoved, this, &MainWindow::LayoutRemoved);
   connect(&videowidgetsmgr_, &VideoWidgetsMgr::ViewDestroyed, this, &MainWindow::ViewDestroyed);
   connect(&videowidgetsmgr_, &VideoWidgetsMgr::VideoViewCreated, this, &MainWindow::VideoViewCreated);
@@ -1481,12 +1482,6 @@ void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
       fittedwindows.push_back(std::make_pair(ui_.videowidget, mainwindow->second));
       windows.erase(mainwindow);
     }
-    else
-    {
-      //TODO I don't think we want to do this...
-      //TODO videowidgets.push_back(GetVideoWidget()); // If we didn't find a MainWindow, which is entirely possible, then we need to add it to the list
-
-    }
 
     // Find any exact matches for windows
     for (auto window = windows.cbegin(); window != windows.cend();)
@@ -1565,11 +1560,32 @@ void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
 
       for (const QSharedPointer<LayoutWindow>& layout : fittedwindow.second)
       {
-        for (const QSharedPointer<LayoutView>& map : layout->maps_)
+        for (const QSharedPointer<LayoutView>& mapview : layout->maps_)
         {
-          const QSharedPointer<Map> map = layout->device_->GetMap(map->GetToken());
-          //TODO same as below
+          const QSharedPointer<Map> map = layout->device_->GetMap(mapview->GetToken());
+          if (!map)
+          {
+            LOG_GUI_MESSAGE(QString("Unable to find map: ") + QString::number(mapview->GetToken()));
+            continue;
+          }
 
+          for (const QSharedPointer<View> view : fittedwindow.first->GetViews(mapview->GetX(), mapview->GetY(), mapview->GetWidth(), mapview->GetHeight())) // Remove any views that might get in the way
+          {
+            fittedwindow.first->RemoveView(view);
+
+          }
+
+          QSharedPointer<MapView> view = fittedwindow.first->CreateMapView(mapview->GetX(), mapview->GetY(), mapview->GetWidth(), mapview->GetHeight(), Options::Instance().GetStretchVideo(), layout->device_, map);
+          if (!view)
+          {
+            LOG_GUI_MESSAGE(QString("Failed to create map view: ") + QString::number(mapview->GetToken()));
+
+          }
+          else
+          {
+            emit videowidgetsmgr_.MapViewCreated(view);
+
+          }
         }
 
         for (const QSharedPointer<LayoutView>& recordingview : layout->recordings_)
@@ -1577,18 +1593,17 @@ void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
           const QSharedPointer<Recording> recording = layout->device_->GetRecording(recordingview->GetToken());
           if (!recording)
           {
-            //TODO warning
+            LOG_GUI_MESSAGE(QString("Unable to find recording: ") + QString::number(recordingview->GetToken()));
             continue;
           }
 
           const std::vector< QSharedPointer<RecordingTrack> > videotracks = recording->GetVideoTracks();
           if (videotracks.empty())
           {
-            //TODO warning
+            LOG_GUI_MESSAGE(QString("Unable to find recording track: ") + QString::number(recordingview->GetToken()));
             continue;
           }
 
-          //TODO if we have an exact match already, we don't need to remove or add anything...
           for (const QSharedPointer<View> view : fittedwindow.first->GetViews(recordingview->GetX(), recordingview->GetY(), recordingview->GetWidth(), recordingview->GetHeight())) // Remove any views that might get in the way
           {
             fittedwindow.first->RemoveView(view);
@@ -1598,7 +1613,7 @@ void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
           QSharedPointer<VideoView> videoview = fittedwindow.first->CreateVideoView(recordingview->GetX(), recordingview->GetY(), recordingview->GetWidth(), recordingview->GetHeight(), Options::Instance().GetStretchVideo(), layout->device_, recording, videotracks.front());
           if (!videoview)
           {
-            //TODO log something
+            LOG_GUI_MESSAGE(QString("Failed to create recording view: ") + QString::number(recordingview->GetToken()));
 
           }
           else
@@ -1614,6 +1629,18 @@ void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
     ui_.actionsavecurrentlayout->setEnabled(true);
   });
   action->setData(layout->GetToken());
+}
+
+void MainWindow::LayoutChanged(const QSharedPointer<Layout>& layout)
+{
+  for (QAction* action : ui_.menulayouts->actions())
+  {
+    if (action->data().toULongLong() == layout->GetToken())
+    {
+      action->setText(layout->GetName());
+
+    }
+  }
 }
 
 void MainWindow::LayoutRemoved(const uint64_t token)
@@ -1791,6 +1818,8 @@ void MainWindow::on_actionsavecurrentlayout_triggered()
     on_actionsavecurrentlayoutas_triggered();
     return;
   }
+
+  //TODO copy much of the AddLayout stuff imo...
 
   //TODO we will need to use ChangeLayout and AddLayout AND RemoveLayout as ManageLayoutWindow does
     //TODO should look very similar to ManageLayoutWindow when it saves...

@@ -887,7 +887,7 @@ void VideoWidget::SetGridSize(const unsigned int width, const unsigned int heigh
   }
 
   // Make sure no video views are in the way
-  for (unsigned int x = width; x < width_; ++x)//TODO make sure this works correctly...
+  for (unsigned int x = width; x < width_; ++x)
   {
     for (unsigned int y = height; y < height_; ++y)
     {

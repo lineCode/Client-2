@@ -61,23 +61,23 @@
    <item row="1" column="0" colspan="4">
     <layout class="QGridLayout" name="gridLayout_2">
      <item row="0" column="1">
-      <widget class="QPushButton" name="buttonremove">
-       <property name="text">
-        <string>Remove</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
       <widget class="QPushButton" name="buttonedit">
        <property name="text">
         <string>Edit</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
+     <item row="0" column="3">
       <widget class="QPushButton" name="buttonok">
        <property name="text">
         <string>OK</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QPushButton" name="buttonremove">
+       <property name="text">
+        <string>Remove</string>
        </property>
       </widget>
      </item>

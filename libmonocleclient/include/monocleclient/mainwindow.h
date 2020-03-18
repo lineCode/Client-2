@@ -283,6 +283,7 @@ class MainWindow : public QMainWindow
 
   void LanguageChanged(QAction* action);
   void LayoutAdded(const QSharedPointer<Layout>& layout);
+  void LayoutChanged(const QSharedPointer<Layout>& layout);
   void LayoutRemoved(const uint64_t token);
   void MapViewCreated(const QSharedPointer<MapView>& mapview);
   void VideoViewCreated(const QSharedPointer<VideoView>& videoview);
