@@ -6,6 +6,7 @@
 #include "monocleclient/managelayoutswindow.h"
 
 #include <QMessageBox>
+#include <QStringList>
 
 #include "monocleclient/device.h"
 #include "monocleclient/mainwindow.h"
@@ -116,7 +117,7 @@ void ManageLayoutsWindow::on_buttonedit_clicked()
     return;
   }
   
-  //TODO ManageLayoutWindow(this, device_, ui_.tablelayouts->item(selectedrows.at(0).row(), 0)->data(Qt::UserRole).toULongLong()).exec();
+  ManageLayoutWindow(this, ui_.tablelayouts->item(selectedrows.at(0).row(), 0)->data(Qt::UserRole).toULongLong()).exec();
 }
 
 void ManageLayoutsWindow::on_buttonremove_clicked()
@@ -163,12 +164,15 @@ void ManageLayoutsWindow::on_buttonremove_clicked()
         }
         else
         {
-          //TODO concat the errors and display
-          //TODO if (removelayoutresponse.GetErrorCode() != monocle::ErrorCode::Success)
-          //TODO {
-          //TODO   QMessageBox(QMessageBox::Warning, tr("Error"), tr("Remove failed: ") + QString::fromStdString(removelayoutresponse.GetErrorText()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-          //TODO   return;
-          //TODO }
+          QStringList errorlist;
+          for (const monocle::Error& error : *errors)
+          {
+            errorlist.push_back(QString::fromStdString(error.text_));
+
+          }
+
+          QMessageBox(QMessageBox::Warning, tr("Error"), tr("Remove layout failed:\n") + errorlist.join("\n"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+          return;
         }
       }
     }));

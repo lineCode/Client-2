@@ -6,6 +6,7 @@
 
 ///// Includes /////
 
+#include <boost/optional.hpp>
 #include <monocleprotocol/monocleprotocol.hpp>
 #include <monocleprotocol/client/connection.hpp>
 #include <QDialog>
@@ -28,10 +29,12 @@ class ManageLayoutWindow : public QDialog
 
  public:
 
-  ManageLayoutWindow(QWidget* parent);
+  ManageLayoutWindow(QWidget* parent, const boost::optional<uint64_t>& token);
   virtual ~ManageLayoutWindow();
 
  private:
+
+  const boost::optional<uint64_t> token_;
 
   Ui::ManageLayoutWindow ui_;
 

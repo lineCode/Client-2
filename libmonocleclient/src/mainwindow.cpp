@@ -1812,7 +1812,7 @@ void MainWindow::on_actionsavecurrentlayoutas_triggered()
   }
   //TODO in the successful response to setting the layout, this should become the currentlayout_, at which point that should enable the savelayout button(not the saveaslayout button)
 
-  ManageLayoutWindow(this).exec();//TODO will need to pass in nullptr at some point when editing a layout
+  ManageLayoutWindow(this, boost::none).exec();//TODO will need to pass in nullptr at some point when editing a layout
 }
 
 void MainWindow::on_actionfindmotion_toggled()

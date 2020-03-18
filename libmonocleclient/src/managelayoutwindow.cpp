@@ -10,6 +10,7 @@
 #include <random>
 #include <utility/utility.hpp>
 
+#include "monocleclient/layout.h"
 #include "monocleclient/mainwindow.h"
 #include "monocleclient/map.h"
 #include "monocleclient/mapview.h"
@@ -27,22 +28,32 @@ namespace client
 
 ///// Methods /////
 
-ManageLayoutWindow::ManageLayoutWindow(QWidget* parent) :
-  QDialog(parent)
+ManageLayoutWindow::ManageLayoutWindow(QWidget* parent, const boost::optional<uint64_t>& token) :
+  QDialog(parent),
+  token_(token)
 {
   ui_.setupUi(this);
 
   connect(ui_.buttoncancel, &QPushButton::clicked, this, &QDialog::reject);
 
+  if (token_.is_initialized())
+  {
+    setWindowTitle("Edit Layout");
+
+    //TODO connect(&MainWindow::Instance()->GetDeviceMgr(), &DeviceMgr::LayoutChanged, this, &ManageMapWindow::LayoutChanged);
+
+    const std::vector< QSharedPointer<Layout> > layouts = MainWindow::Instance()->GetDeviceMgr().GetLayouts(*token_);
+    if (layouts.size())
+    {
+      ui_.editname->setText(layouts.front()->GetName());
+
+    }
+  }
 }
-//TODO remove the checkbox for load on startup
+
 ManageLayoutWindow::~ManageLayoutWindow()
 {
-  for (monocle::client::Connection& connection : connections_)
-  {
-    connection.Close();
-
-  }
+  std::for_each(connections_.begin(), connections_.end(), [](monocle::client::Connection& connection) { connection.Close(); });
   connections_.clear();
 }
 
@@ -141,20 +152,94 @@ void ManageLayoutWindow::on_buttonok_clicked()
     return;
   }
 
-  for (const std::pair< boost::shared_ptr<Device>, monocle::LAYOUT>& layout : layouts)
+  std::shared_ptr<unsigned int> count = std::make_shared<unsigned int>(0);
+  std::shared_ptr< std::vector<monocle::Error> > errors = std::make_shared< std::vector<monocle::Error> >();
+
+  std::for_each(connections_.begin(), connections_.end(), [](monocle::client::Connection& connection) { connection.Close(); });
+  connections_.clear();
+
+  // We want to remove any layouts from devices which currently don't have any views, but may done so in the past
+  if (token_.is_initialized())
   {
-    connections_.push_back(layout.first->AddLayout(layout.second, [](const std::chrono::steady_clock::duration latency, const monocle::client::ADDLAYOUTRESPONSE& addlayoutresponse)
+    for (const boost::shared_ptr<Device>& device : MainWindow::Instance()->GetDeviceMgr().GetDevices())
     {
-      if (addlayoutresponse.GetErrorCode() != monocle::ErrorCode::Success)
+      if (std::find_if(layouts.cbegin(), layouts.cend(), [&device](const std::pair< boost::shared_ptr<Device>, monocle::LAYOUT>& layout) { return (device == layout.first); }) != layouts.cend()) // Ignore devices which we are going to add or change to
       {
-        //TODO accumulate a failure here...
-        return;
+
+        continue;
       }
 
-      //TODO accumulate all the responses here
-        //TODO if any of them fail, then delete the ones that didn't fail... or at least attempt too
+      const QSharedPointer<Layout> layout = device->GetLayout(*token_); // If is doesn't have anything to remove anyway, don't bother removing anything that doesn't exist
+      if (!layout)
+      {
 
-    }));
+        continue;
+      }
+
+      ++(*count);
+      connections_.push_back(device->RemoveLayout(*token_, [this, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::REMOVELAYOUTRESPONSE& removelayoutresponse)
+      {
+        errors->push_back(removelayoutresponse.error_);//TODO method for this?
+        if ((--(*count)) == 0)
+        {
+          if (std::all_of(errors->cbegin(), errors->cend(), [](const monocle::Error& error) { return (error.code_ == monocle::ErrorCode::Success); }))
+          {
+            accept();
+            return;
+          }
+          else
+          {
+            QStringList errorlist;
+            for (const monocle::Error& error : *errors)
+            {
+              errorlist.push_back(QString::fromStdString(error.text_));
+
+            }
+
+            QMessageBox(QMessageBox::Warning, tr("Error"), tr("Layout failed:\n") + errorlist.join("\n"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+            return;
+          }
+        }
+      }));
+    }
+  }
+
+  for (const std::pair< boost::shared_ptr<Device>, monocle::LAYOUT>& layout : layouts)
+  {
+    if (token_.is_initialized() && layout.first->GetLayout(*token_)) // Do we want to change an existing layout
+    {
+      //TODO layout.first->ChangeLayout
+      //TODO Change
+
+    }
+    else // Or add a new one
+    {
+      ++(*count);
+      connections_.push_back(layout.first->AddLayout(layout.second, [this, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::ADDLAYOUTRESPONSE& addlayoutresponse)
+      {
+        errors->push_back(addlayoutresponse.error_);
+        if ((--(*count)) == 0)
+        {
+          if (std::all_of(errors->cbegin(), errors->cend(), [](const monocle::Error& error) { return (error.code_ == monocle::ErrorCode::Success); }))
+          {
+            accept();
+            return;
+          }
+          else
+          {
+            QStringList errorlist;
+            for (const monocle::Error& error : *errors)
+            {
+              errorlist.push_back(QString::fromStdString(error.text_));
+
+            }
+
+            QMessageBox(QMessageBox::Warning, tr("Error"), tr("Layout failed:\n") + errorlist.join("\n"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+            return;
+          }
+        }
+      }));
+    }
   }
 }
 
