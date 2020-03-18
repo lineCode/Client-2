@@ -26,6 +26,7 @@
 #include "monocleprotocol/authenticaterequest_generated.h"
 #include "monocleprotocol/authenticateresponse_generated.h"
 #include "monocleprotocol/changegrouprequest_generated.h"
+#include "monocleprotocol/changelayoutrequest_generated.h"
 #include "monocleprotocol/changemaprequest_generated.h"
 #include "monocleprotocol/changeonvifuserrequest_generated.h"
 #include "monocleprotocol/changereceiverrequest_generated.h"
@@ -78,6 +79,7 @@
 #include "monocleprotocol/hardwarestats_generated.h"
 #include "monocleprotocol/jpegframeheader_generated.h"
 #include "monocleprotocol/layoutadded_generated.h"
+#include "monocleprotocol/layoutchanged_generated.h"
 #include "monocleprotocol/layoutremoved_generated.h"
 #include "monocleprotocol/locationchanged_generated.h"
 #include "monocleprotocol/mapadded_generated.h"
@@ -1687,40 +1689,7 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
         return SendErrorResponse(Message::ADDLAYOUT, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
       }
 
-      std::vector<LAYOUTWINDOW> windows;
-      if (addlayoutrequest->layout()->windows())
-      {
-        windows.reserve(addlayoutrequest->layout()->windows()->size());
-        for (const monocle::LayoutWindow* window : *addlayoutrequest->layout()->windows())
-        {
-          std::vector<LAYOUTVIEW> maps;
-          if (window->maps())
-          {
-            maps.reserve(window->maps()->size());
-            for (const monocle::LayoutView* map : *window->maps())
-            {
-              maps.push_back(LAYOUTVIEW(map->token(), map->x(), map->y(), map->width(), map->height()));
-            
-            }
-          }
-
-          std::vector<LAYOUTVIEW> recordings;
-          if (window->recordings())
-          {
-            recordings.reserve(window->recordings()->size());
-            for (const monocle::LayoutView* recording : *window->recordings())
-            {
-              recordings.push_back(LAYOUTVIEW(recording->token(), recording->x(), recording->y(), recording->width(), recording->height()));
-
-            }
-          }
-
-          windows.push_back(LAYOUTWINDOW(window->token(), window->mainwindow(), window->maximised(), window->screenx(), window->screeny(), window->screenwidth(), window->screenheight(), window->x(), window->y(), window->width(), window->height(), window->gridwidth(), window->gridheight(), maps, recordings));
-        }
-      }
-
-      const LAYOUT layout(addlayoutrequest->layout()->token(), addlayoutrequest->layout()->name() ? addlayoutrequest->layout()->name()->str() : std::string(), windows);
-      const Error error = AddLayout(layout);
+      const Error error = AddLayout(GetLayout(addlayoutrequest->layout()));
       if (error.code_ != ErrorCode::Success)
       {
 
@@ -2281,6 +2250,36 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       }
 
       return SendHeaderResponse(HEADER(0, false, false, Message::CHANGEGROUP, sequence));
+    }
+    case Message::CHANGELAYOUT:
+    {
+      if (data == nullptr)
+      {
+
+        return SendErrorResponse(Message::CHANGELAYOUT, sequence, Error(ErrorCode::MissingMessage, "Missing message"));
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<ChangeLayoutRequest>(nullptr))
+      {
+
+        return SendErrorResponse(Message::CHANGELAYOUT, sequence, Error(ErrorCode::InvalidMessage, "Invalid message"));
+      }
+
+      const ChangeLayoutRequest* changelayoutrequest = flatbuffers::GetRoot<ChangeLayoutRequest>(data);
+      if ((changelayoutrequest == nullptr) || (changelayoutrequest->layout() == nullptr))
+      {
+
+        return SendErrorResponse(Message::CHANGELAYOUT, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
+      }
+
+      const Error error = ChangeLayout(GetLayout(changelayoutrequest->layout()));
+      if (error.code_ != ErrorCode::Success)
+      {
+
+        return SendErrorResponse(Message::CHANGELAYOUT, sequence, error);
+      }
+
+      return SendHeaderResponse(HEADER(0, false, false, Message::CHANGELAYOUT, sequence));
     }
     case Message::CHANGEMAP:
     {
@@ -4126,6 +4125,42 @@ void Connection::InitCompression()
     // We make a fairly safe assumption that this will not fail
 
   }
+}
+
+monocle::LAYOUT Connection::GetLayout(const monocle::Layout* layout) const
+{
+  std::vector<monocle::LAYOUTWINDOW> windows;
+  if (layout->windows())
+  {
+    windows.reserve(layout->windows()->size());
+    for (const monocle::LayoutWindow* window : *layout->windows())
+    {
+      std::vector<monocle::LAYOUTVIEW> maps;
+      if (window->maps())
+      {
+        maps.reserve(window->maps()->size());
+        for (const monocle::LayoutView* map : *window->maps())
+        {
+          maps.push_back(monocle::LAYOUTVIEW(map->token(), map->x(), map->y(), map->width(), map->height()));
+
+        }
+      }
+
+      std::vector<monocle::LAYOUTVIEW> recordings;
+      if (window->recordings())
+      {
+        recordings.reserve(window->recordings()->size());
+        for (const monocle::LayoutView* recording : *window->recordings())
+        {
+          recordings.push_back(monocle::LAYOUTVIEW(recording->token(), recording->x(), recording->y(), recording->width(), recording->height()));
+
+        }
+      }
+
+      windows.push_back(monocle::LAYOUTWINDOW(window->token(), window->mainwindow(), window->maximised(), window->screenx(), window->screeny(), window->screenwidth(), window->screenheight(), window->x(), window->y(), window->width(), window->height(), window->gridwidth(), window->gridheight(), maps, recordings));
+    }
+  }
+  return monocle::LAYOUT(layout->token(), layout->name() ? layout->name()->str() : std::string(), windows);
 }
 
 }

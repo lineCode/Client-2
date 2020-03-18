@@ -89,6 +89,7 @@ class Connection : public boost::enable_shared_from_this<Connection>
   virtual Error AddUser(const std::string& username, const std::string& digest, const uint64_t group) = 0;
   virtual std::pair<Error, AUTHENTICATERESPONSE> Authenticate(const std::string& username, const std::string& clientnonce, const std::string& authdigest) = 0;
   virtual Error ChangeGroup(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings) = 0;
+  virtual Error ChangeLayout(const LAYOUT& layout) = 0;
   virtual Error ChangeMap(const uint64_t token, const std::string& name, const std::string& location, const std::vector<int8_t>& image) = 0;
   virtual Error ChangeONVIFUser(const uint64_t token, const boost::optional<std::string>& username, const boost::optional<std::string>& password, const ONVIFUserlevel onvifuserlevel) = 0;
   virtual Error ChangeReceiver(const uint64_t token, const monocle::ReceiverMode mode, const std::string& uri, const std::string& username, const std::string& password, const std::vector<std::string>& parameters) = 0;
@@ -248,6 +249,7 @@ class Connection : public boost::enable_shared_from_this<Connection>
  private:
 
   void InitCompression();
+  monocle::LAYOUT GetLayout(const monocle::Layout* layout) const;
 
 };
 

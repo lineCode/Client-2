@@ -183,6 +183,18 @@ CHANGEGROUPRESPONSE::CHANGEGROUPRESPONSE(const Error& error) :
 
 }
 
+CHANGELAYOUTRESPONSE::CHANGELAYOUTRESPONSE() :
+  RESPONSE(Error(ErrorCode::Success, std::string()))
+{
+
+}
+
+CHANGELAYOUTRESPONSE::CHANGELAYOUTRESPONSE(const Error& error) :
+  RESPONSE(error)
+{
+
+}
+
 CHANGEMAPRESPONSE::CHANGEMAPRESPONSE() :
   RESPONSE(Error(ErrorCode::Success, std::string()))
 {
