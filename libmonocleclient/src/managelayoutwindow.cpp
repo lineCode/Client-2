@@ -7,6 +7,7 @@
 
 #include <QMessageBox>
 #include <QScreen>
+#include <QTimer>
 #include <random>
 #include <utility/utility.hpp>
 
@@ -41,11 +42,14 @@ ManageLayoutWindow::ManageLayoutWindow(QWidget* parent, const boost::optional<ui
     setWindowTitle("Edit Layout");
 
     const std::vector< QSharedPointer<Layout> > layouts = MainWindow::Instance()->GetDeviceMgr().GetLayouts(*token_);
-    if (layouts.size())
+    if (layouts.empty())
     {
-      ui_.editname->setText(layouts.front()->GetName());
-
+      QMessageBox(QMessageBox::Warning, tr("Error"), tr("Unable to find layout: ") + QString::number(*token_), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+      QTimer::singleShot(std::chrono::milliseconds(1), [this]() { reject(); });
+      return;
     }
+
+    ui_.editname->setText(layouts.front()->GetName());
   }
 }
 
@@ -206,9 +210,30 @@ void ManageLayoutWindow::on_buttonok_clicked()
   {
     if (token_.is_initialized() && layout.first->GetLayout(*token_)) // Do we want to change an existing layout
     {
-      //TODO layout.first->ChangeLayout
-      //TODO Change
+      connections_.push_back(layout.first->ChangeLayout(layout.second, [this, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::CHANGELAYOUTRESPONSE& changelayoutresponse)
+      {
+        errors->push_back(changelayoutresponse.error_);
+        if ((--(*count)) == 0)
+        {
+          if (std::all_of(errors->cbegin(), errors->cend(), [](const monocle::Error& error) { return (error.code_ == monocle::ErrorCode::Success); }))
+          {
+            accept();
+            return;
+          }
+          else
+          {
+            QStringList errorlist;
+            for (const monocle::Error& error : *errors)
+            {
+              errorlist.push_back(QString::fromStdString(error.text_));
 
+            }
+
+            QMessageBox(QMessageBox::Warning, tr("Error"), tr("Layout failed:\n") + errorlist.join("\n"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+            return;
+          }
+        }
+      }));
     }
     else // Or add a new one
     {
