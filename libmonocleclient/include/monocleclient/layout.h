@@ -78,6 +78,7 @@ class Layout : public QObject
   Layout(const boost::shared_ptr<Device>& device, const monocle::LAYOUT& layout);
   ~Layout();
 
+  void SetName(const QString& name);
   void SetConfiguration(const monocle::LAYOUT& layout);
 
   inline uint64_t GetToken() const { return token_; }

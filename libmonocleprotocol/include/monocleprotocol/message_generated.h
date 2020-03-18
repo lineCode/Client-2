@@ -79,7 +79,8 @@ enum class Message : uint16_t {
   REMOVETRACKS = 67,
   ADDLAYOUT = 68,
   CHANGELAYOUT = 69,
-  REMOVELAYOUT = 70,
+  CHANGELAYOUTNAME = 70,
+  REMOVELAYOUT = 71,
   CONTROLSTREAMEND = 8000,
   DISCOVERYHELLO = 8001,
   FILEADDED = 8002,
@@ -149,12 +150,13 @@ enum class Message : uint16_t {
   RECORDINGSTATISTICS = 8067,
   LAYOUTADDED = 8068,
   LAYOUTCHANGED = 8069,
-  LAYOUTREMOVED = 8070,
+  LAYOUTNAMECHANGED = 8070,
+  LAYOUTREMOVED = 8071,
   MIN = ADDFILE,
   MAX = LAYOUTREMOVED
 };
 
-inline const Message (&EnumValuesMessage())[141] {
+inline const Message (&EnumValuesMessage())[143] {
   static const Message values[] = {
     Message::ADDFILE,
     Message::ADDGROUP,
@@ -226,6 +228,7 @@ inline const Message (&EnumValuesMessage())[141] {
     Message::REMOVETRACKS,
     Message::ADDLAYOUT,
     Message::CHANGELAYOUT,
+    Message::CHANGELAYOUTNAME,
     Message::REMOVELAYOUT,
     Message::CONTROLSTREAMEND,
     Message::DISCOVERYHELLO,
@@ -296,6 +299,7 @@ inline const Message (&EnumValuesMessage())[141] {
     Message::RECORDINGSTATISTICS,
     Message::LAYOUTADDED,
     Message::LAYOUTCHANGED,
+    Message::LAYOUTNAMECHANGED,
     Message::LAYOUTREMOVED
   };
   return values;
@@ -373,6 +377,7 @@ inline const char *EnumNameMessage(Message e) {
     case Message::REMOVETRACKS: return "REMOVETRACKS";
     case Message::ADDLAYOUT: return "ADDLAYOUT";
     case Message::CHANGELAYOUT: return "CHANGELAYOUT";
+    case Message::CHANGELAYOUTNAME: return "CHANGELAYOUTNAME";
     case Message::REMOVELAYOUT: return "REMOVELAYOUT";
     case Message::CONTROLSTREAMEND: return "CONTROLSTREAMEND";
     case Message::DISCOVERYHELLO: return "DISCOVERYHELLO";
@@ -443,6 +448,7 @@ inline const char *EnumNameMessage(Message e) {
     case Message::RECORDINGSTATISTICS: return "RECORDINGSTATISTICS";
     case Message::LAYOUTADDED: return "LAYOUTADDED";
     case Message::LAYOUTCHANGED: return "LAYOUTCHANGED";
+    case Message::LAYOUTNAMECHANGED: return "LAYOUTNAMECHANGED";
     case Message::LAYOUTREMOVED: return "LAYOUTREMOVED";
     default: return "";
   }

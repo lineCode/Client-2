@@ -1790,31 +1790,10 @@ void MainWindow::on_actionsavecurrentlayout_triggered()
 
 void MainWindow::on_actionsavecurrentlayoutas_triggered()
 {
+  ManageLayoutWindow(this).exec();
 
-  //TODO I think the Device has a layouts_ and a new class Layout
+  //TODO set currentlayout_ I think
 
-  //TODO how do we save over a previous layout...
-    //TODO do we need a "save as" + "save", which then saves over the previously selected layout?
-      //TODO if so, we may need to delete layouts from previous devices that now have no views...
-      //TODO we also want to rename the ui_.savelayout->setName("Save Layout(#nameoflayout#)") to save over it
-
-  //TODO present the user with a dialog asking for a "name" and whether they want this to be loaded up on startup
-    //TODO if it is loading it up on future startups, database needs to remove any older layouts that were designated to load up on startup before
-
-  //TODO batch it up, then pass it into the Connection
-  for (VideoWidget* videowidget : videowidgetsmgr_.GetVideoWidgets())
-  {
-    QWidget* window = static_cast<QWidget*>(videowidget->parent()->parent());
-    //TODO qDebug() << (window->isMaximized() ? "MAX" : "NO") << window->x() << window->y() << window->width() << window->height();//TODO x y width height
-    qDebug() << window->screen()->manufacturer() << window->screen()->geometry() << window->screen()->serialNumber();
-    //TODO grab all the video views and map views that are present on this videowidget and their positions
-    
-      //TODO we need to know which desktop or something it is on, and the relative position on that desktop I think?
-
-  }
-  //TODO in the successful response to setting the layout, this should become the currentlayout_, at which point that should enable the savelayout button(not the saveaslayout button)
-
-  ManageLayoutWindow(this, boost::none).exec();//TODO will need to pass in nullptr at some point when editing a layout
 }
 
 void MainWindow::on_actionfindmotion_toggled()

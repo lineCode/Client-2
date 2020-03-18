@@ -59,6 +59,7 @@ class Client : public boost::enable_shared_from_this<Client>
  friend class Signal<Client, AUTHENTICATERESPONSE>;
  friend class Signal<Client, CHANGEGROUPRESPONSE>;
  friend class Signal<Client, CHANGELAYOUTRESPONSE>;
+ friend class Signal<Client, CHANGELAYOUTNAMERESPONSE>;
  friend class Signal<Client, CHANGEMAPRESPONSE>;
  friend class Signal<Client, CHANGEONVIFUSERRESPONSE>;
  friend class Signal<Client, CHANGERECEIVERRESPONSE>;
@@ -147,6 +148,7 @@ class Client : public boost::enable_shared_from_this<Client>
   virtual void JPEGFrame(const uint64_t token, const uint64_t playrequest, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const uint8_t* lqt, const uint8_t* cqt, const char* data, const size_t size) = 0;
   virtual void LayoutAdded(const monocle::LAYOUT& layout) = 0;
   virtual void LayoutChanged(const monocle::LAYOUT& layout) = 0;
+  virtual void LayoutNameChanged(const uint64_t token, const std::string& name) = 0;
   virtual void LayoutRemoved(const uint64_t token) = 0;
   virtual void MapAdded(const uint64_t token, const std::string& name, const std::string& location, const std::string& imagemd5) = 0;
   virtual void MapChanged(const uint64_t token, const std::string& name, const std::string& location, const std::string& imagemd5) = 0;
@@ -209,6 +211,7 @@ class Client : public boost::enable_shared_from_this<Client>
   boost::unique_future<AUTHENTICATERESPONSE> Authenticate(const std::string& username, const std::string& clientnonce, const std::string& authdigest);
   boost::unique_future<CHANGEGROUPRESPONSE> ChangeGroup(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
   boost::unique_future<CHANGELAYOUTRESPONSE> ChangeLayout(const LAYOUT& layout);
+  boost::unique_future<CHANGELAYOUTNAMERESPONSE> ChangeLayoutName(const uint64_t token, const std::string& name);
   boost::unique_future<CHANGEMAPRESPONSE> ChangeMap(const uint64_t token, const std::string& name, const std::string& location, const std::vector<int8_t>& image);
   boost::unique_future<CHANGERECORDINGJOBRESPONSE> ChangeRecordingJob(const uint64_t recordingtoken, const uint64_t token, const std::string& name, const bool enabled, const uint64_t priority, const std::vector<CHANGERECORDINGJOBSOURCE>& sources);
   boost::unique_future<CHANGEONVIFUSERRESPONSE> ChangeONVIFUser(const uint64_t token, const boost::optional<std::string>& username, const boost::optional<std::string>& password, const monocle::ONVIFUserlevel onvifuserlevel);
@@ -280,6 +283,7 @@ class Client : public boost::enable_shared_from_this<Client>
   Connection AddUser(const std::string& username, const std::string& password, const uint64_t group, boost::function<void(const std::chrono::steady_clock::duration, const ADDUSERRESPONSE&)> callback);
   Connection ChangeGroup(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings, boost::function<void(const std::chrono::steady_clock::duration, const CHANGEGROUPRESPONSE&)> callback);
   Connection ChangeLayout(const LAYOUT& layout, boost::function<void(const std::chrono::steady_clock::duration, const CHANGELAYOUTRESPONSE&)> callback);
+  Connection ChangeLayoutName(const uint64_t token, const std::string& name, boost::function<void(const std::chrono::steady_clock::duration, const CHANGELAYOUTNAMERESPONSE&)> callback);
   Connection ChangeMap(const uint64_t token, const std::string& name, const std::string& location, const std::vector<int8_t>& image, boost::function<void(const std::chrono::steady_clock::duration, const CHANGEMAPRESPONSE&)> callback);
   Connection ChangeONVIFUser(const uint64_t token, const boost::optional<std::string>& username, const boost::optional<std::string>& password, const monocle::ONVIFUserlevel onvifuserlevel, boost::function<void(const std::chrono::steady_clock::duration, const CHANGEONVIFUSERRESPONSE&)> callback);
   Connection ChangeReceiver(const uint64_t token, const monocle::ReceiverMode mode, const std::string& uri, const std::string& username, const std::string& password, const std::vector<std::string>& parameters, boost::function<void(const std::chrono::steady_clock::duration, const CHANGERECEIVERRESPONSE&)> callback);
@@ -361,6 +365,7 @@ class Client : public boost::enable_shared_from_this<Client>
   boost::system::error_code AuthenticateSend(const std::string& username, const std::string& clientnonce, const std::string& authdigest);
   boost::system::error_code ChangeGroupSend(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
   boost::system::error_code ChangeLayoutSend(const LAYOUT& layout);
+  boost::system::error_code ChangeLayoutNameSend(const uint64_t token, const std::string& name);
   boost::system::error_code ChangeMapSend(const uint64_t token, const std::string& name, const std::string& location, const std::vector<int8_t>& image);
   boost::system::error_code ChangeONVIFUserSend(const uint64_t token, const boost::optional<std::string>& username, const boost::optional<std::string>& password, const monocle::ONVIFUserlevel onvifuserlevel);
   boost::system::error_code ChangeReceiverSend(const uint64_t token, const monocle::ReceiverMode mode, const std::string& uri, const std::string& username, const std::string& password, const std::vector<std::string>& parameters);
@@ -482,6 +487,7 @@ class Client : public boost::enable_shared_from_this<Client>
   Signal<Client, AUTHENTICATERESPONSE> authenticate_;
   Signal<Client, CHANGEGROUPRESPONSE> changegroup_;
   Signal<Client, CHANGELAYOUTRESPONSE> changelayout_;
+  Signal<Client, CHANGELAYOUTNAMERESPONSE> changelayoutname_;
   Signal<Client, CHANGEMAPRESPONSE> changemap_;
   Signal<Client, CHANGEONVIFUSERRESPONSE> changeonvifuser_;
   Signal<Client, CHANGERECEIVERRESPONSE> changereceiver_;

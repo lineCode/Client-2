@@ -57,6 +57,12 @@ Layout::~Layout()
 
 }
 
+void Layout::SetName(const QString& name)
+{
+  name_ = name;
+
+}
+
 void Layout::SetConfiguration(const monocle::LAYOUT& layout)
 {
   token_ = layout.token_;

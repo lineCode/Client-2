@@ -1,8 +1,8 @@
-// managelayoutwindow.h
+// managelayoutnamewindow.h
 //
 
-#ifndef ID2VVC49ODFKDJXFXFXFXFXXXS19WKDN9G
-#define ID2VVC49ODFKDJXFXFXFXFXXXS19WKDN9G
+#ifndef ID2VVCASDASDASDADADZZZZXXS19WKDN9G
+#define ID2VVCASDASDASDADADZZZZXXS19WKDN9G
 
 ///// Includes /////
 
@@ -11,7 +11,7 @@
 #include <QDialog>
 #include <vector>
 
-#include "ui_managelayoutwindow.h"
+#include "ui_managelayoutnamewindow.h"
 
 ///// Namespaces /////
 
@@ -22,18 +22,20 @@ namespace client
 
 ///// Classes /////
 
-class ManageLayoutWindow : public QDialog
+class ManageLayoutNameWindow : public QDialog
 {
  Q_OBJECT
 
  public:
 
-  ManageLayoutWindow(QWidget* parent);
-  virtual ~ManageLayoutWindow();
+  ManageLayoutNameWindow(QWidget* parent, const uint64_t token);
+  virtual ~ManageLayoutNameWindow();
 
  private:
 
-  Ui::ManageLayoutWindow ui_;
+  const uint64_t token_;
+
+  Ui::ManageLayoutNameWindow ui_;
 
   std::vector<monocle::client::Connection> connections_;
 

@@ -1,0 +1,7 @@
+namespace monocle;
+
+table LayoutNameChanged
+{
+  token:uint64 (id:0);
+  name:string (id:1);
+}

@@ -30,6 +30,7 @@
 #include "monocleprotocol/adduserrequest_generated.h"
 #include "monocleprotocol/authenticaterequest_generated.h"
 #include "monocleprotocol/changegrouprequest_generated.h"
+#include "monocleprotocol/changelayoutnamerequest_generated.h"
 #include "monocleprotocol/changelayoutrequest_generated.h"
 #include "monocleprotocol/changemaprequest_generated.h"
 #include "monocleprotocol/changeonvifuserrequest_generated.h"
@@ -85,6 +86,7 @@
 #include "monocleprotocol/jpegframeheader_generated.h"
 #include "monocleprotocol/layoutadded_generated.h"
 #include "monocleprotocol/layoutchanged_generated.h"
+#include "monocleprotocol/layoutnamechanged_generated.h"
 #include "monocleprotocol/layoutremoved_generated.h"
 #include "monocleprotocol/locationchanged_generated.h"
 #include "monocleprotocol/mapadded_generated.h"
@@ -205,6 +207,7 @@ Client::Client(boost::asio::io_service& io) :
   authenticate_(DEFAULT_TIMEOUT, this),
   changegroup_(DEFAULT_TIMEOUT, this),
   changelayout_(DEFAULT_TIMEOUT, this),
+  changelayoutname_(DEFAULT_TIMEOUT, this),
   changemap_(DEFAULT_TIMEOUT, this),
   changeonvifuser_(DEFAULT_TIMEOUT, this),
   changereceiver_(DEFAULT_TIMEOUT, this),
@@ -348,6 +351,7 @@ void Client::Destroy()
     authenticate_.Destroy();
     changegroup_.Destroy();
     changelayout_.Destroy();
+    changelayoutname_.Destroy();
     changemap_.Destroy();
     changeonvifuser_.Destroy();
     changereceiver_.Destroy();
@@ -554,6 +558,17 @@ boost::unique_future<CHANGELAYOUTRESPONSE> Client::ChangeLayout(const LAYOUT& la
     return boost::make_ready_future(CHANGELAYOUTRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
   }
   return changelayout_.CreateFuture(sequence_);
+}
+
+boost::unique_future<CHANGELAYOUTNAMERESPONSE> Client::ChangeLayoutName(const uint64_t token, const std::string& name)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (ChangeLayoutNameSend(token, name))
+  {
+
+    return boost::make_ready_future(CHANGELAYOUTNAMERESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+  }
+  return changelayoutname_.CreateFuture(sequence_);
 }
 
 boost::unique_future<CHANGEMAPRESPONSE> Client::ChangeMap(const uint64_t token, const std::string& name, const std::string& location, const std::vector<int8_t>& image)
@@ -1336,6 +1351,17 @@ Connection Client::ChangeLayout(const LAYOUT& layout, boost::function<void(const
     return Connection();
   }
   return changelayout_.CreateCallback(sequence_, callback);
+}
+
+Connection Client::ChangeLayoutName(const uint64_t token, const std::string& name, boost::function<void(const std::chrono::steady_clock::duration, const CHANGELAYOUTNAMERESPONSE&)> callback)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (ChangeLayoutNameSend(token, name))
+  {
+    callback(std::chrono::steady_clock::duration(), CHANGELAYOUTNAMERESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+    return Connection();
+  }
+  return changelayoutname_.CreateCallback(sequence_, callback);
 }
 
 Connection Client::ChangeMap(const uint64_t token, const std::string& name, const std::string& location, const std::vector<int8_t>& image, boost::function<void(const std::chrono::steady_clock::duration, const CHANGEMAPRESPONSE&)> callback)
@@ -2331,6 +2357,28 @@ boost::system::error_code Client::ChangeLayoutSend(const LAYOUT& layout)
   fbb_.Finish(CreateChangeLayoutRequest(fbb_, CreateLayout(fbb_, layout.token_, fbb_.CreateString(layout.name_), fbb_.CreateVector(layoutwindows))));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::CHANGELAYOUT, ++sequence_);
+  boost::system::error_code err;
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(fbb_.GetBufferPointer(), messagesize), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  return err;
+}
+
+boost::system::error_code Client::ChangeLayoutNameSend(const uint64_t token, const std::string& name)
+{
+  fbb_.Clear();
+  fbb_.Finish(CreateChangeLayoutNameRequest(fbb_, token, fbb_.CreateString(name)));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::CHANGELAYOUTNAME, ++sequence_);
   boost::system::error_code err;
   boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
   if (err)
@@ -5268,7 +5316,7 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         return;
       }
 
-      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<monocle::LayoutAdded>(nullptr))
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<monocle::LayoutChanged>(nullptr))
       {
 
         return;
@@ -5282,6 +5330,30 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       }
 
       LayoutChanged(GetLayout(*layoutchanged->layout()));
+      break;
+    }
+    case Message::LAYOUTNAMECHANGED:
+    {
+      if (error)
+      {
+        // Ignore this because it can't really happen...
+        return;
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<monocle::LayoutNameChanged>(nullptr))
+      {
+
+        return;
+      }
+
+      const monocle::LayoutNameChanged* layoutnamechanged = flatbuffers::GetRoot<monocle::LayoutNameChanged>(data);
+      if (layoutnamechanged == nullptr)
+      {
+
+        return;
+      }
+
+      LayoutNameChanged(layoutnamechanged->token(), layoutnamechanged->name() ? layoutnamechanged->name()->str() : std::string());
       break;
     }
     case Message::LAYOUTREMOVED:

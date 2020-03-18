@@ -29,28 +29,12 @@ namespace client
 
 ///// Methods /////
 
-ManageLayoutWindow::ManageLayoutWindow(QWidget* parent, const boost::optional<uint64_t>& token) :
-  QDialog(parent),
-  token_(token)
+ManageLayoutWindow::ManageLayoutWindow(QWidget* parent) :
+  QDialog(parent)
 {
   ui_.setupUi(this);
 
   connect(ui_.buttoncancel, &QPushButton::clicked, this, &QDialog::reject);
-
-  if (token_.is_initialized())
-  {
-    setWindowTitle("Edit Layout");
-
-    const std::vector< QSharedPointer<Layout> > layouts = MainWindow::Instance()->GetDeviceMgr().GetLayouts(*token_);
-    if (layouts.empty())
-    {
-      QMessageBox(QMessageBox::Warning, tr("Error"), tr("Unable to find layout: ") + QString::number(*token_), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-      QTimer::singleShot(std::chrono::milliseconds(1), [this]() { reject(); });
-      return;
-    }
-
-    ui_.editname->setText(layouts.front()->GetName());
-  }
 }
 
 ManageLayoutWindow::~ManageLayoutWindow()
@@ -150,7 +134,7 @@ void ManageLayoutWindow::on_buttonok_clicked()
 
   if (layouts.empty())
   {
-    //TODO error message?
+    QMessageBox(QMessageBox::Warning, tr("Error"), tr("No layout windows found:\n"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
     return;
   }
 
@@ -160,109 +144,33 @@ void ManageLayoutWindow::on_buttonok_clicked()
   std::for_each(connections_.begin(), connections_.end(), [](monocle::client::Connection& connection) { connection.Close(); });
   connections_.clear();
 
-  // We want to remove any layouts from devices which currently don't have any views, but may done so in the past
-  if (token_.is_initialized())
-  {
-    for (const boost::shared_ptr<Device>& device : MainWindow::Instance()->GetDeviceMgr().GetDevices())
-    {
-      if (std::find_if(layouts.cbegin(), layouts.cend(), [&device](const std::pair< boost::shared_ptr<Device>, monocle::LAYOUT>& layout) { return (device == layout.first); }) != layouts.cend()) // Ignore devices which we are going to add or change to
-      {
-
-        continue;
-      }
-
-      const QSharedPointer<Layout> layout = device->GetLayout(*token_); // If is doesn't have anything to remove anyway, don't bother removing anything that doesn't exist
-      if (!layout)
-      {
-
-        continue;
-      }
-
-      ++(*count);
-      connections_.push_back(device->RemoveLayout(*token_, [this, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::REMOVELAYOUTRESPONSE& removelayoutresponse)
-      {
-        errors->push_back(removelayoutresponse.error_);//TODO method for this?
-        if ((--(*count)) == 0)
-        {
-          if (std::all_of(errors->cbegin(), errors->cend(), [](const monocle::Error& error) { return (error.code_ == monocle::ErrorCode::Success); }))
-          {
-            accept();
-            return;
-          }
-          else
-          {
-            QStringList errorlist;
-            for (const monocle::Error& error : *errors)
-            {
-              errorlist.push_back(QString::fromStdString(error.text_));
-
-            }
-
-            QMessageBox(QMessageBox::Warning, tr("Error"), tr("Layout failed:\n") + errorlist.join("\n"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-            return;
-          }
-        }
-      }));
-    }
-  }
-
   for (const std::pair< boost::shared_ptr<Device>, monocle::LAYOUT>& layout : layouts)
   {
-    if (token_.is_initialized() && layout.first->GetLayout(*token_)) // Do we want to change an existing layout
+    ++(*count);
+    connections_.push_back(layout.first->AddLayout(layout.second, [this, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::ADDLAYOUTRESPONSE& addlayoutresponse)
     {
-      connections_.push_back(layout.first->ChangeLayout(layout.second, [this, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::CHANGELAYOUTRESPONSE& changelayoutresponse)
+      errors->push_back(addlayoutresponse.error_);
+      if ((--(*count)) == 0)
       {
-        errors->push_back(changelayoutresponse.error_);
-        if ((--(*count)) == 0)
+        if (std::all_of(errors->cbegin(), errors->cend(), [](const monocle::Error& error) { return (error.code_ == monocle::ErrorCode::Success); }))
         {
-          if (std::all_of(errors->cbegin(), errors->cend(), [](const monocle::Error& error) { return (error.code_ == monocle::ErrorCode::Success); }))
-          {
-            accept();
-            return;
-          }
-          else
-          {
-            QStringList errorlist;
-            for (const monocle::Error& error : *errors)
-            {
-              errorlist.push_back(QString::fromStdString(error.text_));
-
-            }
-
-            QMessageBox(QMessageBox::Warning, tr("Error"), tr("Layout failed:\n") + errorlist.join("\n"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-            return;
-          }
+          accept();
+          return;
         }
-      }));
-    }
-    else // Or add a new one
-    {
-      ++(*count);
-      connections_.push_back(layout.first->AddLayout(layout.second, [this, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::ADDLAYOUTRESPONSE& addlayoutresponse)
-      {
-        errors->push_back(addlayoutresponse.error_);
-        if ((--(*count)) == 0)
+        else
         {
-          if (std::all_of(errors->cbegin(), errors->cend(), [](const monocle::Error& error) { return (error.code_ == monocle::ErrorCode::Success); }))
+          QStringList errorlist;
+          for (const monocle::Error& error : *errors)
           {
-            accept();
-            return;
-          }
-          else
-          {
-            QStringList errorlist;
-            for (const monocle::Error& error : *errors)
-            {
-              errorlist.push_back(QString::fromStdString(error.text_));
+            errorlist.push_back(QString::fromStdString(error.text_));
 
-            }
-
-            QMessageBox(QMessageBox::Warning, tr("Error"), tr("Layout failed:\n") + errorlist.join("\n"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-            return;
           }
+
+          QMessageBox(QMessageBox::Warning, tr("Error"), tr("Add layout failed:\n") + errorlist.join("\n"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+          return;
         }
-      }));
-    }
+      }
+    }));
   }
 }
 

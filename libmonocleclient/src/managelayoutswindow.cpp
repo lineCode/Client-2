@@ -10,7 +10,7 @@
 
 #include "monocleclient/device.h"
 #include "monocleclient/mainwindow.h"
-#include "monocleclient/managelayoutwindow.h"
+#include "monocleclient/managelayoutnamewindow.h"
 #include "monocleclient/layout.h"
 #include "monocleclient/options.h"
 
@@ -117,7 +117,7 @@ void ManageLayoutsWindow::on_buttonedit_clicked()
     return;
   }
   
-  ManageLayoutWindow(this, ui_.tablelayouts->item(selectedrows.at(0).row(), 0)->data(Qt::UserRole).toULongLong()).exec();
+  ManageLayoutNameWindow(this, ui_.tablelayouts->item(selectedrows.at(0).row(), 0)->data(Qt::UserRole).toULongLong()).exec();
 }
 
 void ManageLayoutsWindow::on_buttonremove_clicked()

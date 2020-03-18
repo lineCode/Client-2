@@ -100,6 +100,7 @@ Device::Device(const sock::ProxyParams& proxyparams, const QString& address, con
   connect(this, &Connection::SignalGroupRemoved, this, QOverload<const uint64_t>::of(&Device::SlotGroupRemoved), Qt::QueuedConnection);
   connect(this, &Connection::SignalLayoutAdded, this, &Device::SlotLayoutAdded, Qt::QueuedConnection);
   connect(this, &Connection::SignalLayoutChanged, this, &Device::SlotLayoutChanged, Qt::QueuedConnection);
+  connect(this, &Connection::SignalLayoutNameChanged, this, &Device::SlotLayoutNameChanged, Qt::QueuedConnection);
   connect(this, &Connection::SignalLayoutRemoved, this, &Device::SlotLayoutRemoved, Qt::QueuedConnection);
   connect(this, &Connection::SignalMapAdded, this, QOverload<const uint64_t, const QString&, const QString&, const QString&>::of(&Device::SlotMapAdded), Qt::QueuedConnection);
   connect(this, &Connection::SignalMapChanged, this, QOverload<const uint64_t, const QString&, const QString&, const QString&>::of(&Device::SlotMapChanged), Qt::QueuedConnection);
@@ -1749,6 +1750,23 @@ void Device::SlotLayoutChanged(const monocle::LAYOUT& layout)
   else
   {
     (*i)->SetConfiguration(layout);
+    emit SignalLayoutChanged(*i);
+    emit MainWindow::Instance()->GetDeviceMgr().LayoutChanged(*i);
+  }
+}
+
+void Device::SlotLayoutNameChanged(const uint64_t token, const QString& name)
+{
+  if (state_ != DEVICESTATE::SUBSCRIBED)
+  {
+
+    return;
+  }
+
+  std::vector< QSharedPointer<Layout> >::iterator i = std::find_if(layouts_.begin(), layouts_.end(), [token](const QSharedPointer<Layout>& l) { return (l->GetToken() == token); });
+  if (i != layouts_.end())
+  {
+    (*i)->SetName(name);
     emit SignalLayoutChanged(*i);
     emit MainWindow::Instance()->GetDeviceMgr().LayoutChanged(*i);
   }

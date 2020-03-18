@@ -26,6 +26,7 @@
 #include "monocleprotocol/authenticaterequest_generated.h"
 #include "monocleprotocol/authenticateresponse_generated.h"
 #include "monocleprotocol/changegrouprequest_generated.h"
+#include "monocleprotocol/changelayoutnamerequest_generated.h"
 #include "monocleprotocol/changelayoutrequest_generated.h"
 #include "monocleprotocol/changemaprequest_generated.h"
 #include "monocleprotocol/changeonvifuserrequest_generated.h"
@@ -2280,6 +2281,36 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       }
 
       return SendHeaderResponse(HEADER(0, false, false, Message::CHANGELAYOUT, sequence));
+    }
+    case Message::CHANGELAYOUTNAME:
+    {
+      if (data == nullptr)
+      {
+
+        return SendErrorResponse(Message::CHANGELAYOUTNAME, sequence, Error(ErrorCode::MissingMessage, "Missing message"));
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<ChangeLayoutNameRequest>(nullptr))
+      {
+
+        return SendErrorResponse(Message::CHANGELAYOUTNAME, sequence, Error(ErrorCode::InvalidMessage, "Invalid message"));
+      }
+
+      const ChangeLayoutNameRequest* changelayoutnamerequest = flatbuffers::GetRoot<ChangeLayoutNameRequest>(data);
+      if ((changelayoutnamerequest == nullptr) || (changelayoutnamerequest->name() == nullptr))
+      {
+
+        return SendErrorResponse(Message::CHANGELAYOUTNAME, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
+      }
+
+      const Error error = ChangeLayoutName(changelayoutnamerequest->token(), changelayoutnamerequest->name()->str());
+      if (error.code_ != ErrorCode::Success)
+      {
+
+        return SendErrorResponse(Message::CHANGELAYOUTNAME, sequence, error);
+      }
+
+      return SendHeaderResponse(HEADER(0, false, false, Message::CHANGELAYOUTNAME, sequence));
     }
     case Message::CHANGEMAP:
     {

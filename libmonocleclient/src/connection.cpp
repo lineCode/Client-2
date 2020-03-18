@@ -191,6 +191,12 @@ void Connection::LayoutChanged(const monocle::LAYOUT& layout)
 
 }
 
+void Connection::LayoutNameChanged(const uint64_t token, const std::string& name)
+{
+  emit SignalLayoutNameChanged(token, QString::fromStdString(name));
+
+}
+
 void Connection::LayoutRemoved(const uint64_t token)
 {
   emit SignalLayoutRemoved(token);

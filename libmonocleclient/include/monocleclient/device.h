@@ -270,6 +270,7 @@ class Device : public Connection
   void SlotGroupRemoved(const uint64_t token);
   void SlotLayoutAdded(const monocle::LAYOUT& layout);
   void SlotLayoutChanged(const monocle::LAYOUT& layout);
+  void SlotLayoutNameChanged(const uint64_t token, const QString& name);
   void SlotLayoutRemoved(const uint64_t token);
   void SlotMapAdded(const uint64_t token, const QString& name, const QString& location, const QString& imagemd5);
   void SlotMapChanged(const uint64_t token, const QString& name, const QString& location, const QString& imagemd5);
