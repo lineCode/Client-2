@@ -268,9 +268,9 @@ class Device : public Connection
   void SlotGroupAdded(const uint64_t token, const QString& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
   void SlotGroupChanged(const uint64_t token, const QString& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
   void SlotGroupRemoved(const uint64_t token);
-  //TODO SlotLayoutRemoved
-  //TODO SlotLayoutChanged
   void SlotLayoutAdded(const monocle::LAYOUT& layout);
+  //TODO SlotLayoutChanged
+  void SlotLayoutRemoved(const uint64_t token);
   void SlotMapAdded(const uint64_t token, const QString& name, const QString& location, const QString& imagemd5);
   void SlotMapChanged(const uint64_t token, const QString& name, const QString& location, const QString& imagemd5);
   void SlotMapRemoved(const uint64_t token);

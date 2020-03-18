@@ -1,0 +1,6 @@
+namespace monocle;
+
+table RemoveLayoutRequest
+{
+  token:uint64 (id:0);
+}

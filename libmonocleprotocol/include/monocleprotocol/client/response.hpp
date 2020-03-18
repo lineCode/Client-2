@@ -30,8 +30,6 @@ struct RESPONSE
   inline ErrorCode GetErrorCode() const { return error_.code_; }
   inline const std::string& GetErrorText() const { return error_.text_; }
 
- private:
-
   Error error_;
 
 };
@@ -371,6 +369,13 @@ struct REMOVEGROUPRESPONSE : public RESPONSE
 {
   REMOVEGROUPRESPONSE();
   REMOVEGROUPRESPONSE(const Error& error);
+
+};
+
+struct REMOVELAYOUTRESPONSE : public RESPONSE
+{
+  REMOVELAYOUTRESPONSE();
+  REMOVELAYOUTRESPONSE(const Error& error);
 
 };
 

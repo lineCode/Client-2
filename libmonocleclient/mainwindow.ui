@@ -216,6 +216,7 @@
     <property name="title">
      <string>Layouts</string>
     </property>
+    <addaction name="actionmanagelayouts"/>
     <addaction name="actionsavecurrentlayout"/>
     <addaction name="actionsavecurrentlayoutas"/>
     <addaction name="separator"/>
@@ -944,6 +945,11 @@
   <action name="actionsavecurrentlayoutas">
    <property name="text">
     <string>Save Current Layout As</string>
+   </property>
+  </action>
+  <action name="actionmanagelayouts">
+   <property name="text">
+    <string>Manage Layouts</string>
    </property>
   </action>
  </widget>

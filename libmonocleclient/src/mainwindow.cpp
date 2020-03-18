@@ -27,6 +27,7 @@
 #include "monocleclient/devicemgr.h"
 #include "monocleclient/editdevicewindow.h"
 #include "monocleclient/layout.h"
+#include "monocleclient/managelayoutswindow.h"
 #include "monocleclient/managelayoutwindow.h"
 #include "monocleclient/managetrackwindow.h"
 #include "monocleclient/newcameraquestionwindow.h"
@@ -1770,6 +1771,12 @@ void MainWindow::on_actionplayback_triggered()
 void MainWindow::on_actiontoolbar_triggered()
 {
   ui_.toolbar->setVisible(!ui_.toolbar->isVisible());
+
+}
+
+void MainWindow::on_actionmanagelayouts_triggered()
+{
+  ManageLayoutsWindow(this).exec();
 
 }
 

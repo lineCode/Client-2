@@ -78,6 +78,7 @@ enum class Message : uint16_t {
   CHANGETRACK2 = 66,
   REMOVETRACKS = 67,
   ADDLAYOUT = 68,
+  REMOVELAYOUT = 69,
   CONTROLSTREAMEND = 8000,
   DISCOVERYHELLO = 8001,
   FILEADDED = 8002,
@@ -146,11 +147,13 @@ enum class Message : uint16_t {
   OBJECTDETECTORFRAME = 8066,
   RECORDINGSTATISTICS = 8067,
   LAYOUTADDED = 8068,
+  LAYOUTCHANGED = 8069,
+  LAYOUTREMOVED = 8070,
   MIN = ADDFILE,
-  MAX = LAYOUTADDED
+  MAX = LAYOUTREMOVED
 };
 
-inline const Message (&EnumValuesMessage())[137] {
+inline const Message (&EnumValuesMessage())[140] {
   static const Message values[] = {
     Message::ADDFILE,
     Message::ADDGROUP,
@@ -221,6 +224,7 @@ inline const Message (&EnumValuesMessage())[137] {
     Message::CHANGETRACK2,
     Message::REMOVETRACKS,
     Message::ADDLAYOUT,
+    Message::REMOVELAYOUT,
     Message::CONTROLSTREAMEND,
     Message::DISCOVERYHELLO,
     Message::FILEADDED,
@@ -288,7 +292,9 @@ inline const Message (&EnumValuesMessage())[137] {
     Message::RECORDINGTRACKCODECREMOVED,
     Message::OBJECTDETECTORFRAME,
     Message::RECORDINGSTATISTICS,
-    Message::LAYOUTADDED
+    Message::LAYOUTADDED,
+    Message::LAYOUTCHANGED,
+    Message::LAYOUTREMOVED
   };
   return values;
 }
@@ -364,6 +370,7 @@ inline const char *EnumNameMessage(Message e) {
     case Message::CHANGETRACK2: return "CHANGETRACK2";
     case Message::REMOVETRACKS: return "REMOVETRACKS";
     case Message::ADDLAYOUT: return "ADDLAYOUT";
+    case Message::REMOVELAYOUT: return "REMOVELAYOUT";
     case Message::CONTROLSTREAMEND: return "CONTROLSTREAMEND";
     case Message::DISCOVERYHELLO: return "DISCOVERYHELLO";
     case Message::FILEADDED: return "FILEADDED";
@@ -432,6 +439,8 @@ inline const char *EnumNameMessage(Message e) {
     case Message::OBJECTDETECTORFRAME: return "OBJECTDETECTORFRAME";
     case Message::RECORDINGSTATISTICS: return "RECORDINGSTATISTICS";
     case Message::LAYOUTADDED: return "LAYOUTADDED";
+    case Message::LAYOUTCHANGED: return "LAYOUTCHANGED";
+    case Message::LAYOUTREMOVED: return "LAYOUTREMOVED";
     default: return "";
   }
 }

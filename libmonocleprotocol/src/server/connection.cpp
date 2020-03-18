@@ -78,6 +78,7 @@
 #include "monocleprotocol/hardwarestats_generated.h"
 #include "monocleprotocol/jpegframeheader_generated.h"
 #include "monocleprotocol/layoutadded_generated.h"
+#include "monocleprotocol/layoutremoved_generated.h"
 #include "monocleprotocol/locationchanged_generated.h"
 #include "monocleprotocol/mapadded_generated.h"
 #include "monocleprotocol/mapchanged_generated.h"
@@ -118,6 +119,7 @@
 #include "monocleprotocol/recordingtrackcodecremoved_generated.h"
 #include "monocleprotocol/removefilerequest_generated.h"
 #include "monocleprotocol/removegrouprequest_generated.h"
+#include "monocleprotocol/removelayoutrequest_generated.h"
 #include "monocleprotocol/removemaprequest_generated.h"
 #include "monocleprotocol/removeonvifuserrequest_generated.h"
 #include "monocleprotocol/removereceiverrequest_generated.h"
@@ -646,6 +648,23 @@ boost::system::error_code Connection::SendLayoutAdded(const monocle::LAYOUT& lay
   fbb_.Finish(CreateLayoutAdded(fbb_, CreateLayout(fbb_, layout.token_, fbb_.CreateString(layout.name_), fbb_.CreateVector(windows))));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::LAYOUTADDED, ++sequence_);
+  const std::array<boost::asio::const_buffer, 2> buffers =
+  {
+    boost::asio::const_buffer(&header, sizeof(HEADER)),
+    boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
+  };
+  boost::system::error_code err;
+  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
+  return err;
+}
+
+boost::system::error_code Connection::SendLayoutRemoved(const uint64_t token)
+{
+  std::lock_guard<std::mutex> lock(writemutex_);
+  fbb_.Clear();
+  fbb_.Finish(CreateLayoutRemoved(fbb_, token));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::LAYOUTREMOVED, ++sequence_);
   const std::array<boost::asio::const_buffer, 2> buffers =
   {
     boost::asio::const_buffer(&header, sizeof(HEADER)),
@@ -3349,6 +3368,30 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       }
 
       return SendHeaderResponse(HEADER(0, false, false, Message::REMOVEGROUP, sequence));
+    }
+    case Message::REMOVELAYOUT:
+    {
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<RemoveLayoutRequest>(nullptr))
+      {
+
+        return SendErrorResponse(Message::REMOVELAYOUT, sequence, Error(ErrorCode::InvalidMessage, "Invalid message"));
+      }
+
+      const RemoveLayoutRequest* removelayoutrequest = flatbuffers::GetRoot<RemoveLayoutRequest>(data);
+      if (removelayoutrequest == nullptr)
+      {
+
+        return SendErrorResponse(Message::REMOVELAYOUT, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
+      }
+
+      const Error error = RemoveLayout(removelayoutrequest->token());
+      if (error.code_ != ErrorCode::Success)
+      {
+
+        return SendErrorResponse(Message::REMOVELAYOUT, sequence, error);
+      }
+
+      return SendHeaderResponse(HEADER(0, false, false, Message::REMOVELAYOUT, sequence));
     }
     case Message::REMOVEMAP:
     {

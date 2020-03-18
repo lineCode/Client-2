@@ -57,6 +57,7 @@ include/monocleclient/managefilewindow.h
 include/monocleclient/managefileswindow.h
 include/monocleclient/managegroupwindow.h
 include/monocleclient/managegroupswindow.h
+include/monocleclient/managelayoutswindow.h
 include/monocleclient/managelayoutwindow.h
 include/monocleclient/managemapswindow.h
 include/monocleclient/managemapwindow.h
@@ -187,6 +188,7 @@ src/managefilewindow.cpp
 src/managefileswindow.cpp
 src/managegroupwindow.cpp
 src/managegroupswindow.cpp
+src/managelayoutswindow.cpp
 src/managelayoutwindow.cpp
 src/managemapswindow.cpp
 src/managemapwindow.cpp
@@ -281,6 +283,7 @@ managefilewindow.ui
 managefileswindow.ui
 managegroupwindow.ui
 managegroupswindow.ui
+managelayoutswindow.ui
 managelayoutwindow.ui
 managemapswindow.ui
 managemapwindow.ui

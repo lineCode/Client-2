@@ -299,6 +299,7 @@ class MainWindow : public QMainWindow
   void on_actionlog_triggered();
   void on_actionplayback_triggered();
   void on_actiontoolbar_triggered();
+  void on_actionmanagelayouts_triggered();
   void on_actionsavecurrentlayout_triggered();
   void on_actionsavecurrentlayoutas_triggered();
   void on_actionfindmotion_toggled();

@@ -553,6 +553,18 @@ REMOVEGROUPRESPONSE::REMOVEGROUPRESPONSE(const Error& error) :
 
 }
 
+REMOVELAYOUTRESPONSE::REMOVELAYOUTRESPONSE() :
+  RESPONSE(Error(ErrorCode::Success, std::string()))
+{
+
+}
+
+REMOVELAYOUTRESPONSE::REMOVELAYOUTRESPONSE(const Error& error) :
+  RESPONSE(error)
+{
+
+}
+
 REMOVEMAPRESPONSE::REMOVEMAPRESPONSE() :
   RESPONSE(Error(ErrorCode::Success, std::string()))
 {

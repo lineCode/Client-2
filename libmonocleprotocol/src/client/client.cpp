@@ -83,6 +83,7 @@
 #include "monocleprotocol/hardwarestats_generated.h"
 #include "monocleprotocol/jpegframeheader_generated.h"
 #include "monocleprotocol/layoutadded_generated.h"
+#include "monocleprotocol/layoutremoved_generated.h"
 #include "monocleprotocol/locationchanged_generated.h"
 #include "monocleprotocol/mapadded_generated.h"
 #include "monocleprotocol/mapchanged_generated.h"
@@ -122,6 +123,7 @@
 #include "monocleprotocol/recordingtracklogmessage_generated.h"
 #include "monocleprotocol/removefilerequest_generated.h"
 #include "monocleprotocol/removegrouprequest_generated.h"
+#include "monocleprotocol/removelayoutrequest_generated.h"
 #include "monocleprotocol/removemaprequest_generated.h"
 #include "monocleprotocol/removeonvifuserrequest_generated.h"
 #include "monocleprotocol/removereceiverrequest_generated.h"
@@ -231,6 +233,7 @@ Client::Client(boost::asio::io_service& io) :
   mountfile_(DEFAULT_TIMEOUT, this),
   removefile_(DEFAULT_TIMEOUT, this),
   removegroup_(DEFAULT_TIMEOUT, this),
+  removelayout_(DEFAULT_TIMEOUT, this),
   removemap_(DEFAULT_TIMEOUT, this),
   removeonvifuser_(DEFAULT_TIMEOUT, this),
   removereceiver_(DEFAULT_TIMEOUT, this),
@@ -368,6 +371,7 @@ void Client::Destroy()
     mountfile_.Destroy();
     removefile_.Destroy();
     removegroup_.Destroy();
+    removelayout_.Destroy();
     removemap_.Destroy();
     removeonvifuser_.Destroy();
     removereceiver_.Destroy();
@@ -877,6 +881,17 @@ boost::unique_future<REMOVEGROUPRESPONSE> Client::RemoveGroup(const uint64_t tok
     return boost::make_ready_future(REMOVEGROUPRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
   }
   return removegroup_.CreateFuture(sequence_);
+}
+
+boost::unique_future<REMOVELAYOUTRESPONSE> Client::RemoveLayout(const uint64_t token)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (RemoveLayoutSend(token))
+  {
+
+    return boost::make_ready_future(REMOVELAYOUTRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+  }
+  return removelayout_.CreateFuture(sequence_);
 }
 
 boost::unique_future<REMOVEMAPRESPONSE> Client::RemoveMap(const uint64_t token)
@@ -1639,6 +1654,17 @@ Connection Client::RemoveGroup(const uint64_t token, boost::function<void(const 
     return Connection();
   }
   return removegroup_.CreateCallback(sequence_, callback);
+}
+
+Connection Client::RemoveLayout(const uint64_t token, boost::function<void(const std::chrono::steady_clock::duration latency, const REMOVELAYOUTRESPONSE&)> callback)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (RemoveLayoutSend(token))
+  {
+    callback(std::chrono::steady_clock::duration(), REMOVELAYOUTRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+    return Connection();
+  }
+  return removelayout_.CreateCallback(sequence_, callback);
 }
 
 Connection Client::RemoveMap(const uint64_t token, boost::function<void(const std::chrono::steady_clock::duration latency, const REMOVEMAPRESPONSE&)> callback)
@@ -2871,6 +2897,28 @@ boost::system::error_code Client::RemoveGroupSend(const uint64_t token)
   fbb_.Finish(CreateRemoveGroupRequest(fbb_, token));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::REMOVEGROUP, ++sequence_);
+  boost::system::error_code err;
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(fbb_.GetBufferPointer(), messagesize), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  return err;
+}
+
+boost::system::error_code Client::RemoveLayoutSend(const uint64_t token)
+{
+  fbb_.Clear();
+  fbb_.Finish(CreateRemoveLayoutRequest(fbb_, token));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::REMOVELAYOUT, ++sequence_);
   boost::system::error_code err;
   boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
   if (err)
@@ -5172,6 +5220,33 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       LayoutAdded(monocle::LAYOUT(layoutadded->layout()->token(), layoutadded->layout()->name() ? layoutadded->layout()->name()->str() : std::string(), windows));
       break;
     }
+
+    //TODO Message::LAYOUTCHANGED
+
+    case Message::LAYOUTREMOVED:
+    {
+      if (error)
+      {
+        // Ignore this because it can't really happen...
+        return;
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<monocle::LayoutRemoved>(nullptr))
+      {
+
+        return;
+      }
+
+      const monocle::LayoutRemoved* layoutremoved = flatbuffers::GetRoot<monocle::LayoutRemoved>(data);
+      if (!layoutremoved)
+      {
+
+        return;
+      }
+
+      LayoutRemoved(layoutremoved->token());
+      break;
+    }
     case Message::MAPADDED:
     {
       if (error)
@@ -6410,6 +6485,16 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         return;
       }
       removegroup_.Response(sequence, REMOVEGROUPRESPONSE());
+      break;
+    }
+    case Message::REMOVELAYOUT:
+    {
+      if (error)
+      {
+        HandleError(removelayout_, sequence, data, datasize);
+        return;
+      }
+      removelayout_.Response(sequence, REMOVELAYOUTRESPONSE());
       break;
     }
     case Message::REMOVEMAP:

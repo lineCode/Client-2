@@ -86,6 +86,7 @@ class Client : public boost::enable_shared_from_this<Client>
  friend class Signal<Client, MOUNTFILERESPONSE>;
  friend class Signal<Client, REMOVEFILERESPONSE>;
  friend class Signal<Client, REMOVEGROUPRESPONSE>;
+ friend class Signal<Client, REMOVELAYOUTRESPONSE>;
  friend class Signal<Client, REMOVEMAPRESPONSE>;
  friend class Signal<Client, REMOVEONVIFUSERRESPONSE>;
  friend class Signal<Client, REMOVERECEIVERRESPONSE>;
@@ -144,6 +145,8 @@ class Client : public boost::enable_shared_from_this<Client>
   virtual void HardwareStatsMessage(const uint64_t time, const std::vector<monocle::DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory, const uint64_t availablememory, const std::vector<monocle::GPUSTAT>& gpustats) = 0;
   virtual void JPEGFrame(const uint64_t token, const uint64_t playrequest, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const uint8_t* lqt, const uint8_t* cqt, const char* data, const size_t size) = 0;
   virtual void LayoutAdded(const monocle::LAYOUT& layout) = 0;
+  //TODO LayoutChanged
+  virtual void LayoutRemoved(const uint64_t token) = 0;
   virtual void MapAdded(const uint64_t token, const std::string& name, const std::string& location, const std::string& imagemd5) = 0;
   virtual void MapChanged(const uint64_t token, const std::string& name, const std::string& location, const std::string& imagemd5) = 0;
   virtual void MapRemoved(const uint64_t token) = 0;
@@ -235,6 +238,7 @@ class Client : public boost::enable_shared_from_this<Client>
   boost::unique_future<MOUNTFILERESPONSE> MountFile(const uint64_t token);
   boost::unique_future<REMOVEFILERESPONSE> RemoveFile(const uint64_t token);
   boost::unique_future<REMOVEGROUPRESPONSE> RemoveGroup(const uint64_t token);
+  boost::unique_future<REMOVELAYOUTRESPONSE> RemoveLayout(const uint64_t token);
   boost::unique_future<REMOVEMAPRESPONSE> RemoveMap(const uint64_t token);
   boost::unique_future<REMOVEONVIFUSERRESPONSE> RemoveONVIFUser(const uint64_t token);
   boost::unique_future<REMOVERECEIVERRESPONSE> RemoveReceiver(const uint64_t token);
@@ -305,6 +309,7 @@ class Client : public boost::enable_shared_from_this<Client>
   Connection MountFile(const uint64_t token, boost::function<void(const std::chrono::steady_clock::duration, const MOUNTFILERESPONSE&)> callback);
   Connection RemoveFile(const uint64_t token, boost::function<void(const std::chrono::steady_clock::duration, const REMOVEFILERESPONSE&)> callback);
   Connection RemoveGroup(const uint64_t token, boost::function<void(const std::chrono::steady_clock::duration, const REMOVEGROUPRESPONSE&)> callback);
+  Connection RemoveLayout(const uint64_t token, boost::function<void(const std::chrono::steady_clock::duration, const REMOVELAYOUTRESPONSE&)> callback);
   Connection RemoveMap(const uint64_t token, boost::function<void(const std::chrono::steady_clock::duration, const REMOVEMAPRESPONSE&)> callback);
   Connection RemoveONVIFUser(const uint64_t token, boost::function<void(const std::chrono::steady_clock::duration, const REMOVEONVIFUSERRESPONSE&)> callback);
   Connection RemoveReceiver(const uint64_t token, boost::function<void(const std::chrono::steady_clock::duration, const REMOVERECEIVERRESPONSE&)> callback);
@@ -382,6 +387,7 @@ class Client : public boost::enable_shared_from_this<Client>
   boost::system::error_code MountFileSend(const uint64_t token);
   boost::system::error_code RemoveFileSend(const uint64_t token);
   boost::system::error_code RemoveGroupSend(const uint64_t token);
+  boost::system::error_code RemoveLayoutSend(const uint64_t token);
   boost::system::error_code RemoveMapSend(const uint64_t token);
   boost::system::error_code RemoveONVIFUserSend(const uint64_t token);
   boost::system::error_code RemoveReceiverSend(const uint64_t token);
@@ -502,6 +508,7 @@ class Client : public boost::enable_shared_from_this<Client>
   Signal<Client, MOUNTFILERESPONSE> mountfile_;
   Signal<Client, REMOVEFILERESPONSE> removefile_;
   Signal<Client, REMOVEGROUPRESPONSE> removegroup_;
+  Signal<Client, REMOVELAYOUTRESPONSE> removelayout_;
   Signal<Client, REMOVEMAPRESPONSE> removemap_;
   Signal<Client, REMOVEONVIFUSERRESPONSE> removeonvifuser_;
   Signal<Client, REMOVERECEIVERRESPONSE> removereceiver_;

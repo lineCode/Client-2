@@ -54,6 +54,7 @@ class DeviceMgr : public QObject
 
   QStringList GetLocations() const;
 
+  std::vector< QSharedPointer<Layout> > GetLayouts() const;
   std::vector< QSharedPointer<Layout> > GetLayouts(const uint64_t token) const;
   uint64_t GetUniqueLayoutToken() const;
 

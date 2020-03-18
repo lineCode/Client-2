@@ -99,7 +99,7 @@ Device::Device(const sock::ProxyParams& proxyparams, const QString& address, con
   connect(this, &Connection::SignalGroupChanged, this, QOverload<const uint64_t, const QString&, const bool, const bool, const bool, const bool, const bool, const std::vector<uint64_t>&>::of(&Device::SlotGroupChanged), Qt::QueuedConnection);
   connect(this, &Connection::SignalGroupRemoved, this, QOverload<const uint64_t>::of(&Device::SlotGroupRemoved), Qt::QueuedConnection);
   connect(this, &Connection::SignalLayoutAdded, this, &Device::SlotLayoutAdded, Qt::QueuedConnection);
-  //TODO connect(this, &Connection::SignalLayoutRemoved, this, &Device::SlotLayoutRemoved, Qt::QueuedConnection);
+  connect(this, &Connection::SignalLayoutRemoved, this, &Device::SlotLayoutRemoved, Qt::QueuedConnection);
   connect(this, &Connection::SignalMapAdded, this, QOverload<const uint64_t, const QString&, const QString&, const QString&>::of(&Device::SlotMapAdded), Qt::QueuedConnection);
   connect(this, &Connection::SignalMapChanged, this, QOverload<const uint64_t, const QString&, const QString&, const QString&>::of(&Device::SlotMapChanged), Qt::QueuedConnection);
   connect(this, &Connection::SignalMapRemoved, this, QOverload<const uint64_t>::of(&Device::SlotMapRemoved), Qt::QueuedConnection);
@@ -1734,6 +1734,19 @@ void Device::SlotLayoutAdded(const monocle::LAYOUT& layout)
       //TODO emit MainWindow::Instance()->GetDeviceMgr().LayoutChanged(*i);
     }
   }
+}
+
+void Device::SlotLayoutRemoved(const uint64_t token)
+{
+  std::vector< QSharedPointer<Layout> >::iterator l = std::find_if(layouts_.begin(), layouts_.end(), [token](const QSharedPointer<Layout>& layout) { return (layout->GetToken() == token); });
+  if (l == layouts_.end())
+  {
+    LOG_GUI_WARNING_SOURCE(boost::static_pointer_cast<Device>(shared_from_this()), QString("Unable to find layout: ") + QString::number(token));
+    return;
+  }
+  layouts_.erase(l);
+  emit SignalLayoutRemoved(token);
+  emit MainWindow::Instance()->GetDeviceMgr().LayoutRemoved(token);
 }
 
 void Device::SlotMapAdded(const uint64_t token, const QString& name, const QString& location, const QString& imagemd5)
