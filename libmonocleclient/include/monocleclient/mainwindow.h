@@ -200,6 +200,8 @@ class MainWindow : public QMainWindow
   void SetColourPickerColour(const QVector3D& colour);
   QVector3D GetColourPickerColour() const;
 
+  std::vector< std::pair< boost::shared_ptr<Device>, monocle::LAYOUT> > GetLayout(const uint64_t token, const std::string& name) const;
+
  protected:
 
   virtual void changeEvent(QEvent* event) override;
@@ -278,6 +280,8 @@ class MainWindow : public QMainWindow
   std::vector< std::pair<bool, QString> > newcameras_; // A list of cameras we have asked the user to add <Save to disk, address>
 
   boost::optional<uint64_t> currentlayout_;
+
+  std::vector<monocle::client::Connection> savelayoutconnections_;
 
  private slots:
 

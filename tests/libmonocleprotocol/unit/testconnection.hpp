@@ -55,13 +55,14 @@ class TestConnection : public server::Connection
 {
  public:
 
-  TestConnection(boost::asio::io_service& io, const boost::shared_ptr<Server>& server, const std::string& testusername, const std::string& testpassword, const std::string& testnonce, const STREAM& teststream, const std::string& testname, const std::string& testpublickey, const std::string& testarchitecture, const int testoperatingsystem, const std::string& testcompiler, const std::string& testdatabasepath, const utility::Version& testversion, const uint64_t testidentifier, const std::vector<std::string>& testenvironmentvariables, const std::vector<std::string>& testcommandlinevariables, const std::vector<ONVIFUSER>& testonvifusers, const std::vector<GROUP>& testgroups, const std::vector<USER>& testusers, const std::vector<FILE>& testfiles, const std::vector<RECEIVER>& testreceivers, const std::vector<RECORDING>& testrecordings, const std::vector<monocle::LOGMESSAGE>& testrecordinglogmessages, const uint32_t testmaxrecordings, const std::vector<MAP>& testmaps, const std::vector<MOUNTPOINT>& testmountpoints, const std::string& testlatitude, const std::string& testlongitude, const int testnumcudadevices, const int testnumcldevices, const int testmaxobjectdetectors, const TESTFRAME& testframe);
+  TestConnection(boost::asio::io_service& io, const boost::shared_ptr<Server>& server, const std::string& testusername, const std::string& testpassword, const std::string& testnonce, const STREAM& teststream, const std::string& testname, const std::string& testpublickey, const std::string& testarchitecture, const int testoperatingsystem, const std::string& testcompiler, const std::string& testdatabasepath, const utility::Version& testversion, const uint64_t testidentifier, const std::vector<std::string>& testenvironmentvariables, const std::vector<std::string>& testcommandlinevariables, const std::vector<ONVIFUSER>& testonvifusers, const std::vector<GROUP>& testgroups, const std::vector<USER>& testusers, const std::vector<FILE>& testfiles, const std::vector<RECEIVER>& testreceivers, const std::vector<RECORDING>& testrecordings, const std::vector<monocle::LOGMESSAGE>& testrecordinglogmessages, const uint32_t testmaxrecordings, const std::vector<LAYOUT>& testlayouts, const std::vector<MAP>& testmaps, const std::vector<MOUNTPOINT>& testmountpoints, const std::string& testlatitude, const std::string& testlongitude, const int testnumcudadevices, const int testnumcldevices, const int testmaxobjectdetectors, const TESTFRAME& testframe);
   virtual ~TestConnection();
 
   virtual boost::system::error_code Connected() override;
   virtual void Disconnected() override;
   virtual Error AddFile(const std::string& mountpoint, const std::string& path, const bool filldisk, const uint64_t numchunks, const uint64_t chunksize, const bool automount) override;
   virtual Error AddGroup(const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings) override;
+  virtual Error AddLayout(const LAYOUT& layout) override;
   virtual Error AddMap(const std::string& name, const std::string& location, const std::vector<int8_t>& image) override;
   virtual Error AddONVIFUser(const std::string& username, const std::string& password, const ONVIFUserlevel onvifuserlevel) override;
   virtual Error AddReceiver(const monocle::ReceiverMode mode, const std::string& uri, const std::string& username, const std::string& password, const std::vector<std::string>& parameters) override;
@@ -72,6 +73,8 @@ class TestConnection : public server::Connection
   virtual Error AddUser(const std::string& username, const std::string& digest, const uint64_t group) override;
   virtual std::pair<Error, AUTHENTICATERESPONSE> Authenticate(const std::string& username, const std::string& clientnonce, const std::string& authdigest) override;
   virtual Error ChangeGroup(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings) override;
+  virtual Error ChangeLayout(const LAYOUT& layout) override;
+  virtual Error ChangeLayoutName(const uint64_t token, const std::string& name) override;
   virtual Error ChangeMap(const uint64_t token, const std::string& name, const std::string& location, const std::vector<int8_t>& image) override;
   virtual Error ChangeONVIFUser(const uint64_t token, const boost::optional<std::string>& username, const boost::optional<std::string>& password, const ONVIFUserlevel onvifuserlevel) override;
   virtual Error ChangeReceiver(const uint64_t token, const monocle::ReceiverMode mode, const std::string& uri, const std::string& username, const std::string& password, const std::vector<std::string>& parameters) override;
@@ -104,6 +107,7 @@ class TestConnection : public server::Connection
   virtual Error MountFile(const uint64_t token) override;
   virtual Error RemoveFile(const uint64_t token) override;
   virtual Error RemoveGroup(const uint64_t token) override;
+  virtual Error RemoveLayout(const uint64_t token) override;
   virtual Error RemoveMap(const uint64_t token) override;
   virtual Error RemoveONVIFUser(const uint64_t token) override;
   virtual Error RemoveReceiver(const uint64_t token) override;
@@ -160,6 +164,7 @@ class TestConnection : public server::Connection
   const std::vector<RECORDING> testrecordings_;
   const std::vector<monocle::LOGMESSAGE> testrecordinglogmessages_;
   const uint32_t testmaxrecordings_;
+  const std::vector<LAYOUT> testlayouts_;
   const std::vector<MAP> testmaps_;
   const std::vector<MOUNTPOINT> testmountpoints_;
   const std::string testlatitude_;

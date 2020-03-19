@@ -81,6 +81,7 @@ class Layout : public QObject
   void SetName(const QString& name);
   void SetConfiguration(const monocle::LAYOUT& layout);
 
+  inline const boost::shared_ptr<Device>& GetDevice() const { return device_; }
   inline uint64_t GetToken() const { return token_; }
   inline const QString& GetName() const { return name_; }
   inline const std::vector< QSharedPointer<LayoutWindow> >& GetWindows() const { return windows_; }

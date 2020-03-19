@@ -54,6 +54,7 @@ class TestProtocol : public testing::Test
   const std::vector<RECORDING> testrecordings_;
   const std::vector<LOGMESSAGE> testrecordinglogmessages_;
   const uint32_t testmaxrecordings_;
+  const std::vector<LAYOUT> testlayouts_;
   const std::vector<MAP> testmaps_;
   const std::vector<MOUNTPOINT> testmountpoints_;
   const std::string testlatitude_;

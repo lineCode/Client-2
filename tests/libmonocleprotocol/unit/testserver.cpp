@@ -23,7 +23,7 @@ namespace tests
 
 ///// Methods /////
 
-TestServer::TestServer(utility::IoServicePool& ioservicepool, const std::string& testusername, const std::string& testpassword, const std::string& testnonce, const STREAM& teststream, const std::string& testname, const std::string& testpublickey, const std::string& testarchitecture, const int testoperatingsystem, const std::string& testcompiler, const std::string& testdatabasepath, const utility::Version& testversion, const uint64_t testidentifier, const std::vector<std::string>& testenvironmentvariables, const std::vector<std::string>& testcommandlinevariables, const std::vector<ONVIFUSER>& testonvifusers, const std::vector<GROUP>& testgroups, const std::vector<USER>& testusers, const std::vector<FILE>& testfiles, const std::vector<RECEIVER>& testreceivers, const std::vector<RECORDING>& testrecordings, const std::vector<monocle::LOGMESSAGE>& testrecordinglogmessages, const uint32_t maxrecordings, const std::vector<MAP>& testmaps, const std::vector<MOUNTPOINT>& testmountpoints, const std::string& testlatitude, const std::string& testlongitude, const int testnumcudadevices, const int testnumcldevices, const int testmaxobjectdetectors, const TESTFRAME& testframe) :
+TestServer::TestServer(utility::IoServicePool& ioservicepool, const std::string& testusername, const std::string& testpassword, const std::string& testnonce, const STREAM& teststream, const std::string& testname, const std::string& testpublickey, const std::string& testarchitecture, const int testoperatingsystem, const std::string& testcompiler, const std::string& testdatabasepath, const utility::Version& testversion, const uint64_t testidentifier, const std::vector<std::string>& testenvironmentvariables, const std::vector<std::string>& testcommandlinevariables, const std::vector<ONVIFUSER>& testonvifusers, const std::vector<GROUP>& testgroups, const std::vector<USER>& testusers, const std::vector<FILE>& testfiles, const std::vector<RECEIVER>& testreceivers, const std::vector<RECORDING>& testrecordings, const std::vector<monocle::LOGMESSAGE>& testrecordinglogmessages, const uint32_t maxrecordings, const std::vector<LAYOUT>& testlayouts, const std::vector<MAP>& testmaps, const std::vector<MOUNTPOINT>& testmountpoints, const std::string& testlatitude, const std::string& testlongitude, const int testnumcudadevices, const int testnumcldevices, const int testmaxobjectdetectors, const TESTFRAME& testframe) :
   Server(ioservicepool),
   testusername_(testusername),
   testpassword_(testpassword),
@@ -47,6 +47,7 @@ TestServer::TestServer(utility::IoServicePool& ioservicepool, const std::string&
   testrecordings_(testrecordings),
   testrecordinglogmessages_(testrecordinglogmessages),
   maxrecordings_(maxrecordings),
+  testlayouts_(testlayouts),
   testmaps_(testmaps),
   testmountpoints_(testmountpoints),
   testlatitude_(testlatitude),
@@ -66,7 +67,7 @@ TestServer::~TestServer()
 
 boost::shared_ptr<server::Connection> TestServer::CreateConnection(boost::asio::io_service& io)
 {
-  return boost::make_shared<TestConnection>(io, shared_from_this(), testusername_, testpassword_, testnonce_, teststream_, testname_, testpublickey_, testarchitecture_, testoperatingsystem_, testcompiler_, testdatabasepath_, testversion_, testidentifier_, testenvironmentvariables_, testcommandlinevariables_, testonvifusers_, testgroups_, testusers_, testfiles_, testreceivers_, testrecordings_, testrecordinglogmessages_, maxrecordings_, testmaps_, testmountpoints_, testlatitude_, testlongitude_, testnumcudadevices_, testnumcldevices_, testmaxobjectdetectors_, testframe_);
+  return boost::make_shared<TestConnection>(io, shared_from_this(), testusername_, testpassword_, testnonce_, teststream_, testname_, testpublickey_, testarchitecture_, testoperatingsystem_, testcompiler_, testdatabasepath_, testversion_, testidentifier_, testenvironmentvariables_, testcommandlinevariables_, testonvifusers_, testgroups_, testusers_, testfiles_, testreceivers_, testrecordings_, testrecordinglogmessages_, maxrecordings_, testlayouts_, testmaps_, testmountpoints_, testlatitude_, testlongitude_, testnumcudadevices_, testnumcldevices_, testmaxobjectdetectors_, testframe_);
 }
 
 }
