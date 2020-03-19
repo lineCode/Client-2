@@ -79,10 +79,10 @@ CUDADEVICE::CUDADEVICE(const CUdevice device, const CUcontext context) :
 
 }
 
-void MainWindow::Create(const uint32_t numioservices, const uint32_t numioservicethreads)
+void MainWindow::Create(const uint32_t numioservices)
 {
   assert(!instance_);
-  instance_ = new MainWindow(numioservices, numioservicethreads);
+  instance_ = new MainWindow(numioservices);
 }
 
 void MainWindow::Destroy()
@@ -91,7 +91,7 @@ void MainWindow::Destroy()
   instance_ = nullptr;
 }
 
-MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservicethreads) :
+MainWindow::MainWindow(const uint32_t numioservices) :
   version_(MONOCLE_CLIENT_VERSION_MAJOR, MONOCLE_CLIENT_VERSION_MINOR, MONOCLE_CLIENT_VERSION_BUILD),
   translationsdirectory_((QCoreApplication::applicationDirPath() + QString("/translations"))),
   arial_(new QResource(":/arial.ttf")),
@@ -101,7 +101,7 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   hcolordist_(0.0, 1.0),
   scolordist_(0.4, 1.0),
   vcolordist_(0.6, 1.0),
-  ioservicepool_(numioservices, numioservicethreads, [](){}, [](){}),
+  ioservicepool_(numioservices, 1, [](){}, [](){}),
   guiioservice_(0),
   tray_(new QSystemTrayIcon(QIcon(":/icon.ico"), this)),
   monocletranslator_(new QTranslator(this)),

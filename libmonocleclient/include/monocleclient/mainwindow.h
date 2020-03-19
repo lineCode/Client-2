@@ -138,11 +138,11 @@ class MainWindow : public QMainWindow
 
  public:
 
-  static void Create(const uint32_t numioservices, const uint32_t numioservicethreads);
+  static void Create(const uint32_t numioservices);
   static void Destroy();
   static MainWindow* Instance() { return instance_; }
 
-  MainWindow(const uint32_t numioservices, const uint32_t numioservicethreads);
+  MainWindow(const uint32_t numioservices);
   virtual ~MainWindow();
 
   inline utility::IoServicePool& GetIOServicePool() { return ioservicepool_; }

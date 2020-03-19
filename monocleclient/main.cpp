@@ -155,19 +155,17 @@ int main(int argc, char** argv)
   qRegisterMetaType<uint64_t>("uint64_t");
 
   // Program options
-  uint32_t numioservices = std::min(16u, static_cast<uint32_t>(std::thread::hardware_concurrency()));
+  uint32_t numioservices = std::min(128u, static_cast<uint32_t>(std::thread::hardware_concurrency() * 2));
   if (numioservices == 0)
   {
     std::cout << "Warning: Unable to determine number of processors" << std::endl;
-    numioservices = 4;
+    numioservices = 16;
   }
-  uint32_t numioservicethreads = 16;
 
   boost::program_options::variables_map vm;
   boost::program_options::options_description description("Allowed options");
   description.add_options()
     ("numioservices", boost::program_options::value<uint32_t>(&numioservices), "Number of io_services")
-    ("numioservicethreads", boost::program_options::value<uint32_t>(&numioservicethreads), "Number of io_service threads")
     ("version,v", boost::program_options::value<bool>()->implicit_value(false), "Version");
 
   // If using WinMain, convert cmdline to argv for boost program options. We don't use boost::split_winmain because it crashes in release mode
@@ -222,7 +220,7 @@ int main(int argc, char** argv)
     }
   }
 
-  client::MainWindow::Create(numioservices, numioservicethreads);
+  client::MainWindow::Create(numioservices);
   client::MainWindow::Instance()->show();
   const int ret = app.exec();
   client::MainWindow::Destroy();
