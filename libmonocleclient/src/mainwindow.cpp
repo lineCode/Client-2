@@ -1937,88 +1937,96 @@ void MainWindow::on_actionsavecurrentlayout_triggered()
     std::vector< std::pair< boost::shared_ptr<Device>, monocle::LAYOUT> >::const_iterator layout = std::find_if(layouts.cbegin(), layouts.cend(), [device](const std::pair< boost::shared_ptr<Device>, monocle::LAYOUT>& layout) { return (layout.first == device); });
     if ((currentlayout != currentlayouts.cend()) && (layout != layouts.cend())) // Change an existing layout
     {
-      //TODO we want to count these up first, and then send the requests later, this means it can't fuck up by sending a response immediately on the first go
-      ++(*count);//TODO concerned this will fuck up
-      savelayoutconnections_.push_back(device->ChangeLayout(layout->second, [this, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::CHANGELAYOUTRESPONSE& changelayoutresponse)
+      ++(*count);
+      QTimer::singleShot(std::chrono::milliseconds(1), [this, device, layout = layout->second, count, errors]()
       {
-        errors->push_back(changelayoutresponse.error_);//TODO methods
-        if ((--(*count)) == 0)
+        savelayoutconnections_.push_back(device->ChangeLayout(layout, [this, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::CHANGELAYOUTRESPONSE& changelayoutresponse)
         {
-          if (std::all_of(errors->cbegin(), errors->cend(), [](const monocle::Error& error) { return (error.code_ == monocle::ErrorCode::Success); }))
+          errors->push_back(changelayoutresponse.error_);//TODO methods
+          if ((--(*count)) == 0)
           {
-
-            return;
-          }
-          else
-          {
-            QStringList errorlist;
-            for (const monocle::Error& error : *errors)
+            if (std::all_of(errors->cbegin(), errors->cend(), [](const monocle::Error& error) { return (error.code_ == monocle::ErrorCode::Success); }))
             {
-              errorlist.push_back(QString::fromStdString(error.text_));
 
+              return;
             }
+            else
+            {
+              QStringList errorlist;
+              for (const monocle::Error& error : *errors)
+              {
+                errorlist.push_back(QString::fromStdString(error.text_));
 
-            QMessageBox(QMessageBox::Warning, tr("Error"), tr("Save layout failed:\n") + errorlist.join("\n"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-            return;
+              }
+
+              QMessageBox(QMessageBox::Warning, tr("Error"), tr("Save layout failed:\n") + errorlist.join("\n"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+              return;
+            }
           }
-        }
-      }));
+        }));
+      });
     }
     else if (currentlayout != currentlayouts.cend()) // Remove an existing layout
     {
       ++(*count);
-      savelayoutconnections_.push_back(device->RemoveLayout(*currentlayout_, [this, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::REMOVELAYOUTRESPONSE& removelayoutresponse)
+      QTimer::singleShot(std::chrono::milliseconds(1), [this, device, currentlayout = *currentlayout_, count, errors]()
       {
-        errors->push_back(removelayoutresponse.error_);//TODO methods
-        if ((--(*count)) == 0)
+        savelayoutconnections_.push_back(device->RemoveLayout(currentlayout, [this, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::REMOVELAYOUTRESPONSE& removelayoutresponse)
         {
-          if (std::all_of(errors->cbegin(), errors->cend(), [](const monocle::Error& error) { return (error.code_ == monocle::ErrorCode::Success); }))
+          errors->push_back(removelayoutresponse.error_);//TODO methods
+          if ((--(*count)) == 0)
           {
-
-            return;
-          }
-          else
-          {
-            QStringList errorlist;
-            for (const monocle::Error& error : *errors)
+            if (std::all_of(errors->cbegin(), errors->cend(), [](const monocle::Error& error) { return (error.code_ == monocle::ErrorCode::Success); }))
             {
-              errorlist.push_back(QString::fromStdString(error.text_));
-              
-            }
 
-            QMessageBox(QMessageBox::Warning, tr("Error"), tr("Save layout failed:\n") + errorlist.join("\n"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-            return;
+              return;
+            }
+            else
+            {
+              QStringList errorlist;
+              for (const monocle::Error& error : *errors)
+              {
+                errorlist.push_back(QString::fromStdString(error.text_));
+
+              }
+
+              QMessageBox(QMessageBox::Warning, tr("Error"), tr("Save layout failed:\n") + errorlist.join("\n"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+              return;
+            }
           }
-        }
-      }));
+        }));
+      });
     }
     else if (layout != layouts.cend()) // Add a new layout
     {
       ++(*count);
-      savelayoutconnections_.push_back(device->AddLayout(layout->second, [this, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::ADDLAYOUTRESPONSE& addlayoutresponse)
+      QTimer::singleShot(std::chrono::milliseconds(1), [this, device, layout = layout->second, count, errors]()
       {
-        errors->push_back(addlayoutresponse.error_);//TODO methods
-        if ((--(*count)) == 0)
+        savelayoutconnections_.push_back(device->AddLayout(layout, [this, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::ADDLAYOUTRESPONSE& addlayoutresponse)
         {
-          if (std::all_of(errors->cbegin(), errors->cend(), [](const monocle::Error& error) { return (error.code_ == monocle::ErrorCode::Success); }))
+          errors->push_back(addlayoutresponse.error_);//TODO methods
+          if ((--(*count)) == 0)
           {
-
-            return;
-          }
-          else
-          {
-            QStringList errorlist;
-            for (const monocle::Error& error : *errors)
+            if (std::all_of(errors->cbegin(), errors->cend(), [](const monocle::Error& error) { return (error.code_ == monocle::ErrorCode::Success); }))
             {
-              errorlist.push_back(QString::fromStdString(error.text_));
-      
+
+              return;
             }
-      
-            QMessageBox(QMessageBox::Warning, tr("Error"), tr("Save layout failed:\n") + errorlist.join("\n"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-            return;
+            else
+            {
+              QStringList errorlist;
+              for (const monocle::Error& error : *errors)
+              {
+                errorlist.push_back(QString::fromStdString(error.text_));
+
+              }
+
+              QMessageBox(QMessageBox::Warning, tr("Error"), tr("Save layout failed:\n") + errorlist.join("\n"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+              return;
+            }
           }
-        }
-      }));
+        }));
+      });
     }
   }
 }
