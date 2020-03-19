@@ -142,6 +142,7 @@ class Device : public Connection
   bool SupportsCreateDefaultJob() const;
   bool SupportsTrackCodec() const; // Whether the codecs are put into the Track structure
   bool SupportsGetChildFoldersFilter() const;
+  bool SupportsLayouts() const;
 
   // These methods look for the current user in the users_, find the group and figure out whether the current user has permission to do the operation
   bool CanManageUsers();

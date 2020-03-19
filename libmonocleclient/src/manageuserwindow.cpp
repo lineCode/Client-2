@@ -59,6 +59,7 @@ ManageUserWindow::ManageUserWindow(QWidget* parent, boost::shared_ptr<Device>& d
     }
 
     ui_.editusername->setText(user->GetUsername());
+    ui_.editusername->setReadOnly(true);
     ui_.editpassword->setText("ABCDEF");
     ui_.editconfirmpassword->setText("ABCDEF");
 
@@ -187,6 +188,13 @@ void ManageUserWindow::on_buttonok_clicked()
     return;
   }
 
+  boost::optional<std::string> password;
+  if (passworddirty_)
+  {
+    password = monocle::AuthenticateDigest(ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString());
+
+  }
+
   if (token_.is_initialized())
   {
     for (const QSharedPointer<User>& user : device_->GetUsers())
@@ -204,13 +212,6 @@ void ManageUserWindow::on_buttonok_clicked()
       }
     }
 
-    boost::optional<std::string> password;
-    if (passworddirty_)
-    {
-      password = monocle::AuthenticateDigest(ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString());
-
-    }
-
     SetEnabled(false);
     userconnection_ = device_->ChangeUser(*token_, password, ui_.combogroup->currentData(Qt::UserRole).toULongLong(), [this](const std::chrono::nanoseconds latency, const monocle::client::CHANGEUSERRESPONSE& changeuserresponse)
     {
@@ -226,6 +227,12 @@ void ManageUserWindow::on_buttonok_clicked()
   }
   else
   {
+    if (!password.is_initialized())
+    {
+      QMessageBox(QMessageBox::Warning, tr("Error"), tr("Please enter a password"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+      return;
+    }
+
     for (const QSharedPointer<User>& user : device_->GetUsers())
     {
       if (user->GetUsername() == ui_.editusername->text())
@@ -242,7 +249,7 @@ void ManageUserWindow::on_buttonok_clicked()
     }
 
     SetEnabled(false);
-    userconnection_ = device_->AddUser(ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), ui_.combogroup->currentData().toULongLong(), [this](const std::chrono::nanoseconds latency, const monocle::client::ADDUSERRESPONSE& adduserresponse)
+    userconnection_ = device_->AddUser(ui_.editusername->text().toStdString(), *password, ui_.combogroup->currentData().toULongLong(), [this](const std::chrono::nanoseconds latency, const monocle::client::ADDUSERRESPONSE& adduserresponse)
     {
       SetEnabled(true);
       if (adduserresponse.GetErrorCode() != monocle::ErrorCode::Success)

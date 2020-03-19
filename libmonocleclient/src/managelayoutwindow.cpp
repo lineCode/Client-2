@@ -60,6 +60,12 @@ void ManageLayoutWindow::on_buttonok_clicked()
     return;
   }
 
+  if (!std::all_of(layouts.cbegin(), layouts.cend(), [](const std::pair< boost::shared_ptr<Device>, monocle::LAYOUT>& layout) { return (layout.first->SupportsLayouts()); }))
+  {
+    QMessageBox(QMessageBox::Warning, tr("Error"), tr("Please upgrade all servers to support layouts"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+    return;
+  }
+
   std::shared_ptr<unsigned int> count = std::make_shared<unsigned int>(0);
   std::shared_ptr< std::vector<monocle::Error> > errors = std::make_shared< std::vector<monocle::Error> >();
   std::for_each(connections_.begin(), connections_.end(), [](monocle::client::Connection& connection) { connection.Close(); });
