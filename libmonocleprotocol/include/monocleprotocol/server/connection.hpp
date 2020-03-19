@@ -78,6 +78,7 @@ class Connection : public boost::enable_shared_from_this<Connection>
   virtual void Disconnected() = 0;
   virtual Error AddFile(const std::string& mountpoint, const std::string& path, const bool filldisk, const uint64_t numchunks, const uint64_t chunksize, const bool automount) = 0;
   virtual Error AddGroup(const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings) = 0;
+  virtual Error AddLayout(const LAYOUT& layout) = 0;
   virtual Error AddMap(const std::string& name, const std::string& location, const std::vector<int8_t>& image) = 0;
   virtual Error AddONVIFUser(const std::string& username, const std::string& password, const ONVIFUserlevel onvifuserlevel) = 0;
   virtual Error AddReceiver(const monocle::ReceiverMode mode, const std::string& uri, const std::string& username, const std::string& password, const std::vector<std::string>& parameters) = 0;
@@ -88,6 +89,8 @@ class Connection : public boost::enable_shared_from_this<Connection>
   virtual Error AddUser(const std::string& username, const std::string& digest, const uint64_t group) = 0;
   virtual std::pair<Error, AUTHENTICATERESPONSE> Authenticate(const std::string& username, const std::string& clientnonce, const std::string& authdigest) = 0;
   virtual Error ChangeGroup(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings) = 0;
+  virtual Error ChangeLayout(const LAYOUT& layout) = 0;
+  virtual Error ChangeLayoutName(const uint64_t token, const std::string& name) = 0;
   virtual Error ChangeMap(const uint64_t token, const std::string& name, const std::string& location, const std::vector<int8_t>& image) = 0;
   virtual Error ChangeONVIFUser(const uint64_t token, const boost::optional<std::string>& username, const boost::optional<std::string>& password, const ONVIFUserlevel onvifuserlevel) = 0;
   virtual Error ChangeReceiver(const uint64_t token, const monocle::ReceiverMode mode, const std::string& uri, const std::string& username, const std::string& password, const std::vector<std::string>& parameters) = 0;
@@ -119,6 +122,7 @@ class Connection : public boost::enable_shared_from_this<Connection>
   virtual Error MountFile(const uint64_t token) = 0;
   virtual Error RemoveFile(const uint64_t token) = 0;
   virtual Error RemoveGroup(const uint64_t token) = 0;
+  virtual Error RemoveLayout(const uint64_t token) = 0;
   virtual Error RemoveMap(const uint64_t token) = 0;
   virtual Error RemoveONVIFUser(const uint64_t token) = 0;
   virtual Error RemoveReceiver(const uint64_t token) = 0;
@@ -168,6 +172,10 @@ class Connection : public boost::enable_shared_from_this<Connection>
   boost::system::error_code SendHardwareStats(const uint64_t timestamp, const std::vector<monocle::DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory, const uint64_t availablememory, const std::vector<monocle::GPUSTAT>& gpustats);
   boost::system::error_code SendJPEGFrame(const uint64_t stream, const uint64_t playrequest, const uint64_t codecindex, const uint64_t timestamp, const boost::optional<uint64_t>& sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const uint8_t* lqt, const uint8_t* cqt, const char* data, const size_t size);
   boost::system::error_code SendLocationChanged(const std::string& latitude, const std::string& location);
+  boost::system::error_code SendLayoutAdded(const monocle::LAYOUT& layout);
+  boost::system::error_code SendLayoutChanged(const monocle::LAYOUT& layout);
+  boost::system::error_code SendLayoutNameChanged(const uint64_t usertoken, const uint64_t token, const std::string& name);
+  boost::system::error_code SendLayoutRemoved(const uint64_t token);
   boost::system::error_code SendMapAdded(const uint64_t token, const std::string& name, const std::string& location, const std::string& imagemd5);
   boost::system::error_code SendMapChanged(const uint64_t token, const std::string& name, const std::string& location, const std::string& imagemd5);
   boost::system::error_code SendMapRemoved(const uint64_t token);

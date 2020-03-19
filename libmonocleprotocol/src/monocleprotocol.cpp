@@ -242,6 +242,18 @@ std::vector< flatbuffers::Offset<MountPoint> > GetMountPointBuffers(const std::v
   return mountpointsbuffer;
 }
 
+std::vector< flatbuffers::Offset<Layout> > GetLayoutBuffers(const std::vector<LAYOUT>& layouts, flatbuffers::FlatBufferBuilder& fbb)
+{
+  std::vector < flatbuffers::Offset<Layout> > layoutsbuffer;
+  layoutsbuffer.reserve(layouts.size());
+  for (const LAYOUT& layout : layouts)
+  {
+    layoutsbuffer.push_back(GetLayoutBuffer(fbb, layout));
+
+  }
+  return layoutsbuffer;
+}
+
 ///// Methods /////
 
 AUTHENTICATERESPONSE::AUTHENTICATERESPONSE()
@@ -288,7 +300,7 @@ GETSTATE::GETSTATE()
 
 }
 
-GETSTATE::GETSTATE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude) :
+GETSTATE::GETSTATE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<LAYOUT>& layouts, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude) :
   name_(name),
   publickey_(publickey),
   architecture_(architecture),
@@ -307,6 +319,7 @@ GETSTATE::GETSTATE(const std::string& name, const std::string& publickey, const 
   recordings_(recordings),
   serverlogmessages_(serverlogmessages),
   maxrecordings_(maxrecordings),
+  layouts_(layouts),
   maps_(maps),
   mountpoints_(mountpoints),
   latitude_(latitude),
@@ -453,6 +466,50 @@ FILE::FILE(const uint64_t token, const std::string& path, const std::string& mou
 bool FILE::operator==(const FILE& rhs) const
 {
   return ((token_ == rhs.token_) && (path_ == rhs.path_) && (mountpoint_ == rhs.mountpoint_) && (numchunks_ == rhs.numchunks_) && (chunksize_ == rhs.chunksize_) && (automount_ == rhs.automount_) && (state_ == rhs.state_) && (monitorstate_ == rhs.monitorstate_));
+}
+
+LAYOUTVIEW::LAYOUTVIEW(const uint64_t token, const uint32_t x, const uint32_t y, const uint32_t width, const uint32_t height) :
+  token_(token),
+  x_(x),
+  y_(y),
+  width_(width),
+  height_(height)
+{
+
+}
+
+LAYOUTWINDOW::LAYOUTWINDOW(const uint64_t token, const bool mainwindow, const bool maximised, const int32_t screenx, const int32_t screeny, const int32_t screenwidth, const int32_t screenheight, const int32_t x, const int32_t y, const int32_t width, const int32_t height, const uint32_t gridwidth, const uint32_t gridheight, const std::vector<LAYOUTVIEW>& maps, const std::vector<LAYOUTVIEW>& recordings) :
+  token_(token),
+  mainwindow_(mainwindow),
+  maximised_(maximised),
+  screenx_(screenx),
+  screeny_(screeny),
+  screenwidth_(screenwidth),
+  screenheight_(screenheight),
+  x_(x),
+  y_(y),
+  width_(width),
+  height_(height),
+  gridwidth_(gridwidth),
+  gridheight_(gridheight),
+  maps_(maps),
+  recordings_(recordings)
+{
+
+}
+
+LAYOUT::LAYOUT() :
+  token_(0)
+{
+
+}
+
+LAYOUT::LAYOUT(const uint64_t token, const std::string& name, const std::vector<LAYOUTWINDOW>& windows) :
+  token_(token),
+  name_(name),
+  windows_(windows)
+{
+
 }
 
 HEADER::HEADER(const uint32_t size, const bool error, const bool compressed, const Message message, const uint16_t sequence) :
@@ -681,7 +738,7 @@ SUBSCRIBE::SUBSCRIBE()
 
 }
 
-SUBSCRIBE::SUBSCRIBE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude, const unsigned int numcudadevices, const unsigned int numcldevices, const uint32_t maxobjectdetectors) :
+SUBSCRIBE::SUBSCRIBE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<LAYOUT>& layouts, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude, const unsigned int numcudadevices, const unsigned int numcldevices, const uint32_t maxobjectdetectors) :
   name_(name),
   publickey_(publickey),
   architecture_(architecture),
@@ -700,6 +757,7 @@ SUBSCRIBE::SUBSCRIBE(const std::string& name, const std::string& publickey, cons
   recordings_(recordings),
   serverlogmessages_(serverlogmessages),
   maxrecordings_(maxrecordings),
+  layouts_(layouts),
   maps_(maps),
   mountpoints_(mountpoints),
   latitude_(latitude),
@@ -762,6 +820,70 @@ SUBSCRIBERECORDINGTRACKLOG::SUBSCRIBERECORDINGTRACKLOG(const std::vector< std::p
   recordingtracklogmessages_(recordingtracklogmessages)
 {
 
+}
+
+monocle::LAYOUT GetLayout(const Layout& layout)
+{
+  std::vector<monocle::LAYOUTWINDOW> windows;
+  if (layout.windows())
+  {
+    windows.reserve(layout.windows()->size());
+    for (const monocle::LayoutWindow* window : *layout.windows())
+    {
+      std::vector<monocle::LAYOUTVIEW> maps;
+      if (window->maps())
+      {
+        maps.reserve(window->maps()->size());
+        for (const monocle::LayoutView* map : *window->maps())
+        {
+          maps.push_back(monocle::LAYOUTVIEW(map->token(), map->x(), map->y(), map->width(), map->height()));
+
+        }
+      }
+
+      std::vector<monocle::LAYOUTVIEW> recordings;
+      if (window->recordings())
+      {
+        recordings.reserve(window->recordings()->size());
+        for (const monocle::LayoutView* recording : *window->recordings())
+        {
+          recordings.push_back(monocle::LAYOUTVIEW(recording->token(), recording->x(), recording->y(), recording->width(), recording->height()));
+
+        }
+      }
+
+      windows.push_back(monocle::LAYOUTWINDOW(window->token(), window->mainwindow(), window->maximised(), window->screenx(), window->screeny(), window->screenwidth(), window->screenheight(), window->x(), window->y(), window->width(), window->height(), window->gridwidth(), window->gridheight(), maps, recordings));
+    }
+  }
+  return monocle::LAYOUT(layout.token(), layout.name() ? layout.name()->str() : std::string(), windows);
+}
+
+flatbuffers::Offset<Layout> GetLayoutBuffer(flatbuffers::FlatBufferBuilder& fbb, const LAYOUT& layout)
+{
+  std::vector< flatbuffers::Offset<monocle::LayoutWindow> > windows;
+  windows.reserve(layout.windows_.size());
+  for (const monocle::LAYOUTWINDOW& window : layout.windows_)
+  {
+    std::vector< flatbuffers::Offset<monocle::LayoutView> > maps;
+    maps.reserve(window.maps_.size());
+    for (const monocle::LAYOUTVIEW& map : window.maps_)
+    {
+      maps.push_back(CreateLayoutView(fbb, map.token_, map.x_, map.y_, map.width_, map.height_));
+
+    }
+
+    std::vector< flatbuffers::Offset<monocle::LayoutView> > recordings;
+    recordings.reserve(window.recordings_.size());
+    for (const monocle::LAYOUTVIEW& recording : window.recordings_)
+    {
+      recordings.push_back(CreateLayoutView(fbb, recording.token_, recording.x_, recording.y_, recording.width_, recording.height_));
+
+    }
+
+    windows.push_back(CreateLayoutWindow(fbb, window.token_, window.mainwindow_, window.maximised_, window.screenx_, window.screeny_, window.screenwidth_, window.screenheight_, window.x_, window.y_, window.width_, window.height_, window.gridwidth_, window.gridheight_, fbb.CreateVector(maps), fbb.CreateVector(recordings)));
+  }
+
+  return CreateLayout(fbb, layout.token_, fbb.CreateString(layout.name_), fbb.CreateVector(windows));
 }
 
 }

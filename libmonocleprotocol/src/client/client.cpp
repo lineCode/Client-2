@@ -15,6 +15,7 @@
 
 #include "monocleprotocol/addfilerequest_generated.h"
 #include "monocleprotocol/addgrouprequest_generated.h"
+#include "monocleprotocol/addlayoutrequest_generated.h"
 #include "monocleprotocol/addmaprequest_generated.h"
 #include "monocleprotocol/addonvifuserrequest_generated.h"
 #include "monocleprotocol/addreceiverrequest_generated.h"
@@ -29,6 +30,8 @@
 #include "monocleprotocol/adduserrequest_generated.h"
 #include "monocleprotocol/authenticaterequest_generated.h"
 #include "monocleprotocol/changegrouprequest_generated.h"
+#include "monocleprotocol/changelayoutnamerequest_generated.h"
+#include "monocleprotocol/changelayoutrequest_generated.h"
 #include "monocleprotocol/changemaprequest_generated.h"
 #include "monocleprotocol/changeonvifuserrequest_generated.h"
 #include "monocleprotocol/changereceiverrequest_generated.h"
@@ -81,6 +84,10 @@
 #include "monocleprotocol/h264frameheader_generated.h"
 #include "monocleprotocol/hardwarestats_generated.h"
 #include "monocleprotocol/jpegframeheader_generated.h"
+#include "monocleprotocol/layoutadded_generated.h"
+#include "monocleprotocol/layoutchanged_generated.h"
+#include "monocleprotocol/layoutnamechanged_generated.h"
+#include "monocleprotocol/layoutremoved_generated.h"
 #include "monocleprotocol/locationchanged_generated.h"
 #include "monocleprotocol/mapadded_generated.h"
 #include "monocleprotocol/mapchanged_generated.h"
@@ -120,6 +127,7 @@
 #include "monocleprotocol/recordingtracklogmessage_generated.h"
 #include "monocleprotocol/removefilerequest_generated.h"
 #include "monocleprotocol/removegrouprequest_generated.h"
+#include "monocleprotocol/removelayoutrequest_generated.h"
 #include "monocleprotocol/removemaprequest_generated.h"
 #include "monocleprotocol/removeonvifuserrequest_generated.h"
 #include "monocleprotocol/removereceiverrequest_generated.h"
@@ -187,6 +195,7 @@ Client::Client(boost::asio::io_service& io) :
   sequence_(0),
   addfile_(DEFAULT_TIMEOUT, this),
   addgroup_(DEFAULT_TIMEOUT, this),
+  addlayout_(DEFAULT_TIMEOUT, this),
   addmap_(DEFAULT_TIMEOUT, this),
   addonvifuser_(DEFAULT_TIMEOUT, this),
   addreceiver_(DEFAULT_TIMEOUT, this),
@@ -197,6 +206,8 @@ Client::Client(boost::asio::io_service& io) :
   adduser_(DEFAULT_TIMEOUT, this),
   authenticate_(DEFAULT_TIMEOUT, this),
   changegroup_(DEFAULT_TIMEOUT, this),
+  changelayout_(DEFAULT_TIMEOUT, this),
+  changelayoutname_(DEFAULT_TIMEOUT, this),
   changemap_(DEFAULT_TIMEOUT, this),
   changeonvifuser_(DEFAULT_TIMEOUT, this),
   changereceiver_(DEFAULT_TIMEOUT, this),
@@ -228,6 +239,7 @@ Client::Client(boost::asio::io_service& io) :
   mountfile_(DEFAULT_TIMEOUT, this),
   removefile_(DEFAULT_TIMEOUT, this),
   removegroup_(DEFAULT_TIMEOUT, this),
+  removelayout_(DEFAULT_TIMEOUT, this),
   removemap_(DEFAULT_TIMEOUT, this),
   removeonvifuser_(DEFAULT_TIMEOUT, this),
   removereceiver_(DEFAULT_TIMEOUT, this),
@@ -328,6 +340,7 @@ void Client::Destroy()
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     addfile_.Destroy();
     addgroup_.Destroy();
+    addlayout_.Destroy();
     addmap_.Destroy();
     addonvifuser_.Destroy();
     addonvifuser_.Destroy();
@@ -337,6 +350,8 @@ void Client::Destroy()
     adduser_.Destroy();
     authenticate_.Destroy();
     changegroup_.Destroy();
+    changelayout_.Destroy();
+    changelayoutname_.Destroy();
     changemap_.Destroy();
     changeonvifuser_.Destroy();
     changereceiver_.Destroy();
@@ -364,6 +379,7 @@ void Client::Destroy()
     mountfile_.Destroy();
     removefile_.Destroy();
     removegroup_.Destroy();
+    removelayout_.Destroy();
     removemap_.Destroy();
     removeonvifuser_.Destroy();
     removereceiver_.Destroy();
@@ -410,6 +426,17 @@ boost::unique_future<ADDGROUPRESPONSE> Client::AddGroup(const std::string& name,
     return boost::make_ready_future(ADDGROUPRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
   }
   return addgroup_.CreateFuture(sequence_);
+}
+
+boost::unique_future<ADDLAYOUTRESPONSE> Client::AddLayout(const LAYOUT& layout)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (AddLayoutSend(layout))
+  {
+
+    return boost::make_ready_future(ADDLAYOUTRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+  }
+  return addlayout_.CreateFuture(sequence_);
 }
 
 boost::unique_future<ADDMAPRESPONSE> Client::AddMap(const std::string& name, const std::string& location, const std::vector<int8_t>& image)
@@ -520,6 +547,28 @@ boost::unique_future<CHANGEGROUPRESPONSE> Client::ChangeGroup(const uint64_t tok
     return boost::make_ready_future(CHANGEGROUPRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
   }
   return changegroup_.CreateFuture(sequence_);
+}
+
+boost::unique_future<CHANGELAYOUTRESPONSE> Client::ChangeLayout(const LAYOUT& layout)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (ChangeLayoutSend(layout))
+  {
+
+    return boost::make_ready_future(CHANGELAYOUTRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+  }
+  return changelayout_.CreateFuture(sequence_);
+}
+
+boost::unique_future<CHANGELAYOUTNAMERESPONSE> Client::ChangeLayoutName(const uint64_t token, const std::string& name)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (ChangeLayoutNameSend(token, name))
+  {
+
+    return boost::make_ready_future(CHANGELAYOUTNAMERESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+  }
+  return changelayoutname_.CreateFuture(sequence_);
 }
 
 boost::unique_future<CHANGEMAPRESPONSE> Client::ChangeMap(const uint64_t token, const std::string& name, const std::string& location, const std::vector<int8_t>& image)
@@ -864,6 +913,17 @@ boost::unique_future<REMOVEGROUPRESPONSE> Client::RemoveGroup(const uint64_t tok
   return removegroup_.CreateFuture(sequence_);
 }
 
+boost::unique_future<REMOVELAYOUTRESPONSE> Client::RemoveLayout(const uint64_t token)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (RemoveLayoutSend(token))
+  {
+
+    return boost::make_ready_future(REMOVELAYOUTRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+  }
+  return removelayout_.CreateFuture(sequence_);
+}
+
 boost::unique_future<REMOVEMAPRESPONSE> Client::RemoveMap(const uint64_t token)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
@@ -1161,6 +1221,17 @@ Connection Client::AddGroup(const std::string& name, const bool manageusers, con
   return addgroup_.CreateCallback(sequence_, callback);
 }
 
+Connection Client::AddLayout(const LAYOUT& layout, boost::function<void(const std::chrono::steady_clock::duration, const ADDLAYOUTRESPONSE&)> callback)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (AddLayoutSend(layout))
+  {
+    callback(std::chrono::steady_clock::duration(), ADDLAYOUTRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+    return Connection();
+  }
+  return addlayout_.CreateCallback(sequence_, callback);
+}
+
 Connection Client::AddMap(const std::string& name, const std::string& location, const std::vector<int8_t>& image, boost::function<void(const std::chrono::steady_clock::duration, const ADDMAPRESPONSE&)> callback)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
@@ -1269,6 +1340,28 @@ Connection Client::ChangeGroup(const uint64_t token, const std::string& name, co
     return Connection();
   }
   return changegroup_.CreateCallback(sequence_, callback);
+}
+
+Connection Client::ChangeLayout(const LAYOUT& layout, boost::function<void(const std::chrono::steady_clock::duration, const CHANGELAYOUTRESPONSE&)> callback)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (ChangeLayoutSend(layout))
+  {
+    callback(std::chrono::steady_clock::duration(), CHANGELAYOUTRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+    return Connection();
+  }
+  return changelayout_.CreateCallback(sequence_, callback);
+}
+
+Connection Client::ChangeLayoutName(const uint64_t token, const std::string& name, boost::function<void(const std::chrono::steady_clock::duration, const CHANGELAYOUTNAMERESPONSE&)> callback)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (ChangeLayoutNameSend(token, name))
+  {
+    callback(std::chrono::steady_clock::duration(), CHANGELAYOUTNAMERESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+    return Connection();
+  }
+  return changelayoutname_.CreateCallback(sequence_, callback);
 }
 
 Connection Client::ChangeMap(const uint64_t token, const std::string& name, const std::string& location, const std::vector<int8_t>& image, boost::function<void(const std::chrono::steady_clock::duration, const CHANGEMAPRESPONSE&)> callback)
@@ -1615,6 +1708,17 @@ Connection Client::RemoveGroup(const uint64_t token, boost::function<void(const 
   return removegroup_.CreateCallback(sequence_, callback);
 }
 
+Connection Client::RemoveLayout(const uint64_t token, boost::function<void(const std::chrono::steady_clock::duration latency, const REMOVELAYOUTRESPONSE&)> callback)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (RemoveLayoutSend(token))
+  {
+    callback(std::chrono::steady_clock::duration(), REMOVELAYOUTRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+    return Connection();
+  }
+  return removelayout_.CreateCallback(sequence_, callback);
+}
+
 Connection Client::RemoveMap(const uint64_t token, boost::function<void(const std::chrono::steady_clock::duration latency, const REMOVEMAPRESPONSE&)> callback)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
@@ -1934,6 +2038,28 @@ boost::system::error_code Client::AddGroupSend(const std::string& name, const bo
   return err;
 }
 
+boost::system::error_code Client::AddLayoutSend(const LAYOUT& layout)
+{
+  fbb_.Clear();
+  fbb_.Finish(CreateAddLayoutRequest(fbb_, GetLayoutBuffer(fbb_, layout)));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::ADDLAYOUT, ++sequence_);
+  boost::system::error_code err;
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(fbb_.GetBufferPointer(), messagesize), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  return err;
+}
+
 boost::system::error_code Client::AddMapSend(const std::string& name, const std::string& location, const std::vector<int8_t>& image)
 {
   fbb_.Clear();
@@ -2161,6 +2287,50 @@ boost::system::error_code Client::ChangeGroupSend(const uint64_t token, const st
   fbb_.Finish(CreateChangeGroupRequest(fbb_, token, fbb_.CreateString(name), manageusers, managerecordings, allrecordings, fbb_.CreateVector(recordings), managemaps, managedevice));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::CHANGEGROUP, ++sequence_);
+  boost::system::error_code err;
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(fbb_.GetBufferPointer(), messagesize), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  return err;
+}
+
+boost::system::error_code Client::ChangeLayoutSend(const LAYOUT& layout)
+{
+  fbb_.Clear();
+  fbb_.Finish(CreateChangeLayoutRequest(fbb_, GetLayoutBuffer(fbb_, layout)));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::CHANGELAYOUT, ++sequence_);
+  boost::system::error_code err;
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(fbb_.GetBufferPointer(), messagesize), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  return err;
+}
+
+boost::system::error_code Client::ChangeLayoutNameSend(const uint64_t token, const std::string& name)
+{
+  fbb_.Clear();
+  fbb_.Finish(CreateChangeLayoutNameRequest(fbb_, token, fbb_.CreateString(name)));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::CHANGELAYOUTNAME, ++sequence_);
   boost::system::error_code err;
   boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
   if (err)
@@ -2799,6 +2969,28 @@ boost::system::error_code Client::RemoveGroupSend(const uint64_t token)
   fbb_.Finish(CreateRemoveGroupRequest(fbb_, token));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::REMOVEGROUP, ++sequence_);
+  boost::system::error_code err;
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(fbb_.GetBufferPointer(), messagesize), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  return err;
+}
+
+boost::system::error_code Client::RemoveLayoutSend(const uint64_t token)
+{
+  fbb_.Clear();
+  fbb_.Finish(CreateRemoveLayoutRequest(fbb_, token));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::REMOVELAYOUT, ++sequence_);
   boost::system::error_code err;
   boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
   if (err)
@@ -3476,6 +3668,17 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       addgroup_.Response(sequence, ADDGROUPRESPONSE());
       break;
     }
+    case Message::ADDLAYOUT:
+    {
+      if (error)
+      {
+        HandleError(addlayout_, sequence, data, datasize);
+        return;
+      }
+
+      addlayout_.Response(sequence, ADDLAYOUTRESPONSE());
+      break;
+    }
     case Message::ADDMAP:
     {
       if (error)
@@ -3631,6 +3834,28 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       }
 
       changegroup_.Response(sequence, CHANGEGROUPRESPONSE());
+      break;
+    }
+    case Message::CHANGELAYOUT:
+    {
+      if (error)
+      {
+        HandleError(changelayout_, sequence, data, datasize);
+        return;
+      }
+
+      changelayout_.Response(sequence, CHANGELAYOUTRESPONSE());
+      break;
+    }
+    case Message::CHANGELAYOUTNAME:
+    {
+      if (error)
+      {
+        HandleError(changelayoutname_, sequence, data, datasize);
+        return;
+      }
+
+      changelayoutname_.Response(sequence, CHANGELAYOUTNAMERESPONSE());
       break;
     }
     case Message::CHANGEMAP:
@@ -4288,6 +4513,48 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         }
       }
 
+      // Layouts
+      std::vector<LAYOUT> layouts;
+      if (getstateresponse->layouts())
+      {
+        layouts.reserve(getstateresponse->layouts()->size());
+        for (const monocle::Layout* layout : *getstateresponse->layouts())
+        {
+          std::vector<LAYOUTWINDOW> windows;
+          if (layout->windows())
+          {
+            windows.reserve(layout->windows()->size());
+            for (const monocle::LayoutWindow* window : *layout->windows())
+            {
+              std::vector<LAYOUTVIEW> maps;
+              if (window->maps())
+              {
+                maps.reserve(window->maps()->size());
+                for (const monocle::LayoutView* map : *window->maps())
+                {
+                  maps.push_back(LAYOUTVIEW(map->token(), map->x(), map->y(), map->width(), map->height()));
+
+                }
+              }
+
+              std::vector<LAYOUTVIEW> recordings;
+              if (window->recordings())
+              {
+                recordings.reserve(window->recordings()->size());
+                for (const monocle::LayoutView* recording : *window->recordings())
+                {
+                  recordings.push_back(LAYOUTVIEW(recording->token(), recording->x(), recording->y(), recording->width(), recording->height()));
+
+                }
+              }
+
+              windows.push_back(LAYOUTWINDOW(window->token(), window->mainwindow(), window->maximised(), window->screenx(), window->screeny(), window->screenwidth(), window->screenheight(), window->x(), window->y(), window->width(), window->height(), window->gridwidth(), window->gridheight(), maps, recordings));
+            }
+          }
+          layouts.push_back(LAYOUT(layout->token(), layout->name() ? layout->name()->str() : std::string(), windows));
+        }
+      }
+
       // Maps
       std::vector<MAP> maps;
       if (getstateresponse->maps())
@@ -4343,7 +4610,7 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         longitude = getstateresponse->longitude()->str();
       }
 
-      getstate_.Response(sequence, GETSTATERESPONSE(name, publickey, architecture, getstateresponse->operatingsystem(), compiler, databasepath, version, getstateresponse->identifier(), environmentvariables, commandlinevariables, onvifusers.second, groups.second, users.second, files.second, receivers.second, recordings.second, serverlogmessages, getstateresponse->maxrecordings(), maps, mountpoints, latitude, longitude));
+      getstate_.Response(sequence, GETSTATERESPONSE(name, publickey, architecture, getstateresponse->operatingsystem(), compiler, databasepath, version, getstateresponse->identifier(), environmentvariables, commandlinevariables, onvifusers.second, groups.second, users.second, files.second, receivers.second, recordings.second, serverlogmessages, getstateresponse->maxrecordings(), layouts, maps, mountpoints, latitude, longitude));
       break;
     }
     case Message::GETTIME:
@@ -4989,6 +5256,102 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       }
 
       LocationChanged(latitude, longitude);
+      break;
+    }
+    case Message::LAYOUTADDED:
+    {
+      if (error)
+      {
+        // Ignore this because it can't really happen...
+        return;
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<monocle::LayoutAdded>(nullptr))
+      {
+
+        return;
+      }
+
+      const monocle::LayoutAdded* layoutadded = flatbuffers::GetRoot<monocle::LayoutAdded>(data);
+      if ((layoutadded == nullptr) || (layoutadded->layout() == nullptr))
+      {
+
+        return;
+      }
+
+      LayoutAdded(GetLayout(*layoutadded->layout()));
+      break;
+    }
+    case Message::LAYOUTCHANGED:
+    {
+      if (error)
+      {
+        // Ignore this because it can't really happen...
+        return;
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<monocle::LayoutChanged>(nullptr))
+      {
+
+        return;
+      }
+
+      const monocle::LayoutChanged* layoutchanged = flatbuffers::GetRoot<monocle::LayoutChanged>(data);
+      if ((layoutchanged == nullptr) || (layoutchanged->layout() == nullptr))
+      {
+
+        return;
+      }
+
+      LayoutChanged(GetLayout(*layoutchanged->layout()));
+      break;
+    }
+    case Message::LAYOUTNAMECHANGED:
+    {
+      if (error)
+      {
+        // Ignore this because it can't really happen...
+        return;
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<monocle::LayoutNameChanged>(nullptr))
+      {
+
+        return;
+      }
+
+      const monocle::LayoutNameChanged* layoutnamechanged = flatbuffers::GetRoot<monocle::LayoutNameChanged>(data);
+      if (layoutnamechanged == nullptr)
+      {
+
+        return;
+      }
+
+      LayoutNameChanged(layoutnamechanged->token(), layoutnamechanged->name() ? layoutnamechanged->name()->str() : std::string());
+      break;
+    }
+    case Message::LAYOUTREMOVED:
+    {
+      if (error)
+      {
+        // Ignore this because it can't really happen...
+        return;
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<monocle::LayoutRemoved>(nullptr))
+      {
+
+        return;
+      }
+
+      const monocle::LayoutRemoved* layoutremoved = flatbuffers::GetRoot<monocle::LayoutRemoved>(data);
+      if (!layoutremoved)
+      {
+
+        return;
+      }
+
+      LayoutRemoved(layoutremoved->token());
       break;
     }
     case Message::MAPADDED:
@@ -6231,6 +6594,16 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       removegroup_.Response(sequence, REMOVEGROUPRESPONSE());
       break;
     }
+    case Message::REMOVELAYOUT:
+    {
+      if (error)
+      {
+        HandleError(removelayout_, sequence, data, datasize);
+        return;
+      }
+      removelayout_.Response(sequence, REMOVELAYOUTRESPONSE());
+      break;
+    }
     case Message::REMOVEMAP:
     {
       if (error)
@@ -6555,6 +6928,48 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         }
       }
 
+      // Layouts
+      std::vector<LAYOUT> layouts;
+      if (subscriberesponse->layouts())
+      {
+        layouts.reserve(subscriberesponse->layouts()->size());
+        for (const monocle::Layout* layout : *subscriberesponse->layouts())
+        {
+          std::vector<LAYOUTWINDOW> windows;
+          if (layout->windows())
+          {
+            windows.reserve(layout->windows()->size());
+            for (const monocle::LayoutWindow* window : *layout->windows())
+            {
+              std::vector<LAYOUTVIEW> maps;
+              if (window->maps())
+              {
+                maps.reserve(window->maps()->size());
+                for (const monocle::LayoutView* map : *window->maps())
+                {
+                  maps.push_back(LAYOUTVIEW(map->token(), map->x(), map->y(), map->width(), map->height()));
+
+                }
+              }
+
+              std::vector<LAYOUTVIEW> recordings;
+              if (window->recordings())
+              {
+                recordings.reserve(window->recordings()->size());
+                for (const monocle::LayoutView* recording : *window->recordings())
+                {
+                  recordings.push_back(LAYOUTVIEW(recording->token(), recording->x(), recording->y(), recording->width(), recording->height()));
+
+                }
+              }
+
+              windows.push_back(LAYOUTWINDOW(window->token(), window->mainwindow(), window->maximised(), window->screenx(), window->screeny(), window->screenwidth(), window->screenheight(), window->x(), window->y(), window->width(), window->height(), window->gridwidth(), window->gridheight(), maps, recordings));
+            }
+          }
+          layouts.push_back(LAYOUT(layout->token(), layout->name() ? layout->name()->str() : std::string(), windows));
+        }
+      }
+
       // Maps
       std::vector<MAP> maps;
       if (subscriberesponse->maps())
@@ -6610,7 +7025,7 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         longitude = subscriberesponse->longitude()->str();
       }
 
-      subscribe_.Response(sequence, SUBSCRIBERESPONSE(name, publickey, architecture, subscriberesponse->operatingsystem(), compiler, databasepath, version, subscriberesponse->identifier(), environmentvariables, commandlinevariables, onvifusers.second, groups.second, users.second, files.second, receivers.second, recordings.second, serverlogmessages, subscriberesponse->maxrecordings(), maps, mountpoints, latitude, longitude, subscriberesponse->numcudadevices(), subscriberesponse->numcldevices(), subscriberesponse->maxobjectdetectors()));
+      subscribe_.Response(sequence, SUBSCRIBERESPONSE(name, publickey, architecture, subscriberesponse->operatingsystem(), compiler, databasepath, version, subscriberesponse->identifier(), environmentvariables, commandlinevariables, onvifusers.second, groups.second, users.second, files.second, receivers.second, recordings.second, serverlogmessages, subscriberesponse->maxrecordings(), layouts, maps, mountpoints, latitude, longitude, subscriberesponse->numcudadevices(), subscriberesponse->numcldevices(), subscriberesponse->maxobjectdetectors()));
       break;
     }
     case Message::SUBSCRIBEDISCOVERY:

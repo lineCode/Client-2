@@ -30,6 +30,7 @@ namespace client
 class File;
 class Group;
 class ONVIFUser;
+class Layout;
 class Receiver;
 class Recording;
 class RecordingJob;
@@ -119,12 +120,14 @@ class Device : public Connection
   inline uint32_t GetMaxRecordings() const { return maxrecordings_; }
   inline const std::vector< QSharedPointer<Map> >& GetMaps() const { return maps_; }
   inline const std::vector<MOUNTPOINT> GetMountPoints() const { return mountpoints_; }
+  inline const std::vector< QSharedPointer<Layout> > GetLayouts() const { return layouts_; }
 
   QSharedPointer<Group> GetGroup(const uint64_t token) const;
   QSharedPointer<ONVIFUser> GetONVIFUser(const uint64_t token) const;
   QSharedPointer<client::Receiver> GetReceiver(const uint64_t token) const;
   QSharedPointer<User> GetUser(const uint64_t token) const;
   QSharedPointer<Map> GetMap(const uint64_t token) const;
+  QSharedPointer<Layout> GetLayout(const uint64_t token) const;
 
   QStringList GetLocations() const;
 
@@ -139,6 +142,7 @@ class Device : public Connection
   bool SupportsCreateDefaultJob() const;
   bool SupportsTrackCodec() const; // Whether the codecs are put into the Track structure
   bool SupportsGetChildFoldersFilter() const;
+  bool SupportsLayouts() const;
 
   // These methods look for the current user in the users_, find the group and figure out whether the current user has permission to do the operation
   bool CanManageUsers();
@@ -200,6 +204,7 @@ class Device : public Connection
   uint32_t maxrecordings_;
   std::vector< QSharedPointer<Map> > maps_;
   std::vector<MOUNTPOINT> mountpoints_;
+  std::vector< QSharedPointer<Layout> > layouts_;
 
  signals:
 
@@ -213,6 +218,9 @@ class Device : public Connection
   void SignalGroupAdded(QSharedPointer<Group>& group);
   void SignalGroupChanged(QSharedPointer<Group>& group);
   void SignalGroupRemoved(const uint64_t token);
+  void SignalLayoutAdded(const QSharedPointer<Layout>& layout);
+  void SignalLayoutChanged(const QSharedPointer<Layout>& layout);
+  void SignalLayoutRemoved(const uint64_t token);
   void SignalLatency(const std::chrono::steady_clock::duration latency);
   void SignalMapAdded(const QSharedPointer<Map>& map);
   void SignalMapChanged(const QSharedPointer<Map>& map);
@@ -261,6 +269,10 @@ class Device : public Connection
   void SlotGroupAdded(const uint64_t token, const QString& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
   void SlotGroupChanged(const uint64_t token, const QString& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
   void SlotGroupRemoved(const uint64_t token);
+  void SlotLayoutAdded(const monocle::LAYOUT& layout);
+  void SlotLayoutChanged(const monocle::LAYOUT& layout);
+  void SlotLayoutNameChanged(const uint64_t token, const QString& name);
+  void SlotLayoutRemoved(const uint64_t token);
   void SlotMapAdded(const uint64_t token, const QString& name, const QString& location, const QString& imagemd5);
   void SlotMapChanged(const uint64_t token, const QString& name, const QString& location, const QString& imagemd5);
   void SlotMapRemoved(const uint64_t token);

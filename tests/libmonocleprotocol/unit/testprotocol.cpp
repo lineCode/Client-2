@@ -84,6 +84,7 @@ TestProtocol::TestProtocol() :
     }),
   testrecordinglogmessages_({ LOGMESSAGE(0, monocle::Severity::Critical, "Critical1"), LOGMESSAGE(1, monocle::Severity::Err, "Err"), LOGMESSAGE(1, monocle::Severity::Debug, "Debug"), LOGMESSAGE(3, monocle::Severity::Info, "Info"), LOGMESSAGE(4, monocle::Severity::Critical, "Critical2") }),
   testmaxrecordings_(8),
+  testlayouts_({ LAYOUT(1, "layout", { LAYOUTWINDOW(2, true, false, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, {}, {}) }) }),
   testmaps_({ MAP(0, "name", "location", "imagemd5") }),
   testmountpoints_({ MOUNTPOINT(0, 1, 2, 3, "path", "type", "source") }),
   testlatitude_("latitude"),
@@ -93,7 +94,7 @@ TestProtocol::TestProtocol() :
   testmaxobjectdetectors_(7),
   testframe_(1, 2, 3, 4, 5, utility::GenerateRandomData<uint8_t>(50), 6, 7, 8, 9, 10, 11, nullptr, nullptr, utility::GenerateRandomData<char>(50)),
   client_(boost::make_shared<client::tests::TestClient>(ioservicepool.GetIoService())),
-  server_(boost::make_shared<server::tests::TestServer>(ioservicepool, TESTUSERNAME, TESTPASSWORD, TESTNONCE, teststream_, testname_, testpublickey_, testarchitecture_, testoperatingsystem_, testcompiler_, testdatabasepath_, testversion_, testidentifier_, testenvironmentvariables_, testcommandlinevariables_, testonvifusers_, testgroups_, testusers_, testfiles_, testreceivers_, testrecordings_, testrecordinglogmessages_, testmaxrecordings_, testmaps_, testmountpoints_, testlatitude_, testlongitude_, testnumcudadevices_, testnumcldevices_, testmaxobjectdetectors_, testframe_))
+  server_(boost::make_shared<server::tests::TestServer>(ioservicepool, TESTUSERNAME, TESTPASSWORD, TESTNONCE, teststream_, testname_, testpublickey_, testarchitecture_, testoperatingsystem_, testcompiler_, testdatabasepath_, testversion_, testidentifier_, testenvironmentvariables_, testcommandlinevariables_, testonvifusers_, testgroups_, testusers_, testfiles_, testreceivers_, testrecordings_, testrecordinglogmessages_, testmaxrecordings_, testlayouts_, testmaps_, testmountpoints_, testlatitude_, testlongitude_, testnumcudadevices_, testnumcldevices_, testmaxobjectdetectors_, testframe_))
 {
   
 }

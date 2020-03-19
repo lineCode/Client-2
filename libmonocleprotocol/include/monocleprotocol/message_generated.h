@@ -77,6 +77,10 @@ enum class Message : uint16_t {
   ADDTRACK2 = 65,
   CHANGETRACK2 = 66,
   REMOVETRACKS = 67,
+  ADDLAYOUT = 68,
+  CHANGELAYOUT = 69,
+  CHANGELAYOUTNAME = 70,
+  REMOVELAYOUT = 71,
   CONTROLSTREAMEND = 8000,
   DISCOVERYHELLO = 8001,
   FILEADDED = 8002,
@@ -144,11 +148,15 @@ enum class Message : uint16_t {
   RECORDINGTRACKCODECREMOVED = 8065,
   OBJECTDETECTORFRAME = 8066,
   RECORDINGSTATISTICS = 8067,
+  LAYOUTADDED = 8068,
+  LAYOUTCHANGED = 8069,
+  LAYOUTNAMECHANGED = 8070,
+  LAYOUTREMOVED = 8071,
   MIN = ADDFILE,
-  MAX = RECORDINGSTATISTICS
+  MAX = LAYOUTREMOVED
 };
 
-inline const Message (&EnumValuesMessage())[135] {
+inline const Message (&EnumValuesMessage())[143] {
   static const Message values[] = {
     Message::ADDFILE,
     Message::ADDGROUP,
@@ -218,6 +226,10 @@ inline const Message (&EnumValuesMessage())[135] {
     Message::ADDTRACK2,
     Message::CHANGETRACK2,
     Message::REMOVETRACKS,
+    Message::ADDLAYOUT,
+    Message::CHANGELAYOUT,
+    Message::CHANGELAYOUTNAME,
+    Message::REMOVELAYOUT,
     Message::CONTROLSTREAMEND,
     Message::DISCOVERYHELLO,
     Message::FILEADDED,
@@ -284,7 +296,11 @@ inline const Message (&EnumValuesMessage())[135] {
     Message::RECORDINGTRACKCODECADDED,
     Message::RECORDINGTRACKCODECREMOVED,
     Message::OBJECTDETECTORFRAME,
-    Message::RECORDINGSTATISTICS
+    Message::RECORDINGSTATISTICS,
+    Message::LAYOUTADDED,
+    Message::LAYOUTCHANGED,
+    Message::LAYOUTNAMECHANGED,
+    Message::LAYOUTREMOVED
   };
   return values;
 }
@@ -359,6 +375,10 @@ inline const char *EnumNameMessage(Message e) {
     case Message::ADDTRACK2: return "ADDTRACK2";
     case Message::CHANGETRACK2: return "CHANGETRACK2";
     case Message::REMOVETRACKS: return "REMOVETRACKS";
+    case Message::ADDLAYOUT: return "ADDLAYOUT";
+    case Message::CHANGELAYOUT: return "CHANGELAYOUT";
+    case Message::CHANGELAYOUTNAME: return "CHANGELAYOUTNAME";
+    case Message::REMOVELAYOUT: return "REMOVELAYOUT";
     case Message::CONTROLSTREAMEND: return "CONTROLSTREAMEND";
     case Message::DISCOVERYHELLO: return "DISCOVERYHELLO";
     case Message::FILEADDED: return "FILEADDED";
@@ -426,6 +446,10 @@ inline const char *EnumNameMessage(Message e) {
     case Message::RECORDINGTRACKCODECREMOVED: return "RECORDINGTRACKCODECREMOVED";
     case Message::OBJECTDETECTORFRAME: return "OBJECTDETECTORFRAME";
     case Message::RECORDINGSTATISTICS: return "RECORDINGSTATISTICS";
+    case Message::LAYOUTADDED: return "LAYOUTADDED";
+    case Message::LAYOUTCHANGED: return "LAYOUTCHANGED";
+    case Message::LAYOUTNAMECHANGED: return "LAYOUTNAMECHANGED";
+    case Message::LAYOUTREMOVED: return "LAYOUTREMOVED";
     default: return "";
   }
 }

@@ -22,6 +22,7 @@
 #include "monocleprotocol/group_generated.h"
 #include "monocleprotocol/gpustat_generated.h"
 #include "monocleprotocol/header_generated.h"
+#include "monocleprotocol/layout_generated.h"
 #include "monocleprotocol/logmessage_generated.h"
 #include "monocleprotocol/onvifuser_generated.h"
 #include "monocleprotocol/map_generated.h"
@@ -86,6 +87,23 @@ struct GPUSTAT
 
 };
 
+struct GROUP
+{
+  GROUP(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
+
+  bool operator==(const GROUP& rhs) const;
+
+  uint64_t token_;
+  std::string name_;
+  bool manageusers_;
+  bool managerecordings_;
+  bool managemaps_;
+  bool managedevice_;
+  bool allrecordings_;
+  std::vector<uint64_t> recordings_;
+
+};
+
 struct HARDWARESTATS
 {
   HARDWARESTATS(const uint64_t time, const std::vector<DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory,  const uint64_t availablememory, const std::vector<GPUSTAT>& gpustats);
@@ -109,23 +127,6 @@ struct LOGMESSAGE
   uint64_t time_;
   monocle::Severity severity_;
   std::string message_;
-
-};
-
-struct GROUP
-{
-  GROUP(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
-
-  bool operator==(const GROUP& rhs) const;
-
-  uint64_t token_;
-  std::string name_;
-  bool manageusers_;
-  bool managerecordings_;
-  bool managemaps_;
-  bool managedevice_;
-  bool allrecordings_;
-  std::vector<uint64_t> recordings_;
 
 };
 
@@ -203,6 +204,51 @@ struct FILE
   bool automount_;
   monocle::FileState state_;
   monocle::FileMonitorState monitorstate_;
+
+};
+
+struct LAYOUTVIEW
+{
+  LAYOUTVIEW(const uint64_t token, const uint32_t x, const uint32_t y, const uint32_t width, const uint32_t height);
+
+  uint64_t token_; // Token of the map or the recording
+  uint32_t x_;
+  uint32_t y_;
+  uint32_t width_;
+  uint32_t height_;
+
+};
+
+struct LAYOUTWINDOW
+{
+  LAYOUTWINDOW(const uint64_t token, const bool mainwindow, const bool maximised, const int32_t screenx, const int32_t screeny, const int32_t screenwidth, const int32_t screenheight, const int32_t x, const int32_t y, const int32_t width, const int32_t height, const uint32_t gridwidth, const uint32_t gridheight, const std::vector<LAYOUTVIEW>& maps, const std::vector<LAYOUTVIEW>& recordings);
+
+  uint64_t token_;
+  bool mainwindow_;
+  bool maximised_;
+  int32_t screenx_;
+  int32_t screeny_;
+  int32_t screenwidth_;
+  int32_t screenheight_;
+  int32_t x_;
+  int32_t y_;
+  int32_t width_;
+  int32_t height_;
+  uint32_t gridwidth_;
+  uint32_t gridheight_;
+  std::vector<LAYOUTVIEW> maps_;
+  std::vector<LAYOUTVIEW> recordings_;
+
+};
+
+struct LAYOUT
+{
+  LAYOUT();
+  LAYOUT(const uint64_t token, const std::string& name, const std::vector<LAYOUTWINDOW>& windows);
+
+  uint64_t token_; // The client chooses this, so when necessary, it will match accross devices and the client can then match them back up
+  std::string name_;
+  std::vector<LAYOUTWINDOW> windows_;
 
 };
 
@@ -400,7 +446,7 @@ struct MOUNTPOINT
 struct GETSTATE
 {
   GETSTATE();
-  GETSTATE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude);
+  GETSTATE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<LAYOUT>& layouts, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude);
 
   std::string name_;
   std::string publickey_;
@@ -420,6 +466,7 @@ struct GETSTATE
   std::vector<RECORDING> recordings_;
   std::vector<LOGMESSAGE> serverlogmessages_;
   uint32_t maxrecordings_;
+  std::vector<LAYOUT> layouts_;
   std::vector<MAP> maps_;
   std::vector<MOUNTPOINT> mountpoints_;
   std::string latitude_;
@@ -430,7 +477,7 @@ struct GETSTATE
 struct SUBSCRIBE
 {
   SUBSCRIBE();
-  SUBSCRIBE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude, const unsigned int numcudadevices, const unsigned int numcldevices, const uint32_t maxobjectdetectors);
+  SUBSCRIBE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<LAYOUT>& layouts, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude, const unsigned int numcudadevices, const unsigned int numcldevices, const uint32_t maxobjectdetectors);
 
   std::string name_;
   std::string publickey_;
@@ -450,6 +497,7 @@ struct SUBSCRIBE
   std::vector<RECORDING> recordings_;
   std::vector<LOGMESSAGE> serverlogmessages_;
   uint32_t maxrecordings_;
+  std::vector<LAYOUT> layouts_;
   std::vector<MAP> maps_;
   std::vector<MOUNTPOINT> mountpoints_;
   std::string latitude_;
@@ -523,6 +571,9 @@ std::vector< flatbuffers::Offset<RecordingJobSource> > GetRecordingJobSourceBuff
 std::vector< flatbuffers::Offset<LogMessage> > GetLogMessagesBuffer(const std::vector<LOGMESSAGE>& logmessages, flatbuffers::FlatBufferBuilder& fbb);
 std::vector< flatbuffers::Offset<Map> > GetMapBuffers(const std::vector<MAP>& maps, flatbuffers::FlatBufferBuilder& fbb);
 std::vector< flatbuffers::Offset<MountPoint> > GetMountPointBuffers(const std::vector<MOUNTPOINT>& mountpoints, flatbuffers::FlatBufferBuilder& fbb);
+std::vector< flatbuffers::Offset<Layout> > GetLayoutBuffers(const std::vector<LAYOUT>& layouts, flatbuffers::FlatBufferBuilder& fbb);
+monocle::LAYOUT GetLayout(const Layout& layout);
+flatbuffers::Offset<Layout> GetLayoutBuffer(flatbuffers::FlatBufferBuilder& fbb, const LAYOUT& layout);
 
 }
 

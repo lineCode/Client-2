@@ -15,6 +15,7 @@
 #include <QLocale>
 #include <QMessageBox>
 #include <QMimeData>
+#include <QScreen>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QTimer>
@@ -25,7 +26,11 @@
 #include "monocleclient/aboutwindow.h"
 #include "monocleclient/devicemgr.h"
 #include "monocleclient/editdevicewindow.h"
+#include "monocleclient/layout.h"
+#include "monocleclient/managelayoutswindow.h"
+#include "monocleclient/managelayoutwindow.h"
 #include "monocleclient/managetrackwindow.h"
+#include "monocleclient/mapview.h"
 #include "monocleclient/newcameraquestionwindow.h"
 #include "monocleclient/options.h"
 #include "monocleclient/optionswindow.h"
@@ -34,6 +39,7 @@
 #include "monocleclient/recordingjob.h"
 #include "monocleclient/recordingjobsource.h"
 #include "monocleclient/updatewindow.h"
+#include "monocleclient/videoview.h"
 
 ///// Defines /////
 
@@ -232,6 +238,12 @@ MainWindow::MainWindow(const uint32_t numioservices, const uint32_t numioservice
   
   Options::Instance().Load();
 
+  connect(&devicemgr_, &DeviceMgr::LayoutAdded, this, &MainWindow::LayoutAdded);
+  connect(&devicemgr_, &DeviceMgr::LayoutChanged, this, &MainWindow::LayoutChanged);
+  connect(&devicemgr_, &DeviceMgr::LayoutRemoved, this, &MainWindow::LayoutRemoved);
+  connect(&videowidgetsmgr_, &VideoWidgetsMgr::ViewDestroyed, this, &MainWindow::ViewDestroyed);
+  connect(&videowidgetsmgr_, &VideoWidgetsMgr::VideoViewCreated, this, &MainWindow::VideoViewCreated);
+  connect(&videowidgetsmgr_, &VideoWidgetsMgr::ViewDestroyed, this, &MainWindow::ViewDestroyed);
   connect(&checkforupdate_, &CheckForUpdate::UpdateAvailable, this, &MainWindow::UpdateAvailable);
   connect(ui_.actionexit, &QAction::triggered, this, &QMainWindow::close);
   connect(ui_.buttonframestepbackwards, &QPushButton::clicked, ui_.playbackwidget, &PlaybackWidget::on_buttonframestepbackwards_clicked);
@@ -640,6 +652,89 @@ QVector3D MainWindow::GetColourPickerColour() const
   }
 }
 
+std::vector< std::pair< boost::shared_ptr<Device>, monocle::LAYOUT> > MainWindow::GetLayout(const uint64_t token, const std::string& name) const
+{
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<uint64_t> dist(1, std::numeric_limits<int64_t>::max());
+
+  // We want to gather up all the views from all the windows and dispatch them to the relevant devices, but then have the ability to piece it back together once we later select this layout
+  std::vector< std::pair<uint64_t, VideoWidget*> > videowidgets;
+  std::vector< std::pair< boost::shared_ptr<Device>, monocle::LAYOUT> > layouts;
+  for (const boost::shared_ptr<Device>& device : MainWindow::Instance()->GetDeviceMgr().GetDevices())
+  {
+    std::vector<monocle::LAYOUTWINDOW> windows;
+    windows.reserve(MainWindow::Instance()->GetVideoWidgetsMgr().GetVideoWidgets().size());
+    for (VideoWidget* videowidget : MainWindow::Instance()->GetVideoWidgetsMgr().GetVideoWidgets())
+    {
+      QWidget* window = static_cast<QWidget*>(videowidget->parent()->parent());
+
+      std::vector<monocle::LAYOUTVIEW> videoviews;
+      std::vector<monocle::LAYOUTVIEW> mapviews;
+      for (const QSharedPointer<View>& view : videowidget->GetViews())
+      {
+        if (view->GetViewType() == VIEWTYPE_MONOCLE)
+        {
+          const QSharedPointer<VideoView> videoview = (view.staticCast<VideoView>());
+          if (videoview->GetDevice() != device) // Only collecting for this particular device
+          {
+
+            continue;
+          }
+          const QRect rect = view->GetRect();
+          videoviews.push_back(monocle::LAYOUTVIEW(videoview->GetRecording()->GetToken(), rect.x(), rect.y(), rect.width(), rect.height()));
+        }
+        else if (view->GetViewType() == VIEWTYPE_MAP)
+        {
+          const QSharedPointer<MapView> mapview = (view.staticCast<MapView>());
+          if (mapview->GetDevice() != device) // Only collecting for this particular device
+          {
+
+            continue;
+          }
+          const QRect rect = view->GetRect();
+          mapviews.push_back(monocle::LAYOUTVIEW(mapview->GetMap()->GetToken(), rect.x(), rect.y(), rect.width(), rect.height()));
+        }
+      }
+
+      if (videoviews.size() || mapviews.size())
+      {
+        // Make sure the screen token is the same for every window on every device
+        uint64_t windowtoken = 0;
+        auto s = std::find_if(videowidgets.cbegin(), videowidgets.cend(), [videowidget](const std::pair<uint64_t, VideoWidget*>& vw) { return (vw.second == videowidget); });
+        if (s == videowidgets.cend())
+        {
+          while (true)
+          {
+            windowtoken = dist(gen);
+            if (std::find_if(windows.cbegin(), windows.cend(), [windowtoken](const monocle::LAYOUTWINDOW& window) { return (window.token_ == windowtoken); }) == windows.cend())
+            {
+              videowidgets.push_back(std::make_pair(windowtoken, videowidget));
+              break;
+            }
+          }
+        }
+        else
+        {
+          windowtoken = s->first;
+
+        }
+
+        const QRect geometry = window->screen()->geometry();
+        windows.push_back(monocle::LAYOUTWINDOW(windowtoken, videowidget == MainWindow::Instance()->GetVideoWidget(), window->isMaximized(), geometry.x(), geometry.y(), geometry.width(), geometry.height(), window->x(), window->y(), window->width(), window->height(), videowidget->GetWidth(), videowidget->GetHeight(), mapviews, videoviews));
+      }
+    }
+
+    if (windows.size()) // If this device contains contains some views
+    {
+      layouts.push_back(std::make_pair(device, monocle::LAYOUT(token, name, windows)));
+
+    }
+  }
+
+  return layouts;
+}
+
 void MainWindow::closeEvent(QCloseEvent* event)
 {
   if (Options::Instance().GetHideMainWindowCloseDialog() == false)
@@ -754,6 +849,16 @@ void MainWindow::timerEvent(QTimerEvent* event)
     guiioservice_.reset();
     guiioservice_.poll();
   }
+}
+
+uint32_t MainWindow::GridWidth(const std::vector< QSharedPointer<LayoutWindow> >& layouts)
+{
+  return std::max(1u, std::min(MAXVIDEOWINDOWWIDTH, (*std::max_element(layouts.cbegin(), layouts.cend(), [](const QSharedPointer<LayoutWindow>& lhs, const QSharedPointer<LayoutWindow>& rhs) { return (lhs->gridwidth_ < rhs->gridwidth_); }))->gridwidth_));
+}
+
+uint32_t MainWindow::GridHeight(const std::vector< QSharedPointer<LayoutWindow> >& layouts)
+{
+  return std::max(1u, std::min(MAXVIDEOWINDOWHEIGHT, (*std::max_element(layouts.cbegin(), layouts.cend(), [](const QSharedPointer<LayoutWindow>& lhs, const QSharedPointer<LayoutWindow>& rhs) { return (lhs->gridheight_ < rhs->gridheight_); }))->gridheight_));
 }
 
 void MainWindow::AcceptDrop(QDragMoveEvent* event)
@@ -1403,6 +1508,283 @@ void MainWindow::LanguageChanged(QAction* action)
   }
 }
 
+void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
+{
+  const uint64_t token = layout->GetToken();
+  for (const QAction* action : ui_.menulayouts->actions())
+  {
+    if (action->data().toULongLong() == token) // If we already have a menu item representing this layout, ignore this message
+    {
+
+      return;
+    }
+  }
+
+  QAction* action = ui_.menulayouts->addAction(layout->GetName(), [this, token]()
+  {
+    // Gather up the windows from the layouts from all the devices for the selected token
+    const std::vector< QSharedPointer<Layout> > layouts = MainWindow::Instance()->GetDeviceMgr().GetLayouts(token);
+    if (layouts.empty())
+    {
+      QMessageBox(QMessageBox::Warning, tr("Error"), tr("Unable to find layout: ") + QString::number(token), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+      return;
+    }
+
+    std::map< uint64_t, std::vector< QSharedPointer<LayoutWindow> > > windows;
+    for (const QSharedPointer<Layout>& layout : layouts)
+    {
+    for (const QSharedPointer<LayoutWindow>& layoutwindow : layout->GetWindows())
+    {
+      auto window = windows.find(layout->GetToken());
+      if (window == windows.end())
+      {
+        windows[layoutwindow->token_] = std::vector< QSharedPointer<LayoutWindow> >({ layoutwindow });
+
+      }
+      else
+      {
+        window->second.push_back(layoutwindow);
+
+      }
+    }
+    }
+
+    // Find whether we can match the windows we want to exist, with ones that are currently there already
+    std::vector<VideoWidget*> videowidgets;
+    videowidgets.reserve(videowindowmgr_.GetVideoWindows().size());
+    for (VideoWindow* videowindow : videowindowmgr_.GetVideoWindows())
+    {
+      videowidgets.push_back(videowindow->GetVideoWidget());
+
+    }
+
+    // There should only be one MainWindow
+    std::vector< std::pair< VideoWidget*, std::vector< QSharedPointer<LayoutWindow> > > > fittedwindows;
+    fittedwindows.reserve(videowidgets.size() + 1);
+    auto mainwindow = std::find_if(windows.cbegin(), windows.cend(), [this](const std::pair<uint64_t, std::vector< QSharedPointer<LayoutWindow> > >& window) { return (window.second.front()->mainwindow_); });
+    if (mainwindow != windows.cend())
+    {
+      fittedwindows.push_back(std::make_pair(ui_.videowidget, mainwindow->second));
+      windows.erase(mainwindow);
+    }
+
+    // Find any exact matches for windows
+    for (auto window = windows.cbegin(); window != windows.cend();)
+    {
+      // If there is currently an exact match for a window, use it
+      auto videowidget = std::find_if(videowidgets.cbegin(), videowidgets.cend(), [window](const VideoWidget* videowidget) { return ((videowidget->GetVideoWindowX() == window->second.front()->screenx_) && (videowidget->GetVideoWindowY() == window->second.front()->screeny_) && (videowidget->GetVideoWindowWidth() == window->second.front()->screenwidth_) && (videowidget->GetVideoWindowHeight() == window->second.front()->screenheight_)); });
+      if (videowidget != videowidgets.cend())
+      {
+        fittedwindows.push_back(std::make_pair(*videowidget, window->second));
+        videowidgets.erase(videowidget);
+        window = windows.erase(window);
+      }
+      else
+      {
+        ++window;
+
+      }
+    }
+
+    // Now find any spare window, or create one
+    for (const std::pair<uint64_t, std::vector< QSharedPointer<LayoutWindow> > >& window : windows)
+    {
+      if (videowidgets.empty())
+      {
+        const uint32_t gridwidth = GridWidth(window.second);
+        const uint32_t gridheight = GridHeight(window.second);
+        VideoWindow* videowindow = videowindowmgr_.CreateVideoWindow(QPoint(window.second.front()->x_, window.second.front()->y_), arial_, showfullscreen_, gridwidth, gridheight, Options::Instance().GetDefaultShowToolbar());
+        fittedwindows.push_back(std::make_pair(videowindow->GetVideoWidget(), window.second));
+      }
+      else
+      {
+        fittedwindows.push_back(std::make_pair(videowidgets.front(), window.second));
+        videowidgets.erase(videowidgets.begin());
+      }
+    }
+    windows.clear();
+
+    // Fill out all the windows
+    for (const std::pair< VideoWidget*, std::vector< QSharedPointer<LayoutWindow> > >& fittedwindow : fittedwindows)
+    {
+      int32_t x = 0;
+      int32_t y = 0;
+      if (QApplication::screenAt(QPoint(fittedwindow.second.front()->x_, fittedwindow.second.front()->y_)) == nullptr) // If the point in the layout is not accessible in the current setup, place the window on the primary screen
+      {
+        x = fittedwindow.second.front()->x_;
+        y = fittedwindow.second.front()->y_;
+      }
+      else
+      {
+        QScreen* primaryscreen = QApplication::primaryScreen();
+        if (primaryscreen) // Just in case
+        {
+          const QRect geometry = primaryscreen->geometry();
+          x = geometry.x();
+          y = geometry.y();
+        }
+      }
+
+      if (!fittedwindow.second.front()->maximised_)
+      {
+        fittedwindow.first->SetWindowState(Qt::WindowNoState);
+
+      }
+      fittedwindow.first->VideoWindowMove(fittedwindow.second.front()->x_, fittedwindow.second.front()->y_);
+      fittedwindow.first->VideoWindowResize(fittedwindow.second.front()->width_, fittedwindow.second.front()->height_);
+      if (fittedwindow.second.front()->maximised_)
+      {
+        fittedwindow.first->SetWindowState(Qt::WindowMaximized);
+
+      }
+      fittedwindow.first->update(); // Not sure this is required, but can't hurt
+
+      const uint32_t gridwidth = GridWidth(fittedwindow.second);
+      const uint32_t gridheight = GridHeight(fittedwindow.second);
+      fittedwindow.first->SetGridSize(gridwidth, gridheight);
+
+      for (const QSharedPointer<LayoutWindow>& layout : fittedwindow.second)
+      {
+        for (const QSharedPointer<LayoutView>& mapview : layout->maps_)
+        {
+          const QSharedPointer<Map> map = layout->device_->GetMap(mapview->GetToken());
+          if (!map)
+          {
+            LOG_GUI_MESSAGE(QString("Unable to find map: ") + QString::number(mapview->GetToken()));
+            continue;
+          }
+
+          for (const QSharedPointer<View> view : fittedwindow.first->GetViews(mapview->GetX(), mapview->GetY(), mapview->GetWidth(), mapview->GetHeight())) // Remove any views that might get in the way
+          {
+            fittedwindow.first->RemoveView(view);
+
+          }
+
+          QSharedPointer<MapView> view = fittedwindow.first->CreateMapView(mapview->GetX(), mapview->GetY(), mapview->GetWidth(), mapview->GetHeight(), Options::Instance().GetStretchVideo(), layout->device_, map);
+          if (!view)
+          {
+            LOG_GUI_MESSAGE(QString("Failed to create map view: ") + QString::number(mapview->GetToken()));
+
+          }
+          else
+          {
+            emit videowidgetsmgr_.MapViewCreated(view);
+
+          }
+        }
+
+        for (const QSharedPointer<LayoutView>& recordingview : layout->recordings_)
+        {
+          const QSharedPointer<Recording> recording = layout->device_->GetRecording(recordingview->GetToken());
+          if (!recording)
+          {
+            LOG_GUI_MESSAGE(QString("Unable to find recording: ") + QString::number(recordingview->GetToken()));
+            continue;
+          }
+
+          const std::vector< QSharedPointer<RecordingTrack> > videotracks = recording->GetVideoTracks();
+          if (videotracks.empty())
+          {
+            LOG_GUI_MESSAGE(QString("Unable to find recording track: ") + QString::number(recordingview->GetToken()));
+            continue;
+          }
+
+          for (const QSharedPointer<View> view : fittedwindow.first->GetViews(recordingview->GetX(), recordingview->GetY(), recordingview->GetWidth(), recordingview->GetHeight())) // Remove any views that might get in the way
+          {
+            fittedwindow.first->RemoveView(view);
+
+          }
+
+          QSharedPointer<VideoView> videoview = fittedwindow.first->CreateVideoView(recordingview->GetX(), recordingview->GetY(), recordingview->GetWidth(), recordingview->GetHeight(), Options::Instance().GetStretchVideo(), layout->device_, recording, videotracks.front());
+          if (!videoview)
+          {
+            LOG_GUI_MESSAGE(QString("Failed to create recording view: ") + QString::number(recordingview->GetToken()));
+
+          }
+          else
+          {
+            emit videowidgetsmgr_.VideoViewCreated(videoview);
+
+          }
+        }
+      }
+    }
+
+    currentlayout_ = token;
+    ui_.actionsavecurrentlayout->setEnabled(true);
+  });
+  action->setData(layout->GetToken());
+}
+
+void MainWindow::LayoutChanged(const QSharedPointer<Layout>& layout)
+{
+  for (QAction* action : ui_.menulayouts->actions())
+  {
+    if (action->data().toULongLong() == layout->GetToken())
+    {
+      action->setText(layout->GetName());
+
+    }
+  }
+}
+
+void MainWindow::LayoutRemoved(const uint64_t token)
+{
+  if (devicemgr_.GetLayouts(token).size()) // Only remove this layout from the menu when there are none left with this token
+  {
+
+    return;
+  }
+
+  std::vector<QAction*> removeactions;
+  for (QAction* action : ui_.menulayouts->actions())
+  {
+    if (action->data().toULongLong() == token)
+    {
+      removeactions.push_back(action);
+
+    }
+  }
+
+  for (QAction* action : removeactions)
+  {
+    ui_.menulayouts->removeAction(action);
+
+  }
+
+  if (currentlayout_.is_initialized() && (*currentlayout_ == token))
+  {
+    currentlayout_.reset();
+    ui_.actionsavecurrentlayout->setEnabled(false);
+  }
+}
+
+void MainWindow::MapViewCreated(const QSharedPointer<MapView>& mapview)
+{
+  ui_.actionsavecurrentlayoutas->setEnabled(true);
+
+}
+
+void MainWindow::VideoViewCreated(const QSharedPointer<VideoView>& videoview)
+{
+  ui_.actionsavecurrentlayoutas->setEnabled(true);
+
+}
+
+void MainWindow::ViewDestroyed(const QSharedPointer<View>& view)
+{
+  if (videowidgetsmgr_.GetNumViews({ VIEWTYPE::VIEWTYPE_MONOCLE, VIEWTYPE::VIEWTYPE_MAP }) == 0)
+  {
+    ui_.actionsavecurrentlayoutas->setEnabled(false);
+
+  }
+  else
+  {
+    ui_.actionsavecurrentlayoutas->setEnabled(true); // Shouldn't be necessary, but lets do it anyway
+
+  }
+}
+
 void MainWindow::TrayActivated(QSystemTrayIcon::ActivationReason reason)
 {
   switch (reason)
@@ -1512,6 +1894,125 @@ void MainWindow::on_actiontoolbar_triggered()
 {
   ui_.toolbar->setVisible(!ui_.toolbar->isVisible());
 
+}
+
+void MainWindow::on_actionmanagelayouts_triggered()
+{
+  ManageLayoutsWindow(this).exec();
+
+}
+
+void MainWindow::on_actionsavecurrentlayout_triggered()
+{
+  if (!currentlayout_.is_initialized()) // This shouldn't happen, but just in case...
+  {
+    on_actionsavecurrentlayoutas_triggered();
+    return;
+  }
+
+  const std::vector< QSharedPointer<Layout> > currentlayouts = devicemgr_.GetLayouts(*currentlayout_);
+  if (currentlayouts.empty()) // This shouldn't happen, but just in case...
+  {
+    on_actionsavecurrentlayoutas_triggered();
+    return;
+  }
+  
+  const std::vector< std::pair< boost::shared_ptr<Device>, monocle::LAYOUT> > layouts = MainWindow::Instance()->GetLayout(*currentlayout_, currentlayouts.front()->GetName().toStdString());
+  if (layouts.empty())
+  {
+    if (QMessageBox::question(this, tr("Warning"), tr("No vivews found, this will remove the layout, are you sure?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+    {
+
+      return;
+    }
+  }
+
+  if (!std::all_of(layouts.cbegin(), layouts.cend(), [](const std::pair< boost::shared_ptr<Device>, monocle::LAYOUT>& layout) { return (layout.first->SupportsLayouts()); }))
+  {
+    QMessageBox(QMessageBox::Warning, tr("Error"), tr("Please upgrade all servers to support layouts"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+    return;
+  }
+
+  auto finished = [this](const monocle::Error& error, const std::shared_ptr<unsigned int>& count, const std::shared_ptr< std::vector<monocle::Error> >& errors) // Collect all the responses and only give one feedback to the user
+  {
+    errors->push_back(error);
+    if ((--(*count)) == 0)
+    {
+      if (std::all_of(errors->cbegin(), errors->cend(), [](const monocle::Error& error) { return (error.code_ == monocle::ErrorCode::Success); }))
+      {
+
+        return;
+      }
+      else
+      {
+        QStringList errorlist;
+        for (const monocle::Error& error : *errors)
+        {
+          errorlist.push_back(QString::fromStdString(error.text_));
+
+        }
+
+        QMessageBox(QMessageBox::Warning, tr("Error"), tr("Save layout failed:\n") + errorlist.join("\n"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+        return;
+      }
+    }
+  };
+
+  std::shared_ptr<unsigned int> count = std::make_shared<unsigned int>(0);
+  std::shared_ptr< std::vector<monocle::Error> > errors = std::make_shared< std::vector<monocle::Error> >();
+  std::for_each(savelayoutconnections_.begin(), savelayoutconnections_.end(), [](monocle::client::Connection& connection) { connection.Close(); });
+  savelayoutconnections_.clear();
+  for (const boost::shared_ptr<Device>& device : devicemgr_.GetDevices())
+  {
+    std::vector< QSharedPointer<Layout> >::const_iterator currentlayout = std::find_if(currentlayouts.cbegin(), currentlayouts.cend(), [device](const QSharedPointer<Layout>& layout) { return (layout->GetDevice() == device); });
+    std::vector< std::pair< boost::shared_ptr<Device>, monocle::LAYOUT> >::const_iterator layout = std::find_if(layouts.cbegin(), layouts.cend(), [device](const std::pair< boost::shared_ptr<Device>, monocle::LAYOUT>& layout) { return (layout.first == device); });
+    if ((currentlayout != currentlayouts.cend()) && (layout != layouts.cend())) // Change an existing layout
+    {
+      ++(*count);
+      QTimer::singleShot(std::chrono::milliseconds(1), [this, finished, device, layout = layout->second, count, errors]()
+      {
+        savelayoutconnections_.push_back(device->ChangeLayout(layout, [this, finished, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::CHANGELAYOUTRESPONSE& changelayoutresponse)
+        {
+          finished(changelayoutresponse.error_, count, errors);
+
+        }));
+      });
+    }
+    else if (currentlayout != currentlayouts.cend()) // Remove an existing layout
+    {
+      ++(*count);
+      QTimer::singleShot(std::chrono::milliseconds(1), [this, finished, device, currentlayout = *currentlayout_, count, errors]()
+      {
+        savelayoutconnections_.push_back(device->RemoveLayout(currentlayout, [this, finished, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::REMOVELAYOUTRESPONSE& removelayoutresponse)
+        {
+          finished(removelayoutresponse.error_, count, errors);
+
+        }));
+      });
+    }
+    else if (layout != layouts.cend()) // Add a new layout
+    {
+      ++(*count);
+      QTimer::singleShot(std::chrono::milliseconds(1), [this, finished, device, layout = layout->second, count, errors]()
+      {
+        savelayoutconnections_.push_back(device->AddLayout(layout, [this, finished, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::ADDLAYOUTRESPONSE& addlayoutresponse)
+        {
+          finished(addlayoutresponse.error_, count, errors);
+
+        }));
+      });
+    }
+  }
+}
+
+void MainWindow::on_actionsavecurrentlayoutas_triggered()
+{
+  ManageLayoutWindow managelayoutwindow(this);
+  if (managelayoutwindow.exec())
+  {
+    currentlayout_ = managelayoutwindow.token_;
+    ui_.actionsavecurrentlayout->setEnabled(true);
+  }
 }
 
 void MainWindow::on_actionfindmotion_toggled()

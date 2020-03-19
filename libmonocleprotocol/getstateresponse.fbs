@@ -1,5 +1,6 @@
 include "file.fbs";
 include "group.fbs";
+include "layout.fbs";
 include "logmessage.fbs";
 include "map.fbs";
 include "mountpoint.fbs";
@@ -35,6 +36,7 @@ table GetStateResponse
   mountpoints:[MountPoint] (id:19);
   latitude:string (id:20);
   longitude:string (id:21);
+  layouts:[Layout] (id:22);
   //TODO network settings
   //TODO access policies
 }

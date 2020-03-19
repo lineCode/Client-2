@@ -68,6 +68,7 @@ class MapView;
 class Media;
 class MediaView;
 class VideoView;
+class VideoWindow;
 class View;
 
 ///// Prototypes /////
@@ -98,14 +99,22 @@ class VideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   QSharedPointer<VideoView> CreateVideoView(unsigned int x, unsigned int y, unsigned int width, unsigned int height, bool stretch, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingTrack>& track);
   bool RemoveView(const QSharedPointer<View>& view);
 
+  void VideoWindowMove(const int32_t x, const int32_t y);
+  void VideoWindowResize(const int32_t width, const int32_t height);
+  void SetWindowState(const Qt::WindowState windowstate);
+  int GetVideoWindowX() const;
+  int GetVideoWindowY() const;
+  int GetVideoWindowWidth() const;
+  int GetVideoWindowHeight() const;
   VideoWidgetToolbar* GetToolbar();
 
   bool IsEmpty(const QSharedPointer<View>& ignoreview, unsigned int x, unsigned int y, unsigned int width, unsigned int height) const; // Pass in a video view if you're ok with overwriting one video view, otherwise pass in null
   QPoint GetLocation(unsigned int x, unsigned int y); // Get the element location at a pixel location
   QSharedPointer<View> GetView(const QPoint& pos); // Get video view at location(in pixels)
   QSharedPointer<View> GetView(const QPoint& pos) const; // Get video view at location(in pixels)
-  QSharedPointer<View> GetView(unsigned int x, unsigned int y); // Get the video view at location(in elements)
-  QSharedPointer<View> GetView(unsigned int x, unsigned int y) const; // Get the video view at location(in elements)
+  QSharedPointer<View> GetView(const unsigned int x, const unsigned int y); // Get the video view at location(in elements)
+  QSharedPointer<View> GetView(const unsigned int x, const unsigned int y) const; // Get the video view at location(in elements)
+  std::vector< QSharedPointer<View> > GetViews(const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height) const;
 
   bool AllSelected() const; // Are all the Views selected
 
@@ -126,6 +135,8 @@ class VideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
 
   QAction* GetShowToolbarAction() { return showtoolbar_; }
   QAction* GetHideToolbarAction() { return hidetoolbar_; }
+
+  void SetGridSize(const unsigned int width, const unsigned int height); // If there are any views in the way of a reduction in size, they will be removed
 
  protected:
 

@@ -55,6 +55,10 @@ class TestClient : public client::Client
   virtual void H264Frame(const uint64_t token, const uint64_t playrequest, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const uint32_t* offsets, const size_t numoffsets, const char* data, const size_t size) override;
   virtual void HardwareStatsMessage(const uint64_t time, const std::vector<monocle::DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory, const uint64_t availablememory, const std::vector<monocle::GPUSTAT>& gpustats) override;
   virtual void JPEGFrame(const uint64_t token, const uint64_t playrequest, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const uint8_t* lqt, const uint8_t* cqt, const char* data, const size_t size) override;
+  virtual void LayoutAdded(const monocle::LAYOUT& layout) override;
+  virtual void LayoutChanged(const monocle::LAYOUT& layout) override;
+  virtual void LayoutNameChanged(const uint64_t token, const std::string& name) override;
+  virtual void LayoutRemoved(const uint64_t token) override;
   virtual void LocationChanged(const std::string& latitude, const std::string& longitude) override;
   virtual void MapAdded(const uint64_t token, const std::string& name, const std::string& location, const std::string& imagemd5) override;
   virtual void MapChanged(const uint64_t token, const std::string& name, const std::string& location, const std::string& imagemd5) override;

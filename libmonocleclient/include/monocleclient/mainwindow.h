@@ -7,6 +7,7 @@
 ///// Includes /////
 
 #include <boost/filesystem/path.hpp>
+#include <boost/optional.hpp>
 #include <cuda.h>
 #include <memory>
 #include <QDir>
@@ -113,6 +114,12 @@ enum MOUSESTATE
 namespace client
 {
 
+///// Declarations /////
+
+class Layout;
+class LayoutView;
+class LayoutWindow;
+
 ///// Structures /////
 
 struct CUDADEVICE
@@ -193,6 +200,8 @@ class MainWindow : public QMainWindow
   void SetColourPickerColour(const QVector3D& colour);
   QVector3D GetColourPickerColour() const;
 
+  std::vector< std::pair< boost::shared_ptr<Device>, monocle::LAYOUT> > GetLayout(const uint64_t token, const std::string& name) const;
+
  protected:
 
   virtual void changeEvent(QEvent* event) override;
@@ -207,6 +216,8 @@ class MainWindow : public QMainWindow
 
   static MainWindow* instance_;
 
+  uint32_t GridWidth(const std::vector< QSharedPointer<LayoutWindow> >& layouts);
+  uint32_t GridHeight(const std::vector< QSharedPointer<LayoutWindow> >& layouts);
   void AcceptDrop(QDragMoveEvent* event);
   int LoadLanguage(const QString& language);
   void LoadDefaultLanguage();
@@ -268,10 +279,19 @@ class MainWindow : public QMainWindow
   std::vector<uint64_t> newdeviceidentifiers_; // A list of devices we have asked the user to add
   std::vector< std::pair<bool, QString> > newcameras_; // A list of cameras we have asked the user to add <Save to disk, address>
 
+  boost::optional<uint64_t> currentlayout_;
+
+  std::vector<monocle::client::Connection> savelayoutconnections_;
 
  private slots:
 
   void LanguageChanged(QAction* action);
+  void LayoutAdded(const QSharedPointer<Layout>& layout);
+  void LayoutChanged(const QSharedPointer<Layout>& layout);
+  void LayoutRemoved(const uint64_t token);
+  void MapViewCreated(const QSharedPointer<MapView>& mapview);
+  void VideoViewCreated(const QSharedPointer<VideoView>& videoview);
+  void ViewDestroyed(const QSharedPointer<View>& view);
   void TrayActivated(QSystemTrayIcon::ActivationReason reason);
   void TrayRestore();
   void TrayMaximise();
@@ -286,6 +306,9 @@ class MainWindow : public QMainWindow
   void on_actionlog_triggered();
   void on_actionplayback_triggered();
   void on_actiontoolbar_triggered();
+  void on_actionmanagelayouts_triggered();
+  void on_actionsavecurrentlayout_triggered();
+  void on_actionsavecurrentlayoutas_triggered();
   void on_actionfindmotion_toggled();
   void on_actionfindobject_toggled();
   void on_actioncolourpicker_toggled();

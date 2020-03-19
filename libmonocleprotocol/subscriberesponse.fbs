@@ -1,5 +1,6 @@
 include "file.fbs";
 include "group.fbs";
+include "layout.fbs";
 include "logmessage.fbs";
 include "map.fbs";
 include "mountpoint.fbs";
@@ -38,6 +39,7 @@ table SubscribeResponse
   numcudadevices:uint (id:22);
   numcldevices:uint (id:23);
   maxobjectdetectors:uint (id:24);
+  layouts:[Layout] (id:25);
   //TODO network settings
   //TODO access policies
 }

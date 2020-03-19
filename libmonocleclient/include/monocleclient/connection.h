@@ -58,6 +58,10 @@ class Connection : public QObject, public monocle::client::Client
   virtual void H264Frame(const uint64_t token, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const uint32_t* offsets, const size_t numoffsets, const char* data, const size_t size) override;
   virtual void HardwareStatsMessage(const uint64_t time, const std::vector<monocle::DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory, const uint64_t availablememory, const std::vector<monocle::GPUSTAT>& gpustats) override;
   virtual void JPEGFrame(const uint64_t token, const uint64_t playrequest, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const uint8_t* lqt, const uint8_t* cqt, const char* data, const size_t size) override;
+  virtual void LayoutAdded(const monocle::LAYOUT& layout) override;
+  virtual void LayoutChanged(const monocle::LAYOUT& layout) override;
+  virtual void LayoutNameChanged(const uint64_t token, const std::string& name) override;
+  virtual void LayoutRemoved(const uint64_t token) override;
   virtual void MapAdded(const uint64_t token, const std::string& name, const std::string& location, const std::string& imagemd5) override;
   virtual void MapChanged(const uint64_t token, const std::string& name, const std::string& location, const std::string& imagemd5) override;
   virtual void MapRemoved(const uint64_t token) override;
@@ -147,6 +151,10 @@ class Connection : public QObject, public monocle::client::Client
   void SignalGroupChanged(const uint64_t token, const QString& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
   void SignalGroupRemoved(const uint64_t token);
   void SignalHardwareStats(const uint64_t time, const std::vector<monocle::DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory, const uint64_t availablememory, const std::vector<monocle::GPUSTAT>& gpustats);
+  void SignalLayoutAdded(const monocle::LAYOUT& layout);
+  void SignalLayoutChanged(const monocle::LAYOUT& layout);
+  void SignalLayoutNameChanged(const uint64_t token, const QString& name);
+  void SignalLayoutRemoved(const uint64_t token);
   void SignalLocationChanged(const QString& latitude, const QString& longitude);
   void SignalMapAdded(const uint64_t token, const QString& name, const QString& location, const QString& imagemd5);
   void SignalMapChanged(const uint64_t token, const QString& name, const QString& location, const QString& imagemd5);

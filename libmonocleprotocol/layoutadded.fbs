@@ -1,0 +1,8 @@
+include "layout.fbs";
+
+namespace monocle;
+
+table LayoutAdded
+{
+  layout:Layout (id:0);
+}

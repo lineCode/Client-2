@@ -13,6 +13,7 @@
 #include "filestate_generated.h"
 #include "group_generated.h"
 #include "index_generated.h"
+#include "layout_generated.h"
 #include "logmessage_generated.h"
 #include "map_generated.h"
 #include "mountpoint_generated.h"
@@ -64,7 +65,8 @@ struct SubscribeResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_LONGITUDE = 46,
     VT_NUMCUDADEVICES = 48,
     VT_NUMCLDEVICES = 50,
-    VT_MAXOBJECTDETECTORS = 52
+    VT_MAXOBJECTDETECTORS = 52,
+    VT_LAYOUTS = 54
   };
   const flatbuffers::String *name() const {
     return GetPointer<const flatbuffers::String *>(VT_NAME);
@@ -141,6 +143,9 @@ struct SubscribeResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint32_t maxobjectdetectors() const {
     return GetField<uint32_t>(VT_MAXOBJECTDETECTORS, 0);
   }
+  const flatbuffers::Vector<flatbuffers::Offset<monocle::Layout>> *layouts() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::Layout>> *>(VT_LAYOUTS);
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_NAME) &&
@@ -197,6 +202,9 @@ struct SubscribeResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyField<uint32_t>(verifier, VT_NUMCUDADEVICES) &&
            VerifyField<uint32_t>(verifier, VT_NUMCLDEVICES) &&
            VerifyField<uint32_t>(verifier, VT_MAXOBJECTDETECTORS) &&
+           VerifyOffset(verifier, VT_LAYOUTS) &&
+           verifier.VerifyVector(layouts()) &&
+           verifier.VerifyVectorOfTables(layouts()) &&
            verifier.EndTable();
   }
 };
@@ -279,6 +287,9 @@ struct SubscribeResponseBuilder {
   void add_maxobjectdetectors(uint32_t maxobjectdetectors) {
     fbb_.AddElement<uint32_t>(SubscribeResponse::VT_MAXOBJECTDETECTORS, maxobjectdetectors, 0);
   }
+  void add_layouts(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::Layout>>> layouts) {
+    fbb_.AddOffset(SubscribeResponse::VT_LAYOUTS, layouts);
+  }
   explicit SubscribeResponseBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -317,9 +328,11 @@ inline flatbuffers::Offset<SubscribeResponse> CreateSubscribeResponse(
     flatbuffers::Offset<flatbuffers::String> longitude = 0,
     uint32_t numcudadevices = 0,
     uint32_t numcldevices = 0,
-    uint32_t maxobjectdetectors = 0) {
+    uint32_t maxobjectdetectors = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::Layout>>> layouts = 0) {
   SubscribeResponseBuilder builder_(_fbb);
   builder_.add_identifier(identifier);
+  builder_.add_layouts(layouts);
   builder_.add_maxobjectdetectors(maxobjectdetectors);
   builder_.add_numcldevices(numcldevices);
   builder_.add_numcudadevices(numcudadevices);
@@ -373,7 +386,8 @@ inline flatbuffers::Offset<SubscribeResponse> CreateSubscribeResponseDirect(
     const char *longitude = nullptr,
     uint32_t numcudadevices = 0,
     uint32_t numcldevices = 0,
-    uint32_t maxobjectdetectors = 0) {
+    uint32_t maxobjectdetectors = 0,
+    const std::vector<flatbuffers::Offset<monocle::Layout>> *layouts = nullptr) {
   auto name__ = name ? _fbb.CreateString(name) : 0;
   auto publickey__ = publickey ? _fbb.CreateString(publickey) : 0;
   auto architecture__ = architecture ? _fbb.CreateString(architecture) : 0;
@@ -392,6 +406,7 @@ inline flatbuffers::Offset<SubscribeResponse> CreateSubscribeResponseDirect(
   auto mountpoints__ = mountpoints ? _fbb.CreateVector<flatbuffers::Offset<monocle::MountPoint>>(*mountpoints) : 0;
   auto latitude__ = latitude ? _fbb.CreateString(latitude) : 0;
   auto longitude__ = longitude ? _fbb.CreateString(longitude) : 0;
+  auto layouts__ = layouts ? _fbb.CreateVector<flatbuffers::Offset<monocle::Layout>>(*layouts) : 0;
   return monocle::CreateSubscribeResponse(
       _fbb,
       name__,
@@ -418,7 +433,8 @@ inline flatbuffers::Offset<SubscribeResponse> CreateSubscribeResponseDirect(
       longitude__,
       numcudadevices,
       numcldevices,
-      maxobjectdetectors);
+      maxobjectdetectors,
+      layouts__);
 }
 
 }  // namespace monocle

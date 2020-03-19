@@ -72,6 +72,7 @@ Q_DECLARE_METATYPE(std::vector<monocle::RECORDINGSTATISTICS>)
 Q_DECLARE_METATYPE(std::vector<QString>)
 Q_DECLARE_METATYPE(std::vector<std::string>)
 Q_DECLARE_METATYPE(std::vector<uint64_t>)
+Q_DECLARE_METATYPE(monocle::LAYOUT)
 Q_DECLARE_METATYPE(monocle::RecordingJobMode)
 Q_DECLARE_METATYPE(monocle::RecordingJobState)
 Q_DECLARE_METATYPE(monocle::StreamingProtocol)
@@ -142,6 +143,7 @@ int main(int argc, char** argv)
   qRegisterMetaType< std::vector<std::string> >();
   qRegisterMetaType< std::vector<uint64_t> >();
   qRegisterMetaType<uint64_t>();
+  qRegisterMetaType<monocle::LAYOUT>("monocle::LAYOUT");
   qRegisterMetaType<monocle::StreamingProtocol>("monocle::StreamingProtocol");
   qRegisterMetaType<client::STREAMINGPROTOCOL>("client::STREAMINGPROTOCOL");
   qRegisterMetaType<monocle::RecordingJobMode>("monocle::RecordingJobMode");

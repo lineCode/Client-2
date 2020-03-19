@@ -13,6 +13,7 @@
 #include "filestate_generated.h"
 #include "group_generated.h"
 #include "index_generated.h"
+#include "layout_generated.h"
 #include "logmessage_generated.h"
 #include "map_generated.h"
 #include "mountpoint_generated.h"
@@ -61,7 +62,8 @@ struct GetStateResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_MAPS = 40,
     VT_MOUNTPOINTS = 42,
     VT_LATITUDE = 44,
-    VT_LONGITUDE = 46
+    VT_LONGITUDE = 46,
+    VT_LAYOUTS = 48
   };
   const flatbuffers::String *name() const {
     return GetPointer<const flatbuffers::String *>(VT_NAME);
@@ -129,6 +131,9 @@ struct GetStateResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const flatbuffers::String *longitude() const {
     return GetPointer<const flatbuffers::String *>(VT_LONGITUDE);
   }
+  const flatbuffers::Vector<flatbuffers::Offset<monocle::Layout>> *layouts() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<monocle::Layout>> *>(VT_LAYOUTS);
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_NAME) &&
@@ -182,6 +187,9 @@ struct GetStateResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            verifier.VerifyString(latitude()) &&
            VerifyOffset(verifier, VT_LONGITUDE) &&
            verifier.VerifyString(longitude()) &&
+           VerifyOffset(verifier, VT_LAYOUTS) &&
+           verifier.VerifyVector(layouts()) &&
+           verifier.VerifyVectorOfTables(layouts()) &&
            verifier.EndTable();
   }
 };
@@ -255,6 +263,9 @@ struct GetStateResponseBuilder {
   void add_longitude(flatbuffers::Offset<flatbuffers::String> longitude) {
     fbb_.AddOffset(GetStateResponse::VT_LONGITUDE, longitude);
   }
+  void add_layouts(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::Layout>>> layouts) {
+    fbb_.AddOffset(GetStateResponse::VT_LAYOUTS, layouts);
+  }
   explicit GetStateResponseBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -290,9 +301,11 @@ inline flatbuffers::Offset<GetStateResponse> CreateGetStateResponse(
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::Map>>> maps = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::MountPoint>>> mountpoints = 0,
     flatbuffers::Offset<flatbuffers::String> latitude = 0,
-    flatbuffers::Offset<flatbuffers::String> longitude = 0) {
+    flatbuffers::Offset<flatbuffers::String> longitude = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::Layout>>> layouts = 0) {
   GetStateResponseBuilder builder_(_fbb);
   builder_.add_identifier(identifier);
+  builder_.add_layouts(layouts);
   builder_.add_longitude(longitude);
   builder_.add_latitude(latitude);
   builder_.add_mountpoints(mountpoints);
@@ -340,7 +353,8 @@ inline flatbuffers::Offset<GetStateResponse> CreateGetStateResponseDirect(
     const std::vector<flatbuffers::Offset<monocle::Map>> *maps = nullptr,
     const std::vector<flatbuffers::Offset<monocle::MountPoint>> *mountpoints = nullptr,
     const char *latitude = nullptr,
-    const char *longitude = nullptr) {
+    const char *longitude = nullptr,
+    const std::vector<flatbuffers::Offset<monocle::Layout>> *layouts = nullptr) {
   auto name__ = name ? _fbb.CreateString(name) : 0;
   auto publickey__ = publickey ? _fbb.CreateString(publickey) : 0;
   auto architecture__ = architecture ? _fbb.CreateString(architecture) : 0;
@@ -359,6 +373,7 @@ inline flatbuffers::Offset<GetStateResponse> CreateGetStateResponseDirect(
   auto mountpoints__ = mountpoints ? _fbb.CreateVector<flatbuffers::Offset<monocle::MountPoint>>(*mountpoints) : 0;
   auto latitude__ = latitude ? _fbb.CreateString(latitude) : 0;
   auto longitude__ = longitude ? _fbb.CreateString(longitude) : 0;
+  auto layouts__ = layouts ? _fbb.CreateVector<flatbuffers::Offset<monocle::Layout>>(*layouts) : 0;
   return monocle::CreateGetStateResponse(
       _fbb,
       name__,
@@ -382,7 +397,8 @@ inline flatbuffers::Offset<GetStateResponse> CreateGetStateResponseDirect(
       maps__,
       mountpoints__,
       latitude__,
-      longitude__);
+      longitude__,
+      layouts__);
 }
 
 }  // namespace monocle

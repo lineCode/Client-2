@@ -44,6 +44,7 @@ include/monocleclient/h264decoder.h
 include/monocleclient/imagebuffer.h
 include/monocleclient/imagecache.h
 include/monocleclient/infoformatwindow.h
+include/monocleclient/layout.h
 include/monocleclient/locationtree.h
 include/monocleclient/locationtreemapitem.h
 include/monocleclient/locationtreerecordingitem.h
@@ -56,6 +57,9 @@ include/monocleclient/managefilewindow.h
 include/monocleclient/managefileswindow.h
 include/monocleclient/managegroupwindow.h
 include/monocleclient/managegroupswindow.h
+include/monocleclient/managelayoutnamewindow.h
+include/monocleclient/managelayoutswindow.h
+include/monocleclient/managelayoutwindow.h
 include/monocleclient/managemapswindow.h
 include/monocleclient/managemapwindow.h
 include/monocleclient/manageonvifdeviceipv4networkinterfaceconfigurationwindow.h
@@ -172,6 +176,7 @@ src/h264decoder.cpp
 src/imagebuffer.cpp
 src/imagecache.cpp
 src/infoformatwindow.cpp
+src/layout.cpp
 src/locationtree.cpp
 src/locationtreemapitem.cpp
 src/locationtreerecordingitem.cpp
@@ -184,6 +189,9 @@ src/managefilewindow.cpp
 src/managefileswindow.cpp
 src/managegroupwindow.cpp
 src/managegroupswindow.cpp
+src/managelayoutnamewindow.cpp
+src/managelayoutswindow.cpp
+src/managelayoutwindow.cpp
 src/managemapswindow.cpp
 src/managemapwindow.cpp
 src/manageonvifdeviceipv4networkinterfaceconfigurationwindow.cpp
@@ -277,6 +285,9 @@ managefilewindow.ui
 managefileswindow.ui
 managegroupwindow.ui
 managegroupswindow.ui
+managelayoutnamewindow.ui
+managelayoutswindow.ui
+managelayoutwindow.ui
 managemapswindow.ui
 managemapwindow.ui
 manageonvifdeviceipv4networkinterfaceconfigurationwindow.ui

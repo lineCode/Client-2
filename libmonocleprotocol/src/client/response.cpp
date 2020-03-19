@@ -45,6 +45,18 @@ ADDGROUPRESPONSE::ADDGROUPRESPONSE(const Error& error) :
 
 }
 
+ADDLAYOUTRESPONSE::ADDLAYOUTRESPONSE() :
+  RESPONSE(Error(ErrorCode::Success, std::string()))
+{
+
+}
+
+ADDLAYOUTRESPONSE::ADDLAYOUTRESPONSE(const Error& error) :
+  RESPONSE(error)
+{
+
+}
+
 ADDMAPRESPONSE::ADDMAPRESPONSE() :
   RESPONSE(Error(ErrorCode::Success, std::string()))
 {
@@ -166,6 +178,30 @@ CHANGEGROUPRESPONSE::CHANGEGROUPRESPONSE() :
 }
 
 CHANGEGROUPRESPONSE::CHANGEGROUPRESPONSE(const Error& error) :
+  RESPONSE(error)
+{
+
+}
+
+CHANGELAYOUTNAMERESPONSE::CHANGELAYOUTNAMERESPONSE() :
+  RESPONSE(Error(ErrorCode::Success, std::string()))
+{
+
+}
+
+CHANGELAYOUTNAMERESPONSE::CHANGELAYOUTNAMERESPONSE(const Error& error) :
+  RESPONSE(error)
+{
+
+}
+
+CHANGELAYOUTRESPONSE::CHANGELAYOUTRESPONSE() :
+  RESPONSE(Error(ErrorCode::Success, std::string()))
+{
+
+}
+
+CHANGELAYOUTRESPONSE::CHANGELAYOUTRESPONSE(const Error& error) :
   RESPONSE(error)
 {
 
@@ -445,7 +481,7 @@ GETSNAPSHOTRESPONSE::GETSNAPSHOTRESPONSE(const Error& error) :
 
 }
 
-GETSTATERESPONSE::GETSTATERESPONSE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentalvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude) :
+GETSTATERESPONSE::GETSTATERESPONSE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentalvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<LAYOUT>& layouts, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude) :
   RESPONSE(Error(ErrorCode::Success, std::string())),
   name_(name),
   publickey_(publickey),
@@ -465,6 +501,7 @@ GETSTATERESPONSE::GETSTATERESPONSE(const std::string& name, const std::string& p
   recordings_(recordings),
   serverlogmessages_(serverlogmessages),
   maxrecordings_(maxrecordings),
+  layouts_(layouts),
   maps_(maps),
   mountpoints_(mountpoints),
   latitude_(latitude),
@@ -535,6 +572,18 @@ REMOVEGROUPRESPONSE::REMOVEGROUPRESPONSE() :
 }
 
 REMOVEGROUPRESPONSE::REMOVEGROUPRESPONSE(const Error& error) :
+  RESPONSE(error)
+{
+
+}
+
+REMOVELAYOUTRESPONSE::REMOVELAYOUTRESPONSE() :
+  RESPONSE(Error(ErrorCode::Success, std::string()))
+{
+
+}
+
+REMOVELAYOUTRESPONSE::REMOVELAYOUTRESPONSE(const Error& error) :
   RESPONSE(error)
 {
 
@@ -672,7 +721,7 @@ SETNAMERESPONSE::SETNAMERESPONSE(const Error& error) :
 
 }
 
-SUBSCRIBERESPONSE::SUBSCRIBERESPONSE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentalvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude, const unsigned int numcudadevices, const unsigned int numcldevices, const uint32_t maxobjectdetectors) :
+SUBSCRIBERESPONSE::SUBSCRIBERESPONSE(const std::string& name, const std::string& publickey, const std::string& architecture, const int operatingsystem, const std::string& compiler, const std::string& databasepath, const utility::Version& version, const uint64_t identifier, const std::vector<std::string>& environmentalvariables, const std::vector<std::string>& commandlinevariables, const std::vector<ONVIFUSER>& onvifusers, const std::vector<GROUP>& groups, const std::vector<USER>& users, const std::vector<FILE>& files, const std::vector<RECEIVER>& receivers, const std::vector<RECORDING>& recordings, const std::vector<LOGMESSAGE>& serverlogmessages, const uint32_t maxrecordings, const std::vector<LAYOUT>& layouts, const std::vector<MAP>& maps, const std::vector<MOUNTPOINT>& mountpoints, const std::string& latitude, const std::string& longitude, const unsigned int numcudadevices, const unsigned int numcldevices, const uint32_t maxobjectdetectors) :
   RESPONSE(Error(ErrorCode::Success, std::string())),
   name_(name),
   publickey_(publickey),
@@ -692,6 +741,7 @@ SUBSCRIBERESPONSE::SUBSCRIBERESPONSE(const std::string& name, const std::string&
   recordings_(recordings),
   serverlogmessages_(serverlogmessages),
   maxrecordings_(maxrecordings),
+  layouts_(layouts),
   maps_(maps),
   mountpoints_(mountpoints),
   latitude_(latitude),

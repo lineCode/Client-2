@@ -11,6 +11,7 @@
 
 #include "monocleprotocol/addfilerequest_generated.h"
 #include "monocleprotocol/addgrouprequest_generated.h"
+#include "monocleprotocol/addlayoutrequest_generated.h"
 #include "monocleprotocol/addmaprequest_generated.h"
 #include "monocleprotocol/addonvifuserrequest_generated.h"
 #include "monocleprotocol/addreceiverrequest_generated.h"
@@ -25,6 +26,8 @@
 #include "monocleprotocol/authenticaterequest_generated.h"
 #include "monocleprotocol/authenticateresponse_generated.h"
 #include "monocleprotocol/changegrouprequest_generated.h"
+#include "monocleprotocol/changelayoutnamerequest_generated.h"
+#include "monocleprotocol/changelayoutrequest_generated.h"
 #include "monocleprotocol/changemaprequest_generated.h"
 #include "monocleprotocol/changeonvifuserrequest_generated.h"
 #include "monocleprotocol/changereceiverrequest_generated.h"
@@ -76,6 +79,10 @@
 #include "monocleprotocol/h264frameheader_generated.h"
 #include "monocleprotocol/hardwarestats_generated.h"
 #include "monocleprotocol/jpegframeheader_generated.h"
+#include "monocleprotocol/layoutadded_generated.h"
+#include "monocleprotocol/layoutchanged_generated.h"
+#include "monocleprotocol/layoutnamechanged_generated.h"
+#include "monocleprotocol/layoutremoved_generated.h"
 #include "monocleprotocol/locationchanged_generated.h"
 #include "monocleprotocol/mapadded_generated.h"
 #include "monocleprotocol/mapchanged_generated.h"
@@ -116,6 +123,7 @@
 #include "monocleprotocol/recordingtrackcodecremoved_generated.h"
 #include "monocleprotocol/removefilerequest_generated.h"
 #include "monocleprotocol/removegrouprequest_generated.h"
+#include "monocleprotocol/removelayoutrequest_generated.h"
 #include "monocleprotocol/removemaprequest_generated.h"
 #include "monocleprotocol/removeonvifuserrequest_generated.h"
 #include "monocleprotocol/removereceiverrequest_generated.h"
@@ -603,6 +611,74 @@ boost::system::error_code Connection::SendLocationChanged(const std::string& lat
   fbb_.Finish(CreateLocationChanged(fbb_, fbb_.CreateString(latitude), fbb_.CreateString(location)));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::LOCATIONCHANGED, ++sequence_);
+  const std::array<boost::asio::const_buffer, 2> buffers =
+  {
+    boost::asio::const_buffer(&header, sizeof(HEADER)),
+    boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
+  };
+  boost::system::error_code err;
+  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
+  return err;
+}
+
+boost::system::error_code Connection::SendLayoutAdded(const monocle::LAYOUT& layout)
+{
+  std::lock_guard<std::mutex> lock(writemutex_);
+  fbb_.Clear();
+  fbb_.Finish(CreateLayoutAdded(fbb_, GetLayoutBuffer(fbb_, layout)));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::LAYOUTADDED, ++sequence_);
+  const std::array<boost::asio::const_buffer, 2> buffers =
+  {
+    boost::asio::const_buffer(&header, sizeof(HEADER)),
+    boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
+  };
+  boost::system::error_code err;
+  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
+  return err;
+}
+
+boost::system::error_code Connection::SendLayoutChanged(const monocle::LAYOUT& layout)
+{
+  std::lock_guard<std::mutex> lock(writemutex_);
+  fbb_.Clear();
+  fbb_.Finish(CreateLayoutChanged(fbb_, GetLayoutBuffer(fbb_, layout)));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::LAYOUTCHANGED, ++sequence_);
+  const std::array<boost::asio::const_buffer, 2> buffers =
+  {
+    boost::asio::const_buffer(&header, sizeof(HEADER)),
+    boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
+  };
+  boost::system::error_code err;
+  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
+  return err;
+}
+
+boost::system::error_code Connection::SendLayoutNameChanged(const uint64_t usertoken, const uint64_t token, const std::string& name)
+{
+  std::lock_guard<std::mutex> lock(writemutex_);
+  fbb_.Clear();
+  fbb_.Finish(CreateLayoutNameChanged(fbb_, token, fbb_.CreateString(name)));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::LAYOUTNAMECHANGED, ++sequence_);
+  const std::array<boost::asio::const_buffer, 2> buffers =
+  {
+    boost::asio::const_buffer(&header, sizeof(HEADER)),
+    boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
+  };
+  boost::system::error_code err;
+  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
+  return err;
+}
+
+boost::system::error_code Connection::SendLayoutRemoved(const uint64_t token)
+{
+  std::lock_guard<std::mutex> lock(writemutex_);
+  fbb_.Clear();
+  fbb_.Finish(CreateLayoutRemoved(fbb_, token));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::LAYOUTREMOVED, ++sequence_);
   const std::array<boost::asio::const_buffer, 2> buffers =
   {
     boost::asio::const_buffer(&header, sizeof(HEADER)),
@@ -1604,6 +1680,36 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
 
       return SendHeaderResponse(HEADER(0, false, false, Message::ADDGROUP, sequence));
     }
+    case Message::ADDLAYOUT:
+    {
+      if (data == nullptr)
+      {
+
+        return SendErrorResponse(Message::ADDLAYOUT, sequence, Error(ErrorCode::MissingMessage, "Missing message"));
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<AddLayoutRequest>(nullptr))
+      {
+
+        return SendErrorResponse(Message::ADDLAYOUT, sequence, Error(ErrorCode::InvalidMessage, "Invalid message"));
+      }
+
+      const AddLayoutRequest* addlayoutrequest = flatbuffers::GetRoot<AddLayoutRequest>(data);
+      if ((addlayoutrequest == nullptr) || (addlayoutrequest->layout() == nullptr))
+      {
+
+        return SendErrorResponse(Message::ADDLAYOUT, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
+      }
+
+      const Error error = AddLayout(GetLayout(*addlayoutrequest->layout()));
+      if (error.code_ != ErrorCode::Success)
+      {
+
+        return SendErrorResponse(Message::ADDLAYOUT, sequence, error);
+      }
+
+      return SendHeaderResponse(HEADER(0, false, false, Message::ADDLAYOUT, sequence));
+    }
     case Message::ADDMAP:
     {
       if (data == nullptr)
@@ -2156,6 +2262,66 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       }
 
       return SendHeaderResponse(HEADER(0, false, false, Message::CHANGEGROUP, sequence));
+    }
+    case Message::CHANGELAYOUT:
+    {
+      if (data == nullptr)
+      {
+
+        return SendErrorResponse(Message::CHANGELAYOUT, sequence, Error(ErrorCode::MissingMessage, "Missing message"));
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<ChangeLayoutRequest>(nullptr))
+      {
+
+        return SendErrorResponse(Message::CHANGELAYOUT, sequence, Error(ErrorCode::InvalidMessage, "Invalid message"));
+      }
+
+      const ChangeLayoutRequest* changelayoutrequest = flatbuffers::GetRoot<ChangeLayoutRequest>(data);
+      if ((changelayoutrequest == nullptr) || (changelayoutrequest->layout() == nullptr))
+      {
+
+        return SendErrorResponse(Message::CHANGELAYOUT, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
+      }
+
+      const Error error = ChangeLayout(GetLayout(*changelayoutrequest->layout()));
+      if (error.code_ != ErrorCode::Success)
+      {
+
+        return SendErrorResponse(Message::CHANGELAYOUT, sequence, error);
+      }
+
+      return SendHeaderResponse(HEADER(0, false, false, Message::CHANGELAYOUT, sequence));
+    }
+    case Message::CHANGELAYOUTNAME:
+    {
+      if (data == nullptr)
+      {
+
+        return SendErrorResponse(Message::CHANGELAYOUTNAME, sequence, Error(ErrorCode::MissingMessage, "Missing message"));
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<ChangeLayoutNameRequest>(nullptr))
+      {
+
+        return SendErrorResponse(Message::CHANGELAYOUTNAME, sequence, Error(ErrorCode::InvalidMessage, "Invalid message"));
+      }
+
+      const ChangeLayoutNameRequest* changelayoutnamerequest = flatbuffers::GetRoot<ChangeLayoutNameRequest>(data);
+      if ((changelayoutnamerequest == nullptr) || (changelayoutnamerequest->name() == nullptr))
+      {
+
+        return SendErrorResponse(Message::CHANGELAYOUTNAME, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
+      }
+
+      const Error error = ChangeLayoutName(changelayoutnamerequest->token(), changelayoutnamerequest->name()->str());
+      if (error.code_ != ErrorCode::Success)
+      {
+
+        return SendErrorResponse(Message::CHANGELAYOUTNAME, sequence, error);
+      }
+
+      return SendHeaderResponse(HEADER(0, false, false, Message::CHANGELAYOUTNAME, sequence));
     }
     case Message::CHANGEMAP:
     {
@@ -3156,7 +3322,7 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       const monocle::VERSION version(getstate.second.version_.GetMajor(), getstate.second.version_.GetMinor(), getstate.second.version_.GetBuild());
       std::lock_guard<std::mutex> lock(writemutex_);
       fbb_.Clear();
-      fbb_.Finish(CreateGetStateResponse(fbb_, fbb_.CreateString(getstate.second.name_), fbb_.CreateString(getstate.second.publickey_), fbb_.CreateString(getstate.second.architecture_), getstate.second.operatingsystem_, fbb_.CreateString(getstate.second.compiler_), fbb_.CreateString(getstate.second.databasepath_), &version, getstate.second.identifier_, fbb_.CreateVectorOfStrings(getstate.second.environmentvariables_), fbb_.CreateVectorOfStrings(getstate.second.commandlinevariables_), fbb_.CreateVector(GetONVIFUserBuffers(getstate.second.onvifusers_, fbb_)), fbb_.CreateVector(GetGroupBuffers(getstate.second.groups_, fbb_)), fbb_.CreateVector(GetUserBuffers(getstate.second.users_, fbb_)), fbb_.CreateVector(GetFileBuffers(getstate.second.files_, fbb_)), fbb_.CreateVector(GetReceiverBuffers(getstate.second.receivers_, fbb_)), fbb_.CreateVector(GetRecordingBuffers(getstate.second.recordings_, fbb_)), fbb_.CreateVector(GetLogMessagesBuffer(getstate.second.serverlogmessages_, fbb_)), getstate.second.maxrecordings_, fbb_.CreateVector(GetMapBuffers(getstate.second.maps_, fbb_)), fbb_.CreateVector(GetMountPointBuffers(getstate.second.mountpoints_, fbb_)), fbb_.CreateString(getstate.second.latitude_), fbb_.CreateString(getstate.second.longitude_)));
+      fbb_.Finish(CreateGetStateResponse(fbb_, fbb_.CreateString(getstate.second.name_), fbb_.CreateString(getstate.second.publickey_), fbb_.CreateString(getstate.second.architecture_), getstate.second.operatingsystem_, fbb_.CreateString(getstate.second.compiler_), fbb_.CreateString(getstate.second.databasepath_), &version, getstate.second.identifier_, fbb_.CreateVectorOfStrings(getstate.second.environmentvariables_), fbb_.CreateVectorOfStrings(getstate.second.commandlinevariables_), fbb_.CreateVector(GetONVIFUserBuffers(getstate.second.onvifusers_, fbb_)), fbb_.CreateVector(GetGroupBuffers(getstate.second.groups_, fbb_)), fbb_.CreateVector(GetUserBuffers(getstate.second.users_, fbb_)), fbb_.CreateVector(GetFileBuffers(getstate.second.files_, fbb_)), fbb_.CreateVector(GetReceiverBuffers(getstate.second.receivers_, fbb_)), fbb_.CreateVector(GetRecordingBuffers(getstate.second.recordings_, fbb_)), fbb_.CreateVector(GetLogMessagesBuffer(getstate.second.serverlogmessages_, fbb_)), getstate.second.maxrecordings_, fbb_.CreateVector(GetMapBuffers(getstate.second.maps_, fbb_)), fbb_.CreateVector(GetMountPointBuffers(getstate.second.mountpoints_, fbb_)), fbb_.CreateString(getstate.second.latitude_), fbb_.CreateString(getstate.second.longitude_), fbb_.CreateVector(GetLayoutBuffers(getstate.second.layouts_, fbb_))));
       return SendResponse(true, Message::GETSTATE, sequence);
     }
     case Message::GETTIME:
@@ -3243,6 +3409,30 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       }
 
       return SendHeaderResponse(HEADER(0, false, false, Message::REMOVEGROUP, sequence));
+    }
+    case Message::REMOVELAYOUT:
+    {
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<RemoveLayoutRequest>(nullptr))
+      {
+
+        return SendErrorResponse(Message::REMOVELAYOUT, sequence, Error(ErrorCode::InvalidMessage, "Invalid message"));
+      }
+
+      const RemoveLayoutRequest* removelayoutrequest = flatbuffers::GetRoot<RemoveLayoutRequest>(data);
+      if (removelayoutrequest == nullptr)
+      {
+
+        return SendErrorResponse(Message::REMOVELAYOUT, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
+      }
+
+      const Error error = RemoveLayout(removelayoutrequest->token());
+      if (error.code_ != ErrorCode::Success)
+      {
+
+        return SendErrorResponse(Message::REMOVELAYOUT, sequence, error);
+      }
+
+      return SendHeaderResponse(HEADER(0, false, false, Message::REMOVELAYOUT, sequence));
     }
     case Message::REMOVEMAP:
     {
@@ -3531,7 +3721,7 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       const monocle::VERSION version(subscribe.second.version_.GetMajor(), subscribe.second.version_.GetMinor(), subscribe.second.version_.GetBuild());
       std::lock_guard<std::mutex> lock(writemutex_);
       fbb_.Clear();
-      fbb_.Finish(CreateSubscribeResponse(fbb_, fbb_.CreateString(subscribe.second.name_), fbb_.CreateString(subscribe.second.publickey_), fbb_.CreateString(subscribe.second.architecture_), subscribe.second.operatingsystem_, fbb_.CreateString(subscribe.second.compiler_), fbb_.CreateString(subscribe.second.databasepath_), &version, subscribe.second.identifier_, fbb_.CreateVectorOfStrings(subscribe.second.environmentvariables_), fbb_.CreateVectorOfStrings(subscribe.second.commandlinevariables_), fbb_.CreateVector(GetONVIFUserBuffers(subscribe.second.onvifusers_, fbb_)), fbb_.CreateVector(GetGroupBuffers(subscribe.second.groups_, fbb_)), fbb_.CreateVector(GetUserBuffers(subscribe.second.users_, fbb_)), fbb_.CreateVector(GetFileBuffers(subscribe.second.files_, fbb_)), fbb_.CreateVector(GetReceiverBuffers(subscribe.second.receivers_, fbb_)), fbb_.CreateVector(GetRecordingBuffers(subscribe.second.recordings_, fbb_)), fbb_.CreateVector(GetLogMessagesBuffer(subscribe.second.serverlogmessages_, fbb_)), subscribe.second.maxrecordings_, fbb_.CreateVector(GetMapBuffers(subscribe.second.maps_, fbb_)), fbb_.CreateVector(GetMountPointBuffers(subscribe.second.mountpoints_, fbb_)), fbb_.CreateString(subscribe.second.latitude_), fbb_.CreateString(subscribe.second.longitude_), subscribe.second.numcudadevices_, subscribe.second.numcldevices_, subscribe.second.maxobjectdetectors_));
+      fbb_.Finish(CreateSubscribeResponse(fbb_, fbb_.CreateString(subscribe.second.name_), fbb_.CreateString(subscribe.second.publickey_), fbb_.CreateString(subscribe.second.architecture_), subscribe.second.operatingsystem_, fbb_.CreateString(subscribe.second.compiler_), fbb_.CreateString(subscribe.second.databasepath_), &version, subscribe.second.identifier_, fbb_.CreateVectorOfStrings(subscribe.second.environmentvariables_), fbb_.CreateVectorOfStrings(subscribe.second.commandlinevariables_), fbb_.CreateVector(GetONVIFUserBuffers(subscribe.second.onvifusers_, fbb_)), fbb_.CreateVector(GetGroupBuffers(subscribe.second.groups_, fbb_)), fbb_.CreateVector(GetUserBuffers(subscribe.second.users_, fbb_)), fbb_.CreateVector(GetFileBuffers(subscribe.second.files_, fbb_)), fbb_.CreateVector(GetReceiverBuffers(subscribe.second.receivers_, fbb_)), fbb_.CreateVector(GetRecordingBuffers(subscribe.second.recordings_, fbb_)), fbb_.CreateVector(GetLogMessagesBuffer(subscribe.second.serverlogmessages_, fbb_)), subscribe.second.maxrecordings_, fbb_.CreateVector(GetMapBuffers(subscribe.second.maps_, fbb_)), fbb_.CreateVector(GetMountPointBuffers(subscribe.second.mountpoints_, fbb_)), fbb_.CreateString(subscribe.second.latitude_), fbb_.CreateString(subscribe.second.longitude_), subscribe.second.numcudadevices_, subscribe.second.numcldevices_, subscribe.second.maxobjectdetectors_, fbb_.CreateVector(GetLayoutBuffers(subscribe.second.layouts_, fbb_))));
       return SendResponse(true, Message::SUBSCRIBE, sequence);
     }
     case Message::SUBSCRIBEDISCOVERY:

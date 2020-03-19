@@ -12,6 +12,7 @@
 #include <mutex>
 #include <socket/proxyparams.hpp>
 #include <QObject>
+#include <QSharedPointer>
 #include <QStringList>
 #include <vector>
 
@@ -25,6 +26,7 @@ namespace client
 ///// Declarations /////
 
 class Device;
+class Layout;
 
 ///// Classes /////
 
@@ -52,6 +54,10 @@ class DeviceMgr : public QObject
 
   QStringList GetLocations() const;
 
+  std::vector< QSharedPointer<Layout> > GetLayouts() const;
+  std::vector< QSharedPointer<Layout> > GetLayouts(const uint64_t token) const;
+  uint64_t GetUniqueLayoutToken() const;
+
  protected:
 
 
@@ -64,6 +70,9 @@ class DeviceMgr : public QObject
 
   void DeviceAdded(const boost::shared_ptr<Device>& device);
   void DeviceRemoved(const boost::shared_ptr<Device>& device);
+  void LayoutAdded(const QSharedPointer<Layout>& layout);
+  void LayoutChanged(const QSharedPointer<Layout>& layout);
+  void LayoutRemoved(const uint64_t token);
   void RecordingRemoved(const boost::shared_ptr<Device>& device, const uint64_t recordingtoken);
   void TimeOffsetChanged(const boost::shared_ptr<Device>& device);
 

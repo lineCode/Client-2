@@ -179,6 +179,30 @@ void Connection::JPEGFrame(const uint64_t token, const uint64_t playrequestindex
   stream->JPEGFrame(playrequestindex, codecindex, timestamp, sequencenum, progress, signature, signaturesize, restartinterval, typespecificfragmentoffset, type, q, width, height, lqt, cqt, data, size);
 }
 
+void Connection::LayoutAdded(const monocle::LAYOUT& layout)
+{
+  emit SignalLayoutAdded(layout);
+
+}
+
+void Connection::LayoutChanged(const monocle::LAYOUT& layout)
+{
+  emit SignalLayoutChanged(layout);
+
+}
+
+void Connection::LayoutNameChanged(const uint64_t token, const std::string& name)
+{
+  emit SignalLayoutNameChanged(token, QString::fromStdString(name));
+
+}
+
+void Connection::LayoutRemoved(const uint64_t token)
+{
+  emit SignalLayoutRemoved(token);
+
+}
+
 void Connection::MapAdded(const uint64_t token, const std::string& name, const std::string& location, const std::string& imagemd5)
 {
   emit SignalMapAdded(token, QString::fromStdString(name), QString::fromStdString(location), QString::fromStdString(imagemd5));

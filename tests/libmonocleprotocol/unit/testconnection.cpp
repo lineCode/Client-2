@@ -58,7 +58,7 @@ bool TESTFRAME::operator==(const TESTFRAME& rhs) const
   return ((stream_ == rhs.stream_) && (playrequest_ == rhs.playrequest_) && (codec_ == rhs.codec_) && (timestamp_ == rhs.timestamp_) && (sequencenum_ == rhs.sequencenum_) && (signature_ == rhs.signature_) && (data_ == rhs.data_));
 }
 
-TestConnection::TestConnection(boost::asio::io_service& io, const boost::shared_ptr<Server>& server, const std::string& testusername, const std::string& testpassword, const std::string& testnonce, const STREAM& teststream, const std::string& testname, const std::string& testpublickey, const std::string& testarchitecture, const int testoperatingsystem, const std::string& testcompiler, const std::string& testdatabasepath, const utility::Version& testversion, const uint64_t testidentifier, const std::vector<std::string>& testenvironmentvariables, const std::vector<std::string>& testcommandlinevariables, const std::vector<ONVIFUSER>& testonvifusers, const std::vector<GROUP>& testgroups, const std::vector<USER>& testusers, const std::vector<FILE>& testfiles, const std::vector<RECEIVER>& testreceivers, const std::vector<RECORDING>& testrecordings, const std::vector<monocle::LOGMESSAGE>& testrecordinglogmessages, const uint32_t testmaxrecordings, const std::vector<MAP>& testmaps, const std::vector<MOUNTPOINT>& testmountpoints, const std::string& testlatitude, const std::string& testlongitude, const int testnumcudadevices, const int testnumcldevices, const int testmaxobjectdetectors, const TESTFRAME& testframe) :
+TestConnection::TestConnection(boost::asio::io_service& io, const boost::shared_ptr<Server>& server, const std::string& testusername, const std::string& testpassword, const std::string& testnonce, const STREAM& teststream, const std::string& testname, const std::string& testpublickey, const std::string& testarchitecture, const int testoperatingsystem, const std::string& testcompiler, const std::string& testdatabasepath, const utility::Version& testversion, const uint64_t testidentifier, const std::vector<std::string>& testenvironmentvariables, const std::vector<std::string>& testcommandlinevariables, const std::vector<ONVIFUSER>& testonvifusers, const std::vector<GROUP>& testgroups, const std::vector<USER>& testusers, const std::vector<FILE>& testfiles, const std::vector<RECEIVER>& testreceivers, const std::vector<RECORDING>& testrecordings, const std::vector<monocle::LOGMESSAGE>& testrecordinglogmessages, const uint32_t testmaxrecordings, const std::vector<LAYOUT>& testlayouts, const std::vector<MAP>& testmaps, const std::vector<MOUNTPOINT>& testmountpoints, const std::string& testlatitude, const std::string& testlongitude, const int testnumcudadevices, const int testnumcldevices, const int testmaxobjectdetectors, const TESTFRAME& testframe) :
   Connection(io, server),
   testusername_(testusername),
   testpassword_(testpassword),
@@ -82,6 +82,7 @@ TestConnection::TestConnection(boost::asio::io_service& io, const boost::shared_
   testrecordings_(testrecordings),
   testrecordinglogmessages_(testrecordinglogmessages),
   testmaxrecordings_(testmaxrecordings),
+  testlayouts_(testlayouts),
   testmaps_(testmaps),
   testmountpoints_(testmountpoints),
   testlatitude_(testlatitude),
@@ -128,6 +129,11 @@ Error TestConnection::AddFile(const std::string& mountpoint, const std::string& 
 }
 
 Error TestConnection::AddGroup(const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings)
+{
+  return Error();
+}
+
+Error TestConnection::AddLayout(const LAYOUT& layout)
 {
   return Error();
 }
@@ -190,6 +196,16 @@ std::pair<Error, AUTHENTICATERESPONSE> TestConnection::Authenticate(const std::s
 }
 
 Error TestConnection::ChangeGroup(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings)
+{
+  return Error();
+}
+
+Error TestConnection::ChangeLayout(const LAYOUT& layout)
+{
+  return Error();
+}
+
+Error TestConnection::ChangeLayoutName(const uint64_t token, const std::string& name)
 {
   return Error();
 }
@@ -354,6 +370,11 @@ Error TestConnection::RemoveFile(const uint64_t token)
   return Error();
 }
 
+Error TestConnection::RemoveLayout(const uint64_t token)
+{
+  return Error();
+}
+
 Error TestConnection::RemoveGroup(const uint64_t token)
 {
   return Error();
@@ -411,7 +432,7 @@ Error TestConnection::SetName(const std::string& name)
 
 std::pair<Error, SUBSCRIBE> TestConnection::Subscribe()
 {
-  return std::make_pair(Error(), SUBSCRIBE(testname_, testpublickey_, testarchitecture_, testoperatingsystem_, testcompiler_, testdatabasepath_, testversion_, testidentifier_, testenvironmentvariables_, testcommandlinevariables_, testonvifusers_, testgroups_, testusers_, testfiles_, testreceivers_, testrecordings_, {}, testmaxrecordings_, testmaps_, testmountpoints_, testlatitude_, testlongitude_, testnumcudadevices_, testnumcldevices_, testmaxobjectdetectors_));
+  return std::make_pair(Error(), SUBSCRIBE(testname_, testpublickey_, testarchitecture_, testoperatingsystem_, testcompiler_, testdatabasepath_, testversion_, testidentifier_, testenvironmentvariables_, testcommandlinevariables_, testonvifusers_, testgroups_, testusers_, testfiles_, testreceivers_, testrecordings_, {}, testmaxrecordings_, testlayouts_, testmaps_, testmountpoints_, testlatitude_, testlongitude_, testnumcudadevices_, testnumcldevices_, testmaxobjectdetectors_));
 }
 
 Error TestConnection::SubscribeDiscovery(const bool broadcast)

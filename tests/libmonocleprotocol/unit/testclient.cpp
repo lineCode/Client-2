@@ -159,6 +159,26 @@ void TestClient::JPEGFrame(const uint64_t token, const uint64_t playrequest, con
   mjpegframecallback_(server::tests::TESTFRAME(token, playrequest, codecindex, timestamp, sequencenum, std::vector<uint8_t>(signature, signature + signaturesize), restartinterval, typespecificfragmentoffset, type, q, width, height, lqt, cqt, std::vector<char>(data, data + size)));
 }
 
+void TestClient::LayoutAdded(const monocle::LAYOUT& layout)
+{
+
+}
+
+void TestClient::LayoutChanged(const monocle::LAYOUT& layout)
+{
+
+}
+
+void TestClient::LayoutNameChanged(const uint64_t token, const std::string& name)
+{
+
+}
+
+void TestClient::LayoutRemoved(const uint64_t token)
+{
+
+}
+
 void TestClient::LocationChanged(const std::string& latitude, const std::string& longitude)
 {
 
