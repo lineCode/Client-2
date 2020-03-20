@@ -1,0 +1,13 @@
+namespace monocle;
+
+table GuiOrder
+{
+  token:uint64 (id:0);
+  order:uint64 (id:1);
+}
+
+table SetGuiOrderRequest
+{
+  recordings:[GuiOrder] (id:0);
+  maps:[GuiOrder] (id:1);
+}

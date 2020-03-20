@@ -133,6 +133,7 @@
 #include "monocleprotocol/removetrackrequest_generated.h"
 #include "monocleprotocol/removetracksrequest_generated.h"
 #include "monocleprotocol/removeuserrequest_generated.h"
+#include "monocleprotocol/setguiorderrequest_generated.h"
 #include "monocleprotocol/setlocationrequest_generated.h"
 #include "monocleprotocol/setnamerequest_generated.h"
 #include "monocleprotocol/server/connection.hpp"
@@ -3660,6 +3661,52 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       }
 
       return SendHeaderResponse(HEADER(0, false, false, Message::REMOVEUSER, sequence));
+    }
+    case Message::SETGUIORDER:
+    {
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<SetGuiOrderRequest>(nullptr))
+      {
+
+        return SendErrorResponse(Message::SETGUIORDER, sequence, Error(ErrorCode::InvalidMessage, "Invalid message"));
+      }
+
+      const SetGuiOrderRequest* setguiorderrequest = flatbuffers::GetRoot<SetGuiOrderRequest>(data);
+      if (setguiorderrequest == nullptr)
+      {
+
+        return SendErrorResponse(Message::SETGUIORDER, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
+      }
+
+      std::vector< std::pair<uint64_t, uint64_t> > recordings;
+      if (setguiorderrequest->recordings())
+      {
+        recordings.reserve(setguiorderrequest->recordings()->size());
+        for (const GuiOrder* recording : *setguiorderrequest->recordings())
+        {
+          recordings.push_back(std::make_pair(recording->token(), recording->order()));
+
+        }
+      }
+
+      std::vector< std::pair<uint64_t, uint64_t> > maps;
+      if (setguiorderrequest->maps())
+      {
+        maps.reserve(setguiorderrequest->maps()->size());
+        for (const GuiOrder* map : *setguiorderrequest->maps())
+        {
+          maps.push_back(std::make_pair(map->token(), map->order()));
+
+        }
+      }
+
+      const Error error = SetGuiOrder(recordings, maps);
+      if (error.code_ != ErrorCode::Success)
+      {
+
+        return SendErrorResponse(Message::SETGUIORDER, sequence, error);
+      }
+
+      return SendHeaderResponse(HEADER(0, false, false, Message::SETGUIORDER, sequence));
     }
     case Message::SETLOCATION:
     {

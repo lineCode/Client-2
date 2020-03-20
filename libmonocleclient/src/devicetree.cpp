@@ -235,6 +235,11 @@ void DeviceTree::dropEvent(QDropEvent* event)
   while (toplevelitem->parent())
   {
     toplevelitem = toplevelitem->parent();
+    if (toplevelitem->type() == static_cast<int>(DEVICE_TREE_TOP_LEVEL_ITEM_TYPE::DEVICE_RECORDING)) // If a user drags onto a DEVICE_RECORDING_TRACK item, we want to take the corresponding recording item instead
+    {
+      destitem = toplevelitem;
+
+    }
   }
 
   if (toplevelitem->type() != static_cast<int>(DEVICE_TREE_TOP_LEVEL_ITEM_TYPE::DEVICE))
@@ -264,21 +269,21 @@ void DeviceTree::dropEvent(QDropEvent* event)
     return;
   }
 
-  const int deviceitemindex = deviceitem->indexOfChild(recordingitem);
-  if (deviceitemindex == -1)
+  const int recordingitemindex = deviceitem->indexOfChild(recordingitem);
+  if (recordingitemindex == -1)
   {
     event->ignore();
     return;
   }
 
-  recordingitem = static_cast<DeviceTreeRecordingItem*>(deviceitem->takeChild(deviceitemindex));
+  recordingitem = static_cast<DeviceTreeRecordingItem*>(deviceitem->takeChild(recordingitemindex));
   if (!recordingitem) // Shouldn't happen but ok...
   {
     event->ignore();
     return;
   }
 
-  const int destindex = deviceitem->indexOfChild(destitem);
+  int destindex = deviceitem->indexOfChild(destitem);
   if (destindex == -1) // This can happen when the user drops the item on the device, so put it at the top. If it is an error for another reason, no harm in just placing it back anyway
   {
     deviceitem->insertChild(0, recordingitem);
@@ -286,21 +291,17 @@ void DeviceTree::dropEvent(QDropEvent* event)
     return;
   }
 
-  deviceitem->insertChild(destindex, recordingitem);//TODO is this satisfactory?
+  if ((destindex + 1) != recordingitemindex) // If we are moving one up, then this effectively "swaps" them
+  {
+    ++destindex;
 
-  //TODO in order to put it below anything else, we have to drag it below onto others, so what we need to do it deviceitem->count() index I think
-    //TODO so half this shit goes away
-      //TODO so that means tidying up this and the other method
+  }
 
-  //TODO now put it in the correct location
-
-
-
-  int i = 0;//TODO
-  //TODO how do we GET the recording item?
-    //TODO Do we get the recording, and then work backwards to get the recordingitem?
-
-  //TODO take the recording item, then insert it somewhere else
+  deviceitem->insertChild(destindex, recordingitem);
+  
+  //TODO pass in all the recording tokens
+    //TODO maps too...
+  //TODO device->SetGuiOrder()
 
   //TODO we need to then ask the device to re-order the "order" values
     //TODO we probably want this to be per user I think...

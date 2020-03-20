@@ -76,6 +76,7 @@ enum Message : uint16
   CHANGELAYOUT = 69,
   CHANGELAYOUTNAME = 70,
   REMOVELAYOUT = 71,
+  SETGUIORDER = 72,
   
   // Server to client
   CONTROLSTREAMEND = 8000,
