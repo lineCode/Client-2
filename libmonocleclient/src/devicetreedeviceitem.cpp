@@ -9,6 +9,7 @@
 
 #include <QMenu>
 #include <QMessageBox>
+#include <typeinfo>
 
 #include "monocleclient/devicemgr.h"
 #include "monocleclient/devicepropertieswindow.h"
@@ -35,7 +36,7 @@ namespace client
 ///// Methods /////
 
 DeviceTreeDeviceItem::DeviceTreeDeviceItem(DeviceTree* parent, const boost::shared_ptr<Device>& device, const QIcon& latencygreen, const QIcon& latencyyellow, const QIcon& latencyred, const QIcon& latencynone, const QIcon& recordingicon, const QIcon& mapicon) :
-  DeviceTreeItem(parent, device->GetName()),
+  DeviceTreeItem(parent, device->GetName(), static_cast<int>(DEVICE_TREE_TOP_LEVEL_ITEM_TYPE::DEVICE)),
   device_(device),
   latencygreen_(latencygreen),
   latencyyellow_(latencyyellow),

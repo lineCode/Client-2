@@ -163,6 +163,229 @@ void DeviceTree::contextMenuEvent(QContextMenuEvent* event)
   }
 }
 
+void DeviceTree::dragEnterEvent(QDragEnterEvent* event)
+{
+  DragEvent(event);
+
+}
+
+void DeviceTree::dragMoveEvent(QDragMoveEvent* event)
+{
+  DragEvent(event);
+
+}
+
+void DeviceTree::dragLeaveEvent(QDragLeaveEvent* event)
+{
+  event->accept();
+
+}
+
+void DeviceTree::dropEvent(QDropEvent* event)
+{
+  const QMimeData* mimedata = event->mimeData();
+  if (mimedata == nullptr)
+  {
+    event->ignore();
+    return;
+  }
+
+  const QByteArray deviceidentifierdata = mimedata->data(MIME_DEVICE_TREE_DEVICE_IDENTIFIER);
+  if (deviceidentifierdata.isEmpty())
+  {
+    event->ignore();
+    return;
+  }
+  if (deviceidentifierdata.size() != sizeof(uint64_t))
+  {
+    event->ignore();
+    return;
+  }
+  const uint64_t deviceidentifier = *reinterpret_cast<const uint64_t*>(deviceidentifierdata.data());
+
+  const QByteArray recordingtokendata = mimedata->data(MIME_DEVICE_TREE_RECORDING_TOKEN);
+  if (recordingtokendata.isEmpty())
+  {
+    event->ignore();
+    return;
+  }
+  if (recordingtokendata.size() != sizeof(uint64_t))
+  {
+    event->ignore();
+    return;
+  }
+  const uint64_t recordingtoken = *reinterpret_cast<const uint64_t*>(recordingtokendata.data());
+
+  if (!mimedata->data(MIME_DEVICE_TREE_RECORDING_TRACK_ID).isEmpty())
+  {
+    event->ignore();
+    return;
+  }
+
+  // Retrieve the corresponding device we are hovering over is the same one, because we can't drag recordings out onto another device
+  const QPoint pos = event->pos();
+  QTreeWidgetItem* destitem = itemAt(pos.x(), pos.y());
+  if (!destitem)
+  {
+    event->ignore();
+    return;
+  }
+
+  QTreeWidgetItem* toplevelitem = destitem;
+  while (toplevelitem->parent())
+  {
+    toplevelitem = toplevelitem->parent();
+  }
+
+  if (toplevelitem->type() != static_cast<int>(DEVICE_TREE_TOP_LEVEL_ITEM_TYPE::DEVICE))
+  {
+    event->ignore();
+    return;
+  }
+
+  DeviceTreeDeviceItem* deviceitem = static_cast<DeviceTreeDeviceItem*>(toplevelitem);
+  if (deviceitem->GetDevice()->GetIdentifier() != deviceidentifier)
+  {
+    event->ignore();
+    return;
+  }
+
+  const boost::shared_ptr<Device> device = MainWindow::Instance()->GetDeviceMgr().GetDevice(deviceidentifier);
+  if (device == nullptr)
+  {
+    event->ignore();
+    return;
+  }
+
+  DeviceTreeRecordingItem* recordingitem = deviceitem->GetRecordingItem(recordingtoken);
+  if (!recordingitem)
+  {
+    event->ignore();
+    return;
+  }
+
+  const int deviceitemindex = deviceitem->indexOfChild(recordingitem);
+  if (deviceitemindex == -1)
+  {
+    event->ignore();
+    return;
+  }
+
+  recordingitem = static_cast<DeviceTreeRecordingItem*>(deviceitem->takeChild(deviceitemindex));
+  if (!recordingitem) // Shouldn't happen but ok...
+  {
+    event->ignore();
+    return;
+  }
+
+  const int destindex = deviceitem->indexOfChild(destitem);
+  if (destindex == -1) // This can happen when the user drops the item on the device, so put it at the top. If it is an error for another reason, no harm in just placing it back anyway
+  {
+    deviceitem->insertChild(0, recordingitem);
+    event->accept();
+    return;
+  }
+
+  deviceitem->insertChild(destindex, recordingitem);//TODO is this satisfactory?
+
+  //TODO in order to put it below anything else, we have to drag it below onto others, so what we need to do it deviceitem->count() index I think
+    //TODO so half this shit goes away
+      //TODO so that means tidying up this and the other method
+
+  //TODO now put it in the correct location
+
+
+
+  int i = 0;//TODO
+  //TODO how do we GET the recording item?
+    //TODO Do we get the recording, and then work backwards to get the recordingitem?
+
+  //TODO take the recording item, then insert it somewhere else
+
+  //TODO we need to then ask the device to re-order the "order" values
+    //TODO we probably want this to be per user I think...
+    //TODO make sure to update other clients with event that this has happenned
+      //TODO I think the client just "does" it and then errors back if it failed to do so... but still maintains it locally
+
+}
+
+void DeviceTree::DragEvent(QDragMoveEvent* event)
+{
+  const QMimeData* mimedata = event->mimeData();
+  if (mimedata == nullptr)
+  {
+    event->ignore();
+    return;
+  }
+
+  const QByteArray devicetoken = mimedata->data(MIME_DEVICE_TREE_DEVICE_IDENTIFIER);
+  if (devicetoken.isEmpty())
+  {
+    event->ignore();
+    return;
+  }
+  if (devicetoken.size() != sizeof(uint64_t))
+  {
+    event->ignore();
+    return;
+  }
+  const uint64_t deviceidentifier = *reinterpret_cast<const uint64_t*>(devicetoken.data());
+
+  const QByteArray recordingtokendata = mimedata->data(MIME_DEVICE_TREE_RECORDING_TOKEN);
+  if (recordingtokendata.isEmpty())
+  {
+    event->ignore();
+    return;
+  }
+  if (recordingtokendata.size() != sizeof(uint64_t))
+  {
+    event->ignore();
+    return;
+  }
+
+  if (!mimedata->data(MIME_DEVICE_TREE_RECORDING_TRACK_ID).isEmpty())
+  {
+    event->ignore();
+    return;
+  }
+
+  // Retrieve the corresponding device we are hovering over is the same one, because we can't drag recordings out onto another device
+  const QPoint pos = event->pos();
+  QTreeWidgetItem* item = itemAt(pos.x(), pos.y());
+  if (!item)
+  {
+    event->ignore();
+    return;
+  }
+
+  while (item->parent())
+  {
+    item = item->parent();
+  }
+
+  if (item->type() != static_cast<int>(DEVICE_TREE_TOP_LEVEL_ITEM_TYPE::DEVICE))
+  {
+    event->ignore();
+    return;
+  }
+
+  DeviceTreeDeviceItem* deviceitem = static_cast<DeviceTreeDeviceItem*>(item);
+  if (deviceitem->GetDevice()->GetIdentifier() != deviceidentifier)
+  {
+    event->ignore();
+    return;
+  }
+
+  const boost::shared_ptr<Device> device = MainWindow::Instance()->GetDeviceMgr().GetDevice(deviceidentifier);
+  if (device == nullptr)
+  {
+    event->ignore();
+    return;
+  }
+
+  event->accept();
+}
+
 void DeviceTree::ItemExpanded(QTreeWidgetItem* item)
 {
   static_cast<DeviceTreeItem*>(item)->Expanded();

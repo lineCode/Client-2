@@ -28,7 +28,7 @@ namespace client
 ///// Methods /////
 
 DeviceTreeRecordingItem::DeviceTreeRecordingItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QIcon& recordingicon, const QIcon& cameraicon) :
-  DeviceTreeItem(parent, recording->GetName()),
+  DeviceTreeItem(parent, recording->GetName(), DEVICE_TREE_TOP_LEVEL_ITEM_TYPE::DEVICE_RECORDING),
   device_(device),
   recording_(recording),
   cameraicon_(cameraicon),

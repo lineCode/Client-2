@@ -50,8 +50,14 @@ class DeviceTree : public QTreeWidget
 
   virtual QMimeData* mimeData(const QList<QTreeWidgetItem*> items) const override;
   virtual void contextMenuEvent(QContextMenuEvent* event) override;
+  virtual void dragEnterEvent(QDragEnterEvent* event) override;
+  virtual void dragMoveEvent(QDragMoveEvent* event) override;
+  virtual void dragLeaveEvent(QDragLeaveEvent* event) override;
+  virtual void dropEvent(QDropEvent* event) override;
 
  private:
+
+  void DragEvent(QDragMoveEvent* event);
 
   const QIcon latencygreen_;
   const QIcon latencyyellow_;

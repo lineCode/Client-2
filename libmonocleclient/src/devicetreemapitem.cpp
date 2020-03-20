@@ -21,7 +21,7 @@ namespace client
 ///// Methods /////
 
 DeviceTreeMapItem::DeviceTreeMapItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Map>& map, const QIcon mapicon) :
-  DeviceTreeItem(parent, map->GetName()),
+  DeviceTreeItem(parent, map->GetName(), DEVICE_TREE_TOP_LEVEL_ITEM_TYPE::DEVICE_MAP),
   device_(device),
   map_(map),
   edit_(new QAction("Edit", this)),
