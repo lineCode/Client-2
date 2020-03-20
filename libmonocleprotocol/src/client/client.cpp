@@ -80,6 +80,7 @@
 #include "monocleprotocol/groupadded_generated.h"
 #include "monocleprotocol/groupchanged_generated.h"
 #include "monocleprotocol/groupremoved_generated.h"
+#include "monocleprotocol/guiorderchanged_generated.h"
 #include "monocleprotocol/h265frameheader_generated.h"
 #include "monocleprotocol/h264frameheader_generated.h"
 #include "monocleprotocol/hardwarestats_generated.h"
@@ -4628,7 +4629,7 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         {
           if (map && map->name() && map->location() && map->md5sum())
           {
-            maps.push_back(MAP(map->token(), map->name()->str(), map->location()->str(), map->md5sum()->str()));
+            maps.push_back(MAP(map->token(), map->name()->str(), map->location()->str(), map->md5sum()->str(), map->guiorder()));
 
           }
         }
@@ -5320,6 +5321,53 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       }
 
       LocationChanged(latitude, longitude);
+      break;
+    }
+    case Message::GUIORDERCHANGED:
+    {
+      if (error)
+      {
+        // Ignore this because it can't really happen...
+        return;
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<monocle::GuiOrderChanged>(nullptr))
+      {
+
+        return;
+      }
+
+      const monocle::GuiOrderChanged* guiorderchanged = flatbuffers::GetRoot<monocle::GuiOrderChanged>(data);
+      if (guiorderchanged == nullptr)
+      {
+
+        return;
+      }
+
+      std::vector< std::pair<uint64_t, uint64_t> > recordings;
+      if (guiorderchanged->recordings())
+      {
+        recordings.reserve(guiorderchanged->recordings()->size());
+        for (const GuiOrder* recording : *guiorderchanged->recordings())
+        {
+          recordings.push_back(std::make_pair(recording->token(), recording->order()));
+
+        }
+      }
+
+      std::vector< std::pair<uint64_t, uint64_t> > maps;
+      if (guiorderchanged->maps())
+      {
+        maps.reserve(guiorderchanged->maps()->size());
+        for (const GuiOrder* map : *guiorderchanged->maps())
+        {
+          maps.push_back(std::make_pair(map->token(), map->order()));
+
+        }
+      }
+
+
+      GuiOrderChanged(recordings, maps);
       break;
     }
     case Message::LAYOUTADDED:
@@ -7053,7 +7101,7 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         {
           if (map && map->name() && map->location() && map->md5sum())
           {
-            maps.push_back(MAP(map->token(), map->name()->str(), map->location()->str(), map->md5sum()->str()));
+            maps.push_back(MAP(map->token(), map->name()->str(), map->location()->str(), map->md5sum()->str(), map->guiorder()));
 
           }
         }
@@ -7932,7 +7980,7 @@ std::pair< Error, std::vector<RECORDING> > Client::GetRecordingsBuffer(const fla
       tracks.push_back(RECORDINGTRACK(track->id(), track->token()->str(), track->tracktype(), track->description()->str(), track->fixedfiles(), track->digitalsigning(), track->encrypt(), track->flushfrequency(), ToVector(*track->files()), ToVector(*track->indices()), ToVector(track->codecindices()), std::make_pair(track->totaltrackdatatime(), track->totaltrackdata())));
     }
 
-    recordings.push_back(RECORDING(recording->token(), recording->sourceid()->str(), recording->name()->str(), recording->location()->str(), recording->description()->str(), recording->address()->str(), recording->content()->str(), recording->retentiontime(), jobs, tracks, recording->activejob() ? boost::optional<uint64_t>(recording->activejob()->token()) : boost::none));
+    recordings.push_back(RECORDING(recording->token(), recording->sourceid()->str(), recording->name()->str(), recording->location()->str(), recording->description()->str(), recording->address()->str(), recording->content()->str(), recording->retentiontime(), jobs, tracks, recording->activejob() ? boost::optional<uint64_t>(recording->activejob()->token()) : boost::none, recording->guiorder()));
   }
   return std::make_pair(Error(), recordings);
 }

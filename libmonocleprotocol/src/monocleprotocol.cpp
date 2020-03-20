@@ -182,7 +182,7 @@ std::vector< flatbuffers::Offset<Recording> > GetRecordingBuffers(const std::vec
 
     }
 
-    recordingbuffers.push_back(CreateRecording(fbb, recording.token_, fbb.CreateString(recording.sourceid_), fbb.CreateString(recording.name_), fbb.CreateString(recording.location_), fbb.CreateString(recording.description_), fbb.CreateString(recording.address_), fbb.CreateString(recording.content_), recording.retentiontime_, fbb.CreateVector(recordingjobbuffers), fbb.CreateVector(tracks), activejob.get()));
+    recordingbuffers.push_back(CreateRecording(fbb, recording.token_, fbb.CreateString(recording.sourceid_), fbb.CreateString(recording.name_), fbb.CreateString(recording.location_), fbb.CreateString(recording.description_), fbb.CreateString(recording.address_), fbb.CreateString(recording.content_), recording.retentiontime_, fbb.CreateVector(recordingjobbuffers), fbb.CreateVector(tracks), activejob.get(), recording.guiorder_));
   }
   return recordingbuffers;
 }
@@ -224,7 +224,7 @@ std::vector< flatbuffers::Offset<Map> > GetMapBuffers(const std::vector<MAP>& ma
   mapsbuffer.reserve(maps.size());
   for (const MAP& map : maps)
   {
-    mapsbuffer.push_back(CreateMap(fbb, map.token_, fbb.CreateString(map.name_), fbb.CreateString(map.location_), fbb.CreateString(map.imagemd5_)));
+    mapsbuffer.push_back(CreateMap(fbb, map.token_, fbb.CreateString(map.name_), fbb.CreateString(map.location_), fbb.CreateString(map.imagemd5_), map.guiorder_));
 
   }
   return mapsbuffer;
@@ -392,18 +392,19 @@ bool GROUP::operator==(const GROUP& rhs) const
   return ((token_ == rhs.token_) && (name_ == rhs.name_) && (manageusers_ == rhs.manageusers_) && (managerecordings_ == rhs.managerecordings_) && (managemaps_ == rhs.managemaps_) && (managedevice_ == rhs.managedevice_) && (allrecordings_ == rhs.allrecordings_) && std::is_permutation(recordings_.cbegin(), recordings_.cend(), rhs.recordings_.cbegin(), rhs.recordings_.cend()));
 }
 
-MAP::MAP(const uint64_t token, const std::string& name, const std::string& location, const std::string& imagemd5) :
+MAP::MAP(const uint64_t token, const std::string& name, const std::string& location, const std::string& imagemd5, const uint64_t guiorder) :
   token_(token),
   name_(name),
   location_(location),
-  imagemd5_(imagemd5)
+  imagemd5_(imagemd5),
+  guiorder_(guiorder)
 {
 
 }
 
 bool MAP::operator==(const MAP& rhs) const
 {
-  return ((token_ == rhs.token_) && (name_ == rhs.name_) && (location_ == rhs.location_) && (imagemd5_ == rhs.imagemd5_));
+  return ((token_ == rhs.token_) && (name_ == rhs.name_) && (location_ == rhs.location_) && (imagemd5_ == rhs.imagemd5_) && (guiorder_ == rhs.guiorder_));
 }
 
 TRACKSTATISTICS::TRACKSTATISTICS(const uint32_t trackid, const uint64_t trackdatareceived) :
@@ -679,7 +680,7 @@ RECORDING::RECORDING() :
 
 }
 
-RECORDING::RECORDING(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const std::vector<RECORDINGJOB>& jobs, const std::vector<RECORDINGTRACK>& tracks, const boost::optional<uint64_t>& activejob) :
+RECORDING::RECORDING(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const std::vector<RECORDINGJOB>& jobs, const std::vector<RECORDINGTRACK>& tracks, const boost::optional<uint64_t>& activejob, const uint64_t guiorder) :
   token_(token),
   sourceid_(sourceid),
   name_(name),
@@ -690,14 +691,15 @@ RECORDING::RECORDING(const uint64_t token, const std::string& sourceid, const st
   retentiontime_(retentiontime),
   jobs_(jobs),
   tracks_(tracks),
-  activejob_(activejob)
+  activejob_(activejob),
+  guiorder_(guiorder)
 {
 
 }
 
 bool RECORDING::operator==(const RECORDING& rhs) const
 {
-  return ((token_ == rhs.token_) && (sourceid_ == rhs.sourceid_) && (name_ == rhs.name_) && (location_ == rhs.location_) && (description_ == rhs.description_) && (address_ == rhs.address_) && (content_ == rhs.content_) && (retentiontime_ == rhs.retentiontime_) && std::is_permutation(jobs_.cbegin(), jobs_.cend(), rhs.jobs_.cbegin(), rhs.jobs_.cend()) && (tracks_ == rhs.tracks_));
+  return ((token_ == rhs.token_) && (sourceid_ == rhs.sourceid_) && (name_ == rhs.name_) && (location_ == rhs.location_) && (description_ == rhs.description_) && (address_ == rhs.address_) && (content_ == rhs.content_) && (retentiontime_ == rhs.retentiontime_) && std::is_permutation(jobs_.cbegin(), jobs_.cend(), rhs.jobs_.cbegin(), rhs.jobs_.cend()) && (tracks_ == rhs.tracks_) && (guiorder_ == rhs.guiorder_));
 }
 
 RECORDINGLOGMESSAGE::RECORDINGLOGMESSAGE(const uint64_t token, const LOGMESSAGE& logmessage) :

@@ -2,7 +2,7 @@ include "guiorder.fbs";
 
 namespace monocle;
 
-table SetGuiOrderRequest
+table GuiOrderChanged
 {
   recordings:[GuiOrder] (id:0);
   maps:[GuiOrder] (id:1);

@@ -75,6 +75,7 @@
 #include "monocleprotocol/groupadded_generated.h"
 #include "monocleprotocol/groupchanged_generated.h"
 #include "monocleprotocol/groupremoved_generated.h"
+#include "monocleprotocol/guiorderchanged_generated.h"
 #include "monocleprotocol/h265frameheader_generated.h"
 #include "monocleprotocol/h264frameheader_generated.h"
 #include "monocleprotocol/hardwarestats_generated.h"
@@ -501,6 +502,40 @@ boost::system::error_code Connection::SendGroupRemoved(const uint64_t token)
   fbb_.Finish(CreateGroupRemoved(fbb_, token));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::GROUPREMOVED, ++sequence_);
+  const std::array<boost::asio::const_buffer, 2> buffers =
+  {
+    boost::asio::const_buffer(&header, sizeof(HEADER)),
+    boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
+  };
+  boost::system::error_code err;
+  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
+  return err;
+}
+
+boost::system::error_code Connection::SendGuiOrderChanged(const std::vector< std::pair<uint64_t, uint64_t> >& recordings, const std::vector< std::pair<uint64_t, uint64_t> >& maps)
+{
+  std::lock_guard<std::mutex> lock(writemutex_);
+  fbb_.Clear();
+
+  std::vector< flatbuffers::Offset<GuiOrder> > recordingsbuffer;
+  recordingsbuffer.reserve(recordings.size());
+  for (const std::pair<uint64_t, uint64_t>& recording : recordings)
+  {
+    recordingsbuffer.push_back(CreateGuiOrder(fbb_, recording.first, recording.second));
+
+  }
+
+  std::vector< flatbuffers::Offset<GuiOrder> > mapsbuffer;
+  mapsbuffer.reserve(recordings.size());
+  for (const std::pair<uint64_t, uint64_t>& map : maps)
+  {
+    mapsbuffer.push_back(CreateGuiOrder(fbb_, map.first, map.second));
+
+  }
+
+  fbb_.Finish(CreateGuiOrderChanged(fbb_, fbb_.CreateVector(recordingsbuffer), fbb_.CreateVector(mapsbuffer)));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::GUIORDERCHANGED, ++sequence_);
   const std::array<boost::asio::const_buffer, 2> buffers =
   {
     boost::asio::const_buffer(&header, sizeof(HEADER)),

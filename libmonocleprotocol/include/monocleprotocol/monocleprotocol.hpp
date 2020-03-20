@@ -132,7 +132,7 @@ struct LOGMESSAGE
 
 struct MAP
 {
-  MAP(const uint64_t token, const std::string& name, const std::string& location, const std::string& imagemd5);
+  MAP(const uint64_t token, const std::string& name, const std::string& location, const std::string& imagemd5, const uint64_t guiorder);
 
   bool operator==(const MAP& rhs) const;
 
@@ -140,6 +140,7 @@ struct MAP
   std::string name_;
   std::string location_;
   std::string imagemd5_;
+  uint64_t guiorder_;
 
 };
 
@@ -399,7 +400,7 @@ struct RECORDINGTRACK
 struct RECORDING
 {
   RECORDING();
-  RECORDING(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const std::vector<RECORDINGJOB>& jobs, const std::vector<RECORDINGTRACK>& tracks, const boost::optional<uint64_t>& activejob);
+  RECORDING(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const std::vector<RECORDINGJOB>& jobs, const std::vector<RECORDINGTRACK>& tracks, const boost::optional<uint64_t>& activejob, const uint64_t guiorder);
 
   bool operator==(const RECORDING& rhs) const;
 
@@ -414,6 +415,7 @@ struct RECORDING
   std::vector<RECORDINGJOB> jobs_;
   std::vector<RECORDINGTRACK> tracks_;
   boost::optional<uint64_t> activejob_;
+  uint64_t guiorder_;
 
 };
 

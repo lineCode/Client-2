@@ -153,11 +153,12 @@ enum class Message : uint16_t {
   LAYOUTCHANGED = 8069,
   LAYOUTNAMECHANGED = 8070,
   LAYOUTREMOVED = 8071,
+  GUIORDERCHANGED = 8072,
   MIN = ADDFILE,
-  MAX = LAYOUTREMOVED
+  MAX = GUIORDERCHANGED
 };
 
-inline const Message (&EnumValuesMessage())[144] {
+inline const Message (&EnumValuesMessage())[145] {
   static const Message values[] = {
     Message::ADDFILE,
     Message::ADDGROUP,
@@ -302,7 +303,8 @@ inline const Message (&EnumValuesMessage())[144] {
     Message::LAYOUTADDED,
     Message::LAYOUTCHANGED,
     Message::LAYOUTNAMECHANGED,
-    Message::LAYOUTREMOVED
+    Message::LAYOUTREMOVED,
+    Message::GUIORDERCHANGED
   };
   return values;
 }
@@ -453,6 +455,7 @@ inline const char *EnumNameMessage(Message e) {
     case Message::LAYOUTCHANGED: return "LAYOUTCHANGED";
     case Message::LAYOUTNAMECHANGED: return "LAYOUTNAMECHANGED";
     case Message::LAYOUTREMOVED: return "LAYOUTREMOVED";
+    case Message::GUIORDERCHANGED: return "GUIORDERCHANGED";
     default: return "";
   }
 }

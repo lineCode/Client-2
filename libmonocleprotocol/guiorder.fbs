@@ -1,0 +1,7 @@
+namespace monocle;
+
+table GuiOrder
+{
+  token:uint64 (id:0);
+  order:uint64 (id:1);
+}
