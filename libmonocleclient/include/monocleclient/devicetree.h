@@ -8,6 +8,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <memory>
+#include <monocleprotocol/client/connection.hpp>
 #include <QIcon>
 #include <QList>
 #include <QTreeWidget>
@@ -69,6 +70,8 @@ class DeviceTree : public QTreeWidget
   QAction* showfilter_;
   QAction* adddevice_;
   QAction* importfile_;
+
+  monocle::client::Connection setguiorderconnection_;
 
  public slots:
  

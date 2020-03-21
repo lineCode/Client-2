@@ -15,6 +15,7 @@
 #include "monocleclient/devicemgr.h"
 #include "monocleclient/devicetreedeviceitem.h"
 #include "monocleclient/devicetreeitem.h"
+#include "monocleclient/devicetreemapitem.h"
 #include "monocleclient/devicetreemediaitem.h"
 #include "monocleclient/devicetreerecordingitem.h"
 #include "monocleclient/devicetreerecordingtrackitem.h"
@@ -66,6 +67,7 @@ DeviceTree::DeviceTree(QWidget* parent) :
 
 DeviceTree::~DeviceTree()
 {
+  setguiorderconnection_.Close();
 
 }
 
@@ -298,16 +300,32 @@ void DeviceTree::dropEvent(QDropEvent* event)
   }
 
   deviceitem->insertChild(destindex, recordingitem);
+
+  std::vector< std::pair<uint64_t, uint64_t> > recordings;
+  std::vector< std::pair<uint64_t, uint64_t> > maps;
+  for (int i = 0; i < deviceitem->childCount(); ++i)
+  {
+    QTreeWidgetItem* item = deviceitem->child(i);
+    if (item->type() == DEVICE_TREE_TOP_LEVEL_ITEM_TYPE::DEVICE_RECORDING)
+    {
+      const DeviceTreeRecordingItem* recordingitem = static_cast<const DeviceTreeRecordingItem*>(item);
+      recordings.push_back(std::make_pair(recordingitem->GetRecording()->GetToken(), i));
+    }
+    else if (item->type() == DEVICE_TREE_TOP_LEVEL_ITEM_TYPE::DEVICE_MAP)
+    {
+      const DeviceTreeMapItem* mapitem = static_cast<const DeviceTreeMapItem*>(item);
+      maps.push_back(std::make_pair(mapitem->GetMap()->GetToken(), i));
+    }
+  }
   
-  //TODO pass in all the recording tokens
-    //TODO maps too...
-  //TODO device->SetGuiOrder()
-
-  //TODO we need to then ask the device to re-order the "order" values
-    //TODO we probably want this to be per user I think...
-    //TODO make sure to update other clients with event that this has happenned
-      //TODO I think the client just "does" it and then errors back if it failed to do so... but still maintains it locally
-
+  setguiorderconnection_ = device->SetGuiOrder(recordings, maps, [device](const std::chrono::steady_clock::duration latency, const monocle::client::SETGUIORDERRESPONSE& setguiorderresponse)
+  {
+    if (setguiorderresponse.GetErrorCode() != monocle::ErrorCode::Success)
+    {
+      LOG_GUI_THREAD_WARNING_SOURCE(device, "SetGuiOrder failed");
+      return;
+    }
+  });
 }
 
 void DeviceTree::DragEvent(QDragMoveEvent* event)

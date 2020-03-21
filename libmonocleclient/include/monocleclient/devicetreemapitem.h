@@ -51,6 +51,8 @@ class DeviceTreeMapItem : public DeviceTreeItem
 
  private:
 
+  bool operator<(const QTreeWidgetItem& rhs) const;
+
   boost::shared_ptr<Device> device_;
   QSharedPointer<client::Map> map_;
 

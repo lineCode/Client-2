@@ -76,6 +76,8 @@ class DeviceTreeRecordingItem : public DeviceTreeItem
   bool Exists(const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& track) const;
   QString Tooltip(const QString& mediauri, const QString& status) const;
 
+  bool operator<(const QTreeWidgetItem& rhs) const;
+
   boost::shared_ptr<Device> device_;
   QSharedPointer<client::Recording> recording_;
 
