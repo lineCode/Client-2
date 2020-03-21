@@ -67,17 +67,7 @@ const QString OBJECT_DETECTOR_HORSES_SENSITIVITY_PARAMETER_NAME = "HorsesSensiti
 
 
 ///// Methods /////
-QString Test(monocle::RecordingJobState state)//TODO remove
-{
-  if (state == monocle::RecordingJobState::Active)
-    return "active";
-  if (state == monocle::RecordingJobState::Idle)
-    return "idle";
-  if (state == monocle::RecordingJobState::Error)
-    return "error";
-  else
-    return "dunno";
-}
+
 RecordingJobSourceTrack::RecordingJobSourceTrack(const uint64_t token, const std::vector<QString>& parameters, const monocle::RecordingJobState state, const QString& error, const std::vector<QString>& activeparameters, const QSharedPointer<client::RecordingTrack>& track) :
   token_(token),
   parameters_(parameters),
@@ -100,7 +90,6 @@ void RecordingJobSourceTrack::SetState(const monocle::RecordingJobState state, c
   state_ = state;
   error_ = error;
   emit StateChanged(state, error, prevstate);
-  qDebug() << token_ << Test(state_);//TODO remove
 }
 
 boost::optional<QString> RecordingJobSourceTrack::GetSourceTag() const
