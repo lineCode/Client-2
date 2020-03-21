@@ -212,6 +212,8 @@ void LocationTree::MapAdded(const QSharedPointer<Map>& map)
     }
     child->MapAdded(locationcomponents, map, mapicon_);
   }
+
+  sortItems(0, Qt::SortOrder::AscendingOrder);
 }
 
 void LocationTree::MapChanged(const QSharedPointer<Map>& map)
@@ -278,6 +280,9 @@ void LocationTree::RecordingAdded(const QSharedPointer<Recording>& recording)
     }
     child->RecordingAdded(locationcomponents, recording);
   }
+
+
+  sortItems(0, Qt::SortOrder::AscendingOrder);
 }
 
 void LocationTree::RecordingChanged(const QSharedPointer<Recording>& recording)
