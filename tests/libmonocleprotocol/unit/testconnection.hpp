@@ -103,6 +103,7 @@ class TestConnection : public server::Connection
   virtual std::pair<Error, SNAPSHOT> GetSnapshot(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time, const float x, const float y, const float width, const float height) override;
   virtual std::pair<Error, GETSTATE> GetState() override;
   virtual uint64_t GetTime() override;
+  virtual Error SetGuiOrder(const std::vector< std::pair<uint64_t, uint64_t> >& recordings, const std::vector< std::pair<uint64_t, uint64_t> >& maps) override;
   virtual Error SetLocation(const std::string& latitude, const std::string& longitude) override;
   virtual Error MountFile(const uint64_t token) override;
   virtual Error RemoveFile(const uint64_t token) override;

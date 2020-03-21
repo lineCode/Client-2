@@ -355,6 +355,11 @@ uint64_t TestConnection::GetTime()
   return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
+Error TestConnection::SetGuiOrder(const std::vector< std::pair<uint64_t, uint64_t> >& recordings, const std::vector< std::pair<uint64_t, uint64_t> >& maps)
+{
+  return Error();
+}
+
 Error TestConnection::SetLocation(const std::string& latitude, const std::string& longitude)
 {
   return Error();
