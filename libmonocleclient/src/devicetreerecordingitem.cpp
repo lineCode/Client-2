@@ -212,7 +212,7 @@ void DeviceTreeRecordingItem::UpdateChildren()
       for (const QSharedPointer<RecordingJobSourceTrack>& sourcetrack : source->GetTracks())
       {
         const QSharedPointer<RecordingTrack>& track = sourcetrack->GetTrack();
-        if (track->GetTrackType() != monocle::TrackType::Video)
+        if (!track || (track->GetTrackType() != monocle::TrackType::Video))
         {
 
           continue;
