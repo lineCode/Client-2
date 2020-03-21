@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
-#include <QDebug>//TODO remove
 
 #include "monocleclient/view.h"
 
