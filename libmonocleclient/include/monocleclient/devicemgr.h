@@ -70,6 +70,7 @@ class DeviceMgr : public QObject
 
   void DeviceAdded(const boost::shared_ptr<Device>& device);
   void DeviceRemoved(const boost::shared_ptr<Device>& device);
+  void GuiOrderChanged(const boost::shared_ptr<Device>& device, const std::vector< std::pair<uint64_t, uint64_t> >& recordingsorder, const std::vector< std::pair<uint64_t, uint64_t> >& mapsorder);
   void LayoutAdded(const QSharedPointer<Layout>& layout);
   void LayoutChanged(const QSharedPointer<Layout>& layout);
   void LayoutRemoved(const uint64_t token);

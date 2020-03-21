@@ -119,7 +119,8 @@ void Connection::GroupRemoved(const uint64_t token)
 
 void Connection::GuiOrderChanged(const std::vector< std::pair<uint64_t, uint64_t> >& recordingsorder, const std::vector< std::pair<uint64_t, uint64_t> >& mapsorder)
 {
-  int i = 0;//TODO signal and then update everything in Device
+  emit SignalGuiOrderChanged(recordingsorder, mapsorder);
+
 }
 
 void Connection::ControlStreamEnd(const uint64_t streamtoken, const uint64_t playrequestindex, const monocle::ErrorCode error)

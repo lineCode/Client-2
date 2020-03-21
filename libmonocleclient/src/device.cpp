@@ -98,6 +98,7 @@ Device::Device(const sock::ProxyParams& proxyparams, const QString& address, con
   connect(this, &Connection::SignalGroupAdded, this, QOverload<const uint64_t, const QString&, const bool, const bool, const bool, const bool, const bool, const std::vector<uint64_t>&>::of(&Device::SlotGroupAdded), Qt::QueuedConnection);
   connect(this, &Connection::SignalGroupChanged, this, QOverload<const uint64_t, const QString&, const bool, const bool, const bool, const bool, const bool, const std::vector<uint64_t>&>::of(&Device::SlotGroupChanged), Qt::QueuedConnection);
   connect(this, &Connection::SignalGroupRemoved, this, QOverload<const uint64_t>::of(&Device::SlotGroupRemoved), Qt::QueuedConnection);
+  connect(this, &Connection::SignalGuiOrderChanged, this, &Device::SlotGuiOrderChanged, Qt::QueuedConnection);
   connect(this, &Connection::SignalLayoutAdded, this, &Device::SlotLayoutAdded, Qt::QueuedConnection);
   connect(this, &Connection::SignalLayoutChanged, this, &Device::SlotLayoutChanged, Qt::QueuedConnection);
   connect(this, &Connection::SignalLayoutNameChanged, this, &Device::SlotLayoutNameChanged, Qt::QueuedConnection);
@@ -1715,6 +1716,32 @@ void Device::SlotONVIFUserRemoved(const uint64_t token)
   }
   onvifusers_.erase(u);
   emit SignalONVIFUserRemoved(token);
+}
+
+void Device::SlotGuiOrderChanged(const std::vector< std::pair<uint64_t, uint64_t> >& recordingsorder, const std::vector< std::pair<uint64_t, uint64_t> >& mapsorder)
+{
+  for (const std::pair<uint64_t, uint64_t>& recordingorder : recordingsorder)
+  {
+    std::vector< QSharedPointer<client::Recording> >::iterator r = std::find_if(recordings_.begin(), recordings_.end(), [&recordingorder](const QSharedPointer<client::Recording>& recording) { return (recording->GetToken() == recordingorder.first); });
+    if (r == recordings_.end())
+    {
+      LOG_GUI_WARNING_SOURCE(boost::static_pointer_cast<Device>(shared_from_this()), QString("Unable to find recording: ") + QString::number(recordingorder.first));
+      continue;
+    }
+    (*r)->SetGuiOrder(recordingorder.second);
+  }
+
+  for (const std::pair<uint64_t, uint64_t>& maporder : mapsorder)
+  {
+    std::vector< QSharedPointer<client::Map> >::iterator m = std::find_if(maps_.begin(), maps_.end(), [&maporder](const QSharedPointer<client::Map>& map) { return (map->GetToken() == maporder.first); });
+    if (m == maps_.end())
+    {
+      LOG_GUI_WARNING_SOURCE(boost::static_pointer_cast<Device>(shared_from_this()), QString("Unable to find map: ") + QString::number(maporder.first));
+      continue;
+    }
+    (*m)->SetGuiOrder(maporder.second);
+  }
+  emit MainWindow::Instance()->GetDeviceMgr().GuiOrderChanged(boost::static_pointer_cast<Device>(shared_from_this()), recordingsorder, mapsorder);
 }
 
 void Device::SlotLayoutAdded(const monocle::LAYOUT& layout)

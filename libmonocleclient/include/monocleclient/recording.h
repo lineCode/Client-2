@@ -86,6 +86,7 @@ class Recording : public QObject
   inline uint64_t GetRetentionTime() const { return retentiontime_; }
   inline const std::vector< QSharedPointer<client::RecordingJob> >& GetRecordingJobs() const { return jobs_; }
   inline std::vector< QSharedPointer<client::RecordingJob> >& GetRecordingJobs() { return jobs_; }
+  inline void SetGuiOrder(const uint64_t guiorder) { guiorder_ = guiorder; }
   inline uint64_t GetGuiOrder() const { return guiorder_; }
 
  private:

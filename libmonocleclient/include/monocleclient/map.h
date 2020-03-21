@@ -38,6 +38,7 @@ class Map : public QObject
   inline const QString& GetLocation() const { return location_; }
   void SetImageMD5(const QString& imagemd5) { imagemd5_ = imagemd5; }
   inline const QString& GetImageMD5() const { return imagemd5_; }
+  inline void SetGuiOrder(const uint64_t guiorder) { guiorder_ = guiorder; }
   inline uint64_t GetGuiOrder() const { return guiorder_; }
 
  private:

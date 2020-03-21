@@ -70,6 +70,7 @@ DeviceTreeDeviceItem::DeviceTreeDeviceItem(DeviceTree* parent, const boost::shar
   connect(viewlog_, &QAction::triggered, this, &DeviceTreeDeviceItem::ViewLog);
   connect(properties_, &QAction::triggered, this, &DeviceTreeDeviceItem::Properties);
   connect(device_.get(), &Device::SignalDisconnected, this, &DeviceTreeDeviceItem::Disconnected);
+  connect(device_.get(), &Device::GuiOrderChanged, this, &DeviceTreeDeviceItem::GuiOrderChanged);
   connect(device_.get(), &Device::SignalLatency, this, &DeviceTreeDeviceItem::Latency);
   connect(device_.get(), &Device::SignalMapAdded, this, &DeviceTreeDeviceItem::MapAdded);
   connect(device_.get(), &Device::SignalMapChanged, this, &DeviceTreeDeviceItem::MapChanged);
@@ -80,10 +81,6 @@ DeviceTreeDeviceItem::DeviceTreeDeviceItem(DeviceTree* parent, const boost::shar
   connect(device_.get(), &Device::SignalRecordingRemoved, this, &DeviceTreeDeviceItem::RecordingRemoved);
   connect(device_.get(), &Device::SignalStateChanged, this, &DeviceTreeDeviceItem::StateChanged);
   connect(device_.get(), &Device::SignalLicenseStateChanged, this, &DeviceTreeDeviceItem::LicenseStateChanged);
-
-  //TODO need to listen to this device GuiOrderChanged and then update all the children into their respective positions
-    //TODO another user could change it from anotehr client
-    //TODO test with laptop...
   
   setIcon(0, latencynone_);
 }
@@ -275,6 +272,12 @@ void DeviceTreeDeviceItem::Properties(bool)
 void DeviceTreeDeviceItem::Disconnected()
 {
   setIcon(0, latencynone_);
+
+}
+
+void DeviceTreeDeviceItem::GuiOrderChanged(const std::vector< std::pair<uint64_t, uint64_t> >& recordingsorder, const std::vector< std::pair<uint64_t, uint64_t> >& mapsorder)
+{
+  sortChildren(0, Qt::SortOrder::AscendingOrder);
 
 }
 

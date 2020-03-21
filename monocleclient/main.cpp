@@ -140,6 +140,7 @@ int main(int argc, char** argv)
   qRegisterMetaType< std::vector<monocle::RECORDINGJOBSOURCE> >();
   qRegisterMetaType< std::vector<monocle::RECORDINGSTATISTICS> >();
   qRegisterMetaType< std::vector<QString> >();
+  qRegisterMetaType< std::vector< std::pair<uint64_t, uint64_t> > >();
   qRegisterMetaType< std::vector<std::string> >();
   qRegisterMetaType< std::vector<uint64_t> >();
   qRegisterMetaType<uint64_t>();
