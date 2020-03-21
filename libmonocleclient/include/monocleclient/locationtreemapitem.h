@@ -45,13 +45,18 @@ class LocationTreeMapItem : public QObject, public QTreeWidgetItem
 
   void SetFilter(const QString& filter);
 
+  inline const QSharedPointer<Map>& GetMap() const { return map_; }
+
   uint64_t GetToken() const;
+  
 
  protected:
 
   void Clear();
  
  private:
+
+  bool operator<(const QTreeWidgetItem& rhs) const;
 
   boost::shared_ptr<Device> device_;
   QSharedPointer<Map> map_;

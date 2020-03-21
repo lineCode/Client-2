@@ -22,7 +22,7 @@ namespace client
 ///// Methods /////
 
 DeviceTreeMediaItem::DeviceTreeMediaItem(DeviceTree* parent, const QSharedPointer<Media>& media) :
-  DeviceTreeItem(parent, media->GetPath(), static_cast<int>(DEVICE_TREE_TOP_LEVEL_ITEM_TYPE::MEDIA)),
+  DeviceTreeItem(parent, media->GetPath(), static_cast<int>(DEVICE_TREE_ITEM_TYPE::MEDIA)),
   media_(media),
   properties_(new QAction("Properties", this)),
   close_(new QAction("Close", this))

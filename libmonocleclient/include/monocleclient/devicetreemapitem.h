@@ -41,6 +41,7 @@ class DeviceTreeMapItem : public DeviceTreeItem
 
   void SetFilter(const QString& filter);
 
+  inline const boost::shared_ptr<Device>& GetDevice() const { return device_; }
   inline const QSharedPointer<client::Map>& GetMap() const { return map_; }
 
 

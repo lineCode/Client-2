@@ -36,7 +36,7 @@ namespace client
 ///// Methods /////
 
 DeviceTreeDeviceItem::DeviceTreeDeviceItem(DeviceTree* parent, const boost::shared_ptr<Device>& device, const QIcon& latencygreen, const QIcon& latencyyellow, const QIcon& latencyred, const QIcon& latencynone, const QIcon& recordingicon, const QIcon& mapicon) :
-  DeviceTreeItem(parent, device->GetName(), static_cast<int>(DEVICE_TREE_TOP_LEVEL_ITEM_TYPE::DEVICE)),
+  DeviceTreeItem(parent, device->GetName(), static_cast<int>(DEVICE_TREE_ITEM_TYPE::DEVICE)),
   device_(device),
   latencygreen_(latencygreen),
   latencyyellow_(latencyyellow),
@@ -69,8 +69,8 @@ DeviceTreeDeviceItem::DeviceTreeDeviceItem(DeviceTree* parent, const boost::shar
   connect(manageonvifusers_, &QAction::triggered, this, &DeviceTreeDeviceItem::ManageONVIFUsers);
   connect(viewlog_, &QAction::triggered, this, &DeviceTreeDeviceItem::ViewLog);
   connect(properties_, &QAction::triggered, this, &DeviceTreeDeviceItem::Properties);
+  connect(device_.get(), &Connection::SignalGuiOrderChanged, this, &DeviceTreeDeviceItem::GuiOrderChanged);
   connect(device_.get(), &Device::SignalDisconnected, this, &DeviceTreeDeviceItem::Disconnected);
-  connect(device_.get(), &Device::GuiOrderChanged, this, &DeviceTreeDeviceItem::GuiOrderChanged);
   connect(device_.get(), &Device::SignalLatency, this, &DeviceTreeDeviceItem::Latency);
   connect(device_.get(), &Device::SignalMapAdded, this, &DeviceTreeDeviceItem::MapAdded);
   connect(device_.get(), &Device::SignalMapChanged, this, &DeviceTreeDeviceItem::MapChanged);
@@ -277,7 +277,6 @@ void DeviceTreeDeviceItem::Disconnected()
 
 void DeviceTreeDeviceItem::GuiOrderChanged(const std::vector< std::pair<uint64_t, uint64_t> >& recordingsorder, const std::vector< std::pair<uint64_t, uint64_t> >& mapsorder)
 {
-  sortChildren(0, Qt::SortOrder::AscendingOrder);
 
 }
 

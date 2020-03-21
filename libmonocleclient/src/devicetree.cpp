@@ -99,7 +99,23 @@ QMimeData* DeviceTree::mimeData(const QList<QTreeWidgetItem*> items) const
   
   for (QTreeWidgetItem* item : items)
   {
-    if (typeid(*item) == typeid(DeviceTreeRecordingItem))
+    if (item->type() == DEVICE_TREE_ITEM_TYPE::DEVICE_MAP)
+    {
+      DeviceTreeMapItem* devicetreemapitem = static_cast<DeviceTreeMapItem*>(item);
+      QMimeData* mimedata = new QMimeData();
+      QByteArray bytearray;
+
+      const uint64_t deviceidentifier = devicetreemapitem->GetDevice()->GetIdentifier();
+      bytearray.append(reinterpret_cast<const char*>(&deviceidentifier), sizeof(deviceidentifier));
+      mimedata->setData(MIME_DEVICE_TREE_DEVICE_IDENTIFIER, bytearray);
+
+      bytearray.clear();
+      const uint64_t maptoken = devicetreemapitem->GetMap()->GetToken();
+      bytearray.append(reinterpret_cast<const char*>(&maptoken), sizeof(maptoken));
+      mimedata->setData(MIME_DEVICE_TREE_MAP_TOKEN, bytearray);
+      return mimedata;
+    }
+    else if (item->type() == DEVICE_TREE_ITEM_TYPE::DEVICE_RECORDING)
     {
       DeviceTreeRecordingItem* devicetreerecordingitem = static_cast<DeviceTreeRecordingItem*>(item);
       QMimeData* mimedata = new QMimeData();
@@ -115,7 +131,7 @@ QMimeData* DeviceTree::mimeData(const QList<QTreeWidgetItem*> items) const
       mimedata->setData(MIME_DEVICE_TREE_RECORDING_TOKEN, bytearray);
       return mimedata;
     }
-    else if (typeid(*item) == typeid(DeviceTreeRecordingTrackItem))
+    else if (item->type() == DEVICE_TREE_ITEM_TYPE::DEVICE_RECORDING_TRACK)
     {
       DeviceTreeRecordingTrackItem* devicetreerecordingtrackitem = static_cast<DeviceTreeRecordingTrackItem*>(item);
       if (devicetreerecordingtrackitem->GetTrack()->GetTrackType() != monocle::TrackType::Video)
@@ -205,25 +221,6 @@ void DeviceTree::dropEvent(QDropEvent* event)
   }
   const uint64_t deviceidentifier = *reinterpret_cast<const uint64_t*>(deviceidentifierdata.data());
 
-  const QByteArray recordingtokendata = mimedata->data(MIME_DEVICE_TREE_RECORDING_TOKEN);
-  if (recordingtokendata.isEmpty())
-  {
-    event->ignore();
-    return;
-  }
-  if (recordingtokendata.size() != sizeof(uint64_t))
-  {
-    event->ignore();
-    return;
-  }
-  const uint64_t recordingtoken = *reinterpret_cast<const uint64_t*>(recordingtokendata.data());
-
-  if (!mimedata->data(MIME_DEVICE_TREE_RECORDING_TRACK_ID).isEmpty())
-  {
-    event->ignore();
-    return;
-  }
-
   // Retrieve the corresponding device we are hovering over is the same one, because we can't drag recordings out onto another device
   const QPoint pos = event->pos();
   QTreeWidgetItem* destitem = itemAt(pos.x(), pos.y());
@@ -237,14 +234,14 @@ void DeviceTree::dropEvent(QDropEvent* event)
   while (toplevelitem->parent())
   {
     toplevelitem = toplevelitem->parent();
-    if (toplevelitem->type() == static_cast<int>(DEVICE_TREE_TOP_LEVEL_ITEM_TYPE::DEVICE_RECORDING)) // If a user drags onto a DEVICE_RECORDING_TRACK item, we want to take the corresponding recording item instead
+    if (toplevelitem->type() == static_cast<int>(DEVICE_TREE_ITEM_TYPE::DEVICE_RECORDING)) // If a user drags onto a DEVICE_RECORDING_TRACK item, we want to take the corresponding recording item instead
     {
       destitem = toplevelitem;
 
     }
   }
 
-  if (toplevelitem->type() != static_cast<int>(DEVICE_TREE_TOP_LEVEL_ITEM_TYPE::DEVICE))
+  if (toplevelitem->type() != static_cast<int>(DEVICE_TREE_ITEM_TYPE::DEVICE))
   {
     event->ignore();
     return;
@@ -264,22 +261,72 @@ void DeviceTree::dropEvent(QDropEvent* event)
     return;
   }
 
-  DeviceTreeRecordingItem* recordingitem = deviceitem->GetRecordingItem(recordingtoken);
-  if (!recordingitem)
+  const QByteArray maptokendata = mimedata->data(MIME_DEVICE_TREE_MAP_TOKEN);
+  const QByteArray recordingtokendata = mimedata->data(MIME_DEVICE_TREE_RECORDING_TOKEN);
+  DeviceTreeItem* item = nullptr;
+  if (!maptokendata.isEmpty())
+  {
+    if (maptokendata.isEmpty())
+    {
+      event->ignore();
+      return;
+    }
+    if (maptokendata.size() != sizeof(uint64_t))
+    {
+      event->ignore();
+      return;
+    }
+    const uint64_t maptoken = *reinterpret_cast<const uint64_t*>(maptokendata.data());
+
+    item = deviceitem->GetMapItem(maptoken);
+    if (!item)
+    {
+      event->ignore();
+      return;
+    }
+  }
+  else if (!recordingtokendata.isEmpty())
+  {
+    if (recordingtokendata.isEmpty())
+    {
+      event->ignore();
+      return;
+    }
+    if (recordingtokendata.size() != sizeof(uint64_t))
+    {
+      event->ignore();
+      return;
+    }
+    const uint64_t recordingtoken = *reinterpret_cast<const uint64_t*>(recordingtokendata.data());
+
+    if (!mimedata->data(MIME_DEVICE_TREE_RECORDING_TRACK_ID).isEmpty())
+    {
+      event->ignore();
+      return;
+    }
+
+    item = deviceitem->GetRecordingItem(recordingtoken);
+    if (!item)
+    {
+      event->ignore();
+      return;
+    }
+  }
+  else
   {
     event->ignore();
     return;
   }
 
-  const int recordingitemindex = deviceitem->indexOfChild(recordingitem);
-  if (recordingitemindex == -1)
+  const int itemindex = deviceitem->indexOfChild(item);
+  if (itemindex == -1)
   {
     event->ignore();
     return;
   }
 
-  recordingitem = static_cast<DeviceTreeRecordingItem*>(deviceitem->takeChild(recordingitemindex));
-  if (!recordingitem) // Shouldn't happen but ok...
+  item = static_cast<DeviceTreeItem*>(deviceitem->takeChild(itemindex));
+  if (!item) // Shouldn't happen but ok...
   {
     event->ignore();
     return;
@@ -288,30 +335,31 @@ void DeviceTree::dropEvent(QDropEvent* event)
   int destindex = deviceitem->indexOfChild(destitem);
   if (destindex == -1) // This can happen when the user drops the item on the device, so put it at the top. If it is an error for another reason, no harm in just placing it back anyway
   {
-    deviceitem->insertChild(0, recordingitem);
+    deviceitem->insertChild(0, item);
     event->accept();
     return;
   }
 
-  if ((destindex + 1) != recordingitemindex) // If we are moving one up, then this effectively "swaps" them
+  if ((destindex + 1) != itemindex) // If we are moving one up, then this effectively "swaps" them
   {
     ++destindex;
 
   }
 
-  deviceitem->insertChild(destindex, recordingitem);
+  deviceitem->insertChild(destindex, item);
 
+  // Save the result to the server
   std::vector< std::pair<uint64_t, uint64_t> > recordings;
   std::vector< std::pair<uint64_t, uint64_t> > maps;
   for (int i = 0; i < deviceitem->childCount(); ++i)
   {
     QTreeWidgetItem* item = deviceitem->child(i);
-    if (item->type() == DEVICE_TREE_TOP_LEVEL_ITEM_TYPE::DEVICE_RECORDING)
+    if (item->type() == DEVICE_TREE_ITEM_TYPE::DEVICE_RECORDING)
     {
       const DeviceTreeRecordingItem* recordingitem = static_cast<const DeviceTreeRecordingItem*>(item);
       recordings.push_back(std::make_pair(recordingitem->GetRecording()->GetToken(), i));
     }
-    else if (item->type() == DEVICE_TREE_TOP_LEVEL_ITEM_TYPE::DEVICE_MAP)
+    else if (item->type() == DEVICE_TREE_ITEM_TYPE::DEVICE_MAP)
     {
       const DeviceTreeMapItem* mapitem = static_cast<const DeviceTreeMapItem*>(item);
       maps.push_back(std::make_pair(mapitem->GetMap()->GetToken(), i));
@@ -337,32 +385,50 @@ void DeviceTree::DragEvent(QDragMoveEvent* event)
     return;
   }
 
-  const QByteArray devicetoken = mimedata->data(MIME_DEVICE_TREE_DEVICE_IDENTIFIER);
-  if (devicetoken.isEmpty())
+  const QByteArray deviceidentifierdata = mimedata->data(MIME_DEVICE_TREE_DEVICE_IDENTIFIER);
+  if (deviceidentifierdata.isEmpty())
   {
     event->ignore();
     return;
   }
-  if (devicetoken.size() != sizeof(uint64_t))
+  if (deviceidentifierdata.size() != sizeof(uint64_t))
   {
     event->ignore();
     return;
   }
-  const uint64_t deviceidentifier = *reinterpret_cast<const uint64_t*>(devicetoken.data());
+  const uint64_t deviceidentifier = *reinterpret_cast<const uint64_t*>(deviceidentifierdata.data());
 
+  const QByteArray maptokendata = mimedata->data(MIME_DEVICE_TREE_MAP_TOKEN);
   const QByteArray recordingtokendata = mimedata->data(MIME_DEVICE_TREE_RECORDING_TOKEN);
-  if (recordingtokendata.isEmpty())
+  if (!maptokendata.isEmpty())
   {
-    event->ignore();
-    return;
+    if (maptokendata.size() != sizeof(uint64_t))
+    {
+      event->ignore();
+      return;
+    }
   }
-  if (recordingtokendata.size() != sizeof(uint64_t))
+  else if (!recordingtokendata.isEmpty())
   {
-    event->ignore();
-    return;
-  }
+    if (recordingtokendata.isEmpty())
+    {
+      event->ignore();
+      return;
+    }
 
-  if (!mimedata->data(MIME_DEVICE_TREE_RECORDING_TRACK_ID).isEmpty())
+    if (recordingtokendata.size() != sizeof(uint64_t))
+    {
+      event->ignore();
+      return;
+    }
+
+    if (!mimedata->data(MIME_DEVICE_TREE_RECORDING_TRACK_ID).isEmpty())
+    {
+      event->ignore();
+      return;
+    }
+  }
+  else
   {
     event->ignore();
     return;
@@ -382,7 +448,7 @@ void DeviceTree::DragEvent(QDragMoveEvent* event)
     item = item->parent();
   }
 
-  if (item->type() != static_cast<int>(DEVICE_TREE_TOP_LEVEL_ITEM_TYPE::DEVICE))
+  if (item->type() != static_cast<int>(DEVICE_TREE_ITEM_TYPE::DEVICE))
   {
     event->ignore();
     return;

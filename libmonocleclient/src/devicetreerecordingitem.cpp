@@ -30,7 +30,7 @@ namespace client
 ///// Methods /////
 
 DeviceTreeRecordingItem::DeviceTreeRecordingItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QIcon& recordingicon, const QIcon& cameraicon) :
-  DeviceTreeItem(parent, recording->GetName(), DEVICE_TREE_TOP_LEVEL_ITEM_TYPE::DEVICE_RECORDING),
+  DeviceTreeItem(parent, recording->GetName(), DEVICE_TREE_ITEM_TYPE::DEVICE_RECORDING),
   device_(device),
   recording_(recording),
   cameraicon_(cameraicon),
@@ -291,12 +291,12 @@ QString DeviceTreeRecordingItem::Tooltip(const QString& mediauri, const QString&
 bool DeviceTreeRecordingItem::operator<(const QTreeWidgetItem& rhs) const
 {
   uint64_t guiorder = 0;
-  if (rhs.type() == DEVICE_TREE_TOP_LEVEL_ITEM_TYPE::DEVICE_RECORDING)
+  if (rhs.type() == DEVICE_TREE_ITEM_TYPE::DEVICE_RECORDING)
   {
     const DeviceTreeRecordingItem* recordingitem = static_cast<const DeviceTreeRecordingItem*>(&rhs);
     guiorder = recordingitem->GetRecording()->GetGuiOrder();
   }
-  else if (rhs.type() == DEVICE_TREE_TOP_LEVEL_ITEM_TYPE::DEVICE_MAP)
+  else if (rhs.type() == DEVICE_TREE_ITEM_TYPE::DEVICE_MAP)
   {
     const DeviceTreeMapItem* mapitem = static_cast<const DeviceTreeMapItem*>(&rhs);
     guiorder = mapitem->GetMap()->GetGuiOrder();

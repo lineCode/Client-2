@@ -21,7 +21,7 @@ namespace client
 ///// Methods /////
 
 DeviceTreeMediaRecordingItem::DeviceTreeMediaRecordingItem(DeviceTreeItem* parent, QSharedPointer<Media>& media, const uint64_t deviceindex, const uint64_t recordingindex, const QString& name) :
-  DeviceTreeItem(parent, name, DEVICE_TREE_TOP_LEVEL_ITEM_TYPE::MEDIA_RECORDING),
+  DeviceTreeItem(parent, name, DEVICE_TREE_ITEM_TYPE::MEDIA_RECORDING),
   media_(media),
   deviceindex_(deviceindex),
   recordingindex_(recordingindex),

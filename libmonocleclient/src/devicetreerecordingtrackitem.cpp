@@ -26,7 +26,7 @@ namespace client
 ///// Methods /////
 
 DeviceTreeRecordingTrackItem::DeviceTreeRecordingTrackItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource, const QSharedPointer<client::RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<client::RecordingTrack>& track, const QIcon& cameraicon) :
-  DeviceTreeItem(parent, GetName(track), DEVICE_TREE_TOP_LEVEL_ITEM_TYPE::DEVICE_RECORDING_TRACK),
+  DeviceTreeItem(parent, GetName(track), DEVICE_TREE_ITEM_TYPE::DEVICE_RECORDING_TRACK),
   device_(device),
   recording_(recording),
   recordingjob_(recordingjob),

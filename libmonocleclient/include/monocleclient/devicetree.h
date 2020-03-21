@@ -25,6 +25,7 @@ namespace client
 
 ///// Globals /////
 
+const QString MIME_DEVICE_TREE_MAP_TOKEN = "Monocle/MapToken";
 const QString MIME_DEVICE_TREE_DEVICE_IDENTIFIER = "Monocle/DeviceIdentifier";
 const QString MIME_DEVICE_TREE_RECORDING_TOKEN = "Monocle/RecordingToken";
 const QString MIME_DEVICE_TREE_RECORDING_TRACK_ID = "Monocle/RecordingTrackId";

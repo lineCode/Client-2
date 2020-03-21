@@ -37,6 +37,7 @@ LocationTree::LocationTree(QWidget* parent) :
   connect(showfilter_, &QAction::triggered, this, &LocationTree::ShowFilter);
   connect(&MainWindow::Instance()->GetDeviceMgr(), &DeviceMgr::DeviceAdded, this, &LocationTree::DeviceAdded);
   connect(&MainWindow::Instance()->GetDeviceMgr(), &DeviceMgr::DeviceRemoved, this, &LocationTree::DeviceRemoved);
+  connect(&MainWindow::Instance()->GetDeviceMgr(), &DeviceMgr::GuiOrderChanged, this, &LocationTree::GuiOrderChanged);
 
   setExpandsOnDoubleClick(false);
 
@@ -180,6 +181,12 @@ void LocationTree::DeviceAdded(const boost::shared_ptr<Device>& device)
 void LocationTree::DeviceRemoved(const boost::shared_ptr<Device>& device)
 {
   // All recordings and maps should be removed, don't need to do anything I think
+
+}
+
+void LocationTree::GuiOrderChanged(const boost::shared_ptr<Device>& device, const std::vector< std::pair<uint64_t, uint64_t> >& recordingsorder, const std::vector< std::pair<uint64_t, uint64_t> >& mapsorder)
+{
+  sortItems(0, Qt::SortOrder::AscendingOrder);
 
 }
 

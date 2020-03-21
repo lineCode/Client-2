@@ -65,6 +65,7 @@ class LocationTree : public QTreeWidget
   void ShowFilter(const bool checked);
   void DeviceAdded(const boost::shared_ptr<Device>& device);
   void DeviceRemoved(const boost::shared_ptr<Device>& device);
+  void GuiOrderChanged(const boost::shared_ptr<Device>& device, const std::vector< std::pair<uint64_t, uint64_t> >& recordingsorder, const std::vector< std::pair<uint64_t, uint64_t> >& mapsorder);
   void MapAdded(const QSharedPointer<Map>& map);
   void MapChanged(const QSharedPointer<Map>& map);
   void MapRemoved(const uint64_t token);

@@ -61,7 +61,10 @@ class LocationTreeItem : public QObject, public QTreeWidgetItem
 
   const QIcon& recordingicon_;
 
+ private slots:
 
+  void GuiOrderChanged(const boost::shared_ptr<Device>& device, const std::vector< std::pair<uint64_t, uint64_t> >& recordingsorder, const std::vector< std::pair<uint64_t, uint64_t> >& mapsorder);
+  
 };
 
 }

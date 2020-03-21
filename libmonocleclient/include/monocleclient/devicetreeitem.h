@@ -18,11 +18,12 @@ namespace client
 ///// Declarations /////
 
 class DeviceTree;
+class DeviceTreeMapItem;
 class DeviceTreeRecordingItem;
 
 ///// Enumerations /////
 
-enum DEVICE_TREE_TOP_LEVEL_ITEM_TYPE : int
+enum DEVICE_TREE_ITEM_TYPE : int
 {
   // Avoid zero, because that is the default
   DEVICE = 1,
@@ -53,6 +54,7 @@ class DeviceTreeItem : public QObject, public QTreeWidgetItem
   
   virtual void DoubleClicked();
 
+  DeviceTreeMapItem* GetMapItem(const uint64_t maptoken) const;
   DeviceTreeRecordingItem* GetRecordingItem(const uint64_t recordingtoken) const;
 
  protected:

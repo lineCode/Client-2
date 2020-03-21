@@ -5,10 +5,13 @@
 
 #include "monocleclient/locationtreemapitem.h"
 
+#include "monocleclient/devicetreeitem.h"
 #include "monocleclient/locationtree.h"
 #include "monocleclient/locationtreeitem.h"
+#include "monocleclient/locationtreerecordingitem.h"
 #include "monocleclient/mainwindow.h"
 #include "monocleclient/map.h"
+#include "monocleclient/recording.h"
 
 ///// Namespaces /////
 
@@ -18,7 +21,7 @@ namespace client
 ///// Methods /////
 
 LocationTreeMapItem::LocationTreeMapItem(LocationTree* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<Map>& map, const QIcon& mapicon) :
-  QTreeWidgetItem(parent, QStringList(std::initializer_list<QString>({ map->GetName() }))),
+  QTreeWidgetItem(parent, QStringList(std::initializer_list<QString>({ map->GetName() })), DEVICE_TREE_ITEM_TYPE::DEVICE_MAP),
   device_(device),
   map_(map)
 {
@@ -27,7 +30,7 @@ LocationTreeMapItem::LocationTreeMapItem(LocationTree* parent, const boost::shar
 }
 
 LocationTreeMapItem::LocationTreeMapItem(LocationTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<Map>& map, const QIcon& mapicon) :
-  QTreeWidgetItem(parent, QStringList(std::initializer_list<QString>({ map->GetName() }))),
+  QTreeWidgetItem(parent, QStringList(std::initializer_list<QString>({ map->GetName() })), DEVICE_TREE_ITEM_TYPE::DEVICE_MAP),
   device_(device),
   map_(map)
 {
@@ -95,6 +98,22 @@ void LocationTreeMapItem::Clear()
     removeChild(child(i));
 
   }
+}
+
+bool LocationTreeMapItem::operator<(const QTreeWidgetItem& rhs) const
+{
+  uint64_t guiorder = 0;
+  if (rhs.type() == DEVICE_TREE_ITEM_TYPE::DEVICE_RECORDING)
+  {
+    const LocationTreeRecordingItem* recordingitem = static_cast<const LocationTreeRecordingItem*>(&rhs);
+    guiorder = recordingitem->GetRecording()->GetGuiOrder();
+  }
+  else if (rhs.type() == DEVICE_TREE_ITEM_TYPE::DEVICE_MAP)
+  {
+    const LocationTreeMapItem* mapitem = static_cast<const LocationTreeMapItem*>(&rhs);
+    guiorder = mapitem->GetMap()->GetGuiOrder();
+  }
+  return (map_->GetGuiOrder() < guiorder);
 }
 
 }
