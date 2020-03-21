@@ -80,6 +80,12 @@ DeviceTreeDeviceItem::DeviceTreeDeviceItem(DeviceTree* parent, const boost::shar
   connect(device_.get(), &Device::SignalRecordingRemoved, this, &DeviceTreeDeviceItem::RecordingRemoved);
   connect(device_.get(), &Device::SignalStateChanged, this, &DeviceTreeDeviceItem::StateChanged);
   connect(device_.get(), &Device::SignalLicenseStateChanged, this, &DeviceTreeDeviceItem::LicenseStateChanged);
+
+  //TODO need to listen to this device GuiOrderChanged and then update all the children into their respective positions
+    //TODO another user could change it from anotehr client
+    //TODO test with laptop...
+
+  this->sortChildren(0, Qt::SortOrder::AscendingOrder);//TODO descending?
   
   setIcon(0, latencynone_);
 }
@@ -303,6 +309,8 @@ void DeviceTreeDeviceItem::Latency(const std::chrono::steady_clock::duration lat
 
 void DeviceTreeDeviceItem::MapAdded(const QSharedPointer<client::Map>& map)
 {
+  //TODO sort
+
   addChild(new DeviceTreeMapItem(this, device_, map, mapicon_));
 
 }
@@ -353,6 +361,7 @@ void DeviceTreeDeviceItem::NameChanged(const QString& name)
 
 void DeviceTreeDeviceItem::RecordingAdded(QSharedPointer<client::Recording>& recording)
 {
+  //TODO sort
   addChild(new DeviceTreeRecordingItem(this, device_, recording, recordingicon_, MainWindow::Instance()->GetCameraIcon()));
 
 }

@@ -27,7 +27,7 @@ class Map : public QObject
 
  public:
 
-  Map(const boost::shared_ptr<Device>& device, const uint64_t token, const QString& name, const QString& location, const QString& imagemd5);
+  Map(const boost::shared_ptr<Device>& device, const uint64_t token, const QString& name, const QString& location, const QString& imagemd5, const uint64_t guiorder);
   ~Map();
   
   inline const boost::shared_ptr<Device> GetDevice() const { return device_; }
@@ -38,6 +38,7 @@ class Map : public QObject
   inline const QString& GetLocation() const { return location_; }
   void SetImageMD5(const QString& imagemd5) { imagemd5_ = imagemd5; }
   inline const QString& GetImageMD5() const { return imagemd5_; }
+  inline uint64_t GetGuiOrder() const { return guiorder_; }
 
  private:
 
@@ -46,6 +47,7 @@ class Map : public QObject
   QString name_;
   QString location_;
   QString imagemd5_;
+  uint64_t guiorder_;
 
 };
 
