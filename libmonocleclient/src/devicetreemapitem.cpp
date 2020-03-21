@@ -9,9 +9,12 @@
 #include <QMessageBox>
 
 #include "monocleclient/device.h"
+#include "monocleclient/devicetreemapitem.h"
+#include "monocleclient/devicetreerecordingitem.h"
 #include "monocleclient/mainwindow.h"
 #include "monocleclient/managemapwindow.h"
 #include "monocleclient/map.h"
+#include "monocleclient/recording.h"
 
 ///// Namespaces /////
 
@@ -21,7 +24,7 @@ namespace client
 ///// Methods /////
 
 DeviceTreeMapItem::DeviceTreeMapItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Map>& map, const QIcon mapicon) :
-  DeviceTreeItem(parent, map->GetName()),
+  DeviceTreeItem(parent, map->GetName(), DEVICE_TREE_ITEM_TYPE::DEVICE_MAP),
   device_(device),
   map_(map),
   edit_(new QAction("Edit", this)),
@@ -83,6 +86,22 @@ void DeviceTreeMapItem::SetFilter(const QString& filter)
 
     }
   }
+}
+
+bool DeviceTreeMapItem::operator<(const QTreeWidgetItem& rhs) const
+{
+  uint64_t guiorder = 0;
+  if (rhs.type() == DEVICE_TREE_ITEM_TYPE::DEVICE_RECORDING)
+  {
+    const DeviceTreeRecordingItem* recordingitem = static_cast<const DeviceTreeRecordingItem*>(&rhs);
+    guiorder = recordingitem->GetRecording()->GetGuiOrder();
+  }
+  else if (rhs.type() == DEVICE_TREE_ITEM_TYPE::DEVICE_MAP)
+  {
+    const DeviceTreeMapItem* mapitem = static_cast<const DeviceTreeMapItem*>(&rhs);
+    guiorder = mapitem->GetMap()->GetGuiOrder();
+  }
+  return (map_->GetGuiOrder() < guiorder);
 }
 
 void DeviceTreeMapItem::Edit(bool)

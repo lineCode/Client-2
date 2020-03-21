@@ -8,6 +8,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <memory>
+#include <monocleprotocol/client/connection.hpp>
 #include <QIcon>
 #include <QList>
 #include <QTreeWidget>
@@ -24,6 +25,7 @@ namespace client
 
 ///// Globals /////
 
+const QString MIME_DEVICE_TREE_MAP_TOKEN = "Monocle/MapToken";
 const QString MIME_DEVICE_TREE_DEVICE_IDENTIFIER = "Monocle/DeviceIdentifier";
 const QString MIME_DEVICE_TREE_RECORDING_TOKEN = "Monocle/RecordingToken";
 const QString MIME_DEVICE_TREE_RECORDING_TRACK_ID = "Monocle/RecordingTrackId";
@@ -50,8 +52,14 @@ class DeviceTree : public QTreeWidget
 
   virtual QMimeData* mimeData(const QList<QTreeWidgetItem*> items) const override;
   virtual void contextMenuEvent(QContextMenuEvent* event) override;
+  virtual void dragEnterEvent(QDragEnterEvent* event) override;
+  virtual void dragMoveEvent(QDragMoveEvent* event) override;
+  virtual void dragLeaveEvent(QDragLeaveEvent* event) override;
+  virtual void dropEvent(QDropEvent* event) override;
 
  private:
+
+  void DragEvent(QDragMoveEvent* event);
 
   const QIcon latencygreen_;
   const QIcon latencyyellow_;
@@ -63,6 +71,8 @@ class DeviceTree : public QTreeWidget
   QAction* showfilter_;
   QAction* adddevice_;
   QAction* importfile_;
+
+  monocle::client::Connection setguiorderconnection_;
 
  public slots:
  

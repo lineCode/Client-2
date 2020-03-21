@@ -80,6 +80,7 @@
 #include "monocleprotocol/groupadded_generated.h"
 #include "monocleprotocol/groupchanged_generated.h"
 #include "monocleprotocol/groupremoved_generated.h"
+#include "monocleprotocol/guiorderchanged_generated.h"
 #include "monocleprotocol/h265frameheader_generated.h"
 #include "monocleprotocol/h264frameheader_generated.h"
 #include "monocleprotocol/hardwarestats_generated.h"
@@ -137,6 +138,7 @@
 #include "monocleprotocol/removetrackrequest_generated.h"
 #include "monocleprotocol/removetracksrequest_generated.h"
 #include "monocleprotocol/removeuserrequest_generated.h"
+#include "monocleprotocol/setguiorderrequest_generated.h"
 #include "monocleprotocol/setlocationrequest_generated.h"
 #include "monocleprotocol/setnamerequest_generated.h"
 #include "monocleprotocol/subscribediscoveryrequest_generated.h"
@@ -249,6 +251,7 @@ Client::Client(boost::asio::io_service& io) :
   removetrack_(DEFAULT_TIMEOUT, this),
   removetracks_(DEFAULT_TIMEOUT, this),
   removeuser_(DEFAULT_TIMEOUT, this),
+  setguiorder_(DEFAULT_TIMEOUT, this),
   setlocation_(DEFAULT_TIMEOUT, this),
   setname_(DEFAULT_TIMEOUT, this),
   subscribe_(DEFAULT_TIMEOUT, this),
@@ -387,6 +390,7 @@ void Client::Destroy()
     removerecordingjob_.Destroy();
     removerecordingjobsource_.Destroy();
     removeuser_.Destroy();
+    setguiorder_.Destroy();
     setlocation_.Destroy();
     setname_.Destroy();
     subscribe_.Destroy();
@@ -1021,6 +1025,17 @@ boost::unique_future<REMOVEUSERRESPONSE> Client::RemoveUser(const uint64_t token
     return boost::make_ready_future(REMOVEUSERRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
   }
   return removeuser_.CreateFuture(sequence_);
+}
+
+boost::unique_future<SETGUIORDERRESPONSE> Client::SetGuiOrder(const std::vector< std::pair<uint64_t, uint64_t> >& recordings, const std::vector< std::pair<uint64_t, uint64_t> >& maps)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (SetGuiOrderSend(recordings, maps))
+  {
+
+    return boost::make_ready_future(SETGUIORDERRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+  }
+  return setguiorder_.CreateFuture(sequence_);
 }
 
 boost::unique_future<SETLOCATIONRESPONSE> Client::SetLocation(const std::string& latitude, const std::string& longitude)
@@ -1816,6 +1831,17 @@ Connection Client::RemoveUser(const uint64_t token, boost::function<void(const s
     return Connection();
   }
   return removeuser_.CreateCallback(sequence_, callback);
+}
+
+Connection Client::SetGuiOrder(const std::vector< std::pair<uint64_t, uint64_t> >& recordings, const std::vector< std::pair<uint64_t, uint64_t> >& maps, boost::function<void(const std::chrono::steady_clock::duration latency, const SETGUIORDERRESPONSE&)> callback)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (SetGuiOrderSend(recordings, maps))
+  {
+    callback(std::chrono::steady_clock::duration(), SETGUIORDERRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+    return Connection();
+  }
+  return setguiorder_.CreateCallback(sequence_, callback);
 }
 
 Connection Client::SetLocation(const std::string& latitude, const std::string& longitude, boost::function<void(const std::chrono::steady_clock::duration latency, const SETLOCATIONRESPONSE&)> callback)
@@ -3205,6 +3231,45 @@ boost::system::error_code Client::RemoveUserSend(const uint64_t token)
   return err;
 }
 
+boost::system::error_code Client::SetGuiOrderSend(const std::vector< std::pair<uint64_t, uint64_t> >& recordings, const std::vector< std::pair<uint64_t, uint64_t> >& maps)
+{
+  fbb_.Clear();
+
+  std::vector< flatbuffers::Offset<GuiOrder> > recordingsbuffer;
+  recordingsbuffer.reserve(recordings.size());
+  for (const std::pair<uint64_t, uint64_t>& recording : recordings)
+  {
+    recordingsbuffer.push_back(CreateGuiOrder(fbb_, recording.first, recording.second));
+
+  }
+
+  std::vector< flatbuffers::Offset<GuiOrder> > mapsbuffer;
+  mapsbuffer.reserve(maps.size());
+  for (const std::pair<uint64_t, uint64_t>& map : maps)
+  {
+    mapsbuffer.push_back(CreateGuiOrder(fbb_, map.first, map.second));
+
+  }
+
+  fbb_.Finish(CreateSetGuiOrderRequest(fbb_, fbb_.CreateVector(recordingsbuffer), fbb_.CreateVector(mapsbuffer)));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::SETGUIORDER, ++sequence_);
+  boost::system::error_code err;
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(fbb_.GetBufferPointer(), messagesize), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  return err;
+}
+
 boost::system::error_code Client::SetLocationSend(const std::string& latitude, const std::string& longitude)
 {
   fbb_.Clear();
@@ -4564,7 +4629,7 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         {
           if (map && map->name() && map->location() && map->md5sum())
           {
-            maps.push_back(MAP(map->token(), map->name()->str(), map->location()->str(), map->md5sum()->str()));
+            maps.push_back(MAP(map->token(), map->name()->str(), map->location()->str(), map->md5sum()->str(), map->guiorder()));
 
           }
         }
@@ -5256,6 +5321,53 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       }
 
       LocationChanged(latitude, longitude);
+      break;
+    }
+    case Message::GUIORDERCHANGED:
+    {
+      if (error)
+      {
+        // Ignore this because it can't really happen...
+        return;
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<monocle::GuiOrderChanged>(nullptr))
+      {
+
+        return;
+      }
+
+      const monocle::GuiOrderChanged* guiorderchanged = flatbuffers::GetRoot<monocle::GuiOrderChanged>(data);
+      if (guiorderchanged == nullptr)
+      {
+
+        return;
+      }
+
+      std::vector< std::pair<uint64_t, uint64_t> > recordings;
+      if (guiorderchanged->recordings())
+      {
+        recordings.reserve(guiorderchanged->recordings()->size());
+        for (const GuiOrder* recording : *guiorderchanged->recordings())
+        {
+          recordings.push_back(std::make_pair(recording->token(), recording->order()));
+
+        }
+      }
+
+      std::vector< std::pair<uint64_t, uint64_t> > maps;
+      if (guiorderchanged->maps())
+      {
+        maps.reserve(guiorderchanged->maps()->size());
+        for (const GuiOrder* map : *guiorderchanged->maps())
+        {
+          maps.push_back(std::make_pair(map->token(), map->order()));
+
+        }
+      }
+
+
+      GuiOrderChanged(recordings, maps);
       break;
     }
     case Message::LAYOUTADDED:
@@ -6694,6 +6806,16 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       removeuser_.Response(sequence, REMOVEUSERRESPONSE());
       break;
     }
+    case Message::SETGUIORDER:
+    {
+      if (error)
+      {
+        HandleError(setguiorder_, sequence, data, datasize);
+        return;
+      }
+      setguiorder_.Response(sequence, SETGUIORDERRESPONSE());
+      break;
+    }
     case Message::SETLOCATION:
     {
       if (error)
@@ -6979,7 +7101,7 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         {
           if (map && map->name() && map->location() && map->md5sum())
           {
-            maps.push_back(MAP(map->token(), map->name()->str(), map->location()->str(), map->md5sum()->str()));
+            maps.push_back(MAP(map->token(), map->name()->str(), map->location()->str(), map->md5sum()->str(), map->guiorder()));
 
           }
         }
@@ -7858,7 +7980,7 @@ std::pair< Error, std::vector<RECORDING> > Client::GetRecordingsBuffer(const fla
       tracks.push_back(RECORDINGTRACK(track->id(), track->token()->str(), track->tracktype(), track->description()->str(), track->fixedfiles(), track->digitalsigning(), track->encrypt(), track->flushfrequency(), ToVector(*track->files()), ToVector(*track->indices()), ToVector(track->codecindices()), std::make_pair(track->totaltrackdatatime(), track->totaltrackdata())));
     }
 
-    recordings.push_back(RECORDING(recording->token(), recording->sourceid()->str(), recording->name()->str(), recording->location()->str(), recording->description()->str(), recording->address()->str(), recording->content()->str(), recording->retentiontime(), jobs, tracks, recording->activejob() ? boost::optional<uint64_t>(recording->activejob()->token()) : boost::none));
+    recordings.push_back(RECORDING(recording->token(), recording->sourceid()->str(), recording->name()->str(), recording->location()->str(), recording->description()->str(), recording->address()->str(), recording->content()->str(), recording->retentiontime(), jobs, tracks, recording->activejob() ? boost::optional<uint64_t>(recording->activejob()->token()) : boost::none, recording->guiorder()));
   }
   return std::make_pair(Error(), recordings);
 }

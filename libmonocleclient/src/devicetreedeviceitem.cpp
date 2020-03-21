@@ -9,6 +9,7 @@
 
 #include <QMenu>
 #include <QMessageBox>
+#include <typeinfo>
 
 #include "monocleclient/devicemgr.h"
 #include "monocleclient/devicepropertieswindow.h"
@@ -35,7 +36,7 @@ namespace client
 ///// Methods /////
 
 DeviceTreeDeviceItem::DeviceTreeDeviceItem(DeviceTree* parent, const boost::shared_ptr<Device>& device, const QIcon& latencygreen, const QIcon& latencyyellow, const QIcon& latencyred, const QIcon& latencynone, const QIcon& recordingicon, const QIcon& mapicon) :
-  DeviceTreeItem(parent, device->GetName()),
+  DeviceTreeItem(parent, device->GetName(), static_cast<int>(DEVICE_TREE_ITEM_TYPE::DEVICE)),
   device_(device),
   latencygreen_(latencygreen),
   latencyyellow_(latencyyellow),
@@ -68,6 +69,7 @@ DeviceTreeDeviceItem::DeviceTreeDeviceItem(DeviceTree* parent, const boost::shar
   connect(manageonvifusers_, &QAction::triggered, this, &DeviceTreeDeviceItem::ManageONVIFUsers);
   connect(viewlog_, &QAction::triggered, this, &DeviceTreeDeviceItem::ViewLog);
   connect(properties_, &QAction::triggered, this, &DeviceTreeDeviceItem::Properties);
+  connect(device_.get(), &Connection::SignalGuiOrderChanged, this, &DeviceTreeDeviceItem::GuiOrderChanged);
   connect(device_.get(), &Device::SignalDisconnected, this, &DeviceTreeDeviceItem::Disconnected);
   connect(device_.get(), &Device::SignalLatency, this, &DeviceTreeDeviceItem::Latency);
   connect(device_.get(), &Device::SignalMapAdded, this, &DeviceTreeDeviceItem::MapAdded);
@@ -273,6 +275,11 @@ void DeviceTreeDeviceItem::Disconnected()
 
 }
 
+void DeviceTreeDeviceItem::GuiOrderChanged(const std::vector< std::pair<uint64_t, uint64_t> >& recordingsorder, const std::vector< std::pair<uint64_t, uint64_t> >& mapsorder)
+{
+
+}
+
 void DeviceTreeDeviceItem::Latency(const std::chrono::steady_clock::duration latency)
 {
   if (!device_->IsValidLicense())
@@ -303,7 +310,7 @@ void DeviceTreeDeviceItem::Latency(const std::chrono::steady_clock::duration lat
 void DeviceTreeDeviceItem::MapAdded(const QSharedPointer<client::Map>& map)
 {
   addChild(new DeviceTreeMapItem(this, device_, map, mapicon_));
-
+  sortChildren(0, Qt::SortOrder::AscendingOrder);
 }
 
 void DeviceTreeDeviceItem::MapChanged(const QSharedPointer<client::Map>& map)
@@ -353,6 +360,7 @@ void DeviceTreeDeviceItem::NameChanged(const QString& name)
 void DeviceTreeDeviceItem::RecordingAdded(QSharedPointer<client::Recording>& recording)
 {
   addChild(new DeviceTreeRecordingItem(this, device_, recording, recordingicon_, MainWindow::Instance()->GetCameraIcon()));
+  sortChildren(0, Qt::SortOrder::AscendingOrder);
 
 }
 

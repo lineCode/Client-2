@@ -80,12 +80,13 @@ TestProtocol::TestProtocol() :
                                 RECORDINGTRACK(0, "token", TrackType::Video, "description", true, true, true, 5, { 0 }, { monocle::INDEX(1, 2) }, { monocle::CODECINDEX(1, monocle::Codec::H265, "parameters", 2) }, std::make_pair(1, 2)),
                                 RECORDINGTRACK(0, "token", TrackType::Metadata, "description", false, false, false, 6, { 1 }, { monocle::INDEX(2, 3) }, { }, std::make_pair(3, 4))
                               },
-                              5)
+                              5,
+                              6)
     }),
   testrecordinglogmessages_({ LOGMESSAGE(0, monocle::Severity::Critical, "Critical1"), LOGMESSAGE(1, monocle::Severity::Err, "Err"), LOGMESSAGE(1, monocle::Severity::Debug, "Debug"), LOGMESSAGE(3, monocle::Severity::Info, "Info"), LOGMESSAGE(4, monocle::Severity::Critical, "Critical2") }),
   testmaxrecordings_(8),
   testlayouts_({ LAYOUT(1, "layout", { LAYOUTWINDOW(2, true, false, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, {}, {}) }) }),
-  testmaps_({ MAP(0, "name", "location", "imagemd5") }),
+  testmaps_({ MAP(0, "name", "location", "imagemd5", 1) }),
   testmountpoints_({ MOUNTPOINT(0, 1, 2, 3, "path", "type", "source") }),
   testlatitude_("latitude"),
   testlongitude_("longitude"),

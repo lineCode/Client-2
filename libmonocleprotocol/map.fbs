@@ -6,4 +6,5 @@ table Map
   name:string (id:1);
   location:string (id:2);
   md5sum:string (id:3);
+  guiorder:uint64 (id:4);
 }

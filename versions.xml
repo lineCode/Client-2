@@ -47,6 +47,7 @@
       <change>Added device tree tooltip which shows the bandwidth</change>
       <change>Added monitoring of NVIDIA GPUs</change>
       <change>Added support for layouts</change>
+      <change>Added drag and dropping to re-order items in device tree</change>
     </changes>
   </version>
 </versions>

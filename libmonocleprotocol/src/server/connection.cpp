@@ -75,6 +75,7 @@
 #include "monocleprotocol/groupadded_generated.h"
 #include "monocleprotocol/groupchanged_generated.h"
 #include "monocleprotocol/groupremoved_generated.h"
+#include "monocleprotocol/guiorderchanged_generated.h"
 #include "monocleprotocol/h265frameheader_generated.h"
 #include "monocleprotocol/h264frameheader_generated.h"
 #include "monocleprotocol/hardwarestats_generated.h"
@@ -133,6 +134,7 @@
 #include "monocleprotocol/removetrackrequest_generated.h"
 #include "monocleprotocol/removetracksrequest_generated.h"
 #include "monocleprotocol/removeuserrequest_generated.h"
+#include "monocleprotocol/setguiorderrequest_generated.h"
 #include "monocleprotocol/setlocationrequest_generated.h"
 #include "monocleprotocol/setnamerequest_generated.h"
 #include "monocleprotocol/server/connection.hpp"
@@ -500,6 +502,40 @@ boost::system::error_code Connection::SendGroupRemoved(const uint64_t token)
   fbb_.Finish(CreateGroupRemoved(fbb_, token));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::GROUPREMOVED, ++sequence_);
+  const std::array<boost::asio::const_buffer, 2> buffers =
+  {
+    boost::asio::const_buffer(&header, sizeof(HEADER)),
+    boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
+  };
+  boost::system::error_code err;
+  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
+  return err;
+}
+
+boost::system::error_code Connection::SendGuiOrderChanged(const std::vector< std::pair<uint64_t, uint64_t> >& recordings, const std::vector< std::pair<uint64_t, uint64_t> >& maps)
+{
+  std::lock_guard<std::mutex> lock(writemutex_);
+  fbb_.Clear();
+
+  std::vector< flatbuffers::Offset<GuiOrder> > recordingsbuffer;
+  recordingsbuffer.reserve(recordings.size());
+  for (const std::pair<uint64_t, uint64_t>& recording : recordings)
+  {
+    recordingsbuffer.push_back(CreateGuiOrder(fbb_, recording.first, recording.second));
+
+  }
+
+  std::vector< flatbuffers::Offset<GuiOrder> > mapsbuffer;
+  mapsbuffer.reserve(recordings.size());
+  for (const std::pair<uint64_t, uint64_t>& map : maps)
+  {
+    mapsbuffer.push_back(CreateGuiOrder(fbb_, map.first, map.second));
+
+  }
+
+  fbb_.Finish(CreateGuiOrderChanged(fbb_, fbb_.CreateVector(recordingsbuffer), fbb_.CreateVector(mapsbuffer)));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::GUIORDERCHANGED, ++sequence_);
   const std::array<boost::asio::const_buffer, 2> buffers =
   {
     boost::asio::const_buffer(&header, sizeof(HEADER)),
@@ -3660,6 +3696,52 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       }
 
       return SendHeaderResponse(HEADER(0, false, false, Message::REMOVEUSER, sequence));
+    }
+    case Message::SETGUIORDER:
+    {
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<SetGuiOrderRequest>(nullptr))
+      {
+
+        return SendErrorResponse(Message::SETGUIORDER, sequence, Error(ErrorCode::InvalidMessage, "Invalid message"));
+      }
+
+      const SetGuiOrderRequest* setguiorderrequest = flatbuffers::GetRoot<SetGuiOrderRequest>(data);
+      if (setguiorderrequest == nullptr)
+      {
+
+        return SendErrorResponse(Message::SETGUIORDER, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
+      }
+
+      std::vector< std::pair<uint64_t, uint64_t> > recordings;
+      if (setguiorderrequest->recordings())
+      {
+        recordings.reserve(setguiorderrequest->recordings()->size());
+        for (const GuiOrder* recording : *setguiorderrequest->recordings())
+        {
+          recordings.push_back(std::make_pair(recording->token(), recording->order()));
+
+        }
+      }
+
+      std::vector< std::pair<uint64_t, uint64_t> > maps;
+      if (setguiorderrequest->maps())
+      {
+        maps.reserve(setguiorderrequest->maps()->size());
+        for (const GuiOrder* map : *setguiorderrequest->maps())
+        {
+          maps.push_back(std::make_pair(map->token(), map->order()));
+
+        }
+      }
+
+      const Error error = SetGuiOrder(recordings, maps);
+      if (error.code_ != ErrorCode::Success)
+      {
+
+        return SendErrorResponse(Message::SETGUIORDER, sequence, error);
+      }
+
+      return SendHeaderResponse(HEADER(0, false, false, Message::SETGUIORDER, sequence));
     }
     case Message::SETLOCATION:
     {

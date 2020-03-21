@@ -8,6 +8,7 @@
 #include "monocleclient/locationtree.h"
 #include "monocleclient/locationtreemapitem.h"
 #include "monocleclient/locationtreerecordingitem.h"
+#include "monocleclient/mainwindow.h"
 #include "monocleclient/map.h"
 #include "monocleclient/recording.h"
 
@@ -22,6 +23,7 @@ LocationTreeItem::LocationTreeItem(LocationTree* parent, const QString& name, co
   QTreeWidgetItem(parent, QStringList(std::initializer_list<QString>({ name }))),
   recordingicon_(recordingicon)
 {
+  connect(&MainWindow::Instance()->GetDeviceMgr(), &DeviceMgr::GuiOrderChanged, this, &LocationTreeItem::GuiOrderChanged);
 
 }
 
@@ -29,6 +31,7 @@ LocationTreeItem::LocationTreeItem(LocationTreeItem* parent, const QString& name
   QTreeWidgetItem(parent, QStringList(std::initializer_list<QString>({ name }))),
   recordingicon_(recordingicon)
 {
+  connect(&MainWindow::Instance()->GetDeviceMgr(), &DeviceMgr::GuiOrderChanged, this, &LocationTreeItem::GuiOrderChanged);
 
 }
 
@@ -251,6 +254,12 @@ LocationTreeItem* LocationTreeItem::GetChild(const QString& name) const
     }
   }
   return nullptr;
+}
+
+void LocationTreeItem::GuiOrderChanged(const boost::shared_ptr<Device>& device, const std::vector< std::pair<uint64_t, uint64_t> >& recordingsorder, const std::vector< std::pair<uint64_t, uint64_t> >& mapsorder)
+{
+  sortChildren(0, Qt::SortOrder::AscendingOrder);
+
 }
 
 }

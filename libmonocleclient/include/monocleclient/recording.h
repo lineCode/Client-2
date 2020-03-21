@@ -36,7 +36,7 @@ class Recording : public QObject
 
  public:
 
-  Recording(const boost::shared_ptr<Device>& device, const uint64_t token, const QString& sourceid, const QString& name, const QString& location, const QString& description, const QString& address, const QString& content, const uint64_t retentiontime, const boost::optional<uint64_t>& activejob);
+  Recording(const boost::shared_ptr<Device>& device, const uint64_t token, const QString& sourceid, const QString& name, const QString& location, const QString& description, const QString& address, const QString& content, const uint64_t retentiontime, const boost::optional<uint64_t>& activejob, const uint64_t guiorder);
   ~Recording();
 
   QSharedPointer<client::RecordingJob> GetJob(const uint64_t jobtoken) const;
@@ -86,7 +86,9 @@ class Recording : public QObject
   inline uint64_t GetRetentionTime() const { return retentiontime_; }
   inline const std::vector< QSharedPointer<client::RecordingJob> >& GetRecordingJobs() const { return jobs_; }
   inline std::vector< QSharedPointer<client::RecordingJob> >& GetRecordingJobs() { return jobs_; }
-  
+  inline void SetGuiOrder(const uint64_t guiorder) { guiorder_ = guiorder; }
+  inline uint64_t GetGuiOrder() const { return guiorder_; }
+
  private:
 
   boost::shared_ptr<Device> device_;
@@ -103,6 +105,8 @@ class Recording : public QObject
   std::vector< QSharedPointer<client::RecordingJob> > jobs_;
 
   QSharedPointer<client::RecordingJob> activejob_;
+
+  uint64_t guiorder_;
 
  signals:
 

@@ -321,7 +321,7 @@
             <enum>QFrame::NoFrame</enum>
            </property>
            <property name="dragDropMode">
-            <enum>QAbstractItemView::DragOnly</enum>
+            <enum>QAbstractItemView::DragDrop</enum>
            </property>
            <property name="uniformRowHeights">
             <bool>true</bool>

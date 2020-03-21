@@ -18,7 +18,7 @@ namespace client
 
 ///// Methods /////
 
-Recording::Recording(const boost::shared_ptr<Device>& device, const uint64_t token, const QString& sourceid, const QString& name, const QString& location, const QString& description, const QString& address, const QString& content, const uint64_t retentiontime, const boost::optional<uint64_t>& activejob) :
+Recording::Recording(const boost::shared_ptr<Device>& device, const uint64_t token, const QString& sourceid, const QString& name, const QString& location, const QString& description, const QString& address, const QString& content, const uint64_t retentiontime, const boost::optional<uint64_t>& activejob, const uint64_t guiorder) :
   device_(device),
   token_(token),
   sourceid_(sourceid),
@@ -27,7 +27,8 @@ Recording::Recording(const boost::shared_ptr<Device>& device, const uint64_t tok
   description_(description),
   address_(address),
   content_(content),
-  retentiontime_(retentiontime)
+  retentiontime_(retentiontime),
+  guiorder_(guiorder)
 {
 
 }

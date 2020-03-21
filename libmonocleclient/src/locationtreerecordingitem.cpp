@@ -5,9 +5,12 @@
 
 #include "monocleclient/locationtreerecordingitem.h"
 
+#include "monocleclient/devicetreeitem.h"
 #include "monocleclient/locationtree.h"
 #include "monocleclient/locationtreeitem.h"
+#include "monocleclient/locationtreemapitem.h"
 #include "monocleclient/mainwindow.h"
+#include "monocleclient/map.h"
 #include "monocleclient/recording.h"
 
 ///// Namespaces /////
@@ -18,7 +21,7 @@ namespace client
 ///// Methods /////
 
 LocationTreeRecordingItem::LocationTreeRecordingItem(LocationTree* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QIcon& recordingicon) :
-  QTreeWidgetItem(parent, QStringList(std::initializer_list<QString>({ recording->GetName() }))),
+  QTreeWidgetItem(parent, QStringList(std::initializer_list<QString>({ recording->GetName() })), DEVICE_TREE_ITEM_TYPE::DEVICE_RECORDING),
   device_(device),
   recording_(recording)
 {
@@ -27,7 +30,7 @@ LocationTreeRecordingItem::LocationTreeRecordingItem(LocationTree* parent, const
 }
 
 LocationTreeRecordingItem::LocationTreeRecordingItem(LocationTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QIcon& recordingicon) :
-  QTreeWidgetItem(parent, QStringList(std::initializer_list<QString>({ recording->GetName() }))),
+  QTreeWidgetItem(parent, QStringList(std::initializer_list<QString>({ recording->GetName() })), DEVICE_TREE_ITEM_TYPE::DEVICE_RECORDING),
   device_(device),
   recording_(recording)
 {
@@ -101,6 +104,22 @@ void LocationTreeRecordingItem::Clear()
     removeChild(child(i));
 
   }
+}
+
+bool LocationTreeRecordingItem::operator<(const QTreeWidgetItem& rhs) const
+{
+  uint64_t guiorder = 0;
+  if (rhs.type() == DEVICE_TREE_ITEM_TYPE::DEVICE_RECORDING)
+  {
+    const LocationTreeRecordingItem* recordingitem = static_cast<const LocationTreeRecordingItem*>(&rhs);
+    guiorder = recordingitem->GetRecording()->GetGuiOrder();
+  }
+  else if (rhs.type() == DEVICE_TREE_ITEM_TYPE::DEVICE_MAP)
+  {
+    const LocationTreeMapItem* mapitem = static_cast<const LocationTreeMapItem*>(&rhs);
+    guiorder = mapitem->GetMap()->GetGuiOrder();
+  }
+  return (recording_->GetGuiOrder() < guiorder);
 }
 
 }

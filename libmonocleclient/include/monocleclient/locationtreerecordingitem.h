@@ -56,6 +56,8 @@ class LocationTreeRecordingItem : public QObject, public QTreeWidgetItem
  
  private:
 
+  bool operator<(const QTreeWidgetItem& rhs) const;
+
   boost::shared_ptr<Device> device_;
   QSharedPointer<Recording> recording_;
 

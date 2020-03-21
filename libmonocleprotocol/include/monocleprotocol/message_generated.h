@@ -81,6 +81,7 @@ enum class Message : uint16_t {
   CHANGELAYOUT = 69,
   CHANGELAYOUTNAME = 70,
   REMOVELAYOUT = 71,
+  SETGUIORDER = 72,
   CONTROLSTREAMEND = 8000,
   DISCOVERYHELLO = 8001,
   FILEADDED = 8002,
@@ -152,11 +153,12 @@ enum class Message : uint16_t {
   LAYOUTCHANGED = 8069,
   LAYOUTNAMECHANGED = 8070,
   LAYOUTREMOVED = 8071,
+  GUIORDERCHANGED = 8072,
   MIN = ADDFILE,
-  MAX = LAYOUTREMOVED
+  MAX = GUIORDERCHANGED
 };
 
-inline const Message (&EnumValuesMessage())[143] {
+inline const Message (&EnumValuesMessage())[145] {
   static const Message values[] = {
     Message::ADDFILE,
     Message::ADDGROUP,
@@ -230,6 +232,7 @@ inline const Message (&EnumValuesMessage())[143] {
     Message::CHANGELAYOUT,
     Message::CHANGELAYOUTNAME,
     Message::REMOVELAYOUT,
+    Message::SETGUIORDER,
     Message::CONTROLSTREAMEND,
     Message::DISCOVERYHELLO,
     Message::FILEADDED,
@@ -300,7 +303,8 @@ inline const Message (&EnumValuesMessage())[143] {
     Message::LAYOUTADDED,
     Message::LAYOUTCHANGED,
     Message::LAYOUTNAMECHANGED,
-    Message::LAYOUTREMOVED
+    Message::LAYOUTREMOVED,
+    Message::GUIORDERCHANGED
   };
   return values;
 }
@@ -379,6 +383,7 @@ inline const char *EnumNameMessage(Message e) {
     case Message::CHANGELAYOUT: return "CHANGELAYOUT";
     case Message::CHANGELAYOUTNAME: return "CHANGELAYOUTNAME";
     case Message::REMOVELAYOUT: return "REMOVELAYOUT";
+    case Message::SETGUIORDER: return "SETGUIORDER";
     case Message::CONTROLSTREAMEND: return "CONTROLSTREAMEND";
     case Message::DISCOVERYHELLO: return "DISCOVERYHELLO";
     case Message::FILEADDED: return "FILEADDED";
@@ -450,6 +455,7 @@ inline const char *EnumNameMessage(Message e) {
     case Message::LAYOUTCHANGED: return "LAYOUTCHANGED";
     case Message::LAYOUTNAMECHANGED: return "LAYOUTNAMECHANGED";
     case Message::LAYOUTREMOVED: return "LAYOUTREMOVED";
+    case Message::GUIORDERCHANGED: return "GUIORDERCHANGED";
     default: return "";
   }
 }

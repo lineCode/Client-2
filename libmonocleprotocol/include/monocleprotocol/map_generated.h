@@ -15,7 +15,8 @@ struct Map FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_TOKEN = 4,
     VT_NAME = 6,
     VT_LOCATION = 8,
-    VT_MD5SUM = 10
+    VT_MD5SUM = 10,
+    VT_GUIORDER = 12
   };
   uint64_t token() const {
     return GetField<uint64_t>(VT_TOKEN, 0);
@@ -29,6 +30,9 @@ struct Map FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const flatbuffers::String *md5sum() const {
     return GetPointer<const flatbuffers::String *>(VT_MD5SUM);
   }
+  uint64_t guiorder() const {
+    return GetField<uint64_t>(VT_GUIORDER, 0);
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_TOKEN) &&
@@ -38,6 +42,7 @@ struct Map FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            verifier.VerifyString(location()) &&
            VerifyOffset(verifier, VT_MD5SUM) &&
            verifier.VerifyString(md5sum()) &&
+           VerifyField<uint64_t>(verifier, VT_GUIORDER) &&
            verifier.EndTable();
   }
 };
@@ -57,6 +62,9 @@ struct MapBuilder {
   void add_md5sum(flatbuffers::Offset<flatbuffers::String> md5sum) {
     fbb_.AddOffset(Map::VT_MD5SUM, md5sum);
   }
+  void add_guiorder(uint64_t guiorder) {
+    fbb_.AddElement<uint64_t>(Map::VT_GUIORDER, guiorder, 0);
+  }
   explicit MapBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -74,8 +82,10 @@ inline flatbuffers::Offset<Map> CreateMap(
     uint64_t token = 0,
     flatbuffers::Offset<flatbuffers::String> name = 0,
     flatbuffers::Offset<flatbuffers::String> location = 0,
-    flatbuffers::Offset<flatbuffers::String> md5sum = 0) {
+    flatbuffers::Offset<flatbuffers::String> md5sum = 0,
+    uint64_t guiorder = 0) {
   MapBuilder builder_(_fbb);
+  builder_.add_guiorder(guiorder);
   builder_.add_token(token);
   builder_.add_md5sum(md5sum);
   builder_.add_location(location);
@@ -88,7 +98,8 @@ inline flatbuffers::Offset<Map> CreateMapDirect(
     uint64_t token = 0,
     const char *name = nullptr,
     const char *location = nullptr,
-    const char *md5sum = nullptr) {
+    const char *md5sum = nullptr,
+    uint64_t guiorder = 0) {
   auto name__ = name ? _fbb.CreateString(name) : 0;
   auto location__ = location ? _fbb.CreateString(location) : 0;
   auto md5sum__ = md5sum ? _fbb.CreateString(md5sum) : 0;
@@ -97,7 +108,8 @@ inline flatbuffers::Offset<Map> CreateMapDirect(
       token,
       name__,
       location__,
-      md5sum__);
+      md5sum__,
+      guiorder);
 }
 
 }  // namespace monocle

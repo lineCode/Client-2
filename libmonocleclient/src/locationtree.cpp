@@ -37,6 +37,7 @@ LocationTree::LocationTree(QWidget* parent) :
   connect(showfilter_, &QAction::triggered, this, &LocationTree::ShowFilter);
   connect(&MainWindow::Instance()->GetDeviceMgr(), &DeviceMgr::DeviceAdded, this, &LocationTree::DeviceAdded);
   connect(&MainWindow::Instance()->GetDeviceMgr(), &DeviceMgr::DeviceRemoved, this, &LocationTree::DeviceRemoved);
+  connect(&MainWindow::Instance()->GetDeviceMgr(), &DeviceMgr::GuiOrderChanged, this, &LocationTree::GuiOrderChanged);
 
   setExpandsOnDoubleClick(false);
 
@@ -183,6 +184,12 @@ void LocationTree::DeviceRemoved(const boost::shared_ptr<Device>& device)
 
 }
 
+void LocationTree::GuiOrderChanged(const boost::shared_ptr<Device>& device, const std::vector< std::pair<uint64_t, uint64_t> >& recordingsorder, const std::vector< std::pair<uint64_t, uint64_t> >& mapsorder)
+{
+  sortItems(0, Qt::SortOrder::AscendingOrder);
+
+}
+
 void LocationTree::MapAdded(const QSharedPointer<Map>& map)
 {
   QStringList locationcomponents = map->GetLocation().split('/');
@@ -205,6 +212,8 @@ void LocationTree::MapAdded(const QSharedPointer<Map>& map)
     }
     child->MapAdded(locationcomponents, map, mapicon_);
   }
+
+  sortItems(0, Qt::SortOrder::AscendingOrder);
 }
 
 void LocationTree::MapChanged(const QSharedPointer<Map>& map)
@@ -271,6 +280,9 @@ void LocationTree::RecordingAdded(const QSharedPointer<Recording>& recording)
     }
     child->RecordingAdded(locationcomponents, recording);
   }
+
+
+  sortItems(0, Qt::SortOrder::AscendingOrder);
 }
 
 void LocationTree::RecordingChanged(const QSharedPointer<Recording>& recording)

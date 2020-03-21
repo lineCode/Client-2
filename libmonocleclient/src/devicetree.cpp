@@ -15,6 +15,7 @@
 #include "monocleclient/devicemgr.h"
 #include "monocleclient/devicetreedeviceitem.h"
 #include "monocleclient/devicetreeitem.h"
+#include "monocleclient/devicetreemapitem.h"
 #include "monocleclient/devicetreemediaitem.h"
 #include "monocleclient/devicetreerecordingitem.h"
 #include "monocleclient/devicetreerecordingtrackitem.h"
@@ -66,6 +67,7 @@ DeviceTree::DeviceTree(QWidget* parent) :
 
 DeviceTree::~DeviceTree()
 {
+  setguiorderconnection_.Close();
 
 }
 
@@ -97,7 +99,23 @@ QMimeData* DeviceTree::mimeData(const QList<QTreeWidgetItem*> items) const
   
   for (QTreeWidgetItem* item : items)
   {
-    if (typeid(*item) == typeid(DeviceTreeRecordingItem))
+    if (item->type() == DEVICE_TREE_ITEM_TYPE::DEVICE_MAP)
+    {
+      DeviceTreeMapItem* devicetreemapitem = static_cast<DeviceTreeMapItem*>(item);
+      QMimeData* mimedata = new QMimeData();
+      QByteArray bytearray;
+
+      const uint64_t deviceidentifier = devicetreemapitem->GetDevice()->GetIdentifier();
+      bytearray.append(reinterpret_cast<const char*>(&deviceidentifier), sizeof(deviceidentifier));
+      mimedata->setData(MIME_DEVICE_TREE_DEVICE_IDENTIFIER, bytearray);
+
+      bytearray.clear();
+      const uint64_t maptoken = devicetreemapitem->GetMap()->GetToken();
+      bytearray.append(reinterpret_cast<const char*>(&maptoken), sizeof(maptoken));
+      mimedata->setData(MIME_DEVICE_TREE_MAP_TOKEN, bytearray);
+      return mimedata;
+    }
+    else if (item->type() == DEVICE_TREE_ITEM_TYPE::DEVICE_RECORDING)
     {
       DeviceTreeRecordingItem* devicetreerecordingitem = static_cast<DeviceTreeRecordingItem*>(item);
       QMimeData* mimedata = new QMimeData();
@@ -113,7 +131,7 @@ QMimeData* DeviceTree::mimeData(const QList<QTreeWidgetItem*> items) const
       mimedata->setData(MIME_DEVICE_TREE_RECORDING_TOKEN, bytearray);
       return mimedata;
     }
-    else if (typeid(*item) == typeid(DeviceTreeRecordingTrackItem))
+    else if (item->type() == DEVICE_TREE_ITEM_TYPE::DEVICE_RECORDING_TRACK)
     {
       DeviceTreeRecordingTrackItem* devicetreerecordingtrackitem = static_cast<DeviceTreeRecordingTrackItem*>(item);
       if (devicetreerecordingtrackitem->GetTrack()->GetTrackType() != monocle::TrackType::Video)
@@ -161,6 +179,296 @@ void DeviceTree::contextMenuEvent(QContextMenuEvent* event)
     menu->addAction(importfile_);
     menu->exec(event->globalPos());
   }
+}
+
+void DeviceTree::dragEnterEvent(QDragEnterEvent* event)
+{
+  DragEvent(event);
+
+}
+
+void DeviceTree::dragMoveEvent(QDragMoveEvent* event)
+{
+  DragEvent(event);
+
+}
+
+void DeviceTree::dragLeaveEvent(QDragLeaveEvent* event)
+{
+  event->accept();
+
+}
+
+void DeviceTree::dropEvent(QDropEvent* event)
+{
+  const QMimeData* mimedata = event->mimeData();
+  if (mimedata == nullptr)
+  {
+    event->ignore();
+    return;
+  }
+
+  const QByteArray deviceidentifierdata = mimedata->data(MIME_DEVICE_TREE_DEVICE_IDENTIFIER);
+  if (deviceidentifierdata.isEmpty())
+  {
+    event->ignore();
+    return;
+  }
+  if (deviceidentifierdata.size() != sizeof(uint64_t))
+  {
+    event->ignore();
+    return;
+  }
+  const uint64_t deviceidentifier = *reinterpret_cast<const uint64_t*>(deviceidentifierdata.data());
+
+  // Retrieve the corresponding device we are hovering over is the same one, because we can't drag recordings out onto another device
+  const QPoint pos = event->pos();
+  QTreeWidgetItem* destitem = itemAt(pos.x(), pos.y());
+  if (!destitem)
+  {
+    event->ignore();
+    return;
+  }
+
+  QTreeWidgetItem* toplevelitem = destitem;
+  while (toplevelitem->parent())
+  {
+    toplevelitem = toplevelitem->parent();
+    if (toplevelitem->type() == static_cast<int>(DEVICE_TREE_ITEM_TYPE::DEVICE_RECORDING)) // If a user drags onto a DEVICE_RECORDING_TRACK item, we want to take the corresponding recording item instead
+    {
+      destitem = toplevelitem;
+
+    }
+  }
+
+  if (toplevelitem->type() != static_cast<int>(DEVICE_TREE_ITEM_TYPE::DEVICE))
+  {
+    event->ignore();
+    return;
+  }
+
+  DeviceTreeDeviceItem* deviceitem = static_cast<DeviceTreeDeviceItem*>(toplevelitem);
+  if (deviceitem->GetDevice()->GetIdentifier() != deviceidentifier)
+  {
+    event->ignore();
+    return;
+  }
+
+  const boost::shared_ptr<Device> device = MainWindow::Instance()->GetDeviceMgr().GetDevice(deviceidentifier);
+  if (device == nullptr)
+  {
+    event->ignore();
+    return;
+  }
+
+  const QByteArray maptokendata = mimedata->data(MIME_DEVICE_TREE_MAP_TOKEN);
+  const QByteArray recordingtokendata = mimedata->data(MIME_DEVICE_TREE_RECORDING_TOKEN);
+  DeviceTreeItem* item = nullptr;
+  if (!maptokendata.isEmpty())
+  {
+    if (maptokendata.isEmpty())
+    {
+      event->ignore();
+      return;
+    }
+    if (maptokendata.size() != sizeof(uint64_t))
+    {
+      event->ignore();
+      return;
+    }
+    const uint64_t maptoken = *reinterpret_cast<const uint64_t*>(maptokendata.data());
+
+    item = deviceitem->GetMapItem(maptoken);
+    if (!item)
+    {
+      event->ignore();
+      return;
+    }
+  }
+  else if (!recordingtokendata.isEmpty())
+  {
+    if (recordingtokendata.isEmpty())
+    {
+      event->ignore();
+      return;
+    }
+    if (recordingtokendata.size() != sizeof(uint64_t))
+    {
+      event->ignore();
+      return;
+    }
+    const uint64_t recordingtoken = *reinterpret_cast<const uint64_t*>(recordingtokendata.data());
+
+    if (!mimedata->data(MIME_DEVICE_TREE_RECORDING_TRACK_ID).isEmpty())
+    {
+      event->ignore();
+      return;
+    }
+
+    item = deviceitem->GetRecordingItem(recordingtoken);
+    if (!item)
+    {
+      event->ignore();
+      return;
+    }
+  }
+  else
+  {
+    event->ignore();
+    return;
+  }
+
+  const int itemindex = deviceitem->indexOfChild(item);
+  if (itemindex == -1)
+  {
+    event->ignore();
+    return;
+  }
+
+  item = static_cast<DeviceTreeItem*>(deviceitem->takeChild(itemindex));
+  if (!item) // Shouldn't happen but ok...
+  {
+    event->ignore();
+    return;
+  }
+
+  int destindex = deviceitem->indexOfChild(destitem);
+  if (destindex == -1) // This can happen when the user drops the item on the device, so put it at the top. If it is an error for another reason, no harm in just placing it back anyway
+  {
+    deviceitem->insertChild(0, item);
+    event->accept();
+    return;
+  }
+
+  if ((destindex + 1) != itemindex) // If we are moving one up, then this effectively "swaps" them
+  {
+    ++destindex;
+
+  }
+
+  deviceitem->insertChild(destindex, item);
+
+  // Save the result to the server
+  std::vector< std::pair<uint64_t, uint64_t> > recordings;
+  std::vector< std::pair<uint64_t, uint64_t> > maps;
+  for (int i = 0; i < deviceitem->childCount(); ++i)
+  {
+    QTreeWidgetItem* item = deviceitem->child(i);
+    if (item->type() == DEVICE_TREE_ITEM_TYPE::DEVICE_RECORDING)
+    {
+      const DeviceTreeRecordingItem* recordingitem = static_cast<const DeviceTreeRecordingItem*>(item);
+      recordings.push_back(std::make_pair(recordingitem->GetRecording()->GetToken(), i));
+    }
+    else if (item->type() == DEVICE_TREE_ITEM_TYPE::DEVICE_MAP)
+    {
+      const DeviceTreeMapItem* mapitem = static_cast<const DeviceTreeMapItem*>(item);
+      maps.push_back(std::make_pair(mapitem->GetMap()->GetToken(), i));
+    }
+  }
+  
+  setguiorderconnection_ = device->SetGuiOrder(recordings, maps, [device](const std::chrono::steady_clock::duration latency, const monocle::client::SETGUIORDERRESPONSE& setguiorderresponse)
+  {
+    if (setguiorderresponse.GetErrorCode() != monocle::ErrorCode::Success)
+    {
+      LOG_GUI_THREAD_WARNING_SOURCE(device, "SetGuiOrder failed");
+      return;
+    }
+  });
+}
+
+void DeviceTree::DragEvent(QDragMoveEvent* event)
+{
+  const QMimeData* mimedata = event->mimeData();
+  if (mimedata == nullptr)
+  {
+    event->ignore();
+    return;
+  }
+
+  const QByteArray deviceidentifierdata = mimedata->data(MIME_DEVICE_TREE_DEVICE_IDENTIFIER);
+  if (deviceidentifierdata.isEmpty())
+  {
+    event->ignore();
+    return;
+  }
+  if (deviceidentifierdata.size() != sizeof(uint64_t))
+  {
+    event->ignore();
+    return;
+  }
+  const uint64_t deviceidentifier = *reinterpret_cast<const uint64_t*>(deviceidentifierdata.data());
+
+  const QByteArray maptokendata = mimedata->data(MIME_DEVICE_TREE_MAP_TOKEN);
+  const QByteArray recordingtokendata = mimedata->data(MIME_DEVICE_TREE_RECORDING_TOKEN);
+  if (!maptokendata.isEmpty())
+  {
+    if (maptokendata.size() != sizeof(uint64_t))
+    {
+      event->ignore();
+      return;
+    }
+  }
+  else if (!recordingtokendata.isEmpty())
+  {
+    if (recordingtokendata.isEmpty())
+    {
+      event->ignore();
+      return;
+    }
+
+    if (recordingtokendata.size() != sizeof(uint64_t))
+    {
+      event->ignore();
+      return;
+    }
+
+    if (!mimedata->data(MIME_DEVICE_TREE_RECORDING_TRACK_ID).isEmpty())
+    {
+      event->ignore();
+      return;
+    }
+  }
+  else
+  {
+    event->ignore();
+    return;
+  }
+
+  // Retrieve the corresponding device we are hovering over is the same one, because we can't drag recordings out onto another device
+  const QPoint pos = event->pos();
+  QTreeWidgetItem* item = itemAt(pos.x(), pos.y());
+  if (!item)
+  {
+    event->ignore();
+    return;
+  }
+
+  while (item->parent())
+  {
+    item = item->parent();
+  }
+
+  if (item->type() != static_cast<int>(DEVICE_TREE_ITEM_TYPE::DEVICE))
+  {
+    event->ignore();
+    return;
+  }
+
+  DeviceTreeDeviceItem* deviceitem = static_cast<DeviceTreeDeviceItem*>(item);
+  if (deviceitem->GetDevice()->GetIdentifier() != deviceidentifier)
+  {
+    event->ignore();
+    return;
+  }
+
+  const boost::shared_ptr<Device> device = MainWindow::Instance()->GetDeviceMgr().GetDevice(deviceidentifier);
+  if (device == nullptr)
+  {
+    event->ignore();
+    return;
+  }
+
+  event->accept();
 }
 
 void DeviceTree::ItemExpanded(QTreeWidgetItem* item)

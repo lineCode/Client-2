@@ -29,12 +29,15 @@
 #include <QString>
 #include <QTextStream>
 #include <utility/externalwindow.hpp>
+#include <utility>
 #include <vector>
 
 extern "C"
 {
   #include <libavformat/avformat.h>
 }
+
+typedef std::pair<uint64_t, uint64_t> uint64_tpair;
 
 ///// Qt /////
 
@@ -72,6 +75,8 @@ Q_DECLARE_METATYPE(std::vector<monocle::RECORDINGSTATISTICS>)
 Q_DECLARE_METATYPE(std::vector<QString>)
 Q_DECLARE_METATYPE(std::vector<std::string>)
 Q_DECLARE_METATYPE(std::vector<uint64_t>)
+Q_DECLARE_METATYPE(std::vector<uint64_tpair>)
+Q_DECLARE_METATYPE(uint64_tpair)
 Q_DECLARE_METATYPE(monocle::LAYOUT)
 Q_DECLARE_METATYPE(monocle::RecordingJobMode)
 Q_DECLARE_METATYPE(monocle::RecordingJobState)
@@ -140,8 +145,10 @@ int main(int argc, char** argv)
   qRegisterMetaType< std::vector<monocle::RECORDINGJOBSOURCE> >();
   qRegisterMetaType< std::vector<monocle::RECORDINGSTATISTICS> >();
   qRegisterMetaType< std::vector<QString> >();
+  qRegisterMetaType< std::vector< std::pair<uint64_t, uint64_t> > >();
   qRegisterMetaType< std::vector<std::string> >();
   qRegisterMetaType< std::vector<uint64_t> >();
+  qRegisterMetaType<uint64_tpair>();
   qRegisterMetaType<uint64_t>();
   qRegisterMetaType<monocle::LAYOUT>("monocle::LAYOUT");
   qRegisterMetaType<monocle::StreamingProtocol>("monocle::StreamingProtocol");

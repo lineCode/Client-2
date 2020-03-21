@@ -98,6 +98,7 @@ Device::Device(const sock::ProxyParams& proxyparams, const QString& address, con
   connect(this, &Connection::SignalGroupAdded, this, QOverload<const uint64_t, const QString&, const bool, const bool, const bool, const bool, const bool, const std::vector<uint64_t>&>::of(&Device::SlotGroupAdded), Qt::QueuedConnection);
   connect(this, &Connection::SignalGroupChanged, this, QOverload<const uint64_t, const QString&, const bool, const bool, const bool, const bool, const bool, const std::vector<uint64_t>&>::of(&Device::SlotGroupChanged), Qt::QueuedConnection);
   connect(this, &Connection::SignalGroupRemoved, this, QOverload<const uint64_t>::of(&Device::SlotGroupRemoved), Qt::QueuedConnection);
+  connect(this, &Connection::SignalGuiOrderChanged, this, &Device::SlotGuiOrderChanged, Qt::QueuedConnection);
   connect(this, &Connection::SignalLayoutAdded, this, &Device::SlotLayoutAdded, Qt::QueuedConnection);
   connect(this, &Connection::SignalLayoutChanged, this, &Device::SlotLayoutChanged, Qt::QueuedConnection);
   connect(this, &Connection::SignalLayoutNameChanged, this, &Device::SlotLayoutNameChanged, Qt::QueuedConnection);
@@ -618,7 +619,7 @@ void Device::Subscribe()
             std::vector< QSharedPointer<client::Recording> >::iterator i = std::find_if(recordings_.begin(), recordings_.end(), [&r](const QSharedPointer<client::Recording>& recording) { return (recording->GetToken() == r.token_); });
             if (i == recordings_.end())
             {
-              recording = QSharedPointer<client::Recording>::create(boost::static_pointer_cast<Device>(shared_from_this()), r.token_, QString::fromStdString(r.sourceid_), QString::fromStdString(r.name_), QString::fromStdString(r.location_), QString::fromStdString(r.description_), QString::fromStdString(r.address_), QString::fromStdString(r.content_), r.retentiontime_, r.activejob_);
+              recording = QSharedPointer<client::Recording>::create(boost::static_pointer_cast<Device>(shared_from_this()), r.token_, QString::fromStdString(r.sourceid_), QString::fromStdString(r.name_), QString::fromStdString(r.location_), QString::fromStdString(r.description_), QString::fromStdString(r.address_), QString::fromStdString(r.content_), r.retentiontime_, r.activejob_, r.guiorder_);
               recordings_.push_back(recording);
               emit SignalRecordingAdded(recording);
             }
@@ -877,7 +878,7 @@ void Device::Subscribe()
             std::vector< QSharedPointer<Map> >::iterator i = std::find_if(maps_.begin(), maps_.end(), [&m](const QSharedPointer<Map>& map) { return (map->GetToken() == m.token_); });
             if (i == maps_.end())
             {
-              QSharedPointer<Map> map = QSharedPointer<Map>::create(boost::static_pointer_cast<Device>(shared_from_this()), m.token_, QString::fromStdString(m.name_), QString::fromStdString(m.location_), QString::fromStdString(m.imagemd5_));
+              QSharedPointer<Map> map = QSharedPointer<Map>::create(boost::static_pointer_cast<Device>(shared_from_this()), m.token_, QString::fromStdString(m.name_), QString::fromStdString(m.location_), QString::fromStdString(m.imagemd5_), m.guiorder_);
               maps_.push_back(map);
               emit SignalMapAdded(map);
             }
@@ -1717,6 +1718,32 @@ void Device::SlotONVIFUserRemoved(const uint64_t token)
   emit SignalONVIFUserRemoved(token);
 }
 
+void Device::SlotGuiOrderChanged(const std::vector< std::pair<uint64_t, uint64_t> >& recordingsorder, const std::vector< std::pair<uint64_t, uint64_t> >& mapsorder)
+{
+  for (const std::pair<uint64_t, uint64_t>& recordingorder : recordingsorder)
+  {
+    std::vector< QSharedPointer<client::Recording> >::iterator r = std::find_if(recordings_.begin(), recordings_.end(), [&recordingorder](const QSharedPointer<client::Recording>& recording) { return (recording->GetToken() == recordingorder.first); });
+    if (r == recordings_.end())
+    {
+      LOG_GUI_WARNING_SOURCE(boost::static_pointer_cast<Device>(shared_from_this()), QString("Unable to find recording: ") + QString::number(recordingorder.first));
+      continue;
+    }
+    (*r)->SetGuiOrder(recordingorder.second);
+  }
+
+  for (const std::pair<uint64_t, uint64_t>& maporder : mapsorder)
+  {
+    std::vector< QSharedPointer<client::Map> >::iterator m = std::find_if(maps_.begin(), maps_.end(), [&maporder](const QSharedPointer<client::Map>& map) { return (map->GetToken() == maporder.first); });
+    if (m == maps_.end())
+    {
+      LOG_GUI_WARNING_SOURCE(boost::static_pointer_cast<Device>(shared_from_this()), QString("Unable to find map: ") + QString::number(maporder.first));
+      continue;
+    }
+    (*m)->SetGuiOrder(maporder.second);
+  }
+  emit MainWindow::Instance()->GetDeviceMgr().GuiOrderChanged(boost::static_pointer_cast<Device>(shared_from_this()), recordingsorder, mapsorder);
+}
+
 void Device::SlotLayoutAdded(const monocle::LAYOUT& layout)
 {
   if (state_ != DEVICESTATE::SUBSCRIBED)
@@ -1806,7 +1833,7 @@ void Device::SlotMapAdded(const uint64_t token, const QString& name, const QStri
   std::vector< QSharedPointer<Map> >::iterator m = std::find_if(maps_.begin(), maps_.end(), [token](const QSharedPointer<Map>& map) { return (map->GetToken() == token); });
   if (m == maps_.end())
   {
-    QSharedPointer<Map> map = QSharedPointer<Map>::create(boost::static_pointer_cast<Device>(shared_from_this()), token, name, location, imagemd5);
+    QSharedPointer<Map> map = QSharedPointer<Map>::create(boost::static_pointer_cast<Device>(shared_from_this()), token, name, location, imagemd5, 0);
     maps_.push_back(map);
     emit SignalMapAdded(map);
   }
@@ -1983,7 +2010,7 @@ void Device::SlotRecordingAdded(const uint64_t token, const std::string& sourcei
   std::vector< QSharedPointer<client::Recording> >::iterator r = std::find_if(recordings_.begin(), recordings_.end(), [token](const QSharedPointer<client::Recording>& recording) { return (recording->GetToken() == token); });
   if (r == recordings_.end())
   {
-    QSharedPointer<client::Recording> recording = QSharedPointer<client::Recording>::create(boost::static_pointer_cast<Device>(shared_from_this()), token, QString::fromStdString(sourceid), QString::fromStdString(name), QString::fromStdString(location), QString::fromStdString(description), QString::fromStdString(address), QString::fromStdString(content), retentiontime, activejob);
+    QSharedPointer<client::Recording> recording = QSharedPointer<client::Recording>::create(boost::static_pointer_cast<Device>(shared_from_this()), token, QString::fromStdString(sourceid), QString::fromStdString(name), QString::fromStdString(location), QString::fromStdString(description), QString::fromStdString(address), QString::fromStdString(content), retentiontime, activejob, 0);
     recordings_.push_back(recording);
     emit SignalRecordingAdded(recording);
   }

@@ -9,6 +9,8 @@
 #include <QMessageBox>
 #include <QStringList>
 
+#include "monocleclient/devicetreemapitem.h"
+#include "monocleclient/devicetreerecordingitem.h"
 #include "monocleclient/devicetreerecordingtrackitem.h"
 #include "monocleclient/mainwindow.h"
 #include "monocleclient/managerecordingwindow.h"
@@ -28,7 +30,7 @@ namespace client
 ///// Methods /////
 
 DeviceTreeRecordingItem::DeviceTreeRecordingItem(DeviceTreeItem* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QIcon& recordingicon, const QIcon& cameraicon) :
-  DeviceTreeItem(parent, recording->GetName()),
+  DeviceTreeItem(parent, recording->GetName(), DEVICE_TREE_ITEM_TYPE::DEVICE_RECORDING),
   device_(device),
   recording_(recording),
   cameraicon_(cameraicon),
@@ -210,7 +212,7 @@ void DeviceTreeRecordingItem::UpdateChildren()
       for (const QSharedPointer<RecordingJobSourceTrack>& sourcetrack : source->GetTracks())
       {
         const QSharedPointer<RecordingTrack>& track = sourcetrack->GetTrack();
-        if (track->GetTrackType() != monocle::TrackType::Video)
+        if (!track || (track->GetTrackType() != monocle::TrackType::Video))
         {
 
           continue;
@@ -284,6 +286,22 @@ QString DeviceTreeRecordingItem::Tooltip(const QString& mediauri, const QString&
 
     return (mediauri + ": " + status);
   }
+}
+
+bool DeviceTreeRecordingItem::operator<(const QTreeWidgetItem& rhs) const
+{
+  uint64_t guiorder = 0;
+  if (rhs.type() == DEVICE_TREE_ITEM_TYPE::DEVICE_RECORDING)
+  {
+    const DeviceTreeRecordingItem* recordingitem = static_cast<const DeviceTreeRecordingItem*>(&rhs);
+    guiorder = recordingitem->GetRecording()->GetGuiOrder();
+  }
+  else if (rhs.type() == DEVICE_TREE_ITEM_TYPE::DEVICE_MAP)
+  {
+    const DeviceTreeMapItem* mapitem = static_cast<const DeviceTreeMapItem*>(&rhs);
+    guiorder = mapitem->GetMap()->GetGuiOrder();
+  }
+  return (recording_->GetGuiOrder() < guiorder);
 }
 
 void DeviceTreeRecordingItem::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)

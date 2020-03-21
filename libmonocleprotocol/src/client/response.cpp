@@ -697,6 +697,18 @@ REMOVEUSERRESPONSE::REMOVEUSERRESPONSE(const Error& error) :
 
 }
 
+SETGUIORDERRESPONSE::SETGUIORDERRESPONSE() :
+  RESPONSE(Error(ErrorCode::Success, std::string()))
+{
+
+}
+
+SETGUIORDERRESPONSE::SETGUIORDERRESPONSE(const Error& error) :
+  RESPONSE(error)
+{
+
+}
+
 SETLOCATIONRESPONSE::SETLOCATIONRESPONSE() :
   RESPONSE(Error(ErrorCode::Success, std::string()))
 {

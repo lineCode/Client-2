@@ -98,6 +98,7 @@ class Client : public boost::enable_shared_from_this<Client>
  friend class Signal<Client, REMOVETRACKRESPONSE>;
  friend class Signal<Client, REMOVETRACKSRESPONSE>;
  friend class Signal<Client, REMOVEUSERRESPONSE>;
+ friend class Signal<Client, SETGUIORDERRESPONSE>;
  friend class Signal<Client, SETLOCATIONRESPONSE>;
  friend class Signal<Client, SETNAMERESPONSE>;
  friend class Signal<Client, SUBSCRIBERESPONSE>;
@@ -142,6 +143,7 @@ class Client : public boost::enable_shared_from_this<Client>
   virtual void GroupAdded(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings) = 0;
   virtual void GroupChanged(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings) = 0;
   virtual void GroupRemoved(const uint64_t token) = 0;
+  virtual void GuiOrderChanged(const std::vector< std::pair<uint64_t, uint64_t> >& recordingsorder, const std::vector< std::pair<uint64_t, uint64_t> >& mapsorder) = 0;
   virtual void H265Frame(const uint64_t token, const uint64_t playrequest, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const bool donlfield, const uint32_t* offsets, const size_t numoffsets, const char* data, const size_t size) = 0;
   virtual void H264Frame(const uint64_t token, const uint64_t playrequest, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const uint32_t* offsets, const size_t numoffsets, const char* data, const size_t size) = 0;
   virtual void HardwareStatsMessage(const uint64_t time, const std::vector<monocle::DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory, const uint64_t availablememory, const std::vector<monocle::GPUSTAT>& gpustats) = 0;
@@ -253,6 +255,7 @@ class Client : public boost::enable_shared_from_this<Client>
   boost::unique_future<REMOVETRACKRESPONSE> RemoveTrack(const uint64_t recordingtoken, const uint32_t id);
   boost::unique_future<REMOVETRACKSRESPONSE> RemoveTracks(const uint64_t recordingtoken, const std::vector<uint32_t>& ids);
   boost::unique_future<REMOVEUSERRESPONSE> RemoveUser(const uint64_t token);
+  boost::unique_future<SETGUIORDERRESPONSE> SetGuiOrder(const std::vector< std::pair<uint64_t, uint64_t> >& recordings, const std::vector< std::pair<uint64_t, uint64_t> >& maps); // <token, order>
   boost::unique_future<SETLOCATIONRESPONSE> SetLocation(const std::string& latitude, const std::string& longitude);
   boost::unique_future<SETNAMERESPONSE> SetName(const std::string& name);
   boost::unique_future<SUBSCRIBERESPONSE> Subscribe();
@@ -326,6 +329,7 @@ class Client : public boost::enable_shared_from_this<Client>
   Connection RemoveTrack(const uint64_t recordingtoken, const uint32_t id, boost::function<void(const std::chrono::steady_clock::duration, const REMOVETRACKRESPONSE&)> callback);
   Connection RemoveTracks(const uint64_t recordingtoken, const std::vector<uint32_t>& ids, boost::function<void(const std::chrono::steady_clock::duration, const REMOVETRACKSRESPONSE&)> callback);
   Connection RemoveUser(const uint64_t token, boost::function<void(const std::chrono::steady_clock::duration, const REMOVEUSERRESPONSE&)> callback);
+  Connection SetGuiOrder(const std::vector< std::pair<uint64_t, uint64_t> >& recordings, const std::vector< std::pair<uint64_t, uint64_t> >& maps, boost::function<void(const std::chrono::steady_clock::duration, const SETGUIORDERRESPONSE&)> callback);
   Connection SetLocation(const std::string& latitude, const std::string& longitude, boost::function<void(const std::chrono::steady_clock::duration, const SETLOCATIONRESPONSE&)> callback);
   Connection SetName(const std::string& name, boost::function<void(const std::chrono::steady_clock::duration, const SETNAMERESPONSE&)> callback);
   Connection Subscribe(boost::function<void(const std::chrono::steady_clock::duration, const SUBSCRIBERESPONSE&)> callback);
@@ -406,6 +410,7 @@ class Client : public boost::enable_shared_from_this<Client>
   boost::system::error_code RemoveTrackSend(const uint64_t recordingtoken, const uint32_t id);
   boost::system::error_code RemoveTracksSend(const uint64_t recordingtoken, const std::vector<uint32_t>& ids);
   boost::system::error_code RemoveUserSend(const uint64_t token);
+  boost::system::error_code SetGuiOrderSend(const std::vector< std::pair<uint64_t, uint64_t> >& recordings, const std::vector< std::pair<uint64_t, uint64_t> >& maps);
   boost::system::error_code SetLocationSend(const std::string& latitude, const std::string& longitude);
   boost::system::error_code SetNameSend(const std::string& name);
   boost::system::error_code SubscribeSend();
@@ -529,6 +534,7 @@ class Client : public boost::enable_shared_from_this<Client>
   Signal<Client, REMOVETRACKRESPONSE> removetrack_;
   Signal<Client, REMOVETRACKSRESPONSE> removetracks_;
   Signal<Client, REMOVEUSERRESPONSE> removeuser_;
+  Signal<Client, SETGUIORDERRESPONSE> setguiorder_;
   Signal<Client, SETLOCATIONRESPONSE> setlocation_;
   Signal<Client, SETNAMERESPONSE> setname_;
   Signal<Client, SUBSCRIBERESPONSE> subscribe_;

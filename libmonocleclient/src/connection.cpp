@@ -117,6 +117,12 @@ void Connection::GroupRemoved(const uint64_t token)
 
 }
 
+void Connection::GuiOrderChanged(const std::vector< std::pair<uint64_t, uint64_t> >& recordingsorder, const std::vector< std::pair<uint64_t, uint64_t> >& mapsorder)
+{
+  emit SignalGuiOrderChanged(recordingsorder, mapsorder);
+
+}
+
 void Connection::ControlStreamEnd(const uint64_t streamtoken, const uint64_t playrequestindex, const monocle::ErrorCode error)
 {
   std::vector<Stream>::iterator stream = std::find_if(streams_.begin(), streams_.end(), [streamtoken](const Stream& stream) { return (stream.GetToken() == streamtoken); });

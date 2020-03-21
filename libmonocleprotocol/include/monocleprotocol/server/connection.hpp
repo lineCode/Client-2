@@ -132,6 +132,7 @@ class Connection : public boost::enable_shared_from_this<Connection>
   virtual Error RemoveTrack(const uint64_t recordingtoken, const uint32_t id) = 0;
   virtual Error RemoveTracks(const uint64_t recordingtoken, const std::vector<uint32_t>& ids) = 0;
   virtual Error RemoveUser(const uint64_t token) = 0;
+  virtual Error SetGuiOrder(const std::vector< std::pair<uint64_t, uint64_t> >& recordings, const std::vector< std::pair<uint64_t, uint64_t> >& maps) = 0;
   virtual Error SetLocation(const std::string& latitude, const std::string& longitude) = 0;
   virtual Error SetName(const std::string& name) = 0;
   virtual std::pair<Error, SUBSCRIBE> Subscribe() = 0;
@@ -167,6 +168,7 @@ class Connection : public boost::enable_shared_from_this<Connection>
   boost::system::error_code SendGroupAdded(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
   boost::system::error_code SendGroupChanged(const uint64_t token, const std::string& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
   boost::system::error_code SendGroupRemoved(const uint64_t token);
+  boost::system::error_code SendGuiOrderChanged(const std::vector< std::pair<uint64_t, uint64_t> >& recordings, const std::vector< std::pair<uint64_t, uint64_t> >& maps);
   boost::system::error_code SendH265Frame(const uint64_t stream, const uint64_t playrequest, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const boost::optional<uint64_t>& sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const bool donlfield, const uint32_t* offsets, const size_t numoffsets, const char* data, const size_t size);
   boost::system::error_code SendH264Frame(const uint64_t stream, const uint64_t playrequest, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const boost::optional<uint64_t>& sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const uint32_t* offsets, const size_t numoffsets, const char* data, const size_t size);
   boost::system::error_code SendHardwareStats(const uint64_t timestamp, const std::vector<monocle::DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory, const uint64_t availablememory, const std::vector<monocle::GPUSTAT>& gpustats);

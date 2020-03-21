@@ -269,6 +269,7 @@ class Device : public Connection
   void SlotGroupAdded(const uint64_t token, const QString& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
   void SlotGroupChanged(const uint64_t token, const QString& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
   void SlotGroupRemoved(const uint64_t token);
+  void SlotGuiOrderChanged(const std::vector< std::pair<uint64_t, uint64_t> >& recordingsorder, const std::vector< std::pair<uint64_t, uint64_t> >& mapsorder);
   void SlotLayoutAdded(const monocle::LAYOUT& layout);
   void SlotLayoutChanged(const monocle::LAYOUT& layout);
   void SlotLayoutNameChanged(const uint64_t token, const QString& name);

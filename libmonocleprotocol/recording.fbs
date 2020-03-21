@@ -17,4 +17,5 @@ table Recording
   recordingjobs:[RecordingJob] (id:8);
   tracks:[RecordingTrack] (id:9);
   activejob:TOKEN (id:10);
+  guiorder:uint64 (id:11);
 }
