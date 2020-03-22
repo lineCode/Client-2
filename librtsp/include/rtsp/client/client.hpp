@@ -95,7 +95,8 @@ class Client : public boost::enable_shared_from_this< Client<T> >
   friend class client::Signal<Client, SetupResponse>;
   friend class client::Signal<Client, TeardownResponse>;
 
-  Client(boost::asio::io_service& io, const boost::posix_time::seconds& timeout, const boost::posix_time::seconds& maxkeepalive) :
+  Client(std::recursive_mutex& mutex, boost::asio::io_service& io, const boost::posix_time::seconds& timeout, const boost::posix_time::seconds& maxkeepalive) :
+    mutex_(mutex),
     asyncread_("(?:\\$|RTSP\\/1\\.0)"),
     ssrc_(rand()),
     io_(io),
@@ -638,7 +639,7 @@ class Client : public boost::enable_shared_from_this< Client<T> >
 
  protected:
 
-  mutable std::recursive_mutex mutex_;//TODO needs to be passed in or something...
+  std::recursive_mutex& mutex_;
 
  private:
 
