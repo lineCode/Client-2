@@ -29,8 +29,8 @@ const uint16_t DEFAULTPORT = 9854;
 
 ///// Methods /////
 
-Server::Server(utility::IoServicePool& ioservicepool) :
-  ioservicepool_(ioservicepool)
+Server::Server(const size_t numioservices) :
+  ioservicepool_(numioservices, 1, [](){}, [](){})
 {
 
 }

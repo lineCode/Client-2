@@ -11,6 +11,7 @@
 #include <QSharedPointer>
 
 #include "monocleclient/devicetreeitem.h"
+#include "monocleclient/connection.h"
 
 ///// Namespaces /////
 
@@ -101,7 +102,7 @@ class DeviceTreeDeviceItem : public DeviceTreeItem
   void ViewLog(bool);
   void Properties(bool);
   void Disconnected();
-  void GuiOrderChanged(const std::vector< std::pair<uint64_t, uint64_t> >& recordingsorder, const std::vector< std::pair<uint64_t, uint64_t> >& mapsorder);
+  void GuiOrderChanged(const std::vector<GUIORDER>& recordingsorder, const std::vector<GUIORDER>& mapsorder);
   void Latency(const std::chrono::steady_clock::duration latency);
   void MapAdded(const QSharedPointer<client::Map>& map);
   void MapChanged(const QSharedPointer<client::Map>& map);

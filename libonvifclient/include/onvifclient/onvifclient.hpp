@@ -39,17 +39,8 @@ class ClientThread
 {
  public:
 
-  void Run()
-  {
-    while (running_)
-    {
-      client_->Update();
-      utility::Sleep(std::chrono::milliseconds(10));
-    }
-  }
-
-  ClientThread() :
-    client_(boost::make_shared<Client>()),
+  ClientThread(const boost::shared_ptr<std::recursive_mutex>& mutex) :
+    client_(boost::make_shared<Client>(mutex)),
     running_(false)
   {
 
@@ -96,6 +87,15 @@ class ClientThread
   boost::shared_ptr<Client>& operator->() { return client_; }
 
 private:
+
+  void Run()
+  {
+    while (running_)
+    {
+      client_->Update();
+      utility::Sleep(std::chrono::milliseconds(10));
+    }
+  }
 
   boost::shared_ptr<Client> client_;
 

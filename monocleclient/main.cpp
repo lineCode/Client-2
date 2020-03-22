@@ -37,8 +37,6 @@ extern "C"
   #include <libavformat/avformat.h>
 }
 
-typedef std::pair<uint64_t, uint64_t> uint64_tpair;
-
 ///// Qt /////
 
 Q_DECLARE_METATYPE(int64_t)
@@ -52,6 +50,10 @@ Q_DECLARE_METATYPE(const char*)
 Q_DECLARE_METATYPE(monocle::FileState)
 Q_DECLARE_METATYPE(monocle::FileMonitorState)
 Q_DECLARE_METATYPE(QVector<int>)
+Q_DECLARE_METATYPE(client::GUIORDER)
+Q_DECLARE_METATYPE(client::DATASNAPSHOT)
+Q_DECLARE_METATYPE(std::vector<client::GUIORDER>)
+Q_DECLARE_METATYPE(std::vector<client::DATASNAPSHOT>)
 Q_DECLARE_METATYPE(QSharedPointer<client::Device>)
 Q_DECLARE_METATYPE(QSharedPointer<client::Recording>)
 Q_DECLARE_METATYPE(QSharedPointer<client::RecordingJob>)
@@ -75,8 +77,6 @@ Q_DECLARE_METATYPE(std::vector<monocle::RECORDINGSTATISTICS>)
 Q_DECLARE_METATYPE(std::vector<QString>)
 Q_DECLARE_METATYPE(std::vector<std::string>)
 Q_DECLARE_METATYPE(std::vector<uint64_t>)
-Q_DECLARE_METATYPE(std::vector<uint64_tpair>)
-Q_DECLARE_METATYPE(uint64_tpair)
 Q_DECLARE_METATYPE(monocle::LAYOUT)
 Q_DECLARE_METATYPE(monocle::RecordingJobMode)
 Q_DECLARE_METATYPE(monocle::RecordingJobState)
@@ -125,6 +125,10 @@ int main(int argc, char** argv)
   qRegisterMetaType<monocle::FileState>();
   qRegisterMetaType<monocle::FileMonitorState>();
   qRegisterMetaType< QVector<int> >();
+  qRegisterMetaType<client::GUIORDER>();
+  qRegisterMetaType<client::DATASNAPSHOT>();
+  qRegisterMetaType< std::vector<client::GUIORDER> >();
+  qRegisterMetaType< std::vector<client::DATASNAPSHOT> >();
   qRegisterMetaType< const QSharedPointer<client::Device>& >();
   qRegisterMetaType< const QSharedPointer<client::Recording>& >();
   qRegisterMetaType< const QSharedPointer<client::RecordingJob>& >();
@@ -148,7 +152,6 @@ int main(int argc, char** argv)
   qRegisterMetaType< std::vector< std::pair<uint64_t, uint64_t> > >();
   qRegisterMetaType< std::vector<std::string> >();
   qRegisterMetaType< std::vector<uint64_t> >();
-  qRegisterMetaType<uint64_tpair>();
   qRegisterMetaType<uint64_t>();
   qRegisterMetaType<monocle::LAYOUT>("monocle::LAYOUT");
   qRegisterMetaType<monocle::StreamingProtocol>("monocle::StreamingProtocol");

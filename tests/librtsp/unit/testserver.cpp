@@ -87,7 +87,7 @@ void TestServer::SetUpTestCase()
   // Connect to server
   std::promise<void> promise;
   std::future<void> future = promise.get_future();
-  client_ = boost::make_shared< Client<TestServer> >(ioservicepool_.GetIoService(), boost::posix_time::seconds(10), boost::posix_time::seconds(60));
+  client_ = boost::make_shared< Client<TestServer> >(nullptr, boost::make_shared<std::recursive_mutex>(), ioservicepool_.GetIoService(), boost::posix_time::seconds(10), boost::posix_time::seconds(60));
   client_->Init(sock::ProxyParams(), std::string("127.0.0.1"), PORT, USERNAME, PASSWORD);
   sock::Connection connection = client_->Connect([&promise](const boost::system::error_code& err)
   {
@@ -193,8 +193,8 @@ TEST_F(TestServer, Rtp)
   std::future<void> interleavedfuture = interleavedpromise.get_future();
   std::future<void> udpunicastfuture = udpunicastpromise.get_future();
   
-  const rtsp::SetupResponse interleavedsetupresponse = client_->SetupFuture(url_, sdp::ADDRESSTYPE_IP4, headers::PROTOCOLTYPE_TCP, headers::ROUTINGTYPE_UNICAST, headers::MODE_PLAY, 1.0, KEEPALIVEMODE_GETPARAMETER, std::string(), RtpCallback, nullptr, &interleavedpromise, nullptr).get();
-  const rtsp::SetupResponse udpunicastsetupresponse = client_->SetupFuture(url_, sdp::ADDRESSTYPE_IP4, headers::PROTOCOLTYPE_UDP, headers::ROUTINGTYPE_UNICAST, headers::MODE_PLAY, 1.0, KEEPALIVEMODE_GETPARAMETER, std::string(), RtpCallback, nullptr, &udpunicastpromise, nullptr).get();
+  const rtsp::SetupResponse interleavedsetupresponse = client_->SetupFuture(url_, sdp::ADDRESSTYPE_IP4, headers::PROTOCOLTYPE_TCP, headers::ROUTINGTYPE_UNICAST, headers::MODE_PLAY, 1.0, KEEPALIVEMODE_GETPARAMETER, std::string(), RtpCallback, &interleavedpromise, nullptr).get();
+  const rtsp::SetupResponse udpunicastsetupresponse = client_->SetupFuture(url_, sdp::ADDRESSTYPE_IP4, headers::PROTOCOLTYPE_UDP, headers::ROUTINGTYPE_UNICAST, headers::MODE_PLAY, 1.0, KEEPALIVEMODE_GETPARAMETER, std::string(), RtpCallback, &udpunicastpromise, nullptr).get();
   
   ASSERT_NO_THROW(client_->PlayFuture(url_, interleavedsetupresponse.session_, headers::Range(true, 0, boost::none)).get());
   ASSERT_EQ(interleavedfuture.wait_for(std::chrono::milliseconds(10000)), std::future_status::ready);

@@ -145,11 +145,20 @@ class SetReceiverModeResponse : public Response<ReceiverClient>
 
 class ReceiverClient : public Client<RECEIVEROPERATION>, public boost::enable_shared_from_this<ReceiverClient>
 {
+  friend Signal<RECEIVEROPERATION, ReceiverClient, ConfigureReceiverResponse, std::string, ReceiverConfiguration>;
+  friend Signal<RECEIVEROPERATION, ReceiverClient, CreateReceiverResponse, ReceiverConfiguration>;
+  friend Signal<RECEIVEROPERATION, ReceiverClient, DeleteReceiverResponse, std::string>;
+  friend Signal<RECEIVEROPERATION, ReceiverClient, GetReceiverResponse, std::string>;
+  friend Signal<RECEIVEROPERATION, ReceiverClient, GetReceiversResponse>;
+  friend Signal<RECEIVEROPERATION, ReceiverClient, GetReceiverStateResponse, std::string>;
+  friend Signal<RECEIVEROPERATION, ReceiverClient, GetServiceCapabilitiesResponse>;
+  friend Signal<RECEIVEROPERATION, ReceiverClient, SetReceiverModeResponse, std::string, RECEIVERMODE>;
+
  public:
   
   using Client::Update;
 
-  ReceiverClient();
+  ReceiverClient(const boost::shared_ptr<std::recursive_mutex>& mutex);
   virtual ~ReceiverClient();
 
   virtual void Destroy() override;

@@ -89,11 +89,13 @@ class MediaSignals
   Signal< MEDIAOPERATION, MediaClient, SetVideoSourceConfigurationResponse, VideoSourceConfiguration> setvideosourceconfiguration_;
   Signal< MEDIAOPERATION, MediaClient, StartMulticastStreamingResponse, std::string> startmulticaststreaming_;
   Signal< MEDIAOPERATION, MediaClient, StopMulticastStreamingResponse, std::string> stopmulticaststreaming_;
+
 };
 
 ///// Methods /////
 
-MediaClient::MediaClient() :
+MediaClient::MediaClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
+  Client(mutex),
   signals_(new MediaSignals(
   {
     Signal< MEDIAOPERATION, MediaClient, AddAudioDecoderConfigurationResponse, std::string, std::string >(this, MEDIAOPERATION_ADDAUDIODECODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddAudioDecoderConfiguration"), false),

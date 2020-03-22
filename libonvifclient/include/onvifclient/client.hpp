@@ -125,7 +125,8 @@ class Client
     return (size*nmemb);
   }
   
-  Client() :
+  Client(const boost::shared_ptr<std::recursive_mutex>& mutex) :
+    mutex_(mutex),
     contenttypemultipart_("Content-Type:[\\s]*multipart\\/related", boost::regex::ECMAScript | boost::regex::icase),
     contenttypeparameters_("([^=]+)=\\\"?([^\"]+)\\\"?", boost::regex::ECMAScript | boost::regex::icase),
     contenttype_("Content-Type:[\\s](.*)", boost::regex::ECMAScript | boost::regex::icase),
@@ -152,15 +153,11 @@ class Client
 
   virtual int Init(const sock::ProxyParams& proxyparams, const std::string& address, const std::string& username, const std::string& password, const unsigned int maxconcurrentrequests, const bool forcehttpauthentication, const bool forbidreuse)
   {
-    Destroy();
-
     if (address.empty())
     {
     
       return 1;
     }
-  
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
 
     curlm_ = curl_multi_init();
     if (!curlm_)
@@ -185,7 +182,7 @@ class Client
 
   virtual void Destroy()
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(*mutex_);
   
     // Destory multi handle
     if (curlm_)
@@ -212,7 +209,7 @@ class Client
 
   CURL* SendCommand(T operation, const bool authentication, const bool event, const std::string& action, const std::vector<Element>& referenceparameters, const std::string& to, const std::string& body, const std::map<std::string, std::vector<char> >& mtomdata)
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(*mutex_);
 
     Request<T>* request = new Request<T>(operation);
 
@@ -228,7 +225,7 @@ class Client
   virtual int Update()
   {
     // Process requests
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(*mutex_);
     
     int numrunning = 0;
     if (curl_multi_perform(curlm_, &numrunning))
@@ -437,43 +434,43 @@ class Client
 
   inline void SetAddress(const std::string& address)
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(*mutex_);
     address_ = address;
   }
 
   inline const std::string GetAddress()
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(*mutex_);
     return address_;
   }
 
   inline void SetUsername(const std::string& username)
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(*mutex_);
     username_ = username;
   }
 
   inline const std::string GetUsername()
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(*mutex_);
     return username_;
   }
 
   inline void SetPassword(const std::string& password)
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(*mutex_);
     password_ = password;
   }
 
   inline const std::string GetPassword()
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(*mutex_);
     return password_;
   }
 
   inline void SetForceHttpAuthentication(bool forcehttpauthentication)
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(*mutex_);
     forcehttpauthentication_ = forcehttpauthentication;
   }
 
@@ -484,13 +481,13 @@ class Client
 
   inline void SetProxyParams(const sock::ProxyParams& proxyparams)
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(*mutex_);
     proxyparams_ = proxyparams;
   }
 
   inline const sock::ProxyParams GetProxyParams()
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(*mutex_);
     return proxyparams_;
   }
 
@@ -563,15 +560,15 @@ class Client
     return boost::none;
   }
 
- protected:
-  
+  boost::shared_ptr<std::recursive_mutex> mutex_;
+
   uint64_t offset_; // The offset of the current utc clock, to the utc clock on the device, in milliseconds
 
  private:
 
   CURL* SendCommand(Request<T>* request, T operation, const bool authentication, const bool event, const std::string& action, const std::vector<Element>& referenceparameters, const std::string& to, const std::string& body, const std::map<std::string, std::vector<char> >& mtomdatas)
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(*mutex_);
 
     if (curl_easy_setopt(request->handle_, CURLOPT_URL, address_.c_str()))
     {
@@ -942,8 +939,6 @@ class Client
   const boost::regex contentid_;
 
   boost::signals2::signal<void(const boost::posix_time::time_duration&)> latencysignal_;
-
-  std::recursive_mutex mutex_;
 
   std::vector<QUEUEREQUEST> queue_;
 

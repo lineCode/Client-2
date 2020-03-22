@@ -65,11 +65,14 @@ class GetServiceCapabilitiesResponse : public Response<ReplayClient>
 
 class ReplayClient : public Client<REPLAYOPERATION>, public boost::enable_shared_from_this<ReplayClient>
 {
+  friend Signal<REPLAYOPERATION, ReplayClient, GetReplayUriResponse, StreamSetup, std::string>;
+  friend Signal<REPLAYOPERATION, ReplayClient, GetServiceCapabilitiesResponse>;
+
  public:
   
   using Client::Update;
 
-  ReplayClient();
+  ReplayClient(const boost::shared_ptr<std::recursive_mutex>& mutex);
   virtual ~ReplayClient();
 
   virtual void Destroy() override;

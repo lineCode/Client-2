@@ -47,7 +47,8 @@ class RecordingSignals
 
 ///// Methods /////
 
-RecordingClient::RecordingClient() :
+RecordingClient::RecordingClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
+  Client(mutex),
   signals_(new RecordingSignals(
   {
     Signal<RECORDINGOPERATION, RecordingClient, CreateRecordingResponse, RecordingConfiguration>(this, RECORDINGOPERATION_CREATERECORDING, true, std::string("http://www.onvif.org/ver10/recording/wsdl/CreateRecording"), false),

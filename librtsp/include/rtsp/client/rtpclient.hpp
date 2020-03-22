@@ -219,7 +219,7 @@ class RtpClient : public boost::enable_shared_from_this< RtpClient<T> >
   const double rtptimestampfrequency_;
 
   RtpCallback rtpcallback_;
-  boost::shared_ptr<T> rtpcallbackdataobject_;
+  boost::shared_ptr<T> rtpcallbackdataobject_; // This needs to be a shared_ptr so the recipient of the callbacks is not allowed to die before we stop sending messages(without requiring a mutex!)
   void* rtpcallbackdata_;
   RtcpCallback rtcpcallback_;
 
