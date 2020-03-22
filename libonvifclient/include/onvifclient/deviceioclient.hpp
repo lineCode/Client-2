@@ -323,7 +323,7 @@ class DeviceIOClient : public Client<DEVICEIOOPERATION>, public boost::enable_sh
   
   using Client::Update;
 
-  DeviceIOClient();
+  DeviceIOClient(std::recursive_mutex& mutex);
   virtual ~DeviceIOClient();
 
   virtual void Destroy() override;

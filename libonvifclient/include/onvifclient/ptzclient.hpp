@@ -164,7 +164,7 @@ class PTZClient : public Client<PTZOPERATION>, public boost::enable_shared_from_
   
   using Client::Update;
 
-  PTZClient();
+  PTZClient(std::recursive_mutex& mutex);
   virtual ~PTZClient();
 
   virtual void Destroy() override;

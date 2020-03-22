@@ -346,7 +346,7 @@ class RecordingClient : public Client<RECORDINGOPERATION>, public boost::enable_
   
   using Client::Update;
 
-  RecordingClient();
+  RecordingClient(std::recursive_mutex& mutex);
   virtual ~RecordingClient();
 
   virtual void Destroy() override;

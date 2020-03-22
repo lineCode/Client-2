@@ -34,7 +34,8 @@ class ReceiverSignals
 
 ///// Methods /////
 
-ReceiverClient::ReceiverClient() :
+ReceiverClient::ReceiverClient(std::recursive_mutex& mutex) :
+  Client(mutex),
   signals_(new ReceiverSignals(
   {
     Signal<RECEIVEROPERATION, ReceiverClient, ConfigureReceiverResponse, std::string, ReceiverConfiguration>(this, RECEIVEROPERATION_CONFIGURERECEIVER, true, std::string("http://www.onvif.org/ver10/receiver/wsdl/ConfigureReceiver"), false),

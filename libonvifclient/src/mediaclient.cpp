@@ -93,7 +93,8 @@ class MediaSignals
 
 ///// Methods /////
 
-MediaClient::MediaClient() :
+MediaClient::MediaClient(std::recursive_mutex& mutex) :
+  Client(mutex),
   signals_(new MediaSignals(
   {
     Signal< MEDIAOPERATION, MediaClient, AddAudioDecoderConfigurationResponse, std::string, std::string >(this, MEDIAOPERATION_ADDAUDIODECODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddAudioDecoderConfiguration"), false),

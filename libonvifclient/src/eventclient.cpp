@@ -29,7 +29,8 @@ class EventSignals
 
 ///// Methods /////
 
-EventClient::EventClient() :
+EventClient::EventClient(std::recursive_mutex& mutex) :
+  Client(mutex),
   signals_(new EventSignals(
   {
     Signal< EVENTOPERATION, EventClient, CreatePullPointSubscriptionResponse, boost::optional<std::string>, boost::optional<std::string>, boost::optional<std::string> >(this, EVENTOPERATION_CREATEPULLPOINTSUBSCRIPTION, true, std::string("http://www.onvif.org/ver10/events/wsdl/EventPortType/CreatePullPointSubscriptionRequest"), true),

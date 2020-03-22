@@ -95,7 +95,7 @@ class ImagingClient : public Client<IMAGINGOPERATION>, public boost::enable_shar
   
   using Client::Update;
 
-  ImagingClient();
+  ImagingClient(std::recursive_mutex& mutex);
   virtual ~ImagingClient();
 
   virtual void Destroy() override;

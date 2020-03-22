@@ -46,7 +46,8 @@ class DeviceIOSignals
 
 ///// Methods /////
 
-DeviceIOClient::DeviceIOClient() :
+DeviceIOClient::DeviceIOClient(std::recursive_mutex& mutex) :
+  Client(mutex),
   signals_(new DeviceIOSignals(
   {
     Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputConfigurationResponse, std::string>(this, DEVICEIOOPERATION_GETAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioOutputConfiguration"), false),

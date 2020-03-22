@@ -109,7 +109,8 @@ class DeviceSignals
 
 ///// Methods /////
 
-DeviceClient::DeviceClient() :
+DeviceClient::DeviceClient(std::recursive_mutex& mutex) :
+  Client(mutex),
   signals_(new DeviceSignals(
   {
     Signal< DEVICEOPERATION, DeviceClient, AddIPAddressFilterResponse, IPAddressFilter>(this, DEVICEOPERATION_ADDIPADDRESSFILTER, true, std::string("http://www.onvif.org/ver10/device/wsdl/AddIPAddressFilter"), false),

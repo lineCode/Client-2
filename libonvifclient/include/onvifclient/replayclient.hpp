@@ -69,7 +69,7 @@ class ReplayClient : public Client<REPLAYOPERATION>, public boost::enable_shared
   
   using Client::Update;
 
-  ReplayClient();
+  ReplayClient(std::recursive_mutex& mutex);
   virtual ~ReplayClient();
 
   virtual void Destroy() override;

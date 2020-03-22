@@ -1088,7 +1088,7 @@ class DeviceClient : public Client<DEVICEOPERATION>, public boost::enable_shared
   
   using Client::Update;
 
-  DeviceClient();
+  DeviceClient(std::recursive_mutex& mutex);
   virtual ~DeviceClient();
 
   virtual void Destroy() override;

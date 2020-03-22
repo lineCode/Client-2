@@ -949,7 +949,7 @@ class MediaClient : public Client<MEDIAOPERATION>, public boost::enable_shared_f
    
   using Client::Update;
 
-  MediaClient();
+  MediaClient(std::recursive_mutex& mutex);
   virtual ~MediaClient();
 
   virtual void Destroy() override;

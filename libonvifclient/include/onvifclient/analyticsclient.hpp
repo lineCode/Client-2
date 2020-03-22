@@ -53,7 +53,7 @@ class AnalyticsClient : public Client<ANALYTICSOPERATION>, public boost::enable_
   
   using Client::Update;
 
-  AnalyticsClient();
+  AnalyticsClient(std::recursive_mutex& mutex);
   virtual ~AnalyticsClient();
 
   virtual void Destroy() override;

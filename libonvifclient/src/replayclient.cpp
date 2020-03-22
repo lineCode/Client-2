@@ -28,7 +28,8 @@ class ReplaySignals
 
 ///// Methods /////
 
-ReplayClient::ReplayClient() :
+ReplayClient::ReplayClient(std::recursive_mutex& mutex) :
+  Client(mutex),
   signals_(new ReplaySignals(
   {
     Signal<REPLAYOPERATION, ReplayClient, GetReplayUriResponse, StreamSetup, std::string>(this, REPLAYOPERATION_GETREPLAYURI, true, std::string("http://www.onvif.org/ver10/replay/wsdl/GetReplayUri"), false),

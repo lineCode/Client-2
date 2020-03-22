@@ -125,7 +125,8 @@ class Client
     return (size*nmemb);
   }
   
-  Client() :
+  Client(std::recursive_mutex& mutex) :
+    mutex_(mutex),
     contenttypemultipart_("Content-Type:[\\s]*multipart\\/related", boost::regex::ECMAScript | boost::regex::icase),
     contenttypeparameters_("([^=]+)=\\\"?([^\"]+)\\\"?", boost::regex::ECMAScript | boost::regex::icase),
     contenttype_("Content-Type:[\\s](.*)", boost::regex::ECMAScript | boost::regex::icase),
@@ -152,15 +153,11 @@ class Client
 
   virtual int Init(const sock::ProxyParams& proxyparams, const std::string& address, const std::string& username, const std::string& password, const unsigned int maxconcurrentrequests, const bool forcehttpauthentication, const bool forbidreuse)
   {
-    Destroy();
-
     if (address.empty())
     {
     
       return 1;
     }
-  
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
 
     curlm_ = curl_multi_init();
     if (!curlm_)
@@ -936,14 +933,14 @@ class Client
     return header;
   }
 
+  std::recursive_mutex& mutex_;
+
   const boost::regex contenttypemultipart_;
   const boost::regex contenttypeparameters_;
   const boost::regex contenttype_;
   const boost::regex contentid_;
 
   boost::signals2::signal<void(const boost::posix_time::time_duration&)> latencysignal_;
-
-  std::recursive_mutex mutex_;
 
   std::vector<QUEUEREQUEST> queue_;
 

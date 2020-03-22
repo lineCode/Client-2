@@ -53,7 +53,7 @@ class SearchClient : public Client<SEARCHOPERATION>, public boost::enable_shared
   
   using Client::Update;
 
-  SearchClient();
+  SearchClient(std::recursive_mutex& mutex);
   virtual ~SearchClient();
 
   virtual void Destroy() override;

@@ -149,7 +149,7 @@ class ReceiverClient : public Client<RECEIVEROPERATION>, public boost::enable_sh
   
   using Client::Update;
 
-  ReceiverClient();
+  ReceiverClient(std::recursive_mutex& mutex);
   virtual ~ReceiverClient();
 
   virtual void Destroy() override;

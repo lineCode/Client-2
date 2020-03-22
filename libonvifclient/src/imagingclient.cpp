@@ -29,7 +29,8 @@ class ImagingSignals
 
 ///// Methods /////
 
-ImagingClient::ImagingClient() :
+ImagingClient::ImagingClient(std::recursive_mutex& mutex) :
+  Client(mutex),
   signals_(new ImagingSignals(
   {
     Signal<IMAGINGOPERATION, ImagingClient, GetImagingSettingsResponse, std::string>(this, IMAGINGOPERATION_GETIMAGINGSETTINGS, true, std::string("http://www.onvif.org/ver20/imaging/wsdl/GetImagingSettings"), false),
