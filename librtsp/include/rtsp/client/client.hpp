@@ -130,8 +130,6 @@ class Client : public boost::enable_shared_from_this< Client<T> >
   {
     Destroy();
 
-    std::lock_guard<std::recursive_mutex> lock(*mutex_);
-
     proxyparams_ = proxyparams;
     host_ = host;
     port_ = port;
