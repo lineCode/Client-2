@@ -52,7 +52,7 @@ class Signal
 
   void Destroy()
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(client_->mutex_);
 
     for (auto& promise : promises_)
     {
@@ -80,7 +80,7 @@ class Signal
   
   std::future<ResponseType> CreateFuture(const std::pair<uint64_t, const RtspRequest>& request)
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(client_->mutex_);
 
     std::promise<ResponseType> promise;
     if (client_->Request(request))
@@ -97,7 +97,7 @@ class Signal
 
   Connection CreateCallback(const std::pair<uint64_t, const RtspRequest>& request, CallbackType callback)
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(client_->mutex_);
 
     if (client_->Request(request))
     {
@@ -115,7 +115,7 @@ class Signal
   template<typename... Parameters>
   void Emit(uint64_t id, uint64_t latency, const boost::system::error_code& error, Parameters... parameters)
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(client_->mutex_);
 
     // Future
     auto promise = promises_.find(id);
@@ -153,8 +153,6 @@ class Signal
  private:
 
   Client* client_;
-
-  std::recursive_mutex mutex_;
 
   std::map< uint64_t, std::promise<ResponseType> > promises_;
   std::map< uint64_t, std::pair< boost::shared_ptr<ConnectionBlock>, CallbackType> > callbacks_;

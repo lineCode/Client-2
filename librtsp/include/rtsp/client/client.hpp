@@ -129,7 +129,7 @@ class Client : public boost::enable_shared_from_this< Client<T> >
     Destroy();
 
     {
-      std::lock_guard<std::mutex> lock(mutex_);
+      std::lock_guard<std::recursive_mutex> lock(mutex_);
 
       proxyparams_ = proxyparams;
       host_ = host;
@@ -148,7 +148,7 @@ class Client : public boost::enable_shared_from_this< Client<T> >
 
     {
       // Kill all requests while notifying all listeners that it has been aborted
-      std::lock_guard<std::mutex> lock(mutex_);
+      std::lock_guard<std::recursive_mutex> lock(mutex_);
 
       describesignal_.Destroy();
       getparametersignal_.Destroy();
@@ -180,7 +180,7 @@ class Client : public boost::enable_shared_from_this< Client<T> >
     }
 
     {
-      std::lock_guard<std::mutex> sessionsmutex_(mutex_);
+      std::lock_guard<std::mutex> sessionsmutex(sessionsmutex_);
       for (auto& session : sessions_)
       {
         session->Destroy();
@@ -198,7 +198,7 @@ class Client : public boost::enable_shared_from_this< Client<T> >
 
   sock::Connection Connect(const boost::function<void(const boost::system::error_code&)> connectcallback, const boost::function<void()> disconnectcallback)
   {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
 
     disconnectcallback_ = disconnectcallback;
 
@@ -250,7 +250,7 @@ class Client : public boost::enable_shared_from_this< Client<T> >
 
   void Disconnect()
   {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
 
     boost::system::error_code err;
     disconnectcallback_.clear();
@@ -638,13 +638,13 @@ class Client : public boost::enable_shared_from_this< Client<T> >
 
  protected:
 
-  mutable std::mutex mutex_;
+  mutable std::recursive_mutex mutex_;//TODO needs to be passed in or something...
 
  private:
 
   void DisconnectCallback()
   {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (disconnectcallback_)
     {
       disconnectcallback_();
@@ -654,43 +654,43 @@ class Client : public boost::enable_shared_from_this< Client<T> >
 
   std::pair<uint64_t, RtspRequest> DescribeRequest(const std::string& url)
   {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     return std::make_pair(currentcseq_, RtspRequest(headers::REQUESTTYPE_DESCRIBE, url, ++currentcseq_, headers::CONTENTTYPE_APPLICATIONSDP, std::string(), std::string(), boost::none, boost::none, boost::none, headers::CONTENTTYPE_INVALID, boost::none, std::vector<std::string>(), headers::Parameters(), KEEPALIVEMODE_NONE, std::string(), authenticationtype_, url, username_, realm_, nonce_));
   }
 
   std::pair<uint64_t, RtspRequest> GetParameterRequest(const std::string& url, const std::string& session, const std::vector<std::string>& parameters)
   {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     return std::make_pair(currentcseq_, RtspRequest(headers::REQUESTTYPE_GETPARAMETER, url, ++currentcseq_, headers::CONTENTTYPE_INVALID, std::string(), session, boost::none, boost::none, boost::none, headers::CONTENTTYPE_TEXTPARAMETERS, boost::none, parameters, headers::Parameters(), KEEPALIVEMODE_NONE, std::string(), authenticationtype_, url, username_, realm_, nonce_));
   }
 
   std::pair<uint64_t, RtspRequest> OptionsRequest(const std::string& url)
   {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     return std::make_pair(currentcseq_, RtspRequest(headers::REQUESTTYPE_OPTIONS, url, ++currentcseq_, headers::CONTENTTYPE_INVALID, std::string(), std::string(), boost::none, boost::none, boost::none, headers::CONTENTTYPE_INVALID, boost::none, std::vector<std::string>(), headers::Parameters(), KEEPALIVEMODE_NONE, std::string(), authenticationtype_, url, username_, realm_, nonce_));
   }
 
   std::pair<uint64_t, RtspRequest> PauseRequest(const std::string& url, const std::string& session)
   {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     return std::make_pair(currentcseq_, RtspRequest(headers::REQUESTTYPE_PAUSE, url, ++currentcseq_, headers::CONTENTTYPE_INVALID, std::string(), session, headers::Range(), boost::none, boost::none, headers::CONTENTTYPE_INVALID, boost::none, std::vector<std::string>(), headers::Parameters(), KEEPALIVEMODE_NONE, std::string(), authenticationtype_, url, username_, realm_, nonce_));
   }
 
   std::pair<uint64_t, RtspRequest> PlayRequest(const std::string& url, const std::string& session, const headers::Range& range)
   {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     return std::make_pair(currentcseq_, RtspRequest(headers::REQUESTTYPE_PLAY, url, ++currentcseq_, headers::CONTENTTYPE_INVALID, std::string(), session, range, boost::none, boost::none, headers::CONTENTTYPE_INVALID, boost::none, std::vector<std::string>(), headers::Parameters(), KEEPALIVEMODE_NONE, std::string(), authenticationtype_, url, username_, realm_, nonce_));
   }
 
   std::pair<uint64_t, RtspRequest> SetParameterRequest(const std::string& url, const std::string& session, const std::vector<headers::Parameter>& parameters)
   {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     return std::make_pair(currentcseq_, RtspRequest(headers::REQUESTTYPE_SETPARAMETER, url, ++currentcseq_, headers::CONTENTTYPE_INVALID, std::string(), session, boost::none, boost::none, boost::none, headers::CONTENTTYPE_TEXTPARAMETERS, boost::none, std::vector<std::string>(), parameters, KEEPALIVEMODE_NONE, std::string(), authenticationtype_, url, username_, realm_, nonce_));
   }
 
   boost::optional< std::pair<uint64_t, RtspRequest> > SetupRequest(const std::string& url, sdp::ADDRESSTYPE addresstype, headers::PROTOCOLTYPE protocoltype, headers::ROUTINGTYPE routingtype, headers::MODE mode, double rtptimestampfrequency, KEEPALIVEMODE keepalivemode, const std::string& keepaliveurl, RtpCallback rtpcallback, const boost::shared_ptr<T>& rtpcallbackdataobject, void* rtpcallbackdata, RtcpCallback rtcpcallback)
   {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
 
     const uint64_t id = ++currentcseq_;
     boost::shared_ptr< client::Session<T> > session = boost::make_shared< client::Session<T> >(id, io_);
@@ -745,7 +745,7 @@ class Client : public boost::enable_shared_from_this< Client<T> >
 
   std::pair<uint64_t, RtspRequest> TeardownRequest(const std::string& url, const std::string& session)
   {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     std::lock_guard<std::mutex> sessionslock(sessionsmutex_);
 
     // Destroy the session that matches this id
