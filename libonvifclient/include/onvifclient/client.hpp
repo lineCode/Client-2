@@ -494,6 +494,8 @@ class Client
   void SetTimeOffset(uint64_t offset) { offset_ = offset; }
   uint64_t GetTimeOffset() const { return offset_; }
 
+  boost::shared_ptr<std::recursive_mutex>& GetMutex() { return mutex_; }
+
  protected:
 
   virtual void Update(T operation, CURL* handle, const boost::asio::ip::address& localendpoint, int64_t latency, const pugi::xml_document& document, const std::map< std::string, std::vector<char> >& mtomdata) = 0;

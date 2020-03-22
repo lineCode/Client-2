@@ -173,7 +173,7 @@ class Signal
       return Connection();
     }
 
-    std::lock_guard<std::recursive_mutex> lock(*client_->mutex_);
+    std::lock_guard<std::recursive_mutex> lock(*client_->GetMutex());
     boost::shared_ptr<ConnectionBlock> connectionblock = boost::make_shared<ConnectionBlock>(true);
     callbacks_[handle] = std::make_pair(connectionblock, callback);
     args_[handle] = std::make_tuple(args...);
@@ -209,7 +209,7 @@ class Signal
     }
     
     // Callbacks
-    std::lock_guard<std::recursive_mutex> lock(*client_->mutex_);
+    std::lock_guard<std::recursive_mutex> lock(*client_->GetMutex());
     typename std::map< CURL*, std::pair< boost::shared_ptr<ConnectionBlock>, boost::function<void(const Response&)> > >::iterator callback = callbacks_.find(handle);
     if (callback != callbacks_.end())
     {
