@@ -40,7 +40,6 @@ ManageONVIFMediaAudioEncoderConfigurationWindow::ManageONVIFMediaAudioEncoderCon
     }
 
     configuration_ = *getaudioencoderconfigurationresponse.configuration_;
-
     if ((--(*count)) == 0)
     {
       Init();
@@ -57,7 +56,6 @@ ManageONVIFMediaAudioEncoderConfigurationWindow::ManageONVIFMediaAudioEncoderCon
     }
 
     options_ = getaudioencoderconfigurationoptionsresponse.options_->options_;
-
     if ((--(*count)) == 0)
     {
       Init();

@@ -77,30 +77,33 @@ void ManageLayoutNameWindow::on_buttonok_clicked()
     }
 
     ++(*count);
-    connections_.push_back(device->ChangeLayoutName(token_, ui_.editname->text().toStdString(), [this, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::CHANGELAYOUTNAMERESPONSE& changelayoutnameresponse)
+    QTimer::singleShot(std::chrono::milliseconds(1), [this, count, errors, device]()
     {
-      errors->push_back(changelayoutnameresponse.error_);
-      if ((--(*count)) == 0)
+      connections_.push_back(device->ChangeLayoutName(token_, ui_.editname->text().toStdString(), [this, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::CHANGELAYOUTNAMERESPONSE& changelayoutnameresponse)
       {
-        if (std::all_of(errors->cbegin(), errors->cend(), [](const monocle::Error& error) { return (error.code_ == monocle::ErrorCode::Success); }))
+        errors->push_back(changelayoutnameresponse.error_);
+        if ((--(*count)) == 0)
         {
-          accept();
-          return;
-        }
-        else
-        {
-          QStringList errorlist;
-          for (const monocle::Error& error : *errors)
+          if (std::all_of(errors->cbegin(), errors->cend(), [](const monocle::Error& error) { return (error.code_ == monocle::ErrorCode::Success); }))
           {
-            errorlist.push_back(QString::fromStdString(error.text_));
-
+            accept();
+            return;
           }
+          else
+          {
+            QStringList errorlist;
+            for (const monocle::Error& error : *errors)
+            {
+              errorlist.push_back(QString::fromStdString(error.text_));
 
-          QMessageBox(QMessageBox::Warning, tr("Error"), tr("Layout failed:\n") + errorlist.join("\n"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-          return;
+            }
+
+            QMessageBox(QMessageBox::Warning, tr("Error"), tr("Layout failed:\n") + errorlist.join("\n"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+            return;
+          }
         }
-      }
-    }));
+      }));
+    });
   }
 
   if ((*count) == 0)
