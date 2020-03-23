@@ -114,7 +114,7 @@ bool DeviceTreeRecordingTrackItem::IsONVIF(const std::string& mediauri) const
   try
   {
     const network::uri uri(mediauri);
-    if (uri.has_scheme() && (uri.scheme().compare("http") == 0) && uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))
+    if (uri.has_scheme() && ((uri.scheme().compare("http") == 0) || (uri.scheme().compare("https") == 0)) && uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))
     {
 
       return true;
