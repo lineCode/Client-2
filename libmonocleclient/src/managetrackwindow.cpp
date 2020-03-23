@@ -714,7 +714,7 @@ void ManageTrackWindow::GetProfileCallback(const onvif::Profile& profile)
 
 void ManageTrackWindow::RTSPCallback(const std::string& uri, const std::string& host, const uint16_t port)
 {
-  rtspclient_ = boost::make_shared< rtsp::Client<ManageTrackWindow> >(MainWindow::Instance()->GetGUIIOService(), boost::posix_time::seconds(10), boost::posix_time::seconds(60));
+  rtspclient_ = boost::make_shared< rtsp::Client<ManageTrackWindow> >(shared_from_this(), MainWindow::Instance()->GetGUIIOService(), boost::posix_time::seconds(10), boost::posix_time::seconds(60));
   rtspclient_->Init(sock::ProxyParams(sock::PROXYTYPE_HTTP, device_->GetAddress().toStdString(), device_->GetPort(), true, device_->GetUsername().toStdString(), device_->GetPassword().toStdString()), host, port, ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString());
 
   ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">RTSP Connecting</font><br/>");
@@ -1240,8 +1240,8 @@ void ManageTrackWindow::on_buttontest_clicked()
         }
       }
 
-      deviceclient_ = boost::make_shared<onvif::device::DeviceClient>();
-      mediaclient_ = boost::make_shared<onvif::media::MediaClient>();
+      deviceclient_ = boost::make_shared<onvif::device::DeviceClient>(mutex_);
+      mediaclient_ = boost::make_shared<onvif::media::MediaClient>(mutex_);
       if (deviceclient_->Init(sock::ProxyParams(sock::PROXYTYPE_HTTP, device_->GetAddress().toStdString(), device_->GetPort(), true, device_->GetUsername().toStdString(), device_->GetPassword().toStdString()), ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), 1, false, true))
       {
         ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Failed to initialise ONVIF Device Client</font><br/>");

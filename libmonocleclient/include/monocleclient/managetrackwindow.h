@@ -8,8 +8,10 @@
 
 #include "ui_managetrackwindow.h"
 
+#include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 #include <monocleprotocol/client/connection.hpp>
+#include <mutex>
 #include <onvifclient/connection.hpp>
 #include <rtsp/client/client.hpp>
 #include <rtsp/client/connection.hpp>
@@ -56,7 +58,7 @@ class RecordingTrack;
 
 ///// Classes /////
 
-class ManageTrackWindow : public QDialog
+class ManageTrackWindow : public QDialog, public boost::enable_shared_from_this<ManageTrackWindow>
 {
  Q_OBJECT
 
@@ -64,6 +66,8 @@ class ManageTrackWindow : public QDialog
 
   ManageTrackWindow(QWidget* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingJob>& recordingjob, const QSharedPointer<RecordingJobSource>& recordingjobsource, const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& recordingtrack, const QString& uri);
   ~ManageTrackWindow();
+
+  std::recursive_mutex& GetMutex() { return mutex_; }
 
  protected:
 
@@ -79,6 +83,8 @@ class ManageTrackWindow : public QDialog
   void RTSPCallback(const std::string& uri, const std::string& host, const uint16_t port);
   void SetTrack(const uint64_t recordingtoken, const uint64_t recordingjobtoken, const uint64_t objectdetectortrackid, const uint64_t objectdetectorrecordingjobsourcetoken, const uint64_t objectdetectorrecordingjobsourcetracktoken);
   void SetEnabled(const bool enabled);
+
+  std::recursive_mutex mutex_;
 
   Ui::ManageTrackWindow ui_;
 

@@ -9,6 +9,7 @@
 #include <boost/optional.hpp>
 #include <memory>
 #include <monocleprotocol/client/connection.hpp>
+#include <mutex>
 #include <onvifclient/connection.hpp>
 #include <socket/connection.hpp>
 #include <QDialog>
@@ -65,6 +66,8 @@ class ManageTrackFindONVIFDeviceWindow : public QDialog
  private:
 
   void SetEnabled(const bool enabled);
+
+  std::recursive_mutex mutex_;
 
   Ui::ManageTrackFindONVIFDeviceWindow ui_;
 

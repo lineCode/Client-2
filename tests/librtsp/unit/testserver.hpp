@@ -7,6 +7,8 @@
 ///// Includes /////
 
 #include <boost/asio.hpp>
+#include <boost/enable_shared_from_this.hpp>
+#include <mutex>
 #include <rtsp/client/client.hpp>
 #include <gtest/gtest.h>
 #include <rtsp/server/server.hpp>
@@ -35,6 +37,8 @@ class TestServer : public testing::Test
   TestServer();
   virtual ~TestServer();
 
+  std::recursive_mutex& GetMutex() { return mutex_; }
+
  protected:
 
   static void SetUpTestCase();
@@ -42,6 +46,8 @@ class TestServer : public testing::Test
 
   virtual void SetUp();
   virtual void TearDown();
+
+  std::recursive_mutex mutex_;
 
   static const std::string url_;
 

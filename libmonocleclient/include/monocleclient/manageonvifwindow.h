@@ -7,6 +7,7 @@
 ///// Includes /////
 
 #include <boost/shared_ptr.hpp>
+#include <mutex>
 #include <onvifclient/scopedconnection.hpp>
 #include <onviftypes/onviftypes.hpp>
 #include <QDialog>
@@ -66,6 +67,8 @@ class ManageONVIFWindow : public QDialog
   void timerEvent(QTimerEvent *event) override;
 
  private:
+
+  std::recursive_mutex mutex_;
  
   Ui::ManageONVIFWindow ui_;
 

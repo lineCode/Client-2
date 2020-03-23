@@ -459,7 +459,7 @@ class Client : public boost::enable_shared_from_this< Client<T> >
 
   void SetUsernamePassword(const std::string& username, const std::string& password)
   {
-    std::lock_guard<std::mutex> lock(rtpcallbackdataobject_->GetMutex());
+    std::lock_guard<std::recursive_mutex> lock(rtpcallbackdataobject_->GetMutex());
     username_ = username;
     password_ = password;
   }
