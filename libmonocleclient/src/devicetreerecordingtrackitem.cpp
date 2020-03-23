@@ -134,7 +134,7 @@ bool DeviceTreeRecordingTrackItem::IsONVIF(const std::string& mediauri) const
 
 void DeviceTreeRecordingTrackItem::Edit(bool)
 {
-  ManageTrackWindow(treeWidget(), device_, recording_, recordingjob_, recordingjobsource_, recordingjobsourcetrack_, track_, QString()).exec();
+  boost::make_shared<ManageTrackWindow>(treeWidget(), device_, recording_, recordingjob_, recordingjobsource_, recordingjobsourcetrack_, track_, QString())->exec();
 
 }
 

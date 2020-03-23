@@ -12,6 +12,8 @@
 #include <QStringList>
 #include <QTreeWidget>
 
+#include "monocleclient/connection.h"
+
 ///// Namespaces /////
 
 namespace client
@@ -63,7 +65,7 @@ class LocationTreeItem : public QObject, public QTreeWidgetItem
 
  private slots:
 
-  void GuiOrderChanged(const boost::shared_ptr<Device>& device, const std::vector< std::pair<uint64_t, uint64_t> >& recordingsorder, const std::vector< std::pair<uint64_t, uint64_t> >& mapsorder);
+  void GuiOrderChanged(const boost::shared_ptr<Device>& device, const std::vector<GUIORDER>& recordingsorder, const std::vector<GUIORDER>& mapsorder);
   
 };
 

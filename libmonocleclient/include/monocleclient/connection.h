@@ -24,6 +24,28 @@ namespace client
 enum class MetadataFrameType : uint16_t;
 enum class ObjectDetectorFrameType : uint16_t;
 
+///// Structures /////
+
+struct GUIORDER
+{
+  GUIORDER();
+  GUIORDER(const uint64_t token, const uint64_t order);
+
+  uint64_t token_;
+  uint64_t order_;
+
+};
+
+struct DATASNAPSHOT
+{
+  DATASNAPSHOT();
+  DATASNAPSHOT(const uint64_t time, const uint64_t totaldata);
+
+  uint64_t time_;
+  uint64_t totaldata_;
+
+};
+
 ///// Classes /////
 
 class Connection : public QObject, public monocle::client::Client
@@ -151,7 +173,7 @@ class Connection : public QObject, public monocle::client::Client
   void SignalGroupAdded(const uint64_t token, const QString& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
   void SignalGroupChanged(const uint64_t token, const QString& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
   void SignalGroupRemoved(const uint64_t token);
-  void SignalGuiOrderChanged(const std::vector< std::pair<uint64_t, uint64_t> >& recordingsorder, const std::vector< std::pair<uint64_t, uint64_t> >& mapsorder);
+  void SignalGuiOrderChanged(const std::vector<client::GUIORDER>& recordingsorder, const std::vector<client::GUIORDER>& mapsorder);
   void SignalHardwareStats(const uint64_t time, const std::vector<monocle::DISKSTAT>& diskstats, const double cpuusage, const uint64_t totalmemory, const uint64_t availablememory, const std::vector<monocle::GPUSTAT>& gpustats);
   void SignalLayoutAdded(const monocle::LAYOUT& layout);
   void SignalLayoutChanged(const monocle::LAYOUT& layout);
@@ -191,8 +213,8 @@ class Connection : public QObject, public monocle::client::Client
   void SignalRecordingTrackCodecRemoved(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id);
   void SignalRecordingTrackLogMessage(const uint64_t recordingtoken, const uint32_t id, const uint64_t time, const monocle::Severity severity, const QString& message);
   void SignalServerLogMessage(const uint64_t time, const monocle::Severity severity, const QString& message);
-  void SignalTrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices, const std::pair<uint64_t, uint64_t>& totaltrackdata);
-  void SignalTrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices, const std::pair<uint64_t, uint64_t>& totaltrackdata);
+  void SignalTrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices, const client::DATASNAPSHOT& totaltrackdata);
+  void SignalTrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices, const client::DATASNAPSHOT& totaltrackdata);
   void SignalTrackDeleteData(const uint64_t recording, const uint32_t trackid, const boost::optional<uint64_t>& start, const boost::optional<uint64_t>& end);
   void SignalTrackRemoved(const uint64_t recordingtoken, const uint32_t id);
   void SignalTrackSetData(const uint64_t recording, const uint32_t trackid, const std::vector<monocle::INDEX>& indices);

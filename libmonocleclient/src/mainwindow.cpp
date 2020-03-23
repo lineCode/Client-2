@@ -1442,12 +1442,12 @@ void MainWindow::DiscoverCallback(const std::vector<std::string>& addresses, con
 
             if (devices.size() == 1)
             {
-              ManageTrackWindow(this, devices.front(), nullptr, nullptr, nullptr, nullptr, nullptr, QString::fromStdString(*ipv4address)).exec();
+              boost::make_shared<ManageTrackWindow>(this, devices.front(), nullptr, nullptr, nullptr, nullptr, nullptr, QString::fromStdString(*ipv4address))->exec();
 
             }
             else
             {
-              ManageTrackWindow(this, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, QString::fromStdString(*ipv4address)).exec();
+              boost::make_shared<ManageTrackWindow>(this, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, QString::fromStdString(*ipv4address))->exec();
 
             }
           }
