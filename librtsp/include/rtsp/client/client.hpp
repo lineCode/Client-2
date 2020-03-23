@@ -128,8 +128,6 @@ class Client : public boost::enable_shared_from_this< Client<T> >
 
   void Init(const sock::ProxyParams& proxyparams, const std::string& host, uint16_t port, const std::string& username, const std::string& password)
   {
-    Destroy();
-
     proxyparams_ = proxyparams;
     host_ = host;
     port_ = port;
