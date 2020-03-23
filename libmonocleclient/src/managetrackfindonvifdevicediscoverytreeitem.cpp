@@ -119,8 +119,8 @@ void ManageTrackFindONVIFDeviceDiscoveryTreeItem::GetProfiles()
   }
   RemoveChildren();
 
-  onvifdevice_ = boost::make_shared<onvif::device::DeviceClient>(mutex_);
-  onvifmedia_ = boost::make_shared<onvif::media::MediaClient>(mutex_);
+  onvifdevice_ = boost::make_shared<onvif::device::DeviceClient>(boost::make_shared<std::recursive_mutex>());
+  onvifmedia_ = boost::make_shared<onvif::media::MediaClient>(boost::make_shared<std::recursive_mutex>());
   if (onvifdevice_->Init(sock::ProxyParams(sock::PROXYTYPE_HTTP, device_->GetAddress().toStdString(), device_->GetPort(), true, device_->GetUsername().toStdString(), device_->GetPassword().toStdString()), address_, username_, password_, 1 , false, true))
   {
     SetChildText("Unable to initialise device service");

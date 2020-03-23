@@ -42,6 +42,7 @@ const int ROTATION_ROLE = Qt::UserRole + 1;
 
 ManageTrackWindow::ManageTrackWindow(QWidget* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingJob>& recordingjob, const QSharedPointer<RecordingJobSource>& recordingjobsource, const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& recordingtrack, const QString& uri) :
   QDialog(parent),
+  mutex_(boost::make_shared<std::recursive_mutex>()),
   profilemodel_(new QStringListModel(this)),
   sourcetagmodel_(new QStringListModel(this)),
   profilecompleter_(new QCompleter(this)),
@@ -714,7 +715,7 @@ void ManageTrackWindow::GetProfileCallback(const onvif::Profile& profile)
 
 void ManageTrackWindow::RTSPCallback(const std::string& uri, const std::string& host, const uint16_t port)
 {
-  rtspclient_ = boost::make_shared< rtsp::Client<ManageTrackWindow> >(shared_from_this(), MainWindow::Instance()->GetGUIIOService(), boost::posix_time::seconds(10), boost::posix_time::seconds(60));
+  rtspclient_ = boost::make_shared< rtsp::Client<ManageTrackWindow> >(shared_from_this(), mutex_, MainWindow::Instance()->GetGUIIOService(), boost::posix_time::seconds(10), boost::posix_time::seconds(60));
   rtspclient_->Init(sock::ProxyParams(sock::PROXYTYPE_HTTP, device_->GetAddress().toStdString(), device_->GetPort(), true, device_->GetUsername().toStdString(), device_->GetPassword().toStdString()), host, port, ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString());
 
   ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">RTSP Connecting</font><br/>");

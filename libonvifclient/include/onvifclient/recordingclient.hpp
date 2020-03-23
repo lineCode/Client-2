@@ -342,11 +342,33 @@ class StopExportRecordedDataResponse : public Response<RecordingClient>
 
 class RecordingClient : public Client<RECORDINGOPERATION>, public boost::enable_shared_from_this<RecordingClient>
 {
+  friend Signal<RECORDINGOPERATION, RecordingClient, CreateRecordingResponse, RecordingConfiguration>;
+  friend Signal<RECORDINGOPERATION, RecordingClient, CreateRecordingJobResponse, RecordingJobConfiguration>;
+  friend Signal<RECORDINGOPERATION, RecordingClient, CreateTrackResponse, std::string, TrackConfiguration>;
+  friend Signal<RECORDINGOPERATION, RecordingClient, DeleteRecordingResponse, std::string>;
+  friend Signal<RECORDINGOPERATION, RecordingClient, DeleteRecordingJobResponse, std::string>;
+  friend Signal<RECORDINGOPERATION, RecordingClient, DeleteTrackResponse, std::string, std::string>;
+  friend Signal<RECORDINGOPERATION, RecordingClient, ExportRecordedDataResponse, ws::DateTime, ws::DateTime, SearchScope, std::string, StorageReferencePath>;
+  friend Signal<RECORDINGOPERATION, RecordingClient, GetExportRecordedDataStateResponse, std::string>;
+  friend Signal<RECORDINGOPERATION, RecordingClient, GetRecordingConfigurationResponse, std::string>;
+  friend Signal<RECORDINGOPERATION, RecordingClient, GetRecordingJobConfigurationResponse, std::string>;
+  friend Signal< RECORDINGOPERATION, RecordingClient, GetRecordingJobsResponse>;
+  friend Signal<RECORDINGOPERATION, RecordingClient, GetRecordingJobStateResponse, std::string>;
+  friend Signal<RECORDINGOPERATION, RecordingClient, GetRecordingOptionsResponse, std::string>;
+  friend Signal<RECORDINGOPERATION, RecordingClient, GetRecordingsResponse>;
+  friend Signal<RECORDINGOPERATION, RecordingClient, GetServiceCapabilitiesResponse>;
+  friend Signal<RECORDINGOPERATION, RecordingClient, GetTrackConfigurationResponse, std::string, std::string>;
+  friend Signal<RECORDINGOPERATION, RecordingClient, SetRecordingConfigurationResponse, std::string, RecordingConfiguration>;
+  friend Signal<RECORDINGOPERATION, RecordingClient, SetRecordingJobConfigurationResponse, std::string, RecordingJobConfiguration>;
+  friend Signal<RECORDINGOPERATION, RecordingClient, SetRecordingJobModeResponse, std::string, RECORDINGJOBMODE>;
+  friend Signal<RECORDINGOPERATION, RecordingClient, SetTrackConfigurationResponse, std::string, std::string, TrackConfiguration>;
+  friend Signal<RECORDINGOPERATION, RecordingClient, StopExportRecordedDataResponse, std::string>;
+
  public:
   
   using Client::Update;
 
-  RecordingClient(std::recursive_mutex& mutex);
+  RecordingClient(const boost::shared_ptr<std::recursive_mutex>& mutex);
   virtual ~RecordingClient();
 
   virtual void Destroy() override;

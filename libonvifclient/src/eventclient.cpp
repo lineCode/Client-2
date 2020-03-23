@@ -25,11 +25,12 @@ class EventSignals
   Signal<EVENTOPERATION, EventClient, GetEventPropertiesResponse> geteventproperties_;
   Signal<EVENTOPERATION, EventClient, GetServiceCapabilitiesResponse> getservicecapabilities_;
   Signal<EVENTOPERATION, EventClient, PullMessagesResponse, onvif::Duration, int> pullmessages_;
+
 };
 
 ///// Methods /////
 
-EventClient::EventClient(std::recursive_mutex& mutex) :
+EventClient::EventClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
   signals_(new EventSignals(
   {

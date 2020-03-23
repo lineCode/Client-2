@@ -27,7 +27,7 @@ class AnalyticsSignals
 
 ///// Methods /////
 
-AnalyticsClient::AnalyticsClient(std::recursive_mutex& mutex) :
+AnalyticsClient::AnalyticsClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
   signals_(new AnalyticsSignals(
   {

@@ -34,7 +34,7 @@ class ReceiverSignals
 
 ///// Methods /////
 
-ReceiverClient::ReceiverClient(std::recursive_mutex& mutex) :
+ReceiverClient::ReceiverClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
   signals_(new ReceiverSignals(
   {

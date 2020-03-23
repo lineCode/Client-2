@@ -28,7 +28,7 @@ class ReplaySignals
 
 ///// Methods /////
 
-ReplayClient::ReplayClient(std::recursive_mutex& mutex) :
+ReplayClient::ReplayClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
   signals_(new ReplaySignals(
   {

@@ -1084,11 +1084,91 @@ class SetUserResponse : public Response<DeviceClient>
 
 class DeviceClient : public Client<DEVICEOPERATION>, public boost::enable_shared_from_this<DeviceClient>
 {
+  friend Signal< DEVICEOPERATION, DeviceClient, AddIPAddressFilterResponse, IPAddressFilter>;
+  friend Signal< DEVICEOPERATION, DeviceClient, AddScopesResponse, std::vector<std::string> >;
+  friend Signal< DEVICEOPERATION, DeviceClient, CreateCertificateResponse, boost::optional<std::string>, boost::optional<std::string>, boost::optional<onvif::ws::DateTime>, boost::optional<onvif::ws::DateTime> >;
+  friend Signal< DEVICEOPERATION, DeviceClient, CreateStorageConfigurationResponse, StorageConfigurationData>;
+  friend Signal< DEVICEOPERATION, DeviceClient, CreateUsersResponse, std::vector<User> >;
+  friend Signal< DEVICEOPERATION, DeviceClient, DeleteCertificatesResponse, std::vector<std::string> >;
+  friend Signal< DEVICEOPERATION, DeviceClient, DeleteDot1XConfigurationResponse, std::vector<std::string> >;
+  friend Signal< DEVICEOPERATION, DeviceClient, DeleteStorageConfigurationResponse, std::vector<std::string> >;
+  friend Signal< DEVICEOPERATION, DeviceClient, DeleteUsersResponse, std::vector<std::string> >;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetAccessPolicyResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetCACertificatesResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetCapabilitiesResponse, CAPABILITYCATEGORY>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetCertificateInformationResponse, std::string>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetCertificatesResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetCertificatesStatusResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetClientCertificateModeResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetDeviceInformationResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetDiscoveryModeResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetDNSResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetDot11CapabilitiesResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetDot11StatusResponse, std::string>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetDot1XConfigurationResponse, std::string>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetDot1XConfigurationsResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetDPAddressesResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetDynamicDNSResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetEndpointReferenceResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetHostnameResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetIPAddressFilterResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetNetworkDefaultGatewayResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetNetworkInterfacesResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetNetworkProtocolsResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetPkcs10RequestResponse, std::string, boost::optional<std::string>, boost::optional<BinaryData> >;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetRelayOutputsResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetNTPResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetRemoteDiscoveryModeResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetRemoteUserResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetScopesResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetServiceCapabilitiesResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetServicesResponse, bool>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetStorageConfigurationResponse, std::string>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetStorageConfigurationsResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetSystemBackupResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetSystemDateAndTimeResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetSystemLogResponse, SYSTEMLOGTYPE>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetSystemSupportInformationResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetSystemUrisResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetUsersResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetWsdlUrlResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, GetZeroConfigurationResponse>;
+  friend Signal< DEVICEOPERATION, DeviceClient, LoadCACertificatesResponse, std::vector<Certificate> >;
+  friend Signal< DEVICEOPERATION, DeviceClient, LoadCertificatesResponse, std::vector<Certificate> >;
+  friend Signal< DEVICEOPERATION, DeviceClient, LoadCertificateWithPrivateKeyResponse, std::vector<CertificateWithPrivateKey> >;
+  friend Signal< DEVICEOPERATION, DeviceClient, RemoveIPAddressFilterResponse, IPAddressFilter>;
+  friend Signal< DEVICEOPERATION, DeviceClient, RemoveScopesResponse, std::vector<std::string> >;
+  friend Signal< DEVICEOPERATION, DeviceClient, RestoreSystemResponse, std::vector<BackupFile> >;
+  friend Signal< DEVICEOPERATION, DeviceClient, ScanAvailableDot11NetworksResponse, std::string>;
+  friend Signal< DEVICEOPERATION, DeviceClient, SendAuxiliaryCommandResponse, std::string>;
+  friend Signal< DEVICEOPERATION, DeviceClient, SetAccessPolicyResponse, BinaryData>;
+  friend Signal< DEVICEOPERATION, DeviceClient, SetCertificatesStatusResponse, std::vector<CertificateStatus> >;
+  friend Signal< DEVICEOPERATION, DeviceClient, SetClientCertificateModeResponse, bool>;
+  friend Signal< DEVICEOPERATION, DeviceClient, SetDiscoveryModeResponse, DISCOVERYMODE>;
+  friend Signal< DEVICEOPERATION, DeviceClient, SetDNSResponse, bool, std::vector<std::string>, std::vector<IPAddress> >;
+  friend Signal< DEVICEOPERATION, DeviceClient, SetDot1XConfigurationResponse, Dot1XConfiguration>;
+  friend Signal< DEVICEOPERATION, DeviceClient, SetDPAddressesResponse, std::vector<NetworkHost> >;
+  friend Signal< DEVICEOPERATION, DeviceClient, SetDynamicDNSResponse, DYNAMICDNSTYPE, boost::optional<std::string>, boost::optional<Duration> >;
+  friend Signal< DEVICEOPERATION, DeviceClient, SetHostnameResponse, std::string>;
+  friend Signal< DEVICEOPERATION, DeviceClient, SetHostnameFromDHCPResponse, bool>;
+  friend Signal< DEVICEOPERATION, DeviceClient, SetIPAddressFilterResponse, IPAddressFilter>;
+  friend Signal< DEVICEOPERATION, DeviceClient, SetNetworkDefaultGatewayResponse, std::vector<std::string>, std::vector<std::string> >;
+  friend Signal< DEVICEOPERATION, DeviceClient, SetNetworkInterfacesResponse, std::string, onvif::NetworkInterfaceSetConfiguration >;
+  friend Signal< DEVICEOPERATION, DeviceClient, SetNetworkProtocolsResponse, std::vector<NetworkProtocol> >;
+  friend Signal< DEVICEOPERATION, DeviceClient, SetNTPResponse, bool, std::vector<NetworkHost> >;
+  friend Signal< DEVICEOPERATION, DeviceClient, SetRelayOutputSettingsResponse, std::string, RelayOutputSettings>;
+  friend Signal< DEVICEOPERATION, DeviceClient, SetRemoteDiscoveryModeResponse, DISCOVERYMODE>;
+  friend Signal< DEVICEOPERATION, DeviceClient, SetSystemDateAndTimeResponse, DATETIMETYPE, bool, boost::optional<TimeZone>, boost::optional<DateTime> >;
+  friend Signal< DEVICEOPERATION, DeviceClient, SetSystemFactoryDefaultResponse, FACTORYDEFAULTTYPE> ;
+  friend Signal< DEVICEOPERATION, DeviceClient, SetUserResponse, std::vector<User> >;
+  friend Signal< DEVICEOPERATION, DeviceClient, SetZeroConfigurationResponse, std::string, bool>;
+  friend Signal< DEVICEOPERATION, DeviceClient, SystemRebootResponse>;
+
  public:
   
   using Client::Update;
 
-  DeviceClient(std::recursive_mutex& mutex);
+  DeviceClient(const boost::shared_ptr<std::recursive_mutex>& mutex);
   virtual ~DeviceClient();
 
   virtual void Destroy() override;

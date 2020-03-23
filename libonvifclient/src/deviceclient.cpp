@@ -109,7 +109,7 @@ class DeviceSignals
 
 ///// Methods /////
 
-DeviceClient::DeviceClient(std::recursive_mutex& mutex) :
+DeviceClient::DeviceClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
   signals_(new DeviceSignals(
   {

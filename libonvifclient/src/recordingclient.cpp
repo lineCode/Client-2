@@ -47,7 +47,7 @@ class RecordingSignals
 
 ///// Methods /////
 
-RecordingClient::RecordingClient(std::recursive_mutex& mutex) :
+RecordingClient::RecordingClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
   signals_(new RecordingSignals(
   {

@@ -46,7 +46,7 @@ class DeviceIOSignals
 
 ///// Methods /////
 
-DeviceIOClient::DeviceIOClient(std::recursive_mutex& mutex) :
+DeviceIOClient::DeviceIOClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
   signals_(new DeviceIOSignals(
   {

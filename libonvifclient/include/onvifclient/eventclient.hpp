@@ -88,7 +88,7 @@ class GetServiceCapabilitiesResponse : public Response<EventClient>
 
 class PullMessagesResponse : public Response<EventClient>
 {
-public:
+ public:
 
   PullMessagesResponse(boost::shared_ptr<EventClient> client, const boost::asio::ip::address& localendpoint, int64_t latency, const std::string& message, const onvif::Duration& timeout, const int messagelimit);
   PullMessagesResponse(boost::shared_ptr<EventClient> client, const boost::asio::ip::address& localendpoint, int64_t latency, const std::string& message, const onvif::Duration& timeout, const int messagelimit, const boost::optional<onvif::DateTime>& currenttime, const boost::optional<onvif::DateTime>& terminationtime, const std::vector<Element>& notificationmessage);
@@ -105,11 +105,16 @@ public:
 
 class EventClient : public Client<EVENTOPERATION>, public boost::enable_shared_from_this<EventClient>
 {
+  friend Signal< EVENTOPERATION, EventClient, CreatePullPointSubscriptionResponse, boost::optional<std::string>, boost::optional<std::string>, boost::optional<std::string> >;
+  friend Signal<EVENTOPERATION, EventClient, GetEventPropertiesResponse>;
+  friend Signal<EVENTOPERATION, EventClient, GetServiceCapabilitiesResponse>;
+  friend Signal<EVENTOPERATION, EventClient, PullMessagesResponse, onvif::Duration, int>;
+
  public:
   
   using Client::Update;
 
-  EventClient(std::recursive_mutex& mutex);
+  EventClient(const boost::shared_ptr<std::recursive_mutex>& mutex);
   virtual ~EventClient();
 
   virtual void Destroy() override;

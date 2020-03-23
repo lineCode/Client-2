@@ -89,11 +89,12 @@ class MediaSignals
   Signal< MEDIAOPERATION, MediaClient, SetVideoSourceConfigurationResponse, VideoSourceConfiguration> setvideosourceconfiguration_;
   Signal< MEDIAOPERATION, MediaClient, StartMulticastStreamingResponse, std::string> startmulticaststreaming_;
   Signal< MEDIAOPERATION, MediaClient, StopMulticastStreamingResponse, std::string> stopmulticaststreaming_;
+
 };
 
 ///// Methods /////
 
-MediaClient::MediaClient(std::recursive_mutex& mutex) :
+MediaClient::MediaClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
   signals_(new MediaSignals(
   {

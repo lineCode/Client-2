@@ -27,7 +27,7 @@ class SearchSignals
 
 ///// Methods /////
 
-SearchClient::SearchClient(std::recursive_mutex& mutex) :
+SearchClient::SearchClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
   signals_(new SearchSignals(
   {

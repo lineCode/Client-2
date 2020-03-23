@@ -189,8 +189,8 @@ void ManageTrackFindONVIFDeviceWindow::on_buttontest_clicked()
     }
   }
 
-  deviceclient_ = boost::make_shared<onvif::device::DeviceClient>(mutex_);
-  mediaclient_ = boost::make_shared<onvif::media::MediaClient>(mutex_);
+  deviceclient_ = boost::make_shared<onvif::device::DeviceClient>(boost::make_shared<std::recursive_mutex>());
+  mediaclient_ = boost::make_shared<onvif::media::MediaClient>(boost::make_shared<std::recursive_mutex>());
   if (deviceclient_->Init(sock::ProxyParams(sock::PROXYTYPE_HTTP, device_->GetAddress().toStdString(), device_->GetPort(), true, device_->GetUsername().toStdString(), device_->GetPassword().toStdString()), ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), 1, false, true))
   {
     ui_.labeltestoutput->setText(ui_.labeltestoutput->text() + "<font color=\"red\">Failed to initialise ONVIF Device Client</font><br/>");

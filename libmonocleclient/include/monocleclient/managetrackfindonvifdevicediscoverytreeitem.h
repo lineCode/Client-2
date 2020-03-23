@@ -7,7 +7,6 @@
 ///// Includes /////
 
 #include <memory>
-#include <mutex>
 #include <onvifclient/connection.hpp>
 #include <QTreeWidgetItem>
 
@@ -72,7 +71,6 @@ class ManageTrackFindONVIFDeviceDiscoveryTreeItem : public QTreeWidgetItem
   std::string username_;
   std::string password_;
 
-  std::recursive_mutex mutex_;
   boost::shared_ptr<onvif::device::DeviceClient> onvifdevice_;
   boost::shared_ptr<onvif::media::MediaClient> onvifmedia_;
 

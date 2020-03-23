@@ -91,11 +91,16 @@ class SetImagingSettingsResponse : public Response<ImagingClient>
 
 class ImagingClient : public Client<IMAGINGOPERATION>, public boost::enable_shared_from_this<ImagingClient>
 {
+  friend Signal<IMAGINGOPERATION, ImagingClient, GetImagingSettingsResponse, std::string>;
+  friend Signal<IMAGINGOPERATION, ImagingClient, GetOptionsResponse, std::string>;
+  friend Signal<IMAGINGOPERATION, ImagingClient, GetServiceCapabilitiesResponse>;
+  friend Signal<IMAGINGOPERATION, ImagingClient, SetImagingSettingsResponse, std::string, ImagingSettings20, bool>;
+
  public:
   
   using Client::Update;
 
-  ImagingClient(std::recursive_mutex& mutex);
+  ImagingClient(const boost::shared_ptr<std::recursive_mutex>& mutex);
   virtual ~ImagingClient();
 
   virtual void Destroy() override;

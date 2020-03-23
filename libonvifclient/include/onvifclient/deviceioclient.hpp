@@ -319,11 +319,32 @@ class SetSerialPortConfigurationResponse : public Response<DeviceIOClient>
 
 class DeviceIOClient : public Client<DEVICEIOOPERATION>, public boost::enable_shared_from_this<DeviceIOClient>
 {
+  friend Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputConfigurationResponse, std::string>;
+  friend Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputConfigurationOptionsResponse, std::string>;
+  friend Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputsResponse>;
+  friend Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourceConfigurationResponse, std::string>;
+  friend Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourceConfigurationOptionsResponse, std::string>;
+  friend Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourcesResponse>;
+  friend Signal<DEVICEIOOPERATION, DeviceIOClient, GetDigitalInputConfigurationOptionsResponse, std::string>;
+  friend Signal<DEVICEIOOPERATION, DeviceIOClient, GetDigitalInputsResponse>;
+  friend Signal<DEVICEIOOPERATION, DeviceIOClient, GetRelayOutputsResponse>;
+  friend Signal<DEVICEIOOPERATION, DeviceIOClient, GetRelayOutputOptionsResponse, std::string>;
+  friend Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortConfigurationResponse, std::string>;
+  friend Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortConfigurationOptionsResponse, std::string>;
+  friend Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortsResponse>;
+  friend Signal<DEVICEIOOPERATION, DeviceIOClient, GetServiceCapabilitiesResponse>;
+  friend Signal<DEVICEIOOPERATION, DeviceIOClient, SetAudioOutputConfigurationResponse, AudioOutputConfiguration, bool>;
+  friend Signal<DEVICEIOOPERATION, DeviceIOClient, SetAudioSourceConfigurationResponse, AudioSourceConfiguration, bool>;
+  friend Signal< DEVICEIOOPERATION, DeviceIOClient, SetDigitalInputConfigurationsResponse, std::vector<DigitalInput> >;
+  friend Signal<DEVICEIOOPERATION, DeviceIOClient, SetRelayOutputSettingsResponse, RelayOutput>;
+  friend Signal<DEVICEIOOPERATION, DeviceIOClient, SetRelayOutputStateResponse, std::string, RELAYLOGICALSTATE>;
+  friend Signal<DEVICEIOOPERATION, DeviceIOClient, SetSerialPortConfigurationResponse, SerialPortConfiguration, bool>;
+
  public:
   
   using Client::Update;
 
-  DeviceIOClient(std::recursive_mutex& mutex);
+  DeviceIOClient(const boost::shared_ptr<std::recursive_mutex>& mutex);
   virtual ~DeviceIOClient();
 
   virtual void Destroy() override;

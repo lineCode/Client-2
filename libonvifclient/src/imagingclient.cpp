@@ -25,11 +25,12 @@ class ImagingSignals
   Signal<IMAGINGOPERATION, ImagingClient, GetOptionsResponse, std::string> getoptions_;
   Signal<IMAGINGOPERATION, ImagingClient, GetServiceCapabilitiesResponse> getservicecapabilities_;
   Signal<IMAGINGOPERATION, ImagingClient, SetImagingSettingsResponse, std::string, ImagingSettings20, bool> setimagingsettings_;
+
 };
 
 ///// Methods /////
 
-ImagingClient::ImagingClient(std::recursive_mutex& mutex) :
+ImagingClient::ImagingClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
   signals_(new ImagingSignals(
   {

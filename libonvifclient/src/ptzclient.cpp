@@ -35,7 +35,7 @@ class PTZSignals
 
 ///// Methods /////
 
-PTZClient::PTZClient(std::recursive_mutex& mutex) :
+PTZClient::PTZClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
   signals_(new PTZSignals(
   {

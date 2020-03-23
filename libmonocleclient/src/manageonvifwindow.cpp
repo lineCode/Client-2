@@ -38,11 +38,11 @@ ManageONVIFWindow::ManageONVIFWindow(QWidget* parent, const sock::ProxyParams& p
   mediauri_(mediauri),
   username_(username),
   password_(password),
-  onvifanalytics_(boost::make_shared<onvif::analytics::AnalyticsClient>(mutex_)),
-  onvifdevice_(boost::make_shared<onvif::device::DeviceClient>(mutex_)),
-  onvifevent_(boost::make_shared<onvif::event::EventClient>(mutex_)),
-  onvifmedia_(boost::make_shared<onvif::media::MediaClient>(mutex_)),
-  onvifptz_(boost::make_shared<onvif::ptz::PTZClient>(mutex_))
+  onvifanalytics_(boost::make_shared<onvif::analytics::AnalyticsClient>(boost::make_shared<std::recursive_mutex>())),
+  onvifdevice_(boost::make_shared<onvif::device::DeviceClient>(boost::make_shared<std::recursive_mutex>())),
+  onvifevent_(boost::make_shared<onvif::event::EventClient>(boost::make_shared<std::recursive_mutex>())),
+  onvifmedia_(boost::make_shared<onvif::media::MediaClient>(boost::make_shared<std::recursive_mutex>())),
+  onvifptz_(boost::make_shared<onvif::ptz::PTZClient>(boost::make_shared<std::recursive_mutex>()))
 {
   ui_.setupUi(this);
 
