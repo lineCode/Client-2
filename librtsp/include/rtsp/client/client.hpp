@@ -1251,6 +1251,7 @@ class Client : public boost::enable_shared_from_this< Client<T> >
 
   boost::shared_ptr<T> rtpcallbackdataobject_;
   boost::shared_ptr<std::recursive_mutex> mutex_;
+
   boost::asio::io_service& io_;
   boost::asio::io_service::strand strand_;
 
