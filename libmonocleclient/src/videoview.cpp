@@ -47,6 +47,7 @@ namespace client
 
 VideoView::VideoView(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool showinfo, const bool showobjects, boost::shared_ptr<client::Device> device, QSharedPointer<client::Recording> recording, QSharedPointer<client::RecordingTrack> track, const QResource* arial) :
   View(videowidget, cudacontext, selectedcolour, x, y, width, height, rotation, mirror, stretch, showinfo, showobjects, arial, true, true, true, true),
+  mutex_(boost::make_shared<std::recursive_mutex>()),
   device_(device),
   recording_(recording),
   track_(track),
@@ -790,10 +791,10 @@ void VideoView::ConnectONVIF(const QSharedPointer<client::Receiver>& receiver)
 
   const std::string profile = profiletokens[0].toStdString();
 
-  onvifdevice_ = boost::make_shared<onvif::device::DeviceClient>(boost::make_shared<std::recursive_mutex>());
-  onvifevent_ = boost::make_shared<onvif::event::EventClient>(boost::make_shared<std::recursive_mutex>());
-  onvifmedia_ = boost::make_shared<onvif::media::MediaClient>(boost::make_shared<std::recursive_mutex>());
-  onvifptz_ = boost::make_shared<onvif::ptz::PTZClient>(boost::make_shared<std::recursive_mutex>());
+  onvifdevice_ = boost::make_shared<onvif::device::DeviceClient>(mutex_);
+  onvifevent_ = boost::make_shared<onvif::event::EventClient>(mutex_);
+  onvifmedia_ = boost::make_shared<onvif::media::MediaClient>(mutex_);
+  onvifptz_ = boost::make_shared<onvif::ptz::PTZClient>(mutex_);
   const std::string receiverusername = receiver->GetUsername().toStdString();
   const std::string receiverpassword = receiver->GetPassword().toStdString();
 

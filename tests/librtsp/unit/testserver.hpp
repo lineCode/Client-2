@@ -37,6 +37,8 @@ class TestServer : public testing::Test
   TestServer();
   virtual ~TestServer();
 
+  std::recursive_mutex& GetMutex() { return mutex_; }
+
  protected:
 
   static void SetUpTestCase();
@@ -44,6 +46,8 @@ class TestServer : public testing::Test
 
   virtual void SetUp();
   virtual void TearDown();
+
+  std::recursive_mutex mutex_;
 
   static const std::string url_;
 
