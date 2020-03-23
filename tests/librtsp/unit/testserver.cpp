@@ -87,7 +87,7 @@ void TestServer::SetUpTestCase()
   // Connect to server
   std::promise<void> promise;
   std::future<void> future = promise.get_future();
-  client_ = boost::make_shared< Client<TestServer> >(shared_from_this(), ioservicepool_.GetIoService(), boost::posix_time::seconds(10), boost::posix_time::seconds(60));//TODO we need to create a client class which is enable_shared_from_this
+  client_ = boost::make_shared< Client<TestServer> >(nullptr, boost::make_shared<std::recursive_mutex>(), ioservicepool_.GetIoService(), boost::posix_time::seconds(10), boost::posix_time::seconds(60));
   client_->Init(sock::ProxyParams(), std::string("127.0.0.1"), PORT, USERNAME, PASSWORD);
   sock::Connection connection = client_->Connect([&promise](const boost::system::error_code& err)
   {
