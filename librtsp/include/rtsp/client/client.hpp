@@ -95,8 +95,8 @@ class Client : public boost::enable_shared_from_this< Client<T> >
   friend class client::Signal<Client, SetupResponse>;
   friend class client::Signal<Client, TeardownResponse>;
 
-  Client(std::recursive_mutex& mutex, boost::asio::io_service& io, const boost::posix_time::seconds& timeout, const boost::posix_time::seconds& maxkeepalive) :
-    mutex_(mutex),
+  Client(const boost::shared_ptr<T>& rtpcallbackdataobject, boost::asio::io_service& io, const boost::posix_time::seconds& timeout, const boost::posix_time::seconds& maxkeepalive) :
+    rtpcallbackdataobject_(rtpcallbackdataobject),
     asyncread_("(?:\\$|RTSP\\/1\\.0)"),
     ssrc_(rand()),
     io_(io),
@@ -129,18 +129,16 @@ class Client : public boost::enable_shared_from_this< Client<T> >
   {
     Destroy();
 
-    {
-      std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(rtpcallbackdataobject_->GetMutex());
 
-      proxyparams_ = proxyparams;
-      host_ = host;
-      port_ = port;
+    proxyparams_ = proxyparams;
+    host_ = host;
+    port_ = port;
 
-      username_ = username;
-      password_ = password;
-      realm_.clear();
-      nonce_.clear();
-    }
+    username_ = username;
+    password_ = password;
+    realm_.clear();
+    nonce_.clear();
   }
 
   void Destroy()
@@ -149,7 +147,7 @@ class Client : public boost::enable_shared_from_this< Client<T> >
 
     {
       // Kill all requests while notifying all listeners that it has been aborted
-      std::lock_guard<std::recursive_mutex> lock(mutex_);
+      std::lock_guard<std::recursive_mutex> lock(rtpcallbackdataobject_->GetMutex());
 
       describesignal_.Destroy();
       getparametersignal_.Destroy();
@@ -199,7 +197,7 @@ class Client : public boost::enable_shared_from_this< Client<T> >
 
   sock::Connection Connect(const boost::function<void(const boost::system::error_code&)> connectcallback, const boost::function<void()> disconnectcallback)
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(rtpcallbackdataobject_->GetMutex());
 
     disconnectcallback_ = disconnectcallback;
 
@@ -251,7 +249,7 @@ class Client : public boost::enable_shared_from_this< Client<T> >
 
   void Disconnect()
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(rtpcallbackdataobject_->GetMutex());
 
     boost::system::error_code err;
     disconnectcallback_.clear();
@@ -294,9 +292,9 @@ class Client : public boost::enable_shared_from_this< Client<T> >
     Request(SetParameterRequest(url, session, parameters));
   }
 
-  void Setup(const std::string& url, sdp::ADDRESSTYPE addresstype, headers::PROTOCOLTYPE protocoltype, headers::ROUTINGTYPE routingtype, headers::MODE mode, double rtptimestampfrequency, KEEPALIVEMODE keepalivemode, const std::string& keepaliveurl, RtpCallback rtpcallback, const boost::shared_ptr<T>& rtpcallbackdataobject, RtcpCallback rtcpcallback)
+  void Setup(const std::string& url, sdp::ADDRESSTYPE addresstype, headers::PROTOCOLTYPE protocoltype, headers::ROUTINGTYPE routingtype, headers::MODE mode, double rtptimestampfrequency, KEEPALIVEMODE keepalivemode, const std::string& keepaliveurl, RtpCallback rtpcallback, RtcpCallback rtcpcallback)
   {
-    const auto setuprequest = SetupRequest(url, addresstype, protocoltype, routingtype, mode, rtptimestampfrequency, keepalivemode, keepaliveurl, rtpcallback, rtpcallbackdataobject, rtcpcallback);
+    const auto setuprequest = SetupRequest(url, addresstype, protocoltype, routingtype, mode, rtptimestampfrequency, keepalivemode, keepaliveurl, rtpcallback, rtcpcallback);
     if (setuprequest.is_initialized())
     {
       Request(*setuprequest);
@@ -339,9 +337,9 @@ class Client : public boost::enable_shared_from_this< Client<T> >
     return setparametersignal_.CreateFuture(SetParameterRequest(url, session, parameters));
   }
 
-  std::future<SetupResponse> SetupFuture(const std::string& url, sdp::ADDRESSTYPE addresstype, headers::PROTOCOLTYPE protocoltype, headers::ROUTINGTYPE routingtype, headers::MODE mode, double rtptimestampfrequency, KEEPALIVEMODE keepalivemode, const std::string& keepaliveurl, RtpCallback rtpcallback, const boost::shared_ptr<T>& rtpcallbackdataobject, void* rtpcallbackdata, RtcpCallback rtcpcallback)
+  std::future<SetupResponse> SetupFuture(const std::string& url, sdp::ADDRESSTYPE addresstype, headers::PROTOCOLTYPE protocoltype, headers::ROUTINGTYPE routingtype, headers::MODE mode, double rtptimestampfrequency, KEEPALIVEMODE keepalivemode, const std::string& keepaliveurl, RtpCallback rtpcallback, void* rtpcallbackdata, RtcpCallback rtcpcallback)
   {
-    const auto setuprequest = SetupRequest(url, addresstype, protocoltype, routingtype, mode, rtptimestampfrequency, keepalivemode, keepaliveurl, rtpcallback, rtpcallbackdataobject, rtpcallbackdata, rtcpcallback);
+    const auto setuprequest = SetupRequest(url, addresstype, protocoltype, routingtype, mode, rtptimestampfrequency, keepalivemode, keepaliveurl, rtpcallback, rtpcallbackdata, rtcpcallback);
     if (!setuprequest.is_initialized())
     {
       std::promise<SetupResponse> promise;
@@ -388,9 +386,9 @@ class Client : public boost::enable_shared_from_this< Client<T> >
     return setparametersignal_.CreateCallback(SetParameterRequest(url, session, parameters), callback);
   }
 
-  client::Connection SetupCallback(const std::string& url, sdp::ADDRESSTYPE addresstype, headers::PROTOCOLTYPE protocoltype, headers::ROUTINGTYPE routingtype, headers::MODE mode, double rtptimestampfrequency, KEEPALIVEMODE keepalivemode, const std::string& keepaliveurl, RtpCallback rtpcallback, const boost::shared_ptr<T>& rtpcallbackdataobject, void* rtpcallbackdata, RtcpCallback rtcpcallback, typename client::Signal<Client<T>, SetupResponse>::CallbackType callback)
+  client::Connection SetupCallback(const std::string& url, sdp::ADDRESSTYPE addresstype, headers::PROTOCOLTYPE protocoltype, headers::ROUTINGTYPE routingtype, headers::MODE mode, double rtptimestampfrequency, KEEPALIVEMODE keepalivemode, const std::string& keepaliveurl, RtpCallback rtpcallback, void* rtpcallbackdata, RtcpCallback rtcpcallback, typename client::Signal<Client<T>, SetupResponse>::CallbackType callback)
   {
-    const auto setuprequest = SetupRequest(url, addresstype, protocoltype, routingtype, mode, rtptimestampfrequency, keepalivemode, keepaliveurl, rtpcallback, rtpcallbackdataobject, rtpcallbackdata, rtcpcallback);
+    const auto setuprequest = SetupRequest(url, addresstype, protocoltype, routingtype, mode, rtptimestampfrequency, keepalivemode, keepaliveurl, rtpcallback, rtpcallbackdata, rtcpcallback);
     if (!setuprequest.is_initialized())
     {
       callback(boost::system::errc::make_error_code(boost::system::errc::protocol_error), SetupResponse());
@@ -461,7 +459,7 @@ class Client : public boost::enable_shared_from_this< Client<T> >
 
   void SetUsernamePassword(const std::string& username, const std::string& password)
   {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(rtpcallbackdataobject_->GetMutex());
     username_ = username;
     password_ = password;
   }
@@ -637,15 +635,11 @@ class Client : public boost::enable_shared_from_this< Client<T> >
 
   boost::signals2::signal<void(const boost::posix_time::time_duration&)>& GetLatencySignal() { return latencysignal_; }
 
- protected:
-
-  std::recursive_mutex& mutex_;
-
  private:
 
   void DisconnectCallback()
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(rtpcallbackdataobject_->GetMutex());
     if (disconnectcallback_)
     {
       disconnectcallback_();
@@ -655,43 +649,43 @@ class Client : public boost::enable_shared_from_this< Client<T> >
 
   std::pair<uint64_t, RtspRequest> DescribeRequest(const std::string& url)
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(rtpcallbackdataobject_->GetMutex());
     return std::make_pair(currentcseq_, RtspRequest(headers::REQUESTTYPE_DESCRIBE, url, ++currentcseq_, headers::CONTENTTYPE_APPLICATIONSDP, std::string(), std::string(), boost::none, boost::none, boost::none, headers::CONTENTTYPE_INVALID, boost::none, std::vector<std::string>(), headers::Parameters(), KEEPALIVEMODE_NONE, std::string(), authenticationtype_, url, username_, realm_, nonce_));
   }
 
   std::pair<uint64_t, RtspRequest> GetParameterRequest(const std::string& url, const std::string& session, const std::vector<std::string>& parameters)
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(rtpcallbackdataobject_->GetMutex());
     return std::make_pair(currentcseq_, RtspRequest(headers::REQUESTTYPE_GETPARAMETER, url, ++currentcseq_, headers::CONTENTTYPE_INVALID, std::string(), session, boost::none, boost::none, boost::none, headers::CONTENTTYPE_TEXTPARAMETERS, boost::none, parameters, headers::Parameters(), KEEPALIVEMODE_NONE, std::string(), authenticationtype_, url, username_, realm_, nonce_));
   }
 
   std::pair<uint64_t, RtspRequest> OptionsRequest(const std::string& url)
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(rtpcallbackdataobject_->GetMutex());
     return std::make_pair(currentcseq_, RtspRequest(headers::REQUESTTYPE_OPTIONS, url, ++currentcseq_, headers::CONTENTTYPE_INVALID, std::string(), std::string(), boost::none, boost::none, boost::none, headers::CONTENTTYPE_INVALID, boost::none, std::vector<std::string>(), headers::Parameters(), KEEPALIVEMODE_NONE, std::string(), authenticationtype_, url, username_, realm_, nonce_));
   }
 
   std::pair<uint64_t, RtspRequest> PauseRequest(const std::string& url, const std::string& session)
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(rtpcallbackdataobject_->GetMutex());
     return std::make_pair(currentcseq_, RtspRequest(headers::REQUESTTYPE_PAUSE, url, ++currentcseq_, headers::CONTENTTYPE_INVALID, std::string(), session, headers::Range(), boost::none, boost::none, headers::CONTENTTYPE_INVALID, boost::none, std::vector<std::string>(), headers::Parameters(), KEEPALIVEMODE_NONE, std::string(), authenticationtype_, url, username_, realm_, nonce_));
   }
 
   std::pair<uint64_t, RtspRequest> PlayRequest(const std::string& url, const std::string& session, const headers::Range& range)
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(rtpcallbackdataobject_->GetMutex());
     return std::make_pair(currentcseq_, RtspRequest(headers::REQUESTTYPE_PLAY, url, ++currentcseq_, headers::CONTENTTYPE_INVALID, std::string(), session, range, boost::none, boost::none, headers::CONTENTTYPE_INVALID, boost::none, std::vector<std::string>(), headers::Parameters(), KEEPALIVEMODE_NONE, std::string(), authenticationtype_, url, username_, realm_, nonce_));
   }
 
   std::pair<uint64_t, RtspRequest> SetParameterRequest(const std::string& url, const std::string& session, const std::vector<headers::Parameter>& parameters)
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(rtpcallbackdataobject_->GetMutex());
     return std::make_pair(currentcseq_, RtspRequest(headers::REQUESTTYPE_SETPARAMETER, url, ++currentcseq_, headers::CONTENTTYPE_INVALID, std::string(), session, boost::none, boost::none, boost::none, headers::CONTENTTYPE_TEXTPARAMETERS, boost::none, std::vector<std::string>(), parameters, KEEPALIVEMODE_NONE, std::string(), authenticationtype_, url, username_, realm_, nonce_));
   }
 
-  boost::optional< std::pair<uint64_t, RtspRequest> > SetupRequest(const std::string& url, sdp::ADDRESSTYPE addresstype, headers::PROTOCOLTYPE protocoltype, headers::ROUTINGTYPE routingtype, headers::MODE mode, double rtptimestampfrequency, KEEPALIVEMODE keepalivemode, const std::string& keepaliveurl, RtpCallback rtpcallback, const boost::shared_ptr<T>& rtpcallbackdataobject, void* rtpcallbackdata, RtcpCallback rtcpcallback)
+  boost::optional< std::pair<uint64_t, RtspRequest> > SetupRequest(const std::string& url, sdp::ADDRESSTYPE addresstype, headers::PROTOCOLTYPE protocoltype, headers::ROUTINGTYPE routingtype, headers::MODE mode, double rtptimestampfrequency, KEEPALIVEMODE keepalivemode, const std::string& keepaliveurl, RtpCallback rtpcallback, void* rtpcallbackdata, RtcpCallback rtcpcallback)
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(rtpcallbackdataobject_->GetMutex());
 
     const uint64_t id = ++currentcseq_;
     boost::shared_ptr< client::Session<T> > session = boost::make_shared< client::Session<T> >(id, io_);
@@ -700,7 +694,7 @@ class Client : public boost::enable_shared_from_this< Client<T> >
     std::pair< boost::optional<uint16_t>, boost::optional<uint16_t> > clientport;
     if (protocoltype == headers::PROTOCOLTYPE_TCP)
     {
-      boost::shared_ptr< InterleavedRtpClient<T> > rtpclient = CreateInterleavedRtpClient(rtptimestampfrequency, rtpcallback, rtpcallbackdataobject, rtpcallbackdata, rtcpcallback);
+      boost::shared_ptr< InterleavedRtpClient<T> > rtpclient = CreateInterleavedRtpClient(rtptimestampfrequency, rtpcallback, rtpcallbackdata, rtcpcallback);
       if (!rtpclient)
       {
 
@@ -714,7 +708,7 @@ class Client : public boost::enable_shared_from_this< Client<T> >
     {
       if (routingtype == headers::ROUTINGTYPE_UNICAST)
       {
-        boost::shared_ptr< UDPUnicastRtpClient<T> > rtpclient = boost::make_shared< UDPUnicastRtpClient<T> >(ssrc_, rtptimestampfrequency, rtpcallback, rtpcallbackdataobject, rtpcallbackdata, rtcpcallback, io_, strand_);
+        boost::shared_ptr< UDPUnicastRtpClient<T> > rtpclient = boost::make_shared< UDPUnicastRtpClient<T> >(ssrc_, rtptimestampfrequency, rtpcallback, rtpcallbackdataobject_, rtpcallbackdata, rtcpcallback, io_, strand_);
         if (rtpclient->Init(addresstype))
         {
 
@@ -726,7 +720,7 @@ class Client : public boost::enable_shared_from_this< Client<T> >
       }
       else if (routingtype == headers::ROUTINGTYPE_MULTICAST)
       {
-        session->udpmulticastcastrtpclient_ = boost::make_shared< UDPMulticastRtpClient<T> >(ssrc_, rtptimestampfrequency, rtpcallback, rtpcallbackdataobject, rtpcallbackdata, rtcpcallback, io_, strand_);
+        session->udpmulticastcastrtpclient_ = boost::make_shared< UDPMulticastRtpClient<T> >(ssrc_, rtptimestampfrequency, rtpcallback, rtpcallbackdataobject_, rtpcallbackdata, rtcpcallback, io_, strand_);
 
       }
       else
@@ -746,7 +740,7 @@ class Client : public boost::enable_shared_from_this< Client<T> >
 
   std::pair<uint64_t, RtspRequest> TeardownRequest(const std::string& url, const std::string& session)
   {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(rtpcallbackdataobject_->GetMutex());
     std::lock_guard<std::mutex> sessionslock(sessionsmutex_);
 
     // Destroy the session that matches this id
@@ -1064,14 +1058,14 @@ class Client : public boost::enable_shared_from_this< Client<T> >
     }
   }
 
-  boost::shared_ptr< InterleavedRtpClient<T> > CreateInterleavedRtpClient(double rtptimestampfrequency, RtpCallback rtpcallback, const boost::shared_ptr<T>& rtpcallbackdataobject, void* rtpcallbackdata, RtcpCallback rtcpcallback)
+  boost::shared_ptr< InterleavedRtpClient<T> > CreateInterleavedRtpClient(double rtptimestampfrequency, RtpCallback rtpcallback, void* rtpcallbackdata, RtcpCallback rtcpcallback)
   {
     // Find two free adjacent channels
     for (int i = 0; i < interleavedrtpclients_.size(); i += 2)
     {
       if (!interleavedrtpclients_.at(i) && !interleavedrtpclients_.at(i + 1))
       {
-        boost::shared_ptr< InterleavedRtpClient<T> > rtpclient = boost::make_shared< InterleavedRtpClient<T> >(ssrc_, rtptimestampfrequency, rtpcallback, rtpcallbackdataobject, rtpcallbackdata, rtcpcallback, i, i + 1);
+        boost::shared_ptr< InterleavedRtpClient<T> > rtpclient = boost::make_shared< InterleavedRtpClient<T> >(ssrc_, rtptimestampfrequency, rtpcallback, rtpcallbackdataobject_, rtpcallbackdata, rtcpcallback, i, i + 1);
         interleavedrtpclients_.at(i) = rtpclient;
         interleavedrtpclients_.at(i + 1) = rtpclient;
         return rtpclient;
@@ -1251,9 +1245,12 @@ class Client : public boost::enable_shared_from_this< Client<T> >
     return (*session);
   }
 
+  std::recursive_mutex& GetMutex() { return rtpcallbackdataobject_->GetMutex(); }
+
   const boost::regex asyncread_;
   const uint32_t ssrc_;
 
+  boost::shared_ptr<T> rtpcallbackdataobject_;
   boost::asio::io_service& io_;
   boost::asio::io_service::strand strand_;
 
