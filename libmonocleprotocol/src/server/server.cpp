@@ -89,16 +89,20 @@ void Server::Destroy()
 
 void Server::DestroyConnection(const boost::shared_ptr<Connection>& connection)
 {
-  std::lock_guard<std::mutex> lock(mutex_);
-  std::vector< boost::shared_ptr<Connection> >::iterator c = std::find(connections_.begin(), connections_.end(), connection);
-  if (c == connections_.end())
+  boost::shared_ptr<Connection> c;
   {
+    std::lock_guard<std::mutex> lock(mutex_);
+    std::vector< boost::shared_ptr<Connection> >::iterator i = std::find(connections_.begin(), connections_.end(), connection);
+    if (i == connections_.end())
+    {
 
-    return;
+      return;
+    }
+    c = *i;
+    connections_.erase(i);
   }
-  (*c)->Disconnected();
-  (*c)->Destroy();
-  connections_.erase(c);
+  c->Disconnected();
+  c->Destroy();
 }
 
 int Server::InitAcceptor(const boost::asio::ip::tcp protocol, const uint16_t port)
