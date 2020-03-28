@@ -29,6 +29,7 @@ class IoServicePool
 
   void Destroy();
   
+  inline size_t GetNumIoServices() const { return ioservices_.size(); }
   boost::asio::io_service& GetIoService(); // Round robin
 
  private:

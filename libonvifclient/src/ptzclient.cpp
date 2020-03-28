@@ -35,7 +35,8 @@ class PTZSignals
 
 ///// Methods /////
 
-PTZClient::PTZClient() :
+PTZClient::PTZClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
+  Client(mutex),
   signals_(new PTZSignals(
   {
     Signal<PTZOPERATION, PTZClient, ContinuousMoveResponse, std::string, PTZSpeed, Duration>(this, PTZOPERATION_CONTINUOUSMOVE, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/ContinuousMove"), false),

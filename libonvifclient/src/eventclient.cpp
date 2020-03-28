@@ -25,11 +25,13 @@ class EventSignals
   Signal<EVENTOPERATION, EventClient, GetEventPropertiesResponse> geteventproperties_;
   Signal<EVENTOPERATION, EventClient, GetServiceCapabilitiesResponse> getservicecapabilities_;
   Signal<EVENTOPERATION, EventClient, PullMessagesResponse, onvif::Duration, int> pullmessages_;
+
 };
 
 ///// Methods /////
 
-EventClient::EventClient() :
+EventClient::EventClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
+  Client(mutex),
   signals_(new EventSignals(
   {
     Signal< EVENTOPERATION, EventClient, CreatePullPointSubscriptionResponse, boost::optional<std::string>, boost::optional<std::string>, boost::optional<std::string> >(this, EVENTOPERATION_CREATEPULLPOINTSUBSCRIPTION, true, std::string("http://www.onvif.org/ver10/events/wsdl/EventPortType/CreatePullPointSubscriptionRequest"), true),

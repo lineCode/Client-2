@@ -275,7 +275,7 @@ void DeviceTreeDeviceItem::Disconnected()
 
 }
 
-void DeviceTreeDeviceItem::GuiOrderChanged(const std::vector< std::pair<uint64_t, uint64_t> >& recordingsorder, const std::vector< std::pair<uint64_t, uint64_t> >& mapsorder)
+void DeviceTreeDeviceItem::GuiOrderChanged(const std::vector<GUIORDER>& recordingsorder, const std::vector<GUIORDER>& mapsorder)
 {
 
 }

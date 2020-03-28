@@ -39,7 +39,7 @@ void TestClientStress::SetUpTestCase()
 
   ASSERT_FALSE(onvif::Init());
 
-  deviceclient_ = boost::make_shared<device::DeviceClient>();
+  deviceclient_ = boost::make_shared<device::DeviceClient>(boost::make_shared<std::recursive_mutex>());
   ASSERT_FALSE(deviceclient_->Init(g_proxyparams, g_address, g_username, g_password));
   
   running_ = true;

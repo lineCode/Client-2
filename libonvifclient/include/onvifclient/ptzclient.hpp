@@ -160,11 +160,21 @@ class StopResponse : public Response<PTZClient>
 
 class PTZClient : public Client<PTZOPERATION>, public boost::enable_shared_from_this<PTZClient>
 {
+  friend Signal<PTZOPERATION, PTZClient, ContinuousMoveResponse, std::string, PTZSpeed, Duration>;
+  friend Signal<PTZOPERATION, PTZClient, GetCompatibleConfigurationsResponse, std::string>;
+  friend Signal<PTZOPERATION, PTZClient, GetConfigurationResponse, std::string>;
+  friend Signal<PTZOPERATION, PTZClient, GetConfigurationOptionsResponse, std::string>;
+  friend Signal<PTZOPERATION, PTZClient, GetConfigurationsResponse>;
+  friend Signal<PTZOPERATION, PTZClient, GetNodesResponse>;
+  friend Signal<PTZOPERATION, PTZClient, GetServiceCapabilitiesResponse>;
+  friend Signal<PTZOPERATION, PTZClient, SetConfigurationResponse, PTZConfiguration, bool>;
+  friend Signal<PTZOPERATION, PTZClient, StopResponse, std::string, bool, bool>;
+
  public:
   
   using Client::Update;
 
-  PTZClient();
+  PTZClient(const boost::shared_ptr<std::recursive_mutex>& mutex);
   virtual ~PTZClient();
 
   virtual void Destroy() override;

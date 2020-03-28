@@ -49,11 +49,13 @@ class GetServiceCapabilitiesResponse : public Response<SearchClient>
 
 class SearchClient : public Client<SEARCHOPERATION>, public boost::enable_shared_from_this<SearchClient>
 {
+  friend Signal<SEARCHOPERATION, SearchClient, GetServiceCapabilitiesResponse>;
+
  public:
   
   using Client::Update;
 
-  SearchClient();
+  SearchClient(const boost::shared_ptr<std::recursive_mutex>& mutex);
   virtual ~SearchClient();
 
   virtual void Destroy() override;

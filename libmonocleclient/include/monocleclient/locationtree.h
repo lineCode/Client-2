@@ -12,6 +12,8 @@
 #include <QSharedPointer>
 #include <QTreeWidget>
 
+#include "monocleclient/connection.h"
+
 ///// Declarations /////
 
 class QMimeData;
@@ -65,7 +67,7 @@ class LocationTree : public QTreeWidget
   void ShowFilter(const bool checked);
   void DeviceAdded(const boost::shared_ptr<Device>& device);
   void DeviceRemoved(const boost::shared_ptr<Device>& device);
-  void GuiOrderChanged(const boost::shared_ptr<Device>& device, const std::vector< std::pair<uint64_t, uint64_t> >& recordingsorder, const std::vector< std::pair<uint64_t, uint64_t> >& mapsorder);
+  void GuiOrderChanged(const boost::shared_ptr<Device>& device, const std::vector<GUIORDER>& recordingsorder, const std::vector<GUIORDER>& mapsorder);
   void MapAdded(const QSharedPointer<Map>& map);
   void MapChanged(const QSharedPointer<Map>& map);
   void MapRemoved(const uint64_t token);

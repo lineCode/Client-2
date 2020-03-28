@@ -173,7 +173,7 @@ class Signal
       return Connection();
     }
 
-    std::lock_guard<std::mutex> lock(callbacksmutex_);
+    std::lock_guard<std::recursive_mutex> lock(*client_->mutex_);
     boost::shared_ptr<ConnectionBlock> connectionblock = boost::make_shared<ConnectionBlock>(true);
     callbacks_[handle] = std::make_pair(connectionblock, callback);
     args_[handle] = std::make_tuple(args...);
@@ -209,7 +209,7 @@ class Signal
     }
     
     // Callbacks
-    std::lock_guard<std::mutex> lock(callbacksmutex_);
+    std::lock_guard<std::recursive_mutex> lock(*client_->mutex_);
     typename std::map< CURL*, std::pair< boost::shared_ptr<ConnectionBlock>, boost::function<void(const Response&)> > >::iterator callback = callbacks_.find(handle);
     if (callback != callbacks_.end())
     {
@@ -243,7 +243,6 @@ class Signal
   boost::signals2::signal<void(const Response&)> signal_;
   std::map< CURL*, boost::promise< Response > > promises_;
   std::map< CURL*, std::pair< boost::shared_ptr<ConnectionBlock>, boost::function<void(const Response&)> > > callbacks_;
-  std::mutex callbacksmutex_;
 
   std::map< CURL*, std::tuple<Args...> > args_; // Represents the original arguments passed through to call the wsdl operation
 

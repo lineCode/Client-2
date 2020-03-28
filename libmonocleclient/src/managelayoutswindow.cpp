@@ -7,6 +7,7 @@
 
 #include <QMessageBox>
 #include <QStringList>
+#include <QTimer>
 
 #include "monocleclient/device.h"
 #include "monocleclient/mainwindow.h"
@@ -151,31 +152,34 @@ void ManageLayoutsWindow::on_buttonremove_clicked()
     }
 
     ++(*count);
-    removelayoutconnections_.push_back(device->RemoveLayout(token, [this, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::REMOVELAYOUTRESPONSE& removelayoutresponse)
+    QTimer::singleShot(std::chrono::milliseconds(1), [this, token, count, errors, device]()
     {
-      errors->push_back(removelayoutresponse.error_);
-
-      if ((--(*count)) == 0)
+      removelayoutconnections_.push_back(device->RemoveLayout(token, [this, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::REMOVELAYOUTRESPONSE& removelayoutresponse)
       {
-        if (std::all_of(errors->cbegin(), errors->cend(), [](const monocle::Error& error) { return (error.code_ == monocle::ErrorCode::Success); }))
-        {
+        errors->push_back(removelayoutresponse.error_);
 
-          return;
-        }
-        else
+        if ((--(*count)) == 0)
         {
-          QStringList errorlist;
-          for (const monocle::Error& error : *errors)
+          if (std::all_of(errors->cbegin(), errors->cend(), [](const monocle::Error& error) { return (error.code_ == monocle::ErrorCode::Success); }))
           {
-            errorlist.push_back(QString::fromStdString(error.text_));
 
+            return;
           }
+          else
+          {
+            QStringList errorlist;
+            for (const monocle::Error& error : *errors)
+            {
+              errorlist.push_back(QString::fromStdString(error.text_));
 
-          QMessageBox(QMessageBox::Warning, tr("Error"), tr("Remove layout failed:\n") + errorlist.join("\n"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-          return;
+            }
+
+            QMessageBox(QMessageBox::Warning, tr("Error"), tr("Remove layout failed:\n") + errorlist.join("\n"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+            return;
+          }
         }
-      }
-    }));
+      }));
+    });
   }
 }
 

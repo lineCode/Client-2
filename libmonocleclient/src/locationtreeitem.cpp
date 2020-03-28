@@ -256,7 +256,7 @@ LocationTreeItem* LocationTreeItem::GetChild(const QString& name) const
   return nullptr;
 }
 
-void LocationTreeItem::GuiOrderChanged(const boost::shared_ptr<Device>& device, const std::vector< std::pair<uint64_t, uint64_t> >& recordingsorder, const std::vector< std::pair<uint64_t, uint64_t> >& mapsorder)
+void LocationTreeItem::GuiOrderChanged(const boost::shared_ptr<Device>& device, const std::vector<GUIORDER>& recordingsorder, const std::vector<GUIORDER>& mapsorder)
 {
   sortChildren(0, Qt::SortOrder::AscendingOrder);
 

@@ -27,7 +27,8 @@ class AnalyticsSignals
 
 ///// Methods /////
 
-AnalyticsClient::AnalyticsClient() :
+AnalyticsClient::AnalyticsClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
+  Client(mutex),
   signals_(new AnalyticsSignals(
   {
     Signal<ANALYTICSOPERATION, AnalyticsClient, GetServiceCapabilitiesResponse>(this, ANALYTICSOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver20/analytics/wsdl/GetServiceCapabilities"), false)

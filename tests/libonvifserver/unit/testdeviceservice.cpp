@@ -27,7 +27,7 @@ const std::string WSDLDEVICEURI = "/wsdl/devicemgmt.wsdl";
 
 ///// Declarations /////
 
-ClientThread<onvif::device::DeviceClient> TestDeviceService::deviceclient_;
+ClientThread<onvif::device::DeviceClient> TestDeviceService::deviceclient_(boost::make_shared<std::recursive_mutex>());
 const std::string TestDeviceService::username_("username");
 const onvif::USERLEVEL TestDeviceService::userlevel_(onvif::USERLEVEL_ADMINISTRATOR);
 const std::string TestDeviceService::password_("password");

@@ -38,11 +38,11 @@ ManageONVIFWindow::ManageONVIFWindow(QWidget* parent, const sock::ProxyParams& p
   mediauri_(mediauri),
   username_(username),
   password_(password),
-  onvifanalytics_(boost::make_shared<onvif::analytics::AnalyticsClient>()),
-  onvifdevice_(boost::make_shared<onvif::device::DeviceClient>()),
-  onvifevent_(boost::make_shared<onvif::event::EventClient>()),
-  onvifmedia_(boost::make_shared<onvif::media::MediaClient>()),
-  onvifptz_(boost::make_shared<onvif::ptz::PTZClient>())
+  onvifanalytics_(boost::make_shared<onvif::analytics::AnalyticsClient>(boost::make_shared<std::recursive_mutex>())),
+  onvifdevice_(boost::make_shared<onvif::device::DeviceClient>(boost::make_shared<std::recursive_mutex>())),
+  onvifevent_(boost::make_shared<onvif::event::EventClient>(boost::make_shared<std::recursive_mutex>())),
+  onvifmedia_(boost::make_shared<onvif::media::MediaClient>(boost::make_shared<std::recursive_mutex>())),
+  onvifptz_(boost::make_shared<onvif::ptz::PTZClient>(boost::make_shared<std::recursive_mutex>()))
 {
   ui_.setupUi(this);
 
@@ -188,6 +188,11 @@ ManageONVIFWindow::~ManageONVIFWindow()
   onvifevent_->Destroy();
   onvifmedia_->Destroy();
   onvifptz_->Destroy();
+  onvifanalytics_.reset();
+  onvifdevice_.reset();
+  onvifevent_.reset();
+  onvifmedia_.reset();
+  onvifptz_.reset();
 }
 
 void ManageONVIFWindow::timerEvent(QTimerEvent *event)

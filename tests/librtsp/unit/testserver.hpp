@@ -7,6 +7,8 @@
 ///// Includes /////
 
 #include <boost/asio.hpp>
+#include <boost/enable_shared_from_this.hpp>
+#include <mutex>
 #include <rtsp/client/client.hpp>
 #include <gtest/gtest.h>
 #include <rtsp/server/server.hpp>

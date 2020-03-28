@@ -112,7 +112,7 @@ void VideoView::Connect()
   const std::string password = device_->GetPassword().toStdString();
   connect_ = connection_->Connect([this, username, password](const boost::system::error_code& err)
   {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (err)
     {
       SetMessage(GetNextPlayRequestIndex(true), true, "Unable to connect");
@@ -122,7 +122,7 @@ void VideoView::Connect()
     SetMessage(GetPlayRequestIndex(), false, "Authenticating");
     getauthenticatenonce_ = connection_->GetAuthenticationNonce([this, username, password](const std::chrono::steady_clock::duration latency, const monocle::client::GETAUTHENTICATIONNONCERESPONSE& getauthenticationnonceresponse)
     {
-      std::lock_guard<std::mutex> lock(mutex_);
+      std::lock_guard<std::recursive_mutex> lock(mutex_);
       if (getauthenticationnonceresponse.GetErrorCode() != monocle::ErrorCode::Success)
       {
         SetMessage(GetNextPlayRequestIndex(true), true, "Unable to authenticate");
@@ -132,7 +132,7 @@ void VideoView::Connect()
       const std::string clientnonce = utility::GenerateRandomString(32);
       authenticate_ = connection_->Authenticate(username, clientnonce, monocle::AuthenticateDigest(username, password, getauthenticationnonceresponse.authenticatenonce_, clientnonce), [this](const std::chrono::steady_clock::duration latency, const monocle::client::AUTHENTICATERESPONSE& authenticateresponse)
       {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::lock_guard<std::recursive_mutex> lock(mutex_);
         if (authenticateresponse.GetErrorCode() != monocle::ErrorCode::Success)
         {
           SetMessage(GetNextPlayRequestIndex(true), true, "Unable to authenticate");
@@ -142,7 +142,7 @@ void VideoView::Connect()
         SetMessage(GetPlayRequestIndex(), false, "Creating Stream");
         createstream_ = connection_->CreateStream(recording_->GetToken(), track_->GetId(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
         {
-          std::lock_guard<std::mutex> lock(mutex_);
+          std::lock_guard<std::recursive_mutex> lock(mutex_);
           if (createstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
           {
             SetMessage(GetNextPlayRequestIndex(true), true, "Unable to create stream: " + QString::fromStdString(createstreamresponse.GetErrorText()));
@@ -153,7 +153,7 @@ void VideoView::Connect()
 
           QMetaObject::invokeMethod(this, [this, codecindices = createstreamresponse.codecindices_]()
           {
-            std::lock_guard<std::mutex> lock(mutex_);
+            std::lock_guard<std::recursive_mutex> lock(mutex_);
             for (const monocle::CODECINDEX& codecindex : codecindices)
             {
               AddCodecIndex(codecindex);
@@ -166,7 +166,7 @@ void VideoView::Connect()
 
           controlstream_ = connection_->ControlStreamLive(streamtoken_, GetPlayRequestIndex(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::CONTROLSTREAMRESPONSE& controlstreamresponse)
           {
-            std::lock_guard<std::mutex> lock(mutex_);
+            std::lock_guard<std::recursive_mutex> lock(mutex_);
             if (controlstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
             {
               SetMessage(GetNextPlayRequestIndex(true), true, "Unable to control stream");
@@ -244,7 +244,7 @@ void VideoView::Disconnect()
   metadataconnection_->Destroy();
 
   {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     freeimagequeue_.Destroy();
     DestroyDecoders();
   }
@@ -376,7 +376,7 @@ void VideoView::FrameStep(const bool forwards)
   if (imagebuffer.type_ == IMAGEBUFFERTYPE_INVALID)
   {
     {
-      std::lock_guard<std::mutex> lock(mutex_);
+      std::lock_guard<std::recursive_mutex> lock(mutex_);
       ResetDecoders();
     }
 
@@ -424,7 +424,7 @@ void VideoView::FrameStep(const bool forwards)
 void VideoView::Play(const uint64_t time, const boost::optional<uint64_t>& numframes)
 {
   {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     ResetDecoders();
   }
 
@@ -494,7 +494,7 @@ void VideoView::Stop()
 void VideoView::Scrub(const uint64_t time)
 {
   {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     ResetDecoders();
   }
 
@@ -599,7 +599,7 @@ void VideoView::ControlStreamEnd(const uint64_t streamtoken, const uint64_t play
 void VideoView::H265Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const bool donlfield, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata) // This gets called by the Connection thread
 {
   VideoView* videoview = reinterpret_cast<VideoView*>(callbackdata);
-  std::lock_guard<std::mutex> lock(videoview->mutex_);
+  std::lock_guard<std::recursive_mutex> lock(videoview->mutex_);
   if (videoview->GetPlayRequestIndex() != playrequestindex)
   {
 
@@ -632,7 +632,7 @@ void VideoView::H265Callback(const uint64_t streamtoken, const uint64_t playrequ
 void VideoView::H264Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata) // This gets called by the Connection thread
 {
   VideoView* videoview = reinterpret_cast<VideoView*>(callbackdata);
-  std::lock_guard<std::mutex> lock(videoview->mutex_);
+  std::lock_guard<std::recursive_mutex> lock(videoview->mutex_);
   if (videoview->GetPlayRequestIndex() != playrequestindex)
   {
 
@@ -675,7 +675,7 @@ void VideoView::MetadataCallback(const uint64_t streamtoken, const uint64_t play
 void VideoView::JPEGCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const uint8_t* lqt, const uint8_t* cqt, const char* framedata, const size_t size, void* callbackdata) // This gets called by the Connection thread
 {
   VideoView* videoview = reinterpret_cast<VideoView*>(callbackdata);
-  std::lock_guard<std::mutex> lock(videoview->mutex_);
+  std::lock_guard<std::recursive_mutex> lock(videoview->mutex_);
   if (videoview->GetPlayRequestIndex() != playrequestindex)
   {
 
@@ -713,7 +713,7 @@ void VideoView::JPEGCallback(const uint64_t streamtoken, const uint64_t playrequ
 void VideoView::MPEG4Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata) // This gets called by the Connection thread
 {
   VideoView* videoview = reinterpret_cast<VideoView*>(callbackdata);
-  std::lock_guard<std::mutex> lock(videoview->mutex_);
+  std::lock_guard<std::recursive_mutex> lock(videoview->mutex_);
   if (videoview->GetPlayRequestIndex() != playrequestindex)
   {
 
@@ -775,7 +775,7 @@ void VideoView::ObjectDetectorCallback(const uint64_t streamtoken, const uint64_
 void VideoView::NewCodecIndexCallback(const uint64_t streamtoken, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp, void* callbackdata)
 {
   VideoView* videoview = reinterpret_cast<VideoView*>(callbackdata);
-  std::lock_guard<std::mutex> lock(videoview->mutex_);
+  std::lock_guard<std::recursive_mutex> lock(videoview->mutex_);
   videoview->AddCodecIndex(monocle::CODECINDEX(id, codec, parameters, timestamp));
 }
 
@@ -790,10 +790,10 @@ void VideoView::ConnectONVIF(const QSharedPointer<client::Receiver>& receiver)
 
   const std::string profile = profiletokens[0].toStdString();
 
-  onvifdevice_ = boost::make_shared<onvif::device::DeviceClient>();
-  onvifevent_ = boost::make_shared<onvif::event::EventClient>();
-  onvifmedia_ = boost::make_shared<onvif::media::MediaClient>();
-  onvifptz_ = boost::make_shared<onvif::ptz::PTZClient>();
+  onvifdevice_ = boost::make_shared<onvif::device::DeviceClient>(boost::make_shared<std::recursive_mutex>());
+  onvifevent_ = boost::make_shared<onvif::event::EventClient>(boost::make_shared<std::recursive_mutex>());
+  onvifmedia_ = boost::make_shared<onvif::media::MediaClient>(boost::make_shared<std::recursive_mutex>());
+  onvifptz_ = boost::make_shared<onvif::ptz::PTZClient>(boost::make_shared<std::recursive_mutex>());
   const std::string receiverusername = receiver->GetUsername().toStdString();
   const std::string receiverpassword = receiver->GetPassword().toStdString();
 

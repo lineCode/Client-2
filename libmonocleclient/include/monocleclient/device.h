@@ -269,7 +269,7 @@ class Device : public Connection
   void SlotGroupAdded(const uint64_t token, const QString& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
   void SlotGroupChanged(const uint64_t token, const QString& name, const bool manageusers, const bool managerecordings, const bool managemaps, const bool managedevice, const bool allrecordings, const std::vector<uint64_t>& recordings);
   void SlotGroupRemoved(const uint64_t token);
-  void SlotGuiOrderChanged(const std::vector< std::pair<uint64_t, uint64_t> >& recordingsorder, const std::vector< std::pair<uint64_t, uint64_t> >& mapsorder);
+  void SlotGuiOrderChanged(const std::vector<GUIORDER>& recordingsorder, const std::vector<GUIORDER>& mapsorder);
   void SlotLayoutAdded(const monocle::LAYOUT& layout);
   void SlotLayoutChanged(const monocle::LAYOUT& layout);
   void SlotLayoutNameChanged(const uint64_t token, const QString& name);
@@ -308,8 +308,8 @@ class Device : public Connection
   void SlotRecordingTrackCodecRemoved(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t id);
   void SlotRecordingTrackLogMessage(const uint64_t recordingtoken, const uint32_t id, const uint64_t time, const monocle::Severity severity, const QString& message);
   void SlotServerLogMessage(const uint64_t time, const monocle::Severity severity, const QString& message);
-  void SlotTrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& filetokens, const std::vector<monocle::CODECINDEX>& codecindices, const std::pair<uint64_t, uint64_t>& totaltrackdata);
-  void SlotTrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& filetokens, const std::vector<monocle::CODECINDEX>& codecindices, const std::pair<uint64_t, uint64_t>& totaltrackdata);
+  void SlotTrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& filetokens, const std::vector<monocle::CODECINDEX>& codecindices, const DATASNAPSHOT& totaltrackdata);
+  void SlotTrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& filetokens, const std::vector<monocle::CODECINDEX>& codecindices, const DATASNAPSHOT& totaltrackdata);
   void SlotTrackDeleteData(const uint64_t recordingtoken, const uint32_t trackid, const boost::optional<uint64_t>& start, const boost::optional<uint64_t>& end);
   void SlotTrackRemoved(const uint64_t recordingtoken, const uint32_t id);
   void SlotTrackSetData(const uint64_t recordingtoken, const uint32_t trackid, const std::vector<monocle::INDEX>& indices);

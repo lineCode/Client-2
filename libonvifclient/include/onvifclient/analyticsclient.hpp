@@ -49,11 +49,13 @@ class GetServiceCapabilitiesResponse : public Response<AnalyticsClient>
 
 class AnalyticsClient : public Client<ANALYTICSOPERATION>, public boost::enable_shared_from_this<AnalyticsClient>
 {
+  friend Signal<ANALYTICSOPERATION, AnalyticsClient, GetServiceCapabilitiesResponse>;
+
  public:
   
   using Client::Update;
 
-  AnalyticsClient();
+  AnalyticsClient(const boost::shared_ptr<std::recursive_mutex>& mutex);
   virtual ~AnalyticsClient();
 
   virtual void Destroy() override;

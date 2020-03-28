@@ -27,7 +27,8 @@ class SearchSignals
 
 ///// Methods /////
 
-SearchClient::SearchClient() :
+SearchClient::SearchClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
+  Client(mutex),
   signals_(new SearchSignals(
   {
     Signal<SEARCHOPERATION, SearchClient, GetServiceCapabilitiesResponse>(this, SEARCHOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/search/wsdl/GetServiceCapabilities"), false)

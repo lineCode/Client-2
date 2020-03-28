@@ -12,6 +12,34 @@ namespace client
 
 ///// Methods /////
 
+GUIORDER::GUIORDER() :
+  token_(0),
+  order_(0)
+{
+
+}
+
+GUIORDER::GUIORDER(const uint64_t token, const uint64_t order) :
+  token_(token),
+  order_(order)
+{
+
+}
+
+DATASNAPSHOT::DATASNAPSHOT() :
+  time_(0),
+  totaldata_(0)
+{
+
+}
+
+DATASNAPSHOT::DATASNAPSHOT(const uint64_t time, const uint64_t totaldata) :
+  time_(time),
+  totaldata_(totaldata)
+{
+
+}
+
 Connection::Connection(boost::asio::io_service& io, const sock::ProxyParams& proxyparams, const QString& address, const uint16_t port) :
   Client(io),
   proxyparams_(proxyparams),
@@ -119,8 +147,23 @@ void Connection::GroupRemoved(const uint64_t token)
 
 void Connection::GuiOrderChanged(const std::vector< std::pair<uint64_t, uint64_t> >& recordingsorder, const std::vector< std::pair<uint64_t, uint64_t> >& mapsorder)
 {
-  emit SignalGuiOrderChanged(recordingsorder, mapsorder);
+  std::vector<GUIORDER> guiorderrecordings;
+  guiorderrecordings.reserve(recordingsorder.size());
+  for (const std::pair<uint64_t, uint64_t>& recordingorder : recordingsorder)
+  {
+    guiorderrecordings.push_back(GUIORDER(recordingorder.first, recordingorder.second));
 
+  }
+
+  std::vector<GUIORDER> guiordermaps;
+  guiordermaps.reserve(mapsorder.size());
+  for (const std::pair<uint64_t, uint64_t>& maporder : mapsorder)
+  {
+    guiordermaps.push_back(GUIORDER(maporder.first, maporder.second));
+
+  }
+
+  emit SignalGuiOrderChanged(guiorderrecordings, guiordermaps);
 }
 
 void Connection::ControlStreamEnd(const uint64_t streamtoken, const uint64_t playrequestindex, const monocle::ErrorCode error)
@@ -465,13 +508,13 @@ void Connection::ServerLogMessage(const uint64_t time, const monocle::Severity s
 
 void Connection::TrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices, const std::pair<uint32_t, uint64_t>& totaltrackdata)
 {
-  emit SignalTrackAdded(recordingtoken, id, token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files, codecindices, totaltrackdata);
+  emit SignalTrackAdded(recordingtoken, id, token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files, codecindices, DATASNAPSHOT(totaltrackdata.first, totaltrackdata.second));
 
 }
 
 void Connection::TrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices, const std::pair<uint32_t, uint64_t>& totaltrackdata)
 {
-  emit SignalTrackChanged(recordingtoken, id, token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files, codecindices, totaltrackdata);
+  emit SignalTrackChanged(recordingtoken, id, token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files, codecindices, DATASNAPSHOT(totaltrackdata.first, totaltrackdata.second));
 
 }
 

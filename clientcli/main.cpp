@@ -86,8 +86,8 @@ int main(int argc, char** argv)
     return 1;
   }
 
-  onvif::ClientThread<onvif::device::DeviceClient> device;
-  onvif::ClientThread<onvif::media::MediaClient> media;
+  onvif::ClientThread<onvif::device::DeviceClient> device(boost::make_shared<std::recursive_mutex>());
+  onvif::ClientThread<onvif::media::MediaClient> media(boost::make_shared<std::recursive_mutex>());
   if (device.Init(proxyparams, address, username, password))
   {
     std::cout << "onvif::ClientThread<onvif::device::DeviceClient>::Init() failed" << std::endl;

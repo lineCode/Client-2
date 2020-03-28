@@ -945,11 +945,80 @@ class GetServiceCapabilitiesResponse : public Response<MediaClient>
 
 class MediaClient : public Client<MEDIAOPERATION>, public boost::enable_shared_from_this<MediaClient>
 {
+  friend Signal< MEDIAOPERATION, MediaClient, AddAudioDecoderConfigurationResponse, std::string, std::string >;
+  friend Signal< MEDIAOPERATION, MediaClient, AddAudioEncoderConfigurationResponse, std::string, std::string >;
+  friend Signal< MEDIAOPERATION, MediaClient, AddAudioOutputConfigurationResponse, std::string, std::string >;
+  friend Signal< MEDIAOPERATION, MediaClient, AddAudioSourceConfigurationResponse, std::string, std::string >;
+  friend Signal< MEDIAOPERATION, MediaClient, AddMetadataConfigurationResponse, std::string, std::string >;
+  friend Signal< MEDIAOPERATION, MediaClient, AddPTZConfigurationResponse, std::string, std::string >;
+  friend Signal< MEDIAOPERATION, MediaClient, AddVideoAnalyticsConfigurationResponse, std::string, std::string >;
+  friend Signal< MEDIAOPERATION, MediaClient, AddVideoEncoderConfigurationResponse, std::string, std::string >;
+  friend Signal< MEDIAOPERATION, MediaClient, AddVideoSourceConfigurationResponse, std::string, std::string >;
+  friend Signal< MEDIAOPERATION, MediaClient, CreateProfileResponse, std::string, boost::optional<std::string> >;
+  friend Signal< MEDIAOPERATION, MediaClient, DeleteProfileResponse, std::string>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetAudioDecoderConfigurationResponse, std::string>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetAudioDecoderConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> >;
+  friend Signal< MEDIAOPERATION, MediaClient, GetAudioDecoderConfigurationsResponse>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetAudioEncoderConfigurationResponse, std::string>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetAudioEncoderConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> >;
+  friend Signal< MEDIAOPERATION, MediaClient, GetAudioEncoderConfigurationsResponse>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetAudioOutputConfigurationResponse, std::string>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetAudioOutputConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> >;
+  friend Signal< MEDIAOPERATION, MediaClient, GetAudioOutputConfigurationsResponse>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetAudioSourceConfigurationResponse, std::string>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetAudioSourceConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> >;
+  friend Signal< MEDIAOPERATION, MediaClient, GetAudioSourceConfigurationsResponse>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetAudioSourcesResponse>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioDecoderConfigurationsResponse, std::string>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioEncoderConfigurationsResponse, std::string>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioOutputConfigurationsResponse, std::string>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioSourceConfigurationsResponse, std::string>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetCompatibleMetadataConfigurationsResponse, std::string>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetCompatibleVideoAnalyticsConfigurationsResponse, std::string>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetCompatibleVideoEncoderConfigurationsResponse, std::string>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetCompatibleVideoSourceConfigurationsResponse, std::string>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetMetadataConfigurationResponse, std::string>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetMetadataConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> >;
+  friend Signal< MEDIAOPERATION, MediaClient, GetMetadataConfigurationsResponse>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetProfileResponse, std::string>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetProfilesResponse>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetServiceCapabilitiesResponse>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetSnapshotUriResponse, std::string>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetStreamUriResponse, StreamSetup, std::string>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetVideoAnalyticsConfigurationsResponse>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetVideoEncoderConfigurationResponse, std::string>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetVideoEncoderConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> >;
+  friend Signal< MEDIAOPERATION, MediaClient, GetVideoEncoderConfigurationsResponse>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetVideoSourceConfigurationResponse, std::string>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetVideoSourceConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> >;
+  friend Signal< MEDIAOPERATION, MediaClient, GetVideoSourceConfigurationsResponse>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetVideoSourceModesResponse, std::string>;
+  friend Signal< MEDIAOPERATION, MediaClient, GetVideoSourcesResponse>;
+  friend Signal< MEDIAOPERATION, MediaClient, RemoveAudioDecoderConfigurationResponse, std::string >;
+  friend Signal< MEDIAOPERATION, MediaClient, RemoveAudioEncoderConfigurationResponse, std::string >;
+  friend Signal< MEDIAOPERATION, MediaClient, RemoveAudioOutputConfigurationResponse, std::string >;
+  friend Signal< MEDIAOPERATION, MediaClient, RemoveAudioSourceConfigurationResponse, std::string >;
+  friend Signal< MEDIAOPERATION, MediaClient, RemoveMetadataConfigurationResponse, std::string >;
+  friend Signal< MEDIAOPERATION, MediaClient, RemovePTZConfigurationResponse, std::string >;
+  friend Signal< MEDIAOPERATION, MediaClient, RemoveVideoAnalyticsConfigurationResponse, std::string >;
+  friend Signal< MEDIAOPERATION, MediaClient, RemoveVideoEncoderConfigurationResponse, std::string >;
+  friend Signal< MEDIAOPERATION, MediaClient, RemoveVideoSourceConfigurationResponse, std::string >;
+  friend Signal< MEDIAOPERATION, MediaClient, SetAudioDecoderConfigurationResponse, AudioDecoderConfiguration>;
+  friend Signal< MEDIAOPERATION, MediaClient, SetAudioEncoderConfigurationResponse, AudioEncoderConfiguration>;
+  friend Signal< MEDIAOPERATION, MediaClient, SetAudioOutputConfigurationResponse, AudioOutputConfiguration>;
+  friend Signal< MEDIAOPERATION, MediaClient, SetAudioSourceConfigurationResponse, AudioSourceConfiguration>;
+  friend Signal< MEDIAOPERATION, MediaClient, SetMetadataConfigurationResponse, MetadataConfiguration>;
+  friend Signal< MEDIAOPERATION, MediaClient, SetSynchronizationPointResponse, std::string>;
+  friend Signal< MEDIAOPERATION, MediaClient, SetVideoEncoderConfigurationResponse, VideoEncoderConfiguration>;
+  friend Signal< MEDIAOPERATION, MediaClient, SetVideoSourceConfigurationResponse, VideoSourceConfiguration>;
+  friend Signal< MEDIAOPERATION, MediaClient, StartMulticastStreamingResponse, std::string>;
+  friend Signal< MEDIAOPERATION, MediaClient, StopMulticastStreamingResponse, std::string>;
+
  public:
    
   using Client::Update;
 
-  MediaClient();
+  MediaClient(const boost::shared_ptr<std::recursive_mutex>& mutex);
   virtual ~MediaClient();
 
   virtual void Destroy() override;

@@ -153,7 +153,7 @@ class VideoView : public View
 
   std::chrono::steady_clock::time_point frametime_;
 
-  mutable std::mutex mutex_;
+  mutable std::recursive_mutex mutex_;
 
   boost::shared_ptr<onvif::device::DeviceClient> onvifdevice_;
   boost::shared_ptr<onvif::event::EventClient> onvifevent_;

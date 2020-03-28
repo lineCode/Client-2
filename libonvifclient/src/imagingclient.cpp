@@ -25,11 +25,13 @@ class ImagingSignals
   Signal<IMAGINGOPERATION, ImagingClient, GetOptionsResponse, std::string> getoptions_;
   Signal<IMAGINGOPERATION, ImagingClient, GetServiceCapabilitiesResponse> getservicecapabilities_;
   Signal<IMAGINGOPERATION, ImagingClient, SetImagingSettingsResponse, std::string, ImagingSettings20, bool> setimagingsettings_;
+
 };
 
 ///// Methods /////
 
-ImagingClient::ImagingClient() :
+ImagingClient::ImagingClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
+  Client(mutex),
   signals_(new ImagingSignals(
   {
     Signal<IMAGINGOPERATION, ImagingClient, GetImagingSettingsResponse, std::string>(this, IMAGINGOPERATION_GETIMAGINGSETTINGS, true, std::string("http://www.onvif.org/ver20/imaging/wsdl/GetImagingSettings"), false),

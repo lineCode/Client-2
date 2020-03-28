@@ -11,17 +11,9 @@
 #include <memory>
 #include <mutex>
 #include <stdint.h>
+#include <utility/ioservicepool.hpp>
 
 #include "monocleprotocol/monocleprotocol.hpp"
-
-///// Declarations /////
-
-namespace utility
-{
-
-class IoServicePool;
-
-}
 
 ///// Namespaces /////
 
@@ -43,7 +35,7 @@ class Server : public boost::enable_shared_from_this<Server>
 {
  public:
 
-  Server(utility::IoServicePool& ioservicepool);
+  Server(const size_t numioservices);
   virtual ~Server();
 
   int Init(const std::vector<uint16_t>& v4ports, const std::vector<uint16_t>& v6ports);
@@ -65,7 +57,7 @@ class Server : public boost::enable_shared_from_this<Server>
   void Accept(boost::shared_ptr<boost::asio::ip::tcp::acceptor> acceptor);
   void HandleAccept(const boost::system::error_code& err, boost::shared_ptr<Connection> connection, boost::shared_ptr<boost::asio::ip::tcp::acceptor> acceptor);
 
-  utility::IoServicePool& ioservicepool_;
+  utility::IoServicePool ioservicepool_;
   std::vector< boost::shared_ptr<boost::asio::ip::tcp::acceptor> > acceptors_;
 
 };
