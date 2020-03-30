@@ -8,6 +8,7 @@
 
 #include <boost/asio.hpp>
 #include <QtCharts>
+#include <QWidget>
 #include <vector>
 
 #include "view.h"

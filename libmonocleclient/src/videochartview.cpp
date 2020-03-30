@@ -28,10 +28,16 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
 {
   SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), rotation_, mirror_, stretch_, true);
 
+  //TODO I think the begin with, we ONLY listen to live and we draw graphs based upon live only...
+
+//TODO stretch, rotation, mirror need to be removed from menu options
+
   //TODO we want the server to do all the hard work
     //TODO CreateStatisticsStream and then we can request things perhaps
       //TODO starttime,endtime,interval
         //TODO we will need to grab history, but then also continue updating live...
+          //TODO if endtime is not null, it listens to live and just updates the client on that live time
+            //TODO the graph will go mental with a massive gap while it captures all the info from starttime... but the client can manage that I think, it will just have to wait until it reaches the previous interval time to the live stream
   //TODO we want to kick off authentication and start streaming live object data from the tracks
     //TODO we will also want history too though... not sure how to deal with both...
     //TODO just copy video view and bang off we go
@@ -70,16 +76,52 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   const QRect pixelrect = GetPixelRect();
   chart_.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   chart_.chart()->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-  chart_.chart()->setPreferredWidth(pixelrect.width());
+  chart_.chart()->setPreferredWidth(pixelrect.width());//TODO when the view gets resized, we want to set this again
   chart_.chart()->setPreferredHeight(pixelrect.height());
-
-  chart_.setContentsMargins(QMargins(0, 0, 0, 0));
-  chart_.chart()->setMargins(QMargins(0, 0, 0, 0));
 
   chart_.setWindowFlag(Qt::SubWindow, true); // This hides the chart from the taskbar
   chart_.setGeometry(QRect(-10000, -10000, pixelrect.width(), pixelrect.height())); // This seems to be the only way to get it to display properly is to show it and then hide it, so do it miles off-screen...
-  chart_.show();
-  chart_.hide();
+
+  QWidget* widget = new QWidget();//TODO keep this as a member
+  widget->setMinimumWidth(pixelrect.width());
+  widget->setMinimumHeight(pixelrect.height());
+  QGridLayout* layout = new QGridLayout(widget);//TODO keep this as a member
+  widget->setContentsMargins(QMargins(0, 0, 0, 0));
+  layout->setContentsMargins(0, 0, 0, 0);
+  layout->addWidget(&chart_);
+  chart_.chart()->setBackgroundRoundness(0.0);
+  widget->show();
+  widget->hide();
+
+  chart_.chart()->setContentsMargins(QMargins(0, 0, 0, 0));
+  chart_.setContentsMargins(QMargins(0, 0, 0, 0));
+  chart_.chart()->setMargins(QMargins(0, 0, 0, 0));
+  chart_.chart()->setBackgroundRoundness(0.0);
+  //TODO chart_.setViewportMargins(0, 0, 0, 0);
+
+  chart_.setStyleSheet("{ border: 0; }");
+  widget->setStyleSheet("{ border: 0; }");
+
+  auto aa = chart_.parent();
+  auto bb = chart_.layout();
+
+  chart_.setRenderHint(QPainter::Antialiasing, true);
+
+  chart_.setBackgroundBrush(QBrush(QColor(0, 0, 0), Qt::SolidPattern));
+
+  //TODO QPalette pal = chart_.palette();
+  //TODO pal.setColor(QPalette::Window, QRgb(0x40434a));
+  //TODO pal.setColor(QPalette::WindowText, QRgb(0xd6d6d6));
+  //TODO chart_.setPalette(pal);
+
+  chart_.chart()->setTheme(QChart::ChartTheme::ChartThemeBlueCerulean);
+
+  //TODO chart_.chart()->setBackgroundVisible(false);
+
+  //TODO auto a = chart_.chart()->plotArea();
+  //TODO chart_.chart()->setPlotArea(QRectF(0.0, 0.0, pixelrect.width(), pixelrect.height()));
+
+  //TODO still need to get the background to be the proper nice colour, not sure how to do that... or make it transparent?
 
   startTimer(std::chrono::seconds(1));
 
@@ -180,28 +222,32 @@ void VideoChartView::Scrub(const uint64_t time)
 
 void VideoChartView::timerEvent(QTimerEvent* event)
 {
-  //TODO auto a = chart_.width();
-  //TODO auto c = chart_.height();
+  //TODO putting the chart into some kind of stretching widget thing really does the trick...
 
-  //TODO chart_.chart()->width
-  {
-    QPixmap pixmap(chart_.chart()->preferredWidth(), chart_.chart()->preferredHeight());
-    pixmap.fill(Qt::black);
+  auto a = chart_.chart()->plotArea();
 
-    //TODO putting the chart into some kind of stretching widget thing really does the trick...
+  QImage image(chart_.chart()->preferredWidth(), chart_.chart()->preferredHeight(), QImage::Format::Format_RGBX8888);
+  QPainter painter(&image);
+  //TODO chart_.render(&painter, QRectF(), QRect(a.left(), a.top(), a.width(), a.height()));
+  chart_.render(&painter);
 
-    QImage image(chart_.chart()->preferredWidth(), chart_.chart()->preferredHeight(), QImage::Format::Format_RGBA8888);
-    //TODO QPainter painter(&image);
-    QPainter painter(&pixmap);
-    painter.setPen(*(new QColor(255, 34, 255, 255)));
-    chart_.render(&painter);//TODO wtf?
-    QFile file("image.png");
-    file.open(QIODevice::WriteOnly);
-    auto d = pixmap.save(&file, "PNG");
-    //tODO auto b = image.save("test.jpg");//TODO remove
-    //TODO why is it a tiny chart inside the big image?
-  }
-  //TODO imagequeue_.push()//TODO now convert the image into an ImageBuffer
+  //TODO auto b = image.save("test.jpg");//TODO remove
+  //TODO why is it a tiny chart inside the big image?
+
+  ImageBuffer imagebuffer = freeimagequeue_.GetFreeImage();
+  imagebuffer.Destroy(); // Don't mind doing this, because the map will only update very infrequently
+  imagebuffer.widths_[0] = image.width();
+  imagebuffer.heights_[0] = image.height();
+  imagebuffer.digitallysigned_ = boost::none;
+  imagebuffer.marker_ = true;
+  imagebuffer.time_ = 0;
+  imagebuffer.type_ = IMAGEBUFFERTYPE_RGBA;
+  imagebuffer.buffer_ = new uint8_t[image.sizeInBytes()];
+  imagebuffer.data_[0] = imagebuffer.buffer_;
+
+  std::memcpy(imagebuffer.buffer_, image.bits(), image.sizeInBytes());
+
+  imagequeue_.push(imagebuffer);
 
   int i = 0;//TODO remove
   
