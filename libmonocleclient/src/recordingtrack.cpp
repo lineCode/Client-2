@@ -156,7 +156,17 @@ void RecordingTrack::SetTotalTrackData(const std::pair<uint64_t, uint64_t>& tota
 {
   if (totaltrackdata_.first && (totaltrackdata.first > totaltrackdata_.first) && (totaltrackdata.second > totaltrackdata_.second))
   {
-    datarate_ = (totaltrackdata.second - totaltrackdata_.second) / ((totaltrackdata.first - totaltrackdata_.first) / 1000);
+    const uint64_t den = (totaltrackdata.first - totaltrackdata_.first) / 1000;
+    if (den == 0)
+    {
+      datarate_ = 0;
+
+    }
+    else
+    {
+      datarate_ = (totaltrackdata.second - totaltrackdata_.second) / den;
+
+    }
 
   }
   else

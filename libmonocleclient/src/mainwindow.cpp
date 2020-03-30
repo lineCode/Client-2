@@ -242,7 +242,9 @@ MainWindow::MainWindow(const uint32_t numioservices) :
   connect(&devicemgr_, &DeviceMgr::LayoutChanged, this, &MainWindow::LayoutChanged);
   connect(&devicemgr_, &DeviceMgr::LayoutRemoved, this, &MainWindow::LayoutRemoved);
   connect(&videowidgetsmgr_, &VideoWidgetsMgr::ViewDestroyed, this, &MainWindow::ViewDestroyed);
+  connect(&videowidgetsmgr_, &VideoWidgetsMgr::MapViewCreated, this, &MainWindow::MapViewCreated);
   connect(&videowidgetsmgr_, &VideoWidgetsMgr::VideoViewCreated, this, &MainWindow::VideoViewCreated);
+  //TODO connect(&videowidgetsmgr_, &VideoWidgetsMgr::VideoChartViewCreated, this, &MainWindow::VideoChartViewCreated);
   connect(&videowidgetsmgr_, &VideoWidgetsMgr::ViewDestroyed, this, &MainWindow::ViewDestroyed);
   connect(&checkforupdate_, &CheckForUpdate::UpdateAvailable, this, &MainWindow::UpdateAvailable);
   connect(ui_.actionexit, &QAction::triggered, this, &QMainWindow::close);
@@ -657,7 +659,7 @@ std::vector< std::pair< boost::shared_ptr<Device>, monocle::LAYOUT> > MainWindow
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<uint64_t> dist(1, std::numeric_limits<int64_t>::max());
-
+  
   // We want to gather up all the views from all the windows and dispatch them to the relevant devices, but then have the ability to piece it back together once we later select this layout
   std::vector< std::pair<uint64_t, VideoWidget*> > videowidgets;
   std::vector< std::pair< boost::shared_ptr<Device>, monocle::LAYOUT> > layouts;
@@ -668,7 +670,7 @@ std::vector< std::pair< boost::shared_ptr<Device>, monocle::LAYOUT> > MainWindow
     for (VideoWidget* videowidget : MainWindow::Instance()->GetVideoWidgetsMgr().GetVideoWidgets())
     {
       QWidget* window = static_cast<QWidget*>(videowidget->parent()->parent());
-
+//TODO videochartviews?
       std::vector<monocle::LAYOUTVIEW> videoviews;
       std::vector<monocle::LAYOUTVIEW> mapviews;
       for (const QSharedPointer<View>& view : videowidget->GetViews())

@@ -17,6 +17,7 @@
 #include "monocleclient/recording.h"
 #include "monocleclient/recordingtrack.h"
 #include "monocleclient/view.h"
+#include "monocleclient/videochartview.h"
 
 ///// Namespaces /////
 
@@ -153,6 +154,44 @@ void VideoWidgetsMgr::CreateVideoView(const boost::shared_ptr<Device>& device, c
   {
     emit VideoViewCreated(videoview);
     
+  }
+}
+
+void VideoWidgetsMgr::CreateVideoChartView(const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const std::vector< QSharedPointer<client::RecordingTrack> >& tracks)
+{
+  // Find a video widget to add this video view to
+  for (VideoWidget* videowidget : videowidgets_)
+  {
+    const auto location = GetEmptyVideoLocation(videowidget, 1, 1);
+    if (location.is_initialized())
+    {
+      QSharedPointer<VideoChartView> videochartview = videowidget->CreateVideoChartView(location->x(), location->y(), 1, 1, device, recording, tracks);
+      if (!videochartview)
+      {
+        LOG_GUI_WARNING_SOURCE(device, QString("VideoWidget::CreateVideoChartView failed"));
+
+      }
+      else
+      {
+        emit VideoChartViewCreated(videochartview);
+
+      }
+      return;
+    }
+  }
+
+  // If we couldn't find somewhere to put it, create a video window for it
+  VideoWindow* videowindow = MainWindow::Instance()->GetVideoWindowMgr().CreateVideoWindow(boost::none, arial_, showfullscreen_, Options::Instance().GetDefaultVideoWindowWidth(), Options::Instance().GetDefaultVideoWindowHeight(), Options::Instance().GetDefaultShowToolbar());
+  QSharedPointer<VideoChartView> videochartview = videowindow->GetVideoWidget()->CreateVideoChartView(0, 0, 1, 1, device, recording, tracks);
+  if (!videochartview)
+  {
+    LOG_GUI_WARNING_SOURCE(device, QString("VideoWidget::CreateVideoChartView"));
+
+  }
+  else
+  {
+    emit VideoChartViewCreated(videochartview);
+
   }
 }
 
