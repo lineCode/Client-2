@@ -7,6 +7,7 @@
 ///// Includes /////
 
 #include <boost/asio.hpp>
+#include <monocleprotocol/client/connection.hpp>
 #include <QtCharts>
 #include <QWidget>
 #include <vector>
@@ -58,11 +59,16 @@ class VideoChartView : public View
 
  private:
 
+  static void ControlStreamEnd(const uint64_t streamtoken, const uint64_t playrequestindex, const monocle::ErrorCode error, void* callbackdata);
+  static void ObjectDetectorCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata);
+
   boost::shared_ptr<client::Device> device_;
   QSharedPointer<Recording> recording_;
   std::vector< QSharedPointer<RecordingTrack> > tracks_;
 
   QChartView chart_;
+
+  std::vector<monocle::client::Connection> createstreamsconnections_;
 
  private slots:
 
