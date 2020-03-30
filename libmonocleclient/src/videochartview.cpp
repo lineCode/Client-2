@@ -25,13 +25,13 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   recording_(recording),
   tracks_(tracks),
   chart_(nullptr, nullptr)
-  //TODO chart_(nullptr)
 {
   SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), rotation_, mirror_, stretch_, true);
 
   //TODO we want the server to do all the hard work
     //TODO CreateStatisticsStream and then we can request things perhaps
       //TODO starttime,endtime,interval
+        //TODO we will need to grab history, but then also continue updating live...
   //TODO we want to kick off authentication and start streaming live object data from the tracks
     //TODO we will also want history too though... not sure how to deal with both...
     //TODO just copy video view and bang off we go
@@ -53,8 +53,6 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   cpuaxisx_->setMin(0.0);
   cpuaxisx_->setMax(60.0);
   
-  auto a = chart_.chart();//TODO
-  
   chart_.chart()->addSeries(cpu_);
   chart_.chart()->addSeries(memory_);
   cpu_->setName("CPU");
@@ -70,57 +68,20 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   cpu_->attachAxis(cpuaxisy_);
   
   const QRect pixelrect = GetPixelRect();
-  //TODO //TODO chart_.resize(pixelrect.width(), pixelrect.height());
   chart_.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-  //TODO //TODO chart_.setViewport(nullptr);
-  chart_.setMinimumWidth(pixelrect.width());
-  chart_.setMinimumHeight(pixelrect.height());
-  chart_.setMaximumWidth(pixelrect.width());
-  chart_.setMaximumHeight(pixelrect.height());
-  //TODO chart_.setFixedWidth(pixelrect.width());
-  //TODO chart_.setFixedHeight(pixelrect.height());
-
   chart_.chart()->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-  chart_.chart()->setMinimumWidth(pixelrect.width());
-  chart_.chart()->setMinimumHeight(pixelrect.height());
   chart_.chart()->setPreferredWidth(pixelrect.width());
   chart_.chart()->setPreferredHeight(pixelrect.height());
-  //TODO get rid of as much as possible...
 
-  //TODO QWidget* tabcpustatistics = new QWidget();
-  //TODO QGridLayout* gridLayout_4 = new QGridLayout(tabcpustatistics);
-  //TODO chart_ = new QChartView(tabcpustatistics);
-  //TODO gridLayout_4->addWidget(chart_, 0, 0, 1, 1);
-  //TODO 
-  //TODO tabcpustatistics->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-  //TODO tabcpustatistics->setFixedWidth(pixelrect.width());
-  //TODO tabcpustatistics->setFixedHeight(pixelrect.height());
+  chart_.setContentsMargins(QMargins(0, 0, 0, 0));
+  chart_.chart()->setMargins(QMargins(0, 0, 0, 0));
 
-  //TODO chart_.setContentsMargins(0, 0, 0, 0);
-  //TODO chart_.chart()->setMargins(QMargins(0, 0, 0, 0));
-
-  //TODO QGridLayout* gridLayout_4 = new QGridLayout();
-  //TODO gridLayout_4->addWidget(&chart_, 0, 0, 1, 1);
-
-  //TODO chart_.setFrameRect(pixelrect);
-  //TODO chart_.chart()->setPreferredWidth(pixelrect.width());
-  //TODO chart_.chart()->setPreferredHeight(pixelrect.height());
-
-  //TODO auto b = chart_.width();
-  //TODO auto c = chart_.height();
-
+  chart_.setWindowFlag(Qt::SubWindow, true); // This hides the chart from the taskbar
   chart_.setGeometry(QRect(-10000, -10000, pixelrect.width(), pixelrect.height())); // This seems to be the only way to get it to display properly is to show it and then hide it, so do it miles off-screen...
   chart_.show();
   chart_.hide();
 
-  //TODO now see what the settings are and copy them?
-    //TODO otherwise we have to do this stupid open/close thing
-      //TODO if we find we do have to do this... we can show it off screen in some crazy location maybe?
-
   startTimer(std::chrono::seconds(1));
-
-  //TODO chartview width height need to be readjusted when resized(either window resized or resize video view)
-    //TODO either connect or override
 
   //TODO set background to black and everything else to some nice colour I think
 }
@@ -133,6 +94,8 @@ VideoChartView::~VideoChartView()
 void VideoChartView::GetMenu(QMenu& parent)
 {
   View::GetMenu(parent);
+
+  //TODO right click menu to show/hide object types
 
 }
 
@@ -232,9 +195,9 @@ void VideoChartView::timerEvent(QTimerEvent* event)
     QPainter painter(&pixmap);
     painter.setPen(*(new QColor(255, 34, 255, 255)));
     chart_.render(&painter);//TODO wtf?
-    //TODO sQFile file("image.png");
-    //TODO sfile.open(QIODevice::WriteOnly);
-    //TODO sauto d = pixmap.save(&file, "PNG");
+    QFile file("image.png");
+    file.open(QIODevice::WriteOnly);
+    auto d = pixmap.save(&file, "PNG");
     //tODO auto b = image.save("test.jpg");//TODO remove
     //TODO why is it a tiny chart inside the big image?
   }
