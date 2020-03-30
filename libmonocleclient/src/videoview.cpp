@@ -52,6 +52,7 @@ VideoView::VideoView(VideoWidget* videowidget, CUcontext cudacontext, const QCol
   track_(track),
   actionreconnect_(new QAction(tr("Reconnect"), this)),
   actionproperties_(new QAction(tr("Properties"), this)),
+  actionchartview_(new QAction(tr("Chart View"), this)),
   connection_(boost::make_shared<Connection>(MainWindow::Instance()->GetIOServicePool().GetIoService(), device_->GetProxyParams(), device_->GetAddress(), device_->GetPort())),
   metadataconnection_(boost::make_shared<Connection>(MainWindow::Instance()->GetGUIIOService(), device_->GetProxyParams(), device_->GetAddress(), device_->GetPort())),
   streamtoken_(0),
@@ -59,6 +60,7 @@ VideoView::VideoView(VideoWidget* videowidget, CUcontext cudacontext, const QCol
 {
   connect(actionreconnect_, &QAction::triggered, this, static_cast<void (VideoView::*)(bool)>(&VideoView::Reconnect));
   connect(actionproperties_, &QAction::triggered, this, static_cast<void (VideoView::*)(bool)>(&VideoView::Properties));
+  connect(actionchartview_, &QAction::triggered, this, static_cast<void (VideoView::*)(bool)>(&VideoView::ChartView));
   connect(device_.get(), &Device::SignalStateChanged, this, &VideoView::DeviceStateChanged);
   connect(recording_.get(), &Recording::TrackAdded, this, &VideoView::TrackAdded);
   connect(recording_.get(), &Recording::TrackRemoved, this, &VideoView::TrackRemoved);
@@ -311,6 +313,20 @@ void VideoView::GetMenu(QMenu& parent)
     action->setChecked(track == track_);
   }
   parent.addMenu(tracks);
+
+  if (device_->SupportsTrackCodec())
+  {
+    if (recording_->GetNumObjectDetectors())
+    {
+      parent.addAction(actionchartview_);
+
+    }
+  }
+  else
+  {
+    parent.addAction(actionchartview_);
+
+  }
 
   View::GetMenu(parent);
 }
@@ -1150,6 +1166,12 @@ void VideoView::Reconnect(bool)
 void VideoView::Properties(bool)
 {
   VideoViewPropertiesWindow(videowidget_, sharedFromThis().staticCast<VideoView>()).exec();
+
+}
+
+void VideoView::ChartView(bool)
+{
+  MainWindow::Instance()->GetVideoWidgetsMgr().CreateVideoChartView(device_, recording_, recording_->GetObjectDetectorTracks());
 
 }
 

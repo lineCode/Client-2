@@ -150,6 +150,7 @@ class VideoView : public View
 
   QAction* actionreconnect_;
   QAction* actionproperties_;
+  QAction* actionchartview_;
 
   std::chrono::steady_clock::time_point frametime_;
 
@@ -206,6 +207,7 @@ class VideoView : public View
   void DeviceStateChanged(const DEVICESTATE state, const QString&);
   void Reconnect(bool);
   void Properties(bool);
+  void ChartView(bool);
   void TrackAdded(const QSharedPointer<client::RecordingTrack>& track);
   void TrackRemoved(const uint32_t token);
   void ActiveJobChanged(const QSharedPointer<client::RecordingJob>& activejob);

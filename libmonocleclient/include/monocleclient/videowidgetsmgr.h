@@ -41,6 +41,7 @@ class VideoWidgetsMgr : public QObject
   void CreateMapView(const boost::shared_ptr<Device>& device, const QSharedPointer<Map>& map);
   void CreateMediaView(const QSharedPointer<Media>& media, const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex);
   void CreateVideoView(const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingTrack>& track);
+  void CreateVideoChartView(const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const std::vector< QSharedPointer<client::RecordingTrack> >& tracks);
 
   const std::vector<VideoWidget*>& GetVideoWidgets() const { return videowidgets_; }
 
@@ -92,6 +93,7 @@ class VideoWidgetsMgr : public QObject
   void MapViewCreated(const QSharedPointer<MapView>& mapview);
   void MediaViewCreated(const QSharedPointer<MediaView>& mediaview);
   void VideoViewCreated(const QSharedPointer<VideoView>& videoview);
+  void VideoChartViewCreated(const QSharedPointer<VideoChartView>& videochartview);
   void ViewDestroyed(const QSharedPointer<View>& view);
   void Selected(QSharedPointer<View>& view, bool select);
 

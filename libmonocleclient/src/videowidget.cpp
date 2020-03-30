@@ -25,6 +25,7 @@
 #include "monocleclient/recording.h"
 #include "monocleclient/shaders.h"
 #include "monocleclient/videoview.h"
+#include "monocleclient/videochartview.h"
 
 ///// Globals /////
 
@@ -613,6 +614,39 @@ QSharedPointer<VideoView> VideoWidget::CreateVideoView(unsigned int x, unsigned 
   });
   views_.push_back(videoview);
   return videoview;
+}
+
+QSharedPointer<VideoChartView> VideoWidget::CreateVideoChartView(unsigned int x, unsigned int y, unsigned int width, unsigned int height, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const std::vector< QSharedPointer<client::RecordingTrack> >& tracks)
+{
+  if (openglmajorversion_ < 3)
+  {
+
+    return QSharedPointer<VideoChartView>();
+  }
+
+  // Check the location is not already taken by another video view
+  if (!IsEmpty(QSharedPointer<VideoChartView>(), x, y, width, height))
+  {
+
+    return QSharedPointer<VideoChartView>();
+  }
+
+  const QSharedPointer<VideoChartView> videochartview = QSharedPointer<VideoChartView>::create(this, MainWindow::Instance()->GetNextCUDAContext(), MainWindow::Instance()->GetRandomHSVColour(), x, y, width, height, device, recording, tracks, arial_);
+  connect(videochartview->GetActionClose(), &QAction::triggered, videochartview.data(), [this, videochartview = videochartview.toWeakRef()](bool)
+  {
+    QSharedPointer<VideoChartView> v = videochartview.lock();
+    if (!v)
+    {
+
+      return;
+    }
+
+    disconnect(v->GetActionClose(), &QAction::triggered, v.data(), nullptr);
+    v->GetVideoWidget()->RemoveView(v);
+    emit MainWindow::Instance()->GetVideoWidgetsMgr().ViewDestroyed(v);
+  });
+  views_.push_back(videochartview);
+  return videochartview;
 }
 
 bool VideoWidget::RemoveView(const QSharedPointer<View>& view)
