@@ -24,6 +24,7 @@ namespace client
 
 VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const boost::shared_ptr<client::Device>& device, const QSharedPointer<client::Recording>& recording, const std::vector< QSharedPointer<client::RecordingTrack> >& tracks, const QResource* arial) :
   View(videowidget, cudacontext, selectedcolour, x, y, width, height, ROTATION::_0, false, false, false, false, arial, false, false, false, false),
+  device_(device),
   recording_(recording),
   tracks_(tracks),
   chart_(nullptr, nullptr)
@@ -76,23 +77,33 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   cpu_->attachAxis(cpuaxisy_);
   
   const QRect pixelrect = GetPixelRect();
+
+  QWidget* widget = new QWidget();//TODO keep this as a member
+  //TODO widget->setGeometry(QRect(-10000, -10000, widget->geometry().width(), widget->geometry().height())); // This seems to be the only way to get it to display properly is to show it and then hide it, so do it miles off-screen...
+
+
   chart_.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   chart_.chart()->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   chart_.chart()->setPreferredWidth(pixelrect.width());//TODO when the view gets resized, we want to set this again
   chart_.chart()->setPreferredHeight(pixelrect.height());
 
-  chart_.setWindowFlag(Qt::SubWindow, true); // This hides the chart from the taskbar
-  chart_.setGeometry(QRect(-10000, -10000, pixelrect.width(), pixelrect.height())); // This seems to be the only way to get it to display properly is to show it and then hide it, so do it miles off-screen...
 
-  //TODO how is this
-  QWidget* widget = new QWidget();//TODO keep this as a member
+
+  chart_.setWindowFlag(Qt::SubWindow, true); // This hides the chart from the taskbar
+
   widget->setMinimumWidth(pixelrect.width());
   widget->setMinimumHeight(pixelrect.height());
   QGridLayout* layout = new QGridLayout(widget);//TODO keep this as a member
   widget->setContentsMargins(QMargins(0, 0, 0, 0));
   layout->setContentsMargins(0, 0, 0, 0);
   layout->addWidget(&chart_);
+  layout->setVerticalSpacing(0);
+  layout->setHorizontalSpacing(0);
   chart_.chart()->setBackgroundRoundness(0.0);
+
+  chart_.setGeometry(QRect(-10000, -10000, pixelrect.width(), pixelrect.height())); // This seems to be the only way to get it to display properly is to show it and then hide it, so do it miles off-screen...
+  //TODO chart_.show();
+  //TODO chart_.hide();
   widget->show();
   widget->hide();
 
@@ -100,31 +111,12 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   chart_.setContentsMargins(QMargins(0, 0, 0, 0));
   chart_.chart()->setMargins(QMargins(0, 0, 0, 0));
   chart_.chart()->setBackgroundRoundness(0.0);
-  //TODO chart_.setViewportMargins(0, 0, 0, 0);
-
-  chart_.setStyleSheet("{ border: 0; }");
-  widget->setStyleSheet("{ border: 0; }");
-
-  auto aa = chart_.parent();
-  auto bb = chart_.layout();
 
   chart_.setRenderHint(QPainter::Antialiasing, true);
 
   chart_.setBackgroundBrush(QBrush(QColor(0, 0, 0), Qt::SolidPattern));
 
-  //TODO QPalette pal = chart_.palette();
-  //TODO pal.setColor(QPalette::Window, QRgb(0x40434a));
-  //TODO pal.setColor(QPalette::WindowText, QRgb(0xd6d6d6));
-  //TODO chart_.setPalette(pal);
-
   chart_.chart()->setTheme(QChart::ChartTheme::ChartThemeBlueCerulean);
-
-  //TODO chart_.chart()->setBackgroundVisible(false);
-
-  //TODO auto a = chart_.chart()->plotArea();
-  //TODO chart_.chart()->setPlotArea(QRectF(0.0, 0.0, pixelrect.width(), pixelrect.height()));
-
-  //TODO still need to get the background to be the proper nice colour, not sure how to do that... or make it transparent?
 
   for (QSharedPointer<RecordingTrack>& track : tracks_)
   {
@@ -136,12 +128,15 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
         return;
       }
 
+      //TODO we need to initiate live streaming
+
       //TODO do anything?
 
     }, VideoChartView::ControlStreamEnd, nullptr, nullptr, nullptr, nullptr, nullptr, VideoChartView::ObjectDetectorCallback, nullptr, this));
   }
 
   startTimer(std::chrono::seconds(1));
+  SendImage();
 }
 
 VideoChartView::~VideoChartView()
@@ -154,6 +149,7 @@ void VideoChartView::GetMenu(QMenu& parent)
   View::GetMenu(parent);
 
   //TODO right click menu to show/hide object types in a submenu
+    //TODO whole bunch of ticky boxes please
 
 }
 
@@ -173,8 +169,6 @@ double VideoChartView::GetAspectRatio() const
 
 bool VideoChartView::GetImage(ImageBuffer& imagebuffer)
 {
-  //TODO we update the image every 1 with a Qt timer
-
   bool hasimage = false;
   ImageBuffer previmagebuffer;
   while (true)
@@ -238,17 +232,29 @@ void VideoChartView::Scrub(const uint64_t time)
 
 void VideoChartView::timerEvent(QTimerEvent* event)
 {
-  //TODO putting the chart into some kind of stretching widget thing really does the trick...
+  SendImage();
 
-  auto a = chart_.chart()->plotArea();
+}
 
+void VideoChartView::ControlStreamEnd(const uint64_t streamtoken, const uint64_t playrequestindex, const monocle::ErrorCode error, void* callbackdata)
+{
+  //TODO do stuff
+
+}
+
+void VideoChartView::ObjectDetectorCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
+{
+  qDebug() << size;//TODO lets do stuff... make sure streamtoken is happy
+
+}
+
+void VideoChartView::SendImage()
+{
   QImage image(chart_.chart()->preferredWidth(), chart_.chart()->preferredHeight(), QImage::Format::Format_RGBX8888);
   QPainter painter(&image);
-  //TODO chart_.render(&painter, QRectF(), QRect(a.left(), a.top(), a.width(), a.height()));
   chart_.render(&painter);
 
   //TODO auto b = image.save("test.jpg");//TODO remove
-  //TODO why is it a tiny chart inside the big image?
 
   ImageBuffer imagebuffer = freeimagequeue_.GetFreeImage();
   imagebuffer.Destroy(); // Don't mind doing this, because the map will only update very infrequently
@@ -264,22 +270,6 @@ void VideoChartView::timerEvent(QTimerEvent* event)
   std::memcpy(imagebuffer.buffer_, image.bits(), image.sizeInBytes());
 
   imagequeue_.push(imagebuffer);
-
-  int i = 0;//TODO remove
-  
-
-}
-
-void VideoChartView::ControlStreamEnd(const uint64_t streamtoken, const uint64_t playrequestindex, const monocle::ErrorCode error, void* callbackdata)
-{
-  //TODO do stuff
-
-}
-
-void VideoChartView::ObjectDetectorCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
-{
-  //TODO lets do stuff... make sure streamtoken is happy
-
 }
 
 }
