@@ -11,6 +11,8 @@
 #include <QWidget>
 
 #include "monocleclient/mainwindow.h"
+#include "monocleclient/recording.h"
+#include "monocleclient/recordingtrack.h"
 #include "monocleclient/videowidget.h"
 
 ///// Namespaces /////
@@ -82,6 +84,7 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   chart_.setWindowFlag(Qt::SubWindow, true); // This hides the chart from the taskbar
   chart_.setGeometry(QRect(-10000, -10000, pixelrect.width(), pixelrect.height())); // This seems to be the only way to get it to display properly is to show it and then hide it, so do it miles off-screen...
 
+  //TODO how is this
   QWidget* widget = new QWidget();//TODO keep this as a member
   widget->setMinimumWidth(pixelrect.width());
   widget->setMinimumHeight(pixelrect.height());
@@ -123,9 +126,22 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
 
   //TODO still need to get the background to be the proper nice colour, not sure how to do that... or make it transparent?
 
-  startTimer(std::chrono::seconds(1));
+  for (QSharedPointer<RecordingTrack>& track : tracks_)
+  {
+    createstreamsconnections_.push_back(device_->CreateStream(recording_->GetToken(), track->GetId(), [this](const std::chrono::nanoseconds latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
+    {
+      if (createstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
+      {
+        //TODO messagebox?
+        return;
+      }
 
-  //TODO set background to black and everything else to some nice colour I think
+      //TODO do anything?
+
+    }, VideoChartView::ControlStreamEnd, nullptr, nullptr, nullptr, nullptr, nullptr, VideoChartView::ObjectDetectorCallback, nullptr, this));
+  }
+
+  startTimer(std::chrono::seconds(1));
 }
 
 VideoChartView::~VideoChartView()
@@ -137,7 +153,7 @@ void VideoChartView::GetMenu(QMenu& parent)
 {
   View::GetMenu(parent);
 
-  //TODO right click menu to show/hide object types
+  //TODO right click menu to show/hide object types in a submenu
 
 }
 
@@ -251,6 +267,18 @@ void VideoChartView::timerEvent(QTimerEvent* event)
 
   int i = 0;//TODO remove
   
+
+}
+
+void VideoChartView::ControlStreamEnd(const uint64_t streamtoken, const uint64_t playrequestindex, const monocle::ErrorCode error, void* callbackdata)
+{
+  //TODO do stuff
+
+}
+
+void VideoChartView::ObjectDetectorCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
+{
+  //TODO lets do stuff... make sure streamtoken is happy
 
 }
 
