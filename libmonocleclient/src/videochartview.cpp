@@ -5,6 +5,7 @@
 
 #include "monocleclient/videochartview.h"
 
+#include <monocleprotocol/objectdetectorframetype_generated.h>
 #include <QImage>
 #include <QPainter>
 #include <QPixmap>
@@ -91,8 +92,10 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   chart_.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   chart_.chart()->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   chart_.chart()->setPreferredWidth(pixelrect.width());//TODO when the view gets resized, we want to set this again
+  //TODO maybe we can override SetPosition and refresh all this?
   chart_.chart()->setPreferredHeight(pixelrect.height());
 
+  //Can we remove any of this stuff?
   widget_->setContentsMargins(QMargins(0, 0, 0, 0));
   layout_->setContentsMargins(0, 0, 0, 0);
   layout_->addWidget(&chart_);
@@ -244,14 +247,31 @@ void VideoChartView::timerEvent(QTimerEvent* event)
 
 void VideoChartView::ControlStreamEnd(const uint64_t streamtoken, const uint64_t playrequestindex, const monocle::ErrorCode error, void* callbackdata)
 {
-  //TODO do stuff
 
 }
 
 void VideoChartView::ObjectDetectorCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
 {
-  qDebug() << size;//TODO lets do stuff... make sure streamtoken is happy
+  VideoChartView* videochartview = reinterpret_cast<VideoChartView*>(callbackdata);
+  if (objectdetectorframetype == monocle::ObjectDetectorFrameType::OBJECT_DETECTION)
+  {
+    if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(signaturedata), signaturedatasize).VerifyBuffer<monocle::Objects>(nullptr))
+    {
+      // Ignore illegal packets
+      return;
+    }
 
+    const monocle::Objects* objects = flatbuffers::GetRoot<monocle::Objects>(signaturedata);
+    if ((objects == nullptr) || (objects->objects() == nullptr))
+    {
+
+      return;
+    }
+
+    //TODO add this to the graphing data...
+    qDebug() << size;//TODO lets do stuff... make sure streamtoken is happy
+
+  }
 }
 
 void VideoChartView::SendImage()
