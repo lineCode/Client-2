@@ -886,13 +886,22 @@ class Client
     {
       const int64_t utctimemilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() - offset_;
       const int64_t utctimeseconds = utctimemilliseconds / 1000;
+#ifdef _WIN32
+      tm* utcunixtime = gmtime(reinterpret_cast<const time_t*>(&utctimeseconds));
+      if (utcunixtime == nullptr)
+      {
+        time_t t = time(NULL);
+        utcunixtime = gmtime(&t);
+      }
+#else
       struct tm tmp;
-      tm* utcunixtime = gmtime_r(reinterpret_cast<const time_t*>(&utctimeseconds), &tmp);//TODO maybe gmtime_s on windows not sure...?
+      tm* utcunixtime = gmtime_r(reinterpret_cast<const time_t*>(&utctimeseconds), &tmp);
       if (utcunixtime == nullptr)
       {
         time_t t = time(NULL);
         utcunixtime = gmtime_r(&t, &tmp);
       }
+#endif
       
       std::stringstream month; month << std::setfill('0') << std::setw(2) << utcunixtime->tm_mon + 1;
       std::stringstream day; day << std::setfill('0') << std::setw(2) << utcunixtime->tm_mday;
