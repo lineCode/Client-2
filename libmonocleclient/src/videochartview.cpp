@@ -31,6 +31,8 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
 {
   SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), rotation_, mirror_, stretch_, true);
 
+  //TODO Stacked bar chart with each object type to start with
+
   //TODO I think the begin with, we ONLY listen to live and we draw graphs based upon live only...
 
 //TODO stretch, rotation, mirror need to be removed from menu options
@@ -44,6 +46,8 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   //TODO we want to kick off authentication and start streaming live object data from the tracks
     //TODO we will also want history too though... not sure how to deal with both...
     //TODO just copy video view and bang off we go
+
+  //TODO only show objects that appear in the legend, no need to show giraffes if there aren't any imo
 
   //TODO tidy up all this shit
   QValueAxis* cpuaxisx_ = new QValueAxis(this);
@@ -79,7 +83,7 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   const QRect pixelrect = GetPixelRect();
 
   QWidget* widget = new QWidget();//TODO keep this as a member
-  //TODO widget->setGeometry(QRect(-10000, -10000, widget->geometry().width(), widget->geometry().height())); // This seems to be the only way to get it to display properly is to show it and then hide it, so do it miles off-screen...
+  widget->setGeometry(QRect(-10000, -10000, pixelrect.width(), pixelrect.height())); // This seems to be the only way to get it to display properly is to show it and then hide it, so do it miles off-screen...
 
 
   chart_.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
@@ -99,13 +103,9 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   layout->addWidget(&chart_);
   layout->setVerticalSpacing(0);
   layout->setHorizontalSpacing(0);
+  layout->setColumnStretch(0, 1);
+  layout->setRowStretch(0, 1);
   chart_.chart()->setBackgroundRoundness(0.0);
-
-  chart_.setGeometry(QRect(-10000, -10000, pixelrect.width(), pixelrect.height())); // This seems to be the only way to get it to display properly is to show it and then hide it, so do it miles off-screen...
-  //TODO chart_.show();
-  //TODO chart_.hide();
-  widget->show();
-  widget->hide();
 
   chart_.chart()->setContentsMargins(QMargins(0, 0, 0, 0));
   chart_.setContentsMargins(QMargins(0, 0, 0, 0));
@@ -117,6 +117,12 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   chart_.setBackgroundBrush(QBrush(QColor(0, 0, 0), Qt::SolidPattern));
 
   chart_.chart()->setTheme(QChart::ChartTheme::ChartThemeBlueCerulean);
+
+  //TODO chart_.setGeometry(QRect(-10000, -10000, pixelrect.width(), pixelrect.height())); // This seems to be the only way to get it to display properly is to show it and then hide it, so do it miles off-screen...
+  //TODO chart_.show();
+  //TODO chart_.hide();
+  widget->show();
+  widget->hide();
 
   for (QSharedPointer<RecordingTrack>& track : tracks_)
   {
