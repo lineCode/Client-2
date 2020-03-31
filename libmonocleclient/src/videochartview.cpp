@@ -27,6 +27,8 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   device_(device),
   recording_(recording),
   tracks_(tracks),
+  widget_(new QWidget()),
+  layout_(new QGridLayout(widget_)),
   chart_(nullptr, nullptr)
 {
   SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), rotation_, mirror_, stretch_, true);
@@ -79,54 +81,40 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   chart_.chart()->addAxis(cpuaxisy_, Qt::AlignLeft);
   cpu_->attachAxis(cpuaxisx_);
   cpu_->attachAxis(cpuaxisy_);
-  
+
+  // Setup the chart itself. It gets drawn offscreen and then copied in
   const QRect pixelrect = GetPixelRect();
-
-  QWidget* widget = new QWidget();//TODO keep this as a member
-  widget->setGeometry(QRect(-10000, -10000, pixelrect.width(), pixelrect.height())); // This seems to be the only way to get it to display properly is to show it and then hide it, so do it miles off-screen...
-
+  widget_->setMinimumWidth(pixelrect.width());
+  widget_->setMinimumHeight(pixelrect.height());
+  widget_->setGeometry(QRect(-10000, -10000, pixelrect.width(), pixelrect.height())); // This seems to be the only way to get it to display properly is to show it and then hide it, so do it miles off-screen...
 
   chart_.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   chart_.chart()->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   chart_.chart()->setPreferredWidth(pixelrect.width());//TODO when the view gets resized, we want to set this again
   chart_.chart()->setPreferredHeight(pixelrect.height());
 
-
-
-  chart_.setWindowFlag(Qt::SubWindow, true); // This hides the chart from the taskbar
-
-  widget->setMinimumWidth(pixelrect.width());
-  widget->setMinimumHeight(pixelrect.height());
-  QGridLayout* layout = new QGridLayout(widget);//TODO keep this as a member
-  widget->setContentsMargins(QMargins(0, 0, 0, 0));
-  layout->setContentsMargins(0, 0, 0, 0);
-  layout->addWidget(&chart_);
-  layout->setVerticalSpacing(0);
-  layout->setHorizontalSpacing(0);
-  layout->setColumnStretch(0, 1);
-  layout->setRowStretch(0, 1);
+  widget_->setContentsMargins(QMargins(0, 0, 0, 0));
+  layout_->setContentsMargins(0, 0, 0, 0);
+  layout_->addWidget(&chart_);
+  layout_->setVerticalSpacing(0);
+  layout_->setHorizontalSpacing(0);
+  layout_->setColumnStretch(0, 1);
+  layout_->setRowStretch(0, 1);
   chart_.chart()->setBackgroundRoundness(0.0);
-
+  chart_.setWindowFlag(Qt::SubWindow, true); // This hides the chart from the taskbar
   chart_.chart()->setContentsMargins(QMargins(0, 0, 0, 0));
   chart_.setContentsMargins(QMargins(0, 0, 0, 0));
   chart_.chart()->setMargins(QMargins(0, 0, 0, 0));
   chart_.chart()->setBackgroundRoundness(0.0);
-
   chart_.setRenderHint(QPainter::Antialiasing, true);
-
   chart_.setBackgroundBrush(QBrush(QColor(0, 0, 0), Qt::SolidPattern));
-
   chart_.chart()->setTheme(QChart::ChartTheme::ChartThemeBlueCerulean);
-
-  //TODO chart_.setGeometry(QRect(-10000, -10000, pixelrect.width(), pixelrect.height())); // This seems to be the only way to get it to display properly is to show it and then hide it, so do it miles off-screen...
-  //TODO chart_.show();
-  //TODO chart_.hide();
-  widget->show();
-  widget->hide();
+  widget_->show(); // For some bizarre reason, this is required.
+  widget_->hide();
 
   for (QSharedPointer<RecordingTrack>& track : tracks_)
   {
-    createstreamsconnections_.push_back(device_->CreateStream(recording_->GetToken(), track->GetId(), [this](const std::chrono::nanoseconds latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
+    streamsconnections_.push_back(device_->CreateStream(recording_->GetToken(), track->GetId(), [this](const std::chrono::nanoseconds latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
     {
       if (createstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
       {
@@ -134,10 +122,17 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
         return;
       }
 
-      //TODO we need to initiate live streaming
+      streamsconnections_.push_back(device_->ControlStreamLive(createstreamresponse.token_, 1, [this](const std::chrono::steady_clock::duration latency, const monocle::client::CONTROLSTREAMRESPONSE& controlstreamresponse)
+      {
+        if (controlstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
+        {
+          //TODO messagebox?
+          return;
+        }
 
-      //TODO do anything?
+        //TODO do anything?
 
+      }));
     }, VideoChartView::ControlStreamEnd, nullptr, nullptr, nullptr, nullptr, nullptr, VideoChartView::ObjectDetectorCallback, nullptr, this));
   }
 
@@ -147,6 +142,11 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
 
 VideoChartView::~VideoChartView()
 {
+  std::for_each(streamsconnections_.begin(), streamsconnections_.end(), [](monocle::client::Connection& connection) { connection.Close(); });
+
+  //TODO delete layout_ and widget_
+
+  //TODO stop streaming plz
 
 }
 

@@ -8,6 +8,7 @@
 
 #include <boost/asio.hpp>
 #include <monocleprotocol/client/connection.hpp>
+#include <QGridLayout>
 #include <QtCharts>
 #include <QWidget>
 #include <vector>
@@ -69,9 +70,11 @@ class VideoChartView : public View
   QSharedPointer<Recording> recording_;
   std::vector< QSharedPointer<RecordingTrack> > tracks_;
 
+  QWidget* widget_;
+  QGridLayout* layout_;
   QChartView chart_;
 
-  std::vector<monocle::client::Connection> createstreamsconnections_;
+  std::vector<monocle::client::Connection> streamsconnections_;
 
  private slots:
 
