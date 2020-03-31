@@ -7,6 +7,10 @@
 #pragma warning(push)
 #pragma warning(disable : 4003)
 
+///// Defines /////
+
+#define __STDC_WANT_LIB_EXT1__ 1
+
 ///// Includes /////
 
 #include <algorithm>
@@ -882,11 +886,12 @@ class Client
     {
       const int64_t utctimemilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() - offset_;
       const int64_t utctimeseconds = utctimemilliseconds / 1000;
-      tm* utcunixtime = gmtime(reinterpret_cast<const time_t*>(&utctimeseconds));
+      struct tm tmp;
+      tm* utcunixtime = gmtime_r(reinterpret_cast<const time_t*>(&utctimeseconds), &tmp);//TODO maybe gmtime_s on windows not sure...?
       if (utcunixtime == nullptr)
       {
         time_t t = time(NULL);
-        utcunixtime = gmtime(&t);
+        utcunixtime = gmtime_r(&t, &tmp);
       }
       
       std::stringstream month; month << std::setfill('0') << std::setw(2) << utcunixtime->tm_mon + 1;
