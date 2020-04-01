@@ -97,7 +97,6 @@ void RecordingBlocks::Init()
 
     }
   }
-  endtime_ = std::chrono::steady_clock::now();
 
   recordingblockvertices_.create();
   recordingblockvertices_.setUsagePattern(QOpenGLBuffer::DynamicDraw);
