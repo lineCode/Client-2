@@ -1059,7 +1059,8 @@ void FindObjectPlaybackWidget::mouseReleaseEvent(QMouseEvent* event)
         }
         else
         {
-          if (time >= endtime_)
+          
+          if (recordingblocks_.size() && (time >= recordingblocks_.back()->GetEndTime()))
           {
             // User has selected a time beyond its latest time, so just go live
             GetFindObjectVideoWidget()->playmarkertime_ = std::chrono::duration_cast<std::chrono::milliseconds>((std::chrono::system_clock::now()).time_since_epoch()).count() + GetDevice()->GetTimeOffset();
