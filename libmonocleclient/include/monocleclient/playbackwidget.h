@@ -127,8 +127,8 @@ class PlaybackWidget : public QOpenGLWidget, protected QOpenGLFunctions
 
   void Destroy();
 
+  inline uint64_t GetGlobalStartTime() const { return globalstarttime_; }
   inline uint64_t GetGlobalEndTime() const { return globalendtime_; }
-  std::pair<uint64_t, uint64_t> GetStartEndTime() const;
   void UpdateRecordingsBlocks();
   
   inline const boost::optional<uint64_t>& GetExportStartTime() const { return exportstarttime_; }

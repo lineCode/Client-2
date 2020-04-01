@@ -17,7 +17,7 @@
 #include "monocleclient/recordingjobsource.h"
 #include "monocleclient/recordingjobsourcetrack.h"
 #include "monocleclient/videoview.h"
-#include <QDebug>//TODO remove
+
 ///// Namespaces /////
 
 namespace client
@@ -313,7 +313,6 @@ void RecordingBlocks::JobSourceTrackStateChanged(const QSharedPointer<client::Re
   }
 
   playbackwidget_->makeCurrent();
-  const boost::optional< std::pair<uint64_t, uint64_t> > startendtime = playbackwidget_->GetStartEndTime();
   if (state == monocle::RecordingJobState::Active) // Create or extend the RecordingBlock
   {
     const bool metadata = (track->GetTrack()->GetTrackType() == monocle::TrackType::Metadata) || (track->GetTrack()->GetTrackType() == monocle::TrackType::ObjectDetector);
@@ -335,22 +334,16 @@ void RecordingBlocks::JobSourceTrackStateChanged(const QSharedPointer<client::Re
         recordingtrack->second.emplace_back(std::move(rb));
       }
     }
-    if (startendtime.is_initialized())
-    {
-      Update(top_, bottom_, metadatatop_, metadatabottom_, minwidth_, startendtime->first, startendtime->second, playbackwidget_->GetGlobalEndTime());
-      playbackwidget_->update();
-    }
+    Update(top_, bottom_, metadatatop_, metadatabottom_, minwidth_, playbackwidget_->GetGlobalStartTime(), playbackwidget_->GetGlobalEndTime(), playbackwidget_->GetGlobalEndTime());
+    playbackwidget_->update();
   }
   else if ((prevstate == monocle::RecordingJobState::Active) && ((state == monocle::RecordingJobState::Idle) || (state == monocle::RecordingJobState::Error))) // Close the oldest RecordingBlock
   {
     if (!recordingtrack->second.empty())
     {
       recordingtrack->second.back()->SetEndTime(time);
-      if (startendtime.is_initialized())
-      {
-        Update(top_, bottom_, metadatatop_, metadatabottom_, minwidth_, startendtime->first, startendtime->second, playbackwidget_->GetGlobalEndTime());
-        playbackwidget_->update();
-      }
+      Update(top_, bottom_, metadatatop_, metadatabottom_, minwidth_, playbackwidget_->GetGlobalStartTime(), playbackwidget_->GetGlobalEndTime(), playbackwidget_->GetGlobalEndTime());
+      playbackwidget_->update();
     }
   }
   playbackwidget_->doneCurrent();

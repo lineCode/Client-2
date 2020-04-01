@@ -381,8 +381,6 @@ void PlaybackWidget::Destroy()
 
 void PlaybackWidget::UpdateRecordingsBlocks()
 {
-  const std::pair<uint64_t, uint64_t> startendtime = GetStartEndTime();
-
   UpdateGUITimelines();
 
   const float pixelheight = 2.0f / static_cast<float>(height());
@@ -393,7 +391,7 @@ void PlaybackWidget::UpdateRecordingsBlocks()
   {
     const float top = recordingsblockstop - ((i * pixelheight * RECORDINGBLOCKS_HEIGHT) + pixelheight);
     const float bottom = top - (pixelheight * (RECORDINGBLOCKS_HEIGHT - 1));
-    recordingsblocks_.at(i)->Update(top, bottom, top - pixelheight, bottom + pixelheight, pixelwidth, startendtime.first, startendtime.second, globalendtime_);//TODO this is just send the globalendtime_ twice...
+    recordingsblocks_.at(i)->Update(top, bottom, top - pixelheight, bottom + pixelheight, pixelwidth, globalstarttime_, globalendtime_, globalendtime_);//TODO this is just send the globalendtime_ twice...
   }
 
   // Quick export start and end markers
@@ -402,7 +400,7 @@ void PlaybackWidget::UpdateRecordingsBlocks()
   if (exportstarttime_.is_initialized())
   {
     exportstartvertices_.bind();
-    const float position = (static_cast<float>(*exportstarttime_ - startendtime.first) / static_cast<float>(startendtime.second - startendtime.first) * 2.0f) - 1.0f;
+    const float position = (static_cast<float>(*exportstarttime_ - globalstarttime_) / static_cast<float>(globalendtime_ - globalstarttime_) * 2.0f) - 1.0f;
     const std::array<float, 4> vertices =
     {
       position, -1.0f,
@@ -430,7 +428,7 @@ void PlaybackWidget::UpdateRecordingsBlocks()
   if (exportendtime_.is_initialized())
   {
     exportendvertices_.bind();
-    const float position = (static_cast<float>(*exportendtime_ - startendtime.first) / static_cast<float>(startendtime.second - startendtime.first) * 2.0f) - 1.0f;
+    const float position = (static_cast<float>(*exportendtime_ - globalstarttime_) / static_cast<float>(globalendtime_ - globalstarttime_) * 2.0f) - 1.0f;
     const std::array<float, 4> vertices =
     {
       position, -1.0f,
@@ -456,11 +454,6 @@ void PlaybackWidget::UpdateRecordingsBlocks()
   }
 
   update(); // Schedule redraw
-}
-
-std::pair<uint64_t, uint64_t> PlaybackWidget::GetStartEndTime() const//TODO goes away?
-{
-  return std::make_pair(globalstarttime_, globalendtime_);
 }
 
 void PlaybackWidget::initializeGL()
@@ -873,8 +866,7 @@ void PlaybackWidget::timerEvent(QTimerEvent*)
     const int x = mapFromGlobal(QCursor::pos()).x();
     if ((clickedpos_ != x) && (std::chrono::steady_clock::now() - clickedtime_) > SCRUB_DELAY) // If we are scrubbing, because we block the client from spamming the server, we need to check the mouse position here
     {
-      const std::pair<uint64_t, uint64_t> startendtime = GetStartEndTime();
-      Scrub(startendtime, x);
+      Scrub(std::make_pair(globalstarttime_, globalendtime_), x);
       clickedpos_ = x;
       clickedtime_ = std::chrono::steady_clock::now();
     }
@@ -892,7 +884,6 @@ void PlaybackWidget::timerEvent(QTimerEvent*)
 
 void PlaybackWidget::mouseMoveEvent(QMouseEvent* event)
 {
-  const std::pair<uint64_t, uint64_t> startendtime = GetStartEndTime();
   if (state_ == PLAYBACKMOUSESTATE_MOVESTART)
   {
     if (!exportstarttime_.is_initialized()) // Shouldn't happen but just in case
@@ -907,7 +898,7 @@ void PlaybackWidget::mouseMoveEvent(QMouseEvent* event)
       return;
     }
 
-    const uint64_t newtime = static_cast<uint64_t>(((static_cast<double>(event->pos().x()) / static_cast<double>(width())) * (startendtime.second - startendtime.first)) + startendtime.first);
+    const uint64_t newtime = static_cast<uint64_t>(((static_cast<double>(event->pos().x()) / static_cast<double>(width())) * (globalendtime_ - globalstarttime_)) + globalstarttime_);
     makeCurrent();
     SetExportStartTime(std::min(newtime, exportendtime_.is_initialized() ? *exportendtime_ : std::numeric_limits<uint64_t>::max()));
     UpdateRecordingsBlocks();
@@ -927,7 +918,7 @@ void PlaybackWidget::mouseMoveEvent(QMouseEvent* event)
       return;
     }
 
-    const uint64_t newtime = static_cast<uint64_t>(((static_cast<double>(event->pos().x()) / static_cast<double>(width())) * (startendtime.second - startendtime.first)) + startendtime.first);
+    const uint64_t newtime = static_cast<uint64_t>(((static_cast<double>(event->pos().x()) / static_cast<double>(width())) * (globalendtime_ - globalstarttime_)) + globalstarttime_);
     makeCurrent();
     SetExportEndTime(std::max(newtime, exportstarttime_.is_initialized() ? *exportstarttime_ : std::numeric_limits<uint64_t>::max())); // Cap at the start time
     UpdateRecordingsBlocks();
@@ -979,7 +970,7 @@ void PlaybackWidget::mouseMoveEvent(QMouseEvent* event)
       return;
     }
 
-    Scrub(startendtime, event->pos().x());
+    Scrub(std::make_pair(globalstarttime_, globalendtime_), event->pos().x());
 
     clickedpos_ = event->pos().x();
     clickedtime_ = std::chrono::steady_clock::now();
@@ -1070,19 +1061,12 @@ void PlaybackWidget::mouseReleaseEvent(QMouseEvent* event)
 {
   if (state_ == PLAYBACKMOUSESTATE_CLICKED) // View the currently selected time
   {
-    const boost::optional< std::pair<uint64_t, uint64_t> > startendtime = GetStartEndTime();
-    if (!startendtime.is_initialized())
-    {
-
-      return;
-    }
-
     makeCurrent();
     if (event->button() == Qt::LeftButton)
     {
       if (event->modifiers() & Qt::SHIFT)
       {
-        const uint64_t time = startendtime->first + (static_cast<double>(event->pos().x()) / static_cast<double>(width()) * static_cast<double>(startendtime->second - startendtime->first));
+        const uint64_t time = globalstarttime_ + (static_cast<double>(event->pos().x()) / static_cast<double>(width()) * static_cast<double>(globalendtime_ - globalstarttime_));
         if (!exportstarttime_.is_initialized())
         {
           SetExportStartTime(time);
@@ -1107,7 +1091,7 @@ void PlaybackWidget::mouseReleaseEvent(QMouseEvent* event)
       }
       else
       {
-        const uint64_t time = startendtime->first + ((static_cast<double>(event->pos().x()) / static_cast<double>(width())) * static_cast<double>(startendtime->second - startendtime->first));
+        const uint64_t time = globalstarttime_ + ((static_cast<double>(event->pos().x()) / static_cast<double>(width())) * static_cast<double>(globalendtime_ - globalstarttime_));
         for (QSharedPointer<RecordingBlocks>& recordingblocks : recordingsblocks_)
         {
           if (recordingblocks->GetView()->IsPaused())
@@ -1153,8 +1137,8 @@ void PlaybackWidget::mouseReleaseEvent(QMouseEvent* event)
   }
   else if (state_ == PLAYBACKMOUSESTATE_MOVEMARKER)
   {
-    const std::pair<uint64_t, uint64_t> startendtime = GetStartEndTime();
-    Scrub(startendtime, mapFromGlobal(QCursor::pos()).x());
+    Scrub(std::make_pair(globalstarttime_, globalendtime_), mapFromGlobal(QCursor::pos()).x());
+
   }
 
   SetState(PLAYBACKMOUSESTATE_IDLE);
@@ -1190,8 +1174,7 @@ bool PlaybackWidget::Hit(const uint64_t time, const int top, const int bottom, c
     return false;
   }
 
-  const std::pair<uint64_t, uint64_t> startendtime = GetStartEndTime();
-  const int timex = (static_cast<double>(time - startendtime.first) / static_cast<double>(startendtime.second - startendtime.first)) * width();
+  const int timex = (static_cast<double>(time - globalstarttime_) / static_cast<double>(globalendtime_ - globalstarttime_)) * width();
   return ((pos.x() == timex) || ((pos.x() - 1) == timex) || ((pos.x() + 1) == timex) || ((pos.x() - 2) == timex) || ((pos.x() + 2) == timex)); // Give it a bit of leeway...
 }
 
@@ -1276,29 +1259,29 @@ void PlaybackWidget::UpdateGUIHorizontalLines()
 
 void PlaybackWidget::UpdateGUITimelines()
 {
-  const std::pair<uint64_t, uint64_t> startendtime = GetStartEndTime();
-  if (prevstartendtime_ == startendtime) // Nothing has changed, just continue on
+  if ((prevstartendtime_.first == globalstarttime_) && (prevstartendtime_.second == globalendtime_)) // Nothing has changed, just continue on
   {
 
     return;
   }
-  prevstartendtime_ = startendtime;
+  prevstartendtime_.first = globalstarttime_;
+  prevstartendtime_.first = globalendtime_;
 
   guitimelinedarkmarkers_.clear();
   guitimelinelightmarkers_.clear();
-  const uint64_t diff = startendtime.second - startendtime.first;
+  const uint64_t diff = globalendtime_ - globalstarttime_;
   const float pixelheight = 2.0f / static_cast<float>(height());
   const float pixelwidth = 2.0f / static_cast<float>(width());
   int guitimelinetextsindex = 0;
 
-  const TIMELINEGENERATOR timelinegenerator = TimelineGenerator(startendtime);
+  const TIMELINEGENERATOR timelinegenerator = TimelineGenerator(std::make_pair(globalstarttime_, globalendtime_));
   
   QTextOption textoption(Qt::AlignHCenter | Qt::AlignVCenter);
   textoption.setWrapMode(QTextOption::WrapMode::NoWrap);
 
   // Top
   QDateTime toptime = timelinegenerator.startdatetime_;
-  const QDateTime endtime = QDateTime::fromMSecsSinceEpoch(startendtime.second, Qt::UTC);
+  const QDateTime endtime = QDateTime::fromMSecsSinceEpoch(globalendtime_, Qt::UTC);
   double maxheight = 0.0f;
   while (toptime <= endtime)
   {
@@ -1310,7 +1293,7 @@ void PlaybackWidget::UpdateGUITimelines()
     const uint64_t step = nexttime.toMSecsSinceEpoch() - toptime.toMSecsSinceEpoch();
 
     // Lines
-    const float position = -1.0 + (((static_cast<double>(toptime.toMSecsSinceEpoch()) - static_cast<double>(startendtime.first)) / static_cast<double>(diff)) * 2.0);
+    const float position = -1.0 + (((static_cast<double>(toptime.toMSecsSinceEpoch()) - static_cast<double>(globalstarttime_)) / static_cast<double>(diff)) * 2.0);
     guitimelinedarkmarkers_.push_back(position);
     guitimelinedarkmarkers_.push_back(-1.0f);
     guitimelinedarkmarkers_.push_back(position);
@@ -1372,7 +1355,7 @@ void PlaybackWidget::UpdateGUITimelines()
       const uint64_t step = nexttime.toMSecsSinceEpoch() - bottime.toMSecsSinceEpoch();
 
       // Lines
-      const float position = -1.0 + (((static_cast<double>(bottime.toMSecsSinceEpoch()) - static_cast<double>(startendtime.first)) / static_cast<double>(diff)) * 2.0);
+      const float position = -1.0 + (((static_cast<double>(bottime.toMSecsSinceEpoch()) - static_cast<double>(globalstarttime_)) / static_cast<double>(diff)) * 2.0);
       guitimelinelightmarkers_.push_back(position);
       guitimelinelightmarkers_.push_back(-1.0f);
       guitimelinelightmarkers_.push_back(position);
@@ -1428,17 +1411,16 @@ void PlaybackWidget::UpdateGUITimelines()
 
 void PlaybackWidget::ZoomIn(const int x)
 {
-  const std::pair<uint64_t, uint64_t> startendtime = GetStartEndTime();
-  const int64_t diff = static_cast<int64_t>(startendtime.second) - static_cast<int64_t>(startendtime.first);
-  const int64_t time = static_cast<int64_t>(startendtime.first) + (diff * static_cast<double>(x) / static_cast<double>(width()));
+  const int64_t diff = static_cast<int64_t>(globalendtime_) - static_cast<int64_t>(globalstarttime_);
+  const int64_t time = static_cast<int64_t>(globalstarttime_) + (diff * static_cast<double>(x) / static_cast<double>(width()));
   if (diff < (40 * 1000)) // Don't zoom in too far(40 seconds)
   {
 
     return;
   }
 
-  const uint64_t newstarttime = static_cast<int64_t>(time - ((time - static_cast<int64_t>(startendtime.first)) / 1.25));
-  const uint64_t newendtime = static_cast<int64_t>(time + ((static_cast<int64_t>(startendtime.second) - static_cast<int64_t>(time)) / 1.25));
+  const uint64_t newstarttime = static_cast<int64_t>(time - ((time - static_cast<int64_t>(globalstarttime_)) / 1.25));
+  const uint64_t newendtime = static_cast<int64_t>(time + ((static_cast<int64_t>(globalendtime_) - static_cast<int64_t>(time)) / 1.25));
   globalstarttime_ = newstarttime;
   globalendtime_ = newendtime;
   makeCurrent();
@@ -1448,12 +1430,11 @@ void PlaybackWidget::ZoomIn(const int x)
 
 void PlaybackWidget::ZoomOut(const int x)
 {
-  const std::pair<uint64_t, uint64_t> startendtime = GetStartEndTime();
-  const double diff = static_cast<double>(startendtime.second) - static_cast<double>(startendtime.first);
-  const double time = static_cast<double>(startendtime.first) + (diff * static_cast<double>(x) / static_cast<double>(width()));
-  const uint64_t newstarttime = std::max(START_EPOCH, static_cast<qint64>(static_cast<double>(startendtime.first) - ((time - static_cast<double>(startendtime.first)) / diff) * 0.25 * diff));
+  const double diff = static_cast<double>(globalendtime_) - static_cast<double>(globalstarttime_);
+  const double time = static_cast<double>(globalstarttime_) + (diff * static_cast<double>(x) / static_cast<double>(width()));
+  const uint64_t newstarttime = std::max(START_EPOCH, static_cast<qint64>(static_cast<double>(globalstarttime_) - ((time - static_cast<double>(globalstarttime_)) / diff) * 0.25 * diff));
   const int64_t endepoch = std::min(END_EPOCH, QDateTime::fromMSecsSinceEpoch(newstarttime, Qt::UTC).addYears(20).toMSecsSinceEpoch()); // Don't let the user expand beyond 20 years or the END_EPOCH year
-  const uint64_t newendtime = std::min(endepoch, static_cast<int64_t>(static_cast<double>(startendtime.second) + (((static_cast<double>(startendtime.second) - time) / diff) * 0.25 * diff)));
+  const uint64_t newendtime = std::min(endepoch, static_cast<int64_t>(static_cast<double>(globalendtime_) + (((static_cast<double>(globalendtime_) - time) / diff) * 0.25 * diff)));
   globalstarttime_ = newstarttime;
   globalendtime_ = newendtime;
   makeCurrent();
