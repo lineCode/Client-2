@@ -93,8 +93,8 @@ class FindObjectPlaybackWidget : public QOpenGLWidget, protected QOpenGLFunction
 
  private:
 
-  boost::optional<uint64_t> GetStartTime() const;
-  boost::optional< std::pair<uint64_t, uint64_t> > GetStartEndTime() const;
+  inline uint64_t GetStartTime() const { return starttime_; }
+  inline uint64_t GetEndTime() const { return endtime_; }
   float GetRecordingBlocksTop() const;
   void UpdateGUIHorizontalLines();
   bool Hit(const uint64_t time, const int x);
@@ -133,9 +133,8 @@ class FindObjectPlaybackWidget : public QOpenGLWidget, protected QOpenGLFunction
   std::vector<float> metadatarecordingblockverticesdata_;
   QOpenGLBuffer metadatarecordingblockvertices_;
 
-  boost::optional<uint64_t> starttime_;
+  uint64_t starttime_;
   uint64_t endtime_;
-  boost::optional< std::pair<uint64_t, uint64_t> > zoomtimes_; // <start, end> boost::none represents that the starttime_ and endtime_ should be used
 
   QOpenGLBuffer guitimelinedarkvertices_;
   QOpenGLBuffer guitimelinelightvertices_;

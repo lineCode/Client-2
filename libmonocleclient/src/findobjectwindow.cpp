@@ -1125,7 +1125,7 @@ void FindObjectWindow::on_buttonstop_clicked()
 {
   if (videostreamtoken_.is_initialized() && metadatastreamtoken_.is_initialized() && connection_)
   {
-    ui_.videowidget->playmarkertime_ = ui_.playbackwidget->endtime_ + device_->GetTimeOffset();
+    ui_.videowidget->playmarkertime_ = std::chrono::duration_cast<std::chrono::milliseconds>((std::chrono::system_clock::now()).time_since_epoch()).count() + device_->GetTimeOffset();
     ui_.videowidget->frametime_ = std::chrono::steady_clock::now();
     ui_.videowidget->SetPaused(false);
     connection_->ControlStreamLive(*videostreamtoken_, ui_.videowidget->GetNextVideoPlayRequestIndex());

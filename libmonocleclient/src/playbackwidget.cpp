@@ -1117,7 +1117,7 @@ void PlaybackWidget::mouseReleaseEvent(QMouseEvent* event)
               }
               else if (recordingblocks->GetView()->GetViewType() == VIEWTYPE_MONOCLE)
               {
-                recordingblocks->GetView()->SetPlayMarkerTime(*endtime + recordingblocks->GetView()->GetTimeOffset());
+                recordingblocks->GetView()->SetPlayMarkerTime(std::chrono::duration_cast<std::chrono::milliseconds>((std::chrono::system_clock::now()).time_since_epoch()).count() + recordingblocks->GetView()->GetTimeOffset());
 
               }
               recordingblocks->GetView()->SetFrameTime(std::chrono::steady_clock::now());

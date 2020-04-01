@@ -790,7 +790,7 @@ void FindMotionWindow::on_buttonpause_clicked()
 
 void FindMotionWindow::on_buttonstop_clicked()
 {
-  ui_.videowidget->playmarkertime_ = ui_.playbackwidget->endtime_ + device_->GetTimeOffset();
+  ui_.videowidget->playmarkertime_ = std::chrono::duration_cast<std::chrono::milliseconds>((std::chrono::system_clock::now()).time_since_epoch()).count() + device_->GetTimeOffset();
   ui_.videowidget->frametime_ = std::chrono::steady_clock::now();
   ui_.videowidget->SetPaused(false);
   connection_->ControlStreamLive(*streamtoken_, ui_.videowidget->GetNextPlayRequestIndex());

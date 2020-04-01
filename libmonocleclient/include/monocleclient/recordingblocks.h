@@ -94,7 +94,7 @@ class RecordingBlocks : public QObject
 
   QOpenGLBuffer playmarkervertices_;
 
-  std::chrono::steady_clock::time_point endtime_;
+  std::chrono::steady_clock::time_point endtime_;//TODO need to use this I think?
 
  private slots:
 
