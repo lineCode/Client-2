@@ -387,6 +387,16 @@
           KeyPath="yes" />
       </Component>
 
+      <Component Id="concrt" Directory="INSTALLFOLDER" Guid="ACCE1761-8D81-41E9-80C8-DB62D1FF4B08">
+        <File
+          Id="concrt140"
+          Name="concrt140.dll"
+          Source="vcruntime140.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
       <Component Id="vcruntime" Directory="INSTALLFOLDER" Guid="713d687f-49c7-4e57-8fc7-e594b4d4f421">
         <File
           Id="vcruntime140"
