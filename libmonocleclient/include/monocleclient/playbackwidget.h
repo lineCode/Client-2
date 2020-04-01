@@ -111,7 +111,7 @@ struct PLAYBACKTEXT//TODO hopefully this dies away when QStaticText replaces it
 
 ///// Prototypes /////
 
-TIMELINEGENERATOR TimelineGenerator(const std::pair<uint64_t, uint64_t>& startendtime); // <start, end>
+TIMELINEGENERATOR TimelineGenerator(const uint64_t starttime, const uint64_t endtime);
 QImage GetTextureTime(const FT_Face freetypearial, const uint64_t exporttime, const float red, const float green, const float blue);
 
 ///// Classes /////

@@ -88,9 +88,9 @@ QString Hour(const int hour)
   }
 }
 
-TIMELINEGENERATOR TimelineGenerator(const std::pair<uint64_t, uint64_t>& startendtime)
+TIMELINEGENERATOR TimelineGenerator(const uint64_t starttime, const uint64_t endtime)
 {
-  const uint64_t diff = startendtime.second - startendtime.first;
+  const uint64_t diff = endtime - starttime;
 
   uint64_t topsecincrement = 0;
   uint64_t topdayincrement = 0;
@@ -101,7 +101,7 @@ TIMELINEGENERATOR TimelineGenerator(const std::pair<uint64_t, uint64_t>& starten
   uint64_t botmonthincrement = 0;
   QString(*toptext)(const QDateTime&) = nullptr;
   QString(*bottext)(const QDateTime&) = nullptr;
-  QDateTime startdatetime = QDateTime::fromMSecsSinceEpoch(startendtime.first, Qt::UTC);
+  QDateTime startdatetime = QDateTime::fromMSecsSinceEpoch(starttime, Qt::UTC);
   if (diff <= (60000ull * 1ull)) // Minutes + seconds
   {
     startdatetime = startdatetime.addSecs(-60);
@@ -391,7 +391,7 @@ void PlaybackWidget::UpdateRecordingsBlocks()
   {
     const float top = recordingsblockstop - ((i * pixelheight * RECORDINGBLOCKS_HEIGHT) + pixelheight);
     const float bottom = top - (pixelheight * (RECORDINGBLOCKS_HEIGHT - 1));
-    recordingsblocks_.at(i)->Update(top, bottom, top - pixelheight, bottom + pixelheight, pixelwidth, globalstarttime_, globalendtime_, globalendtime_);//TODO this is just send the globalendtime_ twice...
+    recordingsblocks_.at(i)->Update(top, bottom, top - pixelheight, bottom + pixelheight, pixelwidth, globalstarttime_, globalendtime_);
   }
 
   // Quick export start and end markers
@@ -1274,7 +1274,7 @@ void PlaybackWidget::UpdateGUITimelines()
   const float pixelwidth = 2.0f / static_cast<float>(width());
   int guitimelinetextsindex = 0;
 
-  const TIMELINEGENERATOR timelinegenerator = TimelineGenerator(std::make_pair(globalstarttime_, globalendtime_));
+  const TIMELINEGENERATOR timelinegenerator = TimelineGenerator(globalstarttime_, globalendtime_);
   
   QTextOption textoption(Qt::AlignHCenter | Qt::AlignVCenter);
   textoption.setWrapMode(QTextOption::WrapMode::NoWrap);

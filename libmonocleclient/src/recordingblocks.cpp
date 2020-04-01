@@ -120,7 +120,7 @@ void RecordingBlocks::Destroy()
   recordingtracks_.clear();
 }
 
-void RecordingBlocks::Update(const float top, const float bottom, const float metadatatop, const float metadatabottom, const float minwidth, const uint64_t starttime, const uint64_t endtime, const uint64_t globalendtime)
+void RecordingBlocks::Update(const float top, const float bottom, const float metadatatop, const float metadatabottom, const float minwidth, const uint64_t starttime, const uint64_t endtime)
 {
   top_ = top;
   bottom_ = bottom;
@@ -334,7 +334,7 @@ void RecordingBlocks::JobSourceTrackStateChanged(const QSharedPointer<client::Re
         recordingtrack->second.emplace_back(std::move(rb));
       }
     }
-    Update(top_, bottom_, metadatatop_, metadatabottom_, minwidth_, playbackwidget_->GetGlobalStartTime(), playbackwidget_->GetGlobalEndTime(), playbackwidget_->GetGlobalEndTime());
+    Update(top_, bottom_, metadatatop_, metadatabottom_, minwidth_, playbackwidget_->GetGlobalStartTime(), playbackwidget_->GetGlobalEndTime());
     playbackwidget_->update();
   }
   else if ((prevstate == monocle::RecordingJobState::Active) && ((state == monocle::RecordingJobState::Idle) || (state == monocle::RecordingJobState::Error))) // Close the oldest RecordingBlock
@@ -342,7 +342,7 @@ void RecordingBlocks::JobSourceTrackStateChanged(const QSharedPointer<client::Re
     if (!recordingtrack->second.empty())
     {
       recordingtrack->second.back()->SetEndTime(time);
-      Update(top_, bottom_, metadatatop_, metadatabottom_, minwidth_, playbackwidget_->GetGlobalStartTime(), playbackwidget_->GetGlobalEndTime(), playbackwidget_->GetGlobalEndTime());
+      Update(top_, bottom_, metadatatop_, metadatabottom_, minwidth_, playbackwidget_->GetGlobalStartTime(), playbackwidget_->GetGlobalEndTime());
       playbackwidget_->update();
     }
   }
