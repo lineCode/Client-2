@@ -17,7 +17,7 @@
 #include "monocleclient/recordingjobsource.h"
 #include "monocleclient/recordingjobsourcetrack.h"
 #include "monocleclient/videoview.h"
-
+#include <QDebug>//TODO remove
 ///// Namespaces /////
 
 namespace client
@@ -97,6 +97,7 @@ void RecordingBlocks::Init()
 
     }
   }
+  endtime_ = std::chrono::steady_clock::now();
 
   recordingblockvertices_.create();
   recordingblockvertices_.setUsagePattern(QOpenGLBuffer::DynamicDraw);
@@ -146,7 +147,7 @@ void RecordingBlocks::Update(const float top, const float bottom, const float me
         continue;
       }
 
-      recordingtrack.second.back()->SetEndTime(globalendtime);
+      recordingtrack.second.back()->SetEndTime(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() + videoview->GetDevice()->GetTimeOffset());
     }
   }
 
@@ -233,6 +234,43 @@ boost::optional<uint64_t> RecordingBlocks::GetStartTime() const
       else
       {
         time = recordingblock->GetStartTime();
+
+      }
+    }
+  }
+  return time;
+}
+
+boost::optional<uint64_t> RecordingBlocks::GetEndTime() const
+{
+  boost::optional<uint64_t> time;
+  for (const std::pair< const uint64_t, std::vector< std::unique_ptr<RecordingBlock> > >& recordingtrack : recordingtracks_)
+  {
+    if (recordingtrack.second.empty())
+    {
+
+      continue;
+    }
+
+    for (const std::unique_ptr<RecordingBlock>& recordingblock : recordingtrack.second)
+    {
+      if (recordingblock->IsMetadata())
+      {
+
+        continue;
+      }
+
+      if (time.is_initialized())
+      {
+        if (recordingblock->GetStartTime() > *time)
+        {
+          time = recordingblock->GetEndTime();
+
+        }
+      }
+      else
+      {
+        time = recordingblock->GetEndTime();
 
       }
     }

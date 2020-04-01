@@ -7,6 +7,7 @@
 ///// Includes /////
 
 #include <boost/optional.hpp>
+#include <chrono>
 #include <map>
 #include <memory>
 #include <monocleprotocol/index_generated.h>
@@ -69,6 +70,7 @@ class RecordingBlocks : public QObject
   uint64_t GetPlayMarkerTime() const;
 
   boost::optional<uint64_t> GetStartTime() const;
+  boost::optional<uint64_t> GetEndTime() const;
   
  private:
 
@@ -91,6 +93,8 @@ class RecordingBlocks : public QObject
   std::map< uint64_t, std::vector< std::unique_ptr<RecordingBlock> > > recordingtracks_; // <trackindex, recordingblocks> These are stored in order from earliest to latest in the vector
 
   QOpenGLBuffer playmarkervertices_;
+
+  std::chrono::steady_clock::time_point endtime_;
 
  private slots:
 
