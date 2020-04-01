@@ -128,10 +128,6 @@ class Client : public boost::enable_shared_from_this< Client<T> >
 
   void Init(const sock::ProxyParams& proxyparams, const std::string& host, uint16_t port, const std::string& username, const std::string& password)
   {
-    Destroy();
-
-    std::lock_guard<std::recursive_mutex> lock(*mutex_);
-
     proxyparams_ = proxyparams;
     host_ = host;
     port_ = port;
@@ -1253,6 +1249,7 @@ class Client : public boost::enable_shared_from_this< Client<T> >
 
   boost::shared_ptr<T> rtpcallbackdataobject_;
   boost::shared_ptr<std::recursive_mutex> mutex_;
+
   boost::asio::io_service& io_;
   boost::asio::io_service::strand strand_;
 

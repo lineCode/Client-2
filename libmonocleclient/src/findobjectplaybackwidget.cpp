@@ -75,6 +75,11 @@ FindObjectPlaybackWidget::FindObjectPlaybackWidget(QWidget* parent) :
     LOG_GUI_WARNING(tr("Error initialising Arial resource"));
     return;
   }
+
+  // Sort out initial start and end times
+  const auto now = std::chrono::system_clock::now();
+  endtime_ = std::chrono::duration_cast<std::chrono::milliseconds>((now).time_since_epoch()).count();
+  starttime_ = std::chrono::duration_cast<std::chrono::milliseconds>((now - std::chrono::hours(24)).time_since_epoch()).count();
 }
 
 FindObjectPlaybackWidget::~FindObjectPlaybackWidget()
@@ -133,36 +138,21 @@ void FindObjectPlaybackWidget::SetColour(const QVector4D& colour)
 
 void FindObjectPlaybackWidget::UpdateRecordingBlocks()
 {
-  starttime_ = GetStartTime();
-  if (!starttime_.is_initialized())
-  {
-    // no RecordingBlocks, nothing to do
-    return;
-  }
-  endtime_ = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-
-  const boost::optional< std::pair<uint64_t, uint64_t> > startendtime = GetStartEndTime();
-  if (!startendtime.is_initialized())
-  {
-
-    return;
-  }
-
   guitimelinedarkmarkers_.clear();
   guitimelinelightmarkers_.clear();
-  const uint64_t diff = startendtime->second - startendtime->first;
+  const uint64_t diff = endtime_ - starttime_;
   const float pixelheight = 2.0f / static_cast<float>(height());
   const float pixelwidth = 2.0f / static_cast<float>(width());
   int guitimelinetextsindex = 0;
 
-  const TIMELINEGENERATOR timelinegenerator = TimelineGenerator(*startendtime);
+  const TIMELINEGENERATOR timelinegenerator = TimelineGenerator(starttime_, endtime_);
 
   QTextOption textoption(Qt::AlignHCenter | Qt::AlignVCenter);
   textoption.setWrapMode(QTextOption::WrapMode::NoWrap);
 
   // Top
   QDateTime toptime = timelinegenerator.startdatetime_;
-  const QDateTime endtime = QDateTime::fromMSecsSinceEpoch(startendtime->second, Qt::UTC);
+  const QDateTime endtime = QDateTime::fromMSecsSinceEpoch(endtime_, Qt::UTC);
   double maxheight = 0.0f;
   while (toptime <= endtime)
   {
@@ -174,7 +164,7 @@ void FindObjectPlaybackWidget::UpdateRecordingBlocks()
     const uint64_t step = nexttime.toMSecsSinceEpoch() - toptime.toMSecsSinceEpoch();
 
     // Lines
-    const float position = -1.0 + (((static_cast<double>(toptime.toMSecsSinceEpoch()) - static_cast<double>(startendtime->first)) / static_cast<double>(diff)) * 2.0);
+    const float position = -1.0 + (((static_cast<double>(toptime.toMSecsSinceEpoch()) - static_cast<double>(starttime_)) / static_cast<double>(diff)) * 2.0);
     guitimelinedarkmarkers_.push_back(position);
     guitimelinedarkmarkers_.push_back(-1.0f);
     guitimelinedarkmarkers_.push_back(position);
@@ -236,7 +226,7 @@ void FindObjectPlaybackWidget::UpdateRecordingBlocks()
       const uint64_t step = nexttime.toMSecsSinceEpoch() - bottime.toMSecsSinceEpoch();
 
       // Lines
-      const float position = -1.0 + (((static_cast<double>(bottime.toMSecsSinceEpoch()) - static_cast<double>(startendtime->first)) / static_cast<double>(diff)) * 2.0);
+      const float position = -1.0 + (((static_cast<double>(bottime.toMSecsSinceEpoch()) - static_cast<double>(starttime_)) / static_cast<double>(diff)) * 2.0);
       guitimelinelightmarkers_.push_back(position);
       guitimelinelightmarkers_.push_back(-1.0f);
       guitimelinelightmarkers_.push_back(position);
@@ -302,7 +292,7 @@ void FindObjectPlaybackWidget::UpdateRecordingBlocks()
     const float recordingsblockstop = GetRecordingBlocksTop();
     const float top = recordingsblockstop - pixelheight;
     const float bottom = top - (pixelheight * (RECORDINGBLOCKS_HEIGHT - 1));
-    const float position = std::max(-1.0, std::min(1.0, ((static_cast<double>(time) - static_cast<double>(startendtime->first)) / (static_cast<double>(startendtime->second) - static_cast<double>(startendtime->first)) * 2.0) - 1.0));
+    const float position = std::max(-1.0, std::min(1.0, ((static_cast<double>(time) - static_cast<double>(starttime_)) / (static_cast<double>(endtime_) - static_cast<double>(starttime_)) * 2.0) - 1.0));
     const std::array<float, 4> vertices =
     {
       position, bottom,
@@ -316,7 +306,7 @@ void FindObjectPlaybackWidget::UpdateRecordingBlocks()
   // If a track is active, update the final recording block with the new time
   if (GetFindObjectWindow()->GetRecording()->GetState(GetFindObjectWindow()->GetTrack()) == monocle::RecordingJobState::Active)
   {
-    recordingblocks_.back()->SetEndTime(endtime_);
+    recordingblocks_.back()->SetEndTime(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() + GetDevice()->GetTimeOffset());
 
   }
 
@@ -326,7 +316,7 @@ void FindObjectPlaybackWidget::UpdateRecordingBlocks()
   const float bottom = top - (pixelheight * (RECORDINGBLOCKS_HEIGHT - 1));
   for (std::unique_ptr<RecordingBlock>& recordingblock : recordingblocks_)
   {
-    recordingblock->Update(top, bottom, pixelwidth, startendtime->first, startendtime->second, recordingblockverticesdata_);
+    recordingblock->Update(top, bottom, pixelwidth, starttime_, endtime_, recordingblockverticesdata_);
 
   }
   recordingblockvertices_.bind();
@@ -336,7 +326,7 @@ void FindObjectPlaybackWidget::UpdateRecordingBlocks()
   metadatarecordingblockverticesdata_.clear();
   for (std::unique_ptr<RecordingBlock>& objectrecordingblock : objectrecordingblocks_)
   {
-    objectrecordingblock->Update(top, bottom, pixelwidth, startendtime->first, startendtime->second, metadatarecordingblockverticesdata_);
+    objectrecordingblock->Update(top, bottom, pixelwidth, starttime_, endtime_, metadatarecordingblockverticesdata_);
 
   }
   metadatarecordingblockvertices_.bind();
@@ -349,7 +339,7 @@ void FindObjectPlaybackWidget::UpdateRecordingBlocks()
   if (exportstarttime_.is_initialized())
   {
     exportstartvertices_.bind();
-    const float position = (static_cast<float>(*exportstarttime_ - startendtime->first) / static_cast<float>(startendtime->second - startendtime->first) * 2.0f) - 1.0f;
+    const float position = (static_cast<float>(*exportstarttime_ - starttime_) / static_cast<float>(endtime_ - starttime_) * 2.0f) - 1.0f;
     const std::array<float, 4> vertices =
     {
       position, -1.0f,
@@ -377,7 +367,7 @@ void FindObjectPlaybackWidget::UpdateRecordingBlocks()
   if (exportendtime_.is_initialized())
   {
     exportendvertices_.bind();
-    const float position = (static_cast<float>(*exportendtime_ - startendtime->first) / static_cast<float>(startendtime->second - startendtime->first) * 2.0f) - 1.0f;
+    const float position = (static_cast<float>(*exportendtime_ - starttime_) / static_cast<float>(endtime_ - starttime_) * 2.0f) - 1.0f;
     const std::array<float, 4> vertices =
     {
       position, -1.0f,
@@ -407,23 +397,18 @@ void FindObjectPlaybackWidget::UpdateRecordingBlocks()
 
 void FindObjectPlaybackWidget::ZoomIn(const int x)
 {
-  const boost::optional< std::pair<uint64_t, uint64_t> > startendtime = GetStartEndTime();
-  if (!startendtime.is_initialized())
-  {
-
-    return;
-  }
-  const int64_t diff = static_cast<int64_t>(startendtime->second) - static_cast<int64_t>(startendtime->first);
-  const int64_t time = static_cast<int64_t>(startendtime->first) + (diff * static_cast<double>(x) / static_cast<double>(width()));
+  const int64_t diff = static_cast<int64_t>(endtime_) - static_cast<int64_t>(starttime_);
+  const int64_t time = static_cast<int64_t>(starttime_) + (diff * static_cast<double>(x) / static_cast<double>(width()));
   if (diff < (40 * 1000)) // Don't zoom in too far(40 seconds)
   {
 
     return;
   }
 
-  const uint64_t newstarttime = static_cast<int64_t>(time - ((time - static_cast<int64_t>(startendtime->first)) / 1.25));
-  const uint64_t newendtime = static_cast<int64_t>(time + ((static_cast<int64_t>(startendtime->second) - static_cast<int64_t>(time)) / 1.25));
-  zoomtimes_ = std::make_pair(newstarttime, newendtime);
+  const uint64_t newstarttime = static_cast<int64_t>(time - ((time - static_cast<int64_t>(starttime_)) / 1.25));
+  const uint64_t newendtime = static_cast<int64_t>(time + ((static_cast<int64_t>(endtime_) - static_cast<int64_t>(time)) / 1.25));
+  starttime_ = newstarttime;
+  endtime_ = newendtime;
   makeCurrent();
   UpdateRecordingBlocks();
   doneCurrent();
@@ -431,25 +416,13 @@ void FindObjectPlaybackWidget::ZoomIn(const int x)
 
 void FindObjectPlaybackWidget::ZoomOut(const int x)
 {
-  const boost::optional< std::pair<uint64_t, uint64_t> > startendtime = GetStartEndTime();
-  if (!startendtime.is_initialized())
-  {
-
-    return;
-  }
-  const double diff = static_cast<double>(startendtime->second) - static_cast<double>(startendtime->first);
-  const double time = static_cast<double>(startendtime->first) + (diff * static_cast<double>(x) / static_cast<double>(width()));
-  if (!starttime_.is_initialized())
-  {
-
-    return;
-  }
-
-  const uint64_t newstarttime = std::max(START_EPOCH, static_cast<qint64>(static_cast<double>(startendtime->first) - ((time - static_cast<double>(startendtime->first)) / diff) * 0.25 * diff));
+  const double diff = static_cast<double>(endtime_) - static_cast<double>(starttime_);
+  const double time = static_cast<double>(starttime_) + (diff * static_cast<double>(x) / static_cast<double>(width()));
+  const uint64_t newstarttime = std::max(START_EPOCH, static_cast<qint64>(static_cast<double>(starttime_) - ((time - static_cast<double>(starttime_)) / diff) * 0.25 * diff));
   const int64_t endepoch = std::min(END_EPOCH, QDateTime::fromMSecsSinceEpoch(newstarttime, Qt::UTC).addYears(20).toMSecsSinceEpoch()); // Don't let the user expand beyond 20 years or the END_EPOCH year
-  const uint64_t newendtime = std::min(endepoch, static_cast<int64_t>(static_cast<double>(startendtime->second) + (((static_cast<double>(startendtime->second) - time) / diff) * 0.25 * diff)));
-  zoomtimes_ = std::make_pair(newstarttime, newendtime);
-
+  const uint64_t newendtime = std::min(endepoch, static_cast<int64_t>(static_cast<double>(endtime_) + (((static_cast<double>(endtime_) - time) / diff) * 0.25 * diff)));
+  starttime_ = newstarttime;
+  endtime_ = newendtime;
   makeCurrent();
   UpdateRecordingBlocks();
   doneCurrent();
@@ -736,56 +709,53 @@ void FindObjectPlaybackWidget::paintGL()
   glClear(GL_COLOR_BUFFER_BIT);
 
   // static GUI elements
-  if (recordingblocks_.size())
+  markershader_.bind();
+
+  // Horizontal lines
+  if (guihorizontalvertices_.size())
   {
-    markershader_.bind();
+    guihorizontalvertices_.bind();
+    markershader_.enableAttributeArray(markerpositionlocation_);
+    markershader_.setAttributeBuffer(markerpositionlocation_, GL_FLOAT, 0, 2);
+    markershader_.setUniformValue(markercolourlocation_, QVector4D(0.4f, 0.4f, 0.4f, 1.0f));
+    glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(4));
+    guihorizontalvertices_.release();
+  }
 
-    // Horizontal lines
-    if (guihorizontalvertices_.size())
+  if (guitimelinelightvertices_.size())
+  {
+    guitimelinelightvertices_.bind();
+    markershader_.enableAttributeArray(markerpositionlocation_);
+    markershader_.setAttributeBuffer(markerpositionlocation_, GL_FLOAT, 0, 2);
+    markershader_.setUniformValue(markercolourlocation_, QVector4D(0.4f, 0.4f, 0.4f, 1.0f));
+    glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(guitimelinelightvertices_.size() * 2));
+    guitimelinelightvertices_.release();
+  }
+
+  if (guitimelinedarkvertices_.size())
+  {
+    guitimelinedarkvertices_.bind();
+    markershader_.enableAttributeArray(markerpositionlocation_);
+    markershader_.setAttributeBuffer(markerpositionlocation_, GL_FLOAT, 0, 2);
+    markershader_.setUniformValue(markercolourlocation_, QVector4D(0.15f, 0.15f, 0.15f, 1.0f));
+    glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(guitimelinedarkvertices_.size() * 2));
+    guitimelinedarkvertices_.release();
+  }
+  markershader_.release();
+
+  if (guitimelinetexts_.size())
+  {
+    QPainter painter(this);
+    glEnable(GL_BLEND);
+    glActiveTexture(GL_TEXTURE0);
+    textshader_.bind();
+    for (TIMELINETEXT& guitimelinetext : guitimelinetexts_)
     {
-      guihorizontalvertices_.bind();
-      markershader_.enableAttributeArray(markerpositionlocation_);
-      markershader_.setAttributeBuffer(markerpositionlocation_, GL_FLOAT, 0, 2);
-      markershader_.setUniformValue(markercolourlocation_, QVector4D(0.4f, 0.4f, 0.4f, 1.0f));
-      glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(4));
-      guihorizontalvertices_.release();
-    }
+      painter.drawStaticText(guitimelinetext.position_, guitimelinetext.text_);
 
-    if (guitimelinelightvertices_.size())
-    {
-      guitimelinelightvertices_.bind();
-      markershader_.enableAttributeArray(markerpositionlocation_);
-      markershader_.setAttributeBuffer(markerpositionlocation_, GL_FLOAT, 0, 2);
-      markershader_.setUniformValue(markercolourlocation_, QVector4D(0.4f, 0.4f, 0.4f, 1.0f));
-      glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(guitimelinelightvertices_.size() * 2));
-      guitimelinelightvertices_.release();
     }
-
-    if (guitimelinedarkvertices_.size())
-    {
-      guitimelinedarkvertices_.bind();
-      markershader_.enableAttributeArray(markerpositionlocation_);
-      markershader_.setAttributeBuffer(markerpositionlocation_, GL_FLOAT, 0, 2);
-      markershader_.setUniformValue(markercolourlocation_, QVector4D(0.15f, 0.15f, 0.15f, 1.0f));
-      glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(guitimelinedarkvertices_.size() * 2));
-      guitimelinedarkvertices_.release();
-    }
-    markershader_.release();
-
-    if (guitimelinetexts_.size())
-    {
-      QPainter painter(this);
-      glEnable(GL_BLEND);
-      glActiveTexture(GL_TEXTURE0);
-      textshader_.bind();
-      for (TIMELINETEXT& guitimelinetext : guitimelinetexts_)
-      {
-        painter.drawStaticText(guitimelinetext.position_, guitimelinetext.text_);
-
-      }
-      textshader_.release();
-      glDisable(GL_BLEND);
-    }
+    textshader_.release();
+    glDisable(GL_BLEND);
   }
 
   // Recording blocks
@@ -813,7 +783,7 @@ void FindObjectPlaybackWidget::paintGL()
 
   // Play markers
   markershader_.bind();
-  if (starttime_.is_initialized() && (GetFindObjectVideoWidget()->frametime_ != std::chrono::steady_clock::time_point()))
+  if (GetFindObjectVideoWidget()->frametime_ != std::chrono::steady_clock::time_point())
   {
     playmarkervertices_.bind();
     markershader_.enableAttributeArray(markerpositionlocation_);
@@ -910,13 +880,6 @@ void FindObjectPlaybackWidget::timerEvent(QTimerEvent*)
 
 void FindObjectPlaybackWidget::mouseMoveEvent(QMouseEvent* event)
 {
-  const boost::optional< std::pair<uint64_t, uint64_t> > startendtime = GetStartEndTime();
-  if (!startendtime.is_initialized())
-  {
-
-    return;
-  }
-
   if (state_ == PLAYBACKMOUSESTATE_MOVESTART)
   {
     if (!exportstarttime_.is_initialized()) // Shouldn't happen but just in case
@@ -931,7 +894,7 @@ void FindObjectPlaybackWidget::mouseMoveEvent(QMouseEvent* event)
       return;
     }
 
-    const uint64_t newtime = std::min(static_cast<uint64_t>(((static_cast<double>(event->pos().x()) / static_cast<double>(width())) * (startendtime->second - startendtime->first)) + startendtime->first), exportendtime_.is_initialized() ? *exportendtime_ : std::numeric_limits<uint64_t>::max());
+    const uint64_t newtime = std::min(static_cast<uint64_t>(((static_cast<double>(event->pos().x()) / static_cast<double>(width())) * (endtime_ - starttime_)) + starttime_), exportendtime_.is_initialized() ? *exportendtime_ : std::numeric_limits<uint64_t>::max());
     GetFindObjectWindow()->SetStartTime(newtime);
     makeCurrent();
     SetExportStartTime(newtime, false);
@@ -952,7 +915,7 @@ void FindObjectPlaybackWidget::mouseMoveEvent(QMouseEvent* event)
       return;
     }
 
-    const uint64_t newtime = std::max(static_cast<uint64_t>(((static_cast<double>(event->pos().x()) / static_cast<double>(width())) * (startendtime->second - startendtime->first)) + startendtime->first), exportstarttime_.is_initialized() ? *exportstarttime_ : std::numeric_limits<uint64_t>::max());
+    const uint64_t newtime = std::max(static_cast<uint64_t>(((static_cast<double>(event->pos().x()) / static_cast<double>(width())) * (endtime_ - starttime_)) + starttime_), exportstarttime_.is_initialized() ? *exportstarttime_ : std::numeric_limits<uint64_t>::max());
     GetFindObjectWindow()->SetEndTime(newtime);
     makeCurrent();
     SetExportEndTime(newtime, false); // Cap at the start time
@@ -961,37 +924,28 @@ void FindObjectPlaybackWidget::mouseMoveEvent(QMouseEvent* event)
   }
   else if (state_ == PLAYBACKMOUSESTATE_CLICKED)
   {
-    if (starttime_.is_initialized() && !zoomtimes_.is_initialized())
-    {
-
-      return;
-    }
     SetState(PLAYBACKMOUSESTATE_MOVE);
+
   }
   else if (state_ == PLAYBACKMOUSESTATE_MOVE)
   {
-    if (!starttime_.is_initialized() || !zoomtimes_.is_initialized())
-    {
-
-      return;
-    }
-    const uint64_t diff = zoomtimes_->second - zoomtimes_->first;
+    const uint64_t diff = endtime_ - starttime_;
     const uint64_t timediff = (static_cast<double>(clickedpos_ - event->x()) / static_cast<double>(width())) * diff;
 
-    if (static_cast<int64_t>(zoomtimes_->first + timediff) < START_EPOCH)
+    if (static_cast<int64_t>(starttime_ + timediff) < START_EPOCH)
     {
-      zoomtimes_->first = START_EPOCH;
-      zoomtimes_->second = START_EPOCH + diff;
+      starttime_ = START_EPOCH;
+      endtime_ = START_EPOCH + diff;
     }
-    else if (static_cast<int64_t>(zoomtimes_->second + timediff) > END_EPOCH)
+    else if (static_cast<int64_t>(endtime_ + timediff) > END_EPOCH)
     {
-      zoomtimes_->first = END_EPOCH - diff;
-      zoomtimes_->second = END_EPOCH;
+      starttime_ = END_EPOCH - diff;
+      endtime_ = END_EPOCH;
     }
     else
     {
-      zoomtimes_->first += timediff;
-      zoomtimes_->second += timediff;
+      starttime_ += timediff;
+      endtime_ += timediff;
       clickedpos_ = event->pos().x();
     }
 
@@ -1066,19 +1020,12 @@ void FindObjectPlaybackWidget::mouseReleaseEvent(QMouseEvent* event)
 {
   if (state_ == PLAYBACKMOUSESTATE_CLICKED) // View the currently selected time
   {
-    const boost::optional< std::pair<uint64_t, uint64_t> > startendtime = GetStartEndTime();
-    if (!startendtime.is_initialized())
-    {
-
-      return;
-    }
-
     makeCurrent();
     if (event->button() == Qt::LeftButton)
     {
       if (event->modifiers() & Qt::SHIFT)
       {
-        const uint64_t time = startendtime->first + (static_cast<double>(event->pos().x()) / static_cast<double>(width()) * static_cast<double>(startendtime->second - startendtime->first));
+        const uint64_t time = starttime_ + (static_cast<double>(event->pos().x()) / static_cast<double>(width()) * static_cast<double>(endtime_ - starttime_));
         if (!exportstarttime_.is_initialized())
         {
           GetFindObjectWindow()->SetStartTime(time);
@@ -1103,7 +1050,7 @@ void FindObjectPlaybackWidget::mouseReleaseEvent(QMouseEvent* event)
       else
       {
         // User wants to just play from this point
-        const uint64_t time = startendtime->first + ((static_cast<double>(event->pos().x()) / static_cast<double>(width())) * static_cast<double>(startendtime->second - startendtime->first));
+        const uint64_t time = starttime_ + ((static_cast<double>(event->pos().x()) / static_cast<double>(width())) * static_cast<double>(endtime_ - starttime_));
         if (IsPaused())
         {
           GetFindObjectWindow()->Play(time, 1);
@@ -1112,10 +1059,11 @@ void FindObjectPlaybackWidget::mouseReleaseEvent(QMouseEvent* event)
         }
         else
         {
-          if (time >= endtime_)
+          
+          if (recordingblocks_.size() && (time >= recordingblocks_.back()->GetEndTime()))
           {
             // User has selected a time beyond its latest time, so just go live
-            GetFindObjectVideoWidget()->playmarkertime_ = endtime_;
+            GetFindObjectVideoWidget()->playmarkertime_ = std::chrono::duration_cast<std::chrono::milliseconds>((std::chrono::system_clock::now()).time_since_epoch()).count() + GetDevice()->GetTimeOffset();
             GetFindObjectVideoWidget()->frametime_ = std::chrono::steady_clock::now();
             GetFindObjectWindow()->Stop();
           }
@@ -1154,48 +1102,6 @@ void FindObjectPlaybackWidget::contextMenuEvent(QContextMenuEvent* event)
   menu->addAction(actionvideo_);
   menu->addAction(actionobject_);
   menu->exec(event->globalPos());
-}
-
-boost::optional<uint64_t> FindObjectPlaybackWidget::GetStartTime() const
-{
-  if (recordingblocks_.empty())
-  {
-
-    return boost::none;
-  }
-  
-  uint64_t starttime = std::numeric_limits<uint64_t>::max();
-  for (const std::unique_ptr<RecordingBlock>& recordingblock : recordingblocks_)
-  {
-    starttime = std::min(starttime, recordingblock->GetStartTime());
-
-  }
-  for (const std::unique_ptr<RecordingBlock>& objectrecordingblock : objectrecordingblocks_)
-  {
-    starttime = std::min(starttime, objectrecordingblock->GetStartTime());
-
-  }
-  return starttime;
-}
-
-boost::optional< std::pair<uint64_t, uint64_t> > FindObjectPlaybackWidget::GetStartEndTime() const
-{
-  if (!starttime_.is_initialized())
-  {
-
-    return boost::none;
-  }
-
-  if (zoomtimes_.is_initialized())
-  {
-
-    return zoomtimes_;
-  }
-  else
-  {
-
-    return std::make_pair(*starttime_, endtime_);
-  }
 }
 
 float FindObjectPlaybackWidget::GetRecordingBlocksTop() const
@@ -1237,14 +1143,7 @@ void FindObjectPlaybackWidget::UpdateGUIHorizontalLines()
 
 bool FindObjectPlaybackWidget::Hit(const uint64_t time, const int x)
 {
-  const boost::optional< std::pair<uint64_t, uint64_t> > startendtime = GetStartEndTime();
-  if (!startendtime.is_initialized())
-  {
-
-    return false;
-  }
-
-  const int timex = (static_cast<double>(time - startendtime->first) / static_cast<double>(startendtime->second - startendtime->first)) * width();
+  const int timex = (static_cast<double>(time - starttime_) / static_cast<double>(endtime_ - starttime_)) * width();
   return ((x == timex) || ((x - 1) == timex) || ((x + 1) == timex));
 }
 
@@ -1296,7 +1195,6 @@ void FindObjectPlaybackWidget::JobSourceTrackStateChanged(const QSharedPointer<c
   time -= GetDevice()->GetTimeOffset();
 
   makeCurrent();
-  const boost::optional< std::pair<uint64_t, uint64_t> > startendtime = GetStartEndTime();
   if (state == monocle::RecordingJobState::Active) // Create or extend the RecordingBlock
   {
     if (recordingblocks_.empty())
@@ -1317,22 +1215,16 @@ void FindObjectPlaybackWidget::JobSourceTrackStateChanged(const QSharedPointer<c
         recordingblocks_.emplace_back(std::move(rb));
       }
     }
-    if (startendtime.is_initialized())
-    {
-      UpdateRecordingBlocks();
-      update();
-    }
+    UpdateRecordingBlocks();
+    update();
   }
   else if ((prevstate == monocle::RecordingJobState::Active) && ((state == monocle::RecordingJobState::Idle) || (state == monocle::RecordingJobState::Error))) // Close the oldest RecordingBlock
   {
     if (!recordingblocks_.empty())
     {
       recordingblocks_.back()->SetEndTime(time);
-      if (startendtime.is_initialized())
-      {
-        UpdateRecordingBlocks();
-        update();
-      }
+      UpdateRecordingBlocks();
+      update();
     }
   }
   doneCurrent();

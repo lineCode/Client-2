@@ -45,6 +45,8 @@ class TestServer : public testing::Test
   virtual void SetUp();
   virtual void TearDown();
 
+  std::recursive_mutex mutex_;
+
   static const std::string url_;
 
   static utility::IoServicePool ioservicepool_;

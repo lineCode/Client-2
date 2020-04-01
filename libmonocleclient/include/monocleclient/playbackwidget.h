@@ -111,7 +111,7 @@ struct PLAYBACKTEXT//TODO hopefully this dies away when QStaticText replaces it
 
 ///// Prototypes /////
 
-TIMELINEGENERATOR TimelineGenerator(const std::pair<uint64_t, uint64_t>& startendtime); // <start, end>
+TIMELINEGENERATOR TimelineGenerator(const uint64_t starttime, const uint64_t endtime);
 QImage GetTextureTime(const FT_Face freetypearial, const uint64_t exporttime, const float red, const float green, const float blue);
 
 ///// Classes /////
@@ -127,9 +127,8 @@ class PlaybackWidget : public QOpenGLWidget, protected QOpenGLFunctions
 
   void Destroy();
 
-  boost::optional<uint64_t> GetGlobalStartTime() const;
+  inline uint64_t GetGlobalStartTime() const { return globalstarttime_; }
   inline uint64_t GetGlobalEndTime() const { return globalendtime_; }
-  boost::optional< std::pair<uint64_t, uint64_t> > GetStartEndTime() const;
   void UpdateRecordingsBlocks();
   
   inline const boost::optional<uint64_t>& GetExportStartTime() const { return exportstarttime_; }
@@ -189,9 +188,8 @@ class PlaybackWidget : public QOpenGLWidget, protected QOpenGLFunctions
   std::vector< QSharedPointer<RecordingBlocks> > recordingsblocks_;
 
   // These are used more of a cache to save processing time
-  boost::optional<uint64_t> globalstarttime_;
+  uint64_t globalstarttime_;
   uint64_t globalendtime_;
-  boost::optional< std::pair<uint64_t, uint64_t> > zoomtimes_; // <start, end> boost::none represents that the globalstarttime_ and globalendtime_ should be used
 
   // GUI Elements
   std::pair<uint64_t, uint64_t> prevstartendtime_; // This is used to remember whether we need to update the timeline elements, if it has not changed, we don't need to update the gui

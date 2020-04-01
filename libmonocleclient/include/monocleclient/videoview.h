@@ -144,6 +144,8 @@ class VideoView : public View
   uint64_t GetNextMetadataPlayRequestIndex();
   void AddMetadataTrack(const QSharedPointer<RecordingTrack>& metadatatrack);
 
+  mutable boost::shared_ptr<std::recursive_mutex> mutex_;
+
   boost::shared_ptr<Device> device_;
   QSharedPointer<Recording> recording_;
   QSharedPointer<client::RecordingTrack> track_;
@@ -152,8 +154,6 @@ class VideoView : public View
   QAction* actionproperties_;
 
   std::chrono::steady_clock::time_point frametime_;
-
-  mutable std::recursive_mutex mutex_;
 
   boost::shared_ptr<onvif::device::DeviceClient> onvifdevice_;
   boost::shared_ptr<onvif::event::EventClient> onvifevent_;

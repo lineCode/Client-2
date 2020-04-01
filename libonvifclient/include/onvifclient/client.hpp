@@ -7,6 +7,10 @@
 #pragma warning(push)
 #pragma warning(disable : 4003)
 
+///// Defines /////
+
+#define __STDC_WANT_LIB_EXT1__ 1
+
 ///// Includes /////
 
 #include <algorithm>
@@ -494,6 +498,8 @@ class Client
   void SetTimeOffset(uint64_t offset) { offset_ = offset; }
   uint64_t GetTimeOffset() const { return offset_; }
 
+  boost::shared_ptr<std::recursive_mutex>& GetMutex() { return mutex_; }
+
  protected:
 
   virtual void Update(T operation, CURL* handle, const boost::asio::ip::address& localendpoint, int64_t latency, const pugi::xml_document& document, const std::map< std::string, std::vector<char> >& mtomdata) = 0;
@@ -880,12 +886,22 @@ class Client
     {
       const int64_t utctimemilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() - offset_;
       const int64_t utctimeseconds = utctimemilliseconds / 1000;
+#ifdef _WIN32
       tm* utcunixtime = gmtime(reinterpret_cast<const time_t*>(&utctimeseconds));
       if (utcunixtime == nullptr)
       {
         time_t t = time(NULL);
         utcunixtime = gmtime(&t);
       }
+#else
+      struct tm tmp;
+      tm* utcunixtime = gmtime_r(reinterpret_cast<const time_t*>(&utctimeseconds), &tmp);
+      if (utcunixtime == nullptr)
+      {
+        time_t t = time(NULL);
+        utcunixtime = gmtime_r(&t, &tmp);
+      }
+#endif
       
       std::stringstream month; month << std::setfill('0') << std::setw(2) << utcunixtime->tm_mon + 1;
       std::stringstream day; day << std::setfill('0') << std::setw(2) << utcunixtime->tm_mday;

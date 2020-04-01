@@ -54,7 +54,7 @@ class RecordingBlocks : public QObject
   void Init();
   void Destroy();
 
-  void Update(const float top, const float bottom, const float metadatatop, const float metadatabottom, const float minwidth, const uint64_t starttime, const uint64_t endtime, const uint64_t globalendtime);
+  void Update(const float top, const float bottom, const float metadatatop, const float metadatabottom, const float minwidth, const uint64_t starttime, const uint64_t endtime);
 
   inline const QSharedPointer<View>& GetView() const { return view_; }
   inline QSharedPointer<View>& GetView() { return view_; }
@@ -69,6 +69,7 @@ class RecordingBlocks : public QObject
   uint64_t GetPlayMarkerTime() const;
 
   boost::optional<uint64_t> GetStartTime() const;
+  boost::optional<uint64_t> GetEndTime() const;
   
  private:
 

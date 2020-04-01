@@ -119,7 +119,7 @@ void RecordingBlocks::Destroy()
   recordingtracks_.clear();
 }
 
-void RecordingBlocks::Update(const float top, const float bottom, const float metadatatop, const float metadatabottom, const float minwidth, const uint64_t starttime, const uint64_t endtime, const uint64_t globalendtime)
+void RecordingBlocks::Update(const float top, const float bottom, const float metadatatop, const float metadatabottom, const float minwidth, const uint64_t starttime, const uint64_t endtime)
 {
   top_ = top;
   bottom_ = bottom;
@@ -146,7 +146,7 @@ void RecordingBlocks::Update(const float top, const float bottom, const float me
         continue;
       }
 
-      recordingtrack.second.back()->SetEndTime(globalendtime);
+      recordingtrack.second.back()->SetEndTime(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() + videoview->GetDevice()->GetTimeOffset());
     }
   }
 
@@ -240,6 +240,43 @@ boost::optional<uint64_t> RecordingBlocks::GetStartTime() const
   return time;
 }
 
+boost::optional<uint64_t> RecordingBlocks::GetEndTime() const
+{
+  boost::optional<uint64_t> time;
+  for (const std::pair< const uint64_t, std::vector< std::unique_ptr<RecordingBlock> > >& recordingtrack : recordingtracks_)
+  {
+    if (recordingtrack.second.empty())
+    {
+
+      continue;
+    }
+
+    for (const std::unique_ptr<RecordingBlock>& recordingblock : recordingtrack.second)
+    {
+      if (recordingblock->IsMetadata())
+      {
+
+        continue;
+      }
+
+      if (time.is_initialized())
+      {
+        if (recordingblock->GetStartTime() > *time)
+        {
+          time = recordingblock->GetEndTime();
+
+        }
+      }
+      else
+      {
+        time = recordingblock->GetEndTime();
+
+      }
+    }
+  }
+  return time;
+}
+
 void RecordingBlocks::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)
 {
   playbackwidget_->makeCurrent();
@@ -275,7 +312,6 @@ void RecordingBlocks::JobSourceTrackStateChanged(const QSharedPointer<client::Re
   }
 
   playbackwidget_->makeCurrent();
-  const boost::optional< std::pair<uint64_t, uint64_t> > startendtime = playbackwidget_->GetStartEndTime();
   if (state == monocle::RecordingJobState::Active) // Create or extend the RecordingBlock
   {
     const bool metadata = (track->GetTrack()->GetTrackType() == monocle::TrackType::Metadata) || (track->GetTrack()->GetTrackType() == monocle::TrackType::ObjectDetector);
@@ -297,22 +333,16 @@ void RecordingBlocks::JobSourceTrackStateChanged(const QSharedPointer<client::Re
         recordingtrack->second.emplace_back(std::move(rb));
       }
     }
-    if (startendtime.is_initialized())
-    {
-      Update(top_, bottom_, metadatatop_, metadatabottom_, minwidth_, startendtime->first, startendtime->second, playbackwidget_->GetGlobalEndTime());
-      playbackwidget_->update();
-    }
+    Update(top_, bottom_, metadatatop_, metadatabottom_, minwidth_, playbackwidget_->GetGlobalStartTime(), playbackwidget_->GetGlobalEndTime());
+    playbackwidget_->update();
   }
   else if ((prevstate == monocle::RecordingJobState::Active) && ((state == monocle::RecordingJobState::Idle) || (state == monocle::RecordingJobState::Error))) // Close the oldest RecordingBlock
   {
     if (!recordingtrack->second.empty())
     {
       recordingtrack->second.back()->SetEndTime(time);
-      if (startendtime.is_initialized())
-      {
-        Update(top_, bottom_, metadatatop_, metadatabottom_, minwidth_, startendtime->first, startendtime->second, playbackwidget_->GetGlobalEndTime());
-        playbackwidget_->update();
-      }
+      Update(top_, bottom_, metadatatop_, metadatabottom_, minwidth_, playbackwidget_->GetGlobalStartTime(), playbackwidget_->GetGlobalEndTime());
+      playbackwidget_->update();
     }
   }
   playbackwidget_->doneCurrent();
