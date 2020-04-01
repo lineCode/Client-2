@@ -7,7 +7,6 @@
 ///// Includes /////
 
 #include <boost/optional.hpp>
-#include <chrono>
 #include <map>
 #include <memory>
 #include <monocleprotocol/index_generated.h>
@@ -93,8 +92,6 @@ class RecordingBlocks : public QObject
   std::map< uint64_t, std::vector< std::unique_ptr<RecordingBlock> > > recordingtracks_; // <trackindex, recordingblocks> These are stored in order from earliest to latest in the vector
 
   QOpenGLBuffer playmarkervertices_;
-
-  std::chrono::steady_clock::time_point endtime_;//TODO need to use this I think?
 
  private slots:
 
