@@ -18,13 +18,13 @@ struct CreateStreamRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table 
   uint64_t recordingtoken() const {
     return GetField<uint64_t>(VT_RECORDINGTOKEN, 0);
   }
-  uint64_t trackid() const {
-    return GetField<uint64_t>(VT_TRACKID, 0);
+  uint32_t trackid() const {
+    return GetField<uint32_t>(VT_TRACKID, 0);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_RECORDINGTOKEN) &&
-           VerifyField<uint64_t>(verifier, VT_TRACKID) &&
+           VerifyField<uint32_t>(verifier, VT_TRACKID) &&
            verifier.EndTable();
   }
 };
@@ -35,8 +35,8 @@ struct CreateStreamRequestBuilder {
   void add_recordingtoken(uint64_t recordingtoken) {
     fbb_.AddElement<uint64_t>(CreateStreamRequest::VT_RECORDINGTOKEN, recordingtoken, 0);
   }
-  void add_trackid(uint64_t trackid) {
-    fbb_.AddElement<uint64_t>(CreateStreamRequest::VT_TRACKID, trackid, 0);
+  void add_trackid(uint32_t trackid) {
+    fbb_.AddElement<uint32_t>(CreateStreamRequest::VT_TRACKID, trackid, 0);
   }
   explicit CreateStreamRequestBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -53,10 +53,10 @@ struct CreateStreamRequestBuilder {
 inline flatbuffers::Offset<CreateStreamRequest> CreateCreateStreamRequest(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t recordingtoken = 0,
-    uint64_t trackid = 0) {
+    uint32_t trackid = 0) {
   CreateStreamRequestBuilder builder_(_fbb);
-  builder_.add_trackid(trackid);
   builder_.add_recordingtoken(recordingtoken);
+  builder_.add_trackid(trackid);
   return builder_.Finish();
 }
 

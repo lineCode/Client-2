@@ -103,6 +103,7 @@ class Connection : public boost::enable_shared_from_this<Connection>
   virtual Error ControlStreamFrameStep(const uint64_t streamtoken, const uint64_t playrequestindex, const bool forwards, const uint64_t sequencenum) = 0;
   virtual Error ControlStreamLive(const uint64_t streamtoken, const uint64_t playrequestindex) = 0;
   virtual Error ControlStreamPause(const uint64_t streamtoken, const boost::optional<uint64_t>& time) = 0;
+  virtual Error ControlTrackStatisticsStream(const uint64_t streamtoken, const uint64_t requestindex, const uint64_t starttime, const uint64_t endtime, const uint64_t interval) = 0;
   virtual std::pair<Error, uint64_t> CreateFindMotion(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height, const float sensitivity, const bool fast) = 0;
   virtual std::pair<Error, uint64_t> CreateFindObject(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height) = 0;
   virtual std::pair<Error, STREAM> CreateStream(const uint64_t recordingtoken, const uint32_t trackid) = 0;
@@ -154,6 +155,8 @@ class Connection : public boost::enable_shared_from_this<Connection>
   virtual bool Permission(const Message message) = 0;
 
   boost::system::error_code SendControlStreamEnd(const uint64_t stream, const uint64_t playrequest, const monocle::ErrorCode error);
+  boost::system::error_code SendControlTrackStatisticsStreamEnd(const uint64_t stream, const uint64_t requestindex, const monocle::ErrorCode error);
+  boost::system::error_code SendControlTrackStatisticsStreamResult(const uint64_t token, const uint64_t requestindex, const uint64_t starttime, const uint64_t endtime, const std::vector< std::pair<monocle::ObjectClass, uint64_t> >& results);
   boost::system::error_code SendDiscoveryHello(const std::vector<std::string>& addresses, const std::vector<std::string>& scopes);
   boost::system::error_code SendFileAdded(const uint64_t token, const boost::filesystem::path& path, const boost::filesystem::path& mountpoint, const uint64_t numchunks, const uint64_t chunksize, const bool automount);
   boost::system::error_code SendFileMonitorStateChanged(const uint64_t token, const monocle::FileMonitorState monitorstate);

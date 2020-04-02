@@ -58,6 +58,7 @@ Connection::~Connection()
 void Connection::Destroy()
 {
   streams_.clear();
+  trackstatisticsstreams_.clear();
   Client::Destroy();
 }
 
@@ -177,10 +178,32 @@ void Connection::ControlStreamEnd(const uint64_t streamtoken, const uint64_t pla
   stream->ControlStreamEnd(playrequestindex, error);
 }
 
+void Connection::ControlTrackStatisticsStreamEnd(const uint64_t streamtoken, const uint64_t requestindex, const monocle::ErrorCode error)
+{
+  std::vector<TrackStatisticsStream>::iterator trackstatisticsstream = std::find_if(trackstatisticsstreams_.begin(), trackstatisticsstreams_.end(), [streamtoken](const TrackStatisticsStream& trackstatisticsstream) { return (trackstatisticsstream.GetToken() == streamtoken); });
+  if (trackstatisticsstream == trackstatisticsstreams_.end())
+  {
+    // Just ignore
+    return;
+  }
+  trackstatisticsstream->ControlStreamEnd(requestindex, error);
+}
+
+void Connection::ControlTrackStatisticsStreamResult(const uint64_t streamtoken, const uint64_t requestindex, const uint64_t starttime, const uint64_t endtime, const std::vector< std::pair<monocle::ObjectClass, uint64_t> >& results)
+{
+  std::vector<TrackStatisticsStream>::iterator trackstatisticsstream = std::find_if(trackstatisticsstreams_.begin(), trackstatisticsstreams_.end(), [streamtoken](const TrackStatisticsStream& trackstatisticsstream) { return (trackstatisticsstream.GetToken() == streamtoken); });
+  if (trackstatisticsstream == trackstatisticsstreams_.end())
+  {
+    // Just ignore
+    return;
+  }
+  trackstatisticsstream->ControlStreamResult(requestindex, starttime, endtime, results);
+}
+
 void Connection::Disconnected()
 {
   streams_.clear();
-
+  trackstatisticsstreams_.clear();
 }
 
 void Connection::DiscoveryHello(const std::vector<std::string>& addresses, const std::vector<std::string>& scopes)
@@ -566,9 +589,9 @@ monocle::client::Connection Connection::Authenticate(const std::string& username
   return Client::Authenticate(username, clientnonce, authdigest, callback);
 }
 
-monocle::client::Connection Connection::CreateStream(const uint64_t recordingtoken, const uint64_t tracktoken, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::CREATESTREAMRESPONSE&)> callback, const CONTROLSTREAMEND controlstreamendcallback, const H265CALLBACK h265callback, const H264CALLBACK h264callback, const METADATACALLBACK metadatacallback, const JPEGCALLBACK jpegcallback, const MPEG4CALLBACK mpeg4callback, const OBJECTDETECTORCALLBACK objectdetectorcallback, const NEWCODECINDEX newcodecindexcallback, void* callbackdata)
+monocle::client::Connection Connection::CreateStream(const uint64_t recordingtoken, const uint32_t trackid, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::CREATESTREAMRESPONSE&)> callback, const CONTROLSTREAMEND controlstreamendcallback, const H265CALLBACK h265callback, const H264CALLBACK h264callback, const METADATACALLBACK metadatacallback, const JPEGCALLBACK jpegcallback, const MPEG4CALLBACK mpeg4callback, const OBJECTDETECTORCALLBACK objectdetectorcallback, const NEWCODECINDEX newcodecindexcallback, void* callbackdata)
 {
-  return Client::CreateStream(recordingtoken, tracktoken, [this, callback, controlstreamendcallback, h265callback, h264callback, metadatacallback, jpegcallback, mpeg4callback, objectdetectorcallback, newcodecindexcallback, callbackdata](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
+  return Client::CreateStream(recordingtoken, trackid, [this, callback, controlstreamendcallback, h265callback, h264callback, metadatacallback, jpegcallback, mpeg4callback, objectdetectorcallback, newcodecindexcallback, callbackdata](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
   {
     if (createstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
     {
@@ -601,6 +624,23 @@ monocle::client::Connection Connection::DestroyStream(const uint64_t streamtoken
     }
 
     callback(latency, destroystreamresponse);
+  });
+}
+
+monocle::client::Connection Connection::CreateTrackStatisticsStream(const uint64_t recordingtoken, const uint32_t trackid, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::CREATETRACKSTATISTICSSTREAMRESPONSE&)> callback, const CONTROLTRACKSTATISTICSSTREAMEND controltrackstatisticsstreamend, CONTROLTRACKSTATISTICSSTREAMRESULT controltrackstatisticsstreamresultcallback, void* callbackdata)
+{
+  return Client::CreateTrackStatisticsStream(recordingtoken, trackid, [this, callback, controltrackstatisticsstreamend, controltrackstatisticsstreamresultcallback, callbackdata](const std::chrono::steady_clock::duration latency, const monocle::client::CREATETRACKSTATISTICSSTREAMRESPONSE& createtrackstatisticsstreamresponse)
+  {
+    if (createtrackstatisticsstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
+    {
+      callback(latency, createtrackstatisticsstreamresponse);
+      return;
+    }
+
+    // Intercept the response and create our own stream
+    TrackStatisticsStream stream(createtrackstatisticsstreamresponse.token_, controltrackstatisticsstreamend, controltrackstatisticsstreamresultcallback, callbackdata);
+    trackstatisticsstreams_.push_back(stream);
+    callback(latency, createtrackstatisticsstreamresponse);
   });
 }
 

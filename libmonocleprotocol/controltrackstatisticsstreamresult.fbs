@@ -1,0 +1,18 @@
+include "objects.fbs";
+
+namespace monocle;
+
+table ControlTrackStatisticsStreamObjectClassResult
+{
+  objectclass:ObjectClass (id:0);
+  count:uint64 (id:1);
+}
+
+table ControlTrackStatisticsStreamResult
+{
+  token:uint64 (id:0);
+  requestindex:uint64 (id:1);
+  starttime:uint64 (id:2);
+  endtime:uint64 (id:3);
+  results:[ControlTrackStatisticsStreamObjectClassResult] (id:4);
+}

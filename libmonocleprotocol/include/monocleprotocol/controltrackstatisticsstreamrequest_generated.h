@@ -13,7 +13,7 @@ struct ControlTrackStatisticsStreamRequest;
 struct ControlTrackStatisticsStreamRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
-    VT_PLAYREQUESTINDEX = 6,
+    VT_REQUESTINDEX = 6,
     VT_STARTTIME = 8,
     VT_ENDTIME = 10,
     VT_INTERVAL = 12
@@ -21,8 +21,8 @@ struct ControlTrackStatisticsStreamRequest FLATBUFFERS_FINAL_CLASS : private fla
   uint64_t token() const {
     return GetField<uint64_t>(VT_TOKEN, 0);
   }
-  uint64_t playrequestindex() const {
-    return GetField<uint64_t>(VT_PLAYREQUESTINDEX, 0);
+  uint64_t requestindex() const {
+    return GetField<uint64_t>(VT_REQUESTINDEX, 0);
   }
   uint64_t starttime() const {
     return GetField<uint64_t>(VT_STARTTIME, 0);
@@ -36,7 +36,7 @@ struct ControlTrackStatisticsStreamRequest FLATBUFFERS_FINAL_CLASS : private fla
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_TOKEN) &&
-           VerifyField<uint64_t>(verifier, VT_PLAYREQUESTINDEX) &&
+           VerifyField<uint64_t>(verifier, VT_REQUESTINDEX) &&
            VerifyField<uint64_t>(verifier, VT_STARTTIME) &&
            VerifyField<uint64_t>(verifier, VT_ENDTIME) &&
            VerifyField<uint64_t>(verifier, VT_INTERVAL) &&
@@ -50,8 +50,8 @@ struct ControlTrackStatisticsStreamRequestBuilder {
   void add_token(uint64_t token) {
     fbb_.AddElement<uint64_t>(ControlTrackStatisticsStreamRequest::VT_TOKEN, token, 0);
   }
-  void add_playrequestindex(uint64_t playrequestindex) {
-    fbb_.AddElement<uint64_t>(ControlTrackStatisticsStreamRequest::VT_PLAYREQUESTINDEX, playrequestindex, 0);
+  void add_requestindex(uint64_t requestindex) {
+    fbb_.AddElement<uint64_t>(ControlTrackStatisticsStreamRequest::VT_REQUESTINDEX, requestindex, 0);
   }
   void add_starttime(uint64_t starttime) {
     fbb_.AddElement<uint64_t>(ControlTrackStatisticsStreamRequest::VT_STARTTIME, starttime, 0);
@@ -77,7 +77,7 @@ struct ControlTrackStatisticsStreamRequestBuilder {
 inline flatbuffers::Offset<ControlTrackStatisticsStreamRequest> CreateControlTrackStatisticsStreamRequest(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t token = 0,
-    uint64_t playrequestindex = 0,
+    uint64_t requestindex = 0,
     uint64_t starttime = 0,
     uint64_t endtime = 0,
     uint64_t interval = 0) {
@@ -85,7 +85,7 @@ inline flatbuffers::Offset<ControlTrackStatisticsStreamRequest> CreateControlTra
   builder_.add_interval(interval);
   builder_.add_endtime(endtime);
   builder_.add_starttime(starttime);
-  builder_.add_playrequestindex(playrequestindex);
+  builder_.add_requestindex(requestindex);
   builder_.add_token(token);
   return builder_.Finish();
 }

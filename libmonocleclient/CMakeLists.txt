@@ -125,6 +125,7 @@ include/monocleclient/shortcutmgr.h
 include/monocleclient/singleton.h
 include/monocleclient/stream.h
 include/monocleclient/streamingprotocol.h
+include/monocleclient/trackstatisticsstream.h
 include/monocleclient/updatewindow.h
 include/monocleclient/user.h
 include/monocleclient/videochartview.h
@@ -257,6 +258,7 @@ src/shortcut.cpp
 src/shortcutmgr.cpp
 src/stream.cpp
 src/streamingprotocol.cpp
+src/trackstatisticsstream.cpp
 src/updatewindow.cpp
 src/user.cpp
 src/videochartview.cpp

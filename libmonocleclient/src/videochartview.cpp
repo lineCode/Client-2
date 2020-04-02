@@ -113,30 +113,27 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   widget_->show(); // For some bizarre reason, this is required.
   widget_->hide();
 
+  std::for_each(streamsconnections_.begin(), streamsconnections_.end(), [](monocle::client::Connection& connection) { connection.Close(); });//TODO maybe make this a method?
+  streamsconnections_.clear();
   for (QSharedPointer<RecordingTrack>& track : tracks_)
   {
-    //TODO CreateStatisticsStream
-    streamsconnections_.push_back(device_->CreateStream(recording_->GetToken(), track->GetId(), [this](const std::chrono::nanoseconds latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
+    streamsconnections_.push_back(device_->CreateTrackStatisticsStream(recording_->GetToken(), track->GetId(), [this](const std::chrono::nanoseconds latency, const monocle::client::CREATETRACKSTATISTICSSTREAMRESPONSE& createtrackstatisticsstreamresponse)
     {
-      if (createstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
+      if (createtrackstatisticsstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
       {
         //TODO messagebox?
         return;
       }
-
-      //TODO ControlStatisticsStream()
-      streamsconnections_.push_back(device_->ControlStreamLive(createstreamresponse.token_, 1, [this](const std::chrono::steady_clock::duration latency, const monocle::client::CONTROLSTREAMRESPONSE& controlstreamresponse)
+      
+      streamsconnections_.push_back(device_->ControlTrackStatisticsStream(createtrackstatisticsstreamresponse.token_, 0, std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch() - std::chrono::hours(60)).count() + device_->GetTimeOffset(), std::numeric_limits<uint64_t>::max(), 60 * 1000, [this](const std::chrono::steady_clock::duration latency, const monocle::client::CONTROLTRACKSTATISTICSSTREAMRESPONSE& controltrackstatisticsstreamresponse)
       {
-        if (controlstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
+        if (controltrackstatisticsstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
         {
           //TODO messagebox?
           return;
         }
-
-        //TODO do anything?
-
       }));
-    }, VideoChartView::ControlStreamEnd, nullptr, nullptr, nullptr, nullptr, nullptr, VideoChartView::ObjectDetectorCallback, nullptr, this));
+    }, VideoChartView::ControlStreamEnd, VideoChartView::ControlStreamResult, this));
   }
 
   startTimer(std::chrono::seconds(1));
@@ -146,10 +143,11 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
 VideoChartView::~VideoChartView()
 {
   std::for_each(streamsconnections_.begin(), streamsconnections_.end(), [](monocle::client::Connection& connection) { connection.Close(); });
+  streamsconnections_.clear();
 
   //TODO delete layout_ and widget_
 
-  //TODO stop streaming plz
+  //TODO DestroyTrackStatisticsStream
 
 }
 
@@ -245,33 +243,17 @@ void VideoChartView::timerEvent(QTimerEvent* event)
 
 }
 
-void VideoChartView::ControlStreamEnd(const uint64_t streamtoken, const uint64_t playrequestindex, const monocle::ErrorCode error, void* callbackdata)
+void VideoChartView::ControlStreamEnd(const uint64_t streamtoken, const uint64_t requestindex, const monocle::ErrorCode error, void* callbackdata)
 {
+  //TODO because we always want live, don't think we need to do anything here?
 
 }
 
-void VideoChartView::ObjectDetectorCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
+void VideoChartView::ControlStreamResult(const uint64_t streamtoken, const uint64_t requestindex, const uint64_t starttime, const uint64_t endtime, const std::vector< std::pair<monocle::ObjectClass, uint64_t> >& results, void* callbackdata)
 {
-  VideoChartView* videochartview = reinterpret_cast<VideoChartView*>(callbackdata);
-  if (objectdetectorframetype == monocle::ObjectDetectorFrameType::OBJECT_DETECTION)
-  {
-    if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(signaturedata), signaturedatasize).VerifyBuffer<monocle::Objects>(nullptr))
-    {
-      // Ignore illegal packets
-      return;
-    }
+  qDebug() << results.size();//TODO
+  //TODO lets do something?
 
-    const monocle::Objects* objects = flatbuffers::GetRoot<monocle::Objects>(signaturedata);
-    if ((objects == nullptr) || (objects->objects() == nullptr))
-    {
-
-      return;
-    }
-
-    //TODO add this to the graphing data...
-    qDebug() << size;//TODO lets do stuff... make sure streamtoken is happy
-
-  }
 }
 
 void VideoChartView::SendImage()
