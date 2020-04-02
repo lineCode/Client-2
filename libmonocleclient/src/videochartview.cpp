@@ -24,7 +24,7 @@ namespace client
 ///// Methods /////
 
 VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const boost::shared_ptr<client::Device>& device, const QSharedPointer<client::Recording>& recording, const std::vector< QSharedPointer<client::RecordingTrack> >& tracks, const QResource* arial) :
-  View(videowidget, cudacontext, selectedcolour, x, y, width, height, ROTATION::_0, false, false, false, false, arial, false, false, false, false),
+  View(videowidget, cudacontext, selectedcolour, x, y, width, height, ROTATION::_0, false, false, false, false, arial, false, false, false, false, false, false, false),
   device_(device),
   recording_(recording),
   tracks_(tracks),
@@ -37,8 +37,6 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   //TODO Stacked bar chart with each object type to start with
 
   //TODO I think the begin with, we ONLY listen to live and we draw graphs based upon live only...
-
-//TODO stretch, rotation, mirror need to be removed from menu options
 
   //TODO we want the server to do all the hard work
     //TODO CreateStatisticsStream and then we can request things perhaps

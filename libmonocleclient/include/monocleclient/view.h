@@ -95,7 +95,7 @@ class View : public QObject, public QEnableSharedFromThis<View>
 
  public:
 
-  View(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool showinfo, const bool showobjects, const QResource* arial, const bool showsaveimagemenu, const bool showcopymenu, const bool showinfomenu, const bool showobjectsmenu);
+  View(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool showinfo, const bool showobjects, const QResource* arial, const bool showsaveimagemenu, const bool showcopymenu, const bool showrotatemenu, const bool showmirrormenu, const bool showstretchmenu, const bool showinfomenu, const bool showobjectsmenu);
   virtual ~View();
 
   virtual VIEWTYPE GetViewType() const = 0;
