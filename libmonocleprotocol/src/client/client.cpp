@@ -47,6 +47,9 @@
 #include "monocleprotocol/controlstreamplayrequest_generated.h"
 #include "monocleprotocol/controlstreamliverequest_generated.h"
 #include "monocleprotocol/controlstreampauserequest_generated.h"
+#include "monocleprotocol/controltrackstatisticsstreamend_generated.h"
+#include "monocleprotocol/controltrackstatisticsstreamresult_generated.h"
+#include "monocleprotocol/controltrackstatisticsstreamrequest_generated.h"
 #include "monocleprotocol/createfindmotionrequest_generated.h"
 #include "monocleprotocol/createfindmotionresponse_generated.h"
 #include "monocleprotocol/createfindobjectrequest_generated.h"
@@ -224,6 +227,7 @@ Client::Client(boost::asio::io_service& io) :
   controlstreamframestep_(DEFAULT_TIMEOUT, this),
   controlstreamlive_(DEFAULT_TIMEOUT, this),
   controlstreampause_(DEFAULT_TIMEOUT, this),
+  controltrackstatisticsstream_(DEFAULT_TIMEOUT, this),
   createfindmotion_(DEFAULT_TIMEOUT, this),
   createfindobject_(DEFAULT_TIMEOUT, this),
   createstream_(DEFAULT_TIMEOUT, this),
@@ -367,6 +371,7 @@ void Client::Destroy()
     controlstreamframestep_.Destroy();
     controlstreamlive_.Destroy();
     controlstreampause_.Destroy();
+    controltrackstatisticsstream_.Destroy();
     createfindmotion_.Destroy();
     createfindobject_.Destroy();
     createstream_.Destroy();
@@ -709,6 +714,17 @@ boost::unique_future<CONTROLSTREAMRESPONSE> Client::ControlStreamPause(const uin
     return boost::make_ready_future(CONTROLSTREAMRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
   }
   return controlstreampause_.CreateFuture(sequence_);
+}
+
+boost::unique_future<CONTROLTRACKSTATISTICSSTREAMRESPONSE> Client::ControlTrackStatisticsStream(const uint64_t streamtoken, const uint64_t requestindex, const uint64_t starttime, const uint64_t endtime, const uint64_t interval)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (ControlTrackStatisticsStreamSend(streamtoken, requestindex, starttime, endtime, interval))
+  {
+
+    return boost::make_ready_future(CONTROLTRACKSTATISTICSSTREAMRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+  }
+  return controltrackstatisticsstream_.CreateFuture(sequence_);
 }
 
 boost::unique_future<CREATEFINDMOTIONRESPONSE> Client::CreateFindMotion(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height, const float sensitivity, const bool fast)
@@ -1524,6 +1540,17 @@ Connection Client::ControlStreamPause(const uint64_t streamtoken, const boost::o
     return Connection();
   }
   return controlstreampause_.CreateCallback(sequence_, callback);
+}
+
+Connection Client::ControlTrackStatisticsStream(const uint64_t streamtoken, const uint64_t requestindex, const uint64_t starttime, const uint64_t endtime, const uint64_t interval, boost::function<void(const std::chrono::steady_clock::duration, const CONTROLTRACKSTATISTICSSTREAMRESPONSE&)> callback)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (ControlTrackStatisticsStreamSend(streamtoken, requestindex, starttime, endtime, interval))
+  {
+    callback(std::chrono::steady_clock::duration(), CONTROLTRACKSTATISTICSSTREAMRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+    return Connection();
+  }
+  return controltrackstatisticsstream_.CreateCallback(sequence_, callback);
 }
 
 Connection Client::CreateFindMotion(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height, const float sensitivity, const bool fast, boost::function<void(const std::chrono::steady_clock::duration, const CREATEFINDMOTIONRESPONSE&)> callback)
@@ -2688,6 +2715,28 @@ boost::system::error_code Client::ControlStreamPauseSend(const uint64_t streamto
   fbb_.Finish(CreateControlStreamPauseRequest(fbb_, streamtoken, time.is_initialized() ? *time : 0));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::CONTROLSTREAMPAUSE, ++sequence_);
+  boost::system::error_code err;
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(fbb_.GetBufferPointer(), messagesize), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  return err;
+}
+
+boost::system::error_code Client::ControlTrackStatisticsStreamSend(const uint64_t streamtoken, const uint64_t requestindex, const uint64_t starttime, const uint64_t endtime, const uint64_t interval)
+{
+  fbb_.Clear();
+  fbb_.Finish(CreateControlTrackStatisticsStreamRequest(fbb_, streamtoken, requestindex, starttime, endtime, interval));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::CONTROLTRACKSTATISTICSSTREAM, ++sequence_);
   boost::system::error_code err;
   boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
   if (err)
@@ -4093,6 +4142,65 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       ControlStreamEnd(controlstreamend->token(), controlstreamend->playrequestindex(), controlstreamend->error());
       break;
     }
+    case Message::CONTROLTRACKSTATISTICSSTREAMEND:
+    {
+      if (error)
+      {
+        // Ignore this because it can't really happen...
+        return;
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<monocle::ControlTrackStatisticsStreamEnd>(nullptr))
+      {
+
+        return;
+      }
+
+      const monocle::ControlTrackStatisticsStreamEnd* controltrackstatisticsstreamend = flatbuffers::GetRoot<monocle::ControlTrackStatisticsStreamEnd>(data);
+      if (!controltrackstatisticsstreamend)
+      {
+
+        return;
+      }
+
+      ControlTrackStatisticsStreamEnd(controltrackstatisticsstreamend->token(), controltrackstatisticsstreamend->requestindex(), controltrackstatisticsstreamend->error());
+      break;
+    }
+    case Message::CONTROLTRACKSTATISTICSSTREAMRESULT:
+    {
+      if (error)
+      {
+        // Ignore this because it can't really happen...
+        return;
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<monocle::ControlTrackStatisticsStreamEnd>(nullptr))
+      {
+
+        return;
+      }
+
+      const monocle::ControlTrackStatisticsStreamResult* controltrackstatisticsstreamresult = flatbuffers::GetRoot<monocle::ControlTrackStatisticsStreamResult>(data);
+      if (!controltrackstatisticsstreamresult)
+      {
+
+        return;
+      }
+
+      std::vector< std::pair<monocle::ObjectClass, uint64_t> > results;
+      if (controltrackstatisticsstreamresult->results())
+      {
+        results.reserve(controltrackstatisticsstreamresult->results()->size());
+        for (const monocle::ControlTrackStatisticsStreamObjectClassResult* result : *controltrackstatisticsstreamresult->results())
+        {
+          results.push_back(std::make_pair(result->objectclass(), result->count()));
+
+        }
+      }
+
+      ControlTrackStatisticsStreamResult(controltrackstatisticsstreamresult->token(), controltrackstatisticsstreamresult->requestindex(), controltrackstatisticsstreamresult->starttime(), controltrackstatisticsstreamresult->endtime(), results);
+      break;
+    }
     case Message::CONTROLSTREAMFRAMESTEP:
     {
       if (error)
@@ -4121,6 +4229,16 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         return;
       }
       controlstreampause_.Response(sequence, CONTROLSTREAMRESPONSE());
+      break;
+    }
+    case Message::CONTROLTRACKSTATISTICSSTREAM:
+    {
+      if (error)
+      {
+        HandleError(controltrackstatisticsstream_, sequence, data, datasize);
+        return;
+      }
+      controltrackstatisticsstream_.Response(sequence, CONTROLTRACKSTATISTICSSTREAMRESPONSE());
       break;
     }
     case Message::CREATEFINDMOTION:

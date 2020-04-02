@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "stream.h"
+#include "trackstatisticsstream.h"
 
 ///// Namespaces /////
 
@@ -60,6 +61,8 @@ class Connection : public QObject, public monocle::client::Client
   virtual void Destroy() override;
 
   virtual void ControlStreamEnd(const uint64_t streamtoken, const uint64_t playrequestindex, const monocle::ErrorCode error) override;
+  virtual void ControlTrackStatisticsStreamEnd(const uint64_t streamtoken, const uint64_t requestindex, const monocle::ErrorCode error) override;
+  virtual void ControlTrackStatisticsStreamResult(const uint64_t streamtoken, const uint64_t requestindex, const uint64_t starttime, const uint64_t endtime, const std::vector< std::pair<monocle::ObjectClass, uint64_t> >& results) override;
   virtual void Disconnected() override;
   virtual void DiscoveryHello(const std::vector<std::string>& addresses, const std::vector<std::string>& scopes) override;
   virtual void FileAdded(const uint64_t token, const std::string& mountpoint, const std::string& path, const uint64_t numchunks, const uint64_t chunksize, const bool automount, const monocle::FileState state, const monocle::FileMonitorState monitorstate) override;
@@ -135,8 +138,10 @@ class Connection : public QObject, public monocle::client::Client
   sock::Connection Connect(const boost::function<void(const boost::system::error_code&)> callback);
 
   monocle::client::Connection Authenticate(const std::string& username, const std::string& clientnonce, const std::string& authdigest, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::AUTHENTICATERESPONSE&)> callback);
-  monocle::client::Connection CreateStream(const uint64_t recordingtoken, const uint64_t tracktoken, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::CREATESTREAMRESPONSE&)> callback, const CONTROLSTREAMEND controlstreamendcallback, const H265CALLBACK h265callback, const H264CALLBACK h264callback, const METADATACALLBACK metadatacallback, const JPEGCALLBACK jpegcallback, const MPEG4CALLBACK mpeg4callback, const OBJECTDETECTORCALLBACK objectdetectorcallback, const NEWCODECINDEX newcodecindexcallback, void* callbackdata);
+  monocle::client::Connection CreateStream(const uint64_t recordingtoken, const uint32_t trackid, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::CREATESTREAMRESPONSE&)> callback, const CONTROLSTREAMEND controlstreamendcallback, const H265CALLBACK h265callback, const H264CALLBACK h264callback, const METADATACALLBACK metadatacallback, const JPEGCALLBACK jpegcallback, const MPEG4CALLBACK mpeg4callback, const OBJECTDETECTORCALLBACK objectdetectorcallback, const NEWCODECINDEX newcodecindexcallback, void* callbackdata);
   monocle::client::Connection DestroyStream(const uint64_t streamtoken, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::DESTROYSTREAMRESPONSE&)> callback);
+  monocle::client::Connection CreateTrackStatisticsStream(const uint64_t recordingtoken, const uint32_t trackid, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::CREATETRACKSTATISTICSSTREAMRESPONSE&)> callback, const CONTROLTRACKSTATISTICSSTREAMEND controltrackstatisticsstreamend, CONTROLTRACKSTATISTICSSTREAMRESULT controltrackstatisticsstreamresultcallback, void* callbackdata);
+  //TODO DestroyTrackStatisticsStream
   monocle::client::Connection GetAuthenticationNonce(boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::GETAUTHENTICATIONNONCERESPONSE&)> callback);
   monocle::client::Connection RemoveFile(const uint64_t token, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::REMOVEFILERESPONSE&)> callback);
   monocle::client::Connection Subscribe(boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::SUBSCRIBERESPONSE&)> callback);
@@ -155,7 +160,8 @@ class Connection : public QObject, public monocle::client::Client
 
  private:
 
-  std::vector<Stream> streams_;
+   std::vector<Stream> streams_;
+   std::vector<TrackStatisticsStream> trackstatisticsstreams_;
 
  signals:
 
