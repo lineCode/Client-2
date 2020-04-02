@@ -82,6 +82,7 @@ enum class Message : uint16_t {
   CHANGELAYOUTNAME = 70,
   REMOVELAYOUT = 71,
   SETGUIORDER = 72,
+  CREATETRACKSTATISTICSSTREAM = 73,
   CONTROLSTREAMEND = 8000,
   DISCOVERYHELLO = 8001,
   FILEADDED = 8002,
@@ -158,7 +159,7 @@ enum class Message : uint16_t {
   MAX = GUIORDERCHANGED
 };
 
-inline const Message (&EnumValuesMessage())[145] {
+inline const Message (&EnumValuesMessage())[146] {
   static const Message values[] = {
     Message::ADDFILE,
     Message::ADDGROUP,
@@ -233,6 +234,7 @@ inline const Message (&EnumValuesMessage())[145] {
     Message::CHANGELAYOUTNAME,
     Message::REMOVELAYOUT,
     Message::SETGUIORDER,
+    Message::CREATETRACKSTATISTICSSTREAM,
     Message::CONTROLSTREAMEND,
     Message::DISCOVERYHELLO,
     Message::FILEADDED,
@@ -384,6 +386,7 @@ inline const char *EnumNameMessage(Message e) {
     case Message::CHANGELAYOUTNAME: return "CHANGELAYOUTNAME";
     case Message::REMOVELAYOUT: return "REMOVELAYOUT";
     case Message::SETGUIORDER: return "SETGUIORDER";
+    case Message::CREATETRACKSTATISTICSSTREAM: return "CREATETRACKSTATISTICSSTREAM";
     case Message::CONTROLSTREAMEND: return "CONTROLSTREAMEND";
     case Message::DISCOVERYHELLO: return "DISCOVERYHELLO";
     case Message::FILEADDED: return "FILEADDED";

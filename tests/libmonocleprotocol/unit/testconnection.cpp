@@ -290,9 +290,14 @@ std::pair<Error, uint64_t> TestConnection::CreateFindObject(const uint64_t recor
   return std::make_pair(Error(), 0);
 }
 
-std::pair<Error, STREAM> TestConnection::CreateStream(const uint64_t recordingtoken, const uint64_t tracktoken)
+std::pair<Error, STREAM> TestConnection::CreateStream(const uint64_t recordingtoken, const uint32_t trackid)
 {
   return std::make_pair(Error(), teststream_);
+}
+
+std::pair<Error, uint64_t> TestConnection::CreateTrackStatisticsStream(const uint64_t recordingtoken, const uint32_t trackid)
+{
+  return std::make_pair(Error(), 0);
 }
 
 Error TestConnection::DestroyFindMotion(const uint64_t token)

@@ -93,7 +93,7 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   //TODO maybe we can override SetPosition and refresh all this?
   chart_.chart()->setPreferredHeight(pixelrect.height());
 
-  //Can we remove any of this stuff?
+  //TODO Can we remove any of this stuff?
   widget_->setContentsMargins(QMargins(0, 0, 0, 0));
   layout_->setContentsMargins(0, 0, 0, 0);
   layout_->addWidget(&chart_);
@@ -115,6 +115,7 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
 
   for (QSharedPointer<RecordingTrack>& track : tracks_)
   {
+    //TODO CreateStatisticsStream
     streamsconnections_.push_back(device_->CreateStream(recording_->GetToken(), track->GetId(), [this](const std::chrono::nanoseconds latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
     {
       if (createstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
@@ -123,6 +124,7 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
         return;
       }
 
+      //TODO ControlStatisticsStream()
       streamsconnections_.push_back(device_->ControlStreamLive(createstreamresponse.token_, 1, [this](const std::chrono::steady_clock::duration latency, const monocle::client::CONTROLSTREAMRESPONSE& controlstreamresponse)
       {
         if (controlstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)

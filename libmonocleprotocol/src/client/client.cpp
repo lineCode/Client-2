@@ -53,6 +53,8 @@
 #include "monocleprotocol/createfindobjectresponse_generated.h"
 #include "monocleprotocol/createstreamrequest_generated.h"
 #include "monocleprotocol/createstreamresponse_generated.h"
+#include "monocleprotocol/createtrackstatisticsstreamrequest_generated.h"
+#include "monocleprotocol/createtrackstatisticsstreamresponse_generated.h"
 #include "monocleprotocol/destroyfindmotionrequest_generated.h"
 #include "monocleprotocol/destroyfindobjectrequest_generated.h"
 #include "monocleprotocol/destroystreamrequest_generated.h"
@@ -225,6 +227,7 @@ Client::Client(boost::asio::io_service& io) :
   createfindmotion_(DEFAULT_TIMEOUT, this),
   createfindobject_(DEFAULT_TIMEOUT, this),
   createstream_(DEFAULT_TIMEOUT, this),
+  createtrackstatisticsstream_(DEFAULT_TIMEOUT, this),
   destroyfindmotion_(DEFAULT_TIMEOUT, this),
   destroyfindobject_(DEFAULT_TIMEOUT, this),
   destroystream_(DEFAULT_TIMEOUT, this),
@@ -367,6 +370,7 @@ void Client::Destroy()
     createfindmotion_.Destroy();
     createfindobject_.Destroy();
     createstream_.Destroy();
+    createtrackstatisticsstream_.Destroy();
     destroyfindmotion_.Destroy();
     destroyfindobject_.Destroy();
     destroystream_.Destroy();
@@ -738,6 +742,17 @@ boost::unique_future<CREATESTREAMRESPONSE> Client::CreateStream(const uint64_t r
     return boost::make_ready_future(CREATESTREAMRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
   }
   return createstream_.CreateFuture(sequence_);
+}
+
+boost::unique_future<CREATETRACKSTATISTICSSTREAMRESPONSE> Client::CreateTrackStatisticsStream(const uint64_t recordingtoken, const uint32_t trackid)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (CreateTrackStatisticsStreamSend(recordingtoken, trackid))
+  {
+
+    return boost::make_ready_future(CREATETRACKSTATISTICSSTREAMRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+  }
+  return createtrackstatisticsstream_.CreateFuture(sequence_);
 }
 
 boost::unique_future<DESTROYFINDMOTIONRESPONSE> Client::DestroyFindMotion(const uint64_t token)
@@ -1533,15 +1548,26 @@ Connection Client::CreateFindObject(const uint64_t recordingtoken, const uint32_
   return createfindobject_.CreateCallback(sequence_, callback);
 }
 
-Connection Client::CreateStream(const uint64_t recordingtoken, const uint32_t tracktoken, boost::function<void(const std::chrono::steady_clock::duration latency, const CREATESTREAMRESPONSE&)> callback)
+Connection Client::CreateStream(const uint64_t recordingtoken, const uint32_t trackid, boost::function<void(const std::chrono::steady_clock::duration latency, const CREATESTREAMRESPONSE&)> callback)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  if (CreateStreamSend(recordingtoken, tracktoken))
+  if (CreateStreamSend(recordingtoken, trackid))
   {
     callback(std::chrono::steady_clock::duration(), CREATESTREAMRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
     return Connection();
   }
   return createstream_.CreateCallback(sequence_, callback);
+}
+
+Connection Client::CreateTrackStatisticsStream(const uint64_t recordingtoken, const uint32_t trackid, boost::function<void(const std::chrono::steady_clock::duration latency, const CREATETRACKSTATISTICSSTREAMRESPONSE&)> callback)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (CreateTrackStatisticsStreamSend(recordingtoken, trackid))
+  {
+    callback(std::chrono::steady_clock::duration(), CREATETRACKSTATISTICSSTREAMRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+    return Connection();
+  }
+  return createtrackstatisticsstream_.CreateCallback(sequence_, callback);
 }
 
 Connection Client::DestroyFindMotion(const uint64_t streamtoken, boost::function<void(const std::chrono::steady_clock::duration latency, const DESTROYFINDMOTIONRESPONSE&)> callback)
@@ -2722,12 +2748,34 @@ boost::system::error_code Client::CreateFindObjectSend(const uint64_t recordingt
   return err;
 }
 
-boost::system::error_code Client::CreateStreamSend(const uint64_t recordingtoken, const uint32_t tracktoken)
+boost::system::error_code Client::CreateStreamSend(const uint64_t recordingtoken, const uint32_t trackid)
 {
   fbb_.Clear();
-  fbb_.Finish(CreateCreateStreamRequest(fbb_, recordingtoken, tracktoken));
+  fbb_.Finish(CreateCreateStreamRequest(fbb_, recordingtoken, trackid));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::CREATESTREAM, ++sequence_);
+  boost::system::error_code err;
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(fbb_.GetBufferPointer(), messagesize), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  return err;
+}
+
+boost::system::error_code Client::CreateTrackStatisticsStreamSend(const uint64_t recordingtoken, const uint32_t trackid)
+{
+  fbb_.Clear();
+  fbb_.Finish(CreateCreateTrackStatisticsStreamRequest(fbb_, recordingtoken, trackid));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::CREATETRACKSTATISTICSSTREAM, ++sequence_);
   boost::system::error_code err;
   boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
   if (err)
@@ -4163,6 +4211,30 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         return;
       }
       destroyfindmotion_.Response(sequence, DESTROYFINDMOTIONRESPONSE());
+      break;
+    }
+    case Message::CREATETRACKSTATISTICSSTREAM:
+    {
+      if (error)
+      {
+        HandleError(createtrackstatisticsstream_, sequence, data, datasize);
+        return;
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<CreateTrackStatisticsStreamResponse>(nullptr))
+      {
+        createtrackstatisticsstream_.Response(sequence, CREATETRACKSTATISTICSSTREAMRESPONSE(Error(ErrorCode::InvalidMessage, "CreateTrackStatisticsStreamResponse verification failed")));
+        return;
+      }
+
+      const CreateTrackStatisticsStreamResponse* createtrackstatisticsstreamresponse = flatbuffers::GetRoot<CreateTrackStatisticsStreamResponse>(data);
+      if (!createtrackstatisticsstreamresponse)
+      {
+        createtrackstatisticsstream_.Response(sequence, CREATETRACKSTATISTICSSTREAMRESPONSE(Error(ErrorCode::MissingParameter, "CreateTrackStatisticsStreamResponse missing parameter")));
+        return;
+      }
+
+      createtrackstatisticsstream_.Response(sequence, CREATETRACKSTATISTICSSTREAMRESPONSE(createtrackstatisticsstreamresponse->token()));
       break;
     }
     case Message::DESTROYFINDOBJECT:

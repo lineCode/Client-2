@@ -47,6 +47,8 @@
 #include "monocleprotocol/createfindobjectresponse_generated.h"
 #include "monocleprotocol/createstreamrequest_generated.h"
 #include "monocleprotocol/createstreamresponse_generated.h"
+#include "monocleprotocol/createtrackstatisticsstreamrequest_generated.h"
+#include "monocleprotocol/createtrackstatisticsstreamresponse_generated.h"
 #include "monocleprotocol/destroyfindmotionrequest_generated.h"
 #include "monocleprotocol/destroyfindobjectrequest_generated.h"
 #include "monocleprotocol/destroystreamrequest_generated.h"
@@ -3083,7 +3085,7 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
         return SendErrorResponse(Message::CREATESTREAM, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
       }
 
-      const std::pair<Error, STREAM> stream = CreateStream(createstreamrequest->recordingtoken(), createstreamrequest->tracktoken());
+      const std::pair<Error, STREAM> stream = CreateStream(createstreamrequest->recordingtoken(), static_cast<uint32_t>(createstreamrequest->trackid()));
       if (stream.first.code_ != ErrorCode::Success)
       {
 
@@ -3100,6 +3102,32 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       }
       fbb_.Finish(CreateCreateStreamResponse(fbb_, stream.second.token_, fbb_.CreateVector(codecindices)));
       return SendResponse(true, Message::CREATESTREAM, sequence);
+    }
+    case Message::CREATETRACKSTATISTICSSTREAM:
+    {
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<CreateTrackStatisticsStreamRequest>(nullptr))
+      {
+
+        return SendErrorResponse(Message::CREATETRACKSTATISTICSSTREAM, sequence, Error(ErrorCode::InvalidMessage, "Invalid CreateTrackStatisticsStreamRequest message"));
+      }
+
+      const CreateTrackStatisticsStreamRequest* createtrackstatisticsstreamrequest = flatbuffers::GetRoot<CreateTrackStatisticsStreamRequest>(data);
+      if (createtrackstatisticsstreamrequest == nullptr)
+      {
+
+        return SendErrorResponse(Message::CREATETRACKSTATISTICSSTREAM, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
+      }
+
+      const std::pair<Error, uint64_t> stream = CreateTrackStatisticsStream(createtrackstatisticsstreamrequest->recordingtoken(), createtrackstatisticsstreamrequest->trackid());
+      if (stream.first.code_ != ErrorCode::Success)
+      {
+
+        return SendErrorResponse(Message::CREATETRACKSTATISTICSSTREAM, sequence, stream.first);
+      }
+
+      std::lock_guard<std::mutex> lock(writemutex_);
+      fbb_.Finish(CreateCreateTrackStatisticsStreamResponse(fbb_, stream.second));
+      return SendResponse(true, Message::CREATETRACKSTATISTICSSTREAM, sequence);
     }
     case Message::DESTROYFINDMOTION:
     {
