@@ -1,0 +1,10 @@
+namespace monocle;
+
+table ControlTrackStatisticsStreamRequest
+{
+  token:uint64 (id:0);
+  playrequestindex:uint64 (id:1);
+  starttime:uint64 (id:2);
+  endtime:uint64 (id:3);
+  interval:uint64 (id:4);
+}

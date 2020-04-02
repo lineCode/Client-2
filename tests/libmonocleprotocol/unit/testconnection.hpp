@@ -89,7 +89,8 @@ class TestConnection : public server::Connection
   virtual Error ControlStreamPause(const uint64_t streamtoken, const boost::optional<uint64_t>& time) override;
   virtual std::pair<Error, uint64_t> CreateFindMotion(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height, const float sensitivity, const bool fast) override;
   virtual std::pair<Error, uint64_t> CreateFindObject(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height) override;
-  virtual std::pair<Error, STREAM> CreateStream(const uint64_t recordingtoken, const uint64_t tracktoken) override;
+  virtual std::pair<Error, STREAM> CreateStream(const uint64_t recordingtoken, const uint32_t trackid) override;
+  virtual std::pair<Error, uint64_t> CreateTrackStatisticsStream(const uint64_t recordingtoken, const uint32_t trackid) override;
   virtual Error DestroyFindMotion(const uint64_t token) override;
   virtual Error DestroyFindObject(const uint64_t token) override;
   virtual Error DestroyStream(const uint64_t streamtoken) override;
