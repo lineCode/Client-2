@@ -46,7 +46,7 @@ namespace client
 ///// Methods /////
 
 VideoView::VideoView(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool showinfo, const bool showobjects, boost::shared_ptr<client::Device> device, QSharedPointer<client::Recording> recording, QSharedPointer<client::RecordingTrack> track, const QResource* arial) :
-  View(videowidget, cudacontext, selectedcolour, x, y, width, height, rotation, mirror, stretch, showinfo, showobjects, arial, true, true, true, true),
+  View(videowidget, cudacontext, selectedcolour, x, y, width, height, rotation, mirror, stretch, showinfo, showobjects, arial, true, true, true, true, true, true, true),
   mutex_(boost::make_shared<std::recursive_mutex>()),
   device_(device),
   recording_(recording),
