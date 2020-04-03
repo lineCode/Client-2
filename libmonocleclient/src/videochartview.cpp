@@ -30,44 +30,65 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   tracks_(tracks),
   widget_(new QWidget()),
   layout_(new QGridLayout(widget_)),
-  chart_(nullptr, nullptr)
+  chart_(nullptr, nullptr),
+  series_(new QStackedBarSeries()),
+  xaxis_(new QBarCategoryAxis()),
+  yaxis_(new QValueAxis())
 {
   SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), rotation_, mirror_, stretch_, true);
 
-  //TODO Stacked bar chart with each object type to start with
+  for (size_t z = 0; z <= static_cast<size_t>(monocle::ObjectClass::MAX); ++z)
+  {
+    const monocle::ObjectClass classtype = static_cast<monocle::ObjectClass>(z);
+    barsets_[z] = std::make_unique<QBarSet>(monocle::EnumNameObjectClass(classtype));
+  }
+
+  chart_.chart()->addSeries(series_);
+  //TODO chart_.chart()->setTitle()
+  //TODO chart->setAnimationOptions(QChart::SeriesAnimations);
+
+  chart_.chart()->addAxis(xaxis_, Qt::AlignBottom);
+  chart_.chart()->addAxis(yaxis_, Qt::AlignLeft);
+  series_->attachAxis(xaxis_);
+  series_->attachAxis(yaxis_);
+  
+  //TODO categories=times
+
+  chart_.chart()->legend()->setVisible(true);
+  chart_.chart()->legend()->setAlignment(Qt::AlignBottom);
 
   //TODO only show objects that appear in the legend, no need to show giraffes if there aren't any imo
 
   //TODO tidy up all this shit
-  QValueAxis* cpuaxisx_ = new QValueAxis(this);
-  QValueAxis* cpuaxisy_ = new QValueAxis(this);
+  //TODO QValueAxis* cpuaxisx_ = new QValueAxis(this);
+  //TODO QValueAxis* cpuaxisy_ = new QValueAxis(this);
   //TODO QValueAxis* cpumemoryaxisy_;
-  
-  QLineSeries* cpu_ = new QLineSeries(this);
-  QLineSeries* memory_ = new QLineSeries(this);
-  
-  cpu_->setName("CPU");
-  memory_->setName("Memory");
-  
-  cpuaxisx_->setTitleText("Seconds");
-  chart_.chart()->addAxis(cpuaxisx_, Qt::AlignBottom);
-  cpuaxisx_->setReverse(true);
-  cpuaxisx_->setMin(0.0);
-  cpuaxisx_->setMax(60.0);
-  
-  chart_.chart()->addSeries(cpu_);
-  chart_.chart()->addSeries(memory_);
-  cpu_->setName("CPU");
-  memory_->setName("Memory");
-  
-  // CPU
-  cpuaxisy_->setLabelFormat("%d%%");
-  cpuaxisy_->setTitleText("CPU");
-  cpuaxisy_->setMin(0.0);
-  cpuaxisy_->setMax(100.0);
-  chart_.chart()->addAxis(cpuaxisy_, Qt::AlignLeft);
-  cpu_->attachAxis(cpuaxisx_);
-  cpu_->attachAxis(cpuaxisy_);
+  //TODO 
+  //TODO QLineSeries* cpu_ = new QLineSeries(this);
+  //TODO QLineSeries* memory_ = new QLineSeries(this);
+  //TODO 
+  //TODO cpu_->setName("CPU");
+  //TODO memory_->setName("Memory");
+  //TODO 
+  //TODO cpuaxisx_->setTitleText("Seconds");
+  //TODO chart_.chart()->addAxis(cpuaxisx_, Qt::AlignBottom);
+  //TODO cpuaxisx_->setReverse(true);
+  //TODO cpuaxisx_->setMin(0.0);
+  //TODO cpuaxisx_->setMax(60.0);
+  //TODO 
+  //TODO chart_.chart()->addSeries(cpu_);
+  //TODO chart_.chart()->addSeries(memory_);
+  //TODO cpu_->setName("CPU");
+  //TODO memory_->setName("Memory");
+  //TODO 
+  //TODO // CPU
+  //TODO cpuaxisy_->setLabelFormat("%d%%");
+  //TODO cpuaxisy_->setTitleText("CPU");
+  //TODO cpuaxisy_->setMin(0.0);
+  //TODO cpuaxisy_->setMax(100.0);
+  //TODO chart_.chart()->addAxis(cpuaxisy_, Qt::AlignLeft);
+  //TODO cpu_->attachAxis(cpuaxisx_);
+  //TODO cpu_->attachAxis(cpuaxisy_);
 
   // Setup the chart itself. It gets drawn offscreen and then copied in
   const QRect pixelrect = GetPixelRect();
@@ -239,14 +260,24 @@ void VideoChartView::ControlStreamEnd(const uint64_t streamtoken, const uint64_t
 
 void VideoChartView::ControlStreamResult(const uint64_t streamtoken, const uint64_t requestindex, const uint64_t starttime, const uint64_t endtime, const std::vector< std::pair<monocle::ObjectClass, uint64_t> >& results, void* callbackdata)
 {
-  qDebug() << (starttime / 1000);
-  for (const std::pair<monocle::ObjectClass, uint64_t>& result : results)
+  VideoChartView* videochartview = reinterpret_cast<VideoChartView*>(callbackdata);
+  qDebug() << (starttime / 1000);//TODO remove
+  for (const std::pair<monocle::ObjectClass, uint64_t>& result : results)//TODO remove
   {
     qDebug() << "  " << monocle::EnumNameObjectClass(result.first) << result.second;
     
   }
-  //TODO lets do something?
 
+  videochartview->xaxis_->append(QString::number(starttime));//TODO make time pretty
+
+  for (const std::pair<monocle::ObjectClass, uint64_t>& result : results)
+  {
+    videochartview->barsets_[static_cast<size_t>(result.first)]->append(result.second);
+    videochartview->series_->append(videochartview->barsets_[static_cast<size_t>(result.first)].get());
+  }
+
+  videochartview->chart_.chart()->removeSeries(videochartview->series_);
+  videochartview->chart_.chart()->addSeries(videochartview->series_);
 }
 
 void VideoChartView::SendImage()

@@ -6,7 +6,9 @@
 
 ///// Includes /////
 
+#include <array>
 #include <boost/asio.hpp>
+#include <memory>
 #include <monocleprotocol/client/connection.hpp>
 #include <QGridLayout>
 #include <QtCharts>
@@ -73,6 +75,10 @@ class VideoChartView : public View
   QWidget* widget_;
   QGridLayout* layout_;
   QChartView chart_;
+  std::array<std::unique_ptr<QBarSet>, 30> barsets_;
+  QStackedBarSeries* series_;
+  QBarCategoryAxis* xaxis_;
+  QValueAxis* yaxis_;
 
   std::vector<monocle::client::Connection> streamsconnections_;
 
