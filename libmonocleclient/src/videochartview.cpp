@@ -99,9 +99,10 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
       
       // Clear up the time so it begins exactly on the minute
       auto now = boost::posix_time::second_clock::universal_time();
-      now = now - boost::posix_time::seconds(now.time_of_day().seconds()) - boost::posix_time::hours(24);
-      const uint64_t starttime = (boost::posix_time::to_time_t(now) * 1000);
+      now = now - boost::posix_time::seconds(now.time_of_day().seconds()) - boost::posix_time::minutes(now.time_of_day().minutes()) - boost::posix_time::hours(24);
+      const uint64_t starttime = (boost::posix_time::to_time_t(now) * 1000) + device_->GetTimeOffset();
 
+      //TODO requestindex needs to be updated and sent when we begin refreshing things with zooming in/out
       streamsconnections_.push_back(device_->ControlTrackStatisticsStream(createtrackstatisticsstreamresponse.token_, 0, starttime, std::numeric_limits<uint64_t>::max(), 60 * 60 * 1000, [this](const std::chrono::steady_clock::duration latency, const monocle::client::CONTROLTRACKSTATISTICSSTREAMRESPONSE& controltrackstatisticsstreamresponse)
       {
         if (controltrackstatisticsstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
@@ -232,8 +233,10 @@ void VideoChartView::ControlStreamResult(const uint64_t streamtoken, const uint6
   //TODO we want to fill in all the minutes and hours where there wasn't any activity too now...
     //TODO otherwise we don't get a good impression when nothing happened...
 
-  const boost::posix_time::ptime time = boost::posix_time::from_time_t(starttime);
-  videochartview->xaxis_->append(QString::number(time.time_of_day().hours()) + ":" + QString::number(time.time_of_day().minutes()));//TODO make time pretty
+  //TODO if all the xaxis are filled in, we also need to fill in the corresponding zeros
+
+  const boost::posix_time::ptime time = boost::posix_time::from_time_t(starttime / 1000);
+  videochartview->xaxis_->append(QString::number(time.time_of_day().hours()) + ":00");
 
   for (const std::pair<monocle::ObjectClass, uint64_t>& result : results)
   {
@@ -241,6 +244,7 @@ void VideoChartView::ControlStreamResult(const uint64_t streamtoken, const uint6
     videochartview->series_->append(videochartview->barsets_[static_cast<size_t>(result.first)].get());
   }
 
+  //TODO videochartview->chart_.repaint();//TODO might work? didn't work?
   videochartview->chart_.chart()->removeSeries(videochartview->series_);
   videochartview->chart_.chart()->addSeries(videochartview->series_);
 }
