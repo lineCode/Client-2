@@ -64,6 +64,7 @@ class VideoChartView : public View
   static void ControlStreamResult(const uint64_t streamtoken, const uint64_t requestindex, const uint64_t starttime, const uint64_t endtime, const std::vector< std::pair<monocle::ObjectClass, uint64_t> >& results, void* callbackdata);
 
   void SendImage();
+  void CloseConnections();
 
   boost::shared_ptr<client::Device> device_;
   QSharedPointer<Recording> recording_;
