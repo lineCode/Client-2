@@ -36,18 +36,6 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
 
   //TODO Stacked bar chart with each object type to start with
 
-  //TODO I think the begin with, we ONLY listen to live and we draw graphs based upon live only...
-
-  //TODO we want the server to do all the hard work
-    //TODO CreateStatisticsStream and then we can request things perhaps
-      //TODO starttime,endtime,interval
-        //TODO we will need to grab history, but then also continue updating live...
-          //TODO if endtime is not null, it listens to live and just updates the client on that live time
-            //TODO the graph will go mental with a massive gap while it captures all the info from starttime... but the client can manage that I think, it will just have to wait until it reaches the previous interval time to the live stream
-  //TODO we want to kick off authentication and start streaming live object data from the tracks
-    //TODO we will also want history too though... not sure how to deal with both...
-    //TODO just copy video view and bang off we go
-
   //TODO only show objects that appear in the legend, no need to show giraffes if there aren't any imo
 
   //TODO tidy up all this shit
@@ -113,8 +101,7 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   widget_->show(); // For some bizarre reason, this is required.
   widget_->hide();
 
-  std::for_each(streamsconnections_.begin(), streamsconnections_.end(), [](monocle::client::Connection& connection) { connection.Close(); });//TODO maybe make this a method?
-  streamsconnections_.clear();
+  CloseConnections();
   for (QSharedPointer<RecordingTrack>& track : tracks_)
   {
     streamsconnections_.push_back(device_->CreateTrackStatisticsStream(recording_->GetToken(), track->GetId(), [this](const std::chrono::nanoseconds latency, const monocle::client::CREATETRACKSTATISTICSSTREAMRESPONSE& createtrackstatisticsstreamresponse)
@@ -125,6 +112,7 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
         return;
       }
       
+      //TODO set time to something reasonable(different zoom levels may change this)
       streamsconnections_.push_back(device_->ControlTrackStatisticsStream(createtrackstatisticsstreamresponse.token_, 0, std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch() - std::chrono::hours(60)).count() + device_->GetTimeOffset(), std::numeric_limits<uint64_t>::max(), 60 * 1000, [this](const std::chrono::steady_clock::duration latency, const monocle::client::CONTROLTRACKSTATISTICSSTREAMRESPONSE& controltrackstatisticsstreamresponse)
       {
         if (controltrackstatisticsstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
@@ -142,8 +130,7 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
 
 VideoChartView::~VideoChartView()
 {
-  std::for_each(streamsconnections_.begin(), streamsconnections_.end(), [](monocle::client::Connection& connection) { connection.Close(); });
-  streamsconnections_.clear();
+  CloseConnections();
 
   //TODO delete layout_ and widget_
 
@@ -262,8 +249,6 @@ void VideoChartView::SendImage()
   QPainter painter(&image);
   chart_.render(&painter);
 
-  //TODO auto b = image.save("test.jpg");//TODO remove
-
   ImageBuffer imagebuffer = freeimagequeue_.GetFreeImage();
   imagebuffer.Destroy(); // Don't mind doing this, because the map will only update very infrequently
   imagebuffer.widths_[0] = image.width();
@@ -278,6 +263,12 @@ void VideoChartView::SendImage()
   std::memcpy(imagebuffer.buffer_, image.bits(), image.sizeInBytes());
 
   imagequeue_.push(imagebuffer);
+}
+
+void VideoChartView::CloseConnections()
+{
+  std::for_each(streamsconnections_.begin(), streamsconnections_.end(), [](monocle::client::Connection& connection) { connection.Close(); });
+  streamsconnections_.clear();
 }
 
 }
