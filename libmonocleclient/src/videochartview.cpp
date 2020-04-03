@@ -113,6 +113,7 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
       }
       
       //TODO set time to something reasonable(different zoom levels may change this)
+//TODO we want to modulus the time with the start of a minute,hour,day so we can fill in a nice barchart
       streamsconnections_.push_back(device_->ControlTrackStatisticsStream(createtrackstatisticsstreamresponse.token_, 0, std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch() - std::chrono::hours(60)).count() + device_->GetTimeOffset(), std::numeric_limits<uint64_t>::max(), 60 * 1000, [this](const std::chrono::steady_clock::duration latency, const monocle::client::CONTROLTRACKSTATISTICSSTREAMRESPONSE& controltrackstatisticsstreamresponse)
       {
         if (controltrackstatisticsstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
@@ -232,25 +233,32 @@ void VideoChartView::timerEvent(QTimerEvent* event)
 
 void VideoChartView::ControlStreamEnd(const uint64_t streamtoken, const uint64_t requestindex, const monocle::ErrorCode error, void* callbackdata)
 {
-  //TODO because we always want live, don't think we need to do anything here?
+  // We are always extending to live at the moment, so this can be ignored
 
 }
 
 void VideoChartView::ControlStreamResult(const uint64_t streamtoken, const uint64_t requestindex, const uint64_t starttime, const uint64_t endtime, const std::vector< std::pair<monocle::ObjectClass, uint64_t> >& results, void* callbackdata)
 {
-  qDebug() << results.size();//TODO
+  qDebug() << (starttime / 1000);
+  for (const std::pair<monocle::ObjectClass, uint64_t>& result : results)
+  {
+    qDebug() << "  " << monocle::EnumNameObjectClass(result.first) << result.second;
+    
+  }
   //TODO lets do something?
 
 }
 
 void VideoChartView::SendImage()
 {
+  //TODO if nothing has changed, don't send anything... need a nice flag dirty_
+
   QImage image(chart_.chart()->preferredWidth(), chart_.chart()->preferredHeight(), QImage::Format::Format_RGBX8888);
   QPainter painter(&image);
   chart_.render(&painter);
 
   ImageBuffer imagebuffer = freeimagequeue_.GetFreeImage();
-  imagebuffer.Destroy(); // Don't mind doing this, because the map will only update very infrequently
+  imagebuffer.Destroy();
   imagebuffer.widths_[0] = image.width();
   imagebuffer.heights_[0] = image.height();
   imagebuffer.digitallysigned_ = boost::none;
