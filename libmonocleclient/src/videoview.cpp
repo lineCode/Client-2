@@ -314,7 +314,7 @@ void VideoView::GetMenu(QMenu& parent)
   }
   parent.addMenu(tracks);
 
-  if (device_->SupportsTrackCodec())
+  if (device_->SupportsTrackCodec())//TODO needs to support chart view(1.13 or older)
   {
     if (recording_->GetNumObjectDetectors())
     {

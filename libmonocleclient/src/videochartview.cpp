@@ -5,6 +5,7 @@
 
 #include "monocleclient/videochartview.h"
 
+#include <boost/date_time.hpp>
 #include <monocleprotocol/objectdetectorframetype_generated.h>
 #include <QImage>
 #include <QPainter>
@@ -44,51 +45,14 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   }
 
   chart_.chart()->addSeries(series_);
-  //TODO chart_.chart()->setTitle()
-  //TODO chart->setAnimationOptions(QChart::SeriesAnimations);
 
   chart_.chart()->addAxis(xaxis_, Qt::AlignBottom);
   chart_.chart()->addAxis(yaxis_, Qt::AlignLeft);
   series_->attachAxis(xaxis_);
   series_->attachAxis(yaxis_);
-  
-  //TODO categories=times
 
   chart_.chart()->legend()->setVisible(true);
   chart_.chart()->legend()->setAlignment(Qt::AlignBottom);
-
-  //TODO only show objects that appear in the legend, no need to show giraffes if there aren't any imo
-
-  //TODO tidy up all this shit
-  //TODO QValueAxis* cpuaxisx_ = new QValueAxis(this);
-  //TODO QValueAxis* cpuaxisy_ = new QValueAxis(this);
-  //TODO QValueAxis* cpumemoryaxisy_;
-  //TODO 
-  //TODO QLineSeries* cpu_ = new QLineSeries(this);
-  //TODO QLineSeries* memory_ = new QLineSeries(this);
-  //TODO 
-  //TODO cpu_->setName("CPU");
-  //TODO memory_->setName("Memory");
-  //TODO 
-  //TODO cpuaxisx_->setTitleText("Seconds");
-  //TODO chart_.chart()->addAxis(cpuaxisx_, Qt::AlignBottom);
-  //TODO cpuaxisx_->setReverse(true);
-  //TODO cpuaxisx_->setMin(0.0);
-  //TODO cpuaxisx_->setMax(60.0);
-  //TODO 
-  //TODO chart_.chart()->addSeries(cpu_);
-  //TODO chart_.chart()->addSeries(memory_);
-  //TODO cpu_->setName("CPU");
-  //TODO memory_->setName("Memory");
-  //TODO 
-  //TODO // CPU
-  //TODO cpuaxisy_->setLabelFormat("%d%%");
-  //TODO cpuaxisy_->setTitleText("CPU");
-  //TODO cpuaxisy_->setMin(0.0);
-  //TODO cpuaxisy_->setMax(100.0);
-  //TODO chart_.chart()->addAxis(cpuaxisy_, Qt::AlignLeft);
-  //TODO cpu_->attachAxis(cpuaxisx_);
-  //TODO cpu_->attachAxis(cpuaxisy_);
 
   // Setup the chart itself. It gets drawn offscreen and then copied in
   const QRect pixelrect = GetPixelRect();
@@ -99,8 +63,8 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   chart_.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   chart_.chart()->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   chart_.chart()->setPreferredWidth(pixelrect.width());//TODO when the view gets resized, we want to set this again
-  //TODO maybe we can override SetPosition and refresh all this?
   chart_.chart()->setPreferredHeight(pixelrect.height());
+  //TODO maybe we can override SetPosition and refresh all this?
 
   //TODO Can we remove any of this stuff?
   widget_->setContentsMargins(QMargins(0, 0, 0, 0));
@@ -133,9 +97,12 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
         return;
       }
       
-      //TODO set time to something reasonable(different zoom levels may change this)
-//TODO we want to modulus the time with the start of a minute,hour,day so we can fill in a nice barchart
-      streamsconnections_.push_back(device_->ControlTrackStatisticsStream(createtrackstatisticsstreamresponse.token_, 0, std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch() - std::chrono::hours(60)).count() + device_->GetTimeOffset(), std::numeric_limits<uint64_t>::max(), 60 * 1000, [this](const std::chrono::steady_clock::duration latency, const monocle::client::CONTROLTRACKSTATISTICSSTREAMRESPONSE& controltrackstatisticsstreamresponse)
+      // Clear up the time so it begins exactly on the minute
+      auto now = boost::posix_time::second_clock::universal_time();
+      now = now - boost::posix_time::seconds(now.time_of_day().seconds()) - boost::posix_time::hours(24);
+      const uint64_t starttime = (boost::posix_time::to_time_t(now) * 1000);
+
+      streamsconnections_.push_back(device_->ControlTrackStatisticsStream(createtrackstatisticsstreamresponse.token_, 0, starttime, std::numeric_limits<uint64_t>::max(), 60 * 60 * 1000, [this](const std::chrono::steady_clock::duration latency, const monocle::client::CONTROLTRACKSTATISTICSSTREAMRESPONSE& controltrackstatisticsstreamresponse)
       {
         if (controltrackstatisticsstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
         {
@@ -261,14 +228,12 @@ void VideoChartView::ControlStreamEnd(const uint64_t streamtoken, const uint64_t
 void VideoChartView::ControlStreamResult(const uint64_t streamtoken, const uint64_t requestindex, const uint64_t starttime, const uint64_t endtime, const std::vector< std::pair<monocle::ObjectClass, uint64_t> >& results, void* callbackdata)
 {
   VideoChartView* videochartview = reinterpret_cast<VideoChartView*>(callbackdata);
-  qDebug() << (starttime / 1000);//TODO remove
-  for (const std::pair<monocle::ObjectClass, uint64_t>& result : results)//TODO remove
-  {
-    qDebug() << "  " << monocle::EnumNameObjectClass(result.first) << result.second;
-    
-  }
 
-  videochartview->xaxis_->append(QString::number(starttime));//TODO make time pretty
+  //TODO we want to fill in all the minutes and hours where there wasn't any activity too now...
+    //TODO otherwise we don't get a good impression when nothing happened...
+
+  const boost::posix_time::ptime time = boost::posix_time::from_time_t(starttime);
+  videochartview->xaxis_->append(QString::number(time.time_of_day().hours()) + ":" + QString::number(time.time_of_day().minutes()));//TODO make time pretty
 
   for (const std::pair<monocle::ObjectClass, uint64_t>& result : results)
   {
