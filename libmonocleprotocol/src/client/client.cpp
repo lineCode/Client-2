@@ -75,6 +75,8 @@
 #include "monocleprotocol/getchildfoldersrequest_generated.h"
 #include "monocleprotocol/getchildfoldersresponse_generated.h"
 #include "monocleprotocol/getfilesresponse_generated.h"
+#include "monocleprotocol/getobjecttrackstatisticsrequest_generated.h"
+#include "monocleprotocol/getobjecttrackstatisticsresponse_generated.h"
 #include "monocleprotocol/getreceiversresponse_generated.h"
 #include "monocleprotocol/getrecordingsresponse_generated.h"
 #include "monocleprotocol/getsnapshotrequest_generated.h"
@@ -239,6 +241,7 @@ Client::Client(boost::asio::io_service& io) :
   getauthenticationnonce_(DEFAULT_TIMEOUT, this),
   getchildfolders_(DEFAULT_TIMEOUT, this),
   getfiles_(DEFAULT_TIMEOUT, this),
+  getobjecttrackstatistics_(DEFAULT_TIMEOUT, this),
   getreceivers_(DEFAULT_TIMEOUT, this),
   getrecordings_(DEFAULT_TIMEOUT, this),
   getsnapshot_(DEFAULT_TIMEOUT, this),
@@ -382,6 +385,7 @@ void Client::Destroy()
     discoverybroadcast_.Destroy();
     getauthenticationnonce_.Destroy();
     getfiles_.Destroy();
+    getobjecttrackstatistics_.Destroy();
     getreceivers_.Destroy();
     getrecordings_.Destroy();
     getsnapshot_.Destroy();
@@ -838,6 +842,17 @@ boost::unique_future<GETFILESRESPONSE> Client::GetFiles()
     return boost::make_ready_future(GETFILESRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
   }
   return getfiles_.CreateFuture(sequence_);
+}
+
+boost::unique_future<GETOBJECTTRACKSTATISTICSSRESPONSE> Client::GetObjectTrackStatistics(const uint64_t recordingtoken, const uint32_t trackid, const uint64_t starttime, const uint64_t endtime, const uint64_t interval)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (GetObjectTrackStatisticsSend(recordingtoken, trackid, starttime, endtime, interval))
+  {
+
+    return boost::make_ready_future(GETOBJECTTRACKSTATISTICSSRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+  }
+  return getobjecttrackstatistics_.CreateFuture(sequence_);
 }
 
 boost::unique_future<GETRECEIVERSRESPONSE> Client::GetReceivers()
@@ -1672,6 +1687,17 @@ Connection Client::GetFiles(boost::function<void(const std::chrono::steady_clock
     return Connection();
   }
   return getfiles_.CreateCallback(sequence_, callback);
+}
+
+Connection Client::GetObjectTrackStatistics(const uint64_t recordingtoken, const uint32_t trackid, const uint64_t starttime, const uint64_t endtime, const uint64_t interval, boost::function<void(const std::chrono::steady_clock::duration, const GETOBJECTTRACKSTATISTICSSRESPONSE&)> callback)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (GetObjectTrackStatisticsSend(recordingtoken, trackid, starttime, endtime, interval))
+  {
+    callback(std::chrono::steady_clock::duration(), GETOBJECTTRACKSTATISTICSSRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
+    return Connection();
+  }
+  return getobjecttrackstatistics_.CreateCallback(sequence_, callback);
 }
 
 Connection Client::GetReceivers(boost::function<void(const std::chrono::steady_clock::duration, const GETRECEIVERSRESPONSE&)> callback)
@@ -2960,6 +2986,28 @@ boost::system::error_code Client::GetFilesSend()
   const HEADER header(0, false, false, Message::GETFILES, ++sequence_);
   boost::system::error_code err;
   boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  return err;
+}
+
+boost::system::error_code Client::GetObjectTrackStatisticsSend(const uint64_t recordingtoken, const uint32_t trackid, const uint64_t starttime, const uint64_t endtime, const uint64_t interval)
+{
+  fbb_.Clear();
+  fbb_.Finish(CreateGetObjectTrackStatisticsRequest(fbb_, recordingtoken, trackid, starttime, endtime, interval));
+  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
+  const HEADER header(messagesize, false, false, Message::GETOBJECTTRACKSTATISTICS, ++sequence_);
+  boost::system::error_code err;
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
+  if (err)
+  {
+    Disconnected();
+    return err;
+  }
+  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(fbb_.GetBufferPointer(), messagesize), boost::asio::transfer_all(), err);
   if (err)
   {
     Disconnected();
@@ -4490,6 +4538,41 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       }
 
       getfiles_.Response(sequence, GETFILESRESPONSE(files.second));
+      break;
+    }
+    case Message::GETOBJECTTRACKSTATISTICS:
+    {
+      if (error)
+      {
+        HandleError(getobjecttrackstatistics_, sequence, data, datasize);
+        return;
+      }
+
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<GetObjectTrackStatisticsResponse>(nullptr))
+      {
+        getobjecttrackstatistics_.Response(sequence, GETOBJECTTRACKSTATISTICSSRESPONSE(Error(ErrorCode::InvalidMessage, "GetObjectTrackStatistics verification failed")));
+        return;
+      }
+
+      const GetObjectTrackStatisticsResponse* getobjecttrackstatisticsresponse = flatbuffers::GetRoot<GetObjectTrackStatisticsResponse>(data);
+      if (!getobjecttrackstatisticsresponse)
+      {
+        getsnapshot_.Response(sequence, GETSNAPSHOTRESPONSE(Error(ErrorCode::MissingParameter, "GetObjectTrackStatisticsResponse missing Recordings")));
+        return;
+      }
+
+      std::vector<OBJECTCLASSTRACKSTATISTICS> results;
+      if (getobjecttrackstatisticsresponse->results())
+      {
+        results.reserve(getobjecttrackstatisticsresponse->results()->size());
+        for (const monocle::ObjectClassTrackStatistics* result : *getobjecttrackstatisticsresponse->results())
+        {
+          results.push_back(OBJECTCLASSTRACKSTATISTICS(result->objectclass(), result->starttime(), result->endtime(), result->count()));
+
+        }
+      }
+
+      getobjecttrackstatistics_.Response(sequence, GETOBJECTTRACKSTATISTICSSRESPONSE(results));
       break;
     }
     case Message::GETRECEIVERS:

@@ -86,35 +86,28 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   widget_->show(); // For some bizarre reason, this is required.
   widget_->hide();
 
+  // Look at the last 24 hours by default
+  auto now = boost::posix_time::second_clock::universal_time();
+  now = now - boost::posix_time::seconds(now.time_of_day().seconds()) - boost::posix_time::minutes(now.time_of_day().minutes()) - boost::posix_time::hours(24);
+  const uint64_t starttime = (boost::posix_time::to_time_t(now) * 1000) + device_->GetTimeOffset();
+
   CloseConnections();
   for (QSharedPointer<RecordingTrack>& track : tracks_)
   {
-    streamsconnections_.push_back(device_->CreateTrackStatisticsStream(recording_->GetToken(), track->GetId(), [this](const std::chrono::nanoseconds latency, const monocle::client::CREATETRACKSTATISTICSSTREAMRESPONSE& createtrackstatisticsstreamresponse)
+    streamsconnections_.push_back(device_->GetObjectTrackStatistics(recording_->GetToken(), track->GetId(), starttime, std::numeric_limits<uint64_t>::max(), 60 * 60 * 1000, [this](const std::chrono::nanoseconds latency, const monocle::client::GETOBJECTTRACKSTATISTICSSRESPONSE& getobjecttrackstatisticssresponse)
     {
-      if (createtrackstatisticsstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
+      if (getobjecttrackstatisticssresponse.GetErrorCode() != monocle::ErrorCode::Success)
       {
         //TODO messagebox?
         return;
       }
       
-      // Clear up the time so it begins exactly on the minute
-      auto now = boost::posix_time::second_clock::universal_time();
-      now = now - boost::posix_time::seconds(now.time_of_day().seconds()) - boost::posix_time::minutes(now.time_of_day().minutes()) - boost::posix_time::hours(24);
-      const uint64_t starttime = (boost::posix_time::to_time_t(now) * 1000) + device_->GetTimeOffset();
-
-      //TODO requestindex needs to be updated and sent when we begin refreshing things with zooming in/out
-      streamsconnections_.push_back(device_->ControlTrackStatisticsStream(createtrackstatisticsstreamresponse.token_, 0, starttime, std::numeric_limits<uint64_t>::max(), 60 * 60 * 1000, [this](const std::chrono::steady_clock::duration latency, const monocle::client::CONTROLTRACKSTATISTICSSTREAMRESPONSE& controltrackstatisticsstreamresponse)
-      {
-        if (controltrackstatisticsstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
-        {
-          //TODO messagebox?
-          return;
-        }
-      }));
-    }, VideoChartView::ControlStreamEnd, VideoChartView::ControlStreamResult, this));
+      //TODO use these results
+      
+    }));
   }
 
-  startTimer(std::chrono::seconds(1));
+  startTimer(std::chrono::seconds(1));//TODO we no longer need this, we just recreate it on resize and we're good
   SendImage();
 }
 

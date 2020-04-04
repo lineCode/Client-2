@@ -84,6 +84,7 @@ enum class Message : uint16_t {
   SETGUIORDER = 72,
   CONTROLTRACKSTATISTICSSTREAM = 73,
   CREATETRACKSTATISTICSSTREAM = 74,
+  GETOBJECTTRACKSTATISTICS = 75,
   CONTROLSTREAMEND = 8000,
   DISCOVERYHELLO = 8001,
   FILEADDED = 8002,
@@ -162,7 +163,7 @@ enum class Message : uint16_t {
   MAX = CONTROLTRACKSTATISTICSSTREAMRESULT
 };
 
-inline const Message (&EnumValuesMessage())[149] {
+inline const Message (&EnumValuesMessage())[150] {
   static const Message values[] = {
     Message::ADDFILE,
     Message::ADDGROUP,
@@ -239,6 +240,7 @@ inline const Message (&EnumValuesMessage())[149] {
     Message::SETGUIORDER,
     Message::CONTROLTRACKSTATISTICSSTREAM,
     Message::CREATETRACKSTATISTICSSTREAM,
+    Message::GETOBJECTTRACKSTATISTICS,
     Message::CONTROLSTREAMEND,
     Message::DISCOVERYHELLO,
     Message::FILEADDED,
@@ -394,6 +396,7 @@ inline const char *EnumNameMessage(Message e) {
     case Message::SETGUIORDER: return "SETGUIORDER";
     case Message::CONTROLTRACKSTATISTICSSTREAM: return "CONTROLTRACKSTATISTICSSTREAM";
     case Message::CREATETRACKSTATISTICSSTREAM: return "CREATETRACKSTATISTICSSTREAM";
+    case Message::GETOBJECTTRACKSTATISTICS: return "GETOBJECTTRACKSTATISTICS";
     case Message::CONTROLSTREAMEND: return "CONTROLSTREAMEND";
     case Message::DISCOVERYHELLO: return "DISCOVERYHELLO";
     case Message::FILEADDED: return "FILEADDED";

@@ -61,6 +61,16 @@ struct STREAM
 
 };
 
+struct OBJECTTRACKSTATISTICS
+{
+  OBJECTTRACKSTATISTICS(const monocle::ObjectClass objectclass, const uint64_t starttime, const uint64_t endtime, const uint64_t count);
+
+  monocle::ObjectClass objectclass_;
+  uint64_t starttime_;
+  uint64_t endtime_;
+  uint64_t count_;
+};
+
 ///// Classes /////
 
 class Connection : public boost::enable_shared_from_this<Connection>
@@ -115,6 +125,7 @@ class Connection : public boost::enable_shared_from_this<Connection>
   virtual std::string GetAuthenticationNonce() = 0;
   virtual std::pair< Error, std::vector<std::string> > GetChildFolders(const std::string& path, const bool parentpaths) = 0;
   virtual std::pair< Error, std::vector<FILE> > GetFiles() = 0;
+  virtual std::pair< Error, std::vector<OBJECTTRACKSTATISTICS> > GetObjectTrackStatistics(const uint64_t recordingtoken, const uint32_t trackid, const uint64_t starttime, const uint64_t endtime, const uint64_t interval) = 0;
   virtual std::pair< Error, std::vector<RECEIVER> > GetReceivers() = 0;
   virtual std::pair<Error, RECORDING> GetRecording(const uint64_t token) = 0;
   virtual std::pair< Error, std::vector<RECORDING> > GetRecordings() = 0;
