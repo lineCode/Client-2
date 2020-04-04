@@ -101,6 +101,13 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
         //TODO messagebox?
         return;
       }
+
+      for (const monocle::client::OBJECTCLASSTRACKSTATISTICS& result : getobjecttrackstatisticssresponse.results_)
+      {
+        //TODO create a series or something, not sure?
+
+
+      }
       
       //TODO use these results
       
