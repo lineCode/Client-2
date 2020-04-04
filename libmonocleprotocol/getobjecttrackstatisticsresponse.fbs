@@ -1,0 +1,16 @@
+include "objects.fbs";
+
+namespace monocle;
+
+table ObjectClassTrackStatistics
+{
+  objectclass:ObjectClass (id:0);
+  starttime:uint64 (id:1);
+  endtime:uint64 (id:2);
+  count:uint64 (id:3);
+}
+
+table GetObjectTrackStatisticsResponse
+{
+  results:[ObjectClassTrackStatistics] (id:0);
+}

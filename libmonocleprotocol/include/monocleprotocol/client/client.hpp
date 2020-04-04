@@ -81,6 +81,7 @@ class Client : public boost::enable_shared_from_this<Client>
  friend class Signal<Client, GETAUTHENTICATIONNONCERESPONSE>;
  friend class Signal<Client, GETCHILDFOLDERSRESPONSE>;
  friend class Signal<Client, GETFILESRESPONSE>;
+ friend class Signal<Client, GETOBJECTTRACKSTATISTICSSRESPONSE>;
  friend class Signal<Client, GETRECEIVERSRESPONSE>;
  friend class Signal<Client, GETRECORDINGSRESPONSE>;
  friend class Signal<Client, GETSNAPSHOTRESPONSE>;
@@ -242,6 +243,7 @@ class Client : public boost::enable_shared_from_this<Client>
   boost::unique_future<GETAUTHENTICATIONNONCERESPONSE> GetAuthenticationNonce();
   boost::unique_future<GETCHILDFOLDERSRESPONSE> GetChildFolders(const std::string& path, const bool parentpaths);
   boost::unique_future<GETFILESRESPONSE> GetFiles();
+  boost::unique_future<GETOBJECTTRACKSTATISTICSSRESPONSE> GetObjectTrackStatistics(const uint64_t recordingtoken, const uint32_t trackid, const uint64_t starttime, const uint64_t endtime, const uint64_t interval);
   boost::unique_future<GETRECEIVERSRESPONSE> GetReceivers();
   boost::unique_future<GETRECORDINGSRESPONSE> GetRecordings();
   boost::unique_future<GETSNAPSHOTRESPONSE> GetSnapshot(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time, const float x, const float y, const float width, const float height);
@@ -318,6 +320,7 @@ class Client : public boost::enable_shared_from_this<Client>
   Connection GetAuthenticationNonce(boost::function<void(const std::chrono::steady_clock::duration, const GETAUTHENTICATIONNONCERESPONSE&)> callback);
   Connection GetChildFolders(const std::string& path, const bool parentpaths, boost::function<void(const std::chrono::steady_clock::duration, const GETCHILDFOLDERSRESPONSE&)> callback);
   Connection GetFiles(boost::function<void(const std::chrono::steady_clock::duration, const GETFILESRESPONSE&)> callback);
+  Connection GetObjectTrackStatistics(const uint64_t recordingtoken, const uint32_t trackid, const uint64_t starttime, const uint64_t endtime, const uint64_t interval, boost::function<void(const std::chrono::steady_clock::duration, const GETOBJECTTRACKSTATISTICSSRESPONSE&)> callback);
   Connection GetReceivers(boost::function<void(const std::chrono::steady_clock::duration, const GETRECEIVERSRESPONSE&)> callback);
   Connection GetRecordings(boost::function<void(const std::chrono::steady_clock::duration, const GETRECORDINGSRESPONSE&)> callback);
   Connection GetSnapshot(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time, const float x, const float y, const float width, const float height, boost::function<void(const std::chrono::steady_clock::duration, const GETSNAPSHOTRESPONSE&)> callback);
@@ -402,6 +405,7 @@ class Client : public boost::enable_shared_from_this<Client>
   boost::system::error_code GetAuthenticationNonceSend();
   boost::system::error_code GetChildFoldersSend(const std::string& path, const bool parentpaths);
   boost::system::error_code GetFilesSend();
+  boost::system::error_code GetObjectTrackStatisticsSend(const uint64_t recordingtoken, const uint32_t trackid, const uint64_t starttime, const uint64_t endtime, const uint64_t interval);
   boost::system::error_code GetReceiversSend();
   boost::system::error_code GetRecordingsSend();
   boost::system::error_code GetSnapshotSend(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time, const float x, const float y, const float width, const float height);
@@ -527,6 +531,7 @@ class Client : public boost::enable_shared_from_this<Client>
   Signal<Client, GETAUTHENTICATIONNONCERESPONSE> getauthenticationnonce_;
   Signal<Client, GETCHILDFOLDERSRESPONSE> getchildfolders_;
   Signal<Client, GETFILESRESPONSE> getfiles_;
+  Signal<Client, GETOBJECTTRACKSTATISTICSSRESPONSE> getobjecttrackstatistics_;
   Signal<Client, GETRECEIVERSRESPONSE> getreceivers_;
   Signal<Client, GETRECORDINGSRESPONSE> getrecordings_;
   Signal<Client, GETSNAPSHOTRESPONSE> getsnapshot_;

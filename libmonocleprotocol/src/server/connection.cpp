@@ -70,6 +70,8 @@
 #include "monocleprotocol/getchildfoldersrequest_generated.h"
 #include "monocleprotocol/getchildfoldersresponse_generated.h"
 #include "monocleprotocol/getfilesresponse_generated.h"
+#include "monocleprotocol/getobjecttrackstatisticsrequest_generated.h"
+#include "monocleprotocol/getobjecttrackstatisticsresponse_generated.h"
 #include "monocleprotocol/getreceiversresponse_generated.h"
 #include "monocleprotocol/getrecordingrequest_generated.h"
 #include "monocleprotocol/getrecordingsresponse_generated.h"
@@ -200,6 +202,15 @@ STREAM::STREAM() :
 STREAM::STREAM(const uint64_t token, const std::vector<CODECINDEX>& codecindices) :
   token_(token),
   codecindices_(codecindices)
+{
+
+}
+
+OBJECTTRACKSTATISTICS::OBJECTTRACKSTATISTICS(const monocle::ObjectClass objectclass, const uint64_t starttime, const uint64_t endtime, const uint64_t count) :
+  objectclass_(objectclass),
+  starttime_(starttime),
+  endtime_(endtime),
+  count_(count)
 {
 
 }
@@ -3336,6 +3347,39 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       fbb_.Clear();
       fbb_.Finish(CreateGetFilesResponse(fbb_, fbb_.CreateVector(GetFileBuffers(files.second, fbb_))));
       return SendResponse( true, Message::GETFILES, sequence);
+    }
+    case Message::GETOBJECTTRACKSTATISTICS:
+    {
+      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<GetObjectTrackStatisticsRequest>(nullptr))
+      {
+
+        return SendErrorResponse(Message::GETOBJECTTRACKSTATISTICS, sequence, Error(ErrorCode::InvalidMessage, "Invalid GetObjectTrackStatisticsRequest message"));
+      }
+
+      const GetObjectTrackStatisticsRequest* getobjecttrackstatisticsrequest = flatbuffers::GetRoot<GetObjectTrackStatisticsRequest>(data);
+      if (getobjecttrackstatisticsrequest == nullptr)
+      {
+
+        return SendErrorResponse(Message::GETOBJECTTRACKSTATISTICS, sequence, Error(ErrorCode::MissingParameter, "Invalid GetObjectTrackStatisticsRequest message"));
+      }
+
+      const std::pair<Error, std::vector<OBJECTTRACKSTATISTICS> > objecttrackstatistics = GetObjectTrackStatistics(getobjecttrackstatisticsrequest->recordingtoken(), getobjecttrackstatisticsrequest->trackid(), getobjecttrackstatisticsrequest->starttime(), getobjecttrackstatisticsrequest->endtime(), getobjecttrackstatisticsrequest->interval());
+      if (objecttrackstatistics.first.code_ != ErrorCode::Success)
+      {
+
+        return SendErrorResponse(Message::GETOBJECTTRACKSTATISTICS, sequence, objecttrackstatistics.first);
+      }
+      std::lock_guard<std::mutex> lock(writemutex_);
+      fbb_.Clear();
+      std::vector< flatbuffers::Offset<monocle::ObjectClassTrackStatistics> > results;
+      results.reserve(objecttrackstatistics.second.size());
+      for (const OBJECTTRACKSTATISTICS& result : objecttrackstatistics.second)
+      {
+        results.push_back(CreateObjectClassTrackStatistics(fbb_, result.objectclass_, result.starttime_, result.endtime_, result.count_));
+
+      }
+      fbb_.Finish(CreateGetObjectTrackStatisticsResponse(fbb_, fbb_.CreateVector(results)));
+      return SendResponse(true, Message::GETOBJECTTRACKSTATISTICS, sequence);
     }
     case Message::GETRECEIVERS:
     {
