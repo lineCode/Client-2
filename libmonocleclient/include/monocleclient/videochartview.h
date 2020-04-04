@@ -76,9 +76,11 @@ class VideoChartView : public View
   QGridLayout* layout_;
   QChartView chart_;
   std::array<std::unique_ptr<QBarSet>, 30> barsets_;
-  QStackedBarSeries* series_;
-  QBarCategoryAxis* xaxis_;
+  std::vector< std::pair<monocle::ObjectClass, QLineSeries*> > series_;
+  //TODO QStackedBarSeries* series_;
+  //TODO QBarCategoryAxis* xaxis_;
   QValueAxis* yaxis_;
+  QDateTimeAxis* xaxis_;
 
   std::vector<monocle::client::Connection> streamsconnections_;
 
