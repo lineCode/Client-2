@@ -25,7 +25,7 @@ namespace client
 ///// Methods /////
 
 VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const boost::shared_ptr<client::Device>& device, const QSharedPointer<client::Recording>& recording, const std::vector< QSharedPointer<client::RecordingTrack> >& tracks, const QResource* arial) :
-  View(videowidget, cudacontext, selectedcolour, x, y, width, height, ROTATION::_0, false, false, false, false, arial, false, false, false, false, false, false, false),
+  View(videowidget, cudacontext, selectedcolour, x, y, width, height, ROTATION::_0, false, true, false, false, arial, false, false, false, false, false, false, false),
   device_(device),
   recording_(recording),
   tracks_(tracks),
@@ -41,36 +41,36 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   chart_.chart()->legend()->setAlignment(Qt::AlignBottom);
 
   // Setup the chart itself. It gets drawn offscreen and then copied in
-  const QRect pixelrect = GetPixelRect();
-  widget_->setMinimumWidth(pixelrect.width());
-  widget_->setMinimumHeight(pixelrect.height());
-  widget_->setGeometry(QRect(-10000, -10000, pixelrect.width(), pixelrect.height())); // This seems to be the only way to get it to display properly is to show it and then hide it, so do it miles off-screen...
-
-  chart_.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-  chart_.chart()->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-  chart_.chart()->setPreferredWidth(pixelrect.width());//TODO when the view gets resized, we want to set this again
-  chart_.chart()->setPreferredHeight(pixelrect.height());
-  //TODO maybe we can override SetPosition and refresh all this?
-
-  //TODO Can we remove any of this stuff?
-  widget_->setContentsMargins(QMargins(0, 0, 0, 0));
-  layout_->setContentsMargins(0, 0, 0, 0);
-  layout_->addWidget(&chart_);
-  layout_->setVerticalSpacing(0);
-  layout_->setHorizontalSpacing(0);
-  layout_->setColumnStretch(0, 1);
-  layout_->setRowStretch(0, 1);
-  chart_.chart()->setBackgroundRoundness(0.0);
-  chart_.setWindowFlag(Qt::SubWindow, true); // This hides the chart from the taskbar
-  chart_.chart()->setContentsMargins(QMargins(0, 0, 0, 0));
-  chart_.setContentsMargins(QMargins(0, 0, 0, 0));
-  chart_.chart()->setMargins(QMargins(0, 0, 0, 0));
-  chart_.chart()->setBackgroundRoundness(0.0);
+  //TODO const QRect pixelrect = GetPixelRect();
+  //TODO widget_->setMinimumWidth(pixelrect.width());
+  //TODO widget_->setMinimumHeight(pixelrect.height());
+  //TODO widget_->setGeometry(QRect(-10000, -10000, pixelrect.width(), pixelrect.height())); // This seems to be the only way to get it to display properly is to show it and then hide it, so do it miles off-screen...
+  //TODO 
+  //TODO chart_.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+  //TODO chart_.chart()->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+  //TODO chart_.chart()->setPreferredWidth(pixelrect.width());//TODO when the view gets resized, we want to set this again
+  //TODO chart_.chart()->setPreferredHeight(pixelrect.height());
+  //TODO //TODO maybe we can override SetPosition and refresh all this?
+  //TODO 
+  //TODO //TODO Can we remove any of this stuff?
+  //TODO widget_->setContentsMargins(QMargins(0, 0, 0, 0));
+  //TODO layout_->setContentsMargins(0, 0, 0, 0);
+  //TODO layout_->addWidget(&chart_);
+  //TODO layout_->setVerticalSpacing(0);
+  //TODO layout_->setHorizontalSpacing(0);
+  //TODO layout_->setColumnStretch(0, 1);
+  //TODO layout_->setRowStretch(0, 1);
+  //TODO chart_.chart()->setBackgroundRoundness(0.0);
+  //TODO chart_.setWindowFlag(Qt::SubWindow, true); // This hides the chart from the taskbar
+  //TODO chart_.chart()->setContentsMargins(QMargins(0, 0, 0, 0));
+  //TODO chart_.setContentsMargins(QMargins(0, 0, 0, 0));
+  //TODO chart_.chart()->setMargins(QMargins(0, 0, 0, 0));
+  //TODO chart_.chart()->setBackgroundRoundness(0.0);
   chart_.setRenderHint(QPainter::Antialiasing, true);
   chart_.setBackgroundBrush(QBrush(QColor(0, 0, 0), Qt::SolidPattern));
   chart_.chart()->setTheme(QChart::ChartTheme::ChartThemeBlueCerulean);
-  widget_->show(); // For some bizarre reason, this is required.
-  widget_->hide();
+  //TODO widget_->show(); // For some bizarre reason, this is required.
+  //TODO widget_->hide();
 
   // Look at the last 24 hours by default
   auto now = boost::posix_time::second_clock::universal_time();
@@ -136,11 +136,18 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
         series.second->attachAxis(yaxis_);
       }
 
-      // For some reason we can't just send an image now without things looking very ugly
+      //TODO maybe put this into the QTimer::singleShot?
+      QTimer::singleShot(std::chrono::milliseconds(100), [this]() { SendImage(); });
+      QTimer::singleShot(std::chrono::milliseconds(200), [this]() { SendImage(); });
+      QTimer::singleShot(std::chrono::milliseconds(300), [this]() { SendImage(); });
+      QTimer::singleShot(std::chrono::milliseconds(500), [this]() { SendImage(); });
+      QTimer::singleShot(std::chrono::milliseconds(1000), [this]() { SendImage(); });
+      QTimer::singleShot(std::chrono::milliseconds(2000), [this]() { SendImage(); });
+      QTimer::singleShot(std::chrono::milliseconds(5000), [this]() { SendImage(); });
     }));
   }
 
-  startTimer(std::chrono::seconds(1));
+  //TODO startTimer(std::chrono::seconds(1));
   SendImage();
 }
 
@@ -235,22 +242,24 @@ void VideoChartView::Scrub(const uint64_t time)
 
 void VideoChartView::timerEvent(QTimerEvent* event)
 {
-  SendImage();
+  //TODO seems like we need this, ebcause it doesn't finish drawing after a while...
+  //TODO SendImage();
 
 }
 
 void VideoChartView::SetPosition(VideoWidget* videowidget, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent)
 {
-  View::SetPosition();
-
-  //TODO now reset the image size
+  View::SetPosition(videowidget, x, y, width, height, rotation, mirror, stretch, makecurrent);
+  //TODO QTimer::singleShot(std::chrono::milliseconds(500), [this]() { SendImage(); });
+  SendImage();
 }
 
 void VideoChartView::SendImage()
 {
-  QImage image(chart_.chart()->preferredWidth(), chart_.chart()->preferredHeight(), QImage::Format::Format_RGBX8888);
-  QPainter painter(&image);
-  chart_.render(&painter);
+  const QRect pixelrect = GetPixelRect();
+  chart_.resize(pixelrect.width(), pixelrect.height());
+  //TODO const QImage image = chart_.grab().toImage(); // We could keep this as a QPixmap, but we shouldn't be doing this all that often so it's ok I guess
+  const QPixmap pixmap = chart_.grab();
 
   ImageBuffer imagebuffer = freeimagequeue_.GetFreeImage();
   imagebuffer.Destroy();
