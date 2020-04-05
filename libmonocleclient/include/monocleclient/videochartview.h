@@ -62,11 +62,9 @@ class VideoChartView : public View
 
  private:
 
-  static void ControlStreamEnd(const uint64_t streamtoken, const uint64_t requestindex, const monocle::ErrorCode error, void* callbackdata);
-  static void ControlStreamResult(const uint64_t streamtoken, const uint64_t requestindex, const uint64_t starttime, const uint64_t endtime, const std::vector< std::pair<monocle::ObjectClass, uint64_t> >& results, void* callbackdata);
-
   void SendImage();
   void CloseConnections();
+  bool AllZero(const QLineSeries* series) const;
 
   boost::shared_ptr<client::Device> device_;
   QSharedPointer<Recording> recording_;
@@ -75,12 +73,9 @@ class VideoChartView : public View
   QWidget* widget_;
   QGridLayout* layout_;
   QChartView chart_;
-  std::array<std::unique_ptr<QBarSet>, 30> barsets_;
   std::vector< std::pair<monocle::ObjectClass, QLineSeries*> > series_;
-  //TODO QStackedBarSeries* series_;
-  //TODO QBarCategoryAxis* xaxis_;
-  QValueAxis* yaxis_;
   QDateTimeAxis* xaxis_;
+  QValueAxis* yaxis_;
 
   std::vector<monocle::client::Connection> streamsconnections_;
 
