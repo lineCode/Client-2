@@ -47,17 +47,12 @@
 #include "monocleprotocol/controlstreamplayrequest_generated.h"
 #include "monocleprotocol/controlstreamliverequest_generated.h"
 #include "monocleprotocol/controlstreampauserequest_generated.h"
-#include "monocleprotocol/controltrackstatisticsstreamend_generated.h"
-#include "monocleprotocol/controltrackstatisticsstreamresult_generated.h"
-#include "monocleprotocol/controltrackstatisticsstreamrequest_generated.h"
 #include "monocleprotocol/createfindmotionrequest_generated.h"
 #include "monocleprotocol/createfindmotionresponse_generated.h"
 #include "monocleprotocol/createfindobjectrequest_generated.h"
 #include "monocleprotocol/createfindobjectresponse_generated.h"
 #include "monocleprotocol/createstreamrequest_generated.h"
 #include "monocleprotocol/createstreamresponse_generated.h"
-#include "monocleprotocol/createtrackstatisticsstreamrequest_generated.h"
-#include "monocleprotocol/createtrackstatisticsstreamresponse_generated.h"
 #include "monocleprotocol/destroyfindmotionrequest_generated.h"
 #include "monocleprotocol/destroyfindobjectrequest_generated.h"
 #include "monocleprotocol/destroystreamrequest_generated.h"
@@ -229,11 +224,9 @@ Client::Client(boost::asio::io_service& io) :
   controlstreamframestep_(DEFAULT_TIMEOUT, this),
   controlstreamlive_(DEFAULT_TIMEOUT, this),
   controlstreampause_(DEFAULT_TIMEOUT, this),
-  controltrackstatisticsstream_(DEFAULT_TIMEOUT, this),
   createfindmotion_(DEFAULT_TIMEOUT, this),
   createfindobject_(DEFAULT_TIMEOUT, this),
   createstream_(DEFAULT_TIMEOUT, this),
-  createtrackstatisticsstream_(DEFAULT_TIMEOUT, this),
   destroyfindmotion_(DEFAULT_TIMEOUT, this),
   destroyfindobject_(DEFAULT_TIMEOUT, this),
   destroystream_(DEFAULT_TIMEOUT, this),
@@ -374,11 +367,9 @@ void Client::Destroy()
     controlstreamframestep_.Destroy();
     controlstreamlive_.Destroy();
     controlstreampause_.Destroy();
-    controltrackstatisticsstream_.Destroy();
     createfindmotion_.Destroy();
     createfindobject_.Destroy();
     createstream_.Destroy();
-    createtrackstatisticsstream_.Destroy();
     destroyfindmotion_.Destroy();
     destroyfindobject_.Destroy();
     destroystream_.Destroy();
@@ -720,17 +711,6 @@ boost::unique_future<CONTROLSTREAMRESPONSE> Client::ControlStreamPause(const uin
   return controlstreampause_.CreateFuture(sequence_);
 }
 
-boost::unique_future<CONTROLTRACKSTATISTICSSTREAMRESPONSE> Client::ControlTrackStatisticsStream(const uint64_t streamtoken, const uint64_t requestindex, const uint64_t starttime, const uint64_t endtime, const uint64_t interval)
-{
-  std::lock_guard<std::recursive_mutex> lock(mutex_);
-  if (ControlTrackStatisticsStreamSend(streamtoken, requestindex, starttime, endtime, interval))
-  {
-
-    return boost::make_ready_future(CONTROLTRACKSTATISTICSSTREAMRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
-  }
-  return controltrackstatisticsstream_.CreateFuture(sequence_);
-}
-
 boost::unique_future<CREATEFINDMOTIONRESPONSE> Client::CreateFindMotion(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height, const float sensitivity, const bool fast)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
@@ -762,17 +742,6 @@ boost::unique_future<CREATESTREAMRESPONSE> Client::CreateStream(const uint64_t r
     return boost::make_ready_future(CREATESTREAMRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
   }
   return createstream_.CreateFuture(sequence_);
-}
-
-boost::unique_future<CREATETRACKSTATISTICSSTREAMRESPONSE> Client::CreateTrackStatisticsStream(const uint64_t recordingtoken, const uint32_t trackid)
-{
-  std::lock_guard<std::recursive_mutex> lock(mutex_);
-  if (CreateTrackStatisticsStreamSend(recordingtoken, trackid))
-  {
-
-    return boost::make_ready_future(CREATETRACKSTATISTICSSTREAMRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
-  }
-  return createtrackstatisticsstream_.CreateFuture(sequence_);
 }
 
 boost::unique_future<DESTROYFINDMOTIONRESPONSE> Client::DestroyFindMotion(const uint64_t token)
@@ -1557,17 +1526,6 @@ Connection Client::ControlStreamPause(const uint64_t streamtoken, const boost::o
   return controlstreampause_.CreateCallback(sequence_, callback);
 }
 
-Connection Client::ControlTrackStatisticsStream(const uint64_t streamtoken, const uint64_t requestindex, const uint64_t starttime, const uint64_t endtime, const uint64_t interval, boost::function<void(const std::chrono::steady_clock::duration, const CONTROLTRACKSTATISTICSSTREAMRESPONSE&)> callback)
-{
-  std::lock_guard<std::recursive_mutex> lock(mutex_);
-  if (ControlTrackStatisticsStreamSend(streamtoken, requestindex, starttime, endtime, interval))
-  {
-    callback(std::chrono::steady_clock::duration(), CONTROLTRACKSTATISTICSSTREAMRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
-    return Connection();
-  }
-  return controltrackstatisticsstream_.CreateCallback(sequence_, callback);
-}
-
 Connection Client::CreateFindMotion(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height, const float sensitivity, const bool fast, boost::function<void(const std::chrono::steady_clock::duration, const CREATEFINDMOTIONRESPONSE&)> callback)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
@@ -1599,17 +1557,6 @@ Connection Client::CreateStream(const uint64_t recordingtoken, const uint32_t tr
     return Connection();
   }
   return createstream_.CreateCallback(sequence_, callback);
-}
-
-Connection Client::CreateTrackStatisticsStream(const uint64_t recordingtoken, const uint32_t trackid, boost::function<void(const std::chrono::steady_clock::duration latency, const CREATETRACKSTATISTICSSTREAMRESPONSE&)> callback)
-{
-  std::lock_guard<std::recursive_mutex> lock(mutex_);
-  if (CreateTrackStatisticsStreamSend(recordingtoken, trackid))
-  {
-    callback(std::chrono::steady_clock::duration(), CREATETRACKSTATISTICSSTREAMRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
-    return Connection();
-  }
-  return createtrackstatisticsstream_.CreateCallback(sequence_, callback);
 }
 
 Connection Client::DestroyFindMotion(const uint64_t streamtoken, boost::function<void(const std::chrono::steady_clock::duration latency, const DESTROYFINDMOTIONRESPONSE&)> callback)
@@ -2757,28 +2704,6 @@ boost::system::error_code Client::ControlStreamPauseSend(const uint64_t streamto
   return err;
 }
 
-boost::system::error_code Client::ControlTrackStatisticsStreamSend(const uint64_t streamtoken, const uint64_t requestindex, const uint64_t starttime, const uint64_t endtime, const uint64_t interval)
-{
-  fbb_.Clear();
-  fbb_.Finish(CreateControlTrackStatisticsStreamRequest(fbb_, streamtoken, requestindex, starttime, endtime, interval));
-  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
-  const HEADER header(messagesize, false, false, Message::CONTROLTRACKSTATISTICSSTREAM, ++sequence_);
-  boost::system::error_code err;
-  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
-  if (err)
-  {
-    Disconnected();
-    return err;
-  }
-  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(fbb_.GetBufferPointer(), messagesize), boost::asio::transfer_all(), err);
-  if (err)
-  {
-    Disconnected();
-    return err;
-  }
-  return err;
-}
-
 boost::system::error_code Client::CreateFindMotionSend(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height, const float sensitivity, const bool fast)
 {
   fbb_.Clear();
@@ -2829,28 +2754,6 @@ boost::system::error_code Client::CreateStreamSend(const uint64_t recordingtoken
   fbb_.Finish(CreateCreateStreamRequest(fbb_, recordingtoken, trackid));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::CREATESTREAM, ++sequence_);
-  boost::system::error_code err;
-  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
-  if (err)
-  {
-    Disconnected();
-    return err;
-  }
-  boost::asio::write(socket_->GetSocket(), boost::asio::buffer(fbb_.GetBufferPointer(), messagesize), boost::asio::transfer_all(), err);
-  if (err)
-  {
-    Disconnected();
-    return err;
-  }
-  return err;
-}
-
-boost::system::error_code Client::CreateTrackStatisticsStreamSend(const uint64_t recordingtoken, const uint32_t trackid)
-{
-  fbb_.Clear();
-  fbb_.Finish(CreateCreateTrackStatisticsStreamRequest(fbb_, recordingtoken, trackid));
-  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
-  const HEADER header(messagesize, false, false, Message::CREATETRACKSTATISTICSSTREAM, ++sequence_);
   boost::system::error_code err;
   boost::asio::write(socket_->GetSocket(), boost::asio::buffer(&header, sizeof(HEADER)), boost::asio::transfer_all(), err);
   if (err)
@@ -4190,65 +4093,6 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
       ControlStreamEnd(controlstreamend->token(), controlstreamend->playrequestindex(), controlstreamend->error());
       break;
     }
-    case Message::CONTROLTRACKSTATISTICSSTREAMEND:
-    {
-      if (error)
-      {
-        // Ignore this because it can't really happen...
-        return;
-      }
-
-      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<monocle::ControlTrackStatisticsStreamEnd>(nullptr))
-      {
-
-        return;
-      }
-
-      const monocle::ControlTrackStatisticsStreamEnd* controltrackstatisticsstreamend = flatbuffers::GetRoot<monocle::ControlTrackStatisticsStreamEnd>(data);
-      if (!controltrackstatisticsstreamend)
-      {
-
-        return;
-      }
-
-      ControlTrackStatisticsStreamEnd(controltrackstatisticsstreamend->token(), controltrackstatisticsstreamend->requestindex(), controltrackstatisticsstreamend->error());
-      break;
-    }
-    case Message::CONTROLTRACKSTATISTICSSTREAMRESULT:
-    {
-      if (error)
-      {
-        // Ignore this because it can't really happen...
-        return;
-      }
-
-      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<monocle::ControlTrackStatisticsStreamEnd>(nullptr))
-      {
-
-        return;
-      }
-
-      const monocle::ControlTrackStatisticsStreamResult* controltrackstatisticsstreamresult = flatbuffers::GetRoot<monocle::ControlTrackStatisticsStreamResult>(data);
-      if (!controltrackstatisticsstreamresult)
-      {
-
-        return;
-      }
-
-      std::vector< std::pair<monocle::ObjectClass, uint64_t> > results;
-      if (controltrackstatisticsstreamresult->results())
-      {
-        results.reserve(controltrackstatisticsstreamresult->results()->size());
-        for (const monocle::ControlTrackStatisticsStreamObjectClassResult* result : *controltrackstatisticsstreamresult->results())
-        {
-          results.push_back(std::make_pair(result->objectclass(), result->count()));
-
-        }
-      }
-
-      ControlTrackStatisticsStreamResult(controltrackstatisticsstreamresult->token(), controltrackstatisticsstreamresult->requestindex(), controltrackstatisticsstreamresult->starttime(), controltrackstatisticsstreamresult->endtime(), results);
-      break;
-    }
     case Message::CONTROLSTREAMFRAMESTEP:
     {
       if (error)
@@ -4277,16 +4121,6 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         return;
       }
       controlstreampause_.Response(sequence, CONTROLSTREAMRESPONSE());
-      break;
-    }
-    case Message::CONTROLTRACKSTATISTICSSTREAM:
-    {
-      if (error)
-      {
-        HandleError(controltrackstatisticsstream_, sequence, data, datasize);
-        return;
-      }
-      controltrackstatisticsstream_.Response(sequence, CONTROLTRACKSTATISTICSSTREAMRESPONSE());
       break;
     }
     case Message::CREATEFINDMOTION:
@@ -4377,30 +4211,6 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         return;
       }
       destroyfindmotion_.Response(sequence, DESTROYFINDMOTIONRESPONSE());
-      break;
-    }
-    case Message::CREATETRACKSTATISTICSSTREAM:
-    {
-      if (error)
-      {
-        HandleError(createtrackstatisticsstream_, sequence, data, datasize);
-        return;
-      }
-
-      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<CreateTrackStatisticsStreamResponse>(nullptr))
-      {
-        createtrackstatisticsstream_.Response(sequence, CREATETRACKSTATISTICSSTREAMRESPONSE(Error(ErrorCode::InvalidMessage, "CreateTrackStatisticsStreamResponse verification failed")));
-        return;
-      }
-
-      const CreateTrackStatisticsStreamResponse* createtrackstatisticsstreamresponse = flatbuffers::GetRoot<CreateTrackStatisticsStreamResponse>(data);
-      if (!createtrackstatisticsstreamresponse)
-      {
-        createtrackstatisticsstream_.Response(sequence, CREATETRACKSTATISTICSSTREAMRESPONSE(Error(ErrorCode::MissingParameter, "CreateTrackStatisticsStreamResponse missing parameter")));
-        return;
-      }
-
-      createtrackstatisticsstream_.Response(sequence, CREATETRACKSTATISTICSSTREAMRESPONSE(createtrackstatisticsstreamresponse->token()));
       break;
     }
     case Message::DESTROYFINDOBJECT:

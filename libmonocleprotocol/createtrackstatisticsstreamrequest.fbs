@@ -1,7 +1,0 @@
-namespace monocle;
-
-table CreateTrackStatisticsStreamRequest
-{
-  recordingtoken:uint64 (id:0);
-  trackid:uint32 (id:1);
-}

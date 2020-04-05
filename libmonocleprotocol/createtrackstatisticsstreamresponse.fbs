@@ -1,6 +1,0 @@
-namespace monocle;
-
-table CreateTrackStatisticsStreamResponse
-{
-  token:uint64 (id:0);
-}

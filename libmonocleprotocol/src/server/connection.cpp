@@ -41,17 +41,12 @@
 #include "monocleprotocol/controlstreamliverequest_generated.h"
 #include "monocleprotocol/controlstreampauserequest_generated.h"
 #include "monocleprotocol/controlstreamplayrequest_generated.h"
-#include "monocleprotocol/controltrackstatisticsstreamend_generated.h"
-#include "monocleprotocol/controltrackstatisticsstreamrequest_generated.h"
-#include "monocleprotocol/controltrackstatisticsstreamresult_generated.h"
 #include "monocleprotocol/createfindmotionrequest_generated.h"
 #include "monocleprotocol/createfindmotionresponse_generated.h"
 #include "monocleprotocol/createfindobjectrequest_generated.h"
 #include "monocleprotocol/createfindobjectresponse_generated.h"
 #include "monocleprotocol/createstreamrequest_generated.h"
 #include "monocleprotocol/createstreamresponse_generated.h"
-#include "monocleprotocol/createtrackstatisticsstreamrequest_generated.h"
-#include "monocleprotocol/createtrackstatisticsstreamresponse_generated.h"
 #include "monocleprotocol/destroyfindmotionrequest_generated.h"
 #include "monocleprotocol/destroyfindobjectrequest_generated.h"
 #include "monocleprotocol/destroystreamrequest_generated.h"
@@ -271,49 +266,6 @@ boost::system::error_code Connection::SendControlStreamEnd(const uint64_t stream
   fbb_.Finish(CreateControlStreamEnd(fbb_, stream, playrequest, error));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::CONTROLSTREAMEND, ++sequence_);
-  const std::array<boost::asio::const_buffer, 2> buffers =
-  {
-    boost::asio::const_buffer(&header, sizeof(HEADER)),
-    boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
-  };
-  boost::system::error_code err;
-  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
-  return err;
-}
-
-boost::system::error_code Connection::SendControlTrackStatisticsStreamEnd(const uint64_t stream, const uint64_t requestindex, const monocle::ErrorCode error)
-{
-  std::lock_guard<std::mutex> lock(writemutex_);
-  fbb_.Clear();
-  fbb_.Finish(CreateControlTrackStatisticsStreamEnd(fbb_, stream, requestindex, error));
-  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
-  const HEADER header(messagesize, false, false, Message::CONTROLTRACKSTATISTICSSTREAMEND, ++sequence_);
-  const std::array<boost::asio::const_buffer, 2> buffers =
-  {
-    boost::asio::const_buffer(&header, sizeof(HEADER)),
-    boost::asio::const_buffer(fbb_.GetBufferPointer(), messagesize)
-  };
-  boost::system::error_code err;
-  boost::asio::write(socket_, buffers, boost::asio::transfer_all(), err);
-  return err;
-}
-
-boost::system::error_code Connection::SendControlTrackStatisticsStreamResult(const uint64_t token, const uint64_t requestindex, const uint64_t starttime, const uint64_t endtime, const std::vector< std::pair<monocle::ObjectClass, uint64_t> >& results)
-{
-  std::lock_guard<std::mutex> lock(writemutex_);
-  fbb_.Clear();
-
-  std::vector< flatbuffers::Offset<monocle::ControlTrackStatisticsStreamObjectClassResult> > trackstatisticsresults;
-  trackstatisticsresults.reserve(results.size());
-  for (const std::pair<monocle::ObjectClass, uint64_t>& result : results)
-  {
-    trackstatisticsresults.push_back(CreateControlTrackStatisticsStreamObjectClassResult(fbb_, result.first, result.second));
-
-  }
-
-  fbb_.Finish(CreateControlTrackStatisticsStreamResult(fbb_, token, requestindex, starttime, endtime, fbb_.CreateVector(trackstatisticsresults)));
-  const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
-  const HEADER header(messagesize, false, false, Message::CONTROLTRACKSTATISTICSSTREAMRESULT, ++sequence_);
   const std::array<boost::asio::const_buffer, 2> buffers =
   {
     boost::asio::const_buffer(&header, sizeof(HEADER)),
@@ -3073,30 +3025,6 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
 
       return SendHeaderResponse(HEADER(0, false, false, Message::CONTROLSTREAMPAUSE, sequence));
     }
-    case Message::CONTROLTRACKSTATISTICSSTREAM:
-    {
-      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<ControlTrackStatisticsStreamRequest>(nullptr))
-      {
-
-        return SendErrorResponse(Message::CONTROLTRACKSTATISTICSSTREAM, sequence, Error(ErrorCode::InvalidMessage, "Invalid ControlStreamPause message"));
-      }
-
-      const ControlTrackStatisticsStreamRequest* controltrackstatisticsstreamrequest = flatbuffers::GetRoot<ControlTrackStatisticsStreamRequest>(data);
-      if (controltrackstatisticsstreamrequest == nullptr)
-      {
-
-        return SendErrorResponse(Message::CONTROLTRACKSTATISTICSSTREAM, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
-      }
-
-      const Error error = ControlTrackStatisticsStream(controltrackstatisticsstreamrequest->token(), controltrackstatisticsstreamrequest->requestindex(), controltrackstatisticsstreamrequest->starttime(), controltrackstatisticsstreamrequest->endtime(), controltrackstatisticsstreamrequest->interval());
-      if (error.code_ != ErrorCode::Success)
-      {
-
-        return SendErrorResponse(Message::CONTROLTRACKSTATISTICSSTREAM, sequence, error);
-      }
-
-      return SendHeaderResponse(HEADER(0, false, false, Message::CONTROLTRACKSTATISTICSSTREAM, sequence));
-    }
     case Message::CREATEFINDMOTION:
     {
       if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<CreateFindMotionRequest>(nullptr))
@@ -3183,32 +3111,6 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
       }
       fbb_.Finish(CreateCreateStreamResponse(fbb_, stream.second.token_, fbb_.CreateVector(codecindices)));
       return SendResponse(true, Message::CREATESTREAM, sequence);
-    }
-    case Message::CREATETRACKSTATISTICSSTREAM:
-    {
-      if (!flatbuffers::Verifier(reinterpret_cast<const uint8_t*>(data), datasize).VerifyBuffer<CreateTrackStatisticsStreamRequest>(nullptr))
-      {
-
-        return SendErrorResponse(Message::CREATETRACKSTATISTICSSTREAM, sequence, Error(ErrorCode::InvalidMessage, "Invalid CreateTrackStatisticsStreamRequest message"));
-      }
-
-      const CreateTrackStatisticsStreamRequest* createtrackstatisticsstreamrequest = flatbuffers::GetRoot<CreateTrackStatisticsStreamRequest>(data);
-      if (createtrackstatisticsstreamrequest == nullptr)
-      {
-
-        return SendErrorResponse(Message::CREATETRACKSTATISTICSSTREAM, sequence, Error(ErrorCode::MissingParameter, "Invalid message"));
-      }
-
-      const std::pair<Error, uint64_t> stream = CreateTrackStatisticsStream(createtrackstatisticsstreamrequest->recordingtoken(), createtrackstatisticsstreamrequest->trackid());
-      if (stream.first.code_ != ErrorCode::Success)
-      {
-
-        return SendErrorResponse(Message::CREATETRACKSTATISTICSSTREAM, sequence, stream.first);
-      }
-
-      std::lock_guard<std::mutex> lock(writemutex_);
-      fbb_.Finish(CreateCreateTrackStatisticsStreamResponse(fbb_, stream.second));
-      return SendResponse(true, Message::CREATETRACKSTATISTICSSTREAM, sequence);
     }
     case Message::DESTROYFINDMOTION:
     {

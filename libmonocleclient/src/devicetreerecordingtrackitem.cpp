@@ -145,7 +145,7 @@ void DeviceTreeRecordingTrackItem::Remove(bool)
     std::vector<uint32_t> removetracks = { track_->GetId() };
     for (const QSharedPointer<RecordingTrack>& track : recording_->GetObjectDetectorTracks())
     {
-      if (track->GetToken() == QString::number(track_->GetId()))
+      if (track->GetToken() == ("OBJECT2_" + QString::number(track_->GetId())))
       {
         removetracks.push_back(track->GetId());
 
