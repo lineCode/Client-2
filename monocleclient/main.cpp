@@ -165,11 +165,11 @@ int main(int argc, char** argv)
   qRegisterMetaType<uint64_t>("uint64_t");
 
   // Program options
-  uint32_t numioservices = std::min(128u, static_cast<uint32_t>(std::thread::hardware_concurrency() * 2));
+  uint32_t numioservices = std::min(8u, static_cast<uint32_t>(std::thread::hardware_concurrency() * 2));
   if (numioservices == 0)
   {
     std::cout << "Warning: Unable to determine number of processors" << std::endl;
-    numioservices = 16;
+    numioservices = 8;
   }
 
   boost::program_options::variables_map vm;
