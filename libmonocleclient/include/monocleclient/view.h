@@ -123,7 +123,7 @@ class View : public QObject, public QEnableSharedFromThis<View>
   CUcontext GetCUDAContext() const { return cudacontext_; }
 
   Q_INVOKABLE void ResetPosition(const bool makecurrent); // Calls set position with current parameters_
-  void SetPosition(VideoWidget* videowidget, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent);
+  virtual void SetPosition(VideoWidget* videowidget, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent);
 
   void AddCacheImage(ImageBuffer& imagebuffer);
 

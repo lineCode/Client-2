@@ -59,6 +59,7 @@ class VideoChartView : public View
  protected:
 
   virtual void timerEvent(QTimerEvent* event) override;
+  virtual void SetPosition(VideoWidget* videowidget, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent) override;
 
  private:
 

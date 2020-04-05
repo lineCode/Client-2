@@ -32,8 +32,8 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   widget_(new QWidget()),
   layout_(new QGridLayout(widget_)),
   chart_(nullptr, nullptr),
-  xaxis_(new QDateTimeAxis()),
-  yaxis_(new QValueAxis())
+  xaxis_(nullptr),
+  yaxis_(nullptr)
 {
   SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), rotation_, mirror_, stretch_, true);
 
@@ -115,8 +115,8 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
         chart_.chart()->addSeries(series.second);
       }
 
-      yaxis_->setMax(max);
 
+      xaxis_ = new QDateTimeAxis();
       xaxis_->setFormat("hh:mm");
       xaxis_->setTitleText("Time");
       xaxis_->setMin(QDateTime::fromMSecsSinceEpoch(starttime));
@@ -124,6 +124,8 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
       xaxis_->setTickCount(13);
       chart_.chart()->addAxis(xaxis_, Qt::AlignBottom);
 
+      yaxis_ = new QValueAxis();
+      yaxis_->setMax(max);
       yaxis_->setLabelFormat("%i");
       yaxis_->setTitleText("Count");
       chart_.chart()->addAxis(yaxis_, Qt::AlignLeft);
@@ -146,19 +148,11 @@ VideoChartView::~VideoChartView()
 {
   CloseConnections();
 
-  //TODO delete layout_ and widget_
-  //TODO series and everything else?
-
-  //TODO DestroyTrackStatisticsStream
-
 }
 
 void VideoChartView::GetMenu(QMenu& parent)
 {
   View::GetMenu(parent);
-
-  //TODO right click menu to show/hide object types in a submenu
-    //TODO whole bunch of ticky boxes please
 
 }
 
@@ -245,15 +239,18 @@ void VideoChartView::timerEvent(QTimerEvent* event)
 
 }
 
+void VideoChartView::SetPosition(VideoWidget* videowidget, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent)
+{
+  View::SetPosition();
+
+  //TODO now reset the image size
+}
+
 void VideoChartView::SendImage()
 {
-  chart_.repaint();
-
   QImage image(chart_.chart()->preferredWidth(), chart_.chart()->preferredHeight(), QImage::Format::Format_RGBX8888);
   QPainter painter(&image);
   chart_.render(&painter);
-
-  //TODO image.save("test.jpg");
 
   ImageBuffer imagebuffer = freeimagequeue_.GetFreeImage();
   imagebuffer.Destroy();
