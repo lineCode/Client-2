@@ -1270,7 +1270,7 @@ void MainWindow::DiscoverCallback(const std::vector<std::string>& addresses, con
       std::random_device rd;
       std::mt19937 gen(rd());
       std::uniform_int_distribution<uint64_t> dist(0, 20 * 1000);
-      QTimer::singleShot(dist(gen), [this, addresses, scopes]() // We randomize the time we call this, because otherwise we potentially spam the user with windows
+      QTimer::singleShot(dist(gen), this, [this, addresses, scopes]() // We randomize the time we call this, because otherwise we potentially spam the user with windows
       {
         if (!Options::Instance().GetDiscoveryHelper()) // Possible this got disabled in the delay
         {
@@ -1971,7 +1971,7 @@ void MainWindow::on_actionsavecurrentlayout_triggered()
     if ((currentlayout != currentlayouts.cend()) && (layout != layouts.cend())) // Change an existing layout
     {
       ++(*count);
-      QTimer::singleShot(std::chrono::milliseconds(1), [this, finished, device, layout = layout->second, count, errors]()
+      QTimer::singleShot(std::chrono::milliseconds(1), this, [this, finished, device, layout = layout->second, count, errors]()
       {
         savelayoutconnections_.push_back(device->ChangeLayout(layout, [this, finished, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::CHANGELAYOUTRESPONSE& changelayoutresponse)
         {
@@ -1983,7 +1983,7 @@ void MainWindow::on_actionsavecurrentlayout_triggered()
     else if (currentlayout != currentlayouts.cend()) // Remove an existing layout
     {
       ++(*count);
-      QTimer::singleShot(std::chrono::milliseconds(1), [this, finished, device, currentlayout = *currentlayout_, count, errors]()
+      QTimer::singleShot(std::chrono::milliseconds(1), this, [this, finished, device, currentlayout = *currentlayout_, count, errors]()
       {
         savelayoutconnections_.push_back(device->RemoveLayout(currentlayout, [this, finished, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::REMOVELAYOUTRESPONSE& removelayoutresponse)
         {
@@ -1995,7 +1995,7 @@ void MainWindow::on_actionsavecurrentlayout_triggered()
     else if (layout != layouts.cend()) // Add a new layout
     {
       ++(*count);
-      QTimer::singleShot(std::chrono::milliseconds(1), [this, finished, device, layout = layout->second, count, errors]()
+      QTimer::singleShot(std::chrono::milliseconds(1), this, [this, finished, device, layout = layout->second, count, errors]()
       {
         savelayoutconnections_.push_back(device->AddLayout(layout, [this, finished, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::ADDLAYOUTRESPONSE& addlayoutresponse)
         {

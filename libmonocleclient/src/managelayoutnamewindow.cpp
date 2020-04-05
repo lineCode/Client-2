@@ -41,7 +41,7 @@ ManageLayoutNameWindow::ManageLayoutNameWindow(QWidget* parent, const uint64_t t
   if (layouts.empty())
   {
     QMessageBox(QMessageBox::Warning, tr("Error"), tr("Unable to find layout: ") + QString::number(token_), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-    QTimer::singleShot(std::chrono::milliseconds(1), [this]() { reject(); });
+    QTimer::singleShot(std::chrono::milliseconds(1), this, [this]() { reject(); });
     return;
   }
 
@@ -77,7 +77,7 @@ void ManageLayoutNameWindow::on_buttonok_clicked()
     }
 
     ++(*count);
-    QTimer::singleShot(std::chrono::milliseconds(1), [this, count, errors, device]()
+    QTimer::singleShot(std::chrono::milliseconds(1), this, [this, count, errors, device]()
     {
       connections_.push_back(device->ChangeLayoutName(token_, ui_.editname->text().toStdString(), [this, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::CHANGELAYOUTNAMERESPONSE& changelayoutnameresponse)
       {

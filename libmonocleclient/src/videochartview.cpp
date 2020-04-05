@@ -111,11 +111,11 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
 
       // We send a bunch of these, because the render we take of the graph isn't always ready, so lets just do a bunch of them so it should look ok eventually...
       // There doesn't seem to be a way to wait for the QChart to be ready
-      QTimer::singleShot(std::chrono::milliseconds(100), [this]() { SendImage(); });
-      QTimer::singleShot(std::chrono::milliseconds(300), [this]() { SendImage(); });
-      QTimer::singleShot(std::chrono::milliseconds(1000), [this]() { SendImage(); });
-      QTimer::singleShot(std::chrono::milliseconds(3000), [this]() { SendImage(); });
-      QTimer::singleShot(std::chrono::milliseconds(10000), [this]() { SendImage(); });
+      QTimer::singleShot(std::chrono::milliseconds(100), this, [this]() { SendImage(); });
+      QTimer::singleShot(std::chrono::milliseconds(300), this, [this]() { SendImage(); });
+      QTimer::singleShot(std::chrono::milliseconds(1000), this, [this]() { SendImage(); });
+      QTimer::singleShot(std::chrono::milliseconds(3000), this, [this]() { SendImage(); });
+      QTimer::singleShot(std::chrono::milliseconds(10000), this, [this]() { SendImage(); });
     }));
   }
 

@@ -152,7 +152,7 @@ void ManageLayoutsWindow::on_buttonremove_clicked()
     }
 
     ++(*count);
-    QTimer::singleShot(std::chrono::milliseconds(1), [this, token, count, errors, device]()
+    QTimer::singleShot(std::chrono::milliseconds(1), this, [this, token, count, errors, device]()
     {
       removelayoutconnections_.push_back(device->RemoveLayout(token, [this, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::REMOVELAYOUTRESPONSE& removelayoutresponse)
       {

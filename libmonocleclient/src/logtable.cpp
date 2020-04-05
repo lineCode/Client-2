@@ -124,7 +124,7 @@ LogTable::LogTable(QWidget* parent) :
   // This is singleshot because the gui is not ready to be altered yet
   QByteArray geometory = settings.value(LOGTABLEHEADERGEOMETORY).toByteArray();
   QByteArray state = settings.value(LOGTABLEHEADERSTATE).toByteArray();
-  QTimer::singleShot(0, [this, geometory, state]()
+  QTimer::singleShot(0, this, [this, geometory, state]()
   {
     horizontalHeader()->restoreGeometry(geometory);
     horizontalHeader()->restoreState(state);
