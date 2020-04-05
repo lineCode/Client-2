@@ -772,8 +772,6 @@ void View::SetPosition(VideoWidget* videowidget, const unsigned int x, const uns
   textvertexbuffer_.allocate(vertices.data(), static_cast<int>(vertices.size() * sizeof(float)));
   textvertexbuffer_.release();
 
-  qDebug() << vertices[0] << vertices[1] << vertices[2] << vertices[3] << vertices[4] << vertices[5] << vertices[6] << vertices[7] << vertices[8] << vertices[9] << vertices[10] << vertices[11];//TODO remove
-
   // Vertex buffer
   vertexbuffer_.bind();
   const QRectF imagerect = GetImageRect();
