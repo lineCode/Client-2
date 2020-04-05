@@ -41,36 +41,9 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   chart_.chart()->legend()->setAlignment(Qt::AlignBottom);
 
   // Setup the chart itself. It gets drawn offscreen and then copied in
-  //TODO const QRect pixelrect = GetPixelRect();
-  //TODO widget_->setMinimumWidth(pixelrect.width());
-  //TODO widget_->setMinimumHeight(pixelrect.height());
-  //TODO widget_->setGeometry(QRect(-10000, -10000, pixelrect.width(), pixelrect.height())); // This seems to be the only way to get it to display properly is to show it and then hide it, so do it miles off-screen...
-  //TODO 
-  //TODO chart_.setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-  //TODO chart_.chart()->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-  //TODO chart_.chart()->setPreferredWidth(pixelrect.width());//TODO when the view gets resized, we want to set this again
-  //TODO chart_.chart()->setPreferredHeight(pixelrect.height());
-  //TODO //TODO maybe we can override SetPosition and refresh all this?
-  //TODO 
-  //TODO //TODO Can we remove any of this stuff?
-  //TODO widget_->setContentsMargins(QMargins(0, 0, 0, 0));
-  //TODO layout_->setContentsMargins(0, 0, 0, 0);
-  //TODO layout_->addWidget(&chart_);
-  //TODO layout_->setVerticalSpacing(0);
-  //TODO layout_->setHorizontalSpacing(0);
-  //TODO layout_->setColumnStretch(0, 1);
-  //TODO layout_->setRowStretch(0, 1);
-  //TODO chart_.chart()->setBackgroundRoundness(0.0);
-  //TODO chart_.setWindowFlag(Qt::SubWindow, true); // This hides the chart from the taskbar
-  //TODO chart_.chart()->setContentsMargins(QMargins(0, 0, 0, 0));
-  //TODO chart_.setContentsMargins(QMargins(0, 0, 0, 0));
-  //TODO chart_.chart()->setMargins(QMargins(0, 0, 0, 0));
-  //TODO chart_.chart()->setBackgroundRoundness(0.0);
   chart_.setRenderHint(QPainter::Antialiasing, true);
   chart_.setBackgroundBrush(QBrush(QColor(0, 0, 0), Qt::SolidPattern));
   chart_.chart()->setTheme(QChart::ChartTheme::ChartThemeBlueCerulean);
-  //TODO widget_->show(); // For some bizarre reason, this is required.
-  //TODO widget_->hide();
 
   // Look at the last 24 hours by default
   auto now = boost::posix_time::second_clock::universal_time();
@@ -86,7 +59,7 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
     {
       if (getobjecttrackstatisticssresponse.GetErrorCode() != monocle::ErrorCode::Success)
       {
-        //TODO messagebox?
+        QMessageBox(QMessageBox::Warning, tr("Error"), tr("Failed to retrieve object track statistics data"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
         return;
       }
 
@@ -136,18 +109,16 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
         series.second->attachAxis(yaxis_);
       }
 
-      //TODO maybe put this into the QTimer::singleShot?
+      // We send a bunch of these, because the render we take of the graph isn't always ready, so lets just do a bunch of them so it should look ok eventually...
+      // There doesn't seem to be a way to wait for the QChart to be ready
       QTimer::singleShot(std::chrono::milliseconds(100), [this]() { SendImage(); });
-      QTimer::singleShot(std::chrono::milliseconds(200), [this]() { SendImage(); });
       QTimer::singleShot(std::chrono::milliseconds(300), [this]() { SendImage(); });
-      QTimer::singleShot(std::chrono::milliseconds(500), [this]() { SendImage(); });
       QTimer::singleShot(std::chrono::milliseconds(1000), [this]() { SendImage(); });
-      QTimer::singleShot(std::chrono::milliseconds(2000), [this]() { SendImage(); });
-      QTimer::singleShot(std::chrono::milliseconds(5000), [this]() { SendImage(); });
+      QTimer::singleShot(std::chrono::milliseconds(3000), [this]() { SendImage(); });
+      QTimer::singleShot(std::chrono::milliseconds(10000), [this]() { SendImage(); });
     }));
   }
 
-  //TODO startTimer(std::chrono::seconds(1));
   SendImage();
 }
 
@@ -240,17 +211,9 @@ void VideoChartView::Scrub(const uint64_t time)
 
 }
 
-void VideoChartView::timerEvent(QTimerEvent* event)
-{
-  //TODO seems like we need this, ebcause it doesn't finish drawing after a while...
-  //TODO SendImage();
-
-}
-
 void VideoChartView::SetPosition(VideoWidget* videowidget, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent)
 {
   View::SetPosition(videowidget, x, y, width, height, rotation, mirror, stretch, makecurrent);
-  //TODO QTimer::singleShot(std::chrono::milliseconds(500), [this]() { SendImage(); });
   SendImage();
 }
 
@@ -258,8 +221,7 @@ void VideoChartView::SendImage()
 {
   const QRect pixelrect = GetPixelRect();
   chart_.resize(pixelrect.width(), pixelrect.height());
-  //TODO const QImage image = chart_.grab().toImage(); // We could keep this as a QPixmap, but we shouldn't be doing this all that often so it's ok I guess
-  const QPixmap pixmap = chart_.grab();
+  const QImage image = chart_.grab().toImage(); // We could keep this as a QPixmap, but we shouldn't be doing this all that often so it's ok I guess
 
   ImageBuffer imagebuffer = freeimagequeue_.GetFreeImage();
   imagebuffer.Destroy();
