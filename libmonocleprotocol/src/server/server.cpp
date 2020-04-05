@@ -43,8 +43,6 @@ Server::~Server()
 
 int Server::Init(const std::vector<uint16_t>& v4ports, const std::vector<uint16_t>& v6ports)
 {
-  Destroy();
-
   // Setup ports
   for (const uint16_t port : v4ports)
   {
@@ -85,6 +83,7 @@ void Server::Destroy()
     }
     acceptors_.clear();
   }
+  ioservicepool_.Destroy();
 }
 
 void Server::DestroyConnection(const boost::shared_ptr<Connection>& connection)

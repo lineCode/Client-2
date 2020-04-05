@@ -295,11 +295,6 @@ std::pair<Error, STREAM> TestConnection::CreateStream(const uint64_t recordingto
   return std::make_pair(Error(), teststream_);
 }
 
-std::pair<Error, uint64_t> TestConnection::CreateTrackStatisticsStream(const uint64_t recordingtoken, const uint32_t trackid)
-{
-  return std::make_pair(Error(), 0);
-}
-
 Error TestConnection::DestroyFindMotion(const uint64_t token)
 {
   return Error();
@@ -328,6 +323,11 @@ std::pair< Error, std::vector<std::string> > TestConnection::GetChildFolders(con
 std::pair< Error, std::vector<FILE> > TestConnection::GetFiles()
 {
   return std::make_pair(Error(), testfiles_);
+}
+
+std::pair< Error, std::vector<OBJECTTRACKSTATISTICS> > TestConnection::GetObjectTrackStatistics(const uint64_t recordingtoken, const uint32_t trackid, const uint64_t starttime, const uint64_t endtime, const uint64_t interval)
+{
+  return std::make_pair(Error(), std::vector<OBJECTTRACKSTATISTICS>());
 }
 
 std::pair< Error, std::vector<RECEIVER> > TestConnection::GetReceivers()
