@@ -50,4 +50,14 @@
       <change>Added drag and dropping to re-order items in device tree</change>
     </changes>
   </version>
+  <version>
+    <major>1</major>
+    <minor>13</minor>
+    <build>0</build>
+    <date>Thur Apr 05 2020</date>
+    <windowsfilename>MonocleClient_1_13_0.msi</windowsfilename>
+    <changes>
+      <change>Added Chart View for looking at object data in graph form</change>
+    </changes>
+  </version>
 </versions>
