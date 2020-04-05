@@ -32,25 +32,10 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
   widget_(new QWidget()),
   layout_(new QGridLayout(widget_)),
   chart_(nullptr, nullptr),
-//TODO  series_(new QStackedBarSeries()),
-//TODO  xaxis_(new QBarCategoryAxis()),
+  xaxis_(new QDateTimeAxis()),
   yaxis_(new QValueAxis())
 {
   SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), rotation_, mirror_, stretch_, true);
-
-  for (size_t z = 0; z <= static_cast<size_t>(monocle::ObjectClass::MAX); ++z)
-  {
-    const monocle::ObjectClass classtype = static_cast<monocle::ObjectClass>(z);
-    barsets_[z] = std::make_unique<QBarSet>(monocle::EnumNameObjectClass(classtype));
-  }
-
-//TODO  chart_.chart()->addSeries(series_);
-
-  //TODO chart_.chart()->createDefaultAxes();
-  //TDOO chart_.chart()->addAxis(xaxis_, Qt::AlignBottom);
-  //TDOO chart_.chart()->addAxis(yaxis_, Qt::AlignLeft);
-//TODO  series_->attachAxis(xaxis_);
-//TODO  series_->attachAxis(yaxis_);
 
   chart_.chart()->legend()->setVisible(true);
   chart_.chart()->legend()->setAlignment(Qt::AlignBottom);
@@ -89,14 +74,15 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
 
   // Look at the last 24 hours by default
   auto now = boost::posix_time::second_clock::universal_time();
-  now = now - boost::posix_time::seconds(now.time_of_day().seconds()) - boost::posix_time::minutes(now.time_of_day().minutes()) - boost::posix_time::hours(12);//TODO time
-  const uint64_t starttime = (boost::posix_time::to_time_t(now) * 1000) + device_->GetTimeOffset();
+  now = now - boost::posix_time::seconds(now.time_of_day().seconds() - 1) - boost::posix_time::minutes(now.time_of_day().minutes()) - boost::posix_time::hours(24);
+  const uint64_t endtime = boost::posix_time::to_time_t(now);
+  const uint64_t starttime = (endtime * 1000) + device_->GetTimeOffset();
 
   CloseConnections();
   for (QSharedPointer<RecordingTrack>& track : tracks_)
   {
-    //TODO interval...
-    streamsconnections_.push_back(device_->GetObjectTrackStatistics(recording_->GetToken(), track->GetId(), starttime, std::numeric_limits<uint64_t>::max(), 5 * 60 * 1000, [this](const std::chrono::nanoseconds latency, const monocle::client::GETOBJECTTRACKSTATISTICSSRESPONSE& getobjecttrackstatisticssresponse)
+    const uint64_t interval = 60 * 60 * 1000;
+    streamsconnections_.push_back(device_->GetObjectTrackStatistics(recording_->GetToken(), track->GetId(), starttime, std::numeric_limits<uint64_t>::max(), interval, [this, starttime, endtime, interval](const std::chrono::nanoseconds latency, const monocle::client::GETOBJECTTRACKSTATISTICSSRESPONSE& getobjecttrackstatisticssresponse)
     {
       if (getobjecttrackstatisticssresponse.GetErrorCode() != monocle::ErrorCode::Success)
       {
@@ -104,7 +90,8 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
         return;
       }
 
-      for (const monocle::client::OBJECTCLASSTRACKSTATISTICS& result : getobjecttrackstatisticssresponse.results_)//TODO do these results come in order for sure?
+      qreal max = 0.0;
+      for (const monocle::client::OBJECTCLASSTRACKSTATISTICS& result : getobjecttrackstatisticssresponse.results_)
       {
         auto series = std::find_if(series_.begin(), series_.end(), [&result](const std::pair<monocle::ObjectClass, QLineSeries*>& series) { return (series.first == result.objectclass_); });
         if (series == series_.end())
@@ -114,22 +101,27 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
           series = series_.end() - 1;
           series->second->setName(monocle::EnumNameObjectClass(result.objectclass_));
         }
-        //TODO we must set zero for anything missing...
-
-        qDebug() << result.starttime_ << result.count_;//TODO remove
         series->second->append(result.starttime_, result.count_);
+        max = std::max(max, static_cast<double>(result.count_));
       }
 
       for (std::pair<monocle::ObjectClass, QLineSeries*>& series : series_)
       {
-        chart_.chart()->addSeries(series.second);
+        if (AllZero(series.second)) // Don't show the series without any points
+        {
 
+          continue;
+        }
+        chart_.chart()->addSeries(series.second);
       }
 
-      xaxis_ = new QDateTimeAxis();
-      //TODO xaxis_->setTickCount(10);
-      xaxis_->setFormat("hh:mm");//TODO
+      yaxis_->setMax(max);
+
+      xaxis_->setFormat("hh:mm");
       xaxis_->setTitleText("Time");
+      xaxis_->setMin(QDateTime::fromMSecsSinceEpoch(starttime));
+      xaxis_->setMax(QDateTime::fromMSecsSinceEpoch(endtime));
+      xaxis_->setTickCount(13);
       chart_.chart()->addAxis(xaxis_, Qt::AlignBottom);
 
       yaxis_->setLabelFormat("%i");
@@ -142,11 +134,11 @@ VideoChartView::VideoChartView(VideoWidget* videowidget, CUcontext cudacontext, 
         series.second->attachAxis(yaxis_);
       }
 
-      SendImage();//TODO ?
+      // For some reason we can't just send an image now without things looking very ugly
     }));
   }
 
-  startTimer(std::chrono::seconds(1));//TODO we no longer need this, we just recreate it on resize and we're good
+  startTimer(std::chrono::seconds(1));
   SendImage();
 }
 
@@ -253,44 +245,15 @@ void VideoChartView::timerEvent(QTimerEvent* event)
 
 }
 
-void VideoChartView::ControlStreamEnd(const uint64_t streamtoken, const uint64_t requestindex, const monocle::ErrorCode error, void* callbackdata)
-{
-  // We are always extending to live at the moment, so this can be ignored
-
-}
-
-void VideoChartView::ControlStreamResult(const uint64_t streamtoken, const uint64_t requestindex, const uint64_t starttime, const uint64_t endtime, const std::vector< std::pair<monocle::ObjectClass, uint64_t> >& results, void* callbackdata)
-{
-  VideoChartView* videochartview = reinterpret_cast<VideoChartView*>(callbackdata);
-
-  //TODO we want to fill in all the minutes and hours where there wasn't any activity too now...
-    //TODO otherwise we don't get a good impression when nothing happened...
-
-  //TODO if all the xaxis are filled in, we also need to fill in the corresponding zeros
-
-  //TODO const boost::posix_time::ptime time = boost::posix_time::from_time_t(starttime / 1000);
-  //TODO videochartview->xaxis_->append(QString::number(time.time_of_day().hours()) + ":00");
-  //TODO 
-  //TODO for (const std::pair<monocle::ObjectClass, uint64_t>& result : results)
-  //TODO {
-  //TODO   videochartview->barsets_[static_cast<size_t>(result.first)]->append(result.second);
-  //TODO   videochartview->series_->append(videochartview->barsets_[static_cast<size_t>(result.first)].get());
-  //TODO }
-
-  //TODO videochartview->chart_.repaint();//TODO might work? didn't work?
-  //TODO videochartview->chart_.chart()->removeSeries(videochartview->series_);
-  //TODO videochartview->chart_.chart()->addSeries(videochartview->series_);
-}
-
 void VideoChartView::SendImage()
 {
-  //TODO if nothing has changed, don't send anything... need a nice flag dirty_
-
-  chart_.repaint();//TODO might work? didn't work?
+  chart_.repaint();
 
   QImage image(chart_.chart()->preferredWidth(), chart_.chart()->preferredHeight(), QImage::Format::Format_RGBX8888);
   QPainter painter(&image);
   chart_.render(&painter);
+
+  //TODO image.save("test.jpg");
 
   ImageBuffer imagebuffer = freeimagequeue_.GetFreeImage();
   imagebuffer.Destroy();
@@ -312,6 +275,19 @@ void VideoChartView::CloseConnections()
 {
   std::for_each(streamsconnections_.begin(), streamsconnections_.end(), [](monocle::client::Connection& connection) { connection.Close(); });
   streamsconnections_.clear();
+}
+
+bool VideoChartView::AllZero(const QLineSeries* series) const
+{
+  for (int i = 0; i < series->count(); ++i)
+  {
+    if (series->at(i).y())
+    {
+
+      return false;
+    }
+  }
+  return true;
 }
 
 }
