@@ -1117,8 +1117,17 @@ void PlaybackWidget::mouseReleaseEvent(QMouseEvent* event)
               }
               else if (recordingblocks->GetView()->GetViewType() == VIEWTYPE_MONOCLE)
               {
-                recordingblocks->GetView()->SetPlayMarkerTime(std::chrono::duration_cast<std::chrono::milliseconds>((std::chrono::system_clock::now()).time_since_epoch()).count() + recordingblocks->GetView()->GetTimeOffset());
+                const auto now = std::chrono::duration_cast<std::chrono::milliseconds>((std::chrono::system_clock::now()).time_since_epoch()).count() + recordingblocks->GetView()->GetTimeOffset();
+                if ((time + recordingblocks->GetView()->GetTimeOffset()) > now)
+                {
+                  recordingblocks->GetView()->SetPlayMarkerTime(now);
 
+                }
+                else
+                {
+                  recordingblocks->GetView()->SetPlayMarkerTime(time + recordingblocks->GetView()->GetTimeOffset());
+
+                }
               }
               recordingblocks->GetView()->SetFrameTime(std::chrono::steady_clock::now());
               recordingblocks->GetView()->Stop();
@@ -1533,7 +1542,13 @@ void PlaybackWidget::on_buttonstop_clicked()
     else if (recordingblocks->GetView()->GetViewType() == VIEWTYPE_MONOCLE)
     {
       const boost::optional<uint64_t> endtime = recordingblocks->GetEndTime();
-      if (endtime.is_initialized())
+      const uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>((std::chrono::system_clock::now()).time_since_epoch()).count() + recordingblocks->GetView()->GetTimeOffset();
+      if (!endtime.is_initialized() || (now > *endtime))
+      {
+        recordingblocks->GetView()->SetPlayMarkerTime(now);
+
+      }
+      else
       {
         recordingblocks->GetView()->SetPlayMarkerTime(*endtime);
 
