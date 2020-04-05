@@ -61,6 +61,16 @@ struct STREAM
 
 };
 
+struct OBJECTTRACKSTATISTICS
+{
+  OBJECTTRACKSTATISTICS(const monocle::ObjectClass objectclass, const uint64_t starttime, const uint64_t endtime, const uint64_t count);
+
+  monocle::ObjectClass objectclass_;
+  uint64_t starttime_;
+  uint64_t endtime_;
+  uint64_t count_;
+};
+
 ///// Classes /////
 
 class Connection : public boost::enable_shared_from_this<Connection>
@@ -105,7 +115,7 @@ class Connection : public boost::enable_shared_from_this<Connection>
   virtual Error ControlStreamPause(const uint64_t streamtoken, const boost::optional<uint64_t>& time) = 0;
   virtual std::pair<Error, uint64_t> CreateFindMotion(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height, const float sensitivity, const bool fast) = 0;
   virtual std::pair<Error, uint64_t> CreateFindObject(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height) = 0;
-  virtual std::pair<Error, STREAM> CreateStream(const uint64_t recordingtoken, const uint64_t tracktoken) = 0;
+  virtual std::pair<Error, STREAM> CreateStream(const uint64_t recordingtoken, const uint32_t trackid) = 0;
   virtual Error DestroyFindMotion(const uint64_t token) = 0;
   virtual Error DestroyFindObject(const uint64_t token) = 0;
   virtual Error DestroyStream(const uint64_t streamtoken) = 0;
@@ -113,6 +123,7 @@ class Connection : public boost::enable_shared_from_this<Connection>
   virtual std::string GetAuthenticationNonce() = 0;
   virtual std::pair< Error, std::vector<std::string> > GetChildFolders(const std::string& path, const bool parentpaths) = 0;
   virtual std::pair< Error, std::vector<FILE> > GetFiles() = 0;
+  virtual std::pair< Error, std::vector<OBJECTTRACKSTATISTICS> > GetObjectTrackStatistics(const uint64_t recordingtoken, const uint32_t trackid, const uint64_t starttime, const uint64_t endtime, const uint64_t interval) = 0;
   virtual std::pair< Error, std::vector<RECEIVER> > GetReceivers() = 0;
   virtual std::pair<Error, RECORDING> GetRecording(const uint64_t token) = 0;
   virtual std::pair< Error, std::vector<RECORDING> > GetRecordings() = 0;

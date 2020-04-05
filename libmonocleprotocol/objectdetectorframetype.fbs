@@ -2,5 +2,6 @@ namespace monocle;
 
 enum ObjectDetectorFrameType : uint16
 {
-  OBJECT_DETECTION = 1
+  OBJECT_DETECTION = 1,
+  OBJECT_RESET_MARKER = 2
 }

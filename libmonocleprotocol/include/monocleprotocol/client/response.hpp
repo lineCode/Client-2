@@ -18,10 +18,25 @@
 namespace monocle
 {
 
+///// Declarations /////
+
+enum class ObjectClass : uint16_t;
+
 namespace client
 {
 
 ///// Structures /////
+
+struct OBJECTCLASSTRACKSTATISTICS
+{
+  OBJECTCLASSTRACKSTATISTICS(const monocle::ObjectClass objectclass, const uint64_t starttime, const uint64_t endtime, const uint64_t count);
+
+  monocle::ObjectClass objectclass_;
+  uint64_t starttime_;
+  uint64_t endtime_;
+  uint64_t count_;
+
+};
 
 struct RESPONSE
 {
@@ -208,6 +223,13 @@ struct CONTROLSTREAMRESPONSE : public RESPONSE
 
 };
 
+struct CONTROLTRACKSTATISTICSSTREAMRESPONSE : public RESPONSE
+{
+  CONTROLTRACKSTATISTICSSTREAMRESPONSE();
+  CONTROLTRACKSTATISTICSSTREAMRESPONSE(const Error& error);
+
+};
+
 struct CREATEFINDMOTIONRESPONSE : public RESPONSE
 {
   CREATEFINDMOTIONRESPONSE(const uint64_t token);
@@ -233,6 +255,15 @@ struct CREATESTREAMRESPONSE : public RESPONSE
 
   uint64_t token_;
   std::vector<CODECINDEX> codecindices_;
+
+};
+
+struct CREATETRACKSTATISTICSSTREAMRESPONSE : public RESPONSE
+{
+  CREATETRACKSTATISTICSSTREAMRESPONSE(const uint64_t token);
+  CREATETRACKSTATISTICSSTREAMRESPONSE(const Error& error);
+
+  uint64_t token_;
 
 };
 
@@ -288,6 +319,15 @@ struct GETFILESRESPONSE : public RESPONSE
   GETFILESRESPONSE(const Error& error);
 
   std::vector<FILE> files_;
+
+};
+
+struct GETOBJECTTRACKSTATISTICSSRESPONSE : public RESPONSE
+{
+  GETOBJECTTRACKSTATISTICSSRESPONSE(const std::vector<OBJECTCLASSTRACKSTATISTICS>& results);
+  GETOBJECTTRACKSTATISTICSSRESPONSE(const Error& error);
+
+  std::vector<OBJECTCLASSTRACKSTATISTICS> results_;
 
 };
 

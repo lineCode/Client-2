@@ -73,7 +73,7 @@ void ManageLayoutWindow::on_buttonok_clicked()
   for (const std::pair< boost::shared_ptr<Device>, monocle::LAYOUT>& layout : layouts)
   {
     ++(*count);
-    QTimer::singleShot(std::chrono::milliseconds(1), [this, token, count, errors, layout]()
+    QTimer::singleShot(std::chrono::milliseconds(1), this, [this, token, count, errors, layout]()
     {
       connections_.push_back(layout.first->AddLayout(layout.second, [this, token, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::ADDLAYOUTRESPONSE& addlayoutresponse)
       {

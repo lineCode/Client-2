@@ -1283,6 +1283,16 @@ bool Device::SupportsLayouts() const
   return true;
 }
 
+bool Device::SupportsGetTrackStatistics() const
+{
+  if (version_ < utility::Version(1, 13, 0))
+  {
+
+    return false;
+  }
+  return true;
+}
+
 bool Device::CanManageUsers()
 {
   std::vector< QSharedPointer<User> >::const_iterator user = std::find_if(users_.cbegin(), users_.cend(), [this](const QSharedPointer<User>& user) { return (user->GetUsername() == username_); });

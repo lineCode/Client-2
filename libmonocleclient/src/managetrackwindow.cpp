@@ -108,7 +108,7 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, const boost::shared_ptr<De
     if (ui_.combodevice->count() == 0)
     {
       QMessageBox(QMessageBox::Warning, tr("Error"), tr("No valid devices"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-      QTimer::singleShot(std::chrono::milliseconds(1), [this]() { reject(); });
+      QTimer::singleShot(std::chrono::milliseconds(1), this, [this]() { reject(); });
       return;
     }
 
@@ -118,7 +118,7 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, const boost::shared_ptr<De
     if (!currentdevice)
     {
       QMessageBox(QMessageBox::Warning, tr("Error"), tr("Unable to find device: ") + QString::number(ui_.combodevice->currentData().toULongLong()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-      QTimer::singleShot(std::chrono::milliseconds(1), [this]() { reject(); });
+      QTimer::singleShot(std::chrono::milliseconds(1), this, [this]() { reject(); });
       return;
     }
 

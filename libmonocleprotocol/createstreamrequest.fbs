@@ -3,5 +3,5 @@ namespace monocle;
 table CreateStreamRequest
 {
   recordingtoken:uint64 (id:0);
-  tracktoken:uint64 (id:1);
+  trackid:uint32 (id:1);
 }

@@ -422,19 +422,19 @@ QString FontText(const QVector4D& colour, const QString& text)
 
 ///// Methods /////
 
-View::View(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool showinfo, const bool showobjects, const QResource* arial, const bool showsaveimagemenu, const bool showcopymenu, const bool showinfomenu, const bool showobjectsmenu) :
+View::View(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool showinfo, const bool showobjects, const QResource* arial, const bool showsaveimagemenu, const bool showcopymenu, const bool showrotatemenu, const bool showmirrormenu, const bool showstretchmenu, const bool showinfomenu, const bool showobjectsmenu) :
   videowidget_(videowidget),
   cudacontext_(cudacontext),
   starttime_(std::chrono::steady_clock::now()),
   selectedcolour_(selectedcolour.redF(), selectedcolour.greenF(), selectedcolour.blueF(), selectedcolour.alphaF()),
   actionsaveimage_(showsaveimagemenu ? new QAction(tr("Save Image"), this) : nullptr),
   actioncopy_(showcopymenu ? new QAction(tr("Copy"), this) : nullptr),
-  actionrotate0_(new QAction(tr("Rotate 0"), this)),
-  actionrotate90_(new QAction(tr("Rotate 90"), this)),
-  actionrotate180_(new QAction(tr("Rotate 180"), this)),
-  actionrotate270_(new QAction(tr("Rotate 270"), this)),
-  actionmirror_(new QAction(tr("Mirror"), this)),
-  actionstretch_(new QAction(tr("Stretch"), this)),
+  actionrotate0_(showrotatemenu ? new QAction(tr("Rotate 0"), this) : nullptr),
+  actionrotate90_(showrotatemenu ? new QAction(tr("Rotate 90"), this) : nullptr),
+  actionrotate180_(showrotatemenu ? new QAction(tr("Rotate 180"), this) : nullptr),
+  actionrotate270_(showrotatemenu ? new QAction(tr("Rotate 270"), this) : nullptr),
+  actionmirror_(showmirrormenu ? new QAction(tr("Mirror"), this) : nullptr),
+  actionstretch_(showstretchmenu ? new QAction(tr("Stretch"), this) : nullptr),
   actioninfo_(showinfomenu ? new QAction(tr("Info"), this) : nullptr),
   actionobjects_(showobjectsmenu ? new QAction(tr("Objects"), this) : nullptr),
   freetype_(nullptr),
@@ -469,21 +469,18 @@ View::View(VideoWidget* videowidget, CUcontext cudacontext, const QColor& select
   bandwidthsizes_(150),
   playrequestindex_(0)
 {
-  actionrotate0_->setCheckable(true);
-  actionrotate90_->setCheckable(true);
-  actionrotate180_->setCheckable(true);
-  actionrotate270_->setCheckable(true);
-  actionmirror_->setCheckable(true);
-  actionmirror_->setChecked(mirror_);
-  actionstretch_->setCheckable(true);
-  actionstretch_->setChecked(stretch_);
+  if (actionrotate0_ && actionrotate90_ && actionrotate180_ && actionrotate270_)
+  {
+    actionrotate0_->setCheckable(true);
+    actionrotate90_->setCheckable(true);
+    actionrotate180_->setCheckable(true);
+    actionrotate270_->setCheckable(true);
+    connect(actionrotate0_, &QAction::triggered, this, &View::Rotate0);
+    connect(actionrotate90_, &QAction::triggered, this, &View::Rotate90);
+    connect(actionrotate180_, &QAction::triggered, this, &View::Rotate180);
+    connect(actionrotate270_, &QAction::triggered, this, &View::Rotate270);
+  }
 
-  connect(actionrotate0_, &QAction::triggered, this, &View::Rotate0);
-  connect(actionrotate90_, &QAction::triggered, this, &View::Rotate90);
-  connect(actionrotate180_, &QAction::triggered, this, &View::Rotate180);
-  connect(actionrotate270_, &QAction::triggered, this, &View::Rotate270);
-  connect(actionmirror_, &QAction::triggered, this, &View::ToggleMirror);
-  connect(actionstretch_, &QAction::triggered, this, &View::ToggleStretch);
 
   if (actionsaveimage_)
   {
@@ -495,6 +492,20 @@ View::View(VideoWidget* videowidget, CUcontext cudacontext, const QColor& select
   {
     connect(actioncopy_, &QAction::triggered, this, &View::Copy);
 
+  }
+
+  if (actionmirror_)
+  {
+    actionmirror_->setCheckable(true);
+    actionmirror_->setChecked(mirror_);
+    connect(actionmirror_, &QAction::triggered, this, &View::ToggleMirror);
+  }
+
+  if (actionstretch_)
+  {
+    actionstretch_->setCheckable(true);
+    actionstretch_->setChecked(stretch_);
+    connect(actionstretch_, &QAction::triggered, this, &View::ToggleStretch);
   }
 
   if (actioninfo_)
@@ -658,15 +669,26 @@ void View::GetMenu(QMenu& parent)
   }
 
   // Rotation
-  QMenu* rotation = new QMenu(QString("Rotation"), &parent);
-  actionrotate0_->setChecked(rotation_ == ROTATION::_0);
-  actionrotate90_->setChecked(rotation_ == ROTATION::_90);
-  actionrotate180_->setChecked(rotation_ == ROTATION::_180);
-  actionrotate270_->setChecked(rotation_ == ROTATION::_270);
-  rotation->addActions({ actionrotate0_, actionrotate90_, actionrotate180_, actionrotate270_ });
-  parent.addMenu(rotation);
-  parent.addAction(actionmirror_);
-  parent.addAction(actionstretch_);
+  if (actionrotate0_ && actionrotate90_ && actionrotate180_ && actionrotate270_)
+  {
+    QMenu* rotation = new QMenu(QString("Rotation"), &parent);
+    actionrotate0_->setChecked(rotation_ == ROTATION::_0);
+    actionrotate90_->setChecked(rotation_ == ROTATION::_90);
+    actionrotate180_->setChecked(rotation_ == ROTATION::_180);
+    actionrotate270_->setChecked(rotation_ == ROTATION::_270);
+    rotation->addActions({ actionrotate0_, actionrotate90_, actionrotate180_, actionrotate270_ });
+    parent.addMenu(rotation);
+  }
+  if (actionmirror_)
+  {
+    parent.addAction(actionmirror_);
+
+  }
+  if (actionstretch_)
+  {
+    parent.addAction(actionstretch_);
+
+  }
   if (actioninfo_)
   {
     parent.addAction(actioninfo_);

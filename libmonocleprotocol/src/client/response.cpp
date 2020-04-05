@@ -15,6 +15,15 @@ namespace client
 
 ///// Methods /////
 
+OBJECTCLASSTRACKSTATISTICS::OBJECTCLASSTRACKSTATISTICS(const monocle::ObjectClass objectclass, const uint64_t starttime, const uint64_t endtime, const uint64_t count) :
+  objectclass_(objectclass),
+  starttime_(starttime),
+  endtime_(endtime),
+  count_(count)
+{
+
+}
+
 RESPONSE::RESPONSE(const Error& error) :
   error_(error)
 {
@@ -315,6 +324,18 @@ CONTROLSTREAMRESPONSE::CONTROLSTREAMRESPONSE(const Error& error) :
 
 }
 
+CONTROLTRACKSTATISTICSSTREAMRESPONSE::CONTROLTRACKSTATISTICSSTREAMRESPONSE() :
+  RESPONSE(Error(ErrorCode::Success, std::string()))
+{
+
+}
+
+CONTROLTRACKSTATISTICSSTREAMRESPONSE::CONTROLTRACKSTATISTICSSTREAMRESPONSE(const Error& error) :
+  RESPONSE(error)
+{
+
+}
+
 CREATEFINDMOTIONRESPONSE::CREATEFINDMOTIONRESPONSE(const uint64_t token) :
   RESPONSE(Error(ErrorCode::Success, std::string())),
   token_(token)
@@ -350,6 +371,19 @@ CREATESTREAMRESPONSE::CREATESTREAMRESPONSE(const uint64_t token, const std::vect
 }
 
 CREATESTREAMRESPONSE::CREATESTREAMRESPONSE(const Error& error) :
+  RESPONSE(error)
+{
+
+}
+
+CREATETRACKSTATISTICSSTREAMRESPONSE::CREATETRACKSTATISTICSSTREAMRESPONSE(const uint64_t token) :
+  RESPONSE(Error(ErrorCode::Success, std::string())),
+  token_(token)
+{
+
+}
+
+CREATETRACKSTATISTICSSTREAMRESPONSE::CREATETRACKSTATISTICSSTREAMRESPONSE(const Error& error) :
   RESPONSE(error)
 {
 
@@ -437,6 +471,19 @@ GETFILESRESPONSE::GETFILESRESPONSE(const std::vector<FILE>& files) :
 }
 
 GETFILESRESPONSE::GETFILESRESPONSE(const Error& error) :
+  RESPONSE(error)
+{
+
+}
+
+GETOBJECTTRACKSTATISTICSSRESPONSE::GETOBJECTTRACKSTATISTICSSRESPONSE(const std::vector<OBJECTCLASSTRACKSTATISTICS>& results) :
+  RESPONSE(Error(ErrorCode::Success, std::string())),
+  results_(results)
+{
+
+}
+
+GETOBJECTTRACKSTATISTICSSRESPONSE::GETOBJECTTRACKSTATISTICSSRESPONSE(const Error& error) :
   RESPONSE(error)
 {
 

@@ -566,9 +566,9 @@ monocle::client::Connection Connection::Authenticate(const std::string& username
   return Client::Authenticate(username, clientnonce, authdigest, callback);
 }
 
-monocle::client::Connection Connection::CreateStream(const uint64_t recordingtoken, const uint64_t tracktoken, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::CREATESTREAMRESPONSE&)> callback, const CONTROLSTREAMEND controlstreamendcallback, const H265CALLBACK h265callback, const H264CALLBACK h264callback, const METADATACALLBACK metadatacallback, const JPEGCALLBACK jpegcallback, const MPEG4CALLBACK mpeg4callback, const OBJECTDETECTORCALLBACK objectdetectorcallback, const NEWCODECINDEX newcodecindexcallback, void* callbackdata)
+monocle::client::Connection Connection::CreateStream(const uint64_t recordingtoken, const uint32_t trackid, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::CREATESTREAMRESPONSE&)> callback, const CONTROLSTREAMEND controlstreamendcallback, const H265CALLBACK h265callback, const H264CALLBACK h264callback, const METADATACALLBACK metadatacallback, const JPEGCALLBACK jpegcallback, const MPEG4CALLBACK mpeg4callback, const OBJECTDETECTORCALLBACK objectdetectorcallback, const NEWCODECINDEX newcodecindexcallback, void* callbackdata)
 {
-  return Client::CreateStream(recordingtoken, tracktoken, [this, callback, controlstreamendcallback, h265callback, h264callback, metadatacallback, jpegcallback, mpeg4callback, objectdetectorcallback, newcodecindexcallback, callbackdata](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
+  return Client::CreateStream(recordingtoken, trackid, [this, callback, controlstreamendcallback, h265callback, h264callback, metadatacallback, jpegcallback, mpeg4callback, objectdetectorcallback, newcodecindexcallback, callbackdata](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
   {
     if (createstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
     {

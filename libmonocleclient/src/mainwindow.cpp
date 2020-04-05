@@ -242,7 +242,9 @@ MainWindow::MainWindow(const uint32_t numioservices) :
   connect(&devicemgr_, &DeviceMgr::LayoutChanged, this, &MainWindow::LayoutChanged);
   connect(&devicemgr_, &DeviceMgr::LayoutRemoved, this, &MainWindow::LayoutRemoved);
   connect(&videowidgetsmgr_, &VideoWidgetsMgr::ViewDestroyed, this, &MainWindow::ViewDestroyed);
+  connect(&videowidgetsmgr_, &VideoWidgetsMgr::MapViewCreated, this, &MainWindow::MapViewCreated);
   connect(&videowidgetsmgr_, &VideoWidgetsMgr::VideoViewCreated, this, &MainWindow::VideoViewCreated);
+  connect(&videowidgetsmgr_, &VideoWidgetsMgr::VideoChartViewCreated, this, &MainWindow::VideoChartViewCreated);
   connect(&videowidgetsmgr_, &VideoWidgetsMgr::ViewDestroyed, this, &MainWindow::ViewDestroyed);
   connect(&checkforupdate_, &CheckForUpdate::UpdateAvailable, this, &MainWindow::UpdateAvailable);
   connect(ui_.actionexit, &QAction::triggered, this, &QMainWindow::close);
@@ -657,7 +659,7 @@ std::vector< std::pair< boost::shared_ptr<Device>, monocle::LAYOUT> > MainWindow
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<uint64_t> dist(1, std::numeric_limits<int64_t>::max());
-
+  
   // We want to gather up all the views from all the windows and dispatch them to the relevant devices, but then have the ability to piece it back together once we later select this layout
   std::vector< std::pair<uint64_t, VideoWidget*> > videowidgets;
   std::vector< std::pair< boost::shared_ptr<Device>, monocle::LAYOUT> > layouts;
@@ -668,7 +670,6 @@ std::vector< std::pair< boost::shared_ptr<Device>, monocle::LAYOUT> > MainWindow
     for (VideoWidget* videowidget : MainWindow::Instance()->GetVideoWidgetsMgr().GetVideoWidgets())
     {
       QWidget* window = static_cast<QWidget*>(videowidget->parent()->parent());
-
       std::vector<monocle::LAYOUTVIEW> videoviews;
       std::vector<monocle::LAYOUTVIEW> mapviews;
       for (const QSharedPointer<View>& view : videowidget->GetViews())
@@ -1268,7 +1269,7 @@ void MainWindow::DiscoverCallback(const std::vector<std::string>& addresses, con
       std::random_device rd;
       std::mt19937 gen(rd());
       std::uniform_int_distribution<uint64_t> dist(0, 20 * 1000);
-      QTimer::singleShot(dist(gen), [this, addresses, scopes]() // We randomize the time we call this, because otherwise we potentially spam the user with windows
+      QTimer::singleShot(dist(gen), this, [this, addresses, scopes]() // We randomize the time we call this, because otherwise we potentially spam the user with windows
       {
         if (!Options::Instance().GetDiscoveryHelper()) // Possible this got disabled in the delay
         {
@@ -1771,6 +1772,12 @@ void MainWindow::VideoViewCreated(const QSharedPointer<VideoView>& videoview)
 
 }
 
+void MainWindow::VideoChartViewCreated(const QSharedPointer<VideoChartView>& videochartview)
+{
+  ui_.actionsavecurrentlayoutas->setEnabled(true);
+
+}
+
 void MainWindow::ViewDestroyed(const QSharedPointer<View>& view)
 {
   if (videowidgetsmgr_.GetNumViews({ VIEWTYPE::VIEWTYPE_MONOCLE, VIEWTYPE::VIEWTYPE_MAP }) == 0)
@@ -1969,7 +1976,7 @@ void MainWindow::on_actionsavecurrentlayout_triggered()
     if ((currentlayout != currentlayouts.cend()) && (layout != layouts.cend())) // Change an existing layout
     {
       ++(*count);
-      QTimer::singleShot(std::chrono::milliseconds(1), [this, finished, device, layout = layout->second, count, errors]()
+      QTimer::singleShot(std::chrono::milliseconds(1), this, [this, finished, device, layout = layout->second, count, errors]()
       {
         savelayoutconnections_.push_back(device->ChangeLayout(layout, [this, finished, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::CHANGELAYOUTRESPONSE& changelayoutresponse)
         {
@@ -1981,7 +1988,7 @@ void MainWindow::on_actionsavecurrentlayout_triggered()
     else if (currentlayout != currentlayouts.cend()) // Remove an existing layout
     {
       ++(*count);
-      QTimer::singleShot(std::chrono::milliseconds(1), [this, finished, device, currentlayout = *currentlayout_, count, errors]()
+      QTimer::singleShot(std::chrono::milliseconds(1), this, [this, finished, device, currentlayout = *currentlayout_, count, errors]()
       {
         savelayoutconnections_.push_back(device->RemoveLayout(currentlayout, [this, finished, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::REMOVELAYOUTRESPONSE& removelayoutresponse)
         {
@@ -1993,7 +2000,7 @@ void MainWindow::on_actionsavecurrentlayout_triggered()
     else if (layout != layouts.cend()) // Add a new layout
     {
       ++(*count);
-      QTimer::singleShot(std::chrono::milliseconds(1), [this, finished, device, layout = layout->second, count, errors]()
+      QTimer::singleShot(std::chrono::milliseconds(1), this, [this, finished, device, layout = layout->second, count, errors]()
       {
         savelayoutconnections_.push_back(device->AddLayout(layout, [this, finished, count, errors](const std::chrono::steady_clock::duration latency, const monocle::client::ADDLAYOUTRESPONSE& addlayoutresponse)
         {

@@ -69,9 +69,11 @@ class Client : public boost::enable_shared_from_this<Client>
  friend class Signal<Client, CHANGETRACK2RESPONSE>;
  friend class Signal<Client, CHANGEUSERRESPONSE>;
  friend class Signal<Client, CONTROLSTREAMRESPONSE>;
+ friend class Signal<Client, CONTROLTRACKSTATISTICSSTREAMRESPONSE>;
  friend class Signal<Client, CREATEFINDMOTIONRESPONSE>;
  friend class Signal<Client, CREATEFINDOBJECTRESPONSE>;
  friend class Signal<Client, CREATESTREAMRESPONSE>;
+ friend class Signal<Client, CREATETRACKSTATISTICSSTREAMRESPONSE>;
  friend class Signal<Client, DESTROYFINDMOTIONRESPONSE>;
  friend class Signal<Client, DESTROYFINDOBJECTRESPONSE>;
  friend class Signal<Client, DESTROYSTREAMRESPONSE>;
@@ -79,6 +81,7 @@ class Client : public boost::enable_shared_from_this<Client>
  friend class Signal<Client, GETAUTHENTICATIONNONCERESPONSE>;
  friend class Signal<Client, GETCHILDFOLDERSRESPONSE>;
  friend class Signal<Client, GETFILESRESPONSE>;
+ friend class Signal<Client, GETOBJECTTRACKSTATISTICSSRESPONSE>;
  friend class Signal<Client, GETRECEIVERSRESPONSE>;
  friend class Signal<Client, GETRECORDINGSRESPONSE>;
  friend class Signal<Client, GETSNAPSHOTRESPONSE>;
@@ -228,7 +231,7 @@ class Client : public boost::enable_shared_from_this<Client>
   boost::unique_future<CONTROLSTREAMRESPONSE> ControlStreamPause(const uint64_t streamtoken, const boost::optional<uint64_t>& time);
   boost::unique_future<CREATEFINDMOTIONRESPONSE> CreateFindMotion(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height, const float sensitivity, const bool fast);
   boost::unique_future<CREATEFINDOBJECTRESPONSE> CreateFindObject(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height);
-  boost::unique_future<CREATESTREAMRESPONSE> CreateStream(const uint64_t recordingtoken, const uint32_t tracktoken);
+  boost::unique_future<CREATESTREAMRESPONSE> CreateStream(const uint64_t recordingtoken, const uint32_t trackid);
   boost::unique_future<DESTROYFINDMOTIONRESPONSE> DestroyFindMotion(const uint64_t token);
   boost::unique_future<DESTROYFINDOBJECTRESPONSE> DestroyFindObject(const uint64_t token);
   boost::unique_future<DESTROYSTREAMRESPONSE> DestroyStream(const uint64_t streamtoken);
@@ -236,6 +239,7 @@ class Client : public boost::enable_shared_from_this<Client>
   boost::unique_future<GETAUTHENTICATIONNONCERESPONSE> GetAuthenticationNonce();
   boost::unique_future<GETCHILDFOLDERSRESPONSE> GetChildFolders(const std::string& path, const bool parentpaths);
   boost::unique_future<GETFILESRESPONSE> GetFiles();
+  boost::unique_future<GETOBJECTTRACKSTATISTICSSRESPONSE> GetObjectTrackStatistics(const uint64_t recordingtoken, const uint32_t trackid, const uint64_t starttime, const uint64_t endtime, const uint64_t interval);
   boost::unique_future<GETRECEIVERSRESPONSE> GetReceivers();
   boost::unique_future<GETRECORDINGSRESPONSE> GetRecordings();
   boost::unique_future<GETSNAPSHOTRESPONSE> GetSnapshot(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time, const float x, const float y, const float width, const float height);
@@ -302,7 +306,7 @@ class Client : public boost::enable_shared_from_this<Client>
   Connection ControlStreamPause(const uint64_t streamtoken, const boost::optional<uint64_t>& time, boost::function<void(const std::chrono::steady_clock::duration, const CONTROLSTREAMRESPONSE&)> callback);
   Connection CreateFindMotion(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height, const float sensitivity, const bool fast, boost::function<void(const std::chrono::steady_clock::duration, const CREATEFINDMOTIONRESPONSE&)> callback);
   Connection CreateFindObject(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height, boost::function<void(const std::chrono::steady_clock::duration, const CREATEFINDOBJECTRESPONSE&)> callback);
-  Connection CreateStream(const uint64_t recordingtoken, const uint32_t tracktoken, boost::function<void(const std::chrono::steady_clock::duration, const CREATESTREAMRESPONSE&)> callback);
+  Connection CreateStream(const uint64_t recordingtoken, const uint32_t trackid, boost::function<void(const std::chrono::steady_clock::duration, const CREATESTREAMRESPONSE&)> callback);
   Connection DestroyFindMotion(const uint64_t token, boost::function<void(const std::chrono::steady_clock::duration, const DESTROYFINDMOTIONRESPONSE&)> callback);
   Connection DestroyFindObject(const uint64_t token, boost::function<void(const std::chrono::steady_clock::duration, const DESTROYFINDOBJECTRESPONSE&)> callback);
   Connection DestroyStream(const uint64_t streamtoken, boost::function<void(const std::chrono::steady_clock::duration, const DESTROYSTREAMRESPONSE&)> callback);
@@ -310,6 +314,7 @@ class Client : public boost::enable_shared_from_this<Client>
   Connection GetAuthenticationNonce(boost::function<void(const std::chrono::steady_clock::duration, const GETAUTHENTICATIONNONCERESPONSE&)> callback);
   Connection GetChildFolders(const std::string& path, const bool parentpaths, boost::function<void(const std::chrono::steady_clock::duration, const GETCHILDFOLDERSRESPONSE&)> callback);
   Connection GetFiles(boost::function<void(const std::chrono::steady_clock::duration, const GETFILESRESPONSE&)> callback);
+  Connection GetObjectTrackStatistics(const uint64_t recordingtoken, const uint32_t trackid, const uint64_t starttime, const uint64_t endtime, const uint64_t interval, boost::function<void(const std::chrono::steady_clock::duration, const GETOBJECTTRACKSTATISTICSSRESPONSE&)> callback);
   Connection GetReceivers(boost::function<void(const std::chrono::steady_clock::duration, const GETRECEIVERSRESPONSE&)> callback);
   Connection GetRecordings(boost::function<void(const std::chrono::steady_clock::duration, const GETRECORDINGSRESPONSE&)> callback);
   Connection GetSnapshot(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time, const float x, const float y, const float width, const float height, boost::function<void(const std::chrono::steady_clock::duration, const GETSNAPSHOTRESPONSE&)> callback);
@@ -384,7 +389,7 @@ class Client : public boost::enable_shared_from_this<Client>
   boost::system::error_code ControlStreamPauseSend(const uint64_t streamtoken, const boost::optional<uint64_t>& time);
   boost::system::error_code CreateFindMotionSend(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height, const float sensitivity, const bool fast);
   boost::system::error_code CreateFindObjectSend(const uint64_t recordingtoken, const uint32_t tracktoken, const uint64_t starttime, const uint64_t endtime, const float x, const float y, const float width, const float height);
-  boost::system::error_code CreateStreamSend(const uint64_t recordingtoken, const uint32_t tracktoken);
+  boost::system::error_code CreateStreamSend(const uint64_t recordingtoken, const uint32_t trackid);
   boost::system::error_code DestroyFindMotionSend(const uint64_t token);
   boost::system::error_code DestroyFindObjectSend(const uint64_t token);
   boost::system::error_code DestroyStreamSend(const uint64_t streamtoken);
@@ -392,6 +397,7 @@ class Client : public boost::enable_shared_from_this<Client>
   boost::system::error_code GetAuthenticationNonceSend();
   boost::system::error_code GetChildFoldersSend(const std::string& path, const bool parentpaths);
   boost::system::error_code GetFilesSend();
+  boost::system::error_code GetObjectTrackStatisticsSend(const uint64_t recordingtoken, const uint32_t trackid, const uint64_t starttime, const uint64_t endtime, const uint64_t interval);
   boost::system::error_code GetReceiversSend();
   boost::system::error_code GetRecordingsSend();
   boost::system::error_code GetSnapshotSend(const uint64_t recordingtoken, const uint32_t recordingtrackid, const uint64_t time, const float x, const float y, const float width, const float height);
@@ -515,6 +521,7 @@ class Client : public boost::enable_shared_from_this<Client>
   Signal<Client, GETAUTHENTICATIONNONCERESPONSE> getauthenticationnonce_;
   Signal<Client, GETCHILDFOLDERSRESPONSE> getchildfolders_;
   Signal<Client, GETFILESRESPONSE> getfiles_;
+  Signal<Client, GETOBJECTTRACKSTATISTICSSRESPONSE> getobjecttrackstatistics_;
   Signal<Client, GETRECEIVERSRESPONSE> getreceivers_;
   Signal<Client, GETRECORDINGSRESPONSE> getrecordings_;
   Signal<Client, GETSNAPSHOTRESPONSE> getsnapshot_;

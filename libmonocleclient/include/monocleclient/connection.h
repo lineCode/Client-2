@@ -135,7 +135,7 @@ class Connection : public QObject, public monocle::client::Client
   sock::Connection Connect(const boost::function<void(const boost::system::error_code&)> callback);
 
   monocle::client::Connection Authenticate(const std::string& username, const std::string& clientnonce, const std::string& authdigest, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::AUTHENTICATERESPONSE&)> callback);
-  monocle::client::Connection CreateStream(const uint64_t recordingtoken, const uint64_t tracktoken, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::CREATESTREAMRESPONSE&)> callback, const CONTROLSTREAMEND controlstreamendcallback, const H265CALLBACK h265callback, const H264CALLBACK h264callback, const METADATACALLBACK metadatacallback, const JPEGCALLBACK jpegcallback, const MPEG4CALLBACK mpeg4callback, const OBJECTDETECTORCALLBACK objectdetectorcallback, const NEWCODECINDEX newcodecindexcallback, void* callbackdata);
+  monocle::client::Connection CreateStream(const uint64_t recordingtoken, const uint32_t trackid, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::CREATESTREAMRESPONSE&)> callback, const CONTROLSTREAMEND controlstreamendcallback, const H265CALLBACK h265callback, const H264CALLBACK h264callback, const METADATACALLBACK metadatacallback, const JPEGCALLBACK jpegcallback, const MPEG4CALLBACK mpeg4callback, const OBJECTDETECTORCALLBACK objectdetectorcallback, const NEWCODECINDEX newcodecindexcallback, void* callbackdata);
   monocle::client::Connection DestroyStream(const uint64_t streamtoken, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::DESTROYSTREAMRESPONSE&)> callback);
   monocle::client::Connection GetAuthenticationNonce(boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::GETAUTHENTICATIONNONCERESPONSE&)> callback);
   monocle::client::Connection RemoveFile(const uint64_t token, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::REMOVEFILERESPONSE&)> callback);
@@ -147,11 +147,11 @@ class Connection : public QObject, public monocle::client::Client
   
  protected:
 
-   std::vector<QString> ConvertStrings(const std::vector<std::string>& strings) const;
+  std::vector<QString> ConvertStrings(const std::vector<std::string>& strings) const;
 
-   sock::ProxyParams proxyparams_;
-   QString address_;
-   uint16_t port_;
+  sock::ProxyParams proxyparams_;
+  QString address_;
+  uint16_t port_;
 
  private:
 

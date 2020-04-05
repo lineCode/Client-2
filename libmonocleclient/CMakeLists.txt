@@ -127,6 +127,7 @@ include/monocleclient/stream.h
 include/monocleclient/streamingprotocol.h
 include/monocleclient/updatewindow.h
 include/monocleclient/user.h
+include/monocleclient/videochartview.h
 include/monocleclient/videoview.h
 include/monocleclient/videoviewpropertieswindow.h
 include/monocleclient/videowidget.h
@@ -258,6 +259,7 @@ src/stream.cpp
 src/streamingprotocol.cpp
 src/updatewindow.cpp
 src/user.cpp
+src/videochartview.cpp
 src/videoview.cpp
 src/videoviewpropertieswindow.cpp
 src/videowidget.cpp
