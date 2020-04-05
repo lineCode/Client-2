@@ -291,6 +291,7 @@ class MainWindow : public QMainWindow
   void LayoutRemoved(const uint64_t token);
   void MapViewCreated(const QSharedPointer<MapView>& mapview);
   void VideoViewCreated(const QSharedPointer<VideoView>& videoview);
+  void VideoChartViewCreated(const QSharedPointer<VideoChartView>& videochartview);
   void ViewDestroyed(const QSharedPointer<View>& view);
   void TrayActivated(QSystemTrayIcon::ActivationReason reason);
   void TrayRestore();

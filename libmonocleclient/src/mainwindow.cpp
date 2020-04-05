@@ -244,7 +244,7 @@ MainWindow::MainWindow(const uint32_t numioservices) :
   connect(&videowidgetsmgr_, &VideoWidgetsMgr::ViewDestroyed, this, &MainWindow::ViewDestroyed);
   connect(&videowidgetsmgr_, &VideoWidgetsMgr::MapViewCreated, this, &MainWindow::MapViewCreated);
   connect(&videowidgetsmgr_, &VideoWidgetsMgr::VideoViewCreated, this, &MainWindow::VideoViewCreated);
-  //TODO connect(&videowidgetsmgr_, &VideoWidgetsMgr::VideoChartViewCreated, this, &MainWindow::VideoChartViewCreated);
+  connect(&videowidgetsmgr_, &VideoWidgetsMgr::VideoChartViewCreated, this, &MainWindow::VideoChartViewCreated);
   connect(&videowidgetsmgr_, &VideoWidgetsMgr::ViewDestroyed, this, &MainWindow::ViewDestroyed);
   connect(&checkforupdate_, &CheckForUpdate::UpdateAvailable, this, &MainWindow::UpdateAvailable);
   connect(ui_.actionexit, &QAction::triggered, this, &QMainWindow::close);
@@ -670,7 +670,6 @@ std::vector< std::pair< boost::shared_ptr<Device>, monocle::LAYOUT> > MainWindow
     for (VideoWidget* videowidget : MainWindow::Instance()->GetVideoWidgetsMgr().GetVideoWidgets())
     {
       QWidget* window = static_cast<QWidget*>(videowidget->parent()->parent());
-//TODO videochartviews?
       std::vector<monocle::LAYOUTVIEW> videoviews;
       std::vector<monocle::LAYOUTVIEW> mapviews;
       for (const QSharedPointer<View>& view : videowidget->GetViews())
@@ -1768,6 +1767,12 @@ void MainWindow::MapViewCreated(const QSharedPointer<MapView>& mapview)
 }
 
 void MainWindow::VideoViewCreated(const QSharedPointer<VideoView>& videoview)
+{
+  ui_.actionsavecurrentlayoutas->setEnabled(true);
+
+}
+
+void MainWindow::VideoChartViewCreated(const QSharedPointer<VideoChartView>& videochartview)
 {
   ui_.actionsavecurrentlayoutas->setEnabled(true);
 

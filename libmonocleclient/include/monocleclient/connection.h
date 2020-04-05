@@ -147,15 +147,15 @@ class Connection : public QObject, public monocle::client::Client
   
  protected:
 
-   std::vector<QString> ConvertStrings(const std::vector<std::string>& strings) const;
+  std::vector<QString> ConvertStrings(const std::vector<std::string>& strings) const;
 
-   sock::ProxyParams proxyparams_;
-   QString address_;
-   uint16_t port_;
+  sock::ProxyParams proxyparams_;
+  QString address_;
+  uint16_t port_;
 
  private:
 
-   std::vector<Stream> streams_;
+  std::vector<Stream> streams_;
 
  signals:
 
