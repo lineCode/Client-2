@@ -30,7 +30,7 @@ inline const char * const *EnumNamesMetadataFrameType() {
 }
 
 inline const char *EnumNameMetadataFrameType(MetadataFrameType e) {
-  if (e < MetadataFrameType::ONVIF_XML || e > MetadataFrameType::ONVIF_XML) return "";
+  if (flatbuffers::IsOutRange(e, MetadataFrameType::ONVIF_XML, MetadataFrameType::ONVIF_XML)) return "";
   const size_t index = static_cast<size_t>(e) - static_cast<size_t>(MetadataFrameType::ONVIF_XML);
   return EnumNamesMetadataFrameType()[index];
 }

@@ -11,8 +11,10 @@
 namespace monocle {
 
 struct ChangeReceiverRequest;
+struct ChangeReceiverRequestBuilder;
 
 struct ChangeReceiverRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef ChangeReceiverRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_MODE = 6,
@@ -57,6 +59,7 @@ struct ChangeReceiverRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Tabl
 };
 
 struct ChangeReceiverRequestBuilder {
+  typedef ChangeReceiverRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -81,7 +84,6 @@ struct ChangeReceiverRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ChangeReceiverRequestBuilder &operator=(const ChangeReceiverRequestBuilder &);
   flatbuffers::Offset<ChangeReceiverRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<ChangeReceiverRequest>(end);

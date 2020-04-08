@@ -11,8 +11,10 @@
 namespace monocle {
 
 struct ObjectDetectorFrameHeader;
+struct ObjectDetectorFrameHeaderBuilder;
 
 struct ObjectDetectorFrameHeader FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef ObjectDetectorFrameHeaderBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_PLAYREQUESTINDEX = 6,
@@ -68,6 +70,7 @@ struct ObjectDetectorFrameHeader FLATBUFFERS_FINAL_CLASS : private flatbuffers::
 };
 
 struct ObjectDetectorFrameHeaderBuilder {
+  typedef ObjectDetectorFrameHeader Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -101,7 +104,6 @@ struct ObjectDetectorFrameHeaderBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ObjectDetectorFrameHeaderBuilder &operator=(const ObjectDetectorFrameHeaderBuilder &);
   flatbuffers::Offset<ObjectDetectorFrameHeader> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<ObjectDetectorFrameHeader>(end);

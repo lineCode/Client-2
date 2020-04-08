@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct MPEG4FrameHeader;
+struct MPEG4FrameHeaderBuilder;
 
 struct MPEG4FrameHeader FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef MPEG4FrameHeaderBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_PLAYREQUESTINDEX = 6,
@@ -61,6 +63,7 @@ struct MPEG4FrameHeader FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct MPEG4FrameHeaderBuilder {
+  typedef MPEG4FrameHeader Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -91,7 +94,6 @@ struct MPEG4FrameHeaderBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  MPEG4FrameHeaderBuilder &operator=(const MPEG4FrameHeaderBuilder &);
   flatbuffers::Offset<MPEG4FrameHeader> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<MPEG4FrameHeader>(end);

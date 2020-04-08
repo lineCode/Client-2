@@ -74,22 +74,22 @@ monocle::RecordingJobState Recording::GetState(const QSharedPointer<client::Reco
   return activejob_->GetState(track);
 }
 
-QSharedPointer<client::RecordingTrack> Recording::AddTrack(const monocle::RECORDINGTRACK& track)
+QSharedPointer<client::RecordingTrack> Recording::AddTrack(const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsignature, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::INDEX>& indices, const std::vector<monocle::CODECINDEX>& codecindices, const std::vector<DATASNAPSHOT>& totaltrackdata)
 {
-  std::vector< std::pair<uint64_t, uint64_t> > indices;
-  indices.reserve(track.indices_.size());
-  for (const monocle::INDEX& index : track.indices_)
+  std::vector< std::pair<uint64_t, uint64_t> > tmp;
+  tmp.reserve(indices.size());
+  for (const monocle::INDEX& index : indices)
   {
-    indices.push_back(std::make_pair(index.starttime(), index.endtime()));
+    tmp.push_back(std::make_pair(index.starttime(), index.endtime()));
 
   }
 
-  tracks_.push_back(QSharedPointer<client::RecordingTrack>::create(track.id_, QString::fromStdString(track.token_), track.tracktype_, QString::fromStdString(track.description_), track.fixedfiles_, track.digitalsignature_, track.encrypt_, track.flushfrequency_, track.files_, indices, track.codecindices_, track.totaltrackdata_));
+  tracks_.push_back(QSharedPointer<client::RecordingTrack>::create(id, QString::fromStdString(token), tracktype, QString::fromStdString(description), fixedfiles, digitalsignature, encrypt, flushfrequency, files, tmp, codecindices, totaltrackdata));
   emit TrackAdded(tracks_.back());
   return tracks_.back();
 }
 
-QSharedPointer<client::RecordingTrack> Recording::ChangeTrack(const uint32_t id, const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices, const std::pair<uint64_t, uint64_t>& totaltrackdata)
+QSharedPointer<client::RecordingTrack> Recording::ChangeTrack(const uint32_t id, const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices, const std::vector<DATASNAPSHOT>& totaltrackdata)
 {
   auto track = std::find_if(tracks_.begin(), tracks_.end(), [id](const QSharedPointer<client::RecordingTrack>& track) { return (track->GetId() == id); });
   if (track == tracks_.end())

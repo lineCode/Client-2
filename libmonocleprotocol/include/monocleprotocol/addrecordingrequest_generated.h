@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct AddRecordingRequest;
+struct AddRecordingRequestBuilder;
 
 struct AddRecordingRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef AddRecordingRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_SOURCEID = 4,
     VT_NAME = 6,
@@ -71,6 +73,7 @@ struct AddRecordingRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table 
 };
 
 struct AddRecordingRequestBuilder {
+  typedef AddRecordingRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_sourceid(flatbuffers::Offset<flatbuffers::String> sourceid) {
@@ -104,7 +107,6 @@ struct AddRecordingRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  AddRecordingRequestBuilder &operator=(const AddRecordingRequestBuilder &);
   flatbuffers::Offset<AddRecordingRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<AddRecordingRequest>(end);

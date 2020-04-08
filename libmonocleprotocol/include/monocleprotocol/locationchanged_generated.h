@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct LocationChanged;
+struct LocationChangedBuilder;
 
 struct LocationChanged FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef LocationChangedBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_LATITUDE = 4,
     VT_LONGITUDE = 6
@@ -32,6 +34,7 @@ struct LocationChanged FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct LocationChangedBuilder {
+  typedef LocationChanged Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_latitude(flatbuffers::Offset<flatbuffers::String> latitude) {
@@ -44,7 +47,6 @@ struct LocationChangedBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  LocationChangedBuilder &operator=(const LocationChangedBuilder &);
   flatbuffers::Offset<LocationChanged> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<LocationChanged>(end);

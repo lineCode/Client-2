@@ -11,8 +11,10 @@
 namespace monocle {
 
 struct ReceiverStateChanged;
+struct ReceiverStateChangedBuilder;
 
 struct ReceiverStateChanged FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef ReceiverStateChangedBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECEIVER = 4,
     VT_STATE = 6
@@ -32,6 +34,7 @@ struct ReceiverStateChanged FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table
 };
 
 struct ReceiverStateChangedBuilder {
+  typedef ReceiverStateChanged Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_receiver(uint64_t receiver) {
@@ -44,7 +47,6 @@ struct ReceiverStateChangedBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ReceiverStateChangedBuilder &operator=(const ReceiverStateChangedBuilder &);
   flatbuffers::Offset<ReceiverStateChanged> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<ReceiverStateChanged>(end);

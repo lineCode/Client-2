@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct GroupAdded;
+struct GroupAddedBuilder;
 
 struct GroupAdded FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef GroupAddedBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_NAME = 6,
@@ -62,6 +64,7 @@ struct GroupAdded FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct GroupAddedBuilder {
+  typedef GroupAdded Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -92,7 +95,6 @@ struct GroupAddedBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  GroupAddedBuilder &operator=(const GroupAddedBuilder &);
   flatbuffers::Offset<GroupAdded> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<GroupAdded>(end);

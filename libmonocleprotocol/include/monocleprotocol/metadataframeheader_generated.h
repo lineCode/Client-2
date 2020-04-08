@@ -11,8 +11,10 @@
 namespace monocle {
 
 struct MetadataFrameHeader;
+struct MetadataFrameHeaderBuilder;
 
 struct MetadataFrameHeader FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef MetadataFrameHeaderBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_PLAYREQUESTINDEX = 6,
@@ -68,6 +70,7 @@ struct MetadataFrameHeader FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table 
 };
 
 struct MetadataFrameHeaderBuilder {
+  typedef MetadataFrameHeader Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -101,7 +104,6 @@ struct MetadataFrameHeaderBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  MetadataFrameHeaderBuilder &operator=(const MetadataFrameHeaderBuilder &);
   flatbuffers::Offset<MetadataFrameHeader> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<MetadataFrameHeader>(end);

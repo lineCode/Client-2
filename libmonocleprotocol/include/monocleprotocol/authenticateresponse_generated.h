@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct AuthenticateResponse;
+struct AuthenticateResponseBuilder;
 
 struct AuthenticateResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef AuthenticateResponseBuilder Builder;
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            verifier.EndTable();
@@ -18,13 +20,13 @@ struct AuthenticateResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table
 };
 
 struct AuthenticateResponseBuilder {
+  typedef AuthenticateResponse Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   explicit AuthenticateResponseBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  AuthenticateResponseBuilder &operator=(const AuthenticateResponseBuilder &);
   flatbuffers::Offset<AuthenticateResponse> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<AuthenticateResponse>(end);

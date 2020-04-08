@@ -11,8 +11,10 @@
 namespace monocle {
 
 struct GuiOrderChanged;
+struct GuiOrderChangedBuilder;
 
 struct GuiOrderChanged FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef GuiOrderChangedBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDINGS = 4,
     VT_MAPS = 6
@@ -36,6 +38,7 @@ struct GuiOrderChanged FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct GuiOrderChangedBuilder {
+  typedef GuiOrderChanged Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_recordings(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::GuiOrder>>> recordings) {
@@ -48,7 +51,6 @@ struct GuiOrderChangedBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  GuiOrderChangedBuilder &operator=(const GuiOrderChangedBuilder &);
   flatbuffers::Offset<GuiOrderChanged> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<GuiOrderChanged>(end);

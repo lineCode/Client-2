@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct ChangeLayoutNameRequest;
+struct ChangeLayoutNameRequestBuilder;
 
 struct ChangeLayoutNameRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef ChangeLayoutNameRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_NAME = 6
@@ -31,6 +33,7 @@ struct ChangeLayoutNameRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Ta
 };
 
 struct ChangeLayoutNameRequestBuilder {
+  typedef ChangeLayoutNameRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -43,7 +46,6 @@ struct ChangeLayoutNameRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ChangeLayoutNameRequestBuilder &operator=(const ChangeLayoutNameRequestBuilder &);
   flatbuffers::Offset<ChangeLayoutNameRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<ChangeLayoutNameRequest>(end);

@@ -13,8 +13,10 @@
 namespace monocle {
 
 struct GetFilesResponse;
+struct GetFilesResponseBuilder;
 
 struct GetFilesResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef GetFilesResponseBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_FILES = 4
   };
@@ -31,6 +33,7 @@ struct GetFilesResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct GetFilesResponseBuilder {
+  typedef GetFilesResponse Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_files(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::File>>> files) {
@@ -40,7 +43,6 @@ struct GetFilesResponseBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  GetFilesResponseBuilder &operator=(const GetFilesResponseBuilder &);
   flatbuffers::Offset<GetFilesResponse> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<GetFilesResponse>(end);

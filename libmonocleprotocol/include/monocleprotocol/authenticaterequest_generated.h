@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct AuthenticateRequest;
+struct AuthenticateRequestBuilder;
 
 struct AuthenticateRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef AuthenticateRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_USERNAME = 4,
     VT_CLIENTNONCE = 6,
@@ -38,6 +40,7 @@ struct AuthenticateRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table 
 };
 
 struct AuthenticateRequestBuilder {
+  typedef AuthenticateRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_username(flatbuffers::Offset<flatbuffers::String> username) {
@@ -53,7 +56,6 @@ struct AuthenticateRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  AuthenticateRequestBuilder &operator=(const AuthenticateRequestBuilder &);
   flatbuffers::Offset<AuthenticateRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<AuthenticateRequest>(end);

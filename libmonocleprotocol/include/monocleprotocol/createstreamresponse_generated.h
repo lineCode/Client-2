@@ -12,8 +12,10 @@
 namespace monocle {
 
 struct CreateStreamResponse;
+struct CreateStreamResponseBuilder;
 
 struct CreateStreamResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef CreateStreamResponseBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_CODECINDICES = 6
@@ -35,6 +37,7 @@ struct CreateStreamResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table
 };
 
 struct CreateStreamResponseBuilder {
+  typedef CreateStreamResponse Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -47,7 +50,6 @@ struct CreateStreamResponseBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  CreateStreamResponseBuilder &operator=(const CreateStreamResponseBuilder &);
   flatbuffers::Offset<CreateStreamResponse> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<CreateStreamResponse>(end);

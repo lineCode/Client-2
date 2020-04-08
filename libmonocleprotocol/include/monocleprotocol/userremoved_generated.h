@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct UserRemoved;
+struct UserRemovedBuilder;
 
 struct UserRemoved FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef UserRemovedBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4
   };
@@ -25,6 +27,7 @@ struct UserRemoved FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct UserRemovedBuilder {
+  typedef UserRemoved Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -34,7 +37,6 @@ struct UserRemovedBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  UserRemovedBuilder &operator=(const UserRemovedBuilder &);
   flatbuffers::Offset<UserRemoved> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<UserRemoved>(end);

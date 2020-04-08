@@ -39,7 +39,7 @@ inline const char * const *EnumNamesFileState() {
 }
 
 inline const char *EnumNameFileState(FileState e) {
-  if (e < FileState::Unmounted || e > FileState::Unmounting) return "";
+  if (flatbuffers::IsOutRange(e, FileState::Unmounted, FileState::Unmounting)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesFileState()[index];
 }

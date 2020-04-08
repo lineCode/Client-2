@@ -1,5 +1,6 @@
 include "codecindex.fbs";
 include "index.fbs";
+include "trackdata.fbs";
 include "tracktype.fbs";
 
 namespace monocle;
@@ -19,4 +20,5 @@ table RecordingTrack
   codecindices:[CodecIndex] (id:10);
   totaltrackdatatime:uint64 (id:11);
   totaltrackdata:uint64 (id:12);
+  totaltrackdatas:[TRACKDATA] (id:13);
 }

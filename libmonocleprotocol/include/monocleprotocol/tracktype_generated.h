@@ -39,7 +39,7 @@ inline const char * const *EnumNamesTrackType() {
 }
 
 inline const char *EnumNameTrackType(TrackType e) {
-  if (e < TrackType::Video || e > TrackType::ObjectDetector) return "";
+  if (flatbuffers::IsOutRange(e, TrackType::Video, TrackType::ObjectDetector)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesTrackType()[index];
 }

@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct DiscoveryHello;
+struct DiscoveryHelloBuilder;
 
 struct DiscoveryHello FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef DiscoveryHelloBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_ADDRESSES = 4,
     VT_SCOPES = 6
@@ -34,6 +36,7 @@ struct DiscoveryHello FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct DiscoveryHelloBuilder {
+  typedef DiscoveryHello Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_addresses(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<flatbuffers::String>>> addresses) {
@@ -46,7 +49,6 @@ struct DiscoveryHelloBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  DiscoveryHelloBuilder &operator=(const DiscoveryHelloBuilder &);
   flatbuffers::Offset<DiscoveryHello> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<DiscoveryHello>(end);

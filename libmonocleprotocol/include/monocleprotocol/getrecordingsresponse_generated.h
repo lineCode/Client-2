@@ -17,13 +17,16 @@
 #include "recordingjobstate_generated.h"
 #include "recordingtrack_generated.h"
 #include "token_generated.h"
+#include "trackdata_generated.h"
 #include "tracktype_generated.h"
 
 namespace monocle {
 
 struct GetRecordingsResponse;
+struct GetRecordingsResponseBuilder;
 
 struct GetRecordingsResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef GetRecordingsResponseBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDINGS = 4
   };
@@ -40,6 +43,7 @@ struct GetRecordingsResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Tabl
 };
 
 struct GetRecordingsResponseBuilder {
+  typedef GetRecordingsResponse Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_recordings(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::Recording>>> recordings) {
@@ -49,7 +53,6 @@ struct GetRecordingsResponseBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  GetRecordingsResponseBuilder &operator=(const GetRecordingsResponseBuilder &);
   flatbuffers::Offset<GetRecordingsResponse> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<GetRecordingsResponse>(end);

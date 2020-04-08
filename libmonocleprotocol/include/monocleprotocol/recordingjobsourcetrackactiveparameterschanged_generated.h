@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct RecordingJobSourceTrackActiveParametersChanged;
+struct RecordingJobSourceTrackActiveParametersChangedBuilder;
 
 struct RecordingJobSourceTrackActiveParametersChanged FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef RecordingJobSourceTrackActiveParametersChangedBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDING = 4,
     VT_RECORDINGJOB = 6,
@@ -47,6 +49,7 @@ struct RecordingJobSourceTrackActiveParametersChanged FLATBUFFERS_FINAL_CLASS : 
 };
 
 struct RecordingJobSourceTrackActiveParametersChangedBuilder {
+  typedef RecordingJobSourceTrackActiveParametersChanged Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_recording(uint64_t recording) {
@@ -68,7 +71,6 @@ struct RecordingJobSourceTrackActiveParametersChangedBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  RecordingJobSourceTrackActiveParametersChangedBuilder &operator=(const RecordingJobSourceTrackActiveParametersChangedBuilder &);
   flatbuffers::Offset<RecordingJobSourceTrackActiveParametersChanged> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<RecordingJobSourceTrackActiveParametersChanged>(end);

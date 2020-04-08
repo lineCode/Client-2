@@ -45,7 +45,7 @@ inline const char * const *EnumNamesCodec() {
 }
 
 inline const char *EnumNameCodec(Codec e) {
-  if (e < Codec::METADATA || e > Codec::OBJECTDETECTOR) return "";
+  if (flatbuffers::IsOutRange(e, Codec::METADATA, Codec::OBJECTDETECTOR)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesCodec()[index];
 }

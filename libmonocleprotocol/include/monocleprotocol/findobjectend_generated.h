@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct FindObjectEnd;
+struct FindObjectEndBuilder;
 
 struct FindObjectEnd FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef FindObjectEndBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_RET = 6
@@ -30,6 +32,7 @@ struct FindObjectEnd FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct FindObjectEndBuilder {
+  typedef FindObjectEnd Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -42,7 +45,6 @@ struct FindObjectEndBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  FindObjectEndBuilder &operator=(const FindObjectEndBuilder &);
   flatbuffers::Offset<FindObjectEnd> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<FindObjectEnd>(end);

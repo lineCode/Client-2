@@ -42,7 +42,7 @@ inline const char * const *EnumNamesStreamingProtocol() {
 }
 
 inline const char *EnumNameStreamingProtocol(StreamingProtocol e) {
-  if (e < StreamingProtocol::UDPUnicast || e > StreamingProtocol::HTTPUnicast) return "";
+  if (flatbuffers::IsOutRange(e, StreamingProtocol::UDPUnicast, StreamingProtocol::HTTPUnicast)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesStreamingProtocol()[index];
 }

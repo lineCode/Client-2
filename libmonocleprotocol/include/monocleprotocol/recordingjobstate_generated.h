@@ -36,7 +36,7 @@ inline const char * const *EnumNamesRecordingJobState() {
 }
 
 inline const char *EnumNameRecordingJobState(RecordingJobState e) {
-  if (e < RecordingJobState::Idle || e > RecordingJobState::Error) return "";
+  if (flatbuffers::IsOutRange(e, RecordingJobState::Idle, RecordingJobState::Error)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesRecordingJobState()[index];
 }

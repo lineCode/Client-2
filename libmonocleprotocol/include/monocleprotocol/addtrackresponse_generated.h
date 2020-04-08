@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct AddTrackResponse;
+struct AddTrackResponseBuilder;
 
 struct AddTrackResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef AddTrackResponseBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4
   };
@@ -25,6 +27,7 @@ struct AddTrackResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct AddTrackResponseBuilder {
+  typedef AddTrackResponse Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint32_t token) {
@@ -34,7 +37,6 @@ struct AddTrackResponseBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  AddTrackResponseBuilder &operator=(const AddTrackResponseBuilder &);
   flatbuffers::Offset<AddTrackResponse> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<AddTrackResponse>(end);

@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct GetObjectTrackStatisticsRequest;
+struct GetObjectTrackStatisticsRequestBuilder;
 
 struct GetObjectTrackStatisticsRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef GetObjectTrackStatisticsRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDINGTOKEN = 4,
     VT_TRACKID = 6,
@@ -45,6 +47,7 @@ struct GetObjectTrackStatisticsRequest FLATBUFFERS_FINAL_CLASS : private flatbuf
 };
 
 struct GetObjectTrackStatisticsRequestBuilder {
+  typedef GetObjectTrackStatisticsRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_recordingtoken(uint64_t recordingtoken) {
@@ -66,7 +69,6 @@ struct GetObjectTrackStatisticsRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  GetObjectTrackStatisticsRequestBuilder &operator=(const GetObjectTrackStatisticsRequestBuilder &);
   flatbuffers::Offset<GetObjectTrackStatisticsRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<GetObjectTrackStatisticsRequest>(end);

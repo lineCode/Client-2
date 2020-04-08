@@ -12,6 +12,7 @@
 #include <QSharedPointer>
 #include <QString>
 
+#include "connection.h"
 #include "recordingtrack.h"
 
 ///// Namespaces /////
@@ -43,8 +44,8 @@ class Recording : public QObject
   QSharedPointer<client::RecordingTrack> GetTrack(const uint32_t trackid) const;
   monocle::RecordingJobState GetState(const QSharedPointer<client::RecordingTrack>& track) const;
 
-  QSharedPointer<client::RecordingTrack> AddTrack(const monocle::RECORDINGTRACK& track);
-  QSharedPointer<client::RecordingTrack> ChangeTrack(const uint32_t id, const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices, const std::pair<uint64_t, uint64_t>& totaltrackdata);
+  QSharedPointer<client::RecordingTrack> AddTrack(const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsignature, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::INDEX>& indices, const std::vector<monocle::CODECINDEX>& codecindices, const std::vector<DATASNAPSHOT>& totaltrackdata);
+  QSharedPointer<client::RecordingTrack> ChangeTrack(const uint32_t id, const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices, const std::vector<DATASNAPSHOT>& totaltrackdata);
   void AddJob(const QSharedPointer<client::RecordingJob>& job);
   QSharedPointer<client::RecordingJob> ChangeJob(const uint64_t token, const QString& name, const bool enabled, const uint64_t priority);
   void RemoveJob(const uint64_t token);

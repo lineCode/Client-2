@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct RemoveMapRequest;
+struct RemoveMapRequestBuilder;
 
 struct RemoveMapRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef RemoveMapRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4
   };
@@ -25,6 +27,7 @@ struct RemoveMapRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct RemoveMapRequestBuilder {
+  typedef RemoveMapRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -34,7 +37,6 @@ struct RemoveMapRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  RemoveMapRequestBuilder &operator=(const RemoveMapRequestBuilder &);
   flatbuffers::Offset<RemoveMapRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<RemoveMapRequest>(end);

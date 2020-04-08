@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct ControlStreamLiveRequest;
+struct ControlStreamLiveRequestBuilder;
 
 struct ControlStreamLiveRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef ControlStreamLiveRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_PLAYREQUESTINDEX = 6
@@ -30,6 +32,7 @@ struct ControlStreamLiveRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::T
 };
 
 struct ControlStreamLiveRequestBuilder {
+  typedef ControlStreamLiveRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -42,7 +45,6 @@ struct ControlStreamLiveRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ControlStreamLiveRequestBuilder &operator=(const ControlStreamLiveRequestBuilder &);
   flatbuffers::Offset<ControlStreamLiveRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<ControlStreamLiveRequest>(end);
