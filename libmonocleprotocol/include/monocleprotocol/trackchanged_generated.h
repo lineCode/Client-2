@@ -8,6 +8,7 @@
 
 #include "codec_generated.h"
 #include "codecindex_generated.h"
+#include "trackdata_generated.h"
 #include "tracktype_generated.h"
 
 namespace monocle {
@@ -30,7 +31,8 @@ struct TrackChanged FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_FILES = 22,
     VT_CODECINDICES = 24,
     VT_TOTALTRACKDATATIME = 26,
-    VT_TOTALTRACKDATA = 28
+    VT_TOTALTRACKDATA = 28,
+    VT_TOTALTRACKDATAS = 30
   };
   uint64_t recordingtoken() const {
     return GetField<uint64_t>(VT_RECORDINGTOKEN, 0);
@@ -71,6 +73,9 @@ struct TrackChanged FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint64_t totaltrackdata() const {
     return GetField<uint64_t>(VT_TOTALTRACKDATA, 0);
   }
+  const flatbuffers::Vector<const monocle::TRACKDATA *> *totaltrackdatas() const {
+    return GetPointer<const flatbuffers::Vector<const monocle::TRACKDATA *> *>(VT_TOTALTRACKDATAS);
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_RECORDINGTOKEN) &&
@@ -91,6 +96,8 @@ struct TrackChanged FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            verifier.VerifyVectorOfTables(codecindices()) &&
            VerifyField<uint64_t>(verifier, VT_TOTALTRACKDATATIME) &&
            VerifyField<uint64_t>(verifier, VT_TOTALTRACKDATA) &&
+           VerifyOffset(verifier, VT_TOTALTRACKDATAS) &&
+           verifier.VerifyVector(totaltrackdatas()) &&
            verifier.EndTable();
   }
 };
@@ -138,6 +145,9 @@ struct TrackChangedBuilder {
   void add_totaltrackdata(uint64_t totaltrackdata) {
     fbb_.AddElement<uint64_t>(TrackChanged::VT_TOTALTRACKDATA, totaltrackdata, 0);
   }
+  void add_totaltrackdatas(flatbuffers::Offset<flatbuffers::Vector<const monocle::TRACKDATA *>> totaltrackdatas) {
+    fbb_.AddOffset(TrackChanged::VT_TOTALTRACKDATAS, totaltrackdatas);
+  }
   explicit TrackChangedBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -163,11 +173,13 @@ inline flatbuffers::Offset<TrackChanged> CreateTrackChanged(
     flatbuffers::Offset<flatbuffers::Vector<uint64_t>> files = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::CodecIndex>>> codecindices = 0,
     uint64_t totaltrackdatatime = 0,
-    uint64_t totaltrackdata = 0) {
+    uint64_t totaltrackdata = 0,
+    flatbuffers::Offset<flatbuffers::Vector<const monocle::TRACKDATA *>> totaltrackdatas = 0) {
   TrackChangedBuilder builder_(_fbb);
   builder_.add_totaltrackdata(totaltrackdata);
   builder_.add_totaltrackdatatime(totaltrackdatatime);
   builder_.add_recordingtoken(recordingtoken);
+  builder_.add_totaltrackdatas(totaltrackdatas);
   builder_.add_codecindices(codecindices);
   builder_.add_files(files);
   builder_.add_flushfrequency(flushfrequency);
@@ -195,11 +207,13 @@ inline flatbuffers::Offset<TrackChanged> CreateTrackChangedDirect(
     const std::vector<uint64_t> *files = nullptr,
     const std::vector<flatbuffers::Offset<monocle::CodecIndex>> *codecindices = nullptr,
     uint64_t totaltrackdatatime = 0,
-    uint64_t totaltrackdata = 0) {
+    uint64_t totaltrackdata = 0,
+    const std::vector<monocle::TRACKDATA> *totaltrackdatas = nullptr) {
   auto token__ = token ? _fbb.CreateString(token) : 0;
   auto description__ = description ? _fbb.CreateString(description) : 0;
   auto files__ = files ? _fbb.CreateVector<uint64_t>(*files) : 0;
   auto codecindices__ = codecindices ? _fbb.CreateVector<flatbuffers::Offset<monocle::CodecIndex>>(*codecindices) : 0;
+  auto totaltrackdatas__ = totaltrackdatas ? _fbb.CreateVectorOfStructs<monocle::TRACKDATA>(*totaltrackdatas) : 0;
   return monocle::CreateTrackChanged(
       _fbb,
       recordingtoken,
@@ -214,7 +228,8 @@ inline flatbuffers::Offset<TrackChanged> CreateTrackChangedDirect(
       files__,
       codecindices__,
       totaltrackdatatime,
-      totaltrackdata);
+      totaltrackdata,
+      totaltrackdatas__);
 }
 
 }  // namespace monocle

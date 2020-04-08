@@ -17,6 +17,7 @@
 #include "recordingjobstate_generated.h"
 #include "recordingtrack_generated.h"
 #include "token_generated.h"
+#include "trackdata_generated.h"
 #include "tracktype_generated.h"
 
 namespace monocle {

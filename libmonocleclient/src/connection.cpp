@@ -506,16 +506,28 @@ void Connection::ServerLogMessage(const uint64_t time, const monocle::Severity s
 
 }
 
-void Connection::TrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices, const std::pair<uint32_t, uint64_t>& totaltrackdata)
+void Connection::TrackAdded(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices, const std::vector< std::pair<uint64_t, uint64_t> >& totaltrackdata)
 {
-  emit SignalTrackAdded(recordingtoken, id, token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files, codecindices, DATASNAPSHOT(totaltrackdata.first, totaltrackdata.second));
+  std::vector<client::DATASNAPSHOT> totaltrackdatas;
+  totaltrackdatas.reserve(totaltrackdata.size());
+  for (const std::pair<uint64_t, uint64_t>& i : totaltrackdata)
+  {
+    totaltrackdatas.push_back(client::DATASNAPSHOT(i.first, i.second));
 
+  }
+  emit SignalTrackAdded(recordingtoken, id, token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files, codecindices, totaltrackdatas);
 }
 
-void Connection::TrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices, const std::pair<uint32_t, uint64_t>& totaltrackdata)
+void Connection::TrackChanged(const uint64_t recordingtoken, const uint32_t id, const std::string& token, const monocle::TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices, const std::vector< std::pair<uint64_t, uint64_t> >& totaltrackdata)
 {
-  emit SignalTrackChanged(recordingtoken, id, token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files, codecindices, DATASNAPSHOT(totaltrackdata.first, totaltrackdata.second));
+  std::vector<client::DATASNAPSHOT> totaltrackdatas;
+  totaltrackdatas.reserve(totaltrackdata.size());
+  for (const std::pair<uint64_t, uint64_t>& i : totaltrackdata)
+  {
+    totaltrackdatas.push_back(client::DATASNAPSHOT(i.first, i.second));
 
+  }
+  emit SignalTrackChanged(recordingtoken, id, token, tracktype, description, fixedfiles, digitalsigning, encrypt, flushfrequency, files, codecindices, totaltrackdatas);
 }
 
 void Connection::TrackDeleteData(const uint64_t recording, const uint32_t trackid, const boost::optional<uint64_t>& start, const boost::optional<uint64_t>& end)

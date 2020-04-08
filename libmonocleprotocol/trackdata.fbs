@@ -1,0 +1,7 @@
+namespace monocle;
+
+struct TRACKDATA
+{
+  time:uint64 (id:0);
+  totaldata:uint64 (id:1);
+}

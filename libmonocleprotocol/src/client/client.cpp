@@ -7516,7 +7516,23 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         }
       }
 
-      TrackAdded(trackadded->recordingtoken(), trackadded->id(), token, trackadded->tracktype(), description, trackadded->fixedfiles(), trackadded->digitalsigning(), trackadded->encrypt(), trackadded->flushfrequency(), files, codecindices, std::make_pair(trackadded->totaltrackdatatime(), trackadded->totaltrackdata()));
+      std::vector< std::pair<uint64_t, uint64_t> > totaltrackdatas;
+      if (trackadded->totaltrackdatas())
+      {
+        totaltrackdatas.reserve(trackadded->totaltrackdatas()->size());
+        for (const monocle::TRACKDATA* trackdata : *trackadded->totaltrackdatas())
+        {
+          totaltrackdatas.push_back(std::make_pair(trackdata->time(), trackdata->totaldata()));
+
+        }
+      }
+      else
+      {
+        totaltrackdatas.push_back(std::make_pair(trackadded->totaltrackdatatime(), trackadded->totaltrackdata()));
+
+      }
+
+      TrackAdded(trackadded->recordingtoken(), trackadded->id(), token, trackadded->tracktype(), description, trackadded->fixedfiles(), trackadded->digitalsigning(), trackadded->encrypt(), trackadded->flushfrequency(), files, codecindices, totaltrackdatas);
       break;
     }
     case Message::TRACKCHANGED:
@@ -7576,7 +7592,23 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
         }
       }
 
-      TrackChanged(trackchanged->recordingtoken(), trackchanged->id(), token, trackchanged->tracktype(), description, trackchanged->fixedfiles(), trackchanged->digitalsigning(), trackchanged->encrypt(), trackchanged->flushfrequency(), files, codecindices, std::make_pair(trackchanged->totaltrackdatatime(), trackchanged->totaltrackdata()));
+      std::vector< std::pair<uint64_t, uint64_t> > totaltrackdatas;
+      if (trackchanged->totaltrackdatas())
+      {
+        totaltrackdatas.reserve(trackchanged->totaltrackdatas()->size());
+        for (const monocle::TRACKDATA* trackdata : *trackchanged->totaltrackdatas())
+        {
+          totaltrackdatas.push_back(std::make_pair(trackdata->time(), trackdata->totaldata()));
+
+        }
+      }
+      else
+      {
+        totaltrackdatas.push_back(std::make_pair(trackchanged->totaltrackdatatime(), trackchanged->totaltrackdata()));
+
+      }
+
+      TrackChanged(trackchanged->recordingtoken(), trackchanged->id(), token, trackchanged->tracktype(), description, trackchanged->fixedfiles(), trackchanged->digitalsigning(), trackchanged->encrypt(), trackchanged->flushfrequency(), files, codecindices, totaltrackdatas);
       break;
     }
     case Message::TRACKREMOVED:
@@ -8055,12 +8087,28 @@ std::pair< Error, std::vector<RECORDING> > Client::GetRecordingsBuffer(const fla
     tracks.reserve(recording->tracks()->size());
     for (const monocle::RecordingTrack* track : *recording->tracks())
     {
-      if (!track->description() || !track->files() || !track->indices())
+      if (!track->files() || !track->indices())
       {
 
         return std::make_pair(Error(ErrorCode::InvalidMessage, "GetRecordingsResponse invalid RecordingTrack(video)"), std::vector<RECORDING>());
       }
-      tracks.push_back(RECORDINGTRACK(track->id(), track->token()->str(), track->tracktype(), track->description()->str(), track->fixedfiles(), track->digitalsigning(), track->encrypt(), track->flushfrequency(), ToVector(*track->files()), ToVector(*track->indices()), ToVector(track->codecindices()), std::make_pair(track->totaltrackdatatime(), track->totaltrackdata())));
+
+      std::vector< std::pair<uint64_t, uint64_t> > totaltrackdatas;
+      if (track->totaltrackdatas())
+      {
+        totaltrackdatas.reserve(track->totaltrackdatas()->size());
+        for (const monocle::TRACKDATA* trackdata : *track->totaltrackdatas())
+        {
+          totaltrackdatas.push_back(std::make_pair(trackdata->time(), trackdata->totaldata()));
+
+        }
+      }
+      else
+      {
+        totaltrackdatas.push_back(std::make_pair(track->totaltrackdatatime(), track->totaltrackdata()));
+
+      }
+      tracks.push_back(RECORDINGTRACK(track->id(), track->token()->str(), track->tracktype(), track->description() ? track->description()->str() : std::string(), track->fixedfiles(), track->digitalsigning(), track->encrypt(), track->flushfrequency(), ToVector(*track->files()), ToVector(*track->indices()), ToVector(track->codecindices()), totaltrackdatas));
     }
 
     recordings.push_back(RECORDING(recording->token(), recording->sourceid()->str(), recording->name()->str(), recording->location()->str(), recording->description()->str(), recording->address()->str(), recording->content()->str(), recording->retentiontime(), recording->adaptivestreaming(), jobs, tracks, recording->activejob() ? boost::optional<uint64_t>(recording->activejob()->token()) : boost::none, recording->guiorder()));

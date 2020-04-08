@@ -55,6 +55,7 @@ DeviceTreeRecordingTrackItem::DeviceTreeRecordingTrackItem(DeviceTreeItem* paren
   connect(track.get(), &RecordingTrack::DataRate, this, &DeviceTreeRecordingTrackItem::DataRate);
 
   setIcon(0, cameraicon);
+  DataRate(0);
 }
 
 DeviceTreeRecordingTrackItem::~DeviceTreeRecordingTrackItem()
@@ -321,7 +322,7 @@ void DeviceTreeRecordingTrackItem::RecordingJobSourceTrackStateChanged(const QSh
 
 }
 
-void DeviceTreeRecordingTrackItem::DataRate(const uint64_t datarate)
+void DeviceTreeRecordingTrackItem::DataRate(const uint64_t)
 {
   UpdateToolTip();
 
