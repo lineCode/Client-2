@@ -200,7 +200,6 @@ void DeviceTreeRecordingTrackItem::TrackChanged(const QSharedPointer<client::Rec
 
 void DeviceTreeRecordingTrackItem::DataRate(const uint64_t)
 {
-  qDebug() << track_->GetDataRate();
   setToolTip(0, QString::number(track_->GetDataRate() / 1024) + "kB/s");
 
 }
