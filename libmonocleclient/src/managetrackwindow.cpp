@@ -1412,7 +1412,15 @@ void ManageTrackWindow::on_buttonok_clicked()
     }
     else if ((uri.scheme().compare("http") == 0) || (uri.scheme().compare("https") == 0))
     {
-      if (uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))
+      if (uri.has_path() && (uri.path().compare("/onvif/device_service/") == 0))
+      {
+        if (QMessageBox::question(this, tr("Warning"), tr("The uri aooears invalid(trailing slash '/'), are you sure you want to continue?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+        {
+
+          return;
+        }
+      }
+      else if (uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))
       {
         // Looks good
 
