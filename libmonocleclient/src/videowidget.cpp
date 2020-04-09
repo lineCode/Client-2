@@ -1375,6 +1375,17 @@ void VideoWidget::mouseReleaseEvent(QMouseEvent* event)
   }
 }
 
+void VideoWidget::wheelEvent(QWheelEvent* event)
+{
+  QSharedPointer<View> view = GetView(event->pos());
+  if (!view)
+  {
+
+    return;
+  }
+  view->wheelEvent(event);
+}
+
 void VideoWidget::timerEvent(QTimerEvent* event)
 {
   if (event->timerId() == timer_)
@@ -2049,7 +2060,7 @@ void VideoWidget::paintGL()
       else
       {
         view->GetVertexBuffer().bind();
-
+        
       }
       viewrgbshader_.enableAttributeArray(rgbpositionlocation_);
       viewrgbshader_.setAttributeBuffer(rgbpositionlocation_, GL_FLOAT, 0, 3);
@@ -2109,7 +2120,6 @@ void VideoWidget::paintGL()
 
       }
       viewrgbshader_.disableAttributeArray(rgbtexturecoordlocation_);
-      view->GetTextureBuffer().release();
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, 0);
       viewrgbshader_.release();
@@ -2119,7 +2129,6 @@ void VideoWidget::paintGL()
       viewyuvshader_.disableAttributeArray(yuvpositionlocation_);
       view->GetVertexBuffer().release();
       viewyuvshader_.disableAttributeArray(yuvtexturecoordlocation_);
-      view->GetTextureBuffer().release();
       for (GLuint texture = 0; texture < 3; ++texture)
       {
         glActiveTexture(GL_TEXTURE0 + texture);
@@ -2131,13 +2140,14 @@ void VideoWidget::paintGL()
       viewnv12shader_.disableAttributeArray(nv12positionlocation_);
       view->GetVertexBuffer().release();
       viewnv12shader_.disableAttributeArray(nv12texturecoordlocation_);
-      view->GetTextureBuffer().release();
       for (GLuint texture = 0; texture < 2; ++texture)
       {
         glActiveTexture(GL_TEXTURE0 + texture);
         glBindTexture(GL_TEXTURE_2D, 0);
       }
     }
+
+    view->GetTextureBuffer().release();
   }
   
   // Info boxes
@@ -2271,7 +2281,7 @@ void VideoWidget::paintGL()
     const QSharedPointer<View> view = MainWindow::Instance()->GetVideoWidgetsMgr().GetSelectionView().lock();
     if (view)
     {
-      const QPoint selectionpoint = MainWindow::Instance()->GetVideoWidgetsMgr().GetSelectionPoint();
+      const QPoint selectionpoint = MainWindow::Instance()->GetVideoWidgetsMgr().GetSelectionViewRect();
       const QPoint cursor = mapFromGlobal(QCursor::pos());
       const QRect pixelrect = view->GetPixelRect();
       const QRect rect(QPoint(std::max(pixelrect.x(), std::min(selectionpoint.x(), cursor.x())), std::max(pixelrect.y(), std::min(selectionpoint.y(), cursor.y()))), QPoint(std::min(pixelrect.right(), std::max(selectionpoint.x(), cursor.x())), std::min(pixelrect.bottom(), std::max(selectionpoint.y(), cursor.y()))));

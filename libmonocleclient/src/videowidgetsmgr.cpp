@@ -28,7 +28,9 @@ namespace client
 
 VideoWidgetsMgr::VideoWidgetsMgr(const QResource* arial, const QIcon& showfullscreen) :
   arial_(arial),
-  showfullscreen_(showfullscreen)
+  showfullscreen_(showfullscreen),
+  selectionviewrect_(0, 0),
+  selectionpoint_(0, 0)
 {
   
 }
@@ -312,6 +314,20 @@ void VideoWidgetsMgr::MouseMoveEvent(QMouseEvent* event)
 
     }
   }
+  else if (MainWindow::Instance()->GetMouseState() == MOUSESTATE_SELECT)
+  {
+    if (selectionview_ && (event->buttons() & Qt::LeftButton) && (event->modifiers() & Qt::CTRL))
+    {
+      QSharedPointer<View> view = selectionview_.lock();
+      if (view)
+      {
+        const QRect rect = view->GetPixelRect();
+        const QPoint pos = QPoint(event->pos().x() - rect.x(), event->pos().y() - rect.y());
+        view->MoveCentre(static_cast<float>(selectionpoint_.x() - pos.x()) / static_cast<float>(rect.width()), static_cast<float>(selectionpoint_.y() - pos.y()) / static_cast<float>(rect.height()));
+        selectionpoint_ = pos;
+      }
+    }
+  }
 }
 
 void VideoWidgetsMgr::MousePressEvent(QMouseEvent* event)
@@ -338,7 +354,7 @@ void VideoWidgetsMgr::MousePressEvent(QMouseEvent* event)
       case Qt::LeftButton:
       {
         selectionview_ = view;
-        selectionpoint_ = pos;
+        selectionviewrect_ = pos;
         break;
       }
       case Qt::RightButton:
@@ -380,7 +396,8 @@ void VideoWidgetsMgr::MousePressEvent(QMouseEvent* event)
         {
           selectionview_ = view;
           const QRect rect = view->GetPixelRect();
-          selectionpoint_ = QPoint((static_cast<float>(pos.x() - rect.x()) / static_cast<float>(rect.width())) * view->GetRect().width(), static_cast<float>(pos.y() - rect.y()) / static_cast<float>(rect.height()) * view->GetRect().height());
+          selectionviewrect_ = QPoint((static_cast<float>(pos.x() - rect.x()) / static_cast<float>(rect.width())) * view->GetRect().width(), static_cast<float>(pos.y() - rect.y()) / static_cast<float>(rect.height()) * view->GetRect().height());
+          selectionpoint_ = QPoint(pos.x() - rect.x(), pos.y() - rect.y());
         }
       }
       case Qt::RightButton:
@@ -429,7 +446,7 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
           endtime = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
 
         }
-        const QPoint selectionpoint = MainWindow::Instance()->GetVideoWidgetsMgr().GetSelectionPoint();
+        const QPoint selectionpoint = MainWindow::Instance()->GetVideoWidgetsMgr().GetSelectionViewRect();
         const QPoint cursor = videowidget->mapFromGlobal(QCursor::pos());
         const QRect imagepixelrect = selectionview->GetImagePixelRect();
         const QRect selectedrect(QPoint(std::max(imagepixelrect.x(), std::min(selectionpoint.x(), cursor.x())) - imagepixelrect.x(),
@@ -543,7 +560,7 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
               {
                 const QPoint location = videowidget->GetLocation(pos.x(), pos.y());
                 const QPoint relativelocation = location - QPoint(selectionview->GetRect().x(), selectionview->GetRect().y());
-                if (selectionpoint_ == relativelocation) // If user didn't move the mouse while pressed
+                if (selectionviewrect_ == relativelocation) // If user didn't move the mouse while pressed
                 {
                   const auto selectedviews = GetSelectedViews();
                   if ((selectedviews.size() == 1) && utility::Contains(selectedviews, view))
@@ -560,7 +577,7 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
                 }
                 else // User moved the mouse while pressed
                 {
-                  MoveView(videowidget, selectionview, location - selectionpoint_);
+                  MoveView(videowidget, selectionview, location - selectionviewrect_);
 
                 }
               }
@@ -593,6 +610,12 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
           }
           else // We are moving to an empty video slot
           {
+            if (event->modifiers() & Qt::CTRL)
+            {
+
+              break;
+            }
+
             if (selectionview) // If we were moving a single video view
             {
               std::vector< QSharedPointer<View> > selectedviews = GetSelectedViews();
@@ -600,7 +623,7 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
               {
                 if (selectedviews.size() == 1)
                 {
-                  MoveView(videowidget, selectionview, videowidget->GetLocation(pos.x(), pos.y()) - selectionpoint_);
+                  MoveView(videowidget, selectionview, videowidget->GetLocation(pos.x(), pos.y()) - selectionviewrect_);
 
                 }
                 else // Moving multiple video views
@@ -608,7 +631,7 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
                   if (selectionview->GetVideoWidget() == videowidget) // If we are moving a group of video views within the same video widget
                   {
                     std::vector< QSharedPointer<View> > localselectedviews = std::vector< QSharedPointer<View> >(selectedviews.begin(), std::partition(selectedviews.begin(), selectedviews.end(), [selectionview](const QSharedPointer<View>& view) { return (view->GetVideoWidget() == selectionview->GetVideoWidget()); })); // Get all the selected video views from the source video widget
-                    const QPoint relativepos = videowidget->GetLocation(pos.x(), pos.y()) - (selectionview->GetRect().topLeft() + selectionpoint_);
+                    const QPoint relativepos = videowidget->GetLocation(pos.x(), pos.y()) - (selectionview->GetRect().topLeft() + selectionviewrect_);
                     bool moved = true;
                     while (!localselectedviews.empty() && moved) // Move as many as we can and ignore others
                     {
@@ -627,7 +650,7 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
                   else // Moving a group of video views to another video widget
                   {
                     std::vector< QSharedPointer<View> > localselectedviews = std::vector< QSharedPointer<View> >(selectedviews.begin(), std::partition(selectedviews.begin(), selectedviews.end(), [selectionview](const QSharedPointer<View>& view) { return (view->GetVideoWidget() == selectionview->GetVideoWidget()); })); // Get all the selected video views from the source video widget
-                    const QPoint relativepos = videowidget->GetLocation(pos.x(), pos.y()) - (selectionview->GetRect().topLeft() + selectionpoint_);
+                    const QPoint relativepos = videowidget->GetLocation(pos.x(), pos.y()) - (selectionview->GetRect().topLeft() + selectionviewrect_);
                     bool moved = true;
                     while (!localselectedviews.empty() && moved) // Move as many as we can and ignore others
                     {
@@ -659,7 +682,7 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
               else // We could have many or none selected, but we have clicked on a nonselected video view, and released on an empty space
               {
                 UnselectAll();
-                MoveView(videowidget, selectionview, videowidget->GetLocation(pos.x(), pos.y()) - selectionpoint_);
+                MoveView(videowidget, selectionview, videowidget->GetLocation(pos.x(), pos.y()) - selectionviewrect_);
               }
             }
             else // If we weren't moving
@@ -671,6 +694,12 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
         }
         else // Left click release away from a video widget
         {
+          if (event->modifiers() & Qt::CTRL)
+          {
+
+            break;
+          }
+
           if (selectionview) // We left clicked on a video and released outside a video widget
           {
             auto selectedviews = GetSelectedViews();

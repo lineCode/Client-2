@@ -56,8 +56,7 @@ class VideoChartView : public View
 
   inline const boost::shared_ptr<Device>& GetDevice() const { return device_; }
 
- protected:
-
+  virtual void wheelEvent(QWheelEvent* event) override;
   virtual void SetPosition(VideoWidget* videowidget, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent) override;
 
  private:

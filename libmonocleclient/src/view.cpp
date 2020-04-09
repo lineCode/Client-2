@@ -438,6 +438,8 @@ View::View(VideoWidget* videowidget, CUcontext cudacontext, const QColor& select
   actioninfo_(showinfomenu ? new QAction(tr("Info"), this) : nullptr),
   actionobjects_(showobjectsmenu ? new QAction(tr("Objects"), this) : nullptr),
   freetype_(nullptr),
+  centre_(0.5f, 0.5f),
+  zoom_(1.0f),
   totalframes_(0),
   totalbytes_(0),
   time_(0),
@@ -743,6 +745,105 @@ void View::ResetPosition(const bool makecurrent)
 {
   SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), rotation_, mirror_, stretch_, makecurrent);
 
+}
+
+void View::wheelEvent(QWheelEvent* event)
+{
+  const QRect pixelrect = GetPixelRect();
+  const float x = (static_cast<float>(event->pos().x() - pixelrect.left()) / static_cast<float>(pixelrect.width()) - 0.5f);
+  const float y = (static_cast<float>(event->pos().y() - pixelrect.top()) / static_cast<float>(pixelrect.height()) - 0.5f);
+
+  double lastzoom = zoom_;
+  if (event->angleDelta().y() > 0)
+  {
+    if (zoom_ <= 0.05f)
+    {
+
+      return;
+    }
+    zoom_ -= 0.3f * zoom_;
+  }
+  else
+  {
+    if (zoom_ >= 1.0f)
+    {
+
+      return;
+    }
+    zoom_ += 0.3f * zoom_;
+    zoom_ = std::min(1.0f, zoom_);
+  }
+
+  // Get the position of the mouse in map coordinates after scaling
+  double newx = x * (zoom_ / lastzoom);
+  double newy = y * (zoom_ / lastzoom);
+
+  // reverse the translation caused by scaling
+  double originx = centre_.x() + (x - newx);
+  double originy = centre_.y() + (y - newy);
+  centre_ = QPointF(originx, originy);
+
+  // Cap the values
+  if ((centre_.x() - (zoom_ * 0.5f)) < 0.0f)
+  {
+    const float diff = -(centre_.x() - (zoom_ * 0.5f));
+    centre_.setX(centre_.x() + diff);
+  }
+  if ((centre_.x() + (zoom_ * 0.5f)) > 1.0f)
+  {
+    const float diff = (centre_.x() + (zoom_ * 0.5f)) - 1.0f;
+    centre_.setX(centre_.x() - diff);
+  }
+
+  if ((centre_.y() - (zoom_ * 0.5f)) < 0.0f)
+  {
+    const float diff = -(centre_.y() - (zoom_ * 0.5f));
+    centre_.setY(centre_.y() + diff);
+  }
+  if ((centre_.y() + (zoom_ * 0.5f)) > 1.0f)
+  {
+    const float diff = (centre_.y() + (zoom_ * 0.5f)) - 1.0f;
+    centre_.setY(centre_.y() - diff);
+  }
+
+  SetTextureBuffer();
+}
+
+void View::MoveCentre(const float dx, const float dy)
+{
+  if ((centre_.x() + dx - (zoom_ * 0.5f)) < 0.0f)
+  {
+    centre_.setX(zoom_ * 0.5f);
+
+  }
+  else if ((centre_.x() + dx + (zoom_ * 0.5f)) > 1.0f)
+  {
+    centre_.setX(1.0f - (zoom_ * 0.5f));
+
+  }
+  else
+  {
+    centre_.setX(centre_.x() + dx);
+
+  }
+
+  if ((centre_.y() + dy - (zoom_ * 0.5f)) < 0.0f)
+  {
+    centre_.setY(zoom_ * 0.5f);
+
+  }
+  else if ((centre_.y() + dy + (zoom_ * 0.5f)) > 1.0f)
+  {
+    centre_.setY(1.0f - (zoom_ * 0.5f));
+
+  }
+  else
+  {
+    centre_.setY(centre_.y() + dy);
+
+  }
+
+  SetTextureBuffer();
 }
 
 void View::SetPosition(VideoWidget* videowidget, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent)
@@ -1233,6 +1334,27 @@ void View::UpdateObjects(const monocle::Objects* objects, const uint64_t time)
 {
   objects_.Update(GetImagePixelRectF(), mirror_, rotation_, objects, time, time_);
 
+}
+
+void View::SetTextureBuffer()
+{
+  const float left = std::max(0.0f, static_cast<float>(centre_.x()) - (zoom_ * 0.5f));
+  const float right = std::min(1.0f, static_cast<float>(centre_.x()) + (zoom_ * 0.5f));
+  const float top = std::max(0.0f, static_cast<float>(centre_.y()) - (zoom_ * 0.5f));
+  const float bottom = std::min(1.0f, static_cast<float>(centre_.y()) + (zoom_ * 0.5f));
+  const std::array<float, 8> texturecoords =
+  {
+    right, bottom,
+    right, top,
+    left, bottom,
+    left, top
+  };
+
+  videowidget_->makeCurrent();
+  texturebuffer_.bind();
+  texturebuffer_.allocate(texturecoords.data(), static_cast<int>(texturecoords.size() * sizeof(float)));
+  texturebuffer_.release();
+  videowidget_->doneCurrent();
 }
 
 void View::SaveImage(bool)

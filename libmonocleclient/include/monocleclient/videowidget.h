@@ -151,6 +151,7 @@ class VideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
   virtual void mouseMoveEvent(QMouseEvent* event) override;
   virtual void mousePressEvent(QMouseEvent* event) override;
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
+  virtual void wheelEvent(QWheelEvent* event) override;
   virtual void timerEvent(QTimerEvent* event) override;
 
   virtual void initializeGL() override;

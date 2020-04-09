@@ -211,6 +211,11 @@ void VideoChartView::Scrub(const uint64_t time)
 
 }
 
+void VideoChartView::wheelEvent(QWheelEvent* event)
+{
+
+}
+
 void VideoChartView::SetPosition(VideoWidget* videowidget, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent)
 {
   View::SetPosition(videowidget, x, y, width, height, rotation, mirror, stretch, makecurrent);

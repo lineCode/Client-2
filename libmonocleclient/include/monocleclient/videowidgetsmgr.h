@@ -54,7 +54,7 @@ class VideoWidgetsMgr : public QObject
   void SetUpdateFrequency(const int frequency);
 
   inline const QWeakPointer<View>& GetSelectionView() const { return selectionview_; }
-  inline const QPoint& GetSelectionPoint() const { return selectionpoint_; }
+  inline const QPoint& GetSelectionViewRect() const { return selectionviewrect_; }
 
   QSharedPointer<View> GetLastSelectedView() const;
 
@@ -85,6 +85,7 @@ class VideoWidgetsMgr : public QObject
   std::vector<VideoWidget*> videowidgets_; // First element should always be the main windows video widget, and should never be removed
 
   QWeakPointer<View> selectionview_; // This is the view that has been last selected by a mousepress down event(but not yet selected)
+  QPoint selectionviewrect_; // The rect we are currently selecting
   QPoint selectionpoint_; // The relative point in the selectedview that was pressed
   std::vector< QWeakPointer<View> > selectedstack_; // Represents the order of selected items(most recent at top)
 

@@ -122,6 +122,10 @@ class View : public QObject, public QEnableSharedFromThis<View>
 
   CUcontext GetCUDAContext() const { return cudacontext_; }
 
+  virtual void wheelEvent(QWheelEvent* event);
+
+  void MoveCentre(const float dx, const float dy);
+
   Q_INVOKABLE void ResetPosition(const bool makecurrent); // Calls set position with current parameters_
   virtual void SetPosition(VideoWidget* videowidget, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent);
 
@@ -203,6 +207,7 @@ class View : public QObject, public QEnableSharedFromThis<View>
   void SetMessage(const uint64_t playrequestindex, bool error, const QString& text);
   void WriteFrame(const ImageBuffer& imagebuffer);
   void UpdateObjects(const monocle::Objects* objects, const uint64_t time);
+  void SetTextureBuffer();
 
   const std::chrono::steady_clock::time_point starttime_;
   const QVector4D selectedcolour_;
@@ -226,6 +231,9 @@ class View : public QObject, public QEnableSharedFromThis<View>
 
   boost::lockfree::spsc_queue<ImageBuffer, boost::lockfree::capacity<IMAGEQUEUESIZE> > imagequeue_; // Queue of decoded images for the main thread to get
   SPSCFreeFrameBuffers freeimagequeue_;
+
+  QPointF centre_;
+  float zoom_;
 
   uint64_t totalframes_;
   uint64_t totalbytes_;
