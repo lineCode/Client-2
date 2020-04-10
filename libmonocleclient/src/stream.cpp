@@ -250,7 +250,8 @@ void JPEGHeader(const uint16_t restartinterval, const uint32_t typespecificfragm
 
 ///// Methods /////
 
-Stream::Stream(const uint64_t token, const CONTROLSTREAMEND controlstreamendcallback, const H265CALLBACK h265callback, const H264CALLBACK h264callback, const METADATACALLBACK metadatacallback, const JPEGCALLBACK jpegcallback, const MPEG4CALLBACK mpeg4callback, const OBJECTDETECTORCALLBACK objectdetectorcallback, const NEWCODECINDEX newcodecindexcallback, void* callbackdata) :
+Stream::Stream(const uint32_t trackid, const uint64_t token, const CONTROLSTREAMEND controlstreamendcallback, const H265CALLBACK h265callback, const H264CALLBACK h264callback, const METADATACALLBACK metadatacallback, const JPEGCALLBACK jpegcallback, const MPEG4CALLBACK mpeg4callback, const OBJECTDETECTORCALLBACK objectdetectorcallback, const NEWCODECINDEX newcodecindexcallback, void* callbackdata) :
+  trackid_(trackid),
   token_(token),
   controlstreamendcallback_(controlstreamendcallback),
   h265callback_(h265callback),
@@ -266,6 +267,7 @@ Stream::Stream(const uint64_t token, const CONTROLSTREAMEND controlstreamendcall
 }
 
 Stream::Stream(const Stream& rhs) :
+  trackid_(rhs.trackid_),
   token_(rhs.token_),
   controlstreamendcallback_(rhs.controlstreamendcallback_),
   h265callback_(rhs.h265callback_),
@@ -289,7 +291,7 @@ void Stream::ControlStreamEnd(const uint64_t playrequestindex, const monocle::Er
 {
   if (controlstreamendcallback_)
   {
-    controlstreamendcallback_(token_, playrequestindex, error, callbackdata_);
+    controlstreamendcallback_(trackid_, token_, playrequestindex, error, callbackdata_);
 
   }
 }
@@ -310,7 +312,7 @@ void Stream::H265Frame(const uint64_t playrequestindex, const uint64_t codecinde
       return;
     }
 
-    h265callback_(token_, playrequestindex, codecindex, marker, timestamp, sequencenum, progress, signature, signaturesize, data, size, donlfield, offsets, numoffsets, reinterpret_cast<const char*>(buffer_.data()), buffer_.size(), callbackdata_);
+    h265callback_(trackid_, token_, playrequestindex, codecindex, marker, timestamp, sequencenum, progress, signature, signaturesize, data, size, donlfield, offsets, numoffsets, reinterpret_cast<const char*>(buffer_.data()), buffer_.size(), callbackdata_);
   }
 }
 
@@ -330,7 +332,7 @@ void Stream::H264Frame(const uint64_t playrequestindex, const uint64_t codecinde
       return;
     }
 
-    h264callback_(token_, playrequestindex, codecindex, marker, timestamp, sequencenum, progress, signature, signaturesize, data, size, offsets, numoffsets, reinterpret_cast<const char*>(buffer_.data()), buffer_.size(), callbackdata_);
+    h264callback_(trackid_, token_, playrequestindex, codecindex, marker, timestamp, sequencenum, progress, signature, signaturesize, data, size, offsets, numoffsets, reinterpret_cast<const char*>(buffer_.data()), buffer_.size(), callbackdata_);
   }
 }
 
@@ -338,7 +340,7 @@ void Stream::MetadataFrame(const uint64_t playrequestindex, const uint64_t codec
 {
   if (metadatacallback_)
   {
-    metadatacallback_(token_, playrequestindex, codecindex, timestamp, sequencenum, progress, signature, signaturesize, metadataframetype, data, size, data, size, callbackdata_);
+    metadatacallback_(trackid_, token_, playrequestindex, codecindex, timestamp, sequencenum, progress, signature, signaturesize, metadataframetype, data, size, data, size, callbackdata_);
 
   }
 }
@@ -355,7 +357,7 @@ void Stream::JPEGFrame(const uint64_t playrequestindex, const uint64_t codecinde
 
     JPEGHeader(restartinterval, typespecificfragmentoffset, type, q, width, height, lqt, cqt, buffer_);
     buffer_.insert(buffer_.end(), data, data + size);
-    jpegcallback_(token_, playrequestindex, codecindex, timestamp, sequencenum, progress, signature, signaturesize, data, size, restartinterval, typespecificfragmentoffset, type, q, width, height, lqt, cqt, reinterpret_cast<const char*>(buffer_.data()), buffer_.size(), callbackdata_);
+    jpegcallback_(trackid_, token_, playrequestindex, codecindex, timestamp, sequencenum, progress, signature, signaturesize, data, size, restartinterval, typespecificfragmentoffset, type, q, width, height, lqt, cqt, reinterpret_cast<const char*>(buffer_.data()), buffer_.size(), callbackdata_);
   }
 }
 
@@ -363,7 +365,7 @@ void Stream::MPEG4Frame(const uint64_t playrequestindex, const uint64_t codecind
 {
   if (mpeg4callback_)
   {
-    mpeg4callback_(token_, playrequestindex, codecindex, marker, timestamp, sequencenum, progress, signature, signaturesize, data, size, data, size, callbackdata_);
+    mpeg4callback_(trackid_, token_, playrequestindex, codecindex, marker, timestamp, sequencenum, progress, signature, signaturesize, data, size, data, size, callbackdata_);
 
   }
 }
@@ -372,7 +374,7 @@ void Stream::ObjectDetectorFrame(const uint64_t playrequestindex, const uint64_t
 {
   if (objectdetectorcallback_)
   {
-    objectdetectorcallback_(token_, playrequestindex, codecindex, timestamp, sequencenum, progress, signature, signaturesize, objectdetectorframetype, data, size, data, size, callbackdata_);
+    objectdetectorcallback_(trackid_, token_, playrequestindex, codecindex, timestamp, sequencenum, progress, signature, signaturesize, objectdetectorframetype, data, size, data, size, callbackdata_);
 
   }
 }
@@ -381,13 +383,14 @@ void Stream::NewCodecIndex(const uint64_t id, const monocle::Codec codec, const 
 {
   if (newcodecindexcallback_)
   {
-    newcodecindexcallback_(token_, id, codec, parameters, timestamp, callbackdata_);
+    newcodecindexcallback_(trackid_, token_, id, codec, parameters, timestamp, callbackdata_);
 
   }
 }
 
 Stream& Stream::operator=(const Stream& rhs)
 {
+  trackid_ = rhs.trackid_;
   token_ = rhs.token_;
   controlstreamendcallback_ = rhs.controlstreamendcallback_;
   h265callback_ = rhs.h265callback_;

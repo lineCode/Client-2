@@ -21,8 +21,8 @@ static const uint8_t STARTSEQUENCE[] = { 0, 0, 0, 1 };
 
 ///// Methods /////
 
-H265Decoder::H265Decoder(const uint64_t id, const utility::PublicKey& publickey) :
-  Decoder(id, publickey, nullptr)
+H265Decoder::H265Decoder(const uint32_t trackid, const uint64_t id, const utility::PublicKey& publickey) :
+  Decoder(trackid, id, publickey, nullptr)
 {
   
 }

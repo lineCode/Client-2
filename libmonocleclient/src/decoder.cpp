@@ -231,7 +231,8 @@ void VectorFreeFrameBuffer::AddFreeImage(ImageBuffer& imagebuffer)
   }
 }
 
-Decoder::Decoder(const uint64_t id, const utility::PublicKey& publickey, CUcontext cudacontext) :
+Decoder::Decoder(const uint32_t trackid, const uint64_t id, const utility::PublicKey& publickey, CUcontext cudacontext) :
+  trackid_(trackid),
   id_(id),
   publickey_(publickey),
   cudacontext_(cudacontext),

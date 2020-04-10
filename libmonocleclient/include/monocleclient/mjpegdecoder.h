@@ -21,7 +21,7 @@ class MJpegDecoder : public Decoder
 {
  public:
 
-  MJpegDecoder(const uint64_t id, const utility::PublicKey& publickey);
+  MJpegDecoder(const uint32_t trackid, const uint64_t id, const utility::PublicKey& publickey);
   virtual ~MJpegDecoder();
   virtual void Destroy() override;
 

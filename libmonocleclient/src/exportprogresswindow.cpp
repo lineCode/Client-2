@@ -450,7 +450,7 @@ void ExportProgressWindow::timerEvent(QTimerEvent*)
   }
 }
 
-void ExportProgressWindow::ControlStreamEndCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const monocle::ErrorCode error, void* callbackdata)
+void ExportProgressWindow::ControlStreamEndCallback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const monocle::ErrorCode error, void* callbackdata)
 {
   ExportTrackConnection* exporttrackconnection = reinterpret_cast<ExportTrackConnection*>(callbackdata);
   switch (exporttrackconnection->exportformat_)
@@ -486,7 +486,7 @@ void ExportProgressWindow::ControlStreamEndCallback(const uint64_t streamtoken, 
   exporttrackconnection->state_ = EXPORTTRACKSTATE_SUCCESS;
 }
 
-void ExportProgressWindow::H265Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const bool donlfield, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata)
+void ExportProgressWindow::H265Callback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const bool donlfield, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata)
 {
   ExportTrackConnection* exporttrackconnection = reinterpret_cast<ExportTrackConnection*>(callbackdata);
   switch (exporttrackconnection->exportformat_)
@@ -543,7 +543,7 @@ void ExportProgressWindow::H265Callback(const uint64_t streamtoken, const uint64
           }
         }
 
-        std::unique_ptr<H265Decoder> decoder = std::make_unique<H265Decoder>(ci->id_, utility::PublicKey());
+        std::unique_ptr<H265Decoder> decoder = std::make_unique<H265Decoder>(trackid, ci->id_, utility::PublicKey());
         if (decoder->Init(ci->GetParameters()))
         {
           exporttrackconnection->audit_.push_back(QString::fromStdString("ExportTrack H265Decoder::Init failed"));
@@ -568,7 +568,7 @@ void ExportProgressWindow::H265Callback(const uint64_t streamtoken, const uint64
   }
 }
 
-void ExportProgressWindow::H264Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata)
+void ExportProgressWindow::H264Callback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata)
 {
   ExportTrackConnection* exporttrackconnection = reinterpret_cast<ExportTrackConnection*>(callbackdata);
   switch (exporttrackconnection->exportformat_)
@@ -625,7 +625,7 @@ void ExportProgressWindow::H264Callback(const uint64_t streamtoken, const uint64
           }
         }
         
-        std::unique_ptr<H264Decoder> decoder = std::make_unique<H264Decoder>(ci->id_, utility::PublicKey(), nullptr);
+        std::unique_ptr<H264Decoder> decoder = std::make_unique<H264Decoder>(trackid, ci->id_, utility::PublicKey(), nullptr);
         if (decoder->Init(ci->GetParameters()))
         {
           exporttrackconnection->audit_.push_back(QString::fromStdString("ExportTrack H264Decoder::Init failed"));
@@ -650,7 +650,7 @@ void ExportProgressWindow::H264Callback(const uint64_t streamtoken, const uint64
   }
 }
 
-void ExportProgressWindow::MetadataCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::MetadataFrameType metadataframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
+void ExportProgressWindow::MetadataCallback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::MetadataFrameType metadataframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
 {
   ExportTrackConnection* exporttrackconnection = reinterpret_cast<ExportTrackConnection*>(callbackdata);
   switch (exporttrackconnection->exportformat_)
@@ -672,7 +672,7 @@ void ExportProgressWindow::MetadataCallback(const uint64_t streamtoken, const ui
   }
 }
 
-void ExportProgressWindow::JPEGCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const uint8_t* lqt, const uint8_t* cqt, const char* framedata, const size_t size, void* callbackdata)
+void ExportProgressWindow::JPEGCallback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const uint8_t* lqt, const uint8_t* cqt, const char* framedata, const size_t size, void* callbackdata)
 {
   ExportTrackConnection* exporttrackconnection = reinterpret_cast<ExportTrackConnection*>(callbackdata);
   switch (exporttrackconnection->exportformat_)
@@ -727,7 +727,7 @@ void ExportProgressWindow::JPEGCallback(const uint64_t streamtoken, const uint64
 
       if (!exporttrackconnection->mjpegdecoder_)
       {
-        exporttrackconnection->mjpegdecoder_ = std::make_unique<MJpegDecoder>(codecindex, utility::PublicKey());
+        exporttrackconnection->mjpegdecoder_ = std::make_unique<MJpegDecoder>(trackid, codecindex, utility::PublicKey());
         if (exporttrackconnection->mjpegdecoder_->Init())
         {
           exporttrackconnection->audit_.push_back(QString::fromStdString("ExportTrack MJpegDecoder::Init failed"));
@@ -749,7 +749,7 @@ void ExportProgressWindow::JPEGCallback(const uint64_t streamtoken, const uint64
   }
 }
 
-void ExportProgressWindow::MPEG4Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
+void ExportProgressWindow::MPEG4Callback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
 {
   ExportTrackConnection* exporttrackconnection = reinterpret_cast<ExportTrackConnection*>(callbackdata);
   switch (exporttrackconnection->exportformat_)
@@ -807,7 +807,7 @@ void ExportProgressWindow::MPEG4Callback(const uint64_t streamtoken, const uint6
         }
 
         utility::PublicKey publickey;
-        std::unique_ptr<MPEG4Decoder> decoder = std::make_unique<MPEG4Decoder>(ci->id_, publickey);
+        std::unique_ptr<MPEG4Decoder> decoder = std::make_unique<MPEG4Decoder>(trackid, ci->id_, publickey);
         if (decoder->Init(ci->GetParameters()))
         {
           exporttrackconnection->audit_.push_back(QString::fromStdString("ExportTrack MPEG4Decoder::Init failed"));
@@ -832,7 +832,7 @@ void ExportProgressWindow::MPEG4Callback(const uint64_t streamtoken, const uint6
   }
 }
 
-void ExportProgressWindow::ObjectDetectorCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
+void ExportProgressWindow::ObjectDetectorCallback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
 {
   ExportTrackConnection* exporttrackconnection = reinterpret_cast<ExportTrackConnection*>(callbackdata);
   switch (exporttrackconnection->exportformat_)
@@ -854,7 +854,7 @@ void ExportProgressWindow::ObjectDetectorCallback(const uint64_t streamtoken, co
   }
 }
 
-void ExportProgressWindow::NewCodecIndexCallback(const uint64_t streamtoken, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp, void* callbackdata)
+void ExportProgressWindow::NewCodecIndexCallback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp, void* callbackdata)
 {
   ExportTrackConnection* exporttrackconnection = reinterpret_cast<ExportTrackConnection*>(callbackdata);
   std::lock_guard<std::recursive_mutex> lock(exporttrackconnection->mutex_);
