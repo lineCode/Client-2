@@ -174,7 +174,7 @@ void VideoView::Connect()
               }
             }, Qt::QueuedConnection);
 
-            streamtokens_.push_back(createstreamresponse.token_);
+            streamtokens_.push_back(std::make_pair(track->GetId(), createstreamresponse.token_));
             if (track_ == track)
             {
               SetMessage(GetPlayRequestIndex(), false, "Requesting Live");
@@ -570,9 +570,8 @@ void VideoView::SetPosition(VideoWidget* videowidget, const unsigned int x, cons
     return;
   }
 
-  //TODO this gets called by VideoWidget::PaintGL... and it fucks everything up
-
-
+  //TODO if (!recording_->GetAdaptiveStreaming())
+  //TODO return;
   
   //TODO check if adaptive streaming is enable or not(probably per user from the server and updated in subscribe? or just a client thing?)
 
@@ -635,7 +634,7 @@ void VideoView::SetPosition(VideoWidget* videowidget, const unsigned int x, cons
 
     return;
   }
-
+  //TODO Does this area thing work well enough?
   std::sort(trackarea.begin(), trackarea.end(), [](const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& lhs, const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& rhs) { return (lhs.second < rhs.second); });
   const QRect pixelrect = GetPixelRect();
   const uint64_t currentarea = pixelrect.width() * pixelrect.height();
@@ -645,20 +644,23 @@ void VideoView::SetPosition(VideoWidget* videowidget, const unsigned int x, cons
     i = trackarea.end() - 1;
 
   }
+  
+  std::vector< std::pair<uint32_t, uint64_t> >::const_iterator j = std::find_if(streamtokens_.cbegin(), streamtokens_.cend(), [i](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.first == i->first->GetId()); });
+  if (j == streamtokens_.cend())
+  {
 
-  uint32_t trackid = 0;
-  //TODO streamtokens_ should contain the trackid in a std::pair
+    return; // Shouldn't be possible but ok...
+  }
 
-
-  if (trackid == activestreamtoken_)
+  if (activeadaptivestreamtoken_.is_initialized() && (j->second == *activeadaptivestreamtoken_)) // Don't bother changing anything if we are already streaming this track
   {
 
     return;
   }
 
-  Pause(boost::none); // Pause the previous stream
-  activestreamtoken_ = trackid;//TODO this is wrong wrong wrong
-  Stop();
+  Pause(boost::none); // Pause the previous stream//TODO we need to pause the current activeadaptivestreamtoken firstly if there is one...
+  activeadaptivestreamtoken_ = j->second;
+  Stop();//TODO we need to start live streaming on activeadaptivestreamtoken_
 }
 
 bool VideoView::HasHardwareDecoder() const
@@ -1318,20 +1320,29 @@ void VideoView::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)
 
 void VideoView::TrackRemoved(const uint32_t token)
 {
+  //TODO we need remove from streamtokens_
+
   if (track_->GetToken() == token)
   {
-    if (recording_->GetVideoTracks().size())
+    if (recording_->GetVideoTracks().size())//TODO if streamtokens_.size()
     {
       // Switch to another video track if one is available
+//TODO switch to another streamtoken_ we have plenty open
       track_ = recording_->GetVideoTracks().front();
+//TODO Stop()
     }
     else
     {
       // Just live without a video track
       track_.reset();
+//TODO reset currentstreamtoken_
+      //TODO SetMessage("Error no tracks")
     }
-    Connect();
+
+    
+    Connect();//TODO goes away
   }
+
 
   auto i = std::find_if(metadatastreamtokens_.begin(), metadatastreamtokens_.end(), [token](const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatatrack) { return (metadatatrack.second == token); });
   if (i != metadatastreamtokens_.end())

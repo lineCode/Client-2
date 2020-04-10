@@ -181,8 +181,9 @@ class VideoView : public View
   monocle::client::Connection controlstream_;
   monocle::client::Connection keepalive_;
 
-  std::vector<uint64_t> streamtokens_;
+  std::vector< std::pair<uint32_t, uint64_t> > streamtokens_; // <trackid, streamtoken>
   uint64_t activestreamtoken_;//TODO this becomes boost::optional I think
+  boost::optional<uint64_t> activeadaptivestreamtoken_;//TODO reset this often... like for instance if we aren't live
 
   sock::Connection metadataconnect_;
   monocle::client::Connection metadatagetauthenticatenonce_;
