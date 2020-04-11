@@ -650,7 +650,7 @@ void VideoView::SetPosition(VideoWidget* videowidget, const unsigned int x, cons
   std::sort(trackarea.begin(), trackarea.end(), [](const std::pair<uint32_t, uint64_t>& lhs, const std::pair<uint32_t, uint64_t>& rhs) { return (lhs.second < rhs.second); });
   const QRect pixelrect = GetPixelRect();
   const uint64_t currentarea = pixelrect.width() * pixelrect.height();
-  std::vector< std::pair<uint32_t, uint64_t> >::iterator i = std::find_if(trackarea.begin(), trackarea.end(), [currentarea](const std::pair<uint32_t, uint64_t>& trackarea) { return (currentarea >= trackarea.second); });
+  std::vector< std::pair<uint32_t, uint64_t> >::iterator i = std::find_if(trackarea.begin(), trackarea.end(), [currentarea](const std::pair<uint32_t, uint64_t>& trackarea) { return (currentarea < trackarea.second); });
   if (i == trackarea.end())
   {
     i = trackarea.end() - 1;
@@ -669,10 +669,10 @@ void VideoView::SetPosition(VideoWidget* videowidget, const unsigned int x, cons
 
     return;
   }
-  qDebug() << "a";
+  qDebug() << "a" << recording_->GetTrack(j->first);
   //TODO Pause(boost::none); // Pause the previous stream//TODO we need to pause the current activeadaptivestreamtoken firstly if there is one...
   activeadaptivestreamtoken_ = j->second;
-  //TODO Stop();//TODO we need to start live streaming on activeadaptivestreamtoken_
+  connection_->ControlStreamLive(*activeadaptivestreamtoken_, GetNextPlayRequestIndex(true));
 }
 
 bool VideoView::HasHardwareDecoder() const
@@ -1309,21 +1309,38 @@ void VideoView::ChartView(bool)
 
 void VideoView::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)
 {
-  if (track_ == nullptr)
+  if (track->GetTrackType() == monocle::TrackType::Video)
   {
-    if (track->GetTrackType() == monocle::TrackType::Video)
+    if (track_ == nullptr)
     {
-      track_ = track;
-      Connect();
+      {
+        track_ = track;
+        Connect();
+      }
+    }
+    else
+    {
+      //TODO metadatacreatestreams_.push_back(metadataconnection_->CreateStream(recording_->GetToken(), metadatatrack->GetId(), [this, metadatatrack](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
+      //TODO {
+      //TODO   if (createstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
+      //TODO   {
+      //TODO     LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Failed to create metadata stream: ") + QString::number(metadatatrack->GetId()));
+      //TODO     return;
+      //TODO   }
+      //TODO 
+      //TODO   metadatastreamtokens_.push_back(std::make_pair(metadatatrack, createstreamresponse.token_));
+      //TODO   metadatacontrolstreams_.push_back(metadataconnection_->ControlStreamLive(createstreamresponse.token_, GetNextMetadataPlayRequestIndex(), [this, metadatatrack](const std::chrono::steady_clock::duration latency, const monocle::client::CONTROLSTREAMRESPONSE& controlstreamresponse)
+      //TODO   {
+      //TODO     if (controlstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
+      //TODO     {
+      //TODO       LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Failed to control live stream: ") + QString::number(metadatatrack->GetId()));
+      //TODO       return;
+      //TODO     }
+      //TODO   }));
+      //TODO }, VideoView::ControlStreamEnd, nullptr, nullptr, VideoView::MetadataCallback, nullptr, nullptr, VideoView::ObjectDetectorCallback, nullptr, this));
     }
   }
-  else
-  {
-    //TODO Create a new stream
-
-  }
-
-  if ((track->GetTrackType() == monocle::TrackType::Metadata) || (track->GetTrackType() == monocle::TrackType::ObjectDetector))
+  else if ((track->GetTrackType() == monocle::TrackType::Metadata) || (track->GetTrackType() == monocle::TrackType::ObjectDetector))
   {
     AddMetadataTrack(track);
 
@@ -1333,6 +1350,7 @@ void VideoView::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)
 void VideoView::TrackRemoved(const uint32_t token)
 {
   //TODO we need remove from streamtokens_
+    //TODO check it is a video
 
   if (track_->GetToken() == token)
   {
@@ -1354,6 +1372,7 @@ void VideoView::TrackRemoved(const uint32_t token)
     
     Connect();//TODO goes away
   }
+
 
 
   auto i = std::find_if(metadatastreamtokens_.begin(), metadatastreamtokens_.end(), [token](const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatatrack) { return (metadatatrack.second == token); });

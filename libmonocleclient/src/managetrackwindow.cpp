@@ -382,7 +382,7 @@ void ManageTrackWindow::AddProfile(const onvif::Profile& profile)
 
   top->addChild(new QTreeWidgetItem({ "Token: " + QString::fromStdString(*profile.token_) }));
 
-  if (profile.videosourceconfiguration_->name_.is_initialized())
+  if (profile.videosourceconfiguration_.is_initialized() && profile.videosourceconfiguration_->name_.is_initialized())
   {
     top->addChild(new QTreeWidgetItem({ "Name: " + QString::fromStdString(*profile.name_) }));
 
