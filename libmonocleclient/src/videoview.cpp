@@ -657,10 +657,10 @@ void VideoView::SetPosition(VideoWidget* videowidget, const unsigned int x, cons
 
     return;
   }
-
-  Pause(boost::none); // Pause the previous stream//TODO we need to pause the current activeadaptivestreamtoken firstly if there is one...
+  qDebug() << "a";
+  //TODO Pause(boost::none); // Pause the previous stream//TODO we need to pause the current activeadaptivestreamtoken firstly if there is one...
   activeadaptivestreamtoken_ = j->second;
-  Stop();//TODO we need to start live streaming on activeadaptivestreamtoken_
+  //TODO Stop();//TODO we need to start live streaming on activeadaptivestreamtoken_
 }
 
 bool VideoView::HasHardwareDecoder() const
