@@ -179,7 +179,7 @@ void VideoView::Connect()
             {
               SetMessage(GetPlayRequestIndex(), false, "Requesting Live");
               activestreamtoken_ = createstreamresponse.token_;
-
+              activeadaptivestreamtoken_ = activestreamtoken_;
               controlstream_ = connection_->ControlStreamLive(activestreamtoken_, GetPlayRequestIndex(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::CONTROLSTREAMRESPONSE& controlstreamresponse)
               {
                 std::lock_guard<std::recursive_mutex> lock(*mutex_);
@@ -439,6 +439,7 @@ void VideoView::FrameStep(const bool forwards)
       WriteFrame(imagebuffer);
     };
 
+    activeadaptivestreamtoken_.reset();
     connection_->ControlStreamFrameStep(activestreamtoken_, GetNextPlayRequestIndex(true), forwards, sequencenum_);
   }
   else
@@ -461,6 +462,7 @@ void VideoView::Play(const uint64_t time, const boost::optional<uint64_t>& numfr
     ResetDecoders();
   }
 
+  activeadaptivestreamtoken_.reset();
   connection_->ControlStream(activestreamtoken_, GetNextPlayRequestIndex(true), true, !numframes.is_initialized(), true, time + GetTimeOffset(), boost::none, numframes, false);
   if (numframes.is_initialized() && ((*numframes == 0) || (*numframes == 1))) // Is this an effectively pause request...
   {
@@ -505,7 +507,8 @@ void VideoView::Play(const uint64_t time, const boost::optional<uint64_t>& numfr
 void VideoView::Pause(const boost::optional<uint64_t>& time)
 {
   SetPaused(true);
-  connection_->ControlStreamPause(activestreamtoken_, time);
+  activeadaptivestreamtoken_.reset();
+  connection_->ControlStreamPause(activestreamtoken_, time);//TODO we need to save these connecion things
   for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
   {
     metadataconnection_->ControlStreamPause(metadatastreamtoken.second, time);
@@ -516,6 +519,11 @@ void VideoView::Pause(const boost::optional<uint64_t>& time)
 void VideoView::Stop()
 {
   SetPaused(false);
+
+  //TODO if (!activestreamtoken_.is_initialized())
+    //TODO check for streamtokens_ and pick one... otherwise just exit I guess? or just do the metadata, because why not just stream metadata I suppose
+
+  activeadaptivestreamtoken_ = activestreamtoken_;
   connection_->ControlStreamLive(activestreamtoken_, GetNextPlayRequestIndex(true));
   for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
   {
@@ -531,6 +539,7 @@ void VideoView::Scrub(const uint64_t time)
     ResetDecoders();
   }
 
+  activeadaptivestreamtoken_.reset();
   connection_->ControlStream(activestreamtoken_, GetNextPlayRequestIndex(false), true, false, true, time + GetTimeOffset(), boost::none, 1, true);
   controlstreamendcallback_ = [this](const uint64_t playrequestindex, const monocle::ErrorCode err)
   {
@@ -576,9 +585,11 @@ void VideoView::SetPosition(VideoWidget* videowidget, const unsigned int x, cons
     return;
   }
   
-  //TODO if we are NOT live, we should just fuck off
-    //TODO we could change paused_ to an enum...?
-    //TODO do we need a boolean for this?
+  if (!activeadaptivestreamtoken_.is_initialized()) // We can only do adaptive streaming when live
+  {
+
+    return;
+  }
 
   const QSharedPointer<RecordingJob> activejob = recording_->GetActiveJob();
   if (!activejob)
@@ -588,7 +599,7 @@ void VideoView::SetPosition(VideoWidget* videowidget, const unsigned int x, cons
   }
 
   // Sort the recording tracks by id
-  std::vector< std::pair<QSharedPointer<RecordingTrack>, uint64_t> > trackarea; // <track, area>//TODO can be <uint32_t,uint64_t>
+  std::vector< std::pair<uint32_t, uint64_t> > trackarea; // <trackid, area>
   trackarea.reserve(5);
   for (const QSharedPointer<RecordingJobSource>& source : activejob->GetSources())
   {
@@ -619,7 +630,7 @@ void VideoView::SetPosition(VideoWidget* videowidget, const unsigned int x, cons
 
         const uint64_t width = boost::lexical_cast<uint64_t>(activewidth->toStdString());
         const uint64_t height = boost::lexical_cast<uint64_t>(activeheight->toStdString());
-        trackarea.push_back(std::make_pair(track, width * height));
+        trackarea.push_back(std::make_pair(track->GetId(), width * height));
       }
       catch (...)
       {
@@ -634,25 +645,26 @@ void VideoView::SetPosition(VideoWidget* videowidget, const unsigned int x, cons
 
     return;
   }
-  //TODO Does this area thing work well enough?
-  std::sort(trackarea.begin(), trackarea.end(), [](const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& lhs, const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& rhs) { return (lhs.second < rhs.second); });
+  
+  // Find the best track for our current resolution
+  std::sort(trackarea.begin(), trackarea.end(), [](const std::pair<uint32_t, uint64_t>& lhs, const std::pair<uint32_t, uint64_t>& rhs) { return (lhs.second < rhs.second); });
   const QRect pixelrect = GetPixelRect();
   const uint64_t currentarea = pixelrect.width() * pixelrect.height();
-  std::vector< std::pair<QSharedPointer<RecordingTrack>, uint64_t> >::iterator i = std::find_if(trackarea.begin(), trackarea.end(), [currentarea](const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& trackarea) { return (currentarea >= trackarea.second); });
+  std::vector< std::pair<uint32_t, uint64_t> >::iterator i = std::find_if(trackarea.begin(), trackarea.end(), [currentarea](const std::pair<uint32_t, uint64_t>& trackarea) { return (currentarea >= trackarea.second); });
   if (i == trackarea.end())
   {
     i = trackarea.end() - 1;
 
   }
   
-  std::vector< std::pair<uint32_t, uint64_t> >::const_iterator j = std::find_if(streamtokens_.cbegin(), streamtokens_.cend(), [i](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.first == i->first->GetId()); });
+  std::vector< std::pair<uint32_t, uint64_t> >::const_iterator j = std::find_if(streamtokens_.cbegin(), streamtokens_.cend(), [i](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.first == i->first); });
   if (j == streamtokens_.cend())
   {
 
     return; // Shouldn't be possible but ok...
   }
 
-  if (activeadaptivestreamtoken_.is_initialized() && (j->second == *activeadaptivestreamtoken_)) // Don't bother changing anything if we are already streaming this track
+  if (j->second == *activeadaptivestreamtoken_) // Don't bother changing anything if we are already streaming this track
   {
 
     return;
