@@ -18,4 +18,5 @@ table Recording
   tracks:[RecordingTrack] (id:9);
   activejob:TOKEN (id:10);
   guiorder:uint64 (id:11);
+  adaptivestreaming:bool = false (id:12);
 }

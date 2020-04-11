@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct GPUStat;
+struct GPUStatBuilder;
 
 struct GPUStat FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef GPUStatBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_UUID = 4,
     VT_NAME = 6,
@@ -52,6 +54,7 @@ struct GPUStat FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct GPUStatBuilder {
+  typedef GPUStat Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_uuid(flatbuffers::Offset<flatbuffers::String> uuid) {
@@ -76,7 +79,6 @@ struct GPUStatBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  GPUStatBuilder &operator=(const GPUStatBuilder &);
   flatbuffers::Offset<GPUStat> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<GPUStat>(end);

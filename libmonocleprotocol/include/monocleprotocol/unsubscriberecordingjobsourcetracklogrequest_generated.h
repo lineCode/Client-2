@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct UnsubscribeRecordingJobSourceTrackLogRequest;
+struct UnsubscribeRecordingJobSourceTrackLogRequestBuilder;
 
 struct UnsubscribeRecordingJobSourceTrackLogRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef UnsubscribeRecordingJobSourceTrackLogRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDINGTOKEN = 4
   };
@@ -25,6 +27,7 @@ struct UnsubscribeRecordingJobSourceTrackLogRequest FLATBUFFERS_FINAL_CLASS : pr
 };
 
 struct UnsubscribeRecordingJobSourceTrackLogRequestBuilder {
+  typedef UnsubscribeRecordingJobSourceTrackLogRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_recordingtoken(uint64_t recordingtoken) {
@@ -34,7 +37,6 @@ struct UnsubscribeRecordingJobSourceTrackLogRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  UnsubscribeRecordingJobSourceTrackLogRequestBuilder &operator=(const UnsubscribeRecordingJobSourceTrackLogRequestBuilder &);
   flatbuffers::Offset<UnsubscribeRecordingJobSourceTrackLogRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<UnsubscribeRecordingJobSourceTrackLogRequest>(end);

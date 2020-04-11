@@ -12,10 +12,13 @@
 namespace monocle {
 
 struct RecordingJobLogMessages;
+struct RecordingJobLogMessagesBuilder;
 
 struct SubscribeRecordingJobLogResponse;
+struct SubscribeRecordingJobLogResponseBuilder;
 
 struct RecordingJobLogMessages FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef RecordingJobLogMessagesBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_MESSAGES = 6
@@ -37,6 +40,7 @@ struct RecordingJobLogMessages FLATBUFFERS_FINAL_CLASS : private flatbuffers::Ta
 };
 
 struct RecordingJobLogMessagesBuilder {
+  typedef RecordingJobLogMessages Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -49,7 +53,6 @@ struct RecordingJobLogMessagesBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  RecordingJobLogMessagesBuilder &operator=(const RecordingJobLogMessagesBuilder &);
   flatbuffers::Offset<RecordingJobLogMessages> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<RecordingJobLogMessages>(end);
@@ -79,6 +82,7 @@ inline flatbuffers::Offset<RecordingJobLogMessages> CreateRecordingJobLogMessage
 }
 
 struct SubscribeRecordingJobLogResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef SubscribeRecordingJobLogResponseBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDINGJOBLOGMESSAGES = 4
   };
@@ -95,6 +99,7 @@ struct SubscribeRecordingJobLogResponse FLATBUFFERS_FINAL_CLASS : private flatbu
 };
 
 struct SubscribeRecordingJobLogResponseBuilder {
+  typedef SubscribeRecordingJobLogResponse Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_recordingjoblogmessages(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingJobLogMessages>>> recordingjoblogmessages) {
@@ -104,7 +109,6 @@ struct SubscribeRecordingJobLogResponseBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  SubscribeRecordingJobLogResponseBuilder &operator=(const SubscribeRecordingJobLogResponseBuilder &);
   flatbuffers::Offset<SubscribeRecordingJobLogResponse> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<SubscribeRecordingJobLogResponse>(end);

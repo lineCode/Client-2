@@ -11,4 +11,5 @@ table AddRecordingRequest
   retentiontime:uint64 (id:6);
   createdefaulttracks:bool (id:7);
   createdefaultjob:bool (id:8);
+  adaptivestreaming:bool = false (id:9);
 }

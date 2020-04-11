@@ -12,8 +12,10 @@
 namespace monocle {
 
 struct HardwareStats;
+struct HardwareStatsBuilder;
 
 struct HardwareStats FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef HardwareStatsBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TIME = 4,
     VT_DISKSTATS = 6,
@@ -57,6 +59,7 @@ struct HardwareStats FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct HardwareStatsBuilder {
+  typedef HardwareStats Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_time(uint64_t time) {
@@ -81,7 +84,6 @@ struct HardwareStatsBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  HardwareStatsBuilder &operator=(const HardwareStatsBuilder &);
   flatbuffers::Offset<HardwareStats> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<HardwareStats>(end);

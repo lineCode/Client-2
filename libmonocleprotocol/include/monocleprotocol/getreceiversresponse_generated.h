@@ -13,8 +13,10 @@
 namespace monocle {
 
 struct GetReceiversResponse;
+struct GetReceiversResponseBuilder;
 
 struct GetReceiversResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef GetReceiversResponseBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECEIVERS = 4
   };
@@ -31,6 +33,7 @@ struct GetReceiversResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table
 };
 
 struct GetReceiversResponseBuilder {
+  typedef GetReceiversResponse Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_receivers(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::Receiver>>> receivers) {
@@ -40,7 +43,6 @@ struct GetReceiversResponseBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  GetReceiversResponseBuilder &operator=(const GetReceiversResponseBuilder &);
   flatbuffers::Offset<GetReceiversResponse> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<GetReceiversResponse>(end);

@@ -386,15 +386,15 @@ void Connection::RecordingActiveJobChanged(const uint64_t recordingtoken, const 
 
 }
 
-void Connection::RecordingAdded(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const boost::optional<uint64_t>& activejob)
+void Connection::RecordingAdded(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool adaptivestreaming, const boost::optional<uint64_t>& activejob)
 {
-  emit SignalRecordingAdded(token, sourceid, name, location, description, address, content, retentiontime, activejob);
+  emit SignalRecordingAdded(token, sourceid, name, location, description, address, content, retentiontime, adaptivestreaming, activejob);
 
 }
 
-void Connection::RecordingChanged(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const boost::optional<uint64_t>& activejob)
+void Connection::RecordingChanged(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool adaptivestreaming, const boost::optional<uint64_t>& activejob)
 {
-  emit SignalRecordingChanged(token, sourceid, name, location, description, address, content, retentiontime, activejob);
+  emit SignalRecordingChanged(token, sourceid, name, location, description, address, content, retentiontime, adaptivestreaming, activejob);
 
 }
 

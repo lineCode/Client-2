@@ -144,6 +144,7 @@ class Device : public Connection
   bool SupportsGetChildFoldersFilter() const;
   bool SupportsLayouts() const;
   bool SupportsGetTrackStatistics() const;
+  bool SupportsAdaptiveStreaming() const;
 
   // These methods look for the current user in the users_, find the group and figure out whether the current user has permission to do the operation
   bool CanManageUsers();
@@ -289,8 +290,8 @@ class Device : public Connection
   void SlotReceiverChanged(const uint64_t token, const monocle::ReceiverMode mode, const QString& mediauri, const bool autocreated, const QString& username, const QString& password, const std::vector<QString>& parameters);
   void SlotReceiverRemoved(const uint64_t token);
   void SlotRecordingActiveJobChanged(const uint64_t token, const boost::optional<uint64_t>& activejob);
-  void SlotRecordingAdded(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const boost::optional<uint64_t>& activejob);
-  void SlotRecordingChanged(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const boost::optional<uint64_t>& activejob);
+  void SlotRecordingAdded(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool adaptivestreaming, const boost::optional<uint64_t>& activejob);
+  void SlotRecordingChanged(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool adaptivestreaming, const boost::optional<uint64_t>& activejob);
   void SlotRecordingRemoved(const uint64_t token);
   void SlotRecordingJobAdded(const uint64_t recordingtoken, const uint64_t token, const std::string& name, const bool enabled, const uint64_t priority, const monocle::RecordingJobState state);
   void SlotRecordingJobChanged(const uint64_t recordingtoken, const uint64_t token, const std::string& name, const bool enabled, const uint64_t priority);

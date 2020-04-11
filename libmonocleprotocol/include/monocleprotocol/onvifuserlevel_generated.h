@@ -39,7 +39,7 @@ inline const char * const *EnumNamesONVIFUserlevel() {
 }
 
 inline const char *EnumNameONVIFUserlevel(ONVIFUserlevel e) {
-  if (e < ONVIFUserlevel::Anonymous || e > ONVIFUserlevel::Administrator) return "";
+  if (flatbuffers::IsOutRange(e, ONVIFUserlevel::Anonymous, ONVIFUserlevel::Administrator)) return "";
   const size_t index = static_cast<size_t>(e) - static_cast<size_t>(ONVIFUserlevel::Anonymous);
   return EnumNamesONVIFUserlevel()[index];
 }

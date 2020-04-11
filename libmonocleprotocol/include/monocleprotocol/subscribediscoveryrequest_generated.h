@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct SubscribeDiscoveryRequest;
+struct SubscribeDiscoveryRequestBuilder;
 
 struct SubscribeDiscoveryRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef SubscribeDiscoveryRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_BROADCAST = 4
   };
@@ -25,6 +27,7 @@ struct SubscribeDiscoveryRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::
 };
 
 struct SubscribeDiscoveryRequestBuilder {
+  typedef SubscribeDiscoveryRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_broadcast(bool broadcast) {
@@ -34,7 +37,6 @@ struct SubscribeDiscoveryRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  SubscribeDiscoveryRequestBuilder &operator=(const SubscribeDiscoveryRequestBuilder &);
   flatbuffers::Offset<SubscribeDiscoveryRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<SubscribeDiscoveryRequest>(end);

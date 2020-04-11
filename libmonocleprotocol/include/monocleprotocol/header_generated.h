@@ -34,7 +34,7 @@ inline const char * const *EnumNamesHeaderFlags() {
 }
 
 inline const char *EnumNameHeaderFlags(HeaderFlags e) {
-  if (e < HeaderFlags::FLAG_ERROR || e > HeaderFlags::FLAG_COMPRESSED) return "";
+  if (flatbuffers::IsOutRange(e, HeaderFlags::FLAG_ERROR, HeaderFlags::FLAG_COMPRESSED)) return "";
   const size_t index = static_cast<size_t>(e) - static_cast<size_t>(HeaderFlags::FLAG_ERROR);
   return EnumNamesHeaderFlags()[index];
 }

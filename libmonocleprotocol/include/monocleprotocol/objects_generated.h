@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct Object;
+struct ObjectBuilder;
 
 struct Objects;
+struct ObjectsBuilder;
 
 enum class ObjectClass : uint16_t {
   Human = 0,
@@ -93,12 +95,13 @@ inline const char * const *EnumNamesObjectClass() {
 }
 
 inline const char *EnumNameObjectClass(ObjectClass e) {
-  if (e < ObjectClass::Human || e > ObjectClass::Suitcase) return "";
+  if (flatbuffers::IsOutRange(e, ObjectClass::Human, ObjectClass::Suitcase)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesObjectClass()[index];
 }
 
 struct Object FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef ObjectBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_ID = 4,
     VT_CLASSID = 6,
@@ -143,6 +146,7 @@ struct Object FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct ObjectBuilder {
+  typedef Object Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_id(uint64_t id) {
@@ -170,7 +174,6 @@ struct ObjectBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ObjectBuilder &operator=(const ObjectBuilder &);
   flatbuffers::Offset<Object> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<Object>(end);
@@ -199,6 +202,7 @@ inline flatbuffers::Offset<Object> CreateObject(
 }
 
 struct Objects FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef ObjectsBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_OBJECTS = 4
   };
@@ -215,6 +219,7 @@ struct Objects FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct ObjectsBuilder {
+  typedef Objects Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_objects(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::Object>>> objects) {
@@ -224,7 +229,6 @@ struct ObjectsBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ObjectsBuilder &operator=(const ObjectsBuilder &);
   flatbuffers::Offset<Objects> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<Objects>(end);

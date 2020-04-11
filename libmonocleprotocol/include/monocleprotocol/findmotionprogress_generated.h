@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct FindMotionProgress;
+struct FindMotionProgressBuilder;
 
 struct FindMotionProgress FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef FindMotionProgressBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_PROGRESS = 6
@@ -30,6 +32,7 @@ struct FindMotionProgress FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct FindMotionProgressBuilder {
+  typedef FindMotionProgress Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -42,7 +45,6 @@ struct FindMotionProgressBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  FindMotionProgressBuilder &operator=(const FindMotionProgressBuilder &);
   flatbuffers::Offset<FindMotionProgress> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<FindMotionProgress>(end);

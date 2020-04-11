@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct ChangeGroupRequest;
+struct ChangeGroupRequestBuilder;
 
 struct ChangeGroupRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef ChangeGroupRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_NAME = 6,
@@ -62,6 +64,7 @@ struct ChangeGroupRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct ChangeGroupRequestBuilder {
+  typedef ChangeGroupRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -92,7 +95,6 @@ struct ChangeGroupRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ChangeGroupRequestBuilder &operator=(const ChangeGroupRequestBuilder &);
   flatbuffers::Offset<ChangeGroupRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<ChangeGroupRequest>(end);

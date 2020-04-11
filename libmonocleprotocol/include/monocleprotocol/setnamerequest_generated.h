@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct SetNameRequest;
+struct SetNameRequestBuilder;
 
 struct SetNameRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef SetNameRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_NAME = 4
   };
@@ -26,6 +28,7 @@ struct SetNameRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct SetNameRequestBuilder {
+  typedef SetNameRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_name(flatbuffers::Offset<flatbuffers::String> name) {
@@ -35,7 +38,6 @@ struct SetNameRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  SetNameRequestBuilder &operator=(const SetNameRequestBuilder &);
   flatbuffers::Offset<SetNameRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<SetNameRequest>(end);

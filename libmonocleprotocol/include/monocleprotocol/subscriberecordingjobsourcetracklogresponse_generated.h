@@ -12,10 +12,13 @@
 namespace monocle {
 
 struct RecordingJobSourceTrackLogMessages;
+struct RecordingJobSourceTrackLogMessagesBuilder;
 
 struct SubscribeRecordingJobSourceTrackLogResponse;
+struct SubscribeRecordingJobSourceTrackLogResponseBuilder;
 
 struct RecordingJobSourceTrackLogMessages FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef RecordingJobSourceTrackLogMessagesBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDINGJOBTOKEN = 4,
     VT_RECORDINGJOBSOURCETOKEN = 6,
@@ -47,6 +50,7 @@ struct RecordingJobSourceTrackLogMessages FLATBUFFERS_FINAL_CLASS : private flat
 };
 
 struct RecordingJobSourceTrackLogMessagesBuilder {
+  typedef RecordingJobSourceTrackLogMessages Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_recordingjobtoken(uint64_t recordingjobtoken) {
@@ -65,7 +69,6 @@ struct RecordingJobSourceTrackLogMessagesBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  RecordingJobSourceTrackLogMessagesBuilder &operator=(const RecordingJobSourceTrackLogMessagesBuilder &);
   flatbuffers::Offset<RecordingJobSourceTrackLogMessages> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<RecordingJobSourceTrackLogMessages>(end);
@@ -103,6 +106,7 @@ inline flatbuffers::Offset<RecordingJobSourceTrackLogMessages> CreateRecordingJo
 }
 
 struct SubscribeRecordingJobSourceTrackLogResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef SubscribeRecordingJobSourceTrackLogResponseBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDINGJOBSOURCETRACKLOGMESSAGES = 4
   };
@@ -119,6 +123,7 @@ struct SubscribeRecordingJobSourceTrackLogResponse FLATBUFFERS_FINAL_CLASS : pri
 };
 
 struct SubscribeRecordingJobSourceTrackLogResponseBuilder {
+  typedef SubscribeRecordingJobSourceTrackLogResponse Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_recordingjobsourcetracklogmessages(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingJobSourceTrackLogMessages>>> recordingjobsourcetracklogmessages) {
@@ -128,7 +133,6 @@ struct SubscribeRecordingJobSourceTrackLogResponseBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  SubscribeRecordingJobSourceTrackLogResponseBuilder &operator=(const SubscribeRecordingJobSourceTrackLogResponseBuilder &);
   flatbuffers::Offset<SubscribeRecordingJobSourceTrackLogResponse> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<SubscribeRecordingJobSourceTrackLogResponse>(end);

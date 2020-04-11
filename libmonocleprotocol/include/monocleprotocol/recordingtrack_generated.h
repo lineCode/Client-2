@@ -14,8 +14,10 @@
 namespace monocle {
 
 struct RecordingTrack;
+struct RecordingTrackBuilder;
 
 struct RecordingTrack FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef RecordingTrackBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_ID = 4,
     VT_TOKEN = 6,
@@ -96,6 +98,7 @@ struct RecordingTrack FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct RecordingTrackBuilder {
+  typedef RecordingTrack Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_id(uint32_t id) {
@@ -141,7 +144,6 @@ struct RecordingTrackBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  RecordingTrackBuilder &operator=(const RecordingTrackBuilder &);
   flatbuffers::Offset<RecordingTrack> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<RecordingTrack>(end);

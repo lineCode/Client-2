@@ -11,8 +11,10 @@
 namespace monocle {
 
 struct ControlStreamEnd;
+struct ControlStreamEndBuilder;
 
 struct ControlStreamEnd FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef ControlStreamEndBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_PLAYREQUESTINDEX = 6,
@@ -37,6 +39,7 @@ struct ControlStreamEnd FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct ControlStreamEndBuilder {
+  typedef ControlStreamEnd Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -52,7 +55,6 @@ struct ControlStreamEndBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ControlStreamEndBuilder &operator=(const ControlStreamEndBuilder &);
   flatbuffers::Offset<ControlStreamEnd> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<ControlStreamEnd>(end);

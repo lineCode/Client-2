@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct GroupRemoved;
+struct GroupRemovedBuilder;
 
 struct GroupRemoved FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef GroupRemovedBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4
   };
@@ -25,6 +27,7 @@ struct GroupRemoved FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct GroupRemovedBuilder {
+  typedef GroupRemoved Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -34,7 +37,6 @@ struct GroupRemovedBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  GroupRemovedBuilder &operator=(const GroupRemovedBuilder &);
   flatbuffers::Offset<GroupRemoved> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<GroupRemoved>(end);

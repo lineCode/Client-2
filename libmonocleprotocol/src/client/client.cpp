@@ -480,10 +480,10 @@ boost::unique_future<ADDRECEIVERRESPONSE> Client::AddReceiver(const monocle::Rec
   return addreceiver_.CreateFuture(sequence_);
 }
 
-boost::unique_future<ADDRECORDINGRESPONSE> Client::AddRecording(const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool createdefaulttracks, const bool createdefaultjob)
+boost::unique_future<ADDRECORDINGRESPONSE> Client::AddRecording(const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool adaptivestreaming, const bool createdefaulttracks, const bool createdefaultjob)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  if (AddRecordingSend(sourceid, name, location, description, address, content, retentiontime, createdefaulttracks, createdefaultjob))
+  if (AddRecordingSend(sourceid, name, location, description, address, content, retentiontime, adaptivestreaming, createdefaulttracks, createdefaultjob))
   {
 
     return boost::make_ready_future(ADDRECORDINGRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
@@ -612,10 +612,10 @@ boost::unique_future<CHANGERECEIVERRESPONSE> Client::ChangeReceiver(const uint64
   return changereceiver_.CreateFuture(sequence_);
 }
 
-boost::unique_future<CHANGERECORDINGRESPONSE> Client::ChangeRecording(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime)
+boost::unique_future<CHANGERECORDINGRESPONSE> Client::ChangeRecording(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool adaptivestreaming)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  if (ChangeRecordingSend(token, sourceid, name, location, description, address, content, retentiontime))
+  if (ChangeRecordingSend(token, sourceid, name, location, description, address, content, retentiontime, adaptivestreaming))
   {
 
     return boost::make_ready_future(CHANGERECORDINGRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
@@ -1295,10 +1295,10 @@ Connection Client::AddReceiver(const monocle::ReceiverMode mode, const std::stri
   return addreceiver_.CreateCallback(sequence_, callback);
 }
 
-Connection Client::AddRecording(const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool createdefaulttracks, const bool createdefaultjob, boost::function<void(const std::chrono::steady_clock::duration, const ADDRECORDINGRESPONSE&)> callback)
+Connection Client::AddRecording(const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool adaptivestreaming, const bool createdefaulttracks, const bool createdefaultjob, boost::function<void(const std::chrono::steady_clock::duration, const ADDRECORDINGRESPONSE&)> callback)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  if (AddRecordingSend(sourceid, name, location, description, address, content, retentiontime, createdefaulttracks, createdefaultjob))
+  if (AddRecordingSend(sourceid, name, location, description, address, content, retentiontime, adaptivestreaming, createdefaulttracks, createdefaultjob))
   {
     callback(std::chrono::steady_clock::duration(), ADDRECORDINGRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
     return Connection();
@@ -1427,10 +1427,10 @@ Connection Client::ChangeReceiver(const uint64_t token, const monocle::ReceiverM
   return changereceiver_.CreateCallback(sequence_, callback);
 }
 
-Connection Client::ChangeRecording(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, boost::function<void(const std::chrono::steady_clock::duration, const CHANGERECORDINGRESPONSE&)> callback)
+Connection Client::ChangeRecording(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool adaptivestreaming, boost::function<void(const std::chrono::steady_clock::duration, const CHANGERECORDINGRESPONSE&)> callback)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
-  if (ChangeRecordingSend(token, sourceid, name, location, description, address, content, retentiontime))
+  if (ChangeRecordingSend(token, sourceid, name, location, description, address, content, retentiontime, adaptivestreaming))
   {
     callback(std::chrono::steady_clock::duration(), CHANGERECORDINGRESPONSE(Error(ErrorCode::Disconnected, "Disconnected")));
     return Connection();
@@ -2178,10 +2178,10 @@ boost::system::error_code Client::AddReceiverSend(const monocle::ReceiverMode mo
   return err;
 }
 
-boost::system::error_code Client::AddRecordingSend(const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool createdefaulttracks, const bool createdefaultjob)
+boost::system::error_code Client::AddRecordingSend(const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool adaptivestreaming, const bool createdefaulttracks, const bool createdefaultjob)
 {
   fbb_.Clear();
-  fbb_.Finish(CreateAddRecordingRequest(fbb_, fbb_.CreateString(sourceid), fbb_.CreateString(name), fbb_.CreateString(location), fbb_.CreateString(description), fbb_.CreateString(address), fbb_.CreateString(content), retentiontime, createdefaulttracks, createdefaultjob));
+  fbb_.Finish(CreateAddRecordingRequest(fbb_, fbb_.CreateString(sourceid), fbb_.CreateString(name), fbb_.CreateString(location), fbb_.CreateString(description), fbb_.CreateString(address), fbb_.CreateString(content), retentiontime, adaptivestreaming, createdefaulttracks, createdefaultjob));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::ADDRECORDING, ++sequence_);
   boost::system::error_code err;
@@ -2477,10 +2477,10 @@ boost::system::error_code Client::ChangeReceiverSend(const uint64_t token, const
   return err;
 }
 
-boost::system::error_code Client::ChangeRecordingSend(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime)
+boost::system::error_code Client::ChangeRecordingSend(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool adaptivestreaming)
 {
   fbb_.Clear();
-  fbb_.Finish(CreateChangeRecordingRequest(fbb_, token, fbb_.CreateString(sourceid), fbb_.CreateString(name), fbb_.CreateString(location), fbb_.CreateString(description), fbb_.CreateString(address), fbb_.CreateString(content), retentiontime));
+  fbb_.Finish(CreateChangeRecordingRequest(fbb_, token, fbb_.CreateString(sourceid), fbb_.CreateString(name), fbb_.CreateString(location), fbb_.CreateString(description), fbb_.CreateString(address), fbb_.CreateString(content), retentiontime, 0,  adaptivestreaming));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::CHANGERECORDING, ++sequence_);
   boost::system::error_code err;
@@ -6401,7 +6401,7 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
 
       }
 
-      RecordingAdded(recordingadded->token(), sourceid, name, location, description, address, content, recordingadded->retentiontime(), activejob);
+      RecordingAdded(recordingadded->token(), sourceid, name, location, description, address, content, recordingadded->retentiontime(), recordingadded->adaptivestreaming(), activejob);
       break;
     }
     case Message::RECORDINGCHANGED:
@@ -6474,7 +6474,7 @@ void Client::HandleMessage(const bool error, const bool compressed, const Messag
 
       }
 
-      RecordingChanged(recordingchanged->token(), sourceid, name, location, description, address, content, recordingchanged->retentiontime(), activejob);
+      RecordingChanged(recordingchanged->token(), sourceid, name, location, description, address, content, recordingchanged->retentiontime(), recordingchanged->adaptivestreaming(), activejob);
       break;
     }
     case Message::RECORDINGJOBADDED:
@@ -8063,7 +8063,7 @@ std::pair< Error, std::vector<RECORDING> > Client::GetRecordingsBuffer(const fla
       tracks.push_back(RECORDINGTRACK(track->id(), track->token()->str(), track->tracktype(), track->description()->str(), track->fixedfiles(), track->digitalsigning(), track->encrypt(), track->flushfrequency(), ToVector(*track->files()), ToVector(*track->indices()), ToVector(track->codecindices()), std::make_pair(track->totaltrackdatatime(), track->totaltrackdata())));
     }
 
-    recordings.push_back(RECORDING(recording->token(), recording->sourceid()->str(), recording->name()->str(), recording->location()->str(), recording->description()->str(), recording->address()->str(), recording->content()->str(), recording->retentiontime(), jobs, tracks, recording->activejob() ? boost::optional<uint64_t>(recording->activejob()->token()) : boost::none, recording->guiorder()));
+    recordings.push_back(RECORDING(recording->token(), recording->sourceid()->str(), recording->name()->str(), recording->location()->str(), recording->description()->str(), recording->address()->str(), recording->content()->str(), recording->retentiontime(), recording->adaptivestreaming(), jobs, tracks, recording->activejob() ? boost::optional<uint64_t>(recording->activejob()->token()) : boost::none, recording->guiorder()));
   }
   return std::make_pair(Error(), recordings);
 }

@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct RemoveTracksRequest;
+struct RemoveTracksRequestBuilder;
 
 struct RemoveTracksRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef RemoveTracksRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDINGTOKEN = 4,
     VT_IDS = 6
@@ -31,6 +33,7 @@ struct RemoveTracksRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table 
 };
 
 struct RemoveTracksRequestBuilder {
+  typedef RemoveTracksRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_recordingtoken(uint64_t recordingtoken) {
@@ -43,7 +46,6 @@ struct RemoveTracksRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  RemoveTracksRequestBuilder &operator=(const RemoveTracksRequestBuilder &);
   flatbuffers::Offset<RemoveTracksRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<RemoveTracksRequest>(end);

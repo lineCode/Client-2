@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct RecordingJobSourceAdded;
+struct RecordingJobSourceAddedBuilder;
 
 struct RecordingJobSourceAdded FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef RecordingJobSourceAddedBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDINGTOKEN = 4,
     VT_RECORDINGJOBTOKEN = 6,
@@ -40,6 +42,7 @@ struct RecordingJobSourceAdded FLATBUFFERS_FINAL_CLASS : private flatbuffers::Ta
 };
 
 struct RecordingJobSourceAddedBuilder {
+  typedef RecordingJobSourceAdded Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_recordingtoken(uint64_t recordingtoken) {
@@ -58,7 +61,6 @@ struct RecordingJobSourceAddedBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  RecordingJobSourceAddedBuilder &operator=(const RecordingJobSourceAddedBuilder &);
   flatbuffers::Offset<RecordingJobSourceAdded> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<RecordingJobSourceAdded>(end);

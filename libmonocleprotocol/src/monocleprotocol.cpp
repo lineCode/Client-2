@@ -680,7 +680,7 @@ RECORDING::RECORDING() :
 
 }
 
-RECORDING::RECORDING(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const std::vector<RECORDINGJOB>& jobs, const std::vector<RECORDINGTRACK>& tracks, const boost::optional<uint64_t>& activejob, const uint64_t guiorder) :
+RECORDING::RECORDING(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool adaptivestreaming, const std::vector<RECORDINGJOB>& jobs, const std::vector<RECORDINGTRACK>& tracks, const boost::optional<uint64_t>& activejob, const uint64_t guiorder) :
   token_(token),
   sourceid_(sourceid),
   name_(name),
@@ -689,6 +689,7 @@ RECORDING::RECORDING(const uint64_t token, const std::string& sourceid, const st
   address_(address),
   content_(content),
   retentiontime_(retentiontime),
+  adaptivestreaming_(adaptivestreaming),
   jobs_(jobs),
   tracks_(tracks),
   activejob_(activejob),
@@ -699,7 +700,7 @@ RECORDING::RECORDING(const uint64_t token, const std::string& sourceid, const st
 
 bool RECORDING::operator==(const RECORDING& rhs) const
 {
-  return ((token_ == rhs.token_) && (sourceid_ == rhs.sourceid_) && (name_ == rhs.name_) && (location_ == rhs.location_) && (description_ == rhs.description_) && (address_ == rhs.address_) && (content_ == rhs.content_) && (retentiontime_ == rhs.retentiontime_) && std::is_permutation(jobs_.cbegin(), jobs_.cend(), rhs.jobs_.cbegin(), rhs.jobs_.cend()) && (tracks_ == rhs.tracks_) && (guiorder_ == rhs.guiorder_));
+  return ((token_ == rhs.token_) && (sourceid_ == rhs.sourceid_) && (name_ == rhs.name_) && (location_ == rhs.location_) && (description_ == rhs.description_) && (address_ == rhs.address_) && (content_ == rhs.content_) && (retentiontime_ == rhs.retentiontime_) && std::is_permutation(jobs_.cbegin(), jobs_.cend(), rhs.jobs_.cbegin(), rhs.jobs_.cend()) && (tracks_ == rhs.tracks_) && (guiorder_ == rhs.guiorder_) && (adaptivestreaming_ == rhs.adaptivestreaming_));
 }
 
 RECORDINGLOGMESSAGE::RECORDINGLOGMESSAGE(const uint64_t token, const LOGMESSAGE& logmessage) :

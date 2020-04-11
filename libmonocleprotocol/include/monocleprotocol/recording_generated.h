@@ -21,8 +21,10 @@
 namespace monocle {
 
 struct Recording;
+struct RecordingBuilder;
 
 struct Recording FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef RecordingBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_SOURCEID = 6,
@@ -35,7 +37,8 @@ struct Recording FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_RECORDINGJOBS = 20,
     VT_TRACKS = 22,
     VT_ACTIVEJOB = 24,
-    VT_GUIORDER = 26
+    VT_GUIORDER = 26,
+    VT_ADAPTIVESTREAMING = 28
   };
   uint64_t token() const {
     return GetField<uint64_t>(VT_TOKEN, 0);
@@ -73,6 +76,9 @@ struct Recording FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint64_t guiorder() const {
     return GetField<uint64_t>(VT_GUIORDER, 0);
   }
+  bool adaptivestreaming() const {
+    return GetField<uint8_t>(VT_ADAPTIVESTREAMING, 0) != 0;
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_TOKEN) &&
@@ -97,11 +103,13 @@ struct Recording FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            verifier.VerifyVectorOfTables(tracks()) &&
            VerifyField<monocle::TOKEN>(verifier, VT_ACTIVEJOB) &&
            VerifyField<uint64_t>(verifier, VT_GUIORDER) &&
+           VerifyField<uint8_t>(verifier, VT_ADAPTIVESTREAMING) &&
            verifier.EndTable();
   }
 };
 
 struct RecordingBuilder {
+  typedef Recording Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -140,11 +148,13 @@ struct RecordingBuilder {
   void add_guiorder(uint64_t guiorder) {
     fbb_.AddElement<uint64_t>(Recording::VT_GUIORDER, guiorder, 0);
   }
+  void add_adaptivestreaming(bool adaptivestreaming) {
+    fbb_.AddElement<uint8_t>(Recording::VT_ADAPTIVESTREAMING, static_cast<uint8_t>(adaptivestreaming), 0);
+  }
   explicit RecordingBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  RecordingBuilder &operator=(const RecordingBuilder &);
   flatbuffers::Offset<Recording> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<Recording>(end);
@@ -165,7 +175,8 @@ inline flatbuffers::Offset<Recording> CreateRecording(
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingJob>>> recordingjobs = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingTrack>>> tracks = 0,
     const monocle::TOKEN *activejob = 0,
-    uint64_t guiorder = 0) {
+    uint64_t guiorder = 0,
+    bool adaptivestreaming = false) {
   RecordingBuilder builder_(_fbb);
   builder_.add_guiorder(guiorder);
   builder_.add_retentiontime(retentiontime);
@@ -179,6 +190,7 @@ inline flatbuffers::Offset<Recording> CreateRecording(
   builder_.add_location(location);
   builder_.add_name(name);
   builder_.add_sourceid(sourceid);
+  builder_.add_adaptivestreaming(adaptivestreaming);
   return builder_.Finish();
 }
 
@@ -195,7 +207,8 @@ inline flatbuffers::Offset<Recording> CreateRecordingDirect(
     const std::vector<flatbuffers::Offset<monocle::RecordingJob>> *recordingjobs = nullptr,
     const std::vector<flatbuffers::Offset<monocle::RecordingTrack>> *tracks = nullptr,
     const monocle::TOKEN *activejob = 0,
-    uint64_t guiorder = 0) {
+    uint64_t guiorder = 0,
+    bool adaptivestreaming = false) {
   auto sourceid__ = sourceid ? _fbb.CreateString(sourceid) : 0;
   auto name__ = name ? _fbb.CreateString(name) : 0;
   auto location__ = location ? _fbb.CreateString(location) : 0;
@@ -217,7 +230,8 @@ inline flatbuffers::Offset<Recording> CreateRecordingDirect(
       recordingjobs__,
       tracks__,
       activejob,
-      guiorder);
+      guiorder,
+      adaptivestreaming);
 }
 
 }  // namespace monocle

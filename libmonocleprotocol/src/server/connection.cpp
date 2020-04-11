@@ -1050,7 +1050,7 @@ boost::system::error_code Connection::SendRecordingActiveJobChanged(const uint64
   return err;
 }
 
-boost::system::error_code Connection::SendRecordingAdded(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const boost::optional<uint64_t>& activejob)
+boost::system::error_code Connection::SendRecordingAdded(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool adaptivestreaming, const boost::optional<uint64_t>& activejob)
 {
   std::lock_guard<std::mutex> lock(writemutex_);
   std::unique_ptr<monocle::TOKEN> activejobtoken;
@@ -1059,7 +1059,7 @@ boost::system::error_code Connection::SendRecordingAdded(const uint64_t token, c
     activejobtoken = std::make_unique<monocle::TOKEN>(*activejob);
   }
   fbb_.Clear();
-  fbb_.Finish(CreateRecordingAdded(fbb_, token, fbb_.CreateString(sourceid), fbb_.CreateString(name), fbb_.CreateString(location), fbb_.CreateString(description), fbb_.CreateString(address), fbb_.CreateString(content), retentiontime, activejobtoken.get()));
+  fbb_.Finish(CreateRecordingAdded(fbb_, token, fbb_.CreateString(sourceid), fbb_.CreateString(name), fbb_.CreateString(location), fbb_.CreateString(description), fbb_.CreateString(address), fbb_.CreateString(content), retentiontime, activejobtoken.get(), adaptivestreaming));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::RECORDINGADDED, ++sequence_);
   const std::array<boost::asio::const_buffer, 2> buffers =
@@ -1072,7 +1072,7 @@ boost::system::error_code Connection::SendRecordingAdded(const uint64_t token, c
   return err;
 }
 
-boost::system::error_code Connection::SendRecordingChanged(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const boost::optional<uint64_t>& activejob)
+boost::system::error_code Connection::SendRecordingChanged(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool adaptivestreaming, const boost::optional<uint64_t>& activejob)
 {
   std::lock_guard<std::mutex> lock(writemutex_);
   fbb_.Clear();
@@ -1081,7 +1081,7 @@ boost::system::error_code Connection::SendRecordingChanged(const uint64_t token,
   {
     activejobtoken = std::make_unique<monocle::TOKEN>(*activejob);
   }
-  fbb_.Finish(CreateRecordingChanged(fbb_, token, fbb_.CreateString(sourceid), fbb_.CreateString(name), fbb_.CreateString(location), fbb_.CreateString(description), fbb_.CreateString(address), fbb_.CreateString(content), retentiontime, activejobtoken.get()));
+  fbb_.Finish(CreateRecordingChanged(fbb_, token, fbb_.CreateString(sourceid), fbb_.CreateString(name), fbb_.CreateString(location), fbb_.CreateString(description), fbb_.CreateString(address), fbb_.CreateString(content), retentiontime, activejobtoken.get(), adaptivestreaming));
   const uint32_t messagesize = static_cast<uint32_t>(fbb_.GetSize());
   const HEADER header(messagesize, false, false, Message::RECORDINGCHANGED, ++sequence_);
   const std::array<boost::asio::const_buffer, 2> buffers =
@@ -1969,7 +1969,7 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
 
       }
 
-      const std::pair<Error, uint64_t> error = AddRecording(sourceid, name, location, description, address, content, addrecordingrequest->retentiontime(), addrecordingrequest->createdefaulttracks(), addrecordingrequest->createdefaultjob());
+      const std::pair<Error, uint64_t> error = AddRecording(sourceid, name, location, description, address, content, addrecordingrequest->retentiontime(), addrecordingrequest->createdefaulttracks(), addrecordingrequest->createdefaultjob(), addrecordingrequest->adaptivestreaming());
       if (error.first.code_ != ErrorCode::Success)
       {
 
@@ -2593,7 +2593,7 @@ boost::system::error_code Connection::HandleMessage(const bool error, const bool
 
       }
 
-      const Error error = ChangeRecording(changerecordingrequest->token(), sourceid, name, location, description, address, content, changerecordingrequest->retentiontime());
+      const Error error = ChangeRecording(changerecordingrequest->token(), sourceid, name, location, description, address, content, changerecordingrequest->retentiontime(), changerecordingrequest->adaptivestreaming());
       if (error.code_ != ErrorCode::Success)
       {
 

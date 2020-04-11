@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct TrackDeleteData;
+struct TrackDeleteDataBuilder;
 
 struct TrackDeleteData FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef TrackDeleteDataBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDING = 4,
     VT_TRACK = 6,
@@ -40,6 +42,7 @@ struct TrackDeleteData FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct TrackDeleteDataBuilder {
+  typedef TrackDeleteData Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_recording(uint64_t recording) {
@@ -58,7 +61,6 @@ struct TrackDeleteDataBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  TrackDeleteDataBuilder &operator=(const TrackDeleteDataBuilder &);
   flatbuffers::Offset<TrackDeleteData> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<TrackDeleteData>(end);

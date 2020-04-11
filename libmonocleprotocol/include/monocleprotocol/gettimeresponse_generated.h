@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct GetTimeResponse;
+struct GetTimeResponseBuilder;
 
 struct GetTimeResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef GetTimeResponseBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_UTCTIME = 4
   };
@@ -25,6 +27,7 @@ struct GetTimeResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct GetTimeResponseBuilder {
+  typedef GetTimeResponse Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_utctime(uint64_t utctime) {
@@ -34,7 +37,6 @@ struct GetTimeResponseBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  GetTimeResponseBuilder &operator=(const GetTimeResponseBuilder &);
   flatbuffers::Offset<GetTimeResponse> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<GetTimeResponse>(end);

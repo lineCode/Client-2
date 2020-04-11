@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct GetSnapshotResponse;
+struct GetSnapshotResponseBuilder;
 
 struct GetSnapshotResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef GetSnapshotResponseBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_DATA = 4,
     VT_TIME = 6
@@ -31,6 +33,7 @@ struct GetSnapshotResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table 
 };
 
 struct GetSnapshotResponseBuilder {
+  typedef GetSnapshotResponse Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_data(flatbuffers::Offset<flatbuffers::Vector<uint8_t>> data) {
@@ -43,7 +46,6 @@ struct GetSnapshotResponseBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  GetSnapshotResponseBuilder &operator=(const GetSnapshotResponseBuilder &);
   flatbuffers::Offset<GetSnapshotResponse> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<GetSnapshotResponse>(end);

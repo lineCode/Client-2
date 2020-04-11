@@ -11,8 +11,10 @@
 namespace monocle {
 
 struct ChangeONVIFUserRequest;
+struct ChangeONVIFUserRequestBuilder;
 
 struct ChangeONVIFUserRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef ChangeONVIFUserRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_USERNAME = 6,
@@ -44,6 +46,7 @@ struct ChangeONVIFUserRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Tab
 };
 
 struct ChangeONVIFUserRequestBuilder {
+  typedef ChangeONVIFUserRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -62,7 +65,6 @@ struct ChangeONVIFUserRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ChangeONVIFUserRequestBuilder &operator=(const ChangeONVIFUserRequestBuilder &);
   flatbuffers::Offset<ChangeONVIFUserRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<ChangeONVIFUserRequest>(end);

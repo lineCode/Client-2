@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct DestroyFindMotionRequest;
+struct DestroyFindMotionRequestBuilder;
 
 struct DestroyFindMotionRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef DestroyFindMotionRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4
   };
@@ -25,6 +27,7 @@ struct DestroyFindMotionRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::T
 };
 
 struct DestroyFindMotionRequestBuilder {
+  typedef DestroyFindMotionRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -34,7 +37,6 @@ struct DestroyFindMotionRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  DestroyFindMotionRequestBuilder &operator=(const DestroyFindMotionRequestBuilder &);
   flatbuffers::Offset<DestroyFindMotionRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<DestroyFindMotionRequest>(end);

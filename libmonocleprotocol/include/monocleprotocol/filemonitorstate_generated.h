@@ -33,7 +33,7 @@ inline const char * const *EnumNamesFileMonitorState() {
 }
 
 inline const char *EnumNameFileMonitorState(FileMonitorState e) {
-  if (e < FileMonitorState::Unavailable || e > FileMonitorState::Available) return "";
+  if (flatbuffers::IsOutRange(e, FileMonitorState::Unavailable, FileMonitorState::Available)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesFileMonitorState()[index];
 }

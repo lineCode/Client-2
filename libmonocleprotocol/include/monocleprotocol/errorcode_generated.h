@@ -72,7 +72,7 @@ inline const char * const *EnumNamesErrorCode() {
 }
 
 inline const char *EnumNameErrorCode(ErrorCode e) {
-  if (e < ErrorCode::Success || e > ErrorCode::InvalidLicense) return "";
+  if (flatbuffers::IsOutRange(e, ErrorCode::Success, ErrorCode::InvalidLicense)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesErrorCode()[index];
 }

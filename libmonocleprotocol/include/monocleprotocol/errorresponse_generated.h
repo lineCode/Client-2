@@ -11,8 +11,10 @@
 namespace monocle {
 
 struct ErrorResponse;
+struct ErrorResponseBuilder;
 
 struct ErrorResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef ErrorResponseBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_CODE = 4,
     VT_TEXT = 6
@@ -33,6 +35,7 @@ struct ErrorResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct ErrorResponseBuilder {
+  typedef ErrorResponse Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_code(monocle::ErrorCode code) {
@@ -45,7 +48,6 @@ struct ErrorResponseBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ErrorResponseBuilder &operator=(const ErrorResponseBuilder &);
   flatbuffers::Offset<ErrorResponse> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<ErrorResponse>(end);

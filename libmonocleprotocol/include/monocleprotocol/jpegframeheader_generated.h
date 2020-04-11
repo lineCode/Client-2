@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct JPEGFrameHeader;
+struct JPEGFrameHeaderBuilder;
 
 struct JPEGFrameHeader FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef JPEGFrameHeaderBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_PLAYREQUESTINDEX = 6,
@@ -98,6 +100,7 @@ struct JPEGFrameHeader FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct JPEGFrameHeaderBuilder {
+  typedef JPEGFrameHeader Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -149,7 +152,6 @@ struct JPEGFrameHeaderBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  JPEGFrameHeaderBuilder &operator=(const JPEGFrameHeaderBuilder &);
   flatbuffers::Offset<JPEGFrameHeader> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<JPEGFrameHeader>(end);

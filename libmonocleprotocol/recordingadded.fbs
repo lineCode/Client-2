@@ -13,4 +13,5 @@ table RecordingAdded
   content:string (id:6);
   retentiontime:uint64 (id:7);
   activejob:TOKEN (id:8);
+  adaptivestreaming:bool = false (id:9);
 }

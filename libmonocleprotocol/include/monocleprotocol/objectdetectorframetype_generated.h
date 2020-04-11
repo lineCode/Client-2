@@ -33,7 +33,7 @@ inline const char * const *EnumNamesObjectDetectorFrameType() {
 }
 
 inline const char *EnumNameObjectDetectorFrameType(ObjectDetectorFrameType e) {
-  if (e < ObjectDetectorFrameType::OBJECT_DETECTION || e > ObjectDetectorFrameType::OBJECT_RESET_MARKER) return "";
+  if (flatbuffers::IsOutRange(e, ObjectDetectorFrameType::OBJECT_DETECTION, ObjectDetectorFrameType::OBJECT_RESET_MARKER)) return "";
   const size_t index = static_cast<size_t>(e) - static_cast<size_t>(ObjectDetectorFrameType::OBJECT_DETECTION);
   return EnumNamesObjectDetectorFrameType()[index];
 }

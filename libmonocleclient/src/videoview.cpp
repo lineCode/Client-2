@@ -570,12 +570,12 @@ void VideoView::SetPosition(VideoWidget* videowidget, const unsigned int x, cons
     return;
   }
 
-  //TODO if (!recording_->GetAdaptiveStreaming())
-  //TODO return;
+  if (!recording_->GetAdaptiveStreaming())
+  {
+
+    return;
+  }
   
-  //TODO check if adaptive streaming is enable or not(probably per user from the server and updated in subscribe? or just a client thing?)
-
-
   //TODO if we are NOT live, we should just fuck off
     //TODO we could change paused_ to an enum...?
     //TODO do we need a boolean for this?

@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct CreateFindObjectRequest;
+struct CreateFindObjectRequestBuilder;
 
 struct CreateFindObjectRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef CreateFindObjectRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDINGTOKEN = 4,
     VT_TRACKID = 6,
@@ -60,6 +62,7 @@ struct CreateFindObjectRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Ta
 };
 
 struct CreateFindObjectRequestBuilder {
+  typedef CreateFindObjectRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_recordingtoken(uint64_t recordingtoken) {
@@ -90,7 +93,6 @@ struct CreateFindObjectRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  CreateFindObjectRequestBuilder &operator=(const CreateFindObjectRequestBuilder &);
   flatbuffers::Offset<CreateFindObjectRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<CreateFindObjectRequest>(end);

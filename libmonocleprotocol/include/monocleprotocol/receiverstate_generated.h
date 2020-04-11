@@ -36,7 +36,7 @@ inline const char * const *EnumNamesReceiverState() {
 }
 
 inline const char *EnumNameReceiverState(ReceiverState e) {
-  if (e < ReceiverState::NotConnected || e > ReceiverState::Connected) return "";
+  if (flatbuffers::IsOutRange(e, ReceiverState::NotConnected, ReceiverState::Connected)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesReceiverState()[index];
 }

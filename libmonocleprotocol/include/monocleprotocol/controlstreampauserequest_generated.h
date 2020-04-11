@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct ControlStreamPauseRequest;
+struct ControlStreamPauseRequestBuilder;
 
 struct ControlStreamPauseRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef ControlStreamPauseRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_TIME = 6
@@ -30,6 +32,7 @@ struct ControlStreamPauseRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::
 };
 
 struct ControlStreamPauseRequestBuilder {
+  typedef ControlStreamPauseRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -42,7 +45,6 @@ struct ControlStreamPauseRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ControlStreamPauseRequestBuilder &operator=(const ControlStreamPauseRequestBuilder &);
   flatbuffers::Offset<ControlStreamPauseRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<ControlStreamPauseRequest>(end);

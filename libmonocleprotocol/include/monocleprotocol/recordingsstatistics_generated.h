@@ -9,12 +9,16 @@
 namespace monocle {
 
 struct TrackStatistics;
+struct TrackStatisticsBuilder;
 
 struct RecordingStatistics;
+struct RecordingStatisticsBuilder;
 
 struct RecordingsStatistics;
+struct RecordingsStatisticsBuilder;
 
 struct TrackStatistics FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef TrackStatisticsBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_ID = 4,
     VT_TOTALDATARECEIVED = 6
@@ -34,6 +38,7 @@ struct TrackStatistics FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct TrackStatisticsBuilder {
+  typedef TrackStatistics Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_id(uint32_t id) {
@@ -46,7 +51,6 @@ struct TrackStatisticsBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  TrackStatisticsBuilder &operator=(const TrackStatisticsBuilder &);
   flatbuffers::Offset<TrackStatistics> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<TrackStatistics>(end);
@@ -65,6 +69,7 @@ inline flatbuffers::Offset<TrackStatistics> CreateTrackStatistics(
 }
 
 struct RecordingStatistics FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef RecordingStatisticsBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDINGTOKEN = 4,
     VT_TRACKSTATISTICS = 6
@@ -86,6 +91,7 @@ struct RecordingStatistics FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table 
 };
 
 struct RecordingStatisticsBuilder {
+  typedef RecordingStatistics Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_recordingtoken(uint64_t recordingtoken) {
@@ -98,7 +104,6 @@ struct RecordingStatisticsBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  RecordingStatisticsBuilder &operator=(const RecordingStatisticsBuilder &);
   flatbuffers::Offset<RecordingStatistics> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<RecordingStatistics>(end);
@@ -128,6 +133,7 @@ inline flatbuffers::Offset<RecordingStatistics> CreateRecordingStatisticsDirect(
 }
 
 struct RecordingsStatistics FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef RecordingsStatisticsBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TIME = 4,
     VT_RECORDINGSSTATISTICS = 6
@@ -149,6 +155,7 @@ struct RecordingsStatistics FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table
 };
 
 struct RecordingsStatisticsBuilder {
+  typedef RecordingsStatistics Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_time(uint64_t time) {
@@ -161,7 +168,6 @@ struct RecordingsStatisticsBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  RecordingsStatisticsBuilder &operator=(const RecordingsStatisticsBuilder &);
   flatbuffers::Offset<RecordingsStatistics> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<RecordingsStatistics>(end);

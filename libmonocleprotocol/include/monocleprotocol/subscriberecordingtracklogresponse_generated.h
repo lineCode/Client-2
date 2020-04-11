@@ -12,10 +12,13 @@
 namespace monocle {
 
 struct RecordingTrackLogMessages;
+struct RecordingTrackLogMessagesBuilder;
 
 struct SubscribeRecordingTrackLogResponse;
+struct SubscribeRecordingTrackLogResponseBuilder;
 
 struct RecordingTrackLogMessages FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef RecordingTrackLogMessagesBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_MESSAGES = 6
@@ -37,6 +40,7 @@ struct RecordingTrackLogMessages FLATBUFFERS_FINAL_CLASS : private flatbuffers::
 };
 
 struct RecordingTrackLogMessagesBuilder {
+  typedef RecordingTrackLogMessages Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint32_t token) {
@@ -49,7 +53,6 @@ struct RecordingTrackLogMessagesBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  RecordingTrackLogMessagesBuilder &operator=(const RecordingTrackLogMessagesBuilder &);
   flatbuffers::Offset<RecordingTrackLogMessages> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<RecordingTrackLogMessages>(end);
@@ -79,6 +82,7 @@ inline flatbuffers::Offset<RecordingTrackLogMessages> CreateRecordingTrackLogMes
 }
 
 struct SubscribeRecordingTrackLogResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef SubscribeRecordingTrackLogResponseBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDINGTRACKLOGMESSAGES = 4
   };
@@ -95,6 +99,7 @@ struct SubscribeRecordingTrackLogResponse FLATBUFFERS_FINAL_CLASS : private flat
 };
 
 struct SubscribeRecordingTrackLogResponseBuilder {
+  typedef SubscribeRecordingTrackLogResponse Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_recordingtracklogmessages(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::RecordingTrackLogMessages>>> recordingtracklogmessages) {
@@ -104,7 +109,6 @@ struct SubscribeRecordingTrackLogResponseBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  SubscribeRecordingTrackLogResponseBuilder &operator=(const SubscribeRecordingTrackLogResponseBuilder &);
   flatbuffers::Offset<SubscribeRecordingTrackLogResponse> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<SubscribeRecordingTrackLogResponse>(end);

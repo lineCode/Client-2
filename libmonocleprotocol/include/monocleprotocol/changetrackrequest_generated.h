@@ -11,8 +11,10 @@
 namespace monocle {
 
 struct ChangeTrackRequest;
+struct ChangeTrackRequestBuilder;
 
 struct ChangeTrackRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef ChangeTrackRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDINGTOKEN = 4,
     VT_ID = 6,
@@ -69,6 +71,7 @@ struct ChangeTrackRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct ChangeTrackRequestBuilder {
+  typedef ChangeTrackRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_recordingtoken(uint64_t recordingtoken) {
@@ -102,7 +105,6 @@ struct ChangeTrackRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ChangeTrackRequestBuilder &operator=(const ChangeTrackRequestBuilder &);
   flatbuffers::Offset<ChangeTrackRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<ChangeTrackRequest>(end);

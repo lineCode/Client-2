@@ -45,7 +45,7 @@ inline const char * const *EnumNamesSeverity() {
 }
 
 inline const char *EnumNameSeverity(Severity e) {
-  if (e < Severity::Trace || e > Severity::Critical) return "";
+  if (flatbuffers::IsOutRange(e, Severity::Trace, Severity::Critical)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesSeverity()[index];
 }
