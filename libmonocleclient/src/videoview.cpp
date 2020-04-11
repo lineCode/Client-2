@@ -508,7 +508,7 @@ void VideoView::Pause(const boost::optional<uint64_t>& time)
 {
   SetPaused(true);
   activeadaptivestreamtoken_.reset();
-  connection_->ControlStreamPause(activestreamtoken_, time);//TODO we need to save these connecion things
+  connection_->ControlStreamPause(activestreamtoken_, time);
   for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
   {
     metadataconnection_->ControlStreamPause(metadatastreamtoken.second, time);
@@ -669,8 +669,10 @@ void VideoView::SetPosition(VideoWidget* videowidget, const unsigned int x, cons
 
     return;
   }
-  qDebug() << "a" << recording_->GetTrack(j->first);
-  //TODO Pause(boost::none); // Pause the previous stream//TODO we need to pause the current activeadaptivestreamtoken firstly if there is one...
+
+  //TODO we need to make sure on startup it changes if necessary
+
+  connection_->ControlStreamPause(*activeadaptivestreamtoken_, boost::none); // Pause the previous stream and start the new livestream
   activeadaptivestreamtoken_ = j->second;
   connection_->ControlStreamLive(*activeadaptivestreamtoken_, GetNextPlayRequestIndex(true));
 }
