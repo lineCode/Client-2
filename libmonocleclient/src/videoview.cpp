@@ -482,8 +482,9 @@ void VideoView::FrameStep(const bool forwards)
 
   if (adaptivestreaming_ && activeadaptivestreamtoken_.is_initialized())
   {
-    //TODO pause this stream and pause the activestreamtoken_ at the current time_
-
+    connection_->ControlStreamPause(*activestreamtoken_, time_);//TODO check this works!
+    connection_->ControlStreamPause(*activeadaptivestreamtoken_, boost::none);
+    activeadaptivestreamtoken_.reset();
     return;
   }
 
@@ -522,8 +523,7 @@ void VideoView::FrameStep(const bool forwards)
       WriteFrame(imagebuffer);
     };
 
-    activeadaptivestreamtoken_.reset();
-    connection_->ControlStreamFrameStep(*activestreamtoken_, GetNextPlayRequestIndex(true), forwards, sequencenum_);//TODO this is difficult, because we may have been live, but now we have a sequencenum and everything else is fucked on this original stream?
+    connection_->ControlStreamFrameStep(*activestreamtoken_, GetNextPlayRequestIndex(true), forwards, sequencenum_);
   }
   else
   {
@@ -548,7 +548,7 @@ void VideoView::Play(const uint64_t time, const boost::optional<uint64_t>& numfr
 
   if (adaptivestreaming_ && activeadaptivestreamtoken_.is_initialized())
   {
-    //TODO pause activeadaptivestreamtoken_ stream
+    connection_->ControlStreamPause(*activeadaptivestreamtoken_, boost::none);//TODO check this all works
     activeadaptivestreamtoken_.reset();
   }
 
@@ -557,7 +557,7 @@ void VideoView::Play(const uint64_t time, const boost::optional<uint64_t>& numfr
     ResetDecoders();
   }
 
-  connection_->ControlStream(*activestreamtoken_, GetNextPlayRequestIndex(true), true, !numframes.is_initialized(), true, time + GetTimeOffset(), boost::none, numframes, false);//TODO needs to control the correct stream. I think this is correct just now...
+  connection_->ControlStream(*activestreamtoken_, GetNextPlayRequestIndex(true), true, !numframes.is_initialized(), true, time + GetTimeOffset(), boost::none, numframes, false);
   if (numframes.is_initialized() && ((*numframes == 0) || (*numframes == 1))) // Is this an effectively pause request...
   {
     controlstreamendcallback_ = [this](const uint64_t playrequestindex, const monocle::ErrorCode err)
@@ -608,11 +608,14 @@ void VideoView::Pause(const boost::optional<uint64_t>& time)
 
   if (adaptivestreaming_ && activeadaptivestreamtoken_.is_initialized())
   {
-    //TODO pause activeadaptivestreamtoken_ stream
+    connection_->ControlStreamPause(*activeadaptivestreamtoken_, boost::none);//TODO check this all works
     activeadaptivestreamtoken_.reset();
+    //TODO may need to adjust time here...
+    //TODO time = time_;
   }
 
   SetPaused(true);
+  //TODO this won't work because if time=boost::none, it MAY choose the current time of the adaptivestream
   connection_->ControlStreamPause(*activestreamtoken_, time);//TODO this should pause the adaptivestream if it is available first now...
   for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
   {
@@ -621,7 +624,7 @@ void VideoView::Pause(const boost::optional<uint64_t>& time)
   }
 }
 
-void VideoView::Stop()
+void VideoView::Stop()//TODO test all this with regular tracks and new ones... make sure it goes back after live
 {
   if (!activestreamtoken_.is_initialized())
   {
@@ -631,24 +634,38 @@ void VideoView::Stop()
 
   if (adaptivestreaming_ && activeadaptivestreamtoken_.is_initialized())
   {
-    //TODO pause activeadaptivestreamtoken_ stream
+    connection_->ControlStreamPause(*activeadaptivestreamtoken_, boost::none);
     activeadaptivestreamtoken_.reset();
   }
 
-  uint64_t stream = 0;
+  uint64_t streamtoken = 0;
   if (adaptivestreaming_)
   {
-    int i = 0;//TODO pick the most appropriate stream, create a nice method from the other place where we decide on this
+    const QSharedPointer<RecordingTrack> besttrack = GetBestRecordingTrack();
+    if (besttrack == nullptr)
+    {
+      SetMessage(GetNextPlayRequestIndex(true), false, "Unable to find track");
+      return;
+    }
 
+    std::vector< std::pair<uint32_t, uint64_t> >::const_iterator stream = std::find_if(streamtokens_.cbegin(), streamtokens_.cend(), [&besttrack](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.first == besttrack->GetId()); });
+    if (stream == streamtokens_.cend())
+    {
+      SetMessage(GetNextPlayRequestIndex(true), false, "Unable to find stream");
+      return; // Shouldn't be possible but ok...
+    }
+
+    streamtoken = stream->second;
+    activeadaptivestreamtoken_ = stream->second;
   }
   else
   {
-    stream = *activestreamtoken_;
+    streamtoken = *activestreamtoken_;
 
   }
 
   SetPaused(false);
-  connection_->ControlStreamLive(stream, GetNextPlayRequestIndex(true));
+  connection_->ControlStreamLive(streamtoken, GetNextPlayRequestIndex(true));
   for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
   {
     metadataconnection_->ControlStreamLive(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex());
@@ -666,7 +683,7 @@ void VideoView::Scrub(const uint64_t time)
 
   if (adaptivestreaming_ && activeadaptivestreamtoken_.is_initialized())
   {
-    //TODO pause activeadaptivestreamtoken_ stream
+    connection_->ControlStreamPause(*activeadaptivestreamtoken_, boost::none);
     activeadaptivestreamtoken_.reset();
   }
 

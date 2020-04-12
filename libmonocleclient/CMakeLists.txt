@@ -447,7 +447,6 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
 if(WIN32)
-  target_link_libraries(libmonocleclient ${CMAKE_CURRENT_SOURCE_DIR}/../libmfx.lib)
   target_link_libraries(libmonocleclient ${FFMPEG_LIBRARIES})
   target_link_libraries(libmonocleclient Iphlpapi.lib)
   target_link_libraries(libmonocleclient netapi32.lib)

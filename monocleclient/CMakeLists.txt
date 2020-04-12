@@ -106,7 +106,6 @@ target_link_libraries(monocleclient sqlite3)
 target_link_libraries(monocleclient zlibstatic)
 
 if(WIN32)
-  target_link_libraries(monocleclient ${CMAKE_CURRENT_SOURCE_DIR}/../libmfx.lib)
   target_link_libraries(monocleclient ${FFMPEG_LIBRARIES})
   target_link_libraries(monocleclient Bcrypt.lib)
   target_link_libraries(monocleclient Iphlpapi.lib)
