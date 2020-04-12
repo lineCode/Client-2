@@ -181,8 +181,8 @@ class VideoView : public View
   monocle::client::Connection controlstream_;
   monocle::client::Connection keepalive_;
 
-  std::vector< std::pair<uint32_t, uint64_t> > streamtokens_; // <trackid, streamtoken>
-  uint64_t activestreamtoken_;//TODO this becomes boost::optional I think
+  std::vector< std::pair<uint32_t, uint64_t> > streamtokens_; // <trackid, streamtoken>//TODO rename to videostreamtokens_
+  boost::optional<uint64_t> activestreamtoken_;
   boost::optional<uint64_t> activeadaptivestreamtoken_; // If this is initialized, we are currently trying to stream live
 
   sock::Connection metadataconnect_;
@@ -206,6 +206,8 @@ class VideoView : public View
   int updatetimer_;
   int metadatakeepalivetimer_;
 
+  bool adaptivestreaming_;
+
  public slots:
 
   void DeviceStateChanged(const DEVICESTATE state, const QString&);
@@ -213,7 +215,7 @@ class VideoView : public View
   void Properties(bool);
   void ChartView(bool);
   void TrackAdded(const QSharedPointer<client::RecordingTrack>& track);
-  void TrackRemoved(const uint32_t token);
+  void TrackRemoved(const uint32_t trackid);
   void ActiveJobChanged(const QSharedPointer<client::RecordingJob>& activejob);
 
 };
