@@ -88,9 +88,13 @@ void VideoView::Connect()
 {
   Disconnect();
 
+  //TODO when dragging and dropping the RECORDING, or double clicking hte RECORDING, this will be nullptr
+    //TODO we can then try to determine the best track to stream
   if (track_ == nullptr)
   {
-    SetMessage(GetNextPlayRequestIndex(true), false, "Invalid track");
+
+
+    //TODO SetMessage(GetNextPlayRequestIndex(true), false, "Invalid track");
     return;
   }
 
@@ -321,6 +325,13 @@ void VideoView::GetMenu(QMenu& parent)
         return;
       }
 
+      const QSharedPointer<RecordingTrack> track = recording_->GetTrack(trackid);
+      if (!track)
+      {
+        LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Unable to retrieve track: ") + QString::number(trackid));
+        return;
+      }
+
       // Get the right stream
       //TODO this is insanity really...
       boost::optional<uint64_t> prevstream;//TODO needs more filling out...
@@ -381,10 +392,11 @@ void VideoView::GetMenu(QMenu& parent)
         connection_->ControlStreamPause(*prevstream, boost::none); // Pause the previous stream and start the new livestream
 
       }
+      track_ = track;
       connection_->ControlStreamLive(*activestreamtoken_, GetNextPlayRequestIndex(true));
     });
     action->setCheckable(true);
-    action->setChecked(track == track_);
+    action->setChecked(track == track_);//TODO maybe not correct?
   }
   parent.addMenu(tracks);
 
@@ -467,9 +479,12 @@ void VideoView::FrameStep(const bool forwards)
     return;
   }
 
-  //TODO if we are adaptive streaming, we need to pause that stream, and just pause on the time that we are currently at on activestreamtoken_
-    //TODO we also need to pause the activestream at the current time, which should set us up ready to go for future frame stepping...
-      //TODO resetting adaptive streaming stuff
+  if (adaptivestreaming_ && activeadaptivestreamtoken_.is_initialized())
+  {
+    //TODO pause this stream and pause the activestreamtoken_ at the current time_
+
+    return;
+  }
 
   paused_ = true;
   ImageBuffer imagebuffer = cache_.GetImage(forwards, GetPlayRequestIndex(), sequencenum_);
@@ -530,15 +545,18 @@ void VideoView::Play(const uint64_t time, const boost::optional<uint64_t>& numfr
     return;
   }
 
-  //TODO if we are adaptive streaming, we need to pause that stream.
+  if (adaptivestreaming_ && activeadaptivestreamtoken_.is_initialized())
+  {
+    //TODO pause activeadaptivestreamtoken_ stream
+    activeadaptivestreamtoken_.reset();
+  }
 
   {
     std::lock_guard<std::recursive_mutex> lock(*mutex_);
     ResetDecoders();
   }
 
-  activeadaptivestreamtoken_.reset();
-  connection_->ControlStream(*activestreamtoken_, GetNextPlayRequestIndex(true), true, !numframes.is_initialized(), true, time + GetTimeOffset(), boost::none, numframes, false);//TODO needs to control the correct stream
+  connection_->ControlStream(*activestreamtoken_, GetNextPlayRequestIndex(true), true, !numframes.is_initialized(), true, time + GetTimeOffset(), boost::none, numframes, false);//TODO needs to control the correct stream. I think this is correct just now...
   if (numframes.is_initialized() && ((*numframes == 0) || (*numframes == 1))) // Is this an effectively pause request...
   {
     controlstreamendcallback_ = [this](const uint64_t playrequestindex, const monocle::ErrorCode err)
@@ -587,10 +605,13 @@ void VideoView::Pause(const boost::optional<uint64_t>& time)
     return;
   }
 
+  if (adaptivestreaming_ && activeadaptivestreamtoken_.is_initialized())
+  {
+    //TODO pause activeadaptivestreamtoken_ stream
+    activeadaptivestreamtoken_.reset();
+  }
 
   SetPaused(true);
-  activeadaptivestreamtoken_.reset();
-//TODO dont' we need to also pause the adaptive streaming cos it is still running lol
   connection_->ControlStreamPause(*activestreamtoken_, time);//TODO this should pause the adaptivestream if it is available first now...
   for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
   {
@@ -603,18 +624,30 @@ void VideoView::Stop()
 {
   if (!activestreamtoken_.is_initialized())
   {
-    //TODO need to grab one, if we can't we must exit now...
+
+    return;
+  }
+
+  if (adaptivestreaming_ && activeadaptivestreamtoken_.is_initialized())
+  {
+    //TODO pause activeadaptivestreamtoken_ stream
+    activeadaptivestreamtoken_.reset();
+  }
+
+  uint64_t stream = 0;
+  if (adaptivestreaming_)
+  {
+    int i = 0;//TODO pick the most appropriate stream, create a nice method from the other place where we decide on this
+
+  }
+  else
+  {
+    stream = *activestreamtoken_;
 
   }
 
   SetPaused(false);
-
-  //TODO if (!activestreamtoken_.is_initialized())
-    //TODO check for streamtokens_ and pick one... otherwise just exit I guess? or just do the metadata, because why not just stream metadata I suppose
-
-  //TODO stupid stupid...
-  activeadaptivestreamtoken_ = activestreamtoken_;//TODO why?
-  connection_->ControlStreamLive(*activestreamtoken_, GetNextPlayRequestIndex(true));//TODO control the correct stream please
+  connection_->ControlStreamLive(stream, GetNextPlayRequestIndex(true));
   for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
   {
     metadataconnection_->ControlStreamLive(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex());
@@ -626,8 +659,14 @@ void VideoView::Scrub(const uint64_t time)
 {
   if (!activestreamtoken_.is_initialized())
   {
-    //TODO need to grab one, if we can't we must exit now...
 
+    return;
+  }
+
+  if (adaptivestreaming_ && activeadaptivestreamtoken_.is_initialized())
+  {
+    //TODO pause activeadaptivestreamtoken_ stream
+    activeadaptivestreamtoken_.reset();
   }
 
   {
@@ -635,7 +674,6 @@ void VideoView::Scrub(const uint64_t time)
     ResetDecoders();
   }
 
-  activeadaptivestreamtoken_.reset();
   connection_->ControlStream(*activestreamtoken_, GetNextPlayRequestIndex(false), true, false, true, time + GetTimeOffset(), boost::none, 1, true);
   controlstreamendcallback_ = [this](const uint64_t playrequestindex, const monocle::ErrorCode err)
   {
@@ -765,11 +803,6 @@ void VideoView::SetPosition(VideoWidget* videowidget, const unsigned int x, cons
 
     return;
   }
-
-  //TODO check all ->ControlStream now is using the correct token...
-
-  //TODO we need to make sure on startup it changes if necessary
-    //TODO lots of testing require imo?
 
   connection_->ControlStreamPause(*activeadaptivestreamtoken_, boost::none); // Pause the previous stream and start the new livestream
   activeadaptivestreamtoken_ = j->second;
@@ -1368,9 +1401,9 @@ void VideoView::AddMetadataTrack(const QSharedPointer<RecordingTrack>& metadatat
       LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Failed to create metadata stream: ") + QString::number(metadatatrack->GetId()));
       return;
     }
-
     metadatastreamtokens_.push_back(std::make_pair(metadatatrack, createstreamresponse.token_));
-//TODO only begin playing live if we are already playing live, otherwise just chill
+
+    // We kick off a live stream here because there can be no negative consequences aside from the additional bandwidth usage, and it might help a lot
     metadatacontrolstreams_.push_back(metadataconnection_->ControlStreamLive(createstreamresponse.token_, GetNextMetadataPlayRequestIndex(), [this, metadatatrack](const std::chrono::steady_clock::duration latency, const monocle::client::CONTROLSTREAMRESPONSE& controlstreamresponse)
     {
       if (controlstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
@@ -1413,34 +1446,22 @@ void VideoView::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)
 {
   if (track->GetTrackType() == monocle::TrackType::Video)
   {
-    if (track_ == nullptr)
+    if (track_ == nullptr) // If we weren't streaming before, we now have something to bite on, so lets go
     {
-      {
-        track_ = track;
-        Connect();
-      }
+      track_ = track;
+      Connect();
     }
     else
     {
-      //TODO metadatacreatestreams_.push_back(metadataconnection_->CreateStream(recording_->GetToken(), metadatatrack->GetId(), [this, metadatatrack](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
-      //TODO {
-      //TODO   if (createstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
-      //TODO   {
-      //TODO     LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Failed to create metadata stream: ") + QString::number(metadatatrack->GetId()));
-      //TODO     return;
-      //TODO   }
-      //TODO 
-      //TODO   metadatastreamtokens_.push_back(std::make_pair(metadatatrack, createstreamresponse.token_));
-//TODO we don't want to just begin streaming live if you please...
-      //TODO   metadatacontrolstreams_.push_back(metadataconnection_->ControlStreamLive(createstreamresponse.token_, GetNextMetadataPlayRequestIndex(), [this, metadatatrack](const std::chrono::steady_clock::duration latency, const monocle::client::CONTROLSTREAMRESPONSE& controlstreamresponse)
-      //TODO   {
-      //TODO     if (controlstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
-      //TODO     {
-      //TODO       LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Failed to control live stream: ") + QString::number(metadatatrack->GetId()));
-      //TODO       return;
-      //TODO     }
-      //TODO   }));
-      //TODO }, VideoView::ControlStreamEnd, nullptr, nullptr, VideoView::MetadataCallback, nullptr, nullptr, VideoView::ObjectDetectorCallback, nullptr, this));
+      createstream_.push_back(connection_->CreateStream(recording_->GetToken(), track->GetId(), [this, track](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
+      {
+        if (createstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
+        {
+          LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Failed to create video stream: ") + QString::number(track->GetId()));
+          return;
+        }
+        streamtokens_.push_back(std::make_pair(track->GetId(), createstreamresponse.token_));
+      }, VideoView::ControlStreamEnd, VideoView::H265Callback, VideoView::H264Callback, nullptr, VideoView::JPEGCallback, VideoView::MPEG4Callback, VideoView::ObjectDetectorCallback, VideoView::NewCodecIndexCallback, this));
     }
   }
   else if ((track->GetTrackType() == monocle::TrackType::Metadata) || (track->GetTrackType() == monocle::TrackType::ObjectDetector))
@@ -1452,43 +1473,38 @@ void VideoView::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)
 //TODO make sure to test this...
 void VideoView::TrackRemoved(const uint32_t trackid)
 {
-  if (activestreamtoken_.is_initialized() && (*activestreamtoken_ == trackid))
+  std::vector< std::pair<uint32_t, uint64_t> >::const_iterator streamtoken = std::find_if(streamtokens_.cbegin(), streamtokens_.cend(), [trackid](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.first == trackid); });
+  if (streamtoken == streamtokens_.cend())
   {
-    std::vector< std::pair<uint32_t, uint64_t> >::const_iterator streamtoken = std::find_if(streamtokens_.cbegin(), streamtokens_.cend(), [trackid](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.first == trackid); });
-    if (streamtoken == streamtokens_.cend())
-    {
-      LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Unable to retrieve stream token: ") + QString::number(trackid));
-      return;
-    }
-    streamtokens_.erase(streamtoken);
-
-    if (streamtokens_.size())
-    {
-      //TODO pick another stream to stream from...
-
-
-      // Switch to another video track if one is available
-      track_ = recording_->GetVideoTracks().front();
-//TODO Stop()
-    }
-    else
-    {
-      activestreamtoken_ .reset();
-      track_.reset();
-      //TODO SetMessage("Error no tracks")
-    }
+    LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Unable to retrieve stream token: ") + QString::number(trackid));
+    return;
   }
-  else
-  {
-    //TODO I don't think there is anything to do here?
-
-  }
+  streamtokens_.erase(streamtoken);
 
   auto i = std::find_if(metadatastreamtokens_.begin(), metadatastreamtokens_.end(), [trackid](const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatatrack) { return (metadatatrack.second == trackid); });
   if (i != metadatastreamtokens_.end())
   {
     metadatastreamtokens_.erase(i);
 
+  }
+
+  if (activestreamtoken_.is_initialized() && (*activestreamtoken_ == trackid))
+  {
+    if (streamtokens_.size()) // Switch to another video track if one is available
+    {
+      
+      //TODO pick another stream to stream from...
+
+
+      track_ = recording_->GetVideoTracks().front(); //TODO make sure to check this
+//TODO Stop()
+    }
+    else // Nothing left to do, just warn the user and turn off streaming
+    {
+      activestreamtoken_ .reset();
+      track_.reset();
+      //TODO SetMessage("Error no tracks")
+    }
   }
 }
 
