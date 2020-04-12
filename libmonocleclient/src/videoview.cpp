@@ -624,7 +624,7 @@ void VideoView::Pause(const boost::optional<uint64_t>& time)
   }
 }
 
-void VideoView::Stop()//TODO test all this with regular tracks and new ones... make sure it goes back after live
+void VideoView::Stop()
 {
   if (!activestreamtoken_.is_initialized())
   {
