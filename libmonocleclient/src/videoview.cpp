@@ -88,14 +88,15 @@ void VideoView::Connect()
 {
   Disconnect();
 
-  //TODO when dragging and dropping the RECORDING, or double clicking hte RECORDING, this will be nullptr
-    //TODO we can then try to determine the best track to stream
   if (track_ == nullptr)
   {
-
-
-    //TODO SetMessage(GetNextPlayRequestIndex(true), false, "Invalid track");
-    return;
+    const QSharedPointer<RecordingTrack> besttrack = GetBestRecordingTrack();
+    if (besttrack == nullptr)
+    {
+      SetMessage(GetNextPlayRequestIndex(true), false, "Unable to find track");
+      return;
+    }
+    track_ = besttrack;
   }
 
   if (!utility::Contains(recording_->GetTracks(), track_)) // This shouldn't happen but just in case...
@@ -725,73 +726,14 @@ void VideoView::SetPosition(VideoWidget* videowidget, const unsigned int x, cons
     return;
   }
 
-  const QSharedPointer<RecordingJob> activejob = recording_->GetActiveJob();
-  if (!activejob)
+  const QSharedPointer<RecordingTrack> track = GetBestRecordingTrack();
+  if (!track)
   {
 
     return;
   }
 
-  // Sort the recording tracks by id
-  std::vector< std::pair<uint32_t, uint64_t> > trackarea; // <trackid, area>
-  trackarea.reserve(5);
-  for (const QSharedPointer<RecordingJobSource>& source : activejob->GetSources())
-  {
-    for (const QSharedPointer<RecordingJobSourceTrack>& sourcetrack : source->GetTracks())
-    {
-      const QSharedPointer<RecordingTrack> track = sourcetrack->GetTrack();
-      if (!track)
-      {
-
-        continue;
-      }
-
-      if (sourcetrack->GetState() != monocle::RecordingJobState::Active)
-      {
-
-        continue;
-      }
-
-      try
-      {
-        const boost::optional<QString> activewidth = sourcetrack->GetActiveWidth();
-        const boost::optional<QString> activeheight = sourcetrack->GetActiveHeight();
-        if (!activewidth.is_initialized() || !activeheight.is_initialized())
-        {
-
-          continue;
-        }
-
-        const uint64_t width = boost::lexical_cast<uint64_t>(activewidth->toStdString());
-        const uint64_t height = boost::lexical_cast<uint64_t>(activeheight->toStdString());
-        trackarea.push_back(std::make_pair(track->GetId(), width * height));
-      }
-      catch (...)
-      {
-
-        continue;
-      }
-    }
-  }
-
-  if (trackarea.empty())
-  {
-
-    return;
-  }
-  
-  // Find the best track for our current resolution
-  std::sort(trackarea.begin(), trackarea.end(), [](const std::pair<uint32_t, uint64_t>& lhs, const std::pair<uint32_t, uint64_t>& rhs) { return (lhs.second < rhs.second); });
-  const QRect pixelrect = GetPixelRect();
-  const uint64_t currentarea = pixelrect.width() * pixelrect.height();
-  std::vector< std::pair<uint32_t, uint64_t> >::iterator i = std::find_if(trackarea.begin(), trackarea.end(), [currentarea](const std::pair<uint32_t, uint64_t>& trackarea) { return (currentarea < trackarea.second); });
-  if (i == trackarea.end())
-  {
-    i = trackarea.end() - 1;
-
-  }
-  
-  std::vector< std::pair<uint32_t, uint64_t> >::const_iterator j = std::find_if(streamtokens_.cbegin(), streamtokens_.cend(), [i](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.first == i->first); });
+  std::vector< std::pair<uint32_t, uint64_t> >::const_iterator j = std::find_if(streamtokens_.cbegin(), streamtokens_.cend(), [&track](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.first == track->GetId()); });
   if (j == streamtokens_.cend())
   {
 
@@ -1413,6 +1355,79 @@ void VideoView::AddMetadataTrack(const QSharedPointer<RecordingTrack>& metadatat
       }
     }));
   }, VideoView::ControlStreamEnd, nullptr, nullptr, VideoView::MetadataCallback, nullptr, nullptr, VideoView::ObjectDetectorCallback, nullptr, this));
+}
+
+QSharedPointer<RecordingTrack> VideoView::GetBestRecordingTrack() const
+{
+  const QSharedPointer<RecordingJob> activejob = recording_->GetActiveJob();
+  if (!activejob)
+  {
+
+    return nullptr;
+  }
+
+  std::vector< std::pair<QSharedPointer<RecordingTrack>, uint64_t> > trackarea; // <trackid, area>
+  trackarea.reserve(5);
+  for (const QSharedPointer<RecordingJobSource>& source : activejob->GetSources())
+  {
+    for (const QSharedPointer<RecordingJobSourceTrack>& sourcetrack : source->GetTracks())
+    {
+      const QSharedPointer<RecordingTrack> track = sourcetrack->GetTrack();
+      if (!track)
+      {
+
+        continue;
+      }
+
+      if (sourcetrack->GetState() != monocle::RecordingJobState::Active)
+      {
+
+        continue;
+      }
+
+      try
+      {
+        const boost::optional<QString> activewidth = sourcetrack->GetActiveWidth();
+        const boost::optional<QString> activeheight = sourcetrack->GetActiveHeight();
+        if (!activewidth.is_initialized() || !activeheight.is_initialized())
+        {
+
+          continue;
+        }
+
+        const uint64_t width = boost::lexical_cast<uint64_t>(activewidth->toStdString());
+        const uint64_t height = boost::lexical_cast<uint64_t>(activeheight->toStdString());
+        trackarea.push_back(std::make_pair(track, width * height));
+      }
+      catch (...)
+      {
+
+        continue;
+      }
+    }
+  }
+
+  if (trackarea.empty())
+  {
+    if (recording_->GetTracks().empty()) // Just return anything
+    {
+
+      return nullptr;
+    }
+    return recording_->GetTracks().front();
+  }
+
+  // Find the best track for our current resolution
+  std::sort(trackarea.begin(), trackarea.end(), [](const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& lhs, const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& rhs) { return (lhs.second < rhs.second); });
+  const QRect pixelrect = GetPixelRect();
+  const uint64_t currentarea = pixelrect.width() * pixelrect.height();
+  std::vector< std::pair<QSharedPointer<RecordingTrack>, uint64_t> >::iterator i = std::find_if(trackarea.begin(), trackarea.end(), [currentarea](const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& trackarea) { return (currentarea < trackarea.second); });
+  if (i == trackarea.end())
+  {
+    
+    return trackarea.back().first;
+  }
+  return i->first;
 }
 
 void VideoView::DeviceStateChanged(const DEVICESTATE state, const QString&)

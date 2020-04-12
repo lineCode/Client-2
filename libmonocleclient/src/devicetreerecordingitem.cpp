@@ -92,14 +92,8 @@ void DeviceTreeRecordingItem::Collapsed()
 
 void DeviceTreeRecordingItem::DoubleClicked()
 {
-  std::vector< QSharedPointer<client::RecordingTrack> > tracks = recording_->GetVideoTracks();
-  if (tracks.empty())
-  {
-    Expanded();
-    return;
-  }
+  MainWindow::Instance()->GetVideoWidgetsMgr().CreateVideoView(device_, recording_, nullptr);
 
-  MainWindow::Instance()->GetVideoWidgetsMgr().CreateVideoView(device_, recording_, tracks.front());
 }
 
 void DeviceTreeRecordingItem::SetFilter(const QString& filter)

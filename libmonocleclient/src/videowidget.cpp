@@ -1034,17 +1034,7 @@ void VideoWidget::dropEvent(QDropEvent* event)
   // Track
   bytearray = mimedata->data(MIME_DEVICE_TREE_RECORDING_TRACK_ID);
   QSharedPointer<RecordingTrack> recordingtrack;
-  if (bytearray.isEmpty())
-  {
-    std::vector< QSharedPointer<client::RecordingTrack> > tracks = recording->GetVideoTracks();
-    if (tracks.empty())
-    {
-      // Just ignore this drag and drop because we have nothing to show
-      return;
-    }
-    recordingtrack = tracks.front();
-  }
-  else if (bytearray.size() == sizeof(uint32_t))
+  if (bytearray.size() == sizeof(uint32_t))
   {
     recordingtrack = recording->GetTrack(*reinterpret_cast<const uint32_t*>(bytearray.data()));
     if (recordingtrack == nullptr)
@@ -1058,11 +1048,6 @@ void VideoWidget::dropEvent(QDropEvent* event)
       // Ignore track types that are not video...
       return;
     }
-  }
-  else
-  {
-    // Shouldn't happen, but ok...
-    return;
   }
 
   const QSharedPointer<View> view = GetView(event->pos());

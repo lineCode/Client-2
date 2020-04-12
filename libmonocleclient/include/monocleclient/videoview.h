@@ -145,6 +145,7 @@ class VideoView : public View
   void ResetDecoders();
   uint64_t GetNextMetadataPlayRequestIndex();
   void AddMetadataTrack(const QSharedPointer<RecordingTrack>& metadatatrack);
+  QSharedPointer<RecordingTrack> GetBestRecordingTrack() const;
 
   mutable boost::shared_ptr<std::recursive_mutex> mutex_;
 

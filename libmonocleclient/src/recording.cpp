@@ -241,21 +241,35 @@ std::vector< QSharedPointer<client::Receiver> > Recording::GetActiveReceivers(co
 
 std::vector<QString> Recording::GetActiveProfileTokens(const QSharedPointer<client::RecordingTrack>& track) const
 {
+  if (track == nullptr)
+  {
+
+    return std::vector<QString>();
+  }
+
   if (activejob_ == nullptr)
   {
 
     return std::vector<QString>();
   }
+
   return activejob_->GetActiveProfileTokens(track);
 }
 
 std::vector<ROTATION> Recording::GetActiveRotations(const QSharedPointer<client::RecordingTrack>& track) const
 {
+  if (track == nullptr)
+  {
+
+    return std::vector<ROTATION>();
+  }
+
   if (activejob_ == nullptr)
   {
 
     return std::vector<ROTATION>();
   }
+
   return activejob_->GetActiveRotations(track);
 }
 
