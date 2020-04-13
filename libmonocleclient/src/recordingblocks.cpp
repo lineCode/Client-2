@@ -336,7 +336,7 @@ void RecordingBlocks::JobSourceTrackStateChanged(const QSharedPointer<client::Re
     Update(top_, bottom_, metadatatop_, metadatabottom_, minwidth_, playbackwidget_->GetGlobalStartTime(), playbackwidget_->GetGlobalEndTime());
     playbackwidget_->update();
   }
-  else if ((prevstate == monocle::RecordingJobState::Active) && ((state == monocle::RecordingJobState::Idle) || (state == monocle::RecordingJobState::Error))) // Close the oldest RecordingBlock
+  else if ((prevstate == monocle::RecordingJobState::Active) && ((state == monocle::RecordingJobState::Idle) || (state == monocle::RecordingJobState::Error) || (state == monocle::RecordingJobState::Active_Not_Recording))) // Close the oldest RecordingBlock
   {
     if (!recordingtrack->second.empty())
     {

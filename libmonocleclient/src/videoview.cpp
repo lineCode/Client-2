@@ -1347,7 +1347,7 @@ QSharedPointer<RecordingTrack> VideoView::GetBestRecordingTrack() const
         continue;
       }
 
-      if (sourcetrack->GetState() != monocle::RecordingJobState::Active)
+      if ((sourcetrack->GetState() != monocle::RecordingJobState::Active) && (sourcetrack->GetState() != monocle::RecordingJobState::Active_Not_Recording))
       {
 
         continue;

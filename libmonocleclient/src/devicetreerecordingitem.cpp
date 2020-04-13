@@ -170,6 +170,11 @@ void DeviceTreeRecordingItem::UpdateToolTip()
           error = true;
           tooltips.append(Tooltip(receiver->GetMediaUri(), "Error " + track->GetError()) + datarate);
         }
+        else if (track->GetState() == monocle::RecordingJobState::Active_Not_Recording)
+        {
+          tooltips.append(Tooltip(receiver->GetMediaUri(), "Active not recording") + datarate);
+
+        }
         else // if (track->GetState() == monocle::RecordingJobState::Active)
         {
           tooltips.append(Tooltip(receiver->GetMediaUri(), "Active") + datarate);
