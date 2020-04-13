@@ -1954,7 +1954,7 @@ void VideoWidget::paintGL()
         {
           cuCtxPushCurrent_v2(imagebuffer.cudacontext_);
           bool resetresources = false; // Do we need to reinitialise the cuda stuff if dimensions and format have changed
-          if ((imagebuffer.type_ != view->GetImageType()) || (imagebuffer.widths_[0] != view->GetImageWidth()) || (imagebuffer.heights_[0] != view->GetImageHeight()) || !view->GetCUDAResource(0) || !view->GetCUDAResource(1) || !view->GetCUDAResource(2))
+          if ((imagebuffer.type_ != view->GetImageType()) || (imagebuffer.widths_[0] != view->GetImageWidth()) || (imagebuffer.heights_[0] != view->GetImageHeight()) || !view->GetCUDAResource(0) || !view->GetCUDAResource(1))
           {
             // Destroy any old CUDA stuff we had laying around
             for (CUgraphicsResource& resource : view->GetCUDAResources())

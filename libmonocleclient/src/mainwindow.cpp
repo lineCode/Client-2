@@ -518,7 +518,7 @@ CUcontext MainWindow::GetNextCUDAContext()
 
     return nullptr;
   }
-//TODO  std::rotate(cudadevices_.begin(), cudadevices_.begin() + 1, cudadevices_.end());
+  std::rotate(cudadevices_.begin(), cudadevices_.begin() + 1, cudadevices_.end());
   return cudadevices_.front().context_;
 }
 
