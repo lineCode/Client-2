@@ -68,6 +68,8 @@ VideoView::VideoView(VideoWidget* videowidget, CUcontext cudacontext, const QCol
   connect(recording_.get(), &Recording::TrackAdded, this, &VideoView::TrackAdded);
   connect(recording_.get(), &Recording::TrackRemoved, this, &VideoView::TrackRemoved);
   connect(recording_.get(), &Recording::ActiveJobChanged, this, &VideoView::ActiveJobChanged);
+  connect(recording_.get(), &Recording::JobSourceTrackStateChanged, this, &VideoView::RecordingJobSourceTrackStateChanged);
+  connect(recording_.get(), &Recording::JobSourceTrackActiveParametersChanged, this, &VideoView::RecordingJobSourceTrackActiveParametersChanged);
 
   rotation_ = GetActiveRotation();
   SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), rotation_, mirror_, stretch_, true);
@@ -1360,7 +1362,6 @@ QSharedPointer<RecordingTrack> VideoView::GetBestRecordingTrack() const
 
           continue;
         }
-
         const uint64_t width = boost::lexical_cast<uint64_t>(activewidth->toStdString());
         const uint64_t height = boost::lexical_cast<uint64_t>(activeheight->toStdString());
         trackarea.push_back(std::make_pair(track, width * height));
@@ -1422,7 +1423,7 @@ void VideoView::ChartView(bool)
   MainWindow::Instance()->GetVideoWidgetsMgr().CreateVideoChartView(device_, recording_, recording_->GetObjectDetectorTracks());
 
 }
-
+//TODO test this please
 void VideoView::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)
 {
   if (track->GetTrackType() == monocle::TrackType::Video)
@@ -1451,7 +1452,7 @@ void VideoView::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)
 
   }
 }
-
+//TODO test this please
 void VideoView::TrackRemoved(const uint32_t trackid)
 {
   std::vector< std::pair<uint32_t, uint64_t> >::const_iterator streamtoken = std::find_if(streamtokens_.cbegin(), streamtokens_.cend(), [trackid](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.first == trackid); });
@@ -1491,9 +1492,20 @@ void VideoView::TrackRemoved(const uint32_t trackid)
 
 void VideoView::ActiveJobChanged(const QSharedPointer<client::RecordingJob>& activejob)
 {
-  rotation_ = GetActiveRotation();
-  SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), rotation_, mirror_, stretch_, true);
+  SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), GetActiveRotation(), mirror_, stretch_, true);
   Connect();
+}
+
+void VideoView::RecordingJobSourceTrackStateChanged(const QSharedPointer<client::RecordingJob>& job, const QSharedPointer<client::RecordingJobSource>& source, const QSharedPointer<client::RecordingJobSourceTrack>& track, const uint64_t time, const monocle::RecordingJobState state, const QString& error, const monocle::RecordingJobState prevstate)
+{
+  SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), GetActiveRotation(), mirror_, stretch_, true);
+
+}
+
+void VideoView::RecordingJobSourceTrackActiveParametersChanged(const QSharedPointer<client::RecordingJob>& job, const QSharedPointer<client::RecordingJobSource>& source, const QSharedPointer<client::RecordingJobSourceTrack>& track, const std::vector<QString>& activeparameters)
+{
+  SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), GetActiveRotation(), mirror_, stretch_, true);
+
 }
 
 }

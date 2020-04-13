@@ -67,6 +67,8 @@ class MPEG4Decoder;
 class Receiver;
 class Recording;
 class RecordingJob;
+class RecordingJobSource;
+class RecordingJobSourceTrack;
 class RecordingTrack;
 class VideoWidget;
 enum class DEVICESTATE : int;
@@ -218,6 +220,8 @@ class VideoView : public View
   void TrackAdded(const QSharedPointer<client::RecordingTrack>& track);
   void TrackRemoved(const uint32_t trackid);
   void ActiveJobChanged(const QSharedPointer<client::RecordingJob>& activejob);
+  void RecordingJobSourceTrackStateChanged(const QSharedPointer<client::RecordingJob>& job, const QSharedPointer<client::RecordingJobSource>& source, const QSharedPointer<client::RecordingJobSourceTrack>& track, const uint64_t time, const monocle::RecordingJobState state, const QString& error, const monocle::RecordingJobState prevstate);
+  void RecordingJobSourceTrackActiveParametersChanged(const QSharedPointer<client::RecordingJob>& job, const QSharedPointer<client::RecordingJobSource>& source, const QSharedPointer<client::RecordingJobSourceTrack>& track, const std::vector<QString>& activeparameters);
 
 };
 

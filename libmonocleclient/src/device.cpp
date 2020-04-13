@@ -2299,6 +2299,13 @@ void Device::SlotRecordingJobSourceTrackActiveParametersChanged(const uint64_t r
     return;
   }
 
+  const std::vector<QString> tmp = recordingjobsourcetrack->GetActiveParameters();
+  if (std::is_permutation(activeparameters.cbegin(), activeparameters.cend(), tmp.cbegin(), tmp.cend())) // Are there any changes?
+  {
+    
+    return;
+  }
+  
   recordingjobsourcetrack->SetActiveParameters(activeparameters);
   emit (*recording)->JobSourceTrackActiveParametersChanged(recordingjob, recordingjobsource, recordingjobsourcetrack, activeparameters);
 }
