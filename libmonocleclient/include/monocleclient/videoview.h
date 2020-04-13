@@ -211,6 +211,10 @@ class VideoView : public View
 
   bool adaptivestreaming_;
 
+ signals:
+
+  void ChangeTrack(const QSharedPointer<client::RecordingTrack>& track);
+
  public slots:
 
   void DeviceStateChanged(const DEVICESTATE state, const QString&);

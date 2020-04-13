@@ -99,6 +99,7 @@ void VideoView::Connect()
       return;
     }
     track_ = besttrack;
+    emit ChangeTrack(track_);
   }
 
   if (!utility::Contains(recording_->GetTracks(), track_)) // This shouldn't happen but just in case...
@@ -343,6 +344,7 @@ void VideoView::GetMenu(QMenu& parent)
       adaptivestreaming_ = false;
 
       track_ = track;
+      emit ChangeTrack(track_);
       activestreamtoken_ = streamtoken->second;
       connection_->ControlStreamLive(*activestreamtoken_, GetNextPlayRequestIndex(true));
     });
@@ -1431,6 +1433,7 @@ void VideoView::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)
     if (track_ == nullptr) // If we weren't streaming before, we now have something to bite on, so lets go
     {
       track_ = track;
+      ChangeTrack(track_);
       Connect();
     }
     else
@@ -1478,13 +1481,16 @@ void VideoView::TrackRemoved(const uint32_t trackid)
       //TODO pick another stream to stream from...
 
 
+      //TODO send signal for playbackwidget to update
       track_ = recording_->GetVideoTracks().front(); //TODO make sure to check this
+      ChangeTrack(track_);
 //TODO Stop()
     }
     else // Nothing left to do, just warn the user and turn off streaming
     {
       activestreamtoken_ .reset();
       track_.reset();
+      ChangeTrack(nullptr);
       //TODO SetMessage("Error no tracks")
     }
   }

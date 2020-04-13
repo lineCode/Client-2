@@ -41,6 +41,7 @@ class Recording : public QObject
 
   QSharedPointer<client::RecordingJob> GetJob(const uint64_t jobtoken) const;
   QSharedPointer<client::RecordingTrack> GetTrack(const uint32_t trackid) const;
+  QSharedPointer<client::RecordingTrack> GetVideoTrack(const uint32_t trackid) const;
   monocle::RecordingJobState GetState(const QSharedPointer<client::RecordingTrack>& track) const;
 
   QSharedPointer<client::RecordingTrack> AddTrack(const monocle::RECORDINGTRACK& track);

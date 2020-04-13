@@ -65,6 +65,21 @@ QSharedPointer<client::RecordingTrack> Recording::GetTrack(const uint32_t tracki
   }
 }
 
+QSharedPointer<client::RecordingTrack> Recording::GetVideoTrack(const uint32_t trackid) const
+{
+  auto track = std::find_if(tracks_.begin(), tracks_.end(), [trackid](const QSharedPointer<client::RecordingTrack>& track) { return ((track->GetTrackType() == monocle::TrackType::Video) && (track->GetId() == trackid)); });
+  if (track == tracks_.end())
+  {
+
+    return nullptr;
+  }
+  else
+  {
+
+    return *track;
+  }
+}
+
 monocle::RecordingJobState Recording::GetState(const QSharedPointer<client::RecordingTrack>& track) const
 {
   if (activejob_ == nullptr)
