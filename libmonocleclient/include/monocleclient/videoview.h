@@ -186,7 +186,7 @@ class VideoView : public View
 
   std::vector< std::pair<uint32_t, uint64_t> > streamtokens_; // <trackid, streamtoken>//TODO rename to videostreamtokens_
   boost::optional<uint64_t> activestreamtoken_;
-  boost::optional<uint64_t> activeadaptivestreamtoken_; // If this is initialized, we are currently trying to stream live
+  boost::optional<uint64_t> activeadaptivestreamtoken_; // If this is initialized, we are currently streaming live from it
 
   sock::Connection metadataconnect_;
   monocle::client::Connection metadatagetauthenticatenonce_;

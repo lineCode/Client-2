@@ -1433,7 +1433,7 @@ void VideoView::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)
     if (track_ == nullptr) // If we weren't streaming before, we now have something to bite on, so lets go
     {
       track_ = track;
-      ChangeTrack(track_);
+      emit ChangeTrack(track_);
       Connect();
     }
     else
@@ -1470,40 +1470,46 @@ void VideoView::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)
 //TODO test this please
 void VideoView::TrackRemoved(const uint32_t trackid)
 {
-  std::vector< std::pair<uint32_t, uint64_t> >::const_iterator streamtoken = std::find_if(streamtokens_.cbegin(), streamtokens_.cend(), [trackid](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.first == trackid); });
-  if (streamtoken == streamtokens_.cend())
+  std::lock_guard<std::recursive_mutex> lock(*mutex_);
+  std::vector< std::pair<uint32_t, uint64_t> >::const_iterator i = std::find_if(streamtokens_.cbegin(), streamtokens_.cend(), [trackid](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.first == trackid); });
+  if (i == streamtokens_.cend())
   {
     LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Unable to retrieve stream token: ") + QString::number(trackid));
     return;
   }
-  streamtokens_.erase(streamtoken);
+  const uint64_t streamtoken = i->second;
+  streamtokens_.erase(i);
 
-  auto i = std::find_if(metadatastreamtokens_.begin(), metadatastreamtokens_.end(), [trackid](const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatatrack) { return (metadatatrack.second == trackid); });
-  if (i != metadatastreamtokens_.end())
+  auto j = std::find_if(metadatastreamtokens_.begin(), metadatastreamtokens_.end(), [trackid](const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatatrack) { return (metadatatrack.second == trackid); });
+  if (j != metadatastreamtokens_.end())
   {
-    metadatastreamtokens_.erase(i);
+    metadatastreamtokens_.erase(j);
 
   }
 
-  if (activestreamtoken_.is_initialized() && (*activestreamtoken_ == trackid))
+  if (activeadaptivestreamtoken_.is_initialized() && (activeadaptivestreamtoken_ == streamtoken))
   {
-    if (streamtokens_.size()) // Switch to another video track if one is available
+    activeadaptivestreamtoken_.reset();
+
+    //TODO need to find a new stream to go from
+      //TODO need to kick off live
+  }
+
+  if (activestreamtoken_.is_initialized() && (*activestreamtoken_ == streamtoken))//TODO but now we have problems...
+  {
+    const QSharedPointer<RecordingTrack> besttrack = GetBestRecordingTrack();
+    if (besttrack) // Switch to another video track if one is available
     {
-      
-      //TODO pick another stream to stream from...
-
-
-      //TODO send signal for playbackwidget to update
-      track_ = recording_->GetVideoTracks().front(); //TODO make sure to check this
-      ChangeTrack(track_);
+      track_ = besttrack;
+      emit ChangeTrack(besttrack);
 //TODO Stop()
     }
     else // Nothing left to do, just warn the user and turn off streaming
     {
       activestreamtoken_ .reset();
       track_.reset();
-      ChangeTrack(nullptr);
-      //TODO SetMessage("Error no tracks")
+      emit ChangeTrack(nullptr);
+      SetMessage(GetNextPlayRequestIndex(true), false, "Unable to find track");
     }
   }
 

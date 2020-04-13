@@ -153,7 +153,7 @@ Error TestConnection::AddReceiver(const monocle::ReceiverMode mode, const std::s
   return Error();
 }
 
-std::pair<Error, uint64_t> TestConnection::AddRecording(const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool createdefaulttracks, const bool createdefaultjobs)
+std::pair<Error, uint64_t> TestConnection::AddRecording(const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool adaptivestreaming, const bool createdefaulttracks, const bool createdefaultjobs)
 {
   return std::make_pair(Error(), 0);
 }
@@ -225,7 +225,7 @@ Error TestConnection::ChangeReceiver(const uint64_t token, const monocle::Receiv
   return Error();
 }
 
-Error TestConnection::ChangeRecording(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime)
+Error TestConnection::ChangeRecording(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool adaptivestreaming)
 {
   return Error();
 }

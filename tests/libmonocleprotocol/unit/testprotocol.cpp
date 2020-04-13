@@ -57,6 +57,7 @@ TestProtocol::TestProtocol() :
                               "address",
                               "content",
                               5,
+                              true,
                               {
                                 RECORDINGJOB(0,
                                              "name",
