@@ -835,8 +835,8 @@ void VideoWidgetsMgr::Swap(QSharedPointer<View>& lhs, QSharedPointer<View>& rhs)
     videowidget1->GetViews().push_back(j);
   }
 
-  i->SetPosition(videowidget2, rect2.x(), rect2.y(), rect2.width(), rect2.height(), (*view1)->GetRotation(), (*view1)->GetMirror(), (*view1)->GetStretch(), true);
-  j->SetPosition(videowidget1, rect1.x(), rect1.y(), rect1.width(), rect1.height(), (*view2)->GetRotation(), (*view2)->GetMirror(), (*view2)->GetStretch(), true);
+  i->SetPosition(videowidget2, rect2.x(), rect2.y(), rect2.width(), rect2.height(), i->GetRotation(), i->GetMirror(), i->GetStretch(), true);
+  j->SetPosition(videowidget1, rect1.x(), rect1.y(), rect1.width(), rect1.height(), j->GetRotation(), j->GetMirror(), j->GetStretch(), true);
 }
 
 bool VideoWidgetsMgr::MoveView(VideoWidget* videowidget, QSharedPointer<View>& view, QPoint location)
