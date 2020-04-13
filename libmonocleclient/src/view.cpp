@@ -1323,6 +1323,8 @@ void View::WriteFrame(const ImageBuffer& imagebuffer)
   type_ = imagebuffer.type_;
   sequencenum_ = imagebuffer.sequencenum_;
   digitallysigned_ = imagebuffer.digitallysigned_;
+  imagewidth_ = imagebuffer.widths_[0];
+  imageheight_ = imagebuffer.heights_[0];
 
   videowidget_->makeCurrent();
   WriteImageBuffer(videowidget_, type_, imagewidth_, imageheight_, imagebuffer, textures_, cudaresources_);

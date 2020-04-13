@@ -333,7 +333,6 @@ void VideoView::GetMenu(QMenu& parent)
         return;
       }
 
-      //TODO check all this works
       if (activeadaptivestreamtoken_.is_initialized())
       {
         connection_->ControlStreamPause(*activeadaptivestreamtoken_, boost::none); // Pause the previous stream and start the new livestream
@@ -350,15 +349,7 @@ void VideoView::GetMenu(QMenu& parent)
   }
   parent.addMenu(tracks);
 
-  if (device_->SupportsGetTrackStatistics())
-  {
-    if (recording_->GetNumObjectDetectors())
-    {
-      parent.addAction(actionchartview_);
-
-    }
-  }
-  else
+  if (device_->SupportsGetTrackStatistics() && recording_->GetNumObjectDetectors())
   {
     parent.addAction(actionchartview_);
 
@@ -429,9 +420,9 @@ void VideoView::FrameStep(const bool forwards)
     return;
   }
 
-  if (adaptivestreaming_ && activeadaptivestreamtoken_.is_initialized())
+  if (activeadaptivestreamtoken_.is_initialized())
   {
-    connection_->ControlStreamPause(*activestreamtoken_, time_);//TODO check this works!
+    connection_->ControlStreamPause(*activestreamtoken_, time_);
     connection_->ControlStreamPause(*activeadaptivestreamtoken_, boost::none);
     activeadaptivestreamtoken_.reset();
     return;
@@ -470,8 +461,8 @@ void VideoView::FrameStep(const bool forwards)
     {
       std::lock_guard<std::recursive_mutex> lock(*mutex_);
       ResetDecoders();
-      connection_->ControlStreamFrameStep(*activestreamtoken_, GetNextPlayRequestIndex(true), forwards, sequencenum_);
     }
+    connection_->ControlStreamFrameStep(*activestreamtoken_, GetNextPlayRequestIndex(true), forwards, sequencenum_);
   }
   else
   {
@@ -479,9 +470,9 @@ void VideoView::FrameStep(const bool forwards)
     
   }
 
-  for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
+  for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_) // Always grab the metadata data, don't look in any cache that we don't have, and always grab some extra frames just in case
   {
-    metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, false, forwards, time_, boost::none, 4, false); // Request some additional frames just in case
+    metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, false, forwards, time_, boost::none, 4, false);
 
   }
 }
@@ -496,15 +487,15 @@ void VideoView::Play(const uint64_t time, const boost::optional<uint64_t>& numfr
 
   if (adaptivestreaming_ && activeadaptivestreamtoken_.is_initialized())
   {
-    connection_->ControlStreamPause(*activeadaptivestreamtoken_, boost::none);//TODO check this all works
+    connection_->ControlStreamPause(*activeadaptivestreamtoken_, boost::none);
     activeadaptivestreamtoken_.reset();
   }
 
   {
     std::lock_guard<std::recursive_mutex> lock(*mutex_);
     ResetDecoders();
-    connection_->ControlStream(*activestreamtoken_, GetNextPlayRequestIndex(true), true, !numframes.is_initialized(), true, time + GetTimeOffset(), boost::none, numframes, false);
   }
+  connection_->ControlStream(*activestreamtoken_, GetNextPlayRequestIndex(true), true, !numframes.is_initialized(), true, time + GetTimeOffset(), boost::none, numframes, false);
   for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
   {
     metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, !numframes.is_initialized(), true, time + GetTimeOffset(), boost::none, numframes, false);
@@ -555,18 +546,16 @@ void VideoView::Pause(const boost::optional<uint64_t>& time)
 
   if (adaptivestreaming_ && activeadaptivestreamtoken_.is_initialized())
   {
-    connection_->ControlStreamPause(*activeadaptivestreamtoken_, boost::none);//TODO check this all works
+    connection_->ControlStreamPause(*activeadaptivestreamtoken_, boost::none);
     activeadaptivestreamtoken_.reset();
-    //TODO may need to adjust time here...
-    //TODO time = time_;
   }
+
+  SetPaused(true);
+  connection_->ControlStreamPause(*activestreamtoken_, time);
 
   {
     std::lock_guard<std::recursive_mutex> lock(*mutex_);
     ResetDecoders();
-    SetPaused(true);
-    //TODO this won't work because if time=boost::none, it MAY choose the current time of the adaptivestream
-    connection_->ControlStreamPause(*activestreamtoken_, time);//TODO this should pause the adaptivestream if it is available first now...
   }
   for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
   {
@@ -618,9 +607,10 @@ void VideoView::Stop()
   {
     std::lock_guard<std::recursive_mutex> lock(*mutex_);
     ResetDecoders();
-    SetPaused(false);
-    connection_->ControlStreamLive(streamtoken, GetNextPlayRequestIndex(true));
   }
+
+  SetPaused(false);
+  connection_->ControlStreamLive(streamtoken, GetNextPlayRequestIndex(true));
   for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
   {
     metadataconnection_->ControlStreamLive(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex());
@@ -645,27 +635,28 @@ void VideoView::Scrub(const uint64_t time)
   {
     std::lock_guard<std::recursive_mutex> lock(*mutex_);
     ResetDecoders();
-    connection_->ControlStream(*activestreamtoken_, GetNextPlayRequestIndex(false), true, false, true, time + GetTimeOffset(), boost::none, 1, true);
-    controlstreamendcallback_ = [this](const uint64_t playrequestindex, const monocle::ErrorCode err)
-    {
-      if (err != monocle::ErrorCode::Success)
-      {
-        LOG_GUI_THREAD_WARNING_SOURCE(device_, "Scrub failed");
-        return;
-      }
-
-      imagequeue_.consume_all([this](const ImageBuffer& imagebuffer) { cache_.AddImage(imagebuffer); });
-
-      ImageBuffer imagebuffer = cache_.GetLatestImage(playrequestindex);
-      if (imagebuffer.type_ == IMAGEBUFFERTYPE_INVALID)
-      {
-        LOG_GUI_THREAD_WARNING_SOURCE(device_, "Scrub failed to find frames");
-        return;
-      }
-      WriteFrame(imagebuffer);
-      cache_.Clear();
-    };
   }
+
+  connection_->ControlStream(*activestreamtoken_, GetNextPlayRequestIndex(false), true, false, true, time + GetTimeOffset(), boost::none, 1, true);
+  controlstreamendcallback_ = [this](const uint64_t playrequestindex, const monocle::ErrorCode err)
+  {
+    if (err != monocle::ErrorCode::Success)
+    {
+      LOG_GUI_THREAD_WARNING_SOURCE(device_, "Scrub failed");
+      return;
+    }
+
+    imagequeue_.consume_all([this](const ImageBuffer& imagebuffer) { cache_.AddImage(imagebuffer); });
+
+    ImageBuffer imagebuffer = cache_.GetLatestImage(playrequestindex);
+    if (imagebuffer.type_ == IMAGEBUFFERTYPE_INVALID)
+    {
+      LOG_GUI_THREAD_WARNING_SOURCE(device_, "Scrub failed to find frames");
+      return;
+    }
+    WriteFrame(imagebuffer);
+    cache_.Clear();
+  };
 
   for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
   {
@@ -721,9 +712,9 @@ void VideoView::SetPosition(VideoWidget* videowidget, const unsigned int x, cons
   {
     std::lock_guard<std::recursive_mutex> lock(*mutex_);
     ResetDecoders();
-    activeadaptivestreamtoken_ = j->second;
-    connection_->ControlStreamLive(*activeadaptivestreamtoken_, GetNextPlayRequestIndex(true));
   }
+  activeadaptivestreamtoken_ = j->second;
+  connection_->ControlStreamLive(*activeadaptivestreamtoken_, GetNextPlayRequestIndex(true));
 }
 
 bool VideoView::HasHardwareDecoder() const
@@ -1432,7 +1423,7 @@ void VideoView::ChartView(bool)
 
 }
 
-void VideoView::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)//TODO test this works...
+void VideoView::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)
 {
   if (track->GetTrackType() == monocle::TrackType::Video)
   {
@@ -1460,7 +1451,7 @@ void VideoView::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)/
 
   }
 }
-//TODO make sure to test this...
+
 void VideoView::TrackRemoved(const uint32_t trackid)
 {
   std::vector< std::pair<uint32_t, uint64_t> >::const_iterator streamtoken = std::find_if(streamtokens_.cbegin(), streamtokens_.cend(), [trackid](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.first == trackid); });
