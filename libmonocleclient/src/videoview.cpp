@@ -1425,7 +1425,7 @@ void VideoView::ChartView(bool)
   MainWindow::Instance()->GetVideoWidgetsMgr().CreateVideoChartView(device_, recording_, recording_->GetObjectDetectorTracks());
 
 }
-//TODO test this please
+
 void VideoView::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)
 {
   if (track->GetTrackType() == monocle::TrackType::Video)
@@ -1445,6 +1445,18 @@ void VideoView::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)
           LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Failed to create video stream: ") + QString::number(track->GetId()));
           return;
         }
+
+        QMetaObject::invokeMethod(this, [this, trackid = track->GetId(), codecindices = createstreamresponse.codecindices_]()
+        {
+          std::lock_guard<std::recursive_mutex> lock(*mutex_);
+          for (const monocle::CODECINDEX& codecindex : codecindices)
+          {
+            AddCodecIndex(trackid, codecindex);
+
+          }
+        }, Qt::QueuedConnection);
+
+        std::lock_guard<std::recursive_mutex> lock(*mutex_);
         streamtokens_.push_back(std::make_pair(track->GetId(), createstreamresponse.token_));
       }, VideoView::ControlStreamEnd, VideoView::H265Callback, VideoView::H264Callback, nullptr, VideoView::JPEGCallback, VideoView::MPEG4Callback, VideoView::ObjectDetectorCallback, VideoView::NewCodecIndexCallback, this));
     }
@@ -1494,6 +1506,8 @@ void VideoView::TrackRemoved(const uint32_t trackid)
       //TODO SetMessage("Error no tracks")
     }
   }
+
+  //TODO remove the codecs too(with a mutex)
 }
 
 void VideoView::ActiveJobChanged(const QSharedPointer<client::RecordingJob>& activejob)
