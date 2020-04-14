@@ -400,7 +400,7 @@ struct RECORDINGTRACK
 struct RECORDING
 {
   RECORDING();
-  RECORDING(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const std::vector<RECORDINGJOB>& jobs, const std::vector<RECORDINGTRACK>& tracks, const boost::optional<uint64_t>& activejob, const uint64_t guiorder);
+  RECORDING(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool adaptivestreaming, const std::vector<RECORDINGJOB>& jobs, const std::vector<RECORDINGTRACK>& tracks, const boost::optional<uint64_t>& activejob, const uint64_t guiorder);
 
   bool operator==(const RECORDING& rhs) const;
 
@@ -412,6 +412,7 @@ struct RECORDING
   std::string address_;
   std::string content_;
   uint64_t retentiontime_;
+  bool adaptivestreaming_;
   std::vector<RECORDINGJOB> jobs_;
   std::vector<RECORDINGTRACK> tracks_;
   boost::optional<uint64_t> activejob_;

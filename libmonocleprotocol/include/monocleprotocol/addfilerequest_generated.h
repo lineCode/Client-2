@@ -12,8 +12,10 @@
 namespace monocle {
 
 struct AddFileRequest;
+struct AddFileRequestBuilder;
 
 struct AddFileRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef AddFileRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_MOUNTPOINT = 4,
     VT_PATH = 6,
@@ -65,6 +67,7 @@ struct AddFileRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct AddFileRequestBuilder {
+  typedef AddFileRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_mountpoint(flatbuffers::Offset<flatbuffers::String> mountpoint) {
@@ -95,7 +98,6 @@ struct AddFileRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  AddFileRequestBuilder &operator=(const AddFileRequestBuilder &);
   flatbuffers::Offset<AddFileRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<AddFileRequest>(end);

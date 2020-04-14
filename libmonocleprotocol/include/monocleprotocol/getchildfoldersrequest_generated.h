@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct GetChildFoldersRequest;
+struct GetChildFoldersRequestBuilder;
 
 struct GetChildFoldersRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef GetChildFoldersRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_PATH = 4,
     VT_PARENTPATHS = 6
@@ -31,6 +33,7 @@ struct GetChildFoldersRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Tab
 };
 
 struct GetChildFoldersRequestBuilder {
+  typedef GetChildFoldersRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_path(flatbuffers::Offset<flatbuffers::String> path) {
@@ -43,7 +46,6 @@ struct GetChildFoldersRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  GetChildFoldersRequestBuilder &operator=(const GetChildFoldersRequestBuilder &);
   flatbuffers::Offset<GetChildFoldersRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<GetChildFoldersRequest>(end);

@@ -36,7 +36,7 @@ inline const char * const *EnumNamesReceiverMode() {
 }
 
 inline const char *EnumNameReceiverMode(ReceiverMode e) {
-  if (e < ReceiverMode::AutoConnect || e > ReceiverMode::NeverConnect) return "";
+  if (flatbuffers::IsOutRange(e, ReceiverMode::AutoConnect, ReceiverMode::NeverConnect)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesReceiverMode()[index];
 }

@@ -11,8 +11,10 @@
 namespace monocle {
 
 struct ChangeRecordingRequest;
+struct ChangeRecordingRequestBuilder;
 
 struct ChangeRecordingRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef ChangeRecordingRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_SOURCEID = 6,
@@ -22,7 +24,8 @@ struct ChangeRecordingRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Tab
     VT_ADDRESS = 14,
     VT_CONTENT = 16,
     VT_RETENTIONTIME = 18,
-    VT_ACTIVEJOB = 20
+    VT_ACTIVEJOB = 20,
+    VT_ADAPTIVESTREAMING = 22
   };
   uint64_t token() const {
     return GetField<uint64_t>(VT_TOKEN, 0);
@@ -51,6 +54,9 @@ struct ChangeRecordingRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Tab
   const monocle::TOKEN *activejob() const {
     return GetStruct<const monocle::TOKEN *>(VT_ACTIVEJOB);
   }
+  bool adaptivestreaming() const {
+    return GetField<uint8_t>(VT_ADAPTIVESTREAMING, 0) != 0;
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_TOKEN) &&
@@ -68,11 +74,13 @@ struct ChangeRecordingRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Tab
            verifier.VerifyString(content()) &&
            VerifyField<uint64_t>(verifier, VT_RETENTIONTIME) &&
            VerifyField<monocle::TOKEN>(verifier, VT_ACTIVEJOB) &&
+           VerifyField<uint8_t>(verifier, VT_ADAPTIVESTREAMING) &&
            verifier.EndTable();
   }
 };
 
 struct ChangeRecordingRequestBuilder {
+  typedef ChangeRecordingRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -102,11 +110,13 @@ struct ChangeRecordingRequestBuilder {
   void add_activejob(const monocle::TOKEN *activejob) {
     fbb_.AddStruct(ChangeRecordingRequest::VT_ACTIVEJOB, activejob);
   }
+  void add_adaptivestreaming(bool adaptivestreaming) {
+    fbb_.AddElement<uint8_t>(ChangeRecordingRequest::VT_ADAPTIVESTREAMING, static_cast<uint8_t>(adaptivestreaming), 0);
+  }
   explicit ChangeRecordingRequestBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ChangeRecordingRequestBuilder &operator=(const ChangeRecordingRequestBuilder &);
   flatbuffers::Offset<ChangeRecordingRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<ChangeRecordingRequest>(end);
@@ -124,7 +134,8 @@ inline flatbuffers::Offset<ChangeRecordingRequest> CreateChangeRecordingRequest(
     flatbuffers::Offset<flatbuffers::String> address = 0,
     flatbuffers::Offset<flatbuffers::String> content = 0,
     uint64_t retentiontime = 0,
-    const monocle::TOKEN *activejob = 0) {
+    const monocle::TOKEN *activejob = 0,
+    bool adaptivestreaming = false) {
   ChangeRecordingRequestBuilder builder_(_fbb);
   builder_.add_retentiontime(retentiontime);
   builder_.add_token(token);
@@ -135,6 +146,7 @@ inline flatbuffers::Offset<ChangeRecordingRequest> CreateChangeRecordingRequest(
   builder_.add_location(location);
   builder_.add_name(name);
   builder_.add_sourceid(sourceid);
+  builder_.add_adaptivestreaming(adaptivestreaming);
   return builder_.Finish();
 }
 
@@ -148,7 +160,8 @@ inline flatbuffers::Offset<ChangeRecordingRequest> CreateChangeRecordingRequestD
     const char *address = nullptr,
     const char *content = nullptr,
     uint64_t retentiontime = 0,
-    const monocle::TOKEN *activejob = 0) {
+    const monocle::TOKEN *activejob = 0,
+    bool adaptivestreaming = false) {
   auto sourceid__ = sourceid ? _fbb.CreateString(sourceid) : 0;
   auto name__ = name ? _fbb.CreateString(name) : 0;
   auto location__ = location ? _fbb.CreateString(location) : 0;
@@ -165,7 +178,8 @@ inline flatbuffers::Offset<ChangeRecordingRequest> CreateChangeRecordingRequestD
       address__,
       content__,
       retentiontime,
-      activejob);
+      activejob,
+      adaptivestreaming);
 }
 
 }  // namespace monocle

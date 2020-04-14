@@ -22,7 +22,7 @@ class H265Decoder : public Decoder
 {
  public:
 
-  H265Decoder(const uint64_t id, const utility::PublicKey& publickey);
+  H265Decoder(const uint32_t trackid, const uint64_t id, const utility::PublicKey& publickey);
   virtual ~H265Decoder();
 
   virtual void Destroy() override;

@@ -10,6 +10,7 @@
 #include <boost/predef.h>
 #include <boost/program_options.hpp>
 #include <boost/system/error_code.hpp>
+#include <file/file.hpp>
 #include <iostream>
 #include <stdint.h>
 #include <monocleclient/device.h>
@@ -47,6 +48,7 @@ Q_DECLARE_METATYPE(boost::system::error_code)
 Q_DECLARE_METATYPE(client::LOGLEVEL)
 Q_DECLARE_METATYPE(client::DEVICESTATE)
 Q_DECLARE_METATYPE(const char*)
+Q_DECLARE_METATYPE(file::TRACK)
 Q_DECLARE_METATYPE(monocle::FileState)
 Q_DECLARE_METATYPE(monocle::FileMonitorState)
 Q_DECLARE_METATYPE(QVector<int>)
@@ -121,6 +123,7 @@ int main(int argc, char** argv)
   qRegisterMetaType< boost::system::error_code >();
   qRegisterMetaType<client::LOGLEVEL>("monocle::LOGLEVEL");
   qRegisterMetaType<const char*>();
+  qRegisterMetaType<file::TRACK>();
   qRegisterMetaType<client::DEVICESTATE>();
   qRegisterMetaType<monocle::FileState>();
   qRegisterMetaType<monocle::FileMonitorState>();

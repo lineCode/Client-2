@@ -33,6 +33,8 @@ enum class ROTATION : int;
 ///// Globals /////
 
 extern const QString PROFILE_TOKEN_PARAMETER_NAME;
+extern const QString PROFILE_WIDTH;
+extern const QString PROFILE_HEIGHT;
 extern const QString SOURCE_TAG_PARAMETER_NAME;
 extern const QString ROTATION_PARAMETER_NAME;
 extern const QString OBJECT_DETECTOR_ACCURACY_PARAMETER_NAME;
@@ -89,10 +91,12 @@ class RecordingJobSourceTrack : public QObject
   inline void SetActiveParameters(const std::vector<QString>& activeparameters) { activeparameters_ = activeparameters; }
   inline const QSharedPointer<client::RecordingTrack>& GetTrack() const { return track_; }
 
-  boost::optional<QString> GetSourceTag() const;
   boost::optional<QString> GetProfileToken() const;
+  boost::optional<QString> GetSourceTag() const;
   boost::optional<ROTATION> GetRotation() const;
   boost::optional<QString> GetActiveProfileToken() const;
+  boost::optional<QString> GetActiveWidth() const;
+  boost::optional<QString> GetActiveHeight() const;
   QVariant GetObjectDetectorAccuracy() const;
   QVariant GetObjectDetectorHumansEnabled() const;
   QVariant GetObjectDetectorHumansSensitivity() const;

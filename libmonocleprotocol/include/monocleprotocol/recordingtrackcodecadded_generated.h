@@ -11,8 +11,10 @@
 namespace monocle {
 
 struct RecordingTrackCodecAdded;
+struct RecordingTrackCodecAddedBuilder;
 
 struct RecordingTrackCodecAdded FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef RecordingTrackCodecAddedBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDINGTOKEN = 4,
     VT_TRACKID = 6,
@@ -53,6 +55,7 @@ struct RecordingTrackCodecAdded FLATBUFFERS_FINAL_CLASS : private flatbuffers::T
 };
 
 struct RecordingTrackCodecAddedBuilder {
+  typedef RecordingTrackCodecAdded Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_recordingtoken(uint64_t recordingtoken) {
@@ -77,7 +80,6 @@ struct RecordingTrackCodecAddedBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  RecordingTrackCodecAddedBuilder &operator=(const RecordingTrackCodecAddedBuilder &);
   flatbuffers::Offset<RecordingTrackCodecAdded> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<RecordingTrackCodecAdded>(end);

@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct UserChanged;
+struct UserChangedBuilder;
 
 struct UserChanged FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef UserChangedBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_GROUP = 6
@@ -30,6 +32,7 @@ struct UserChanged FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct UserChangedBuilder {
+  typedef UserChanged Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -42,7 +45,6 @@ struct UserChangedBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  UserChangedBuilder &operator=(const UserChangedBuilder &);
   flatbuffers::Offset<UserChanged> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<UserChanged>(end);

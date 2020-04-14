@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct UnsubscribeRecordingLogRequest;
+struct UnsubscribeRecordingLogRequestBuilder;
 
 struct UnsubscribeRecordingLogRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef UnsubscribeRecordingLogRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4
   };
@@ -25,6 +27,7 @@ struct UnsubscribeRecordingLogRequest FLATBUFFERS_FINAL_CLASS : private flatbuff
 };
 
 struct UnsubscribeRecordingLogRequestBuilder {
+  typedef UnsubscribeRecordingLogRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -34,7 +37,6 @@ struct UnsubscribeRecordingLogRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  UnsubscribeRecordingLogRequestBuilder &operator=(const UnsubscribeRecordingLogRequestBuilder &);
   flatbuffers::Offset<UnsubscribeRecordingLogRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<UnsubscribeRecordingLogRequest>(end);

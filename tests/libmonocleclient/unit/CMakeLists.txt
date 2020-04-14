@@ -53,7 +53,6 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
 if(WIN32)
-  target_link_libraries(libmonocleclientunit ${CMAKE_CURRENT_SOURCE_DIR}/../../../libmfx.lib)
   target_link_libraries(libmonocleclientunit Ws2_32.lib)
 else()
   target_link_libraries(libmonocleclientunit ${X11_LIBRARIES})

@@ -12,8 +12,10 @@
 namespace monocle {
 
 struct RecordingTrackLogMessage;
+struct RecordingTrackLogMessageBuilder;
 
 struct RecordingTrackLogMessage FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef RecordingTrackLogMessageBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RECORDINGTOKEN = 4,
     VT_ID = 6,
@@ -39,6 +41,7 @@ struct RecordingTrackLogMessage FLATBUFFERS_FINAL_CLASS : private flatbuffers::T
 };
 
 struct RecordingTrackLogMessageBuilder {
+  typedef RecordingTrackLogMessage Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_recordingtoken(uint64_t recordingtoken) {
@@ -54,7 +57,6 @@ struct RecordingTrackLogMessageBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  RecordingTrackLogMessageBuilder &operator=(const RecordingTrackLogMessageBuilder &);
   flatbuffers::Offset<RecordingTrackLogMessage> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<RecordingTrackLogMessage>(end);

@@ -28,6 +28,8 @@ namespace client
 ///// Globals /////
 
 const QString PROFILE_TOKEN_PARAMETER_NAME = "ProfileToken";
+const QString PROFILE_WIDTH = "Width";
+const QString PROFILE_HEIGHT = "Height";
 const QString SOURCE_TAG_PARAMETER_NAME = "SourceTag";
 const QString ROTATION_PARAMETER_NAME = "Rotation";
 const QString OBJECT_DETECTOR_ACCURACY_PARAMETER_NAME = "ObjectDetectorAccuracy";
@@ -91,14 +93,14 @@ void RecordingJobSourceTrack::SetState(const monocle::RecordingJobState state, c
   emit StateChanged(state, error, prevstate);
 }
 
-boost::optional<QString> RecordingJobSourceTrack::GetSourceTag() const
-{
-  return GetParameter(SOURCE_TAG_PARAMETER_NAME);
-}
-
 boost::optional<QString> RecordingJobSourceTrack::GetProfileToken() const
 {
   return GetParameter(PROFILE_TOKEN_PARAMETER_NAME);
+}
+
+boost::optional<QString> RecordingJobSourceTrack::GetSourceTag() const
+{
+  return GetParameter(SOURCE_TAG_PARAMETER_NAME);
 }
 
 boost::optional<ROTATION> RecordingJobSourceTrack::GetRotation() const
@@ -140,6 +142,16 @@ boost::optional<ROTATION> RecordingJobSourceTrack::GetRotation() const
 boost::optional<QString> RecordingJobSourceTrack::GetActiveProfileToken() const
 {
   return GetActiveParameter(PROFILE_TOKEN_PARAMETER_NAME);
+}
+
+boost::optional<QString> RecordingJobSourceTrack::GetActiveWidth() const
+{
+  return GetActiveParameter(PROFILE_WIDTH);
+}
+
+boost::optional<QString> RecordingJobSourceTrack::GetActiveHeight() const
+{
+  return GetActiveParameter(PROFILE_HEIGHT);
 }
 
 QVariant RecordingJobSourceTrack::GetObjectDetectorAccuracy() const

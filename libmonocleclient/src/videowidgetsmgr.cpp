@@ -123,13 +123,15 @@ void VideoWidgetsMgr::CreateMediaView(const QSharedPointer<Media>& media, const 
 
 void VideoWidgetsMgr::CreateVideoView(const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingTrack>& track)
 {
+  const bool adaptivestreaming = track ? false : recording->GetAdaptiveStreaming();
+
   // Find a video widget to add this video view to
   for (VideoWidget* videowidget : videowidgets_)
   {
     const auto location = GetEmptyVideoLocation(videowidget, 1, 1);
     if (location.is_initialized())
     {
-      QSharedPointer<VideoView> videoview = videowidget->CreateVideoView(location->x(), location->y(), 1, 1, Options::Instance().GetStretchVideo(), device, recording, track);
+      QSharedPointer<VideoView> videoview = videowidget->CreateVideoView(location->x(), location->y(), 1, 1, Options::Instance().GetStretchVideo(), adaptivestreaming, device, recording, track);
       if (!videoview)
       {
         LOG_GUI_WARNING_SOURCE(device, QString("VideoWidget::CreateVideoView failed"));
@@ -146,7 +148,7 @@ void VideoWidgetsMgr::CreateVideoView(const boost::shared_ptr<Device>& device, c
 
   // If we couldn't find somewhere to put it, create a video window for it
   VideoWindow* videowindow = MainWindow::Instance()->GetVideoWindowMgr().CreateVideoWindow(boost::none, arial_, showfullscreen_, Options::Instance().GetDefaultVideoWindowWidth(), Options::Instance().GetDefaultVideoWindowHeight(), Options::Instance().GetDefaultShowToolbar());
-  QSharedPointer<VideoView> videoview = videowindow->GetVideoWidget()->CreateVideoView(0, 0, 1, 1, Options::Instance().GetStretchVideo(), device, recording, track);
+  QSharedPointer<VideoView> videoview = videowindow->GetVideoWidget()->CreateVideoView(0, 0, 1, 1, Options::Instance().GetStretchVideo(), adaptivestreaming, device, recording, track);
   if (!videoview)
   {
     LOG_GUI_WARNING_SOURCE(device, QString("VideoWidget::CreateVideoView"));
@@ -835,8 +837,8 @@ void VideoWidgetsMgr::Swap(QSharedPointer<View>& lhs, QSharedPointer<View>& rhs)
     videowidget1->GetViews().push_back(j);
   }
 
-  i->SetPosition(videowidget2, rect2.x(), rect2.y(), rect2.width(), rect2.height(), (*view1)->GetRotation(), (*view1)->GetMirror(), (*view1)->GetStretch(), true);
-  j->SetPosition(videowidget1, rect1.x(), rect1.y(), rect1.width(), rect1.height(), (*view2)->GetRotation(), (*view2)->GetMirror(), (*view2)->GetStretch(), true);
+  i->SetPosition(videowidget2, rect2.x(), rect2.y(), rect2.width(), rect2.height(), i->GetRotation(), i->GetMirror(), i->GetStretch(), true);
+  j->SetPosition(videowidget1, rect1.x(), rect1.y(), rect1.width(), rect1.height(), j->GetRotation(), j->GetMirror(), j->GetStretch(), true);
 }
 
 bool VideoWidgetsMgr::MoveView(VideoWidget* videowidget, QSharedPointer<View>& view, QPoint location)

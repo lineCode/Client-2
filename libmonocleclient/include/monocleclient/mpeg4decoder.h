@@ -23,7 +23,7 @@ class MPEG4Decoder : public Decoder
 {
  public:
 
-  MPEG4Decoder(const uint64_t id, utility::PublicKey& publickey);
+  MPEG4Decoder(const uint32_t trackid, const uint64_t id, utility::PublicKey& publickey);
   ~MPEG4Decoder();
 
   virtual void Destroy() override;

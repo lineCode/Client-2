@@ -11,8 +11,10 @@
 namespace monocle {
 
 struct AddReceiverRequest;
+struct AddReceiverRequestBuilder;
 
 struct AddReceiverRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef AddReceiverRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_MODE = 4,
     VT_MEDIAURI = 6,
@@ -52,6 +54,7 @@ struct AddReceiverRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct AddReceiverRequestBuilder {
+  typedef AddReceiverRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_mode(monocle::ReceiverMode mode) {
@@ -73,7 +76,6 @@ struct AddReceiverRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  AddReceiverRequestBuilder &operator=(const AddReceiverRequestBuilder &);
   flatbuffers::Offset<AddReceiverRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<AddReceiverRequest>(end);

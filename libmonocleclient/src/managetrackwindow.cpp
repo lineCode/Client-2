@@ -108,7 +108,7 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, const boost::shared_ptr<De
     if (ui_.combodevice->count() == 0)
     {
       QMessageBox(QMessageBox::Warning, tr("Error"), tr("No valid devices"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-      QTimer::singleShot(std::chrono::milliseconds(1), this, [this]() { reject(); });
+      QTimer::singleShot(std::chrono::milliseconds(1), this, [this]() { rtspclient_.reset(); reject(); });
       return;
     }
 
@@ -118,7 +118,7 @@ ManageTrackWindow::ManageTrackWindow(QWidget* parent, const boost::shared_ptr<De
     if (!currentdevice)
     {
       QMessageBox(QMessageBox::Warning, tr("Error"), tr("Unable to find device: ") + QString::number(ui_.combodevice->currentData().toULongLong()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
-      QTimer::singleShot(std::chrono::milliseconds(1), this, [this]() { reject(); });
+      QTimer::singleShot(std::chrono::milliseconds(1), this, [this]() { rtspclient_.reset(); reject(); });
       return;
     }
 
@@ -382,7 +382,7 @@ void ManageTrackWindow::AddProfile(const onvif::Profile& profile)
 
   top->addChild(new QTreeWidgetItem({ "Token: " + QString::fromStdString(*profile.token_) }));
 
-  if (profile.videosourceconfiguration_->name_.is_initialized())
+  if (profile.videosourceconfiguration_.is_initialized() && profile.videosourceconfiguration_->name_.is_initialized())
   {
     top->addChild(new QTreeWidgetItem({ "Name: " + QString::fromStdString(*profile.name_) }));
 
@@ -960,7 +960,7 @@ void ManageTrackWindow::SetTrack(const uint64_t recordingtoken, const uint64_t r
         SetEnabled(true);
         return;
       }
-
+      rtspclient_.reset();
       accept();
     });
   }
@@ -974,7 +974,7 @@ void ManageTrackWindow::SetTrack(const uint64_t recordingtoken, const uint64_t r
         SetEnabled(true);
         return;
       }
-
+      rtspclient_.reset();
       accept();
     });
   }
@@ -1017,6 +1017,7 @@ void ManageTrackWindow::TrackRemoved(const uint32_t id)
   if (recordingtrack_ && (recordingtrack_->GetId() == id))
   {
     QMessageBox(QMessageBox::Warning, tr("Error"), tr("Track has been removed"), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+    rtspclient_.reset();
     reject();
   }
 }
@@ -1027,6 +1028,7 @@ void ManageTrackWindow::on_combodevice_currentIndexChanged(const QString&)
   if (!currentdevice)
   {
     QMessageBox(QMessageBox::Warning, tr("Error"), tr("Unable to find device: ") + QString::number(ui_.combodevice->currentData().toULongLong()), QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
+    rtspclient_.reset();
     reject();
     return;
   }

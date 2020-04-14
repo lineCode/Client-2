@@ -12,8 +12,10 @@
 namespace monocle {
 
 struct NewCodecIndex;
+struct NewCodecIndexBuilder;
 
 struct NewCodecIndex FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef NewCodecIndexBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_STREAM = 4,
     VT_CODECINDEX = 6
@@ -34,6 +36,7 @@ struct NewCodecIndex FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct NewCodecIndexBuilder {
+  typedef NewCodecIndex Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_stream(uint64_t stream) {
@@ -46,7 +49,6 @@ struct NewCodecIndexBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  NewCodecIndexBuilder &operator=(const NewCodecIndexBuilder &);
   flatbuffers::Offset<NewCodecIndex> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<NewCodecIndex>(end);

@@ -17,6 +17,7 @@
 
 ///// Declarations /////
 
+namespace monocle { enum class RecordingJobState : int8_t; }
 class QAction;
 
 ///// Namespaces /////
@@ -63,6 +64,8 @@ class DeviceTreeRecordingTrackItem : public DeviceTreeItem
 
  private:
 
+  void UpdateToolTip();
+  QString Tooltip(const QString& mediauri, const QString& status) const;
   QString GetName(const QSharedPointer<client::RecordingTrack>& track) const;
   bool IsONVIF(const std::string& mediauri) const;
 
@@ -87,6 +90,12 @@ class DeviceTreeRecordingTrackItem : public DeviceTreeItem
   void ManageDevice(bool);
   void ViewLog(bool);
   void TrackChanged(const QSharedPointer<client::RecordingTrack>& track);
+  void JobSourceTrackAdded(const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource, const QSharedPointer<client::RecordingJobSourceTrack>& recordingjobsourcetrack);
+  void JobSourceTrackRemoved(const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource, const uint64_t token);
+  void ActiveJobChanged(const QSharedPointer<client::RecordingJob>& activejob);
+  void RecordingJobSourceAdded(const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource);
+  void RecordingJobSourceRemoved(const QSharedPointer<client::RecordingJob>& recordingjob, const uint64_t token);
+  void RecordingJobSourceTrackStateChanged(const QSharedPointer<client::RecordingJob>& job, const QSharedPointer<client::RecordingJobSource>& source, const QSharedPointer<client::RecordingJobSourceTrack>& track, const uint64_t time, const monocle::RecordingJobState state, const QString& error, const monocle::RecordingJobState prevstate);
   void DataRate(const uint64_t datarate);
 
 };

@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct H264FrameHeader;
+struct H264FrameHeaderBuilder;
 
 struct H264FrameHeader FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef H264FrameHeaderBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_PLAYREQUESTINDEX = 6,
@@ -67,6 +69,7 @@ struct H264FrameHeader FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct H264FrameHeaderBuilder {
+  typedef H264FrameHeader Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -100,7 +103,6 @@ struct H264FrameHeaderBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  H264FrameHeaderBuilder &operator=(const H264FrameHeaderBuilder &);
   flatbuffers::Offset<H264FrameHeader> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<H264FrameHeader>(end);

@@ -9,12 +9,16 @@
 namespace monocle {
 
 struct LayoutView;
+struct LayoutViewBuilder;
 
 struct LayoutWindow;
+struct LayoutWindowBuilder;
 
 struct Layout;
+struct LayoutBuilder;
 
 struct LayoutView FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef LayoutViewBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_X = 6,
@@ -49,6 +53,7 @@ struct LayoutView FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct LayoutViewBuilder {
+  typedef LayoutView Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -70,7 +75,6 @@ struct LayoutViewBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  LayoutViewBuilder &operator=(const LayoutViewBuilder &);
   flatbuffers::Offset<LayoutView> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<LayoutView>(end);
@@ -95,6 +99,7 @@ inline flatbuffers::Offset<LayoutView> CreateLayoutView(
 }
 
 struct LayoutWindow FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef LayoutWindowBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_MAINWINDOW = 6,
@@ -183,6 +188,7 @@ struct LayoutWindow FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct LayoutWindowBuilder {
+  typedef LayoutWindow Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -234,7 +240,6 @@ struct LayoutWindowBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  LayoutWindowBuilder &operator=(const LayoutWindowBuilder &);
   flatbuffers::Offset<LayoutWindow> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<LayoutWindow>(end);
@@ -317,6 +322,7 @@ inline flatbuffers::Offset<LayoutWindow> CreateLayoutWindowDirect(
 }
 
 struct Layout FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef LayoutBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_NAME = 6,
@@ -344,6 +350,7 @@ struct Layout FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct LayoutBuilder {
+  typedef Layout Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -359,7 +366,6 @@ struct LayoutBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  LayoutBuilder &operator=(const LayoutBuilder &);
   flatbuffers::Offset<Layout> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<Layout>(end);

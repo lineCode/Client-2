@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct MountPoint;
+struct MountPointBuilder;
 
 struct MountPoint FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef MountPointBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_ID = 4,
     VT_PARENTID = 6,
@@ -58,6 +60,7 @@ struct MountPoint FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct MountPointBuilder {
+  typedef MountPoint Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_id(uint64_t id) {
@@ -85,7 +88,6 @@ struct MountPointBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  MountPointBuilder &operator=(const MountPointBuilder &);
   flatbuffers::Offset<MountPoint> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<MountPoint>(end);

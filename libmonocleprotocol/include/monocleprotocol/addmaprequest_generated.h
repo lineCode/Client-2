@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct AddMapRequest;
+struct AddMapRequestBuilder;
 
 struct AddMapRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef AddMapRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_NAME = 4,
     VT_LOCATION = 6,
@@ -38,6 +40,7 @@ struct AddMapRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct AddMapRequestBuilder {
+  typedef AddMapRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_name(flatbuffers::Offset<flatbuffers::String> name) {
@@ -53,7 +56,6 @@ struct AddMapRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  AddMapRequestBuilder &operator=(const AddMapRequestBuilder &);
   flatbuffers::Offset<AddMapRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<AddMapRequest>(end);

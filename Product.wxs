@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Id="*" Name="MonocleClient" Language="1033" Version="1.13.0.0" Manufacturer="Monocle Security" UpgradeCode="b8005458-f311-4fbc-8865-54e59aef1972">
+  <Product Id="*" Name="MonocleClient" Language="1033" Version="1.14.0.0" Manufacturer="Monocle Security" UpgradeCode="b8005458-f311-4fbc-8865-54e59aef1972">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
     <WixVariable Id="WixUILicenseRtf" Overridable="yes" Value="license.rtf"/>
@@ -282,6 +282,56 @@
           Id="libGLESV2"
           Name="libGLESV2.dll"
           Source="$(env.QT_DIR)/bin/libGLESV2.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Id="swresample" Directory="INSTALLFOLDER" Guid="CD891EF2-A5CF-48CE-B518-48DE66DBA80F">
+        <File
+          Id="swresample"
+          Name="swresample-3.dll"
+          Source="$(env.FFMPEG_DIR)\libswresample\swresample-3.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Id="swscale" Directory="INSTALLFOLDER" Guid="596B5670-2834-406B-8E6F-2AFF6F84C1F8">
+        <File
+          Id="swscale"
+          Name="swscale-5.dll"
+          Source="$(env.FFMPEG_DIR)\libswscale\swscale-5.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Id="avcodec" Directory="INSTALLFOLDER" Guid="42C1F864-632C-4644-91F9-6B0AAA8585AA">
+        <File
+          Id="avcodec"
+          Name="avcodec-58.dll"
+          Source="$(env.FFMPEG_DIR)\libavcodec\avcodec-58.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Id="avformat" Directory="INSTALLFOLDER" Guid="0816FC22-323C-4378-99B0-E5670781820E">
+        <File
+          Id="avformat"
+          Name="avformat-58.dll"
+          Source="$(env.FFMPEG_DIR)\libavformat\avformat-58.dll"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
+      <Component Id="avutil" Directory="INSTALLFOLDER" Guid="6E69D4E2-D908-4D59-8876-2E9B136323FF">
+        <File
+          Id="avutil"
+          Name="avutil-56.dll"
+          Source="$(env.FFMPEG_DIR)\libavutil\avutil-56.dll"
           DiskId="1"
           Vital="yes"
           KeyPath="yes" />

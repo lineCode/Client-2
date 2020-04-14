@@ -11,8 +11,10 @@
 namespace monocle {
 
 struct LayoutChanged;
+struct LayoutChangedBuilder;
 
 struct LayoutChanged FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef LayoutChangedBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_LAYOUT = 4
   };
@@ -28,6 +30,7 @@ struct LayoutChanged FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct LayoutChangedBuilder {
+  typedef LayoutChanged Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_layout(flatbuffers::Offset<monocle::Layout> layout) {
@@ -37,7 +40,6 @@ struct LayoutChangedBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  LayoutChangedBuilder &operator=(const LayoutChangedBuilder &);
   flatbuffers::Offset<LayoutChanged> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<LayoutChanged>(end);

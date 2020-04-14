@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct Map;
+struct MapBuilder;
 
 struct Map FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef MapBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4,
     VT_NAME = 6,
@@ -48,6 +50,7 @@ struct Map FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct MapBuilder {
+  typedef Map Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -69,7 +72,6 @@ struct MapBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  MapBuilder &operator=(const MapBuilder &);
   flatbuffers::Offset<Map> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<Map>(end);

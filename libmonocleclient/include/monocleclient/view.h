@@ -169,6 +169,7 @@ class View : public QObject, public QEnableSharedFromThis<View>
   inline QOpenGLBuffer& GetSelectedVertexBuffer() { return selectvertexbuffer_; }
   inline std::map< std::pair<monocle::ObjectClass, uint64_t>, std::vector<Object> >& GetObjects() { return objects_.GetObjects(); }
   std::array<GLuint, 3>& GetTextures() { return textures_; }
+  inline CUcontext GetCUDAContext() { return cudacontext_; }
   void SetCUDAResource(const size_t index, const CUgraphicsResource cudaresource) { cudaresources_[index] = cudaresource; }
   CUgraphicsResource GetCUDAResource(const size_t index) const { return cudaresources_[index]; }
   const std::array<CUgraphicsResource, 3>& GetCUDAResources() const { return cudaresources_; }

@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct GetAuthenticationNonceResponse;
+struct GetAuthenticationNonceResponseBuilder;
 
 struct GetAuthenticationNonceResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef GetAuthenticationNonceResponseBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_NONCE = 4
   };
@@ -26,6 +28,7 @@ struct GetAuthenticationNonceResponse FLATBUFFERS_FINAL_CLASS : private flatbuff
 };
 
 struct GetAuthenticationNonceResponseBuilder {
+  typedef GetAuthenticationNonceResponse Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_nonce(flatbuffers::Offset<flatbuffers::String> nonce) {
@@ -35,7 +38,6 @@ struct GetAuthenticationNonceResponseBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  GetAuthenticationNonceResponseBuilder &operator=(const GetAuthenticationNonceResponseBuilder &);
   flatbuffers::Offset<GetAuthenticationNonceResponse> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<GetAuthenticationNonceResponse>(end);

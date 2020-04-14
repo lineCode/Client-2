@@ -231,7 +231,8 @@ void VectorFreeFrameBuffer::AddFreeImage(ImageBuffer& imagebuffer)
   }
 }
 
-Decoder::Decoder(const uint64_t id, const utility::PublicKey& publickey, CUcontext cudacontext) :
+Decoder::Decoder(const uint32_t trackid, const uint64_t id, const utility::PublicKey& publickey, CUcontext cudacontext) :
+  trackid_(trackid),
   id_(id),
   publickey_(publickey),
   cudacontext_(cudacontext),
@@ -365,7 +366,8 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
           cuCtxPopCurrent_v2(&dummy);
         } BOOST_SCOPE_EXIT_END
 
-        if ((imagebuffer.type_ != IMAGEBUFFERTYPE_NV12) || (imagebuffer.strides_[0] != frame_->linesize[0]) || (imagebuffer.widths_[0] != frame_->width) || (imagebuffer.heights_[0] != frame_->height) || (imagebuffer.strides_[1] != frame_->linesize[1]) || (imagebuffer.widths_[1] != (frame_->width / 2)) || (imagebuffer.heights_[1] != (frame_->height / 2)))
+        if ((imagebuffer.type_ != IMAGEBUFFERTYPE_NV12) || (imagebuffer.strides_[0] != frame_->linesize[0]) || (imagebuffer.widths_[0] != frame_->width) || (imagebuffer.heights_[0] != frame_->height)
+                                                        || (imagebuffer.strides_[1] != frame_->linesize[1]) || (imagebuffer.widths_[1] != (frame_->width / 2)) || (imagebuffer.heights_[1] != (frame_->height / 2)))
         {
           imagebuffer.Destroy();
           CUdeviceptr yptr = 0;
@@ -457,7 +459,7 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
       const int ysize = strides[0] * heights[0];
       const int usize = strides[1] * heights[1];
       const int vsize = strides[2] * heights[2];
-      if (widths != imagebuffer.widths_ || (heights != imagebuffer.heights_) || strides != imagebuffer.strides_)
+      if ((widths != imagebuffer.widths_) || (heights != imagebuffer.heights_) || (strides != imagebuffer.strides_))
       {
         imagebuffer.widths_ = widths;
         imagebuffer.heights_ = heights;

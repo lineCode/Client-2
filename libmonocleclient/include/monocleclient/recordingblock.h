@@ -25,7 +25,7 @@ class RecordingBlock
  public:
 
   RecordingBlock(const bool metadata, const uint64_t starttime, const uint64_t endtime);
-  virtual ~RecordingBlock();
+  ~RecordingBlock();
 
   void Update(const float top, const float bottom, const float minwidth, const uint64_t starttime, const uint64_t endtime, std::vector<float>& recordingblockverticesdata);
 

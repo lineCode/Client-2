@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct NameChanged;
+struct NameChangedBuilder;
 
 struct NameChanged FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef NameChangedBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_NAME = 4
   };
@@ -26,6 +28,7 @@ struct NameChanged FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct NameChangedBuilder {
+  typedef NameChanged Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_name(flatbuffers::Offset<flatbuffers::String> name) {
@@ -35,7 +38,6 @@ struct NameChangedBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  NameChangedBuilder &operator=(const NameChangedBuilder &);
   flatbuffers::Offset<NameChanged> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<NameChanged>(end);

@@ -127,7 +127,7 @@ class Decoder : public QObject
 
  public:
 
-  Decoder(const uint64_t id, const utility::PublicKey& publickey, CUcontext cudacontext);
+  Decoder(const uint32_t trackid, const uint64_t id, const utility::PublicKey& publickey, CUcontext cudacontext);
   virtual ~Decoder();
 
   virtual void Destroy();
@@ -136,7 +136,8 @@ class Decoder : public QObject
 
   virtual monocle::Codec GetCodec() const = 0;
   virtual AVCodecID GetCodecId() const = 0;
-
+  
+  uint32_t GetTrackId() const { return trackid_; }
   uint64_t GetId() const { return id_; }
 
   bool IsInitialised() const { return context_; }
@@ -151,6 +152,7 @@ class Decoder : public QObject
   ImageBuffer Decode(const uint64_t playrequestindex, const bool marker, const uint64_t time, const int64_t sequencenum, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint8_t* data, const int size, FreeImageBuffers* freeimagebuffers);
   CUcontext GetCUDAContext() const { return cudacontext_; }
 
+  const uint32_t trackid_;
   const uint64_t id_;
   utility::PublicKey publickey_;
   CUcontext cudacontext_;

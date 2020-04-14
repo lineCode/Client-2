@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct MountFileRequest;
+struct MountFileRequestBuilder;
 
 struct MountFileRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef MountFileRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4
   };
@@ -25,6 +27,7 @@ struct MountFileRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct MountFileRequestBuilder {
+  typedef MountFileRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -34,7 +37,6 @@ struct MountFileRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  MountFileRequestBuilder &operator=(const MountFileRequestBuilder &);
   flatbuffers::Offset<MountFileRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<MountFileRequest>(end);

@@ -386,15 +386,15 @@ void Connection::RecordingActiveJobChanged(const uint64_t recordingtoken, const 
 
 }
 
-void Connection::RecordingAdded(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const boost::optional<uint64_t>& activejob)
+void Connection::RecordingAdded(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool adaptivestreaming, const boost::optional<uint64_t>& activejob)
 {
-  emit SignalRecordingAdded(token, sourceid, name, location, description, address, content, retentiontime, activejob);
+  emit SignalRecordingAdded(token, sourceid, name, location, description, address, content, retentiontime, adaptivestreaming, activejob);
 
 }
 
-void Connection::RecordingChanged(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const boost::optional<uint64_t>& activejob)
+void Connection::RecordingChanged(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool adaptivestreaming, const boost::optional<uint64_t>& activejob)
 {
-  emit SignalRecordingChanged(token, sourceid, name, location, description, address, content, retentiontime, activejob);
+  emit SignalRecordingChanged(token, sourceid, name, location, description, address, content, retentiontime, adaptivestreaming, activejob);
 
 }
 
@@ -568,7 +568,7 @@ monocle::client::Connection Connection::Authenticate(const std::string& username
 
 monocle::client::Connection Connection::CreateStream(const uint64_t recordingtoken, const uint32_t trackid, boost::function<void(const std::chrono::steady_clock::duration, const monocle::client::CREATESTREAMRESPONSE&)> callback, const CONTROLSTREAMEND controlstreamendcallback, const H265CALLBACK h265callback, const H264CALLBACK h264callback, const METADATACALLBACK metadatacallback, const JPEGCALLBACK jpegcallback, const MPEG4CALLBACK mpeg4callback, const OBJECTDETECTORCALLBACK objectdetectorcallback, const NEWCODECINDEX newcodecindexcallback, void* callbackdata)
 {
-  return Client::CreateStream(recordingtoken, trackid, [this, callback, controlstreamendcallback, h265callback, h264callback, metadatacallback, jpegcallback, mpeg4callback, objectdetectorcallback, newcodecindexcallback, callbackdata](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
+  return Client::CreateStream(recordingtoken, trackid, [this, trackid, callback, controlstreamendcallback, h265callback, h264callback, metadatacallback, jpegcallback, mpeg4callback, objectdetectorcallback, newcodecindexcallback, callbackdata](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
   {
     if (createstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
     {
@@ -577,7 +577,7 @@ monocle::client::Connection Connection::CreateStream(const uint64_t recordingtok
     }
 
     // Intercept the response and create our own stream
-    Stream stream(createstreamresponse.token_, controlstreamendcallback, h265callback, h264callback, metadatacallback, jpegcallback, mpeg4callback, objectdetectorcallback, newcodecindexcallback, callbackdata);
+    Stream stream(trackid, createstreamresponse.token_, controlstreamendcallback, h265callback, h264callback, metadatacallback, jpegcallback, mpeg4callback, objectdetectorcallback, newcodecindexcallback, callbackdata);
     streams_.push_back(stream);
     callback(latency, createstreamresponse);
   });
@@ -618,7 +618,6 @@ monocle::client::Connection Connection::Subscribe(boost::function<void(const std
 {
   return Client::Subscribe(callback);
 }
-
 
 std::vector<QString> Connection::ConvertStrings(const std::vector<std::string>& strings) const
 {

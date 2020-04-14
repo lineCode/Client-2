@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct DestroyStreamRequest;
+struct DestroyStreamRequestBuilder;
 
 struct DestroyStreamRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef DestroyStreamRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_STREAMTOKEN = 4
   };
@@ -25,6 +27,7 @@ struct DestroyStreamRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table
 };
 
 struct DestroyStreamRequestBuilder {
+  typedef DestroyStreamRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_streamtoken(uint64_t streamtoken) {
@@ -34,7 +37,6 @@ struct DestroyStreamRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  DestroyStreamRequestBuilder &operator=(const DestroyStreamRequestBuilder &);
   flatbuffers::Offset<DestroyStreamRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<DestroyStreamRequest>(end);

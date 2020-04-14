@@ -36,11 +36,12 @@ class Recording : public QObject
 
  public:
 
-  Recording(const boost::shared_ptr<Device>& device, const uint64_t token, const QString& sourceid, const QString& name, const QString& location, const QString& description, const QString& address, const QString& content, const uint64_t retentiontime, const boost::optional<uint64_t>& activejob, const uint64_t guiorder);
+  Recording(const boost::shared_ptr<Device>& device, const uint64_t token, const QString& sourceid, const QString& name, const QString& location, const QString& description, const QString& address, const QString& content, const uint64_t retentiontime, const bool adaptivestreaming, const boost::optional<uint64_t>& activejob, const uint64_t guiorder);
   ~Recording();
 
   QSharedPointer<client::RecordingJob> GetJob(const uint64_t jobtoken) const;
   QSharedPointer<client::RecordingTrack> GetTrack(const uint32_t trackid) const;
+  QSharedPointer<client::RecordingTrack> GetVideoTrack(const uint32_t trackid) const;
   monocle::RecordingJobState GetState(const QSharedPointer<client::RecordingTrack>& track) const;
 
   QSharedPointer<client::RecordingTrack> AddTrack(const monocle::RECORDINGTRACK& track);
@@ -66,7 +67,7 @@ class Recording : public QObject
   size_t GetNumObjectDetectors() const;
 
   void SetActiveJob(const boost::optional<uint64_t>& activejob);
-  void Set(const QString& sourceid, const QString& name, const QString& location, const QString& description, const QString& address, const QString& content, const uint64_t retentiontime, const boost::optional<uint64_t>& activejob);
+  void Set(const QString& sourceid, const QString& name, const QString& location, const QString& description, const QString& address, const QString& content, const uint64_t retentiontime, const bool adaptivestreaming, const boost::optional<uint64_t>& activejob);
   
   inline boost::shared_ptr<Device> GetDevice() const { return device_; }
   inline uint64_t GetToken() const { return token_; }
@@ -84,6 +85,8 @@ class Recording : public QObject
   inline const QString& GetContent() const { return content_; }
   inline void SetRetentionTime(const uint64_t retentiontime) { retentiontime_ = retentiontime; }
   inline uint64_t GetRetentionTime() const { return retentiontime_; }
+  inline void SetAdaptiveStreaming(const bool adaptivestreaming) { adaptivestreaming_ = adaptivestreaming; }
+  inline bool GetAdaptiveStreaming() const { return adaptivestreaming_; }
   inline const std::vector< QSharedPointer<client::RecordingJob> >& GetRecordingJobs() const { return jobs_; }
   inline std::vector< QSharedPointer<client::RecordingJob> >& GetRecordingJobs() { return jobs_; }
   inline void SetGuiOrder(const uint64_t guiorder) { guiorder_ = guiorder; }
@@ -100,6 +103,7 @@ class Recording : public QObject
   QString address_;
   QString content_;
   uint64_t retentiontime_;
+  bool adaptivestreaming_;
 
   std::vector< QSharedPointer<client::RecordingTrack> > tracks_;
   std::vector< QSharedPointer<client::RecordingJob> > jobs_;

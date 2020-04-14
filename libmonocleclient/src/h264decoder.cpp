@@ -74,8 +74,8 @@ static enum AVPixelFormat GetHardwareDeviceFormat(const enum AVHWDeviceType type
 
 ///// Methods /////
 
-H264Decoder::H264Decoder(const uint64_t id, const utility::PublicKey& publickey, CUcontext cudacontext) :
-  Decoder(id, publickey, cudacontext)
+H264Decoder::H264Decoder(const uint32_t trackid, const uint64_t id, const utility::PublicKey& publickey, CUcontext cudacontext) :
+  Decoder(trackid, id, publickey, cudacontext)
 {
   
 }

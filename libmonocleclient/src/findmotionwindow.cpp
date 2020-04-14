@@ -266,7 +266,7 @@ void FindMotionWindow::FrameStep(const bool forwards)
   }
 }
 
-void FindMotionWindow::ControlStreamEnd(const uint64_t streamtoken, const uint64_t playrequestindex, const monocle::ErrorCode error, void* callbackdata)
+void FindMotionWindow::ControlStreamEnd(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const monocle::ErrorCode error, void* callbackdata)
 {
   FindMotionWindow* videoview = reinterpret_cast<FindMotionWindow*>(callbackdata);
   if (videoview->controlstreamendcallback_)
@@ -276,7 +276,7 @@ void FindMotionWindow::ControlStreamEnd(const uint64_t streamtoken, const uint64
   }
 }
 
-void FindMotionWindow::H265Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const bool donlfield, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata)
+void FindMotionWindow::H265Callback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const bool donlfield, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata)
 {
   FindMotionWindow* findmotionwindow = reinterpret_cast<FindMotionWindow*>(callbackdata);
   if (findmotionwindow->GetVideoWidget()->GetPlayRequestIndex() != playrequestindex)
@@ -308,7 +308,7 @@ void FindMotionWindow::H265Callback(const uint64_t streamtoken, const uint64_t p
   }
 }
 
-void FindMotionWindow::H264Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata)
+void FindMotionWindow::H264Callback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata)
 {
   FindMotionWindow* findmotionwindow = reinterpret_cast<FindMotionWindow*>(callbackdata);
   if (findmotionwindow->GetVideoWidget()->GetPlayRequestIndex() != playrequestindex)
@@ -340,12 +340,12 @@ void FindMotionWindow::H264Callback(const uint64_t streamtoken, const uint64_t p
   }
 }
 
-void FindMotionWindow::MetadataCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::MetadataFrameType metadataframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
+void FindMotionWindow::MetadataCallback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::MetadataFrameType metadataframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
 {
 
 }
 
-void FindMotionWindow::JPEGCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const uint8_t* lqt, const uint8_t* cqt, const char* framedata, const size_t size, void* callbackdata)
+void FindMotionWindow::JPEGCallback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const uint8_t* lqt, const uint8_t* cqt, const char* framedata, const size_t size, void* callbackdata)
 {
   FindMotionWindow* findmotionwindow = reinterpret_cast<FindMotionWindow*>(callbackdata);
   if (findmotionwindow->GetVideoWidget()->GetPlayRequestIndex() != playrequestindex)
@@ -356,7 +356,7 @@ void FindMotionWindow::JPEGCallback(const uint64_t streamtoken, const uint64_t p
 
   if (!findmotionwindow->mjpegdecoder_)
   {
-    findmotionwindow->mjpegdecoder_ = std::make_unique<MJpegDecoder>(codecindex, findmotionwindow->device_->GetPublicKey()); // Id doesn't matter because we always ignore it from this point onwards
+    findmotionwindow->mjpegdecoder_ = std::make_unique<MJpegDecoder>(trackid, codecindex, findmotionwindow->device_->GetPublicKey()); // Id doesn't matter because we always ignore it from this point onwards
     if (findmotionwindow->mjpegdecoder_->Init())
     {
 
@@ -380,7 +380,7 @@ void FindMotionWindow::JPEGCallback(const uint64_t streamtoken, const uint64_t p
   }
 }
 
-void FindMotionWindow::MPEG4Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
+void FindMotionWindow::MPEG4Callback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
 {
   FindMotionWindow* findmotionwindow = reinterpret_cast<FindMotionWindow*>(callbackdata);
   if (findmotionwindow->GetVideoWidget()->GetPlayRequestIndex() != playrequestindex)
@@ -412,18 +412,18 @@ void FindMotionWindow::MPEG4Callback(const uint64_t streamtoken, const uint64_t 
   }
 }
 
-void FindMotionWindow::ObjectDetectorCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
+void FindMotionWindow::ObjectDetectorCallback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
 {
 
 }
 
-void FindMotionWindow::NewCodecIndexCallback(const uint64_t streamtoken, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp, void* callbackdata)
+void FindMotionWindow::NewCodecIndexCallback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp, void* callbackdata)
 {
   FindMotionWindow* findmotionwindow = reinterpret_cast<FindMotionWindow*>(callbackdata);
-  findmotionwindow->AddCodecIndex(monocle::CODECINDEX(id, codec, parameters, timestamp));
+  findmotionwindow->AddCodecIndex(trackid, monocle::CODECINDEX(id, codec, parameters, timestamp));
 }
 
-void FindMotionWindow::AddCodecIndex(const monocle::CODECINDEX& codecindex)
+void FindMotionWindow::AddCodecIndex(const uint32_t trackid, const monocle::CODECINDEX& codecindex)
 {
   std::vector<std::string> parameterssplit;
   boost::split(parameterssplit, codecindex.parameters_, boost::is_any_of(";"), boost::algorithm::token_compress_on);
@@ -434,7 +434,7 @@ void FindMotionWindow::AddCodecIndex(const monocle::CODECINDEX& codecindex)
   }
   else if (codecindex.codec_ == monocle::Codec::H265)
   {
-    std::unique_ptr<H265Decoder> h265decoder = std::make_unique<H265Decoder>(codecindex.id_, device_->GetPublicKey());
+    std::unique_ptr<H265Decoder> h265decoder = std::make_unique<H265Decoder>(trackid, codecindex.id_, device_->GetPublicKey());
     const DECODERERROR error = h265decoder->Init(parameterssplit);
     if (error)
     {
@@ -445,7 +445,7 @@ void FindMotionWindow::AddCodecIndex(const monocle::CODECINDEX& codecindex)
   }
   else if (codecindex.codec_ == monocle::Codec::H264)
   {
-    std::unique_ptr<H264Decoder> h264decoder = std::make_unique<H264Decoder>(codecindex.id_, device_->GetPublicKey(), cudacontext_);
+    std::unique_ptr<H264Decoder> h264decoder = std::make_unique<H264Decoder>(trackid, codecindex.id_, device_->GetPublicKey(), cudacontext_);
     const DECODERERROR error = h264decoder->Init(parameterssplit);
     if (error)
     {
@@ -456,7 +456,7 @@ void FindMotionWindow::AddCodecIndex(const monocle::CODECINDEX& codecindex)
   }
   else if (codecindex.codec_ == monocle::Codec::MPEG4)
   {
-    std::unique_ptr<MPEG4Decoder> mpeg4decoder = std::make_unique<MPEG4Decoder>(codecindex.id_, device_->GetPublicKey());
+    std::unique_ptr<MPEG4Decoder> mpeg4decoder = std::make_unique<MPEG4Decoder>(trackid, codecindex.id_, device_->GetPublicKey());
     const DECODERERROR error = mpeg4decoder->Init(parameterssplit);
     if (error)
     {
@@ -681,7 +681,7 @@ void FindMotionWindow::on_buttonsearch_clicked()
           return;
         }
 
-        createstream_ = connection_->CreateStream(recording_->GetToken(), track_->GetId(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
+        createstream_ = connection_->CreateStream(recording_->GetToken(), track_->GetId(), [this, trackid = track_->GetId()](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
         {
           if (createstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
           {
@@ -694,7 +694,7 @@ void FindMotionWindow::on_buttonsearch_clicked()
           DestroyDecoders();
           for (const monocle::CODECINDEX& codecindex : createstreamresponse.codecindices_)
           {
-            AddCodecIndex(codecindex);
+            AddCodecIndex(trackid, codecindex);
 
           }
 

@@ -14,8 +14,8 @@ namespace client
 
 ///// Methods /////
 
-MJpegDecoder::MJpegDecoder(const uint64_t id, const utility::PublicKey& publickey) :
-  Decoder(id, publickey, nullptr)
+MJpegDecoder::MJpegDecoder(const uint32_t trackid, const uint64_t id, const utility::PublicKey& publickey) :
+  Decoder(trackid, id, publickey, nullptr)
 {
   
 }

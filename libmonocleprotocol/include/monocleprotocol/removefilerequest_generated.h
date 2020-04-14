@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct RemoveFileRequest;
+struct RemoveFileRequestBuilder;
 
 struct RemoveFileRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef RemoveFileRequestBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TOKEN = 4
   };
@@ -25,6 +27,7 @@ struct RemoveFileRequest FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct RemoveFileRequestBuilder {
+  typedef RemoveFileRequest Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_token(uint64_t token) {
@@ -34,7 +37,6 @@ struct RemoveFileRequestBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  RemoveFileRequestBuilder &operator=(const RemoveFileRequestBuilder &);
   flatbuffers::Offset<RemoveFileRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<RemoveFileRequest>(end);

@@ -275,12 +275,12 @@ void TestClient::RecordingActiveJobChanged(const uint64_t recordingtoken, const 
 
 }
 
-void TestClient::RecordingAdded(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const boost::optional<uint64_t>& activejob)
+void TestClient::RecordingAdded(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool adaptivestreaming, const boost::optional<uint64_t>& activejob)
 {
 
 }
 
-void TestClient::RecordingChanged(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const boost::optional<uint64_t>& activejob)
+void TestClient::RecordingChanged(const uint64_t token, const std::string& sourceid, const std::string& name, const std::string& location, const std::string& description, const std::string& address, const std::string& content, const uint64_t retentiontime, const bool adaptivestreaming, const boost::optional<uint64_t>& activejob)
 {
 
 }

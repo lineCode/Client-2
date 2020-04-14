@@ -1213,7 +1213,7 @@ void FindMotionPlaybackWidget::JobSourceTrackStateChanged(const QSharedPointer<c
     UpdateRecordingBlocks();
     update();
   }
-  else if ((prevstate == monocle::RecordingJobState::Active) && ((state == monocle::RecordingJobState::Idle) || (state == monocle::RecordingJobState::Error))) // Close the oldest RecordingBlock
+  else if ((prevstate == monocle::RecordingJobState::Active) && ((state == monocle::RecordingJobState::Idle) || (state == monocle::RecordingJobState::Error) || (state == monocle::RecordingJobState::Active_Not_Recording))) // Close the oldest RecordingBlock
   {
     if (!recordingblocks_.empty())
     {

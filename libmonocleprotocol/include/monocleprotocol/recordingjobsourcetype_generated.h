@@ -33,7 +33,7 @@ inline const char * const *EnumNamesRecordingJobSourceType() {
 }
 
 inline const char *EnumNameRecordingJobSourceType(RecordingJobSourceType e) {
-  if (e < RecordingJobSourceType::Media || e > RecordingJobSourceType::Receiver) return "";
+  if (flatbuffers::IsOutRange(e, RecordingJobSourceType::Media, RecordingJobSourceType::Receiver)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesRecordingJobSourceType()[index];
 }

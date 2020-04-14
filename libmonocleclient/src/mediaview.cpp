@@ -232,8 +232,8 @@ std::vector< std::shared_ptr<file::FRAMEHEADER> >::const_iterator MediaView::Med
   }
   else
   {
-    const std::shared_ptr<file::FRAMEHEADER> tmp = std::make_shared<file::METADATAFRAMEHEADER>(0, 0, 0, time, file::MetadataFrameType::ONVIF_XML, std::vector<uint8_t>()); // Only time matters, the rest of this can be ignored
-    i = std::lower_bound(track_.frameheaders_.cbegin(), track_.frameheaders_.cend(), tmp, [](const std::shared_ptr<file::FRAMEHEADER>& lhs, const std::shared_ptr<file::FRAMEHEADER>& rhs) { return (lhs->time_ < rhs->time_); });
+    const std::shared_ptr<file::FRAMEHEADER> dummy = std::make_shared<file::METADATAFRAMEHEADER>(0, 0, 0, time, file::MetadataFrameType::ONVIF_XML, std::vector<uint8_t>()); // Only time matters, the rest of this can be ignored
+    i = std::lower_bound(track_.frameheaders_.cbegin(), track_.frameheaders_.cend(), dummy, [](const std::shared_ptr<file::FRAMEHEADER>& lhs, const std::shared_ptr<file::FRAMEHEADER>& rhs) { return (lhs->time_ < rhs->time_); });
   }
   if (i == track_.frameheaders_.cend())
   {
@@ -418,11 +418,7 @@ bool MediaView::GetImage(ImageBuffer& imagebuffer)
     }
     else
     {
-      if (imagebuffer.buffer_ || imagebuffer.cudacontext_)
-      {
-        imagewidth_ = imagebuffer.widths_[0];
-        imageheight_ = imagebuffer.heights_[0];
-      }
+
       return hasimage;
     }
   }
@@ -528,6 +524,24 @@ file::TRACK MediaView::GetVideoTrack() const
     return file::TRACK();
   }
   return videostream_->track_;
+}
+
+std::vector<uint64_t> MediaView::GetVideoTrackIndices() const
+{
+  if (!videostream_)
+  {
+
+    return std::vector<uint64_t>();
+  }
+ 
+  std::vector<uint64_t> result;
+  result.reserve(videostream_->recording_.videotracks_.size());
+  for (const auto& track : videostream_->recording_.videotracks_)
+  {
+    result.push_back(track.index_);
+    
+  }
+  return result;
 }
 
 std::vector<file::TRACK> MediaView::GetMetadataTracks() const
@@ -659,7 +673,7 @@ void MediaView::Init(const size_t deviceindex, const size_t recordingindex, cons
         {
           if (!mjpegdecoder_)
           {
-            mjpegdecoder_ = std::make_unique<MJpegDecoder>(codec.index_, signingkey_);
+            mjpegdecoder_ = std::make_unique<MJpegDecoder>(trackindex, codec.index_, signingkey_);
             if (mjpegdecoder_->Init())
             {
               LOG_GUI_WARNING(QString("MJpegDecoder::Init failed for recording: ") + QString::fromStdString(recording->name_) + " " + QString::number(recording->index_));
@@ -679,7 +693,7 @@ void MediaView::Init(const size_t deviceindex, const size_t recordingindex, cons
           std::vector<std::string> parameters;
           boost::split(parameters, codec.parameters_, boost::is_any_of(";"), boost::algorithm::token_compress_on);
     
-          std::unique_ptr<H265Decoder> h265decoder = std::make_unique<H265Decoder>(codec.index_, signingkey_);
+          std::unique_ptr<H265Decoder> h265decoder = std::make_unique<H265Decoder>(trackindex, codec.index_, signingkey_);
           if (h265decoder->Init(parameters))
           {
             LOG_GUI_WARNING(QString("H265Decoder::Init failed for recording: ") + QString::fromStdString(recording->name_) + " " + QString::number(recording->index_) + " " + QString::fromStdString(codec.parameters_));
@@ -699,7 +713,7 @@ void MediaView::Init(const size_t deviceindex, const size_t recordingindex, cons
           std::vector<std::string> parameters;
           boost::split(parameters, codec.parameters_, boost::is_any_of(";"), boost::algorithm::token_compress_on);
     
-          std::unique_ptr<H264Decoder> h264decoder = std::make_unique<H264Decoder>(codec.index_, signingkey_, cudacontext_);
+          std::unique_ptr<H264Decoder> h264decoder = std::make_unique<H264Decoder>(trackindex, codec.index_, signingkey_, cudacontext_);
           if (h264decoder->Init(parameters))
           {
             LOG_GUI_WARNING(QString("H264Decoder::Init failed for recording: ") + QString::fromStdString(recording->name_) + " " + QString::number(recording->index_) + " " + QString::fromStdString(codec.parameters_));
@@ -719,7 +733,7 @@ void MediaView::Init(const size_t deviceindex, const size_t recordingindex, cons
           std::vector<std::string> parameters;
           boost::split(parameters, codec.parameters_, boost::is_any_of(";"), boost::algorithm::token_compress_on);
     
-          std::unique_ptr<MPEG4Decoder> mpeg4decoder = std::make_unique<MPEG4Decoder>(codec.index_, signingkey_);
+          std::unique_ptr<MPEG4Decoder> mpeg4decoder = std::make_unique<MPEG4Decoder>(trackindex, codec.index_, signingkey_);
           if (mpeg4decoder->Init(parameters))
           {
             LOG_GUI_WARNING(QString("MPEG4Decoder::Init failed for recording: ") + QString::fromStdString(recording->name_) + " " + QString::number(recording->index_) + " " + QString::fromStdString(codec.parameters_));
@@ -778,6 +792,7 @@ void MediaView::Init(const size_t deviceindex, const size_t recordingindex, cons
     objectdetectorstream->SendControlRequest<PlaybackControlRequest>(playrequestindex, 0, true, true, starttime, boost::none, boost::none);
     metadatastreams_.emplace_back(objectdetectorstream);
   }
+  emit ChangeTrack(videostream_->track_);
 }
 
 void MediaView::FrameStepForwards(const bool mainstream, const uint64_t playrequestindex, const boost::shared_ptr<MediaStream>& stream, size_t& frame, std::unique_ptr< uint8_t[], utility::DeleteAligned<uint8_t> >& buffer, size_t& buffersize)

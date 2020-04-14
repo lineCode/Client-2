@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct UnsubscribeRecordingJobSourceTrackLogResponse;
+struct UnsubscribeRecordingJobSourceTrackLogResponseBuilder;
 
 struct UnsubscribeRecordingJobSourceTrackLogResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef UnsubscribeRecordingJobSourceTrackLogResponseBuilder Builder;
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            verifier.EndTable();
@@ -18,13 +20,13 @@ struct UnsubscribeRecordingJobSourceTrackLogResponse FLATBUFFERS_FINAL_CLASS : p
 };
 
 struct UnsubscribeRecordingJobSourceTrackLogResponseBuilder {
+  typedef UnsubscribeRecordingJobSourceTrackLogResponse Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   explicit UnsubscribeRecordingJobSourceTrackLogResponseBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  UnsubscribeRecordingJobSourceTrackLogResponseBuilder &operator=(const UnsubscribeRecordingJobSourceTrackLogResponseBuilder &);
   flatbuffers::Offset<UnsubscribeRecordingJobSourceTrackLogResponse> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<UnsubscribeRecordingJobSourceTrackLogResponse>(end);

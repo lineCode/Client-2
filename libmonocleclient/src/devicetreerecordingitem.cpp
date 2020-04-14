@@ -92,14 +92,8 @@ void DeviceTreeRecordingItem::Collapsed()
 
 void DeviceTreeRecordingItem::DoubleClicked()
 {
-  std::vector< QSharedPointer<client::RecordingTrack> > tracks = recording_->GetVideoTracks();
-  if (tracks.empty())
-  {
-    Expanded();
-    return;
-  }
+  MainWindow::Instance()->GetVideoWidgetsMgr().CreateVideoView(device_, recording_, nullptr);
 
-  MainWindow::Instance()->GetVideoWidgetsMgr().CreateVideoView(device_, recording_, tracks.front());
 }
 
 void DeviceTreeRecordingItem::SetFilter(const QString& filter)
@@ -139,30 +133,29 @@ void DeviceTreeRecordingItem::UpdateToolTip()
         continue;
       }
 
-      for (const QSharedPointer<client::RecordingJobSourceTrack>& track : source->GetTracks())
+      for (const QSharedPointer<client::RecordingJobSourceTrack>& sourcetrack : source->GetTracks())
       {
-        if (!track->GetTrack())
+        if (!sourcetrack->GetTrack())
         {
 
           continue;
         }
 
-        if (track->GetTrack()->GetTrackType() == monocle::TrackType::ObjectDetector)
+        if (sourcetrack->GetTrack()->GetTrackType() == monocle::TrackType::ObjectDetector)
         {
 
           continue;
         }
 
         monocle::TrackType tracktype = monocle::TrackType::Video;
-        if (track->GetTrack() && (track->GetTrack()->GetTrackType() == monocle::TrackType::Metadata))
+        if (sourcetrack->GetTrack() && (sourcetrack->GetTrack()->GetTrackType() == monocle::TrackType::Metadata))
         {
           tracktype = monocle::TrackType::Metadata;
 
         }
 
-        const QString datarate = QString(" ") + QString::number(track->GetTrack()->GetDataRate() / 1024) + "kB/s";
-
-        if (track->GetState() == monocle::RecordingJobState::Idle)
+        const QString datarate = QString(" ") + QString::number(sourcetrack->GetTrack()->GetDataRate() / 1024) + "kB/s";
+        if (sourcetrack->GetState() == monocle::RecordingJobState::Idle)
         {
           if ((tracktype != monocle::TrackType::Metadata) && !receiver->GetMediaUri().isEmpty()) // Metadata might not send frames for long durations and may become idle. Empty URI is ok to be idle as well
           {
@@ -171,10 +164,15 @@ void DeviceTreeRecordingItem::UpdateToolTip()
           }
           tooltips.append(Tooltip(receiver->GetMediaUri(), "Idle") + datarate);
         }
-        else if (track->GetState() == monocle::RecordingJobState::Error)
+        else if (sourcetrack->GetState() == monocle::RecordingJobState::Error)
         {
           error = true;
-          tooltips.append(Tooltip(receiver->GetMediaUri(), "Error " + track->GetError()) + datarate);
+          tooltips.append(Tooltip(receiver->GetMediaUri(), "Error " + sourcetrack->GetError()) + datarate);
+        }
+        else if (sourcetrack->GetState() == monocle::RecordingJobState::Active_Not_Recording)
+        {
+          tooltips.append(Tooltip(receiver->GetMediaUri(), "Active not recording") + datarate);
+
         }
         else // if (track->GetState() == monocle::RecordingJobState::Active)
         {

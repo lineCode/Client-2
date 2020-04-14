@@ -9,8 +9,10 @@
 namespace monocle {
 
 struct DiskStat;
+struct DiskStatBuilder;
 
 struct DiskStat FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef DiskStatBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_DEVICE = 4,
     VT_UTILITY = 6,
@@ -41,6 +43,7 @@ struct DiskStat FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 };
 
 struct DiskStatBuilder {
+  typedef DiskStat Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_device(flatbuffers::Offset<flatbuffers::String> device) {
@@ -59,7 +62,6 @@ struct DiskStatBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  DiskStatBuilder &operator=(const DiskStatBuilder &);
   flatbuffers::Offset<DiskStat> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<DiskStat>(end);

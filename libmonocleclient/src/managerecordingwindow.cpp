@@ -44,6 +44,12 @@ ManageRecordingWindow::ManageRecordingWindow(QWidget* parent, boost::shared_ptr<
 
   }
 
+  if (!device_->SupportsAdaptiveStreaming())
+  {
+    ui_.checkadaptivestreaming->setEnabled(false);
+
+  }
+
   if (token_.is_initialized())
   {
     setWindowTitle("Edit Recording");
@@ -55,8 +61,9 @@ ManageRecordingWindow::ManageRecordingWindow(QWidget* parent, boost::shared_ptr<
     if (recording)
     {
       ui_.editname->setText(recording->GetName());
-      ui_.editlocation->setText(recording->GetLocation());
       ui_.spinretentiontime->setValue(recording->GetRetentionTime() / (86400 * 1000));
+      ui_.editlocation->setText(recording->GetLocation());
+      ui_.checkadaptivestreaming->setChecked(recording->GetAdaptiveStreaming());
 
       const QSize sizehint = sizeHint();
       if (sizehint.isValid())
@@ -80,8 +87,9 @@ ManageRecordingWindow::~ManageRecordingWindow()
 void ManageRecordingWindow::SetEnabled(const bool enabled)
 {
   ui_.editname->setEnabled(enabled);
-  ui_.editlocation->setEnabled(enabled);
   ui_.spinretentiontime->setEnabled(enabled);
+  ui_.editlocation->setEnabled(enabled);
+  ui_.checkadaptivestreaming->setEnabled(enabled);
   ui_.buttonok->setEnabled(enabled);
 }
 
@@ -90,7 +98,7 @@ void ManageRecordingWindow::RecordingChanged(QSharedPointer<client::Recording>& 
   if (token_.is_initialized() && (*token_ == recording->GetToken()))
   {
     // Ignore the change if it is identical to what is currently selected
-    if ((ui_.editname->text() == recording->GetName()) && (ui_.editlocation->text() == recording->GetLocation()) && (recording->GetRetentionTime() == ui_.spinretentiontime->value()))
+    if ((ui_.editname->text() == recording->GetName()) && (ui_.editlocation->text() == recording->GetLocation()) && (recording->GetRetentionTime() == ui_.spinretentiontime->value()) && (recording->GetAdaptiveStreaming() == ui_.checkadaptivestreaming->isChecked()))
     {
 
       return;
@@ -99,8 +107,9 @@ void ManageRecordingWindow::RecordingChanged(QSharedPointer<client::Recording>& 
     if (QMessageBox::question(this, tr("Recording Changed"), tr("Recording has been changed, Would you like to update with new values?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
     {
       ui_.editname->setText(recording->GetName());
-      ui_.editlocation->setText(recording->GetLocation());
       ui_.spinretentiontime->setValue(recording->GetRetentionTime());
+      ui_.editlocation->setText(recording->GetLocation());
+      ui_.checkadaptivestreaming->setChecked(recording->GetAdaptiveStreaming());
     }
   }
 }
@@ -133,7 +142,7 @@ void ManageRecordingWindow::on_buttonok_clicked()
       return;
     }
 
-    recordingconnection_ = device_->ChangeRecording(*token_, recording->GetSourceId().toStdString(), ui_.editname->text().toStdString(), ui_.editlocation->text().toStdString(), recording->GetDescription().toStdString(), recording->GetAddress().toStdString(), recording->GetContent().toStdString(), retentiontime, [this](const std::chrono::nanoseconds latency, const monocle::client::CHANGERECORDINGRESPONSE& changerecordingresponse)
+    recordingconnection_ = device_->ChangeRecording(*token_, recording->GetSourceId().toStdString(), ui_.editname->text().toStdString(), ui_.editlocation->text().toStdString(), recording->GetDescription().toStdString(), recording->GetAddress().toStdString(), recording->GetContent().toStdString(), retentiontime, ui_.checkadaptivestreaming->isChecked(), [this](const std::chrono::nanoseconds latency, const monocle::client::CHANGERECORDINGRESPONSE& changerecordingresponse)
     {
       SetEnabled(true);
       if (changerecordingresponse.GetErrorCode() != monocle::ErrorCode::Success)
@@ -146,7 +155,7 @@ void ManageRecordingWindow::on_buttonok_clicked()
   }
   else
   {
-    recordingconnection_ = device_->AddRecording(std::string(), ui_.editname->text().toStdString(), ui_.editlocation->text().toStdString(), std::string(), std::string(), std::string(), retentiontime, false, true, [this](const std::chrono::nanoseconds latency, const monocle::client::ADDRECORDINGRESPONSE& addrecordingresponse)
+    recordingconnection_ = device_->AddRecording(std::string(), ui_.editname->text().toStdString(), ui_.editlocation->text().toStdString(), std::string(), std::string(), std::string(), retentiontime, ui_.checkadaptivestreaming->isChecked(), false, true, [this](const std::chrono::nanoseconds latency, const monocle::client::ADDRECORDINGRESPONSE& addrecordingresponse)
     {
       SetEnabled(true);
       if (addrecordingresponse.GetErrorCode() != monocle::ErrorCode::Success)

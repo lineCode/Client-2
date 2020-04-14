@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>627</width>
-    <height>123</height>
+    <height>146</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>100</width>
-    <height>123</height>
+    <height>146</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>16777215</width>
-    <height>169</height>
+    <height>146</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -28,6 +28,13 @@
   <layout class="QGridLayout" name="gridLayout">
    <item row="8" column="0" colspan="2">
     <layout class="QGridLayout" name="gridLayout_2">
+     <item row="2" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Location:</string>
+       </property>
+      </widget>
+     </item>
      <item row="2" column="1">
       <widget class="QLineEdit" name="editlocation">
        <property name="toolTip">
@@ -42,7 +49,17 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0" colspan="2">
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="editname"/>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Name:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0" colspan="2">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QPushButton" name="buttonok">
@@ -60,13 +77,6 @@
        </item>
       </layout>
      </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Location:</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="1">
       <widget class="QSpinBox" name="spinretentiontime">
        <property name="toolTip">
@@ -74,13 +84,13 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="editname"/>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_4">
+     <item row="3" column="0" colspan="2">
+      <widget class="QCheckBox" name="checkadaptivestreaming">
+       <property name="toolTip">
+        <string>Automatically choose appropriate track in video view based on resolution and bitrate</string>
+       </property>
        <property name="text">
-        <string>Name:</string>
+        <string>Adaptive Streaming</string>
        </property>
       </widget>
      </item>

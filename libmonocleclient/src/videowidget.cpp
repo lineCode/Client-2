@@ -583,7 +583,7 @@ QSharedPointer<MediaView> VideoWidget::CreateMediaView(unsigned int x, unsigned 
   return mediaview;
 }
 
-QSharedPointer<VideoView> VideoWidget::CreateVideoView(unsigned int x, unsigned int y, unsigned int width, unsigned int height, bool stretch, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingTrack>& track)
+QSharedPointer<VideoView> VideoWidget::CreateVideoView(unsigned int x, unsigned int y, unsigned int width, unsigned int height, bool stretch, const bool adaptivestreaming, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingTrack>& track)
 {
   if (openglmajorversion_ < 3)
   {
@@ -598,7 +598,7 @@ QSharedPointer<VideoView> VideoWidget::CreateVideoView(unsigned int x, unsigned 
     return QSharedPointer<VideoView>();
   }
 
-  const QSharedPointer<VideoView> videoview = QSharedPointer<VideoView>::create(this, MainWindow::Instance()->GetNextCUDAContext(), MainWindow::Instance()->GetRandomHSVColour(), x, y, width, height, ROTATION::_0, false, Options::Instance().GetStretchVideo(), Options::Instance().GetShowInfo(), Options::Instance().GetShowObjects(), device, recording, track, arial_);
+  const QSharedPointer<VideoView> videoview = QSharedPointer<VideoView>::create(this, MainWindow::Instance()->GetNextCUDAContext(), MainWindow::Instance()->GetRandomHSVColour(), x, y, width, height, ROTATION::_0, false, Options::Instance().GetStretchVideo(), Options::Instance().GetShowInfo(), Options::Instance().GetShowObjects(), adaptivestreaming, device, recording, track, arial_);
   connect(videoview->GetActionClose(), &QAction::triggered, videoview.data(), [this, videoview = videoview.toWeakRef()](bool)
   {
     QSharedPointer<VideoView> v = videoview.lock();
@@ -1034,18 +1034,10 @@ void VideoWidget::dropEvent(QDropEvent* event)
   // Track
   bytearray = mimedata->data(MIME_DEVICE_TREE_RECORDING_TRACK_ID);
   QSharedPointer<RecordingTrack> recordingtrack;
-  if (bytearray.isEmpty())
+  bool adaptivestreaming = recording->GetAdaptiveStreaming();
+  if (bytearray.size() == sizeof(uint32_t))
   {
-    std::vector< QSharedPointer<client::RecordingTrack> > tracks = recording->GetVideoTracks();
-    if (tracks.empty())
-    {
-      // Just ignore this drag and drop because we have nothing to show
-      return;
-    }
-    recordingtrack = tracks.front();
-  }
-  else if (bytearray.size() == sizeof(uint32_t))
-  {
+    adaptivestreaming = false;
     recordingtrack = recording->GetTrack(*reinterpret_cast<const uint32_t*>(bytearray.data()));
     if (recordingtrack == nullptr)
     {
@@ -1059,11 +1051,6 @@ void VideoWidget::dropEvent(QDropEvent* event)
       return;
     }
   }
-  else
-  {
-    // Shouldn't happen, but ok...
-    return;
-  }
 
   const QSharedPointer<View> view = GetView(event->pos());
   if (view)
@@ -1075,12 +1062,12 @@ void VideoWidget::dropEvent(QDropEvent* event)
     const int h = rect.height();
     const bool stretch = view->GetStretch();
     RemoveView(view);
-    CreateVideoView(x, y, w, h, stretch, device, recording, recordingtrack);
+    CreateVideoView(x, y, w, h, stretch, adaptivestreaming, device, recording, recordingtrack);
   }
   else
   {
     const QPoint pos = GetLocation(event->pos().x(), event->pos().y());
-    CreateVideoView(pos.x(), pos.y(), 1, 1, Options::Instance().GetStretchVideo(), device, recording, recordingtrack);
+    CreateVideoView(pos.x(), pos.y(), 1, 1, Options::Instance().GetStretchVideo(), adaptivestreaming, device, recording, recordingtrack);
   }
 
   event->accept();
@@ -1913,6 +1900,23 @@ void VideoWidget::paintGL()
       {
         if ((view->GetImageType() != imagebuffer.type_) || (view->GetImageWidth() != imagebuffer.widths_[0]) || (view->GetImageHeight() != imagebuffer.heights_[0]))
         {
+          // Destroy any old CUDA stuff we had laying around
+          if (imagebuffer.cudacontext_ && (view->GetCUDAResource(0) || view->GetCUDAResource(1) || view->GetCUDAResource(2)))
+          {
+            cuCtxPushCurrent_v2(view->GetCUDAContext());
+            for (CUgraphicsResource& resource : view->GetCUDAResources())
+            {
+              if (resource)
+              {
+                cuGraphicsUnregisterResource(resource);
+                resource = nullptr;
+              }
+            }
+            CUcontext dummy;
+            cuCtxPopCurrent_v2(&dummy);
+          }
+
+          // Reset everything else
           view->SetType(imagebuffer.type_);
           view->SetImageWidth(imagebuffer.widths_[0]);
           view->SetImageHeight(imagebuffer.heights_[0]);
@@ -1945,7 +1949,7 @@ void VideoWidget::paintGL()
             glActiveTexture(GL_TEXTURE0 + texture);
             glPixelStorei(GL_UNPACK_ROW_LENGTH, imagebuffer.strides_[texture]);
             glBindTexture(GL_TEXTURE_2D, view->GetTextures().at(texture));
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, imagebuffer.widths_.at(texture), imagebuffer.heights_.at(texture), 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, imagebuffer.data_[texture]);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, imagebuffer.widths_[texture], imagebuffer.heights_[texture], 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, imagebuffer.data_[texture]);
             glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
           }
         }
@@ -2664,16 +2668,21 @@ void VideoWidget::RecordingRemoved(const boost::shared_ptr<Device>& device, cons
   std::vector< QSharedPointer<View> > removeviews;
   for (const QSharedPointer<View>& view : views_)
   {
-    if ((view->GetViewType() != VIEWTYPE_MONOCLE))
+    if ((view->GetViewType() == VIEWTYPE_MONOCLE))
     {
+      if (static_cast<VideoView*>(view.get())->GetRecording()->GetToken() == recordingtoken)
+      {
+        removeviews.push_back(view);
 
-      continue;
+      }
     }
-
-    if (static_cast<VideoView*>(view.get())->GetRecording()->GetToken() == recordingtoken)
+    else if ((view->GetViewType() == VIEWTYPE_MONOCLECHART))
     {
-      removeviews.push_back(view);
+      if (static_cast<VideoChartView*>(view.get())->GetRecording()->GetToken() == recordingtoken)
+      {
+        removeviews.push_back(view);
 
+      }
     }
   }
 

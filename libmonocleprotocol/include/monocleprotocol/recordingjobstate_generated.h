@@ -12,31 +12,34 @@ enum class RecordingJobState : int8_t {
   Idle = 0,
   Active = 1,
   Error = 2,
+  Active_Not_Recording = 3,
   MIN = Idle,
-  MAX = Error
+  MAX = Active_Not_Recording
 };
 
-inline const RecordingJobState (&EnumValuesRecordingJobState())[3] {
+inline const RecordingJobState (&EnumValuesRecordingJobState())[4] {
   static const RecordingJobState values[] = {
     RecordingJobState::Idle,
     RecordingJobState::Active,
-    RecordingJobState::Error
+    RecordingJobState::Error,
+    RecordingJobState::Active_Not_Recording
   };
   return values;
 }
 
 inline const char * const *EnumNamesRecordingJobState() {
-  static const char * const names[4] = {
+  static const char * const names[5] = {
     "Idle",
     "Active",
     "Error",
+    "Active_Not_Recording",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameRecordingJobState(RecordingJobState e) {
-  if (e < RecordingJobState::Idle || e > RecordingJobState::Error) return "";
+  if (flatbuffers::IsOutRange(e, RecordingJobState::Idle, RecordingJobState::Active_Not_Recording)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesRecordingJobState()[index];
 }

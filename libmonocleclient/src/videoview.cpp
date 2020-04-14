@@ -34,6 +34,8 @@
 #include "monocleclient/receiver.h"
 #include "monocleclient/recording.h"
 #include "monocleclient/recordingjob.h"
+#include "monocleclient/recordingjobsource.h"
+#include "monocleclient/recordingjobsourcetrack.h"
 #include "monocleclient/videowidget.h"
 #include "monocleclient/videoviewpropertieswindow.h"
 #include "monocleclient/view.h"
@@ -45,7 +47,7 @@ namespace client
 
 ///// Methods /////
 
-VideoView::VideoView(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool showinfo, const bool showobjects, boost::shared_ptr<client::Device> device, QSharedPointer<client::Recording> recording, QSharedPointer<client::RecordingTrack> track, const QResource* arial) :
+VideoView::VideoView(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool showinfo, const bool showobjects, const bool adaptivestreaming, boost::shared_ptr<client::Device> device, QSharedPointer<client::Recording> recording, QSharedPointer<client::RecordingTrack> track, const QResource* arial) :
   View(videowidget, cudacontext, selectedcolour, x, y, width, height, rotation, mirror, stretch, showinfo, showobjects, arial, true, true, true, true, true, true, true),
   mutex_(boost::make_shared<std::recursive_mutex>()),
   device_(device),
@@ -56,8 +58,8 @@ VideoView::VideoView(VideoWidget* videowidget, CUcontext cudacontext, const QCol
   actionchartview_(new QAction(tr("Chart View"), this)),
   connection_(boost::make_shared<Connection>(MainWindow::Instance()->GetIOServicePool().GetIoService(), device_->GetProxyParams(), device_->GetAddress(), device_->GetPort())),
   metadataconnection_(boost::make_shared<Connection>(MainWindow::Instance()->GetGUIIOService(), device_->GetProxyParams(), device_->GetAddress(), device_->GetPort())),
-  streamtoken_(0),
-  metadataplayrequestindex_(0)
+  metadataplayrequestindex_(0),
+  adaptivestreaming_(adaptivestreaming)
 {
   connect(actionreconnect_, &QAction::triggered, this, static_cast<void (VideoView::*)(bool)>(&VideoView::Reconnect));
   connect(actionproperties_, &QAction::triggered, this, static_cast<void (VideoView::*)(bool)>(&VideoView::Properties));
@@ -66,6 +68,8 @@ VideoView::VideoView(VideoWidget* videowidget, CUcontext cudacontext, const QCol
   connect(recording_.get(), &Recording::TrackAdded, this, &VideoView::TrackAdded);
   connect(recording_.get(), &Recording::TrackRemoved, this, &VideoView::TrackRemoved);
   connect(recording_.get(), &Recording::ActiveJobChanged, this, &VideoView::ActiveJobChanged);
+  connect(recording_.get(), &Recording::JobSourceTrackStateChanged, this, &VideoView::RecordingJobSourceTrackStateChanged);
+  connect(recording_.get(), &Recording::JobSourceTrackActiveParametersChanged, this, &VideoView::RecordingJobSourceTrackActiveParametersChanged);
 
   rotation_ = GetActiveRotation();
   SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), rotation_, mirror_, stretch_, true);
@@ -87,6 +91,18 @@ void VideoView::Connect()
   Disconnect();
 
   if (track_ == nullptr)
+  {
+    const QSharedPointer<RecordingTrack> besttrack = GetBestRecordingTrack();
+    if (besttrack == nullptr)
+    {
+      SetMessage(GetNextPlayRequestIndex(true), false, "Unable to find track");
+      return;
+    }
+    track_ = besttrack;
+    emit ChangeTrack(track_);
+  }
+
+  if (!utility::Contains(recording_->GetTracks(), track_)) // This shouldn't happen but just in case...
   {
     SetMessage(GetNextPlayRequestIndex(true), false, "Invalid track");
     return;
@@ -142,42 +158,53 @@ void VideoView::Connect()
           return;
         }
 
-        SetMessage(GetPlayRequestIndex(), false, "Creating Stream");
-        createstream_ = connection_->CreateStream(recording_->GetToken(), track_->GetId(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
+        SetMessage(GetPlayRequestIndex(), false, "Creating Streams");
+        videostreamtokens_.clear();
+        DestroyDecoders();
+        for (const QSharedPointer<RecordingTrack>& track : recording_->GetTracks())
         {
-          std::lock_guard<std::recursive_mutex> lock(*mutex_);
-          if (createstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
-          {
-            SetMessage(GetNextPlayRequestIndex(true), true, "Unable to create stream: " + QString::fromStdString(createstreamresponse.GetErrorText()));
-            return;
-          }
-
-          DestroyDecoders();
-
-          QMetaObject::invokeMethod(this, [this, codecindices = createstreamresponse.codecindices_]()
+          createstream_.push_back(connection_->CreateStream(recording_->GetToken(), track->GetId(), [this, track](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
           {
             std::lock_guard<std::recursive_mutex> lock(*mutex_);
-            for (const monocle::CODECINDEX& codecindex : codecindices)
+            if (createstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
             {
-              AddCodecIndex(codecindex);
-
-            }
-          }, Qt::QueuedConnection);
-
-          SetMessage(GetPlayRequestIndex(), false, "Requesting Live");
-          streamtoken_ = createstreamresponse.token_;
-
-          controlstream_ = connection_->ControlStreamLive(streamtoken_, GetPlayRequestIndex(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::CONTROLSTREAMRESPONSE& controlstreamresponse)
-          {
-            std::lock_guard<std::recursive_mutex> lock(*mutex_);
-            if (controlstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
-            {
-              SetMessage(GetNextPlayRequestIndex(true), true, "Unable to control stream");
+              SetMessage(GetNextPlayRequestIndex(true), true, "Unable to create stream: " + QString::fromStdString(createstreamresponse.GetErrorText()));
               return;
             }
-		        Keepalive();
-          });
-        }, VideoView::ControlStreamEnd, VideoView::H265Callback, VideoView::H264Callback, nullptr, VideoView::JPEGCallback, VideoView::MPEG4Callback, VideoView::ObjectDetectorCallback, VideoView::NewCodecIndexCallback, this);
+
+            QMetaObject::invokeMethod(this, [this, trackid = track->GetId(), codecindices = createstreamresponse.codecindices_]()
+            {
+              std::lock_guard<std::recursive_mutex> lock(*mutex_);
+              for (const monocle::CODECINDEX& codecindex : codecindices)
+              {
+                AddCodecIndex(trackid, codecindex);
+
+              }
+            }, Qt::QueuedConnection);
+
+            videostreamtokens_.push_back(std::make_pair(track->GetId(), createstreamresponse.token_));
+            if (track_ == track)
+            {
+              SetMessage(GetPlayRequestIndex(), false, "Requesting Live");
+              activestreamtoken_ = createstreamresponse.token_;
+              if (adaptivestreaming_)
+              {
+                activeadaptivestreamtoken_ = createstreamresponse.token_;
+
+              }
+              controlstream_ = connection_->ControlStreamLive(createstreamresponse.token_, GetPlayRequestIndex(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::CONTROLSTREAMRESPONSE& controlstreamresponse)
+              {
+                std::lock_guard<std::recursive_mutex> lock(*mutex_);
+                if (controlstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
+                {
+                  SetMessage(GetNextPlayRequestIndex(true), true, "Unable to control stream");
+                  return;
+                }
+                Keepalive();
+              });
+            }
+          }, VideoView::ControlStreamEnd, VideoView::H265Callback, VideoView::H264Callback, nullptr, VideoView::JPEGCallback, VideoView::MPEG4Callback, VideoView::ObjectDetectorCallback, VideoView::NewCodecIndexCallback, this));
+        }
       });
     });
   });
@@ -229,7 +256,8 @@ void VideoView::Disconnect()
   connect_.Close();
   getauthenticatenonce_.Close();
   authenticate_.Close();
-  createstream_.Close();
+  std::for_each(createstream_.begin(), createstream_.end(), [](monocle::client::Connection& connection) { connection.Close(); });
+  createstream_.clear();
   controlstream_.Close();
   keepalive_.Close();
 
@@ -294,36 +322,38 @@ void VideoView::GetMenu(QMenu& parent)
     const QString description = track->GetDescription().isEmpty() ? track->GetToken() : QString("(" + track->GetDescription() + ")");
     QAction* action = tracks->addAction(description, [this, recordingtoken = recording_->GetToken(), trackid = track->GetId()]()
     {
-      QSharedPointer<client::Recording> recording = device_->GetRecording(recordingtoken); // We do it like this, because the recording might have died
-      if (recording == nullptr)
+      std::vector< std::pair<uint32_t, uint64_t> >::const_iterator videostreamtoken = std::find_if(videostreamtokens_.cbegin(), videostreamtokens_.cend(), [trackid](const std::pair<uint32_t, uint64_t>& videostreamtoken) { return (videostreamtoken.first == trackid); });
+      if (videostreamtoken == videostreamtokens_.cend())
       {
-        LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Unable to retrieve recording: ") + QString::number(recordingtoken));
+        LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Unable to retrieve stream token: ") + QString::number(trackid));
         return;
       }
 
-      QSharedPointer<client::RecordingTrack> track = recording->GetTrack(trackid);
+      const QSharedPointer<RecordingTrack> track = recording_->GetTrack(trackid);
       if (!track)
       {
         LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Unable to retrieve track: ") + QString::number(trackid));
         return;
       }
+
+      if (activeadaptivestreamtoken_.is_initialized())
+      {
+        connection_->ControlStreamPause(*activeadaptivestreamtoken_, boost::none); // Pause the previous stream and start the new livestream
+        activeadaptivestreamtoken_.reset();
+      }
+      adaptivestreaming_ = false;
+
       track_ = track;
-      Connect();
+      emit ChangeTrack(track_);
+      activestreamtoken_ = videostreamtoken->second;
+      connection_->ControlStreamLive(*activestreamtoken_, GetNextPlayRequestIndex(true));
     });
     action->setCheckable(true);
     action->setChecked(track == track_);
   }
   parent.addMenu(tracks);
 
-  if (device_->SupportsGetTrackStatistics())
-  {
-    if (recording_->GetNumObjectDetectors())
-    {
-      parent.addAction(actionchartview_);
-
-    }
-  }
-  else
+  if (device_->SupportsGetTrackStatistics() && recording_->GetNumObjectDetectors())
   {
     parent.addAction(actionchartview_);
 
@@ -388,15 +418,24 @@ int64_t VideoView::GetTimeOffset() const
 
 void VideoView::FrameStep(const bool forwards)
 {
+  if (!activestreamtoken_.is_initialized())
+  {
+
+    return;
+  }
+
+  if (activeadaptivestreamtoken_.is_initialized())
+  {
+    connection_->ControlStreamPause(*activestreamtoken_, time_);
+    connection_->ControlStreamPause(*activeadaptivestreamtoken_, boost::none);
+    activeadaptivestreamtoken_.reset();
+    return;
+  }
+
   paused_ = true;
   ImageBuffer imagebuffer = cache_.GetImage(forwards, GetPlayRequestIndex(), sequencenum_);
   if (imagebuffer.type_ == IMAGEBUFFERTYPE_INVALID)
   {
-    {
-      std::lock_guard<std::recursive_mutex> lock(*mutex_);
-      ResetDecoders();
-    }
-
     controlstreamendcallback_ = [this, forwards](const uint64_t playrequestindex, const monocle::ErrorCode error)
     {
       if (GetPlayRequestIndex() != playrequestindex)
@@ -423,7 +462,11 @@ void VideoView::FrameStep(const bool forwards)
       WriteFrame(imagebuffer);
     };
 
-    connection_->ControlStreamFrameStep(streamtoken_, GetNextPlayRequestIndex(true), forwards, sequencenum_);
+    {
+      std::lock_guard<std::recursive_mutex> lock(*mutex_);
+      ResetDecoders();
+    }
+    connection_->ControlStreamFrameStep(*activestreamtoken_, GetNextPlayRequestIndex(true), forwards, sequencenum_);
   }
   else
   {
@@ -431,21 +474,38 @@ void VideoView::FrameStep(const bool forwards)
     
   }
 
-  for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
+  for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_) // Always grab the metadata data, don't look in any cache that we don't have, and always grab some extra frames just in case
   {
-    metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, false, forwards, time_, boost::none, 4, false); // Request some additional frames just in case
+    metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, false, forwards, time_, boost::none, 4, false);
 
   }
 }
 
 void VideoView::Play(const uint64_t time, const boost::optional<uint64_t>& numframes)
 {
+  if (!activestreamtoken_.is_initialized())
+  {
+
+    return;
+  }
+
+  if (adaptivestreaming_ && activeadaptivestreamtoken_.is_initialized())
+  {
+    connection_->ControlStreamPause(*activeadaptivestreamtoken_, boost::none);
+    activeadaptivestreamtoken_.reset();
+  }
+
   {
     std::lock_guard<std::recursive_mutex> lock(*mutex_);
     ResetDecoders();
   }
+  connection_->ControlStream(*activestreamtoken_, GetNextPlayRequestIndex(true), true, !numframes.is_initialized(), true, time + GetTimeOffset(), boost::none, numframes, false);
+  for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
+  {
+    metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, !numframes.is_initialized(), true, time + GetTimeOffset(), boost::none, numframes, false);
 
-  connection_->ControlStream(streamtoken_, GetNextPlayRequestIndex(true), true, !numframes.is_initialized(), true, time + GetTimeOffset(), boost::none, numframes, false);
+  }
+
   if (numframes.is_initialized() && ((*numframes == 0) || (*numframes == 1))) // Is this an effectively pause request...
   {
     controlstreamendcallback_ = [this](const uint64_t playrequestindex, const monocle::ErrorCode err)
@@ -478,18 +538,29 @@ void VideoView::Play(const uint64_t time, const boost::optional<uint64_t>& numfr
     paused_ = false;
 
   }
-
-  for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
-  {
-    metadataconnection_->ControlStream(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex(), true, !numframes.is_initialized(), true, time + GetTimeOffset(), boost::none, numframes, false);
-
-  }
 }
 
 void VideoView::Pause(const boost::optional<uint64_t>& time)
 {
+  if (!activestreamtoken_.is_initialized())
+  {
+
+    return;
+  }
+
+  if (adaptivestreaming_ && activeadaptivestreamtoken_.is_initialized())
+  {
+    connection_->ControlStreamPause(*activeadaptivestreamtoken_, boost::none);
+    activeadaptivestreamtoken_.reset();
+  }
+
   SetPaused(true);
-  connection_->ControlStreamPause(streamtoken_, time);
+  connection_->ControlStreamPause(*activestreamtoken_, time);
+
+  {
+    std::lock_guard<std::recursive_mutex> lock(*mutex_);
+    ResetDecoders();
+  }
   for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
   {
     metadataconnection_->ControlStreamPause(metadatastreamtoken.second, time);
@@ -499,8 +570,51 @@ void VideoView::Pause(const boost::optional<uint64_t>& time)
 
 void VideoView::Stop()
 {
+  if (!activestreamtoken_.is_initialized())
+  {
+
+    return;
+  }
+
+  if (adaptivestreaming_ && activeadaptivestreamtoken_.is_initialized())
+  {
+    connection_->ControlStreamPause(*activeadaptivestreamtoken_, boost::none);
+    activeadaptivestreamtoken_.reset();
+  }
+
+  uint64_t videostreamtoken = 0;
+  if (adaptivestreaming_)
+  {
+    const QSharedPointer<RecordingTrack> besttrack = GetBestRecordingTrack();
+    if (besttrack == nullptr)
+    {
+      SetMessage(GetNextPlayRequestIndex(true), false, "Unable to find track");
+      return;
+    }
+
+    std::vector< std::pair<uint32_t, uint64_t> >::const_iterator videostream = std::find_if(videostreamtokens_.cbegin(), videostreamtokens_.cend(), [&besttrack](const std::pair<uint32_t, uint64_t>& videostreamtoken) { return (videostreamtoken.first == besttrack->GetId()); });
+    if (videostream == videostreamtokens_.cend())
+    {
+      SetMessage(GetNextPlayRequestIndex(true), false, "Unable to find stream");
+      return; // Shouldn't be possible but ok...
+    }
+
+    videostreamtoken = videostream->second;
+    activeadaptivestreamtoken_ = videostream->second;
+  }
+  else
+  {
+    videostreamtoken = *activestreamtoken_;
+
+  }
+
+  {
+    std::lock_guard<std::recursive_mutex> lock(*mutex_);
+    ResetDecoders();
+  }
+
   SetPaused(false);
-  connection_->ControlStreamLive(streamtoken_, GetNextPlayRequestIndex(true));
+  connection_->ControlStreamLive(videostreamtoken, GetNextPlayRequestIndex(true));
   for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
   {
     metadataconnection_->ControlStreamLive(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex());
@@ -510,12 +624,24 @@ void VideoView::Stop()
 
 void VideoView::Scrub(const uint64_t time)
 {
+  if (!activestreamtoken_.is_initialized())
+  {
+
+    return;
+  }
+
+  if (adaptivestreaming_ && activeadaptivestreamtoken_.is_initialized())
+  {
+    connection_->ControlStreamPause(*activeadaptivestreamtoken_, boost::none);
+    activeadaptivestreamtoken_.reset();
+  }
+
   {
     std::lock_guard<std::recursive_mutex> lock(*mutex_);
     ResetDecoders();
   }
 
-  connection_->ControlStream(streamtoken_, GetNextPlayRequestIndex(false), true, false, true, time + GetTimeOffset(), boost::none, 1, true);
+  connection_->ControlStream(*activestreamtoken_, GetNextPlayRequestIndex(false), true, false, true, time + GetTimeOffset(), boost::none, 1, true);
   controlstreamendcallback_ = [this](const uint64_t playrequestindex, const monocle::ErrorCode err)
   {
     if (err != monocle::ErrorCode::Success)
@@ -542,6 +668,57 @@ void VideoView::Scrub(const uint64_t time)
 
   }
   paused_ = true;
+}
+
+void VideoView::SetPosition(VideoWidget* videowidget, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent)
+{
+  View::SetPosition(videowidget, x, y, width, height, rotation, mirror, stretch, makecurrent);
+
+  if (!activestreamtoken_.is_initialized())
+  {
+
+    return;
+  }
+
+  if (!adaptivestreaming_)
+  {
+
+    return;
+  }
+  
+  if (!activeadaptivestreamtoken_.is_initialized()) // We can only do adaptive streaming when live
+  {
+
+    return;
+  }
+
+  const QSharedPointer<RecordingTrack> track = GetBestRecordingTrack();
+  if (!track)
+  {
+
+    return;
+  }
+
+  std::vector< std::pair<uint32_t, uint64_t> >::const_iterator j = std::find_if(videostreamtokens_.cbegin(), videostreamtokens_.cend(), [&track](const std::pair<uint32_t, uint64_t>& videostreamtoken) { return (videostreamtoken.first == track->GetId()); });
+  if (j == videostreamtokens_.cend())
+  {
+
+    return; // Shouldn't be possible but ok...
+  }
+
+  if (j->second == *activeadaptivestreamtoken_) // Don't bother changing anything if we are already streaming this track
+  {
+
+    return;
+  }
+
+  connection_->ControlStreamPause(*activeadaptivestreamtoken_, boost::none); // Pause the previous stream and start the new livestream
+  {
+    std::lock_guard<std::recursive_mutex> lock(*mutex_);
+    ResetDecoders();
+  }
+  activeadaptivestreamtoken_ = j->second;
+  connection_->ControlStreamLive(*activeadaptivestreamtoken_, GetNextPlayRequestIndex(true));
 }
 
 bool VideoView::HasHardwareDecoder() const
@@ -594,7 +771,7 @@ void VideoView::timerEvent(QTimerEvent* event)
   View::timerEvent(event);
 }
 
-void VideoView::ControlStreamEnd(const uint64_t streamtoken, const uint64_t playrequestindex, const monocle::ErrorCode error, void* callbackdata)
+void VideoView::ControlStreamEnd(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const monocle::ErrorCode error, void* callbackdata)
 {
   VideoView* videoview = reinterpret_cast<VideoView*>(callbackdata);
   if (videoview->GetPlayRequestIndex() != playrequestindex)
@@ -613,7 +790,7 @@ void VideoView::ControlStreamEnd(const uint64_t streamtoken, const uint64_t play
   }, Qt::QueuedConnection);
 }
 
-void VideoView::H265Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const bool donlfield, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata) // This gets called by the Connection thread
+void VideoView::H265Callback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const bool donlfield, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata) // This gets called by the Connection thread
 {
   VideoView* videoview = reinterpret_cast<VideoView*>(callbackdata);
   std::lock_guard<std::recursive_mutex> lock(*videoview->mutex_);
@@ -623,7 +800,7 @@ void VideoView::H265Callback(const uint64_t streamtoken, const uint64_t playrequ
     return;
   }
 
-  std::vector< std::unique_ptr<H265Decoder> >::iterator h265decoder = std::find_if(videoview->h265decoders_.begin(), videoview->h265decoders_.end(), [codecindex](std::unique_ptr<H265Decoder>& h265decoder) { return (h265decoder->GetId() == codecindex); });
+  std::vector< std::unique_ptr<H265Decoder> >::iterator h265decoder = std::find_if(videoview->h265decoders_.begin(), videoview->h265decoders_.end(), [trackid, codecindex](std::unique_ptr<H265Decoder>& h265decoder) { return ((h265decoder->GetTrackId() == trackid) && (h265decoder->GetId() == codecindex)); });
   if (h265decoder == videoview->h265decoders_.end())
   {
 
@@ -646,7 +823,7 @@ void VideoView::H265Callback(const uint64_t streamtoken, const uint64_t playrequ
   }
 }
 
-void VideoView::H264Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata) // This gets called by the Connection thread
+void VideoView::H264Callback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata) // This gets called by the Connection thread
 {
   VideoView* videoview = reinterpret_cast<VideoView*>(callbackdata);
   std::lock_guard<std::recursive_mutex> lock(*videoview->mutex_);
@@ -656,7 +833,7 @@ void VideoView::H264Callback(const uint64_t streamtoken, const uint64_t playrequ
     return;
   }
 
-  std::vector< std::unique_ptr<H264Decoder> >::iterator h264decoder = std::find_if(videoview->h264decoders_.begin(), videoview->h264decoders_.end(), [codecindex](std::unique_ptr<H264Decoder>& h264decoder) { return (h264decoder->GetId() == codecindex); });
+  std::vector< std::unique_ptr<H264Decoder> >::iterator h264decoder = std::find_if(videoview->h264decoders_.begin(), videoview->h264decoders_.end(), [trackid, codecindex](std::unique_ptr<H264Decoder>& h264decoder) { return ((h264decoder->GetTrackId() == trackid) && (h264decoder->GetId() == codecindex)); });
   if (h264decoder == videoview->h264decoders_.end())
   {
 
@@ -679,7 +856,7 @@ void VideoView::H264Callback(const uint64_t streamtoken, const uint64_t playrequ
   }
 }
 
-void VideoView::MetadataCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::MetadataFrameType metadataframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
+void VideoView::MetadataCallback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::MetadataFrameType metadataframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
 {
   VideoView* videoview = reinterpret_cast<VideoView*>(callbackdata);
   if (videoview->metadataplayrequestindex_ != playrequestindex)
@@ -689,7 +866,7 @@ void VideoView::MetadataCallback(const uint64_t streamtoken, const uint64_t play
   }
 }
 
-void VideoView::JPEGCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const uint8_t* lqt, const uint8_t* cqt, const char* framedata, const size_t size, void* callbackdata) // This gets called by the Connection thread
+void VideoView::JPEGCallback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const uint8_t* lqt, const uint8_t* cqt, const char* framedata, const size_t size, void* callbackdata) // This gets called by the Connection thread
 {
   VideoView* videoview = reinterpret_cast<VideoView*>(callbackdata);
   std::lock_guard<std::recursive_mutex> lock(*videoview->mutex_);
@@ -701,7 +878,7 @@ void VideoView::JPEGCallback(const uint64_t streamtoken, const uint64_t playrequ
 
   if (!videoview->mjpegdecoder_)
   {
-    videoview->mjpegdecoder_ = std::make_unique<MJpegDecoder>(0, videoview->device_->GetPublicKey()); // Id doesn't matter because we always ignore it from this point onwards
+    videoview->mjpegdecoder_ = std::make_unique<MJpegDecoder>(trackid, 0, videoview->device_->GetPublicKey()); // Id doesn't matter because we always ignore it from this point onwards
     const client::DECODERERROR error = videoview->mjpegdecoder_->Init();
     if (error)
     {
@@ -727,7 +904,7 @@ void VideoView::JPEGCallback(const uint64_t streamtoken, const uint64_t playrequ
   }
 }
 
-void VideoView::MPEG4Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata) // This gets called by the Connection thread
+void VideoView::MPEG4Callback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata) // This gets called by the Connection thread
 {
   VideoView* videoview = reinterpret_cast<VideoView*>(callbackdata);
   std::lock_guard<std::recursive_mutex> lock(*videoview->mutex_);
@@ -737,7 +914,7 @@ void VideoView::MPEG4Callback(const uint64_t streamtoken, const uint64_t playreq
     return;
   }
 
-  std::vector< std::unique_ptr<MPEG4Decoder> >::iterator mpeg4decoder = std::find_if(videoview->mpeg4decoders_.begin(), videoview->mpeg4decoders_.end(), [codecindex](std::unique_ptr<MPEG4Decoder>& mpeg4decoder) { return (mpeg4decoder->GetId() == codecindex); });
+  std::vector< std::unique_ptr<MPEG4Decoder> >::iterator mpeg4decoder = std::find_if(videoview->mpeg4decoders_.begin(), videoview->mpeg4decoders_.end(), [trackid, codecindex](std::unique_ptr<MPEG4Decoder>& mpeg4decoder) { return ((mpeg4decoder->GetTrackId() == trackid) && (mpeg4decoder->GetId() == codecindex)); });
   if (mpeg4decoder == videoview->mpeg4decoders_.end())
   {
 
@@ -760,7 +937,7 @@ void VideoView::MPEG4Callback(const uint64_t streamtoken, const uint64_t playreq
   }
 }
 
-void VideoView::ObjectDetectorCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
+void VideoView::ObjectDetectorCallback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata)
 {
   VideoView* videoview = reinterpret_cast<VideoView*>(callbackdata);
   if (videoview->metadataplayrequestindex_ != playrequestindex)
@@ -789,11 +966,11 @@ void VideoView::ObjectDetectorCallback(const uint64_t streamtoken, const uint64_
   }
 }
 
-void VideoView::NewCodecIndexCallback(const uint64_t streamtoken, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp, void* callbackdata)
+void VideoView::NewCodecIndexCallback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp, void* callbackdata)
 {
   VideoView* videoview = reinterpret_cast<VideoView*>(callbackdata);
   std::lock_guard<std::recursive_mutex> lock(*videoview->mutex_);
-  videoview->AddCodecIndex(monocle::CODECINDEX(id, codec, parameters, timestamp));
+  videoview->AddCodecIndex(trackid, monocle::CODECINDEX(id, codec, parameters, timestamp));
 }
 
 void VideoView::ConnectONVIF(const QSharedPointer<client::Receiver>& receiver)
@@ -968,7 +1145,7 @@ void VideoView::ConnectONVIF(const QSharedPointer<client::Receiver>& receiver)
   });
 }
 
-void VideoView::AddCodecIndex(const monocle::CODECINDEX& codecindex)
+void VideoView::AddCodecIndex(const uint32_t trackid, const monocle::CODECINDEX& codecindex)
 {
   std::vector<std::string> parameterssplit;
   boost::split(parameterssplit, codecindex.parameters_, boost::is_any_of(";"), boost::algorithm::token_compress_on);
@@ -980,7 +1157,7 @@ void VideoView::AddCodecIndex(const monocle::CODECINDEX& codecindex)
   }
   else if (codecindex.codec_ == monocle::Codec::H265)
   {
-    std::unique_ptr<H265Decoder> h265decoder = std::make_unique<H265Decoder>(codecindex.id_, device_->GetPublicKey());
+    std::unique_ptr<H265Decoder> h265decoder = std::make_unique<H265Decoder>(trackid, codecindex.id_, device_->GetPublicKey());
     const DECODERERROR error = h265decoder->Init(parameterssplit);
     if (error)
     {
@@ -991,7 +1168,7 @@ void VideoView::AddCodecIndex(const monocle::CODECINDEX& codecindex)
   }
   else if (codecindex.codec_ == monocle::Codec::H264)
   {
-    std::unique_ptr<H264Decoder> h264decoder = std::make_unique<H264Decoder>(codecindex.id_, device_->GetPublicKey(), cudacontext_);
+    std::unique_ptr<H264Decoder> h264decoder = std::make_unique<H264Decoder>(trackid, codecindex.id_, device_->GetPublicKey(), cudacontext_);
     const DECODERERROR error = h264decoder->Init(parameterssplit);
     if (error)
     {
@@ -1002,7 +1179,7 @@ void VideoView::AddCodecIndex(const monocle::CODECINDEX& codecindex)
   }
   else if (codecindex.codec_ == monocle::Codec::MPEG4)
   {
-    std::unique_ptr<MPEG4Decoder> mpeg4decoder = std::make_unique<MPEG4Decoder>(codecindex.id_, device_->GetPublicKey());
+    std::unique_ptr<MPEG4Decoder> mpeg4decoder = std::make_unique<MPEG4Decoder>(trackid, codecindex.id_, device_->GetPublicKey());
     const DECODERERROR error = mpeg4decoder->Init(parameterssplit);
     if (error)
     {
@@ -1136,17 +1313,90 @@ void VideoView::AddMetadataTrack(const QSharedPointer<RecordingTrack>& metadatat
       LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Failed to create metadata stream: ") + QString::number(metadatatrack->GetId()));
       return;
     }
-
     metadatastreamtokens_.push_back(std::make_pair(metadatatrack, createstreamresponse.token_));
+
+    // We kick off a live stream here because there can be no negative consequences aside from the additional bandwidth usage, and it might help a lot
     metadatacontrolstreams_.push_back(metadataconnection_->ControlStreamLive(createstreamresponse.token_, GetNextMetadataPlayRequestIndex(), [this, metadatatrack](const std::chrono::steady_clock::duration latency, const monocle::client::CONTROLSTREAMRESPONSE& controlstreamresponse)
     {
       if (controlstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
       {
-        LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Failed to control live stream: ") + QString::number(metadatatrack->GetId()));
+        LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Failed to control metadata live stream: ") + QString::number(metadatatrack->GetId()));
         return;
       }
     }));
   }, VideoView::ControlStreamEnd, nullptr, nullptr, VideoView::MetadataCallback, nullptr, nullptr, VideoView::ObjectDetectorCallback, nullptr, this));
+}
+
+QSharedPointer<RecordingTrack> VideoView::GetBestRecordingTrack() const
+{
+  const QSharedPointer<RecordingJob> activejob = recording_->GetActiveJob();
+  if (!activejob)
+  {
+
+    return nullptr;
+  }
+
+  std::vector< std::pair<QSharedPointer<RecordingTrack>, uint64_t> > trackarea; // <trackid, area>
+  trackarea.reserve(5);
+  for (const QSharedPointer<RecordingJobSource>& source : activejob->GetSources())
+  {
+    for (const QSharedPointer<RecordingJobSourceTrack>& sourcetrack : source->GetTracks())
+    {
+      const QSharedPointer<RecordingTrack> track = sourcetrack->GetTrack();
+      if (!track)
+      {
+
+        continue;
+      }
+
+      if ((sourcetrack->GetState() != monocle::RecordingJobState::Active) && (sourcetrack->GetState() != monocle::RecordingJobState::Active_Not_Recording))
+      {
+
+        continue;
+      }
+
+      try
+      {
+        const boost::optional<QString> activewidth = sourcetrack->GetActiveWidth();
+        const boost::optional<QString> activeheight = sourcetrack->GetActiveHeight();
+        if (!activewidth.is_initialized() || !activeheight.is_initialized())
+        {
+
+          continue;
+        }
+        const uint64_t width = boost::lexical_cast<uint64_t>(activewidth->toStdString());
+        const uint64_t height = boost::lexical_cast<uint64_t>(activeheight->toStdString());
+        trackarea.push_back(std::make_pair(track, width * height));
+      }
+      catch (...)
+      {
+
+        continue;
+      }
+    }
+  }
+
+  if (trackarea.empty())
+  {
+    if (recording_->GetTracks().empty()) // Just return anything
+    {
+
+      return nullptr;
+    }
+    return recording_->GetTracks().front();
+  }
+
+  // Find the best track for our current resolution
+  std::sort(trackarea.begin(), trackarea.end(), [](const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& lhs, const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& rhs) { return (lhs.second < rhs.second); });
+  const QRect pixelrect = GetPixelRect();
+  const uint64_t currentarea = pixelrect.width() * pixelrect.height();
+  std::vector< std::pair<QSharedPointer<RecordingTrack>, uint64_t> >::iterator i = std::find_if(trackarea.begin(), trackarea.end(), [currentarea](const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& trackarea) { return (currentarea < trackarea.second); });
+  if (i == trackarea.end())
+  {
+    
+    return trackarea.back().first;
+  }
+  return i->first;
 }
 
 void VideoView::DeviceStateChanged(const DEVICESTATE state, const QString&)
@@ -1178,52 +1428,128 @@ void VideoView::ChartView(bool)
 
 void VideoView::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)
 {
-  if (track_ == nullptr)
+  if (track->GetTrackType() == monocle::TrackType::Video)
   {
-    if (track->GetTrackType() == monocle::TrackType::Video)
+    if (track_ == nullptr) // If we weren't streaming before, we now have something to bite on, so lets go
     {
       track_ = track;
+      emit ChangeTrack(track_);
       Connect();
     }
-  }
+    else
+    {
+      createstream_.push_back(connection_->CreateStream(recording_->GetToken(), track->GetId(), [this, track](const std::chrono::steady_clock::duration latency, const monocle::client::CREATESTREAMRESPONSE& createstreamresponse)
+      {
+        if (createstreamresponse.GetErrorCode() != monocle::ErrorCode::Success)
+        {
+          LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Failed to create video stream: ") + QString::number(track->GetId()));
+          return;
+        }
 
-  if ((track->GetTrackType() == monocle::TrackType::Metadata) || (track->GetTrackType() == monocle::TrackType::ObjectDetector))
+        QMetaObject::invokeMethod(this, [this, trackid = track->GetId(), codecindices = createstreamresponse.codecindices_]()
+        {
+          std::lock_guard<std::recursive_mutex> lock(*mutex_);
+          for (const monocle::CODECINDEX& codecindex : codecindices)
+          {
+            AddCodecIndex(trackid, codecindex);
+
+          }
+        }, Qt::QueuedConnection);
+
+        std::lock_guard<std::recursive_mutex> lock(*mutex_);
+        videostreamtokens_.push_back(std::make_pair(track->GetId(), createstreamresponse.token_));
+      }, VideoView::ControlStreamEnd, VideoView::H265Callback, VideoView::H264Callback, nullptr, VideoView::JPEGCallback, VideoView::MPEG4Callback, VideoView::ObjectDetectorCallback, VideoView::NewCodecIndexCallback, this));
+    }
+  }
+  else if ((track->GetTrackType() == monocle::TrackType::Metadata) || (track->GetTrackType() == monocle::TrackType::ObjectDetector))
   {
     AddMetadataTrack(track);
 
   }
 }
 
-void VideoView::TrackRemoved(const uint32_t token)
+void VideoView::TrackRemoved(const uint32_t trackid)
 {
-  if (track_->GetToken() == token)
+  // Reset and remove everything around this recording
   {
-    if (recording_->GetVideoTracks().size())
+    std::lock_guard<std::recursive_mutex> lock(*mutex_);
+    videostreamtokens_.erase(std::remove_if(videostreamtokens_.begin(), videostreamtokens_.end(), [trackid](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.first == trackid); }), videostreamtokens_.end());
+    h265decoders_.erase(std::remove_if(h265decoders_.begin(), h265decoders_.end(), [trackid](const std::unique_ptr<H265Decoder>& h265decoder) { return (h265decoder->GetTrackId() == trackid); }), h265decoders_.end());
+    h264decoders_.erase(std::remove_if(h264decoders_.begin(), h264decoders_.end(), [trackid](const std::unique_ptr<H264Decoder>& h264decoder) { return (h264decoder->GetTrackId() == trackid); }), h264decoders_.end());
+    mpeg4decoders_.erase(std::remove_if(mpeg4decoders_.begin(), mpeg4decoders_.end(), [trackid](const std::unique_ptr<MPEG4Decoder>& mpeg4decoder) { return (mpeg4decoder->GetTrackId() == trackid); }), mpeg4decoders_.end());
+  }
+  metadatastreamtokens_.erase(std::remove_if(metadatastreamtokens_.begin(), metadatastreamtokens_.end(), [trackid](const std::pair< QSharedPointer<RecordingTrack>, uint64_t>& streamtoken) { return (streamtoken.first->GetId() == trackid); }), metadatastreamtokens_.end());
+
+  const QSharedPointer<RecordingTrack> besttrack = GetBestRecordingTrack();
+  if (besttrack)
+  {
+    std::lock_guard<std::recursive_mutex> lock(*mutex_);
+    std::vector< std::pair<uint32_t, uint64_t> >::const_iterator i = std::find_if(videostreamtokens_.cbegin(), videostreamtokens_.cend(), [&besttrack](const std::pair<uint32_t, uint64_t>& videostreamtoken) { return (videostreamtoken.first == besttrack->GetId()); });
+    if (i == videostreamtokens_.end()) // Shouldn't happen...
     {
-      // Switch to another video track if one is available
-      track_ = recording_->GetVideoTracks().front();
+      SetMessage(GetNextPlayRequestIndex(true), false, "Unable to retrieve stream token: " + QString::number(besttrack->GetId()));
+      return;
+    }
+    activestreamtoken_ = i->second;
+  }
+
+  // Sort out activestream_
+  if (track_ && (track_->GetId() == trackid)) // If the track we liked was removed, lets find another one
+  {
+    if (besttrack)
+    {
+      if (!adaptivestreaming_)
+      {
+        connection_->ControlStreamLive(*activestreamtoken_, GetPlayRequestIndex());
+
+      }
+      track_ = besttrack;
+      emit ChangeTrack(nullptr);
     }
     else
     {
-      // Just live without a video track
-      track_.reset();
+      SetMessage(GetNextPlayRequestIndex(true), false, "Unable to retrieve stream");
+      activestreamtoken_.reset();
+      activeadaptivestreamtoken_.reset();
+      track_ = nullptr;
+      emit ChangeTrack(nullptr);
     }
-    Connect();
   }
 
-  auto i = std::find_if(metadatastreamtokens_.begin(), metadatastreamtokens_.end(), [token](const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatatrack) { return (metadatatrack.second == token); });
-  if (i != metadatastreamtokens_.end())
   {
-    metadatastreamtokens_.erase(i);
-
+    std::lock_guard<std::recursive_mutex> lock(*mutex_);
+    if (activeadaptivestreamtoken_.is_initialized() && (std::find_if(videostreamtokens_.cbegin(), videostreamtokens_.cend(), [activeadaptivestreamtoken = *activeadaptivestreamtoken_](const std::pair<uint32_t, uint64_t>& videostreamtoken) { return (videostreamtoken.second == activeadaptivestreamtoken); }) == videostreamtokens_.end()))
+    {
+      if (besttrack)
+      {
+        activeadaptivestreamtoken_ = *activestreamtoken_;
+        connection_->ControlStreamLive(*activeadaptivestreamtoken_, GetPlayRequestIndex());
+      }
+      else
+      {
+        SetMessage(GetNextPlayRequestIndex(true), false, "Unable to find adaptive stream");
+        activeadaptivestreamtoken_.reset();
+      }
+    }
   }
 }
 
 void VideoView::ActiveJobChanged(const QSharedPointer<client::RecordingJob>& activejob)
 {
-  rotation_ = GetActiveRotation();
-  SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), rotation_, mirror_, stretch_, true);
+  SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), GetActiveRotation(), mirror_, stretch_, true);
   Connect();
+}
+
+void VideoView::RecordingJobSourceTrackStateChanged(const QSharedPointer<client::RecordingJob>& job, const QSharedPointer<client::RecordingJobSource>& source, const QSharedPointer<client::RecordingJobSourceTrack>& track, const uint64_t time, const monocle::RecordingJobState state, const QString& error, const monocle::RecordingJobState prevstate)
+{
+  SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), GetActiveRotation(), mirror_, stretch_, true);
+
+}
+
+void VideoView::RecordingJobSourceTrackActiveParametersChanged(const QSharedPointer<client::RecordingJob>& job, const QSharedPointer<client::RecordingJobSource>& source, const QSharedPointer<client::RecordingJobSourceTrack>& track, const std::vector<QString>& activeparameters)
+{
+  SetPosition(videowidget_, rect_.x(), rect_.y(), rect_.width(), rect_.height(), GetActiveRotation(), mirror_, stretch_, true);
+
 }
 
 }

@@ -18,7 +18,7 @@ namespace client
 
 ///// Methods /////
 
-Recording::Recording(const boost::shared_ptr<Device>& device, const uint64_t token, const QString& sourceid, const QString& name, const QString& location, const QString& description, const QString& address, const QString& content, const uint64_t retentiontime, const boost::optional<uint64_t>& activejob, const uint64_t guiorder) :
+Recording::Recording(const boost::shared_ptr<Device>& device, const uint64_t token, const QString& sourceid, const QString& name, const QString& location, const QString& description, const QString& address, const QString& content, const uint64_t retentiontime, const bool adaptivestreaming, const boost::optional<uint64_t>& activejob, const uint64_t guiorder) :
   device_(device),
   token_(token),
   sourceid_(sourceid),
@@ -28,7 +28,8 @@ Recording::Recording(const boost::shared_ptr<Device>& device, const uint64_t tok
   address_(address),
   content_(content),
   retentiontime_(retentiontime),
-  guiorder_(guiorder)
+  guiorder_(guiorder),
+  adaptivestreaming_(adaptivestreaming)
 {
 
 }
@@ -52,6 +53,21 @@ QSharedPointer<client::RecordingJob> Recording::GetJob(const uint64_t jobtoken) 
 QSharedPointer<client::RecordingTrack> Recording::GetTrack(const uint32_t trackid) const
 {
   auto track = std::find_if(tracks_.begin(), tracks_.end(), [trackid](const QSharedPointer<client::RecordingTrack>& track) { return (track->GetId() == trackid); });
+  if (track == tracks_.end())
+  {
+
+    return nullptr;
+  }
+  else
+  {
+
+    return *track;
+  }
+}
+
+QSharedPointer<client::RecordingTrack> Recording::GetVideoTrack(const uint32_t trackid) const
+{
+  auto track = std::find_if(tracks_.begin(), tracks_.end(), [trackid](const QSharedPointer<client::RecordingTrack>& track) { return ((track->GetTrackType() == monocle::TrackType::Video) && (track->GetId() == trackid)); });
   if (track == tracks_.end())
   {
 
@@ -240,21 +256,35 @@ std::vector< QSharedPointer<client::Receiver> > Recording::GetActiveReceivers(co
 
 std::vector<QString> Recording::GetActiveProfileTokens(const QSharedPointer<client::RecordingTrack>& track) const
 {
+  if (track == nullptr)
+  {
+
+    return std::vector<QString>();
+  }
+
   if (activejob_ == nullptr)
   {
 
     return std::vector<QString>();
   }
+
   return activejob_->GetActiveProfileTokens(track);
 }
 
 std::vector<ROTATION> Recording::GetActiveRotations(const QSharedPointer<client::RecordingTrack>& track) const
 {
+  if (track == nullptr)
+  {
+
+    return std::vector<ROTATION>();
+  }
+
   if (activejob_ == nullptr)
   {
 
     return std::vector<ROTATION>();
   }
+
   return activejob_->GetActiveRotations(track);
 }
 
@@ -308,7 +338,7 @@ void Recording::SetActiveJob(const boost::optional<uint64_t>& activejob)
   emit ActiveJobChanged(activejob_);
 }
 
-void Recording::Set(const QString& sourceid, const QString& name, const QString& location, const QString& description, const QString& address, const QString& content, const uint64_t retentiontime, const boost::optional<uint64_t>& activejob)
+void Recording::Set(const QString& sourceid, const QString& name, const QString& location, const QString& description, const QString& address, const QString& content, const uint64_t retentiontime, const bool adaptivestreaming, const boost::optional<uint64_t>& activejob)
 {
   sourceid_ = sourceid;
   name_ = name;
@@ -317,6 +347,7 @@ void Recording::Set(const QString& sourceid, const QString& name, const QString&
   address_ = address;
   content_ = content;
   retentiontime_ = retentiontime;
+  adaptivestreaming_ = adaptivestreaming;
   SetActiveJob(activejob);
 }
 

@@ -67,6 +67,8 @@ class MPEG4Decoder;
 class Receiver;
 class Recording;
 class RecordingJob;
+class RecordingJobSource;
+class RecordingJobSourceTrack;
 class RecordingTrack;
 class VideoWidget;
 enum class DEVICESTATE : int;
@@ -79,7 +81,7 @@ class VideoView : public View
 
  public:
 
-  VideoView(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool showinfo, const bool showobjects, boost::shared_ptr<client::Device> device, QSharedPointer<client::Recording> recording, QSharedPointer<client::RecordingTrack> track, const QResource* arial);
+  VideoView(VideoWidget* videowidget, CUcontext cudacontext, const QColor& selectedcolour, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool showinfo, const bool showobjects, const bool adaptivestreaming, boost::shared_ptr<client::Device> device, QSharedPointer<client::Recording> recording, QSharedPointer<client::RecordingTrack> track, const QResource* arial);
   virtual ~VideoView();
 
   virtual VIEWTYPE GetViewType() const override { return VIEWTYPE_MONOCLE; }
@@ -100,6 +102,8 @@ class VideoView : public View
   virtual void Pause(const boost::optional<uint64_t>& time) override;
   virtual void Stop() override;
   virtual void Scrub(const uint64_t time) override;
+
+  virtual void SetPosition(VideoWidget* videowidget, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent) override;
 
   bool HasHardwareDecoder() const;
 
@@ -126,23 +130,24 @@ class VideoView : public View
 
  private:
 
-  static void ControlStreamEnd(const uint64_t streamtoken, const uint64_t playrequestindex, const monocle::ErrorCode error, void* callbackdata);
-  static void H265Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const bool donlfield, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata);
-  static void H264Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata);
-  static void MetadataCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::MetadataFrameType metadataframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata);
-  static void JPEGCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const uint8_t* lqt, const uint8_t* cqt, const char* framedata, const size_t size, void* callbackdata);
-  static void MPEG4Callback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata);
-  static void ObjectDetectorCallback(const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata);
-  static void NewCodecIndexCallback(const uint64_t streamtoken, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp, void* callbackdata);
+  static void ControlStreamEnd(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const monocle::ErrorCode error, void* callbackdata);
+  static void H265Callback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const bool donlfield, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata);
+  static void H264Callback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint32_t* offsets, const size_t numoffsets, const char* framedata, const size_t size, void* callbackdata);
+  static void MetadataCallback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::MetadataFrameType metadataframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata);
+  static void JPEGCallback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const uint16_t restartinterval, const uint32_t typespecificfragmentoffset, const uint8_t type, const uint8_t q, const uint8_t width, const uint8_t height, const uint8_t* lqt, const uint8_t* cqt, const char* framedata, const size_t size, void* callbackdata);
+  static void MPEG4Callback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const bool marker, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata);
+  static void ObjectDetectorCallback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t playrequestindex, const uint64_t codecindex, const uint64_t timestamp, const int64_t sequencenum, const float progress, const uint8_t* signature, const size_t signaturesize, const monocle::ObjectDetectorFrameType objectdetectorframetype, const char* signaturedata, const size_t signaturedatasize, const char* framedata, const size_t size, void* callbackdata);
+  static void NewCodecIndexCallback(const uint32_t trackid, const uint64_t streamtoken, const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp, void* callbackdata);
 
   void ConnectONVIF(const QSharedPointer<client::Receiver>& receiver);
-  void AddCodecIndex(const monocle::CODECINDEX& codecindex);
+  void AddCodecIndex(const uint32_t trackid, const monocle::CODECINDEX& codecindex);
   void DestroyDecoders();
   void Keepalive();
   ROTATION GetActiveRotation() const;
   void ResetDecoders();
   uint64_t GetNextMetadataPlayRequestIndex();
   void AddMetadataTrack(const QSharedPointer<RecordingTrack>& metadatatrack);
+  QSharedPointer<RecordingTrack> GetBestRecordingTrack() const;
 
   mutable boost::shared_ptr<std::recursive_mutex> mutex_;
 
@@ -175,11 +180,13 @@ class VideoView : public View
   sock::Connection connect_;
   monocle::client::Connection getauthenticatenonce_;
   monocle::client::Connection authenticate_;
-  monocle::client::Connection createstream_;
+  std::vector<monocle::client::Connection> createstream_;
   monocle::client::Connection controlstream_;
   monocle::client::Connection keepalive_;
 
-  uint64_t streamtoken_;
+  std::vector< std::pair<uint32_t, uint64_t> > videostreamtokens_; // <trackid, streamtoken>
+  boost::optional<uint64_t> activestreamtoken_;
+  boost::optional<uint64_t> activeadaptivestreamtoken_; // If this is initialized, we are currently streaming live from it
 
   sock::Connection metadataconnect_;
   monocle::client::Connection metadatagetauthenticatenonce_;
@@ -202,6 +209,12 @@ class VideoView : public View
   int updatetimer_;
   int metadatakeepalivetimer_;
 
+  bool adaptivestreaming_;
+
+ signals:
+
+  void ChangeTrack(const QSharedPointer<client::RecordingTrack>& track);
+
  public slots:
 
   void DeviceStateChanged(const DEVICESTATE state, const QString&);
@@ -209,8 +222,10 @@ class VideoView : public View
   void Properties(bool);
   void ChartView(bool);
   void TrackAdded(const QSharedPointer<client::RecordingTrack>& track);
-  void TrackRemoved(const uint32_t token);
+  void TrackRemoved(const uint32_t trackid);
   void ActiveJobChanged(const QSharedPointer<client::RecordingJob>& activejob);
+  void RecordingJobSourceTrackStateChanged(const QSharedPointer<client::RecordingJob>& job, const QSharedPointer<client::RecordingJobSource>& source, const QSharedPointer<client::RecordingJobSourceTrack>& track, const uint64_t time, const monocle::RecordingJobState state, const QString& error, const monocle::RecordingJobState prevstate);
+  void RecordingJobSourceTrackActiveParametersChanged(const QSharedPointer<client::RecordingJob>& job, const QSharedPointer<client::RecordingJobSource>& source, const QSharedPointer<client::RecordingJobSourceTrack>& track, const std::vector<QString>& activeparameters);
 
 };
 

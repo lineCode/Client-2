@@ -13,8 +13,10 @@
 namespace monocle {
 
 struct SubscribeHardwareStatsResponse;
+struct SubscribeHardwareStatsResponseBuilder;
 
 struct SubscribeHardwareStatsResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef SubscribeHardwareStatsResponseBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_CURRENTHARDWARESTATS = 4
   };
@@ -30,6 +32,7 @@ struct SubscribeHardwareStatsResponse FLATBUFFERS_FINAL_CLASS : private flatbuff
 };
 
 struct SubscribeHardwareStatsResponseBuilder {
+  typedef SubscribeHardwareStatsResponse Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_currenthardwarestats(flatbuffers::Offset<monocle::HardwareStats> currenthardwarestats) {
@@ -39,7 +42,6 @@ struct SubscribeHardwareStatsResponseBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  SubscribeHardwareStatsResponseBuilder &operator=(const SubscribeHardwareStatsResponseBuilder &);
   flatbuffers::Offset<SubscribeHardwareStatsResponse> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<SubscribeHardwareStatsResponse>(end);

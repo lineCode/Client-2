@@ -11,10 +11,13 @@
 namespace monocle {
 
 struct ObjectClassTrackStatistics;
+struct ObjectClassTrackStatisticsBuilder;
 
 struct GetObjectTrackStatisticsResponse;
+struct GetObjectTrackStatisticsResponseBuilder;
 
 struct ObjectClassTrackStatistics FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef ObjectClassTrackStatisticsBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_OBJECTCLASS = 4,
     VT_STARTTIME = 6,
@@ -44,6 +47,7 @@ struct ObjectClassTrackStatistics FLATBUFFERS_FINAL_CLASS : private flatbuffers:
 };
 
 struct ObjectClassTrackStatisticsBuilder {
+  typedef ObjectClassTrackStatistics Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_objectclass(monocle::ObjectClass objectclass) {
@@ -62,7 +66,6 @@ struct ObjectClassTrackStatisticsBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ObjectClassTrackStatisticsBuilder &operator=(const ObjectClassTrackStatisticsBuilder &);
   flatbuffers::Offset<ObjectClassTrackStatistics> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<ObjectClassTrackStatistics>(end);
@@ -85,6 +88,7 @@ inline flatbuffers::Offset<ObjectClassTrackStatistics> CreateObjectClassTrackSta
 }
 
 struct GetObjectTrackStatisticsResponse FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef GetObjectTrackStatisticsResponseBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_RESULTS = 4
   };
@@ -101,6 +105,7 @@ struct GetObjectTrackStatisticsResponse FLATBUFFERS_FINAL_CLASS : private flatbu
 };
 
 struct GetObjectTrackStatisticsResponseBuilder {
+  typedef GetObjectTrackStatisticsResponse Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_results(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<monocle::ObjectClassTrackStatistics>>> results) {
@@ -110,7 +115,6 @@ struct GetObjectTrackStatisticsResponseBuilder {
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  GetObjectTrackStatisticsResponseBuilder &operator=(const GetObjectTrackStatisticsResponseBuilder &);
   flatbuffers::Offset<GetObjectTrackStatisticsResponse> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = flatbuffers::Offset<GetObjectTrackStatisticsResponse>(end);
