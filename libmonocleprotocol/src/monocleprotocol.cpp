@@ -172,7 +172,23 @@ std::vector< flatbuffers::Offset<Recording> > GetRecordingBuffers(const std::vec
         codecindices.push_back(CreateCodecIndex(fbb, codecindex.id_, codecindex.codec_, fbb.CreateString(codecindex.parameters_), codecindex.timestamp_));
 
       }
-      tracks.push_back(CreateRecordingTrack(fbb, track.id_, fbb.CreateString(track.token_), track.tracktype_, fbb.CreateString(track.description_), track.fixedfiles_, track.digitalsignature_, track.encrypt_, track.flushfrequency_, fbb.CreateVector(track.files_), fbb.CreateVectorOfStructs(track.indices_), fbb.CreateVector(codecindices), track.totaltrackdata_.first, track.totaltrackdata_.second));
+
+      uint64_t totaltrackdatatime = 0;
+      uint64_t totaltrackdata = 0;
+      std::vector<monocle::TRACKDATA> totaltrackdatas;
+      if (track.totaltrackdata_.size())
+      {
+        totaltrackdatatime = track.totaltrackdata_.back().first;
+        totaltrackdata = track.totaltrackdata_.back().second;
+        totaltrackdatas.reserve(track.totaltrackdata_.size());
+        for (const std::pair<uint64_t, uint64_t>& totaltrackdata : track.totaltrackdata_)
+        {
+          totaltrackdatas.push_back(monocle::TRACKDATA(totaltrackdata.first, totaltrackdata.second));
+
+        }
+      }
+
+      tracks.push_back(CreateRecordingTrack(fbb, track.id_, fbb.CreateString(track.token_), track.tracktype_, fbb.CreateString(track.description_), track.fixedfiles_, track.digitalsignature_, track.encrypt_, track.flushfrequency_, fbb.CreateVector(track.files_), fbb.CreateVectorOfStructs(track.indices_), fbb.CreateVector(codecindices), totaltrackdatatime, totaltrackdata, fbb.CreateVectorOfStructs(totaltrackdatas)));
     }
 
     std::unique_ptr<monocle::TOKEN> activejob;
@@ -651,7 +667,7 @@ RECORDINGTRACK::RECORDINGTRACK() :
 
 }
 
-RECORDINGTRACK::RECORDINGTRACK(const uint32_t id, const std::string& token, const TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsignature, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<INDEX>& indices, const std::vector<CODECINDEX>& codecindices, const std::pair<uint64_t, uint64_t>& totaltrackdata) :
+RECORDINGTRACK::RECORDINGTRACK(const uint32_t id, const std::string& token, const TrackType tracktype, const std::string& description, const bool fixedfiles, const bool digitalsignature, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<INDEX>& indices, const std::vector<CODECINDEX>& codecindices, const std::vector< std::pair<uint64_t, uint64_t> >& totaltrackdata) :
   id_(id),
   token_(token),
   tracktype_(tracktype),
@@ -670,7 +686,7 @@ RECORDINGTRACK::RECORDINGTRACK(const uint32_t id, const std::string& token, cons
 
 bool RECORDINGTRACK::operator==(const RECORDINGTRACK& rhs) const
 {
-  return ((id_ == rhs.id_) && (token_ == rhs.token_) && (tracktype_ == rhs.tracktype_) && (description_ == rhs.description_) && (fixedfiles_ == rhs.fixedfiles_) && (digitalsignature_ == rhs.digitalsignature_) && (encrypt_ == rhs.encrypt_) && (flushfrequency_ == rhs.flushfrequency_) && std::is_permutation(files_.cbegin(), files_.cend(), rhs.files_.cbegin(), rhs.files_.cend()) && std::is_permutation(codecindices_.cbegin(), codecindices_.cend(), rhs.codecindices_.cbegin(), rhs.codecindices_.cend()) && (totaltrackdata_ == rhs.totaltrackdata_));
+  return ((id_ == rhs.id_) && (token_ == rhs.token_) && (tracktype_ == rhs.tracktype_) && (description_ == rhs.description_) && (fixedfiles_ == rhs.fixedfiles_) && (digitalsignature_ == rhs.digitalsignature_) && (encrypt_ == rhs.encrypt_) && (flushfrequency_ == rhs.flushfrequency_) && std::is_permutation(files_.cbegin(), files_.cend(), rhs.files_.cbegin(), rhs.files_.cend()) && std::is_permutation(codecindices_.cbegin(), codecindices_.cend(), rhs.codecindices_.cbegin(), rhs.codecindices_.cend()) && std::is_permutation(totaltrackdata_.cbegin(), totaltrackdata_.cend(), rhs.totaltrackdata_.cbegin(), rhs.totaltrackdata_.cend()));
 }
 
 RECORDING::RECORDING() :

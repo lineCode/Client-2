@@ -31,6 +31,7 @@
 #include "recordingtrack_generated.h"
 #include "severity_generated.h"
 #include "token_generated.h"
+#include "trackdata_generated.h"
 #include "tracktype_generated.h"
 #include "user_generated.h"
 #include "version_generated.h"

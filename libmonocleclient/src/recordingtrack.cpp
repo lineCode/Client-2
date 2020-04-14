@@ -16,7 +16,7 @@ namespace client
 
 ///// Methods /////
 
-RecordingTrack::RecordingTrack(const uint32_t id, const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector< std::pair<uint64_t, uint64_t> >& indices, const std::vector<monocle::CODECINDEX>& codecindices, const std::pair<uint64_t, uint64_t>& totaltrackdata) :
+RecordingTrack::RecordingTrack(const uint32_t id, const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector< std::pair<uint64_t, uint64_t> >& indices, const std::vector<monocle::CODECINDEX>& codecindices, const std::vector<DATASNAPSHOT>& totaltrackdata) :
   id_(id),
   token_(token),
   tracktype_(tracktype),
@@ -28,10 +28,21 @@ RecordingTrack::RecordingTrack(const uint32_t id, const QString& token, const mo
   files_(files),
   indices_(indices),
   codecindices_(codecindices),
-  totaltrackdata_(totaltrackdata),
+  totaltrackdata_(24),
   datarate_(0)
 {
+  for (const DATASNAPSHOT& totaltrackdata : totaltrackdata)
+  {
+    totaltrackdata_.push_back(totaltrackdata);
 
+  }
+
+  if (totaltrackdata_.size() >= 2)
+  {
+    const DATASNAPSHOT first = totaltrackdata[totaltrackdata_.size() - 1];
+    const DATASNAPSHOT second = totaltrackdata[totaltrackdata_.size() - 2];
+    datarate_ = static_cast<uint64_t>(static_cast<double>(first.totaldata_ - second.totaldata_) / (static_cast<double>(first.time_ - second.time_) / 1000.0));
+  }
 }
 
 RecordingTrack::~RecordingTrack()
@@ -39,7 +50,7 @@ RecordingTrack::~RecordingTrack()
 
 }
 
-void RecordingTrack::ChangeTrack(const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices, const std::pair<uint64_t, uint64_t>& totaltrackdata)
+void RecordingTrack::ChangeTrack(const QString& token, const monocle::TrackType tracktype, const QString& description, const bool fixedfiles, const bool digitalsigning, const bool encrypt, const uint32_t flushfrequency, const std::vector<uint64_t>& files, const std::vector<monocle::CODECINDEX>& codecindices, const std::vector<DATASNAPSHOT>& totaltrackdata)
 {
   token_ = token;
   tracktype_ = tracktype;
@@ -50,7 +61,11 @@ void RecordingTrack::ChangeTrack(const QString& token, const monocle::TrackType 
   flushfrequency_ = flushfrequency;
   files_ = files;
   codecindices_ = codecindices;
-  totaltrackdata_ = totaltrackdata;
+  for (const DATASNAPSHOT& totaltrackdata : totaltrackdata)
+  {
+    totaltrackdata_.push_back(totaltrackdata);
+
+  }
 }
 
 void RecordingTrack::SetData(const std::vector<monocle::INDEX>& indices)
@@ -152,30 +167,47 @@ void RecordingTrack::SetState(const uint64_t time, const monocle::RecordingJobSt
   }
 }
 
-void RecordingTrack::SetTotalTrackData(const std::pair<uint64_t, uint64_t>& totaltrackdata)
+void RecordingTrack::AddTotalTrackData(const DATASNAPSHOT& totaltrackdata)
 {
-  if (totaltrackdata_.first && (totaltrackdata.first > totaltrackdata_.first) && (totaltrackdata.second > totaltrackdata_.second))
+  if (totaltrackdata_.size() && (totaltrackdata.time_ > totaltrackdata_.back().time_) && (totaltrackdata.totaldata_ > totaltrackdata_.back().totaldata_))
   {
-    const uint64_t den = (totaltrackdata.first - totaltrackdata_.first) / 1000;
-    if (den == 0)
+    const double den = static_cast<double>(totaltrackdata.time_ - totaltrackdata_.back().time_) / 1000.0;
+    if (den == 0.0)
     {
       datarate_ = 0;
 
     }
     else
     {
-      datarate_ = (totaltrackdata.second - totaltrackdata_.second) / den;
+      datarate_ = static_cast<uint64_t>((static_cast<double>(totaltrackdata.totaldata_ - totaltrackdata_.back().totaldata_)) / den);
 
     }
-
   }
   else
   {
     datarate_ = 0;
 
   }
-  totaltrackdata_ = totaltrackdata;
+  totaltrackdata_.push_back(totaltrackdata);
   emit DataRate(datarate_);
+}
+
+void RecordingTrack::SetTotalTrackData(const std::vector<DATASNAPSHOT>& totaltrackdata)
+{
+  totaltrackdata_.clear();
+  for (const DATASNAPSHOT& t : totaltrackdata)
+  {
+    totaltrackdata_.push_back(t);
+
+  }
+  
+  if (totaltrackdata_.size() >= 2)
+  {
+    const DATASNAPSHOT first = totaltrackdata[totaltrackdata_.size() - 1];
+    const DATASNAPSHOT second = totaltrackdata[totaltrackdata_.size() - 2];
+    datarate_ = static_cast<uint64_t>(static_cast<double>(first.totaldata_ - second.totaldata_) / (static_cast<double>(first.time_ - second.time_) / 1000.0));
+    emit DataRate(datarate_);
+  }
 }
 
 void RecordingTrack::AddCodec(const uint64_t id, const monocle::Codec codec, const std::string& parameters, const uint64_t timestamp)
