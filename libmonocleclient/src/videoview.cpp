@@ -1467,53 +1467,71 @@ void VideoView::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)
 
   }
 }
-//TODO test this please
+
 void VideoView::TrackRemoved(const uint32_t trackid)
 {
-  std::lock_guard<std::recursive_mutex> lock(*mutex_);
-  std::vector< std::pair<uint32_t, uint64_t> >::const_iterator i = std::find_if(streamtokens_.cbegin(), streamtokens_.cend(), [trackid](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.first == trackid); });
-  if (i == streamtokens_.cend())
+  // Reset and remove everything around this recording
   {
-    LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Unable to retrieve stream token: ") + QString::number(trackid));
-    return;
+    std::lock_guard<std::recursive_mutex> lock(*mutex_);
+    streamtokens_.erase(std::remove_if(streamtokens_.begin(), streamtokens_.end(), [trackid](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.first == trackid); }), streamtokens_.end());
+    h265decoders_.erase(std::remove_if(h265decoders_.begin(), h265decoders_.end(), [trackid](const std::unique_ptr<H265Decoder>& h265decoder) { return (h265decoder->GetTrackId() == trackid); }), h265decoders_.end());
+    h264decoders_.erase(std::remove_if(h264decoders_.begin(), h264decoders_.end(), [trackid](const std::unique_ptr<H264Decoder>& h264decoder) { return (h264decoder->GetTrackId() == trackid); }), h264decoders_.end());
+    mpeg4decoders_.erase(std::remove_if(mpeg4decoders_.begin(), mpeg4decoders_.end(), [trackid](const std::unique_ptr<MPEG4Decoder>& mpeg4decoder) { return (mpeg4decoder->GetTrackId() == trackid); }), mpeg4decoders_.end());
   }
-  const uint64_t streamtoken = i->second;
-  streamtokens_.erase(i);
+  metadatastreamtokens_.erase(std::remove_if(metadatastreamtokens_.begin(), metadatastreamtokens_.end(), [trackid](const std::pair< QSharedPointer<RecordingTrack>, uint64_t>& streamtoken) { return (streamtoken.first->GetId() == trackid); }), metadatastreamtokens_.end());
 
-  auto j = std::find_if(metadatastreamtokens_.begin(), metadatastreamtokens_.end(), [trackid](const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatatrack) { return (metadatatrack.second == trackid); });
-  if (j != metadatastreamtokens_.end())
+  const QSharedPointer<RecordingTrack> besttrack = GetBestRecordingTrack();
+  if (besttrack)
   {
-    metadatastreamtokens_.erase(j);
-
-  }
-
-  if (activeadaptivestreamtoken_.is_initialized() && (activeadaptivestreamtoken_ == streamtoken))
-  {
-    activeadaptivestreamtoken_.reset();
-
-    //TODO need to find a new stream to go from
-      //TODO need to kick off live
-  }
-
-  if (activestreamtoken_.is_initialized() && (*activestreamtoken_ == streamtoken))//TODO but now we have problems...
-  {
-    const QSharedPointer<RecordingTrack> besttrack = GetBestRecordingTrack();
-    if (besttrack) // Switch to another video track if one is available
+    std::lock_guard<std::recursive_mutex> lock(*mutex_);
+    std::vector< std::pair<uint32_t, uint64_t> >::const_iterator i = std::find_if(streamtokens_.cbegin(), streamtokens_.cend(), [&besttrack](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.first == besttrack->GetId()); });
+    if (i == streamtokens_.end()) // Shouldn't happen...
     {
+      SetMessage(GetNextPlayRequestIndex(true), false, "Unable to retrieve stream token: " + QString::number(besttrack->GetId()));
+      return;
+    }
+    activestreamtoken_ = i->second;
+  }
+
+  // Sort out activestream_
+  if (track_ && (track_->GetId() == trackid)) // If the track we liked was removed, lets find another one
+  {
+    if (besttrack)
+    {
+      if (!adaptivestreaming_)
+      {
+        connection_->ControlStreamLive(*activestreamtoken_, GetPlayRequestIndex());
+
+      }
       track_ = besttrack;
-      emit ChangeTrack(besttrack);
-//TODO Stop()
-    }
-    else // Nothing left to do, just warn the user and turn off streaming
-    {
-      activestreamtoken_ .reset();
-      track_.reset();
       emit ChangeTrack(nullptr);
-      SetMessage(GetNextPlayRequestIndex(true), false, "Unable to find track");
+    }
+    else
+    {
+      SetMessage(GetNextPlayRequestIndex(true), false, "Unable to retrieve stream");
+      activestreamtoken_.reset();
+      activeadaptivestreamtoken_.reset();
+      track_ = nullptr;
+      emit ChangeTrack(nullptr);
     }
   }
 
-  //TODO remove the codecs too(with a mutex)
+  {
+    std::lock_guard<std::recursive_mutex> lock(*mutex_);
+    if (activeadaptivestreamtoken_.is_initialized() && (std::find_if(streamtokens_.cbegin(), streamtokens_.cend(), [activeadaptivestreamtoken = *activeadaptivestreamtoken_](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.second == activeadaptivestreamtoken); }) == streamtokens_.end()))
+    {
+      if (besttrack)
+      {
+        activeadaptivestreamtoken_ = *activestreamtoken_;
+        connection_->ControlStreamLive(*activeadaptivestreamtoken_, GetPlayRequestIndex());
+      }
+      else
+      {
+        SetMessage(GetNextPlayRequestIndex(true), false, "Unable to find adaptive stream");
+        activeadaptivestreamtoken_.reset();
+      }
+    }
+  }
 }
 
 void VideoView::ActiveJobChanged(const QSharedPointer<client::RecordingJob>& activejob)

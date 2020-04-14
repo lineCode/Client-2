@@ -55,6 +55,7 @@ class VideoChartView : public View
   virtual void Scrub(const uint64_t time) override;
 
   inline const boost::shared_ptr<Device>& GetDevice() const { return device_; }
+  inline const QSharedPointer<Recording>& GetRecording() const { return recording_; }
 
   virtual void wheelEvent(QWheelEvent* event) override;
   virtual void SetPosition(VideoWidget* videowidget, const unsigned int x, const unsigned int y, const unsigned int width, const unsigned int height, const ROTATION rotation, const bool mirror, const bool stretch, const bool makecurrent) override;

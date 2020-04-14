@@ -2665,16 +2665,21 @@ void VideoWidget::RecordingRemoved(const boost::shared_ptr<Device>& device, cons
   std::vector< QSharedPointer<View> > removeviews;
   for (const QSharedPointer<View>& view : views_)
   {
-    if ((view->GetViewType() != VIEWTYPE_MONOCLE))
+    if ((view->GetViewType() == VIEWTYPE_MONOCLE))
     {
+      if (static_cast<VideoView*>(view.get())->GetRecording()->GetToken() == recordingtoken)
+      {
+        removeviews.push_back(view);
 
-      continue;
+      }
     }
-
-    if (static_cast<VideoView*>(view.get())->GetRecording()->GetToken() == recordingtoken)
+    else if ((view->GetViewType() == VIEWTYPE_MONOCLECHART))
     {
-      removeviews.push_back(view);
+      if (static_cast<VideoChartView*>(view.get())->GetRecording()->GetToken() == recordingtoken)
+      {
+        removeviews.push_back(view);
 
+      }
     }
   }
 
