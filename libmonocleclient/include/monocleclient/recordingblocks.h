@@ -18,12 +18,8 @@
 
 ///// Declarations /////
 
-namespace monocle
-{
-
-enum class RecordingJobState : int8_t;
-
-}
+namespace file { struct TRACK; }
+namespace monocle { enum class RecordingJobState : int8_t; }
 
 ///// Namespaces /////
 
@@ -64,7 +60,7 @@ class RecordingBlocks : public QObject
   inline size_t GetNumMetadataRecordingBlockTriangles() const { return (metadatarecordingblockverticesdata_.size()); }
   inline QOpenGLBuffer& GetRecordingBlockVertices() { return recordingblockvertices_; }
   inline QOpenGLBuffer& GetMetadataRecordingBlockVertices() { return metadatarecordingblockvertices_; }
-  inline const std::map< uint32_t, std::vector< std::unique_ptr<RecordingBlock> > >& GetRecordingTracks() { return recordingtracks_; }
+  inline const std::map< uint64_t, std::vector< std::unique_ptr<RecordingBlock> > >& GetRecordingTracks() { return recordingtracks_; }
   inline QOpenGLBuffer& GetPlayMarkerVertices() { return playmarkervertices_; }
   uint64_t GetPlayMarkerTime() const;
 
@@ -74,6 +70,7 @@ class RecordingBlocks : public QObject
  private:
 
   std::vector< std::unique_ptr<RecordingBlock> > InitRecordingBlocks(const QSharedPointer<client::RecordingTrack> track) const;
+  std::vector< std::unique_ptr<RecordingBlock> > InitRecordingBlocks(const file::TRACK& track) const;
 
   PlaybackWidget* playbackwidget_;
   QSharedPointer<View> view_;
@@ -89,13 +86,14 @@ class RecordingBlocks : public QObject
   std::vector<float> metadatarecordingblockverticesdata_;
   QOpenGLBuffer metadatarecordingblockvertices_;
 
-  std::map< uint32_t, std::vector< std::unique_ptr<RecordingBlock> > > recordingtracks_; // <trackindex, recordingblocks> These are stored in order from earliest to latest in the vector
+  std::map< uint64_t, std::vector< std::unique_ptr<RecordingBlock> > > recordingtracks_; // <trackindex, recordingblocks> These are stored in order from earliest to latest in the vector. Needs to be uint64_t for media track indices
 
   QOpenGLBuffer playmarkervertices_;
 
  private slots:
 
-  void ChangeTrack(const QSharedPointer<client::RecordingTrack>& track);
+  void ChangeMediaTrack(const file::TRACK& track);
+  void ChangeVideoTrack(const QSharedPointer<client::RecordingTrack>& track);
   void TrackAdded(const QSharedPointer<client::RecordingTrack>& track);
   void TrackRemoved(const uint32_t id);
   void JobSourceTrackStateChanged(const QSharedPointer<client::RecordingJob>& job, const QSharedPointer<client::RecordingJobSource>& source, const QSharedPointer<client::RecordingJobSourceTrack>& track, uint64_t time, const monocle::RecordingJobState state, const QString& error, const monocle::RecordingJobState prevstate);

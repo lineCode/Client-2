@@ -26,6 +26,7 @@
 #include <QRectF>
 #include <QResource>
 #include <QVector4D>
+#include <stdint.h>
 #include <thread>
 #include <utility/utility.hpp>
 #include <vector>
@@ -86,6 +87,7 @@ class MediaView : public View
   const std::string& GetVideoLocation() const { return videolocation_; }
   const std::string& GetVideoName() const { return videoname_; }
   file::TRACK GetVideoTrack() const;
+  std::vector<uint64_t> GetVideoTrackIndices() const;
   std::vector<file::TRACK> GetMetadataTracks() const;
   void SetPaused(const bool paused, const boost::optional<uint64_t>& frame);
 
@@ -165,6 +167,10 @@ class MediaView : public View
 
   std::unique_ptr< uint8_t[], utility::DeleteAligned<uint8_t> > buffer_;
   size_t buffersize_;
+
+ signals:
+
+  void ChangeTrack(const file::TRACK& track);
 
 };
 

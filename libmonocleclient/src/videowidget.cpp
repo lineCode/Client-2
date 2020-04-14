@@ -1899,7 +1899,7 @@ void VideoWidget::paintGL()
         if ((view->GetImageType() != imagebuffer.type_) || (view->GetImageWidth() != imagebuffer.widths_[0]) || (view->GetImageHeight() != imagebuffer.heights_[0]))
         {
           // Destroy any old CUDA stuff we had laying around
-          if (view->GetCUDAContext() && (view->GetCUDAResource(0) || view->GetCUDAResource(1) || view->GetCUDAResource(2)))
+          if (imagebuffer.cudacontext_ && (view->GetCUDAResource(0) || view->GetCUDAResource(1) || view->GetCUDAResource(2)))
           {
             cuCtxPushCurrent_v2(view->GetCUDAContext());
             for (CUgraphicsResource& resource : view->GetCUDAResources())
@@ -1914,6 +1914,7 @@ void VideoWidget::paintGL()
             cuCtxPopCurrent_v2(&dummy);
           }
 
+          // Reset everything else
           view->SetType(imagebuffer.type_);
           view->SetImageWidth(imagebuffer.widths_[0]);
           view->SetImageHeight(imagebuffer.heights_[0]);
@@ -1946,7 +1947,7 @@ void VideoWidget::paintGL()
             glActiveTexture(GL_TEXTURE0 + texture);
             glPixelStorei(GL_UNPACK_ROW_LENGTH, imagebuffer.strides_[texture]);
             glBindTexture(GL_TEXTURE_2D, view->GetTextures().at(texture));
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, imagebuffer.widths_.at(texture), imagebuffer.heights_.at(texture), 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, imagebuffer.data_[texture]);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, imagebuffer.widths_[texture], imagebuffer.heights_[texture], 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, imagebuffer.data_[texture]);
             glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
           }
         }

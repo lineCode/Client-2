@@ -62,30 +62,25 @@ void RecordingBlocks::Init()
   if (view_->GetViewType() == VIEWTYPE_MEDIA)
   {
     QSharedPointer<MediaView> mediaview = qSharedPointerCast<MediaView>(view_);
-    std::vector< std::unique_ptr<RecordingBlock> > recordingblocks;
-    for (const std::pair<uint64_t, uint64_t>& index : mediaview->GetVideoTrack().GetIndices())
-    {
-      std::unique_ptr<RecordingBlock> recordingblock = std::make_unique<RecordingBlock>(false, index.first, index.second);
-      recordingblocks.emplace_back(std::move(recordingblock));
-    }
-    recordingtracks_.emplace(mediaview->GetVideoTrack().index_, std::move(recordingblocks));
-    recordingblocks.clear();
-    
+    connect(mediaview.get(), &MediaView::ChangeTrack, this, &RecordingBlocks::ChangeMediaTrack);
+    recordingtracks_.emplace(mediaview->GetVideoTrack().index_, InitRecordingBlocks(mediaview->GetVideoTrack()));
+
+    std::vector< std::unique_ptr<RecordingBlock> > recordingsblocks;
     for (const file::TRACK& metadatatrack : mediaview->GetMetadataTracks())
     {
       for (const std::pair<uint64_t, uint64_t>& index : metadatatrack.GetIndices())
       {
         std::unique_ptr<RecordingBlock> recordingblock = std::make_unique<RecordingBlock>(true, index.first, index.second);
-        recordingblocks.emplace_back(std::move(recordingblock));
+        recordingsblocks.emplace_back(std::move(recordingblock));
       }
-      recordingtracks_.emplace(metadatatrack.index_, std::move(recordingblocks));
-      recordingblocks.clear();
+      recordingtracks_.emplace(metadatatrack.index_, std::move(recordingsblocks));
+      recordingsblocks.clear();
     }
   }
   else if (view_->GetViewType() == VIEWTYPE_MONOCLE)
   {
     const QSharedPointer<VideoView> videoview = qSharedPointerCast<VideoView>(view_);
-    connect(videoview.get(), &VideoView::ChangeTrack, this, &RecordingBlocks::ChangeTrack);
+    connect(videoview.get(), &VideoView::ChangeTrack, this, &RecordingBlocks::ChangeVideoTrack);
     if (videoview->GetTrack())
     {
       recordingtracks_.emplace(videoview->GetTrack()->GetId(), InitRecordingBlocks(videoview->GetTrack()));
@@ -281,7 +276,38 @@ boost::optional<uint64_t> RecordingBlocks::GetEndTime() const
   return time;
 }
 
-void RecordingBlocks::ChangeTrack(const QSharedPointer<client::RecordingTrack>& track)
+void RecordingBlocks::ChangeMediaTrack(const file::TRACK& track)
+{
+  if (view_->GetViewType() != VIEWTYPE_MEDIA) // Should always be true
+  {
+
+    return;
+  }
+  const QSharedPointer<MediaView> mediaview = qSharedPointerCast<MediaView>(view_);
+  const std::vector<uint64_t> videotrackindices = mediaview->GetVideoTrackIndices();
+
+  playbackwidget_->makeCurrent();
+
+  for (auto recordingtrack = recordingtracks_.begin(); recordingtrack != recordingtracks_.end();)
+  {
+    if (utility::Contains(videotrackindices, recordingtrack->first))
+    {
+      recordingtrack = recordingtracks_.erase(recordingtrack);
+
+    }
+    else
+    {
+      ++recordingtrack;
+
+    }
+  }
+
+  recordingtracks_.emplace(mediaview->GetVideoTrack().index_, InitRecordingBlocks(track));
+
+  playbackwidget_->doneCurrent();
+}
+
+void RecordingBlocks::ChangeVideoTrack(const QSharedPointer<client::RecordingTrack>& track)
 {
   if (view_->GetViewType() != VIEWTYPE_MONOCLE) // Should always be true
   {
@@ -348,7 +374,7 @@ void RecordingBlocks::JobSourceTrackStateChanged(const QSharedPointer<client::Re
 
   time -= view_->GetTimeOffset();
 
-  std::map< const uint32_t, std::vector< std::unique_ptr<RecordingBlock> > >::iterator recordingtrack = recordingtracks_.find(track->GetTrack()->GetId());
+  std::map< const uint64_t, std::vector< std::unique_ptr<RecordingBlock> > >::iterator recordingtrack = recordingtracks_.find(track->GetTrack()->GetId());
   if (recordingtrack == recordingtracks_.end())
   {
 
@@ -394,7 +420,7 @@ void RecordingBlocks::JobSourceTrackStateChanged(const QSharedPointer<client::Re
 
 void RecordingBlocks::TrackSetData(const QSharedPointer<client::RecordingTrack>& track, const std::vector<monocle::INDEX>& indices)
 {
-  std::map< const uint32_t, std::vector< std::unique_ptr<RecordingBlock> > >::iterator recordingtrack = recordingtracks_.find(track->GetId());
+  std::map< const uint64_t, std::vector< std::unique_ptr<RecordingBlock> > >::iterator recordingtrack = recordingtracks_.find(track->GetId());
   if (recordingtrack == recordingtracks_.end())
   {
 
@@ -410,7 +436,7 @@ void RecordingBlocks::TrackSetData(const QSharedPointer<client::RecordingTrack>&
 
 void RecordingBlocks::TrackDeleteData(const QSharedPointer<client::RecordingTrack>& track, const monocle::RecordingJobState state, const boost::optional<uint64_t>& start, const boost::optional<uint64_t>& end)
 {
-  std::map< const uint32_t, std::vector< std::unique_ptr<RecordingBlock> > >::iterator recordingtrack = recordingtracks_.find(track->GetId());
+  std::map< const uint64_t, std::vector< std::unique_ptr<RecordingBlock> > >::iterator recordingtrack = recordingtracks_.find(track->GetId());
   if (recordingtrack == recordingtracks_.end())
   {
 
@@ -494,6 +520,19 @@ std::vector< std::unique_ptr<RecordingBlock> > RecordingBlocks::InitRecordingBlo
     recordingblocks.emplace_back(std::move(recordingblock));
   }
   return recordingblocks;
+}
+
+std::vector< std::unique_ptr<RecordingBlock> > RecordingBlocks::InitRecordingBlocks(const file::TRACK& track) const
+{
+  std::vector< std::unique_ptr<RecordingBlock> > recordingsblocks;
+  const std::vector< std::pair<uint64_t, uint64_t> > indices = track.GetIndices();
+  recordingsblocks.reserve(indices.size());
+  for (const std::pair<uint64_t, uint64_t>& index : indices)
+  {
+    std::unique_ptr<RecordingBlock> recordingblocks = std::make_unique<RecordingBlock>(false, index.first, index.second);
+    recordingsblocks.emplace_back(std::move(recordingblocks));
+  }
+  return recordingsblocks;
 }
 
 }
