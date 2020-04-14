@@ -184,7 +184,7 @@ class VideoView : public View
   monocle::client::Connection controlstream_;
   monocle::client::Connection keepalive_;
 
-  std::vector< std::pair<uint32_t, uint64_t> > streamtokens_; // <trackid, streamtoken>//TODO rename to videostreamtokens_
+  std::vector< std::pair<uint32_t, uint64_t> > videostreamtokens_; // <trackid, streamtoken>
   boost::optional<uint64_t> activestreamtoken_;
   boost::optional<uint64_t> activeadaptivestreamtoken_; // If this is initialized, we are currently streaming live from it
 

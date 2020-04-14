@@ -159,7 +159,7 @@ void VideoView::Connect()
         }
 
         SetMessage(GetPlayRequestIndex(), false, "Creating Streams");
-        streamtokens_.clear();
+        videostreamtokens_.clear();
         DestroyDecoders();
         for (const QSharedPointer<RecordingTrack>& track : recording_->GetTracks())
         {
@@ -182,7 +182,7 @@ void VideoView::Connect()
               }
             }, Qt::QueuedConnection);
 
-            streamtokens_.push_back(std::make_pair(track->GetId(), createstreamresponse.token_));
+            videostreamtokens_.push_back(std::make_pair(track->GetId(), createstreamresponse.token_));
             if (track_ == track)
             {
               SetMessage(GetPlayRequestIndex(), false, "Requesting Live");
@@ -322,8 +322,8 @@ void VideoView::GetMenu(QMenu& parent)
     const QString description = track->GetDescription().isEmpty() ? track->GetToken() : QString("(" + track->GetDescription() + ")");
     QAction* action = tracks->addAction(description, [this, recordingtoken = recording_->GetToken(), trackid = track->GetId()]()
     {
-      std::vector< std::pair<uint32_t, uint64_t> >::const_iterator streamtoken = std::find_if(streamtokens_.cbegin(), streamtokens_.cend(), [trackid](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.first == trackid); });
-      if (streamtoken == streamtokens_.cend())
+      std::vector< std::pair<uint32_t, uint64_t> >::const_iterator videostreamtoken = std::find_if(videostreamtokens_.cbegin(), videostreamtokens_.cend(), [trackid](const std::pair<uint32_t, uint64_t>& videostreamtoken) { return (videostreamtoken.first == trackid); });
+      if (videostreamtoken == videostreamtokens_.cend())
       {
         LOG_GUI_THREAD_WARNING_SOURCE(device_, QString("Unable to retrieve stream token: ") + QString::number(trackid));
         return;
@@ -345,7 +345,7 @@ void VideoView::GetMenu(QMenu& parent)
 
       track_ = track;
       emit ChangeTrack(track_);
-      activestreamtoken_ = streamtoken->second;
+      activestreamtoken_ = videostreamtoken->second;
       connection_->ControlStreamLive(*activestreamtoken_, GetNextPlayRequestIndex(true));
     });
     action->setCheckable(true);
@@ -582,7 +582,7 @@ void VideoView::Stop()
     activeadaptivestreamtoken_.reset();
   }
 
-  uint64_t streamtoken = 0;
+  uint64_t videostreamtoken = 0;
   if (adaptivestreaming_)
   {
     const QSharedPointer<RecordingTrack> besttrack = GetBestRecordingTrack();
@@ -592,19 +592,19 @@ void VideoView::Stop()
       return;
     }
 
-    std::vector< std::pair<uint32_t, uint64_t> >::const_iterator stream = std::find_if(streamtokens_.cbegin(), streamtokens_.cend(), [&besttrack](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.first == besttrack->GetId()); });
-    if (stream == streamtokens_.cend())
+    std::vector< std::pair<uint32_t, uint64_t> >::const_iterator videostream = std::find_if(videostreamtokens_.cbegin(), videostreamtokens_.cend(), [&besttrack](const std::pair<uint32_t, uint64_t>& videostreamtoken) { return (videostreamtoken.first == besttrack->GetId()); });
+    if (videostream == videostreamtokens_.cend())
     {
       SetMessage(GetNextPlayRequestIndex(true), false, "Unable to find stream");
       return; // Shouldn't be possible but ok...
     }
 
-    streamtoken = stream->second;
-    activeadaptivestreamtoken_ = stream->second;
+    videostreamtoken = videostream->second;
+    activeadaptivestreamtoken_ = videostream->second;
   }
   else
   {
-    streamtoken = *activestreamtoken_;
+    videostreamtoken = *activestreamtoken_;
 
   }
 
@@ -614,7 +614,7 @@ void VideoView::Stop()
   }
 
   SetPaused(false);
-  connection_->ControlStreamLive(streamtoken, GetNextPlayRequestIndex(true));
+  connection_->ControlStreamLive(videostreamtoken, GetNextPlayRequestIndex(true));
   for (const std::pair<QSharedPointer<RecordingTrack>, uint64_t>& metadatastreamtoken : metadatastreamtokens_)
   {
     metadataconnection_->ControlStreamLive(metadatastreamtoken.second, GetNextMetadataPlayRequestIndex());
@@ -699,8 +699,8 @@ void VideoView::SetPosition(VideoWidget* videowidget, const unsigned int x, cons
     return;
   }
 
-  std::vector< std::pair<uint32_t, uint64_t> >::const_iterator j = std::find_if(streamtokens_.cbegin(), streamtokens_.cend(), [&track](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.first == track->GetId()); });
-  if (j == streamtokens_.cend())
+  std::vector< std::pair<uint32_t, uint64_t> >::const_iterator j = std::find_if(videostreamtokens_.cbegin(), videostreamtokens_.cend(), [&track](const std::pair<uint32_t, uint64_t>& videostreamtoken) { return (videostreamtoken.first == track->GetId()); });
+  if (j == videostreamtokens_.cend())
   {
 
     return; // Shouldn't be possible but ok...
@@ -1457,7 +1457,7 @@ void VideoView::TrackAdded(const QSharedPointer<client::RecordingTrack>& track)
         }, Qt::QueuedConnection);
 
         std::lock_guard<std::recursive_mutex> lock(*mutex_);
-        streamtokens_.push_back(std::make_pair(track->GetId(), createstreamresponse.token_));
+        videostreamtokens_.push_back(std::make_pair(track->GetId(), createstreamresponse.token_));
       }, VideoView::ControlStreamEnd, VideoView::H265Callback, VideoView::H264Callback, nullptr, VideoView::JPEGCallback, VideoView::MPEG4Callback, VideoView::ObjectDetectorCallback, VideoView::NewCodecIndexCallback, this));
     }
   }
@@ -1473,7 +1473,7 @@ void VideoView::TrackRemoved(const uint32_t trackid)
   // Reset and remove everything around this recording
   {
     std::lock_guard<std::recursive_mutex> lock(*mutex_);
-    streamtokens_.erase(std::remove_if(streamtokens_.begin(), streamtokens_.end(), [trackid](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.first == trackid); }), streamtokens_.end());
+    videostreamtokens_.erase(std::remove_if(videostreamtokens_.begin(), videostreamtokens_.end(), [trackid](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.first == trackid); }), videostreamtokens_.end());
     h265decoders_.erase(std::remove_if(h265decoders_.begin(), h265decoders_.end(), [trackid](const std::unique_ptr<H265Decoder>& h265decoder) { return (h265decoder->GetTrackId() == trackid); }), h265decoders_.end());
     h264decoders_.erase(std::remove_if(h264decoders_.begin(), h264decoders_.end(), [trackid](const std::unique_ptr<H264Decoder>& h264decoder) { return (h264decoder->GetTrackId() == trackid); }), h264decoders_.end());
     mpeg4decoders_.erase(std::remove_if(mpeg4decoders_.begin(), mpeg4decoders_.end(), [trackid](const std::unique_ptr<MPEG4Decoder>& mpeg4decoder) { return (mpeg4decoder->GetTrackId() == trackid); }), mpeg4decoders_.end());
@@ -1484,8 +1484,8 @@ void VideoView::TrackRemoved(const uint32_t trackid)
   if (besttrack)
   {
     std::lock_guard<std::recursive_mutex> lock(*mutex_);
-    std::vector< std::pair<uint32_t, uint64_t> >::const_iterator i = std::find_if(streamtokens_.cbegin(), streamtokens_.cend(), [&besttrack](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.first == besttrack->GetId()); });
-    if (i == streamtokens_.end()) // Shouldn't happen...
+    std::vector< std::pair<uint32_t, uint64_t> >::const_iterator i = std::find_if(videostreamtokens_.cbegin(), videostreamtokens_.cend(), [&besttrack](const std::pair<uint32_t, uint64_t>& videostreamtoken) { return (videostreamtoken.first == besttrack->GetId()); });
+    if (i == videostreamtokens_.end()) // Shouldn't happen...
     {
       SetMessage(GetNextPlayRequestIndex(true), false, "Unable to retrieve stream token: " + QString::number(besttrack->GetId()));
       return;
@@ -1518,7 +1518,7 @@ void VideoView::TrackRemoved(const uint32_t trackid)
 
   {
     std::lock_guard<std::recursive_mutex> lock(*mutex_);
-    if (activeadaptivestreamtoken_.is_initialized() && (std::find_if(streamtokens_.cbegin(), streamtokens_.cend(), [activeadaptivestreamtoken = *activeadaptivestreamtoken_](const std::pair<uint32_t, uint64_t>& streamtoken) { return (streamtoken.second == activeadaptivestreamtoken); }) == streamtokens_.end()))
+    if (activeadaptivestreamtoken_.is_initialized() && (std::find_if(videostreamtokens_.cbegin(), videostreamtokens_.cend(), [activeadaptivestreamtoken = *activeadaptivestreamtoken_](const std::pair<uint32_t, uint64_t>& videostreamtoken) { return (videostreamtoken.second == activeadaptivestreamtoken); }) == videostreamtokens_.end()))
     {
       if (besttrack)
       {
