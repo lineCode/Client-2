@@ -291,7 +291,7 @@
         <File
           Id="swresample"
           Name="swresample-3.dll"
-          Source="$(env.FFMPEG_DIR)\swresample-3.dll"
+          Source="$(env.FFMPEG_DIR)\libswresample\swresample-3.dll"
           DiskId="1"
           Vital="yes"
           KeyPath="yes" />
@@ -301,7 +301,7 @@
         <File
           Id="swscale"
           Name="swscale-5.dll"
-          Source="$(env.FFMPEG_DIR)\swscale-5.dll"
+          Source="$(env.FFMPEG_DIR)\libswscale\swscale-5.dll"
           DiskId="1"
           Vital="yes"
           KeyPath="yes" />
@@ -311,7 +311,7 @@
         <File
           Id="avcodec"
           Name="avcodec-58.dll"
-          Source="$(env.FFMPEG_DIR)\avcodec-58.dll"
+          Source="$(env.FFMPEG_DIR)\libavcodec\avcodec-58.dll"
           DiskId="1"
           Vital="yes"
           KeyPath="yes" />
@@ -321,7 +321,7 @@
         <File
           Id="avformat"
           Name="avformat-58.dll"
-          Source="$(env.FFMPEG_DIR)\avformat-58.dll"
+          Source="$(env.FFMPEG_DIR)\libavformat\avformat-58.dll"
           DiskId="1"
           Vital="yes"
           KeyPath="yes" />
@@ -331,7 +331,7 @@
         <File
           Id="avutil"
           Name="avutil-56.dll"
-          Source="$(env.FFMPEG_DIR)\avutil-56.dll"
+          Source="$(env.FFMPEG_DIR)\libavutil\avutil-56.dll"
           DiskId="1"
           Vital="yes"
           KeyPath="yes" />
