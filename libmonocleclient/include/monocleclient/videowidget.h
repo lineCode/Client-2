@@ -97,7 +97,7 @@ class VideoWidget : public QOpenGLWidget, protected QOpenGLFunctions
 
   QSharedPointer<MapView> CreateMapView(unsigned int x, unsigned int y, unsigned int width, unsigned int height, bool stretch, const boost::shared_ptr<Device>& device, const QSharedPointer<Map>& map);
   QSharedPointer<MediaView> CreateMediaView(unsigned int x, unsigned int y, unsigned int width, unsigned int height, bool stretch, const QSharedPointer<Media>& media, const uint64_t deviceindex, const uint64_t recordingindex, const uint64_t trackindex);
-  QSharedPointer<VideoView> CreateVideoView(unsigned int x, unsigned int y, unsigned int width, unsigned int height, bool stretch, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingTrack>& track);
+  QSharedPointer<VideoView> CreateVideoView(unsigned int x, unsigned int y, unsigned int width, unsigned int height, bool stretch, const bool adaptivestreaming, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingTrack>& track);
   QSharedPointer<VideoChartView> CreateVideoChartView(unsigned int x, unsigned int y, unsigned int width, unsigned int height, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const std::vector< QSharedPointer<client::RecordingTrack> >& tracks);
   bool RemoveView(const QSharedPointer<View>& view);
 

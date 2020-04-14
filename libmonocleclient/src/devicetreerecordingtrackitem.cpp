@@ -14,7 +14,9 @@
 #include "monocleclient/managetrackwindow.h"
 #include "monocleclient/receiver.h"
 #include "monocleclient/recording.h"
+#include "monocleclient/recordingjob.h"
 #include "monocleclient/recordingjobsource.h"
+#include "monocleclient/recordingjobsourcetrack.h"
 #include "monocleclient/recordinglogwindow.h"
 #include "monocleclient/recordingtrack.h"
 
@@ -42,7 +44,14 @@ DeviceTreeRecordingTrackItem::DeviceTreeRecordingTrackItem(DeviceTreeItem* paren
   connect(remove_, &QAction::triggered, this, &DeviceTreeRecordingTrackItem::Remove);
   connect(managedevice_, &QAction::triggered, this, &DeviceTreeRecordingTrackItem::ManageDevice);
   connect(viewlog_, &QAction::triggered, this, &DeviceTreeRecordingTrackItem::ViewLog);
+
   connect(recording.get(), &Recording::TrackChanged, this, &DeviceTreeRecordingTrackItem::TrackChanged);
+  connect(recording.get(), &Recording::JobSourceTrackAdded, this, &DeviceTreeRecordingTrackItem::JobSourceTrackAdded);
+  connect(recording.get(), &Recording::JobSourceTrackRemoved, this, &DeviceTreeRecordingTrackItem::JobSourceTrackRemoved);
+  connect(recording.get(), &Recording::ActiveJobChanged, this, &DeviceTreeRecordingTrackItem::ActiveJobChanged);
+  connect(recording.get(), &Recording::JobSourceAdded, this, &DeviceTreeRecordingTrackItem::RecordingJobSourceAdded);
+  connect(recording.get(), &Recording::JobSourceRemoved, this, &DeviceTreeRecordingTrackItem::RecordingJobSourceRemoved);
+  connect(recording.get(), &Recording::JobSourceTrackStateChanged, this, &DeviceTreeRecordingTrackItem::RecordingJobSourceTrackStateChanged);
   connect(track.get(), &RecordingTrack::DataRate, this, &DeviceTreeRecordingTrackItem::DataRate);
 
   setIcon(0, cameraicon);
@@ -106,6 +115,85 @@ QString DeviceTreeRecordingTrackItem::GetName(const QSharedPointer<client::Recor
   {
 
     return track->GetDescription();
+  }
+}
+
+void DeviceTreeRecordingTrackItem::UpdateToolTip()
+{
+  if (recording_->GetActiveJob())
+  {
+    QStringList tooltips;
+    bool error = false;
+    for (const QSharedPointer<client::RecordingJobSource>& source : recording_->GetActiveJob()->GetSources())
+    {
+      const QSharedPointer<client::Receiver> receiver = recording_->GetDevice()->GetReceiver(source->GetReceiverToken());
+      if (!receiver)
+      {
+        LOG_GUI_WARNING_SOURCE(device_, QString("Unable to find receiver: ") + QString::number(source->GetReceiverToken()));
+        continue;
+      }
+
+      for (const QSharedPointer<client::RecordingJobSourceTrack>& sourcetrack : source->GetTracks())
+      {
+        if (track_ != sourcetrack->GetTrack())
+        {
+
+          continue;
+        }
+
+        const QString datarate = QString(" ") + QString::number(sourcetrack->GetTrack()->GetDataRate() / 1024) + "kB/s";
+        if (sourcetrack->GetState() == monocle::RecordingJobState::Idle)
+        {
+          tooltips.append(Tooltip(receiver->GetMediaUri(), "Idle") + datarate);
+
+        }
+        else if (sourcetrack->GetState() == monocle::RecordingJobState::Error)
+        {
+          error = true;
+          tooltips.append(Tooltip(receiver->GetMediaUri(), "Error " + sourcetrack->GetError()) + datarate);
+        }
+        else if (sourcetrack->GetState() == monocle::RecordingJobState::Active_Not_Recording)
+        {
+          tooltips.append(Tooltip(receiver->GetMediaUri(), "Active not recording") + datarate);
+
+        }
+        else // if (track->GetState() == monocle::RecordingJobState::Active)
+        {
+          tooltips.append(Tooltip(receiver->GetMediaUri(), "Active") + datarate);
+
+        }
+      }
+    }
+    if (error)
+    {
+      setBackground(0, Qt::red);
+
+    }
+    else
+    {
+      setData(0, Qt::BackgroundRole, QVariant());
+
+    }
+    setToolTip(0, tooltips.join("\r\n"));
+  }
+  else
+  {
+    setData(0, Qt::BackgroundRole, QVariant());
+    setData(0, Qt::ToolTipRole, QVariant());
+  }
+}
+
+QString DeviceTreeRecordingTrackItem::Tooltip(const QString& mediauri, const QString& status) const
+{
+  if (mediauri.isEmpty())
+  {
+
+    return status;
+  }
+  else
+  {
+
+    return (mediauri + ": " + status);
   }
 }
 
@@ -197,9 +285,45 @@ void DeviceTreeRecordingTrackItem::TrackChanged(const QSharedPointer<client::Rec
   setText(0, GetName(track));
 }
 
+void DeviceTreeRecordingTrackItem::JobSourceTrackAdded(const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource, const QSharedPointer<client::RecordingJobSourceTrack>& recordingjobsourcetrack)
+{
+  UpdateToolTip();
+
+}
+
+void DeviceTreeRecordingTrackItem::JobSourceTrackRemoved(const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource, const uint64_t token)
+{
+  UpdateToolTip();
+
+}
+
+void DeviceTreeRecordingTrackItem::ActiveJobChanged(const QSharedPointer<client::RecordingJob>& activejob)
+{
+  UpdateToolTip();
+
+}
+
+void DeviceTreeRecordingTrackItem::RecordingJobSourceAdded(const QSharedPointer<client::RecordingJob>& recordingjob, const QSharedPointer<client::RecordingJobSource>& recordingjobsource)
+{
+  UpdateToolTip();
+
+}
+
+void DeviceTreeRecordingTrackItem::RecordingJobSourceRemoved(const QSharedPointer<client::RecordingJob>& recordingjob, const uint64_t token)
+{
+  UpdateToolTip();
+
+}
+
+void DeviceTreeRecordingTrackItem::RecordingJobSourceTrackStateChanged(const QSharedPointer<client::RecordingJob>& job, const QSharedPointer<client::RecordingJobSource>& source, const QSharedPointer<client::RecordingJobSourceTrack>& track, const uint64_t time, const monocle::RecordingJobState state, const QString& error, const monocle::RecordingJobState prevstate)
+{
+  UpdateToolTip();
+
+}
+
 void DeviceTreeRecordingTrackItem::DataRate(const uint64_t datarate)
 {
-  setToolTip(0, QString::number(datarate / 1024) + "kB/s");
+  UpdateToolTip();
 
 }
 

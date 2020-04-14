@@ -1696,7 +1696,7 @@ void MainWindow::LayoutAdded(const QSharedPointer<Layout>& layout)
 
           }
 
-          QSharedPointer<VideoView> videoview = fittedwindow.first->CreateVideoView(recordingview->GetX(), recordingview->GetY(), recordingview->GetWidth(), recordingview->GetHeight(), Options::Instance().GetStretchVideo(), layout->device_, recording, videotracks.front());
+          QSharedPointer<VideoView> videoview = fittedwindow.first->CreateVideoView(recordingview->GetX(), recordingview->GetY(), recordingview->GetWidth(), recordingview->GetHeight(), Options::Instance().GetStretchVideo(), recording->GetAdaptiveStreaming(), layout->device_, recording, videotracks.front());
           if (!videoview)
           {
             LOG_GUI_MESSAGE(QString("Failed to create recording view: ") + QString::number(recordingview->GetToken()));

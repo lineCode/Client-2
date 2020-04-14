@@ -15,12 +15,7 @@
 
 ///// Declarations /////
 
-namespace monocle
-{
-
-enum class RecordingJobState : int8_t;
-
-}
+namespace monocle { enum class RecordingJobState : int8_t; }
 
 ///// Namespaces /////
 

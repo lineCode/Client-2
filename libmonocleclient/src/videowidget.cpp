@@ -583,7 +583,7 @@ QSharedPointer<MediaView> VideoWidget::CreateMediaView(unsigned int x, unsigned 
   return mediaview;
 }
 
-QSharedPointer<VideoView> VideoWidget::CreateVideoView(unsigned int x, unsigned int y, unsigned int width, unsigned int height, bool stretch, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingTrack>& track)
+QSharedPointer<VideoView> VideoWidget::CreateVideoView(unsigned int x, unsigned int y, unsigned int width, unsigned int height, bool stretch, const bool adaptivestreaming, const boost::shared_ptr<Device>& device, const QSharedPointer<client::Recording>& recording, const QSharedPointer<client::RecordingTrack>& track)
 {
   if (openglmajorversion_ < 3)
   {
@@ -598,7 +598,7 @@ QSharedPointer<VideoView> VideoWidget::CreateVideoView(unsigned int x, unsigned 
     return QSharedPointer<VideoView>();
   }
 
-  const QSharedPointer<VideoView> videoview = QSharedPointer<VideoView>::create(this, MainWindow::Instance()->GetNextCUDAContext(), MainWindow::Instance()->GetRandomHSVColour(), x, y, width, height, ROTATION::_0, false, Options::Instance().GetStretchVideo(), Options::Instance().GetShowInfo(), Options::Instance().GetShowObjects(), device, recording, track, arial_);
+  const QSharedPointer<VideoView> videoview = QSharedPointer<VideoView>::create(this, MainWindow::Instance()->GetNextCUDAContext(), MainWindow::Instance()->GetRandomHSVColour(), x, y, width, height, ROTATION::_0, false, Options::Instance().GetStretchVideo(), Options::Instance().GetShowInfo(), Options::Instance().GetShowObjects(), adaptivestreaming, device, recording, track, arial_);
   connect(videoview->GetActionClose(), &QAction::triggered, videoview.data(), [this, videoview = videoview.toWeakRef()](bool)
   {
     QSharedPointer<VideoView> v = videoview.lock();
@@ -1034,8 +1034,10 @@ void VideoWidget::dropEvent(QDropEvent* event)
   // Track
   bytearray = mimedata->data(MIME_DEVICE_TREE_RECORDING_TRACK_ID);
   QSharedPointer<RecordingTrack> recordingtrack;
+  bool adaptivestreaming = recording->GetAdaptiveStreaming();
   if (bytearray.size() == sizeof(uint32_t))
   {
+    adaptivestreaming = false;
     recordingtrack = recording->GetTrack(*reinterpret_cast<const uint32_t*>(bytearray.data()));
     if (recordingtrack == nullptr)
     {
@@ -1060,12 +1062,12 @@ void VideoWidget::dropEvent(QDropEvent* event)
     const int h = rect.height();
     const bool stretch = view->GetStretch();
     RemoveView(view);
-    CreateVideoView(x, y, w, h, stretch, device, recording, recordingtrack);
+    CreateVideoView(x, y, w, h, stretch, adaptivestreaming, device, recording, recordingtrack);
   }
   else
   {
     const QPoint pos = GetLocation(event->pos().x(), event->pos().y());
-    CreateVideoView(pos.x(), pos.y(), 1, 1, Options::Instance().GetStretchVideo(), device, recording, recordingtrack);
+    CreateVideoView(pos.x(), pos.y(), 1, 1, Options::Instance().GetStretchVideo(), adaptivestreaming, device, recording, recordingtrack);
   }
 
   event->accept();
