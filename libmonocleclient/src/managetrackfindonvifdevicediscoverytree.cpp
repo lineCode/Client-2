@@ -215,7 +215,7 @@ bool ManageTrackFindONVIFDeviceDiscoveryTree::ChildrenContainsTextFilter(QTreeWi
   return false;
 }
 
-std::vector<QTreeWidgetItem*> ManageTrackFindONVIFDeviceDiscoveryTree::FindItems(const std::string& address)//TODO this should just return a boolean
+bool ManageTrackFindONVIFDeviceDiscoveryTree::HasItem(const std::string& address)
 {
   std::string schema;
   std::string port;
@@ -227,7 +227,7 @@ std::vector<QTreeWidgetItem*> ManageTrackFindONVIFDeviceDiscoveryTree::FindItems
     if (!uri.has_scheme() || !uri.has_host() || !uri.has_path())
     {
 
-      return std::vector<QTreeWidgetItem*>();
+      return false;
     }
     schema = uri.scheme().to_string();
     if (uri.has_port() && !uri.port().empty())
@@ -254,11 +254,10 @@ std::vector<QTreeWidgetItem*> ManageTrackFindONVIFDeviceDiscoveryTree::FindItems
   catch (...)
   {
 
-    return std::vector<QTreeWidgetItem*>();
+    return false;
   }
 
 
-  std::vector<QTreeWidgetItem*> items;
   for (int i = 0; i < topLevelItemCount(); ++i)
   {
     QTreeWidgetItem* item = topLevelItem(i);
@@ -293,8 +292,8 @@ std::vector<QTreeWidgetItem*> ManageTrackFindONVIFDeviceDiscoveryTree::FindItems
 
       if ((uri.scheme().to_string() == schema) && (port2 == port) && (uri.host().to_string() == host) && (uri.path().to_string() == path))
       {
-        items.push_back(item);
-        //TODO should just return true here
+
+        return true;
       }
     }
     catch (...)
@@ -302,7 +301,7 @@ std::vector<QTreeWidgetItem*> ManageTrackFindONVIFDeviceDiscoveryTree::FindItems
 
     }
   }
-  return items;
+  return false;
 }
 
 void ManageTrackFindONVIFDeviceDiscoveryTree::ItemCollapsed(QTreeWidgetItem* item)
@@ -346,7 +345,7 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::DiscoveryHello(const std::vector<s
 
     //TODO network::uri uri(address); to make sure it looks reasonable and collect the details. Then dump them into the setData
 
-    if (!FindItems(address).empty()) // Ignore duplicates
+    if (HasItem(address)) // Ignore duplicates
     {
 
       continue;
@@ -365,7 +364,7 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::DiscoveryHello(const std::vector<s
 
 void ManageTrackFindONVIFDeviceDiscoveryTree::DiscoverONVIFDevice(const std::string& address)
 {
-  if (!FindItems(address).empty()) // Ignore duplicates
+  if (HasItem(address)) // Ignore duplicates
   {
 
     return;

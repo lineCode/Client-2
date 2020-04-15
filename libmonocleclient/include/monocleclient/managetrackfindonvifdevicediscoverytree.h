@@ -54,7 +54,7 @@ class ManageTrackFindONVIFDeviceDiscoveryTree : public QTreeWidget
   void Filter();
   void Filter(QTreeWidgetItem* item);
   bool ChildrenContainsTextFilter(QTreeWidgetItem* item);
-  std::vector<QTreeWidgetItem*> FindItems(const std::string& address);
+  bool HasItem(const std::string& address);
 
   boost::shared_ptr<Device> device_;
   monocle::client::Connection connection_;
