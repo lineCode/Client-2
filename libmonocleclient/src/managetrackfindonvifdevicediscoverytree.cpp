@@ -250,8 +250,12 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::DiscoveryHello(const std::vector<s
     }
   }
 
+  //TODO make the uri accross the whole thing, and have the tooltip be the correct thing
+  
   for (const std::string& address : addresses)
   {
+    //TODO FindItem(address)
+      //TODO we want to replace it here
     if (!findItems(QString::fromStdString(address), Qt::MatchExactly, 2).isEmpty()) // Ignore duplicates
     {
 
@@ -266,10 +270,22 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::DiscoveryHello(const std::vector<s
   }
 }
 
-void ManageTrackFindONVIFDeviceDiscoveryTree::DiscoverONVIFDevice(const std::vector<std::string>& addresses)
+void ManageTrackFindONVIFDeviceDiscoveryTree::DiscoverONVIFDevice(const std::string& address)
 {
-  //TODO we should end up with an ip address passed in here, and hopefully some other useful things perhaps? perhaps a uri?
+  //TODO we need to match ip, port, schema and path
+    //TODO where port is defaulted by the schema http(80)/https(443)
 
+  if (!findItems(QString::fromStdString(address), Qt::MatchExactly, 2).isEmpty()) // Ignore duplicates
+  {
+
+    return;
+  }
+
+  ManageTrackFindONVIFDeviceDiscoveryTreeItem* item = new ManageTrackFindONVIFDeviceDiscoveryTreeItem(device_, std::vector<std::string>(), std::vector<std::string>(), address, username_, password_);
+  item->setData(0, Qt::UserRole, RECEIVERDISCOVERYITEM_DEVICE);
+  item->setData(0, Qt::UserRole + 1, QString::fromStdString(address));
+  Filter(item);
+  addTopLevelItem(item);
 }
 
 }

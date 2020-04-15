@@ -22,7 +22,7 @@ const size_t MAX_CONNECTIONS = 500;
 
 ///// Methods /////
 
-NetworkMapper::Scanner::Scanner(const uint8_t a, const std::pair<uint8_t, uint8_t>& b, const std::pair<uint8_t, uint8_t>& c, const std::pair<uint8_t, uint8_t>& d, const size_t maxconnections) :
+NetworkMapperScanner::NetworkMapperScanner(const uint8_t a, const std::pair<uint8_t, uint8_t>& b, const std::pair<uint8_t, uint8_t>& c, const std::pair<uint8_t, uint8_t>& d, const size_t maxconnections) :
   running_(true),
   a_(std::to_string(a)),
   b_(b),
@@ -66,12 +66,8 @@ NetworkMapper::Scanner::Scanner(const uint8_t a, const std::pair<uint8_t, uint8_
           }
           else
           {
-            qDebug() << QString::fromStdString(uri);//TODO remove
-            //TODO maybe send a signal?
-
-
-            //TODO maybe do GetCapabilities/GetServices/GetServiceCapabilities etc here?
-
+            // We could go further and grab GetServices GetServiceCapabilities, GetCapabilities, but they aren't really necessary
+            emit DiscoverONVIFDevice(uri);
           }
         }))), connection)));
       }
@@ -83,14 +79,14 @@ NetworkMapper::Scanner::Scanner(const uint8_t a, const std::pair<uint8_t, uint8_
   });
 }
 
-NetworkMapper::Scanner::~Scanner()
+NetworkMapperScanner::~NetworkMapperScanner()
 {
   running_ = false;
   thread_.join();
   std::for_each(connections_.begin(), connections_.end(), [](std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> >& connection) { connection.first->Close(); });
 }
 
-std::string NetworkMapper::Scanner::TakeAddress()
+std::string NetworkMapperScanner::TakeAddress()
 {
   std::string b;
   std::string c;
@@ -131,14 +127,14 @@ std::string NetworkMapper::Scanner::TakeAddress()
   return (a_ + "." + b + "." + c + "." + d);
 }
 
-std::string NetworkMapper::Scanner::TakeElement(std::vector<uint8_t>& elements)
+std::string NetworkMapperScanner::TakeElement(std::vector<uint8_t>& elements)
 {
   const std::string element = std::to_string(elements.front());
   elements.erase(elements.begin());
   return element;
 }
 
-std::vector<uint8_t> NetworkMapper::Scanner::CreateRange(const std::pair<uint8_t, uint8_t>& inputs) const
+std::vector<uint8_t> NetworkMapperScanner::CreateRange(const std::pair<uint8_t, uint8_t>& inputs) const
 {
   std::vector<uint8_t> range;
   range.reserve((inputs.second - inputs.first) + 1);
@@ -202,20 +198,20 @@ NetworkMapper::NetworkMapper() :
 
   if (classa)
   {
-    scanners_.emplace_back(std::make_unique<Scanner>(10, std::make_pair(0, 255), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS));
-    //TODO attach signal
+    scanners_.emplace_back(std::make_unique<NetworkMapperScanner>(10, std::make_pair(0, 255), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS));
+    connect(scanners_.back().get(), &NetworkMapperScanner::DiscoverONVIFDevice, this, &NetworkMapper::DiscoverONVIFDevice);
   }
 
   if (classc)
   {
-    scanners_.emplace_back(std::make_unique<Scanner>(192, std::make_pair(168, 168), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS));
-    //TODO attach signal
+    scanners_.emplace_back(std::make_unique<NetworkMapperScanner>(192, std::make_pair(168, 168), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS));
+    connect(scanners_.back().get(), &NetworkMapperScanner::DiscoverONVIFDevice, this, &NetworkMapper::DiscoverONVIFDevice);
   }
 
   if (linklocal)
   {
-    scanners_.emplace_back(std::make_unique<Scanner>(169, std::make_pair(254, 254), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS));
-    //TODO attach signal
+    scanners_.emplace_back(std::make_unique<NetworkMapperScanner>(169, std::make_pair(254, 254), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS));
+    connect(scanners_.back().get(), &NetworkMapperScanner::DiscoverONVIFDevice, this, &NetworkMapper::DiscoverONVIFDevice);
   }
 }
 

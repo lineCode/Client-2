@@ -73,7 +73,7 @@ class ManageTrackFindONVIFDeviceDiscoveryTree : public QTreeWidget
   void ItemCollapsed(QTreeWidgetItem* item);
   void ItemExpanded(QTreeWidgetItem* item);
   void DiscoveryHello(const std::vector<std::string>& addresses, const std::vector<std::string>& scopes);
-  void DiscoverONVIFDevice(const std::vector<std::string>& addresses);
+  void DiscoverONVIFDevice(const std::string& address);
 
 
 };
