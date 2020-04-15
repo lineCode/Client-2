@@ -31,9 +31,9 @@ NetworkMapperScanner::NetworkMapperScanner(const uint8_t a, const std::pair<uint
   maxconnections_(maxconnections),
   network_(network),
   netmask_(netmask),
-  currentb_(CreateRange(b)),
-  currentc_(CreateRange(c)),
-  currentd_(CreateRange(d))
+  currentb_(b.first),
+  currentc_(c.first),
+  currentd_(d.first)
 {
   thread_ = std::thread([this]()
   {
@@ -41,7 +41,7 @@ NetworkMapperScanner::NetworkMapperScanner(const uint8_t a, const std::pair<uint
     {
       if (connections_.size() < maxconnections_)
       {
-        const std::string address = TakeAddress();
+        const std::string address = NextAddress();
         if (address.empty()) // Finished
         {
 
@@ -56,16 +56,13 @@ NetworkMapperScanner::NetworkMapperScanner(const uint8_t a, const std::pair<uint
           continue;
         }
 
-        if (!utility::IsIPV4InRange(a.to_v4().to_ulong(), network_, netmask_))
+        if (!utility::IsIPV4InRange(a.to_v4().to_ulong(), network_, netmask_))//TODO check this works...
         {
 
           continue;
         }
 
         qDebug() << QString::fromStdString(address);//TODO
-
-        //TODO check utility::IsIPV4InRange(address, network, netmask);
-          //TODO check this is actually culling the correct range of ips, which would be beautiful to see...
 
         //TODO we want to pass in port_ which can be empty, 8080 OR 80 as well...
 
@@ -102,77 +99,56 @@ NetworkMapperScanner::NetworkMapperScanner(const uint8_t a, const std::pair<uint
 
 NetworkMapperScanner::~NetworkMapperScanner()
 {
-  running_ = false;
-  thread_.join();
-  std::for_each(connections_.begin(), connections_.end(), [](std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> >& connection) { connection.first->Close(); });
+  if (thread_.joinable())
+  {
+    running_ = false;
+    thread_.join();
+    std::for_each(connections_.begin(), connections_.end(), [](std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> >& connection) { connection.first->Close(); });
+  }
 }
 
-std::string NetworkMapperScanner::TakeAddress()
+std::string NetworkMapperScanner::NextAddress()
 {
-  std::string b;
-  std::string c;
-  std::string d;
-  if (currentd_.empty())
+  const uint8_t b = currentb_;
+  const uint8_t c = currentc_;
+  const uint8_t d = currentd_;
+  if (++currentd_ > d_.second)
   {
-    if (currentc_.empty())
+    currentd_ = d_.first;
+    if (++currentc_ > c_.second)
     {
-      if (currentb_.empty())
+      currentc_ = c_.first;
+      if (++currentb_ > b_.second)
       {
 
-        return std::string();
-      }
-      else
-      {
-        currentc_ = CreateRange(c_);
-        currentd_ = CreateRange(d_);
-        b = TakeElement(currentb_);
-        c = TakeElement(currentc_);
-        d = TakeElement(currentd_);
+        return std::string(); // Done
       }
     }
-    else
-    {
-      currentd_ = CreateRange(d_);
-      b = std::to_string(currentb_.front());
-      c = TakeElement(currentc_);
-      d = TakeElement(currentd_);
-    }
   }
-  else
-  {
-    b = std::to_string(currentb_.front());
-    c = std::to_string(currentc_.front());
-    d = TakeElement(currentd_);
-  }
-
-  return (a_ + "." + b + "." + c + "." + d);
-}
-
-std::string NetworkMapperScanner::TakeElement(std::vector<uint8_t>& elements)
-{
-  const std::string element = std::to_string(elements.front());
-  elements.erase(elements.begin());
-  return element;
-}
-
-std::vector<uint8_t> NetworkMapperScanner::CreateRange(const std::pair<uint8_t, uint8_t>& inputs) const
-{
-  std::vector<uint8_t> range;
-  range.reserve((inputs.second - inputs.first) + 1);
-  for (int i = inputs.first; i <= inputs.second; ++i)
-  {
-    range.push_back(static_cast<uint8_t>(i));
-
-  }
-  return range;
+  
+  return a_ + "." + std::to_string(b) + "." + std::to_string(c) + "." + std::to_string(d);
 }
 
 NetworkMapper::NetworkMapper()
 {
+  Init();
+
+}
+
+NetworkMapper::~NetworkMapper()
+{
+  Destroy();
+
+}
+
+void NetworkMapper::Init()
+{
+  Destroy();
+
   const std::pair< int, std::vector<utility::ADDRESS> > addresses = utility::GetAddresses();
   if (addresses.first)
   {
-    //TODO log error
+    LOG_GUI_WARNING(tr("utility::GetAddresses failed"));
     return;
   }
 
@@ -216,23 +192,18 @@ NetworkMapper::NetworkMapper()
       scanners_.emplace_back(std::make_unique<NetworkMapperScanner>(10, std::make_pair(0, 255), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS, networkdata, netmaskdata));
       connect(scanners_.back().get(), &NetworkMapperScanner::DiscoverONVIFDevice, this, &NetworkMapper::DiscoverONVIFDevice);
     }
-    
+
     if (boost::starts_with(address.address_, "192.168."))
     {
       scanners_.emplace_back(std::make_unique<NetworkMapperScanner>(192, std::make_pair(168, 168), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS, networkdata, netmaskdata));
       connect(scanners_.back().get(), &NetworkMapperScanner::DiscoverONVIFDevice, this, &NetworkMapper::DiscoverONVIFDevice);
     }
-    
-    if (boost::starts_with(address.address_, "169.254."))
-    {
-      scanners_.emplace_back(std::make_unique<NetworkMapperScanner>(169, std::make_pair(254, 254), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS, networkdata, netmaskdata));
-      connect(scanners_.back().get(), &NetworkMapperScanner::DiscoverONVIFDevice, this, &NetworkMapper::DiscoverONVIFDevice);
-    }
   }
 }
 
-NetworkMapper::~NetworkMapper()
+void NetworkMapper::Destroy()
 {
+  scanners_.clear();
 
 }
 

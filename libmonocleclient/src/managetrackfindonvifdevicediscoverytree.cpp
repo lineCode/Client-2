@@ -106,6 +106,8 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::Refresh()
   });
 
   MainWindow::Instance()->DiscoveryBroadcast();
+
+  networkmapper_.Init();
 }
 
 void ManageTrackFindONVIFDeviceDiscoveryTree::SetUserPass(const std::string& username, const std::string& password)

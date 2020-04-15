@@ -37,9 +37,7 @@ class NetworkMapperScanner : public QObject
 
  private:
 
-  std::vector<uint8_t> CreateRange(const std::pair<uint8_t, uint8_t>& inputs) const; // <start, end> inclusive
-  std::string TakeAddress();
-  std::string TakeElement(std::vector<uint8_t>& elements); // This method assumes there are items in the vector to be taken
+  std::string NextAddress();
 
   std::thread thread_;
   std::atomic<bool> running_;
@@ -53,9 +51,9 @@ class NetworkMapperScanner : public QObject
   const size_t maxconnections_;
   const uint32_t network_;
   const uint32_t netmask_;
-  std::vector<uint8_t> currentb_;
-  std::vector<uint8_t> currentc_;
-  std::vector<uint8_t> currentd_;
+  uint16_t currentb_; // We use uint16_t so it doesn't wrap and cause problems
+  uint16_t currentc_;
+  uint16_t currentd_;
 
   std::vector< std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> > > connections_;
 
@@ -73,6 +71,9 @@ class NetworkMapper : public QObject
 
   NetworkMapper();
   ~NetworkMapper();
+
+  void Init();
+  void Destroy();
 
  protected:
 
