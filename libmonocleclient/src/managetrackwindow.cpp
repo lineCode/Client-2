@@ -14,6 +14,7 @@
 #include <QMessageBox>
 #include <QString>
 #include <QTimer>
+#include <utility/utility.hpp>
 
 #include "monocleclient/mainwindow.h"
 #include "monocleclient/device.h"
@@ -1012,6 +1013,135 @@ void ManageTrackWindow::SetEnabled(const bool enabled)
   }
 }
 
+void ManageTrackWindow::Test()
+{
+  deviceclient_ = boost::make_shared<onvif::device::DeviceClient>(mutex_);
+  mediaclient_ = boost::make_shared<onvif::media::MediaClient>(mutex_);
+  if (deviceclient_->Init(sock::ProxyParams(sock::PROXYTYPE_HTTP, device_->GetAddress().toStdString(), device_->GetPort(), true, device_->GetUsername().toStdString(), device_->GetPassword().toStdString()), ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), 1, false, true))
+  {
+    ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Failed to initialise ONVIF Device Client</font><br/>");
+    return;
+  }
+
+  ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Retrieving System Date and Time</font><br/>");
+  onvifconnection_ = deviceclient_->GetSystemDateAndTimeCallback([this](const onvif::device::GetSystemDateAndTimeResponse& getsystemdateandtimeresponse)
+  {
+    if (getsystemdateandtimeresponse.Message() == onvif::UNABLETOCONNECT)
+    {
+      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">GetSystemDateAndTime failed: " + QString::fromStdString(getsystemdateandtimeresponse.Message()) + "</font><br/>");
+      return;
+    }
+    else if (getsystemdateandtimeresponse.Error())
+    {
+      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"orange\">GetSystemDateAndTime failed: " + QString::fromStdString(getsystemdateandtimeresponse.Message()) + "</font><br/>");
+
+    }
+
+    if (getsystemdateandtimeresponse.systemdatetime_.is_initialized())
+    {
+      deviceclient_->SetTimeOffset(getsystemdateandtimeresponse.systemdatetime_->GetUtcOffset());
+      mediaclient_->SetTimeOffset(getsystemdateandtimeresponse.systemdatetime_->GetUtcOffset());
+    }
+
+    ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Retrieving Capabilities</font><br/>");
+    onvifconnection_ = deviceclient_->GetCapabilitiesCallback(onvif::CAPABILITYCATEGORY::CAPABILITYCATEGORY_ALL, [this](const onvif::device::GetCapabilitiesResponse& getcapabilitiesresponse)
+    {
+      if (getcapabilitiesresponse.Error())
+      {
+        ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">GetCapabilities failed: " + QString::fromStdString(getcapabilitiesresponse.Message()) + "</font><br/>");
+        return;
+      }
+
+      if (!getcapabilitiesresponse.capabilities_.is_initialized())
+      {
+        ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">GetCapabilities invalid response no capabilities found</font><br/>");
+        return;
+      }
+
+      if (!getcapabilitiesresponse.capabilities_->media_.is_initialized())
+      {
+        ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">GetCapabilities invalid response no media capabilities</font><br/>");
+        return;
+      }
+
+      const std::string mediaxaddr = getcapabilitiesresponse.capabilities_->media_->GetXAddr();
+      if (mediaxaddr.empty())
+      {
+        ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">GetCapabilities invalid response no media XADDR</font><br/>");
+        return;
+      }
+
+      if (mediaclient_->Init(sock::ProxyParams(sock::PROXYTYPE_HTTP, device_->GetAddress().toStdString(), device_->GetPort(), true, device_->GetUsername().toStdString(), device_->GetPassword().toStdString()), mediaxaddr, deviceclient_->GetUsername(), deviceclient_->GetPassword(), 1, false, true))
+      {
+        ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Failed to initialise Media client</font><br/>");
+        return;
+      }
+
+      if (ui_.editprofiletoken->text().isEmpty())
+      {
+        ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Retrieving Profiles</font><br/>");
+        onvifconnection_ = mediaclient_->GetProfilesCallback([this](const onvif::media::GetProfilesResponse& getprofilesresponse)
+        {
+          if (getprofilesresponse.Error())
+          {
+            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">GetProfiles failed: " + QString::fromStdString(getprofilesresponse.Message()) + "</font><br/>");
+            return;
+          }
+
+          if (getprofilesresponse.profiles_.empty())
+          {
+            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">No profiles found</font><br/>");
+            return;
+          }
+
+          // Add the profile tokens to the auto completer for the edit profile
+          QStringList profiletokens;
+          for (const onvif::Profile& profile : getprofilesresponse.profiles_)
+          {
+            if (profile.token_.is_initialized())
+            {
+              profiletokens.push_back(QString::fromStdString(*profile.token_));
+
+            }
+          }
+          profilemodel_->setStringList(profiletokens);
+
+          GetProfileCallback(getprofilesresponse.profiles_.front());
+        });
+      }
+      else
+      {
+        ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Retrieving Profile</font><br/>");
+        onvifconnection_ = mediaclient_->GetProfileCallback(ui_.editprofiletoken->text().toStdString(), [this](const onvif::media::GetProfileResponse& getprofileresponse)
+        {
+          if (getprofileresponse.Error())
+          {
+            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">GetProfile failed: " + QString::fromStdString(getprofileresponse.Message()) + "</font><br/>");
+            return;
+          }
+
+          if (!getprofileresponse.profile_.is_initialized())
+          {
+            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Profile not initialised</font><br/>");
+            return;
+          }
+
+          // Add the profile token to the auto completer for the edit profile
+          QStringList profiletokens = profilemodel_->stringList();
+          if (getprofileresponse.profile_->token_.is_initialized())
+          {
+            profiletokens.push_back(QString::fromStdString(*getprofileresponse.profile_->token_));
+
+          }
+          profilemodel_->setStringList(profiletokens);
+
+          GetProfileCallback(*getprofileresponse.profile_);
+        });
+      }
+    });
+  });
+}
+
 void ManageTrackWindow::TrackRemoved(const uint32_t id)
 {
   if (recordingtrack_ && (recordingtrack_->GetId() == id))
@@ -1038,9 +1168,9 @@ void ManageTrackWindow::on_combodevice_currentIndexChanged(const QString&)
 
 void ManageTrackWindow::on_edituri_textChanged(const QString&)
 {
+  const bool enableobjectdetector = device_->GetNumCudaDevices() ? true : false;
   try
   {
-    const bool enableobjectdetector = device_->GetNumCudaDevices() ? true : false;
     const network::uri uri(ui_.edituri->text().toStdString());
     if (!uri.has_scheme())
     {
@@ -1075,16 +1205,29 @@ void ManageTrackWindow::on_edituri_textChanged(const QString&)
     }
     else
     {
-      //TODO does it look like an ipv4 or ipv6 address thanks to boost?
-
       DisableSource();
       ui_.buttontest->setEnabled(false);
     }
   }
   catch (...)
   {
-    DisableSource();
-    ui_.buttontest->setEnabled(false);
+    if (utility::IsAddress(ui_.edituri->text().toStdString()))
+    {
+      ui_.editprofiletoken->setEnabled(true);
+      ui_.editsourcetag->setEnabled(true);
+      ui_.comboprotocol->setEnabled(true);
+      ui_.editusername->setEnabled(true);
+      ui_.editpassword->setEnabled(true);
+      ui_.comborotation->setEnabled(true);
+      ui_.checkobjectdetector->setEnabled(enableobjectdetector);
+      ui_.buttonobjectdetectorsettings->setEnabled(enableobjectdetector);
+      ui_.buttontest->setEnabled(true);
+    }
+    else
+    {
+      DisableSource();
+      ui_.buttontest->setEnabled(false);
+    }
   }
 }
 
@@ -1238,6 +1381,14 @@ void ManageTrackWindow::on_buttontest_clicked()
 
         }
       }
+      else if (uri.has_path() && (uri.path().compare("/onvif/device_service/") == 0))
+      {
+        if (QMessageBox::question(this, tr("Warning"), tr("The uri appears invalid(contains a trailing slash '/'), are you sure you want to continue?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+        {
+
+          return;
+        }
+      }
       else if (uri.has_path() && uri.path().compare("/onvif/device_service"))
       {
         ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid path: \"" + QString::fromStdString(uri.path().to_string()) + "\" Try \"/onvif/device_service\"" + "</font><br/>");
@@ -1259,132 +1410,7 @@ void ManageTrackWindow::on_buttontest_clicked()
         }
       }
 
-      //TODO does this need to go into a method?
-      deviceclient_ = boost::make_shared<onvif::device::DeviceClient>(mutex_);
-      mediaclient_ = boost::make_shared<onvif::media::MediaClient>(mutex_);
-      if (deviceclient_->Init(sock::ProxyParams(sock::PROXYTYPE_HTTP, device_->GetAddress().toStdString(), device_->GetPort(), true, device_->GetUsername().toStdString(), device_->GetPassword().toStdString()), ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), 1, false, true))
-      {
-        ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Failed to initialise ONVIF Device Client</font><br/>");
-        return;
-      }
-
-      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Retrieving System Date and Time</font><br/>");
-      onvifconnection_ = deviceclient_->GetSystemDateAndTimeCallback([this](const onvif::device::GetSystemDateAndTimeResponse& getsystemdateandtimeresponse)
-      {
-        if (getsystemdateandtimeresponse.Message() == onvif::UNABLETOCONNECT)
-        {
-          ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">GetSystemDateAndTime failed: " + QString::fromStdString(getsystemdateandtimeresponse.Message()) + "</font><br/>");
-          return;
-        }
-        else if (getsystemdateandtimeresponse.Error())
-        {
-          ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"orange\">GetSystemDateAndTime failed: " + QString::fromStdString(getsystemdateandtimeresponse.Message()) + "</font><br/>");
-
-        }
-
-        if (getsystemdateandtimeresponse.systemdatetime_.is_initialized())
-        {
-          deviceclient_->SetTimeOffset(getsystemdateandtimeresponse.systemdatetime_->GetUtcOffset());
-          mediaclient_->SetTimeOffset(getsystemdateandtimeresponse.systemdatetime_->GetUtcOffset());
-        }
-
-        ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Retrieving Capabilities</font><br/>");
-        onvifconnection_ = deviceclient_->GetCapabilitiesCallback(onvif::CAPABILITYCATEGORY::CAPABILITYCATEGORY_ALL, [this](const onvif::device::GetCapabilitiesResponse& getcapabilitiesresponse)
-        {
-          if (getcapabilitiesresponse.Error())
-          {
-            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">GetCapabilities failed: " + QString::fromStdString(getcapabilitiesresponse.Message()) + "</font><br/>");
-            return;
-          }
-
-          if (!getcapabilitiesresponse.capabilities_.is_initialized())
-          {
-            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">GetCapabilities invalid response no capabilities found</font><br/>");
-            return;
-          }
-
-          if (!getcapabilitiesresponse.capabilities_->media_.is_initialized())
-          {
-            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">GetCapabilities invalid response no media capabilities</font><br/>");
-            return;
-          }
-
-          const std::string mediaxaddr = getcapabilitiesresponse.capabilities_->media_->GetXAddr();
-          if (mediaxaddr.empty())
-          {
-            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">GetCapabilities invalid response no media XADDR</font><br/>");
-            return;
-          }
-
-          if (mediaclient_->Init(sock::ProxyParams(sock::PROXYTYPE_HTTP, device_->GetAddress().toStdString(), device_->GetPort(), true, device_->GetUsername().toStdString(), device_->GetPassword().toStdString()), mediaxaddr, deviceclient_->GetUsername(), deviceclient_->GetPassword(), 1, false, true))
-          {
-            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Failed to initialise Media client</font><br/>");
-            return;
-          }
-
-          if (ui_.editprofiletoken->text().isEmpty())
-          {
-            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Retrieving Profiles</font><br/>");
-            onvifconnection_ = mediaclient_->GetProfilesCallback([this](const onvif::media::GetProfilesResponse& getprofilesresponse)
-            {
-              if (getprofilesresponse.Error())
-              {
-                ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">GetProfiles failed: " + QString::fromStdString(getprofilesresponse.Message()) + "</font><br/>");
-                return;
-              }
-
-              if (getprofilesresponse.profiles_.empty())
-              {
-                ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">No profiles found</font><br/>");
-                return;
-              }
-
-              // Add the profile tokens to the auto completer for the edit profile
-              QStringList profiletokens;
-              for (const onvif::Profile& profile : getprofilesresponse.profiles_)
-              {
-                if (profile.token_.is_initialized())
-                {
-                  profiletokens.push_back(QString::fromStdString(*profile.token_));
-
-                }
-              }
-              profilemodel_->setStringList(profiletokens);
-
-              GetProfileCallback(getprofilesresponse.profiles_.front());
-            });
-          }
-          else
-          {
-            ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"green\">Retrieving Profile</font><br/>");
-            onvifconnection_ = mediaclient_->GetProfileCallback(ui_.editprofiletoken->text().toStdString(), [this](const onvif::media::GetProfileResponse& getprofileresponse)
-            {
-              if (getprofileresponse.Error())
-              {
-                ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">GetProfile failed: " + QString::fromStdString(getprofileresponse.Message()) + "</font><br/>");
-                return;
-              }
-
-              if (!getprofileresponse.profile_.is_initialized())
-              {
-                ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Profile not initialised</font><br/>");
-                return;
-              }
-
-              // Add the profile token to the auto completer for the edit profile
-              QStringList profiletokens = profilemodel_->stringList();
-              if (getprofileresponse.profile_->token_.is_initialized())
-              {
-                profiletokens.push_back(QString::fromStdString(*getprofileresponse.profile_->token_));
-
-              }
-              profilemodel_->setStringList(profiletokens);
-
-              GetProfileCallback(*getprofileresponse.profile_);
-            });
-          }
-        });
-      });
+      Test();
     }
     else
     {
@@ -1394,25 +1420,14 @@ void ManageTrackWindow::on_buttontest_clicked()
   }
   catch (...)
   {
-    boost::system::error_code err;
-    const boost::asio::ip::address address = boost::asio::ip::address::from_string(ui_.edituri->text().toStdString(), err);
-    if (err)
+    if (utility::IsAddress(ui_.edituri->text().toStdString()))
     {
-      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid URI: " + ui_.edituri->text() + " invalid uri</font><br/>");
-
-    }
-    else if (address.is_v4())
-    {
-      if (QMessageBox::question(this, tr("Warning"), tr("This address is missing a schema and path, would you like"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+      if (QMessageBox::question(this, tr("Warning"), tr("This uri is missing a schema and path, would you like Monocle to add these?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
       {
         ui_.edituri->setText("http://" + ui_.edituri->text() + "/onvif/device_service");
-        //TODO now kick off a connection
-      }
-    }
-    else if (address.is_v6())
-    {
-      //TODO same  as above
 
+      }
+      Test();
     }
     else
     {
@@ -1453,10 +1468,17 @@ void ManageTrackWindow::on_buttonok_clicked()
     }
     else if ((uri.scheme().compare("http") == 0) || (uri.scheme().compare("https") == 0))
     {
-      //TODO same questions as above
-      if (uri.has_path() && (uri.path().compare("/onvif/device_service/") == 0))
+      if (!uri.has_path() || uri.path().empty())
       {
-        if (QMessageBox::question(this, tr("Warning"), tr("The uri appears invalid(contains a trailing slash '/'), are you sure you want to continue?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)//TODO ask this same question in the testing
+        if (QMessageBox::question(this, tr("Warning"), tr("The uri is missing a path, would you like to append \"/onvif/device_service\""), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+        {
+          ui_.edituri->setText(ui_.edituri->text() + "/onvif/device_service");
+
+        }
+      }
+      else if (uri.has_path() && (uri.path().compare("/onvif/device_service/") == 0))
+      {
+        if (QMessageBox::question(this, tr("Warning"), tr("The uri appears invalid(contains a trailing slash '/'), are you sure you want to continue?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
         {
 
           return;
@@ -1469,7 +1491,7 @@ void ManageTrackWindow::on_buttonok_clicked()
       }
       else
       {
-        if (QMessageBox::question(this, tr("Warning"), tr("The uri looks invalid, are you sure you want to continue?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+        if (QMessageBox::question(this, tr("Warning"), tr("The uri does not appear to be a valid ONVIF uri, are you sure you want to continue?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
         {
 
           return;
@@ -1478,7 +1500,7 @@ void ManageTrackWindow::on_buttonok_clicked()
     }
     else
     {
-      if (QMessageBox::question(this, tr("Warning"), tr("The uri looks invalid, are you sure you want to continue?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+      if (QMessageBox::question(this, tr("Warning"), tr("The uri appears to be invalid, are you sure you want to continue?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
       {
 
         return;
@@ -1487,8 +1509,14 @@ void ManageTrackWindow::on_buttonok_clicked()
   }
   catch (...)
   {
-    //TODO now look to see if it is just an address and do teh same as above
+    if (utility::IsAddress(ui_.edituri->text().toStdString()))
+    {
+      if (QMessageBox::question(this, tr("Warning"), tr("This uri is missing a schema and path, would you like Monocle to add these?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+      {
+        ui_.edituri->setText("http://" + ui_.edituri->text() + "/onvif/device_service");
 
+      }
+    }
   }
 
   QSharedPointer<RecordingJob> job = GetJob();
@@ -1523,7 +1551,7 @@ void ManageTrackWindow::on_buttonok_clicked()
 
     if (recording_)
     {
-      addtrack2connection_ = device_->AddRecordingJob(recording_->GetToken(), "Job", true, 0, std::vector<monocle::ADDRECORDINGJOBSOURCE>(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::ADDRECORDINGJOBRESPONSE& addrecordingjobresponse)
+      addtrack2connection_ = device_->AddRecordingJob(recording_->GetToken(), "MonocleJob", true, 0, std::vector<monocle::ADDRECORDINGJOBSOURCE>(), [this](const std::chrono::steady_clock::duration latency, const monocle::client::ADDRECORDINGJOBRESPONSE& addrecordingjobresponse)
       {
         if (addrecordingjobresponse.GetErrorCode() != monocle::ErrorCode::Success)
         {
