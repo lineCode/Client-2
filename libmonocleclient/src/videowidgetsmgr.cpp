@@ -461,6 +461,7 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
           return;
         }
         const QRectF selectedrectf = ImageToRect(imagepixelrect, selectedrect, selectionview->GetMirror(), selectionview->GetRotation());
+        const MOUSESTATE mousestate = MainWindow::Instance()->GetMouseState();
         MainWindow::Instance()->ResetMouseState();
         const QSharedPointer<VideoView> videoview = selectionview.staticCast<VideoView>();
         if (!videoview->GetDevice()->SupportsFindMotion())
@@ -469,12 +470,12 @@ void VideoWidgetsMgr::MouseReleaseEvent(QMouseEvent* event)
           return;
         }
 
-        if (MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDMOTION)
+        if (mousestate == MOUSESTATE_FINDMOTION)
         {
           FindMotionWindow(videowidget, videoview->GetQImage(boost::none), videoview->GetDevice(), videoview->GetRecording(), videoview->GetTrack(), videoview->GetSelectedColour(), *starttime, *endtime, selectedrectf, videoview->GetImageWidth(), videoview->GetImageHeight(), videoview->GetMirror(), videoview->GetRotation(), videoview->GetStretch()).exec();
 
         }
-        else // (MainWindow::Instance()->GetMouseState() == MOUSESTATE_FINDOBJECT)
+        else if (mousestate == MOUSESTATE_FINDOBJECT)
         {
           if (!videoview->GetDevice()->SupportsFindObject())
           {
