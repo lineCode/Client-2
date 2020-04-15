@@ -736,6 +736,15 @@ std::vector< std::pair< boost::shared_ptr<Device>, monocle::LAYOUT> > MainWindow
   return layouts;
 }
 
+void MainWindow::DiscoveryBroadcast()
+{
+  if (discover_)
+  {
+    discover_->Broadcast();
+
+  }
+}
+
 void MainWindow::closeEvent(QCloseEvent* event)
 {
   if (Options::Instance().GetHideMainWindowCloseDialog() == false)
@@ -1266,6 +1275,7 @@ void MainWindow::DiscoverCallback(const std::vector<std::string>& addresses, con
   {
     QMetaObject::invokeMethod(this, [this, addresses, scopes]() 
     {
+      emit DiscoveryStreamingDeviceHello(addresses, scopes);
       std::random_device rd;
       std::mt19937 gen(rd());
       std::uniform_int_distribution<uint64_t> dist(0, 20 * 1000);

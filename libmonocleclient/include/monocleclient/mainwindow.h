@@ -203,6 +203,8 @@ class MainWindow : public QMainWindow
 
   std::vector< std::pair< boost::shared_ptr<Device>, monocle::LAYOUT> > GetLayout(const uint64_t token, const std::string& name) const;
 
+  void DiscoveryBroadcast();
+
  protected:
 
   virtual void changeEvent(QEvent* event) override;
@@ -283,6 +285,10 @@ class MainWindow : public QMainWindow
   boost::optional<uint64_t> currentlayout_;
 
   std::vector<monocle::client::Connection> savelayoutconnections_;
+
+ signals:
+
+  void DiscoveryStreamingDeviceHello(const std::vector<std::string>& addresses, const std::vector<std::string>& scopes);
 
  private slots:
 

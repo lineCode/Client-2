@@ -31,6 +31,9 @@ ManageTrackFindONVIFDeviceDiscoveryTree::ManageTrackFindONVIFDeviceDiscoveryTree
 {
   connect(this, &QTreeWidget::itemCollapsed, this, &ManageTrackFindONVIFDeviceDiscoveryTree::ItemCollapsed);
   connect(this, &QTreeWidget::itemExpanded, this, &ManageTrackFindONVIFDeviceDiscoveryTree::ItemExpanded);
+  connect(MainWindow::Instance(), &MainWindow::DiscoveryStreamingDeviceHello, this, &ManageTrackFindONVIFDeviceDiscoveryTree::DiscoveryHello);
+
+  MainWindow::Instance()->DiscoveryBroadcast();
   
   startTimer(std::chrono::milliseconds(60));
 }
@@ -100,6 +103,8 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::Refresh()
       return;
     }
   });
+
+  MainWindow::Instance()->DiscoveryBroadcast();
 }
 
 void ManageTrackFindONVIFDeviceDiscoveryTree::SetUserPass(const std::string& username, const std::string& password)
