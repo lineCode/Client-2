@@ -42,7 +42,7 @@ class NetworkMapper : public QObject
   {
    public:
 
-    Scanner(const boost::shared_ptr<std::recursive_mutex>& mutex, const uint8_t a, const std::pair<uint8_t, uint8_t>& b, const std::pair<uint8_t, uint8_t>& c, const std::pair<uint8_t, uint8_t>& d, const size_t maxconnections);
+    Scanner(const uint8_t a, const std::pair<uint8_t, uint8_t>& b, const std::pair<uint8_t, uint8_t>& c, const std::pair<uint8_t, uint8_t>& d, const size_t maxconnections);
     ~Scanner();
 
    private:
@@ -74,7 +74,7 @@ class NetworkMapper : public QObject
 
  signals:
 
-  void DiscoverONVIFDevice();
+  void DiscoverONVIFDevice(const std::vector<std::string>& addresses);
 
  private slots:
 

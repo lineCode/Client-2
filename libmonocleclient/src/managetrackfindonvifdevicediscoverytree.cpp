@@ -266,7 +266,7 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::DiscoveryHello(const std::vector<s
   }
 }
 
-void ManageTrackFindONVIFDeviceDiscoveryTree::DiscoverONVIFDevice()
+void ManageTrackFindONVIFDeviceDiscoveryTree::DiscoverONVIFDevice(const std::vector<std::string>& addresses)
 {
   //TODO we should end up with an ip address passed in here, and hopefully some other useful things perhaps? perhaps a uri?
 

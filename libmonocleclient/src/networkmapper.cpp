@@ -8,7 +8,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/asio/ip/address.hpp>
 #include <utility/utility.hpp>
-#include <QDebug>//TODO
 
 #include "monocleclient/mainwindow.h"
 
@@ -19,13 +18,12 @@ namespace client
 
 ///// Globals /////
 
-const size_t MAX_CONNECTIONS = 400;//TODO maybe more?
+const size_t MAX_CONNECTIONS = 500;
 
 ///// Methods /////
 
-NetworkMapper::Scanner::Scanner(const boost::shared_ptr<std::recursive_mutex>& mutex, const uint8_t a, const std::pair<uint8_t, uint8_t>& b, const std::pair<uint8_t, uint8_t>& c, const std::pair<uint8_t, uint8_t>& d, const size_t maxconnections) :
+NetworkMapper::Scanner::Scanner(const uint8_t a, const std::pair<uint8_t, uint8_t>& b, const std::pair<uint8_t, uint8_t>& c, const std::pair<uint8_t, uint8_t>& d, const size_t maxconnections) :
   running_(true),
-  mutex_(mutex),
   a_(std::to_string(a)),
   b_(b),
   c_(c),
@@ -52,14 +50,13 @@ NetworkMapper::Scanner::Scanner(const boost::shared_ptr<std::recursive_mutex>& m
 
         //TODO add ports in here...
         const std::string uri = std::string("http://") + address + "/onvif/device_service";
-        boost::shared_ptr<onvif::device::DeviceClient> connection = boost::make_shared<onvif::device::DeviceClient>(mutex_);//TODO pass in a branc new mutex imo
+        boost::shared_ptr<onvif::device::DeviceClient> connection = boost::make_shared<onvif::device::DeviceClient>(boost::make_shared<std::recursive_mutex>());
         if (connection->Init(sock::ProxyParams(), uri, "username", "password", 1, false, true))
         {
           // This should never happen, but lets crack on...
           continue;
         }
 
-        //TODO qDebug() << QString::fromStdString(uri);//TODO remove
         connections_.emplace_back(std::move(std::make_pair(boost::make_shared<onvif::Connection>(std::move(connection->GetSystemDateAndTimeCallback([this, uri, connection](const onvif::device::GetSystemDateAndTimeResponse& response)
         {
           if (response.Error())
@@ -88,10 +85,9 @@ NetworkMapper::Scanner::Scanner(const boost::shared_ptr<std::recursive_mutex>& m
 
 NetworkMapper::Scanner::~Scanner()
 {
-  std::for_each(connections_.begin(), connections_.end(), [](std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> >& connection) { connection.first->Close(); });
-
   running_ = false;
   thread_.join();
+  std::for_each(connections_.begin(), connections_.end(), [](std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> >& connection) { connection.first->Close(); });
 }
 
 std::string NetworkMapper::Scanner::TakeAddress()
@@ -199,26 +195,26 @@ NetworkMapper::NetworkMapper() :
     }
     else if (boost::starts_with(address.address_, "169.254."))
     {
-      //TODO linklocal = true;
+      linklocal = true;
 
     }
   }
 
   if (classa)
   {
-    scanners_.emplace_back(std::make_unique<Scanner>(mutex_, 10, std::make_pair(0, 255), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS));//TODO don't pass in mutex_
+    scanners_.emplace_back(std::make_unique<Scanner>(10, std::make_pair(0, 255), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS));
     //TODO attach signal
   }
 
   if (classc)
   {
-    scanners_.emplace_back(std::make_unique<Scanner>(mutex_, 192, std::make_pair(168, 168), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS));
+    scanners_.emplace_back(std::make_unique<Scanner>(192, std::make_pair(168, 168), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS));
     //TODO attach signal
   }
 
   if (linklocal)
   {
-    scanners_.emplace_back(std::make_unique<Scanner>(mutex_, 169, std::make_pair(254, 254), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS));
+    scanners_.emplace_back(std::make_unique<Scanner>(169, std::make_pair(254, 254), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS));
     //TODO attach signal
   }
 }
