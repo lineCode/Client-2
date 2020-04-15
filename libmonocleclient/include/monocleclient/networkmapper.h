@@ -29,8 +29,11 @@ class NetworkMapperScanner : public QObject
 
  public:
 
-  NetworkMapperScanner(const uint8_t a, const std::pair<uint8_t, uint8_t>& b, const std::pair<uint8_t, uint8_t>& c, const std::pair<uint8_t, uint8_t>& d, const size_t maxconnections);
+  NetworkMapperScanner(const uint8_t a, const std::pair<uint8_t, uint8_t>& b, const std::pair<uint8_t, uint8_t>& c, const std::pair<uint8_t, uint8_t>& d, const size_t maxconnections, const uint32_t network, const uint32_t netmask);
   ~NetworkMapperScanner();
+  
+  inline uint32_t GetNetwork() const { return network_; }
+  inline uint32_t GetNetmask() const { return netmask_; }
 
  private:
 
@@ -48,6 +51,8 @@ class NetworkMapperScanner : public QObject
   const std::pair<uint8_t, uint8_t> c_;
   const std::pair<uint8_t, uint8_t> d_;
   const size_t maxconnections_;
+  const uint32_t network_;
+  const uint32_t netmask_;
   std::vector<uint8_t> currentb_;
   std::vector<uint8_t> currentc_;
   std::vector<uint8_t> currentd_;

@@ -360,7 +360,7 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::DiscoveryHello(const std::vector<s
     item->setData(0, Qt::UserRole, RECEIVERDISCOVERYITEM_DEVICE);
     item->setData(0, Qt::UserRole + 1, QString::fromStdString(address));
     Filter(item);
-    addTopLevelItem(item);
+    //TODO addTopLevelItem(item);
   }
 }
 

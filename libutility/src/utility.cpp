@@ -57,9 +57,10 @@ static const char HEXCHARS[] = "0123456789abcdef";
 
 ///// Methods /////
 
-ADDRESS::ADDRESS(const std::string& name, const std::string& address) :
+ADDRESS::ADDRESS(const std::string& name, const std::string& address, const std::string& netmask) :
   name_(name),
-  address_(address)
+  address_(address),
+  netmask_(netmask)
 {
 
 }
@@ -114,7 +115,7 @@ std::pair<int, std::vector<ADDRESS> > GetAddresses()
           const boost::asio::ip::address address = boost::asio::ip::address::from_string(utility::ToString(reinterpret_cast<sockaddr_in*>(unicastaddress->Address.lpSockaddr)), err);
           if (!err && !address.is_unspecified())
           {
-            addresses.emplace_back(adaptersaddresses->AdapterName, address.to_string());
+            addresses.emplace_back(adaptersaddresses->AdapterName, address.to_string(), PrefixToSubnetMask(unicastaddress->OnLinkPrefixLength));
 
           }
         }

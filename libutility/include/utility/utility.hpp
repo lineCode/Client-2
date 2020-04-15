@@ -84,10 +84,12 @@ enum class OPERATINGSYSTEM : int
 
 struct ADDRESS
 {
-  ADDRESS(const std::string& name, const std::string& address);
+  ADDRESS(const std::string& name, const std::string& address, const std::string& netmask);
 
   std::string name_;
   std::string address_;
+  std::string netmask_;
+
 };
 
 ///// Functions /////

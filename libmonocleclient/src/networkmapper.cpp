@@ -22,13 +22,15 @@ const size_t MAX_CONNECTIONS = 500;
 
 ///// Methods /////
 
-NetworkMapperScanner::NetworkMapperScanner(const uint8_t a, const std::pair<uint8_t, uint8_t>& b, const std::pair<uint8_t, uint8_t>& c, const std::pair<uint8_t, uint8_t>& d, const size_t maxconnections) :
+NetworkMapperScanner::NetworkMapperScanner(const uint8_t a, const std::pair<uint8_t, uint8_t>& b, const std::pair<uint8_t, uint8_t>& c, const std::pair<uint8_t, uint8_t>& d, const size_t maxconnections, const uint32_t network, const uint32_t netmask) :
   running_(true),
   a_(std::to_string(a)),
   b_(b),
   c_(c),
   d_(d),
   maxconnections_(maxconnections),
+  network_(network),
+  netmask_(netmask),
   currentb_(CreateRange(b)),
   currentc_(CreateRange(c)),
   currentd_(CreateRange(d))
@@ -46,7 +48,24 @@ NetworkMapperScanner::NetworkMapperScanner(const uint8_t a, const std::pair<uint
           return;
         }
 
+        boost::system::error_code err;
+        const boost::asio::ip::address a = boost::asio::ip::address::from_string(address, err);
+        if (err || !a.is_v4())
+        {
+
+          continue;
+        }
+
+        if (!utility::IsIPV4InRange(a.to_v4().to_ulong(), network_, netmask_))
+        {
+
+          continue;
+        }
+
+        qDebug() << QString::fromStdString(address);//TODO
+
         //TODO check utility::IsIPV4InRange(address, network, netmask);
+          //TODO check this is actually culling the correct range of ips, which would be beautiful to see...
 
         //TODO we want to pass in port_ which can be empty, 8080 OR 80 as well...
 
@@ -158,61 +177,57 @@ NetworkMapper::NetworkMapper()
   }
 
   // We don't do classb, because it is awkward with 172.16.x.y to 172.31.a.b and nobody uses it anyway
-  bool classa = false;
-  bool classc = false;
-  bool linklocal = false;
   for (const utility::ADDRESS& address : addresses.second)
   {
     boost::system::error_code err;
-    const boost::asio::ip::address a = boost::asio::ip::address::from_string(address.address_, err);
+    const boost::asio::ip::address network = boost::asio::ip::address::from_string(address.address_, err);
     if (err)
     {
 
       continue;
     }
 
-    if (!a.is_v4()) // Maybe do ipv6 in the future
+    const boost::asio::ip::address netmask = boost::asio::ip::address::from_string(address.netmask_, err);
+    if (err)
     {
 
       continue;
     }
 
+    if (!network.is_v4() || !netmask.is_v4()) // Maybe do ipv6 in the future
+    {
+
+      continue;
+    }
+
+    const uint32_t netmaskdata = netmask.to_v4().to_ulong();
+    const uint32_t networkdata = network.to_v4().to_ulong() & netmaskdata;
+
     //TODO pass in the ports as well... we want http on 80,8888,8080,88 and https on 443
+
+    if (std::find_if(scanners_.cbegin(), scanners_.cend(), [networkdata, netmaskdata](const std::unique_ptr<NetworkMapperScanner>& scanner) { return ((scanner->GetNetwork() == networkdata) && (scanner->GetNetmask() == netmaskdata)); }) != scanners_.cend())
+    {
+
+      continue;
+    }
+
     if (boost::starts_with(address.address_, "10."))
     {
-      classa = true;
-      //TODO we want the subnet mask so we can decide how much we want to fiddle...
-
+      scanners_.emplace_back(std::make_unique<NetworkMapperScanner>(10, std::make_pair(0, 255), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS, networkdata, netmaskdata));
+      connect(scanners_.back().get(), &NetworkMapperScanner::DiscoverONVIFDevice, this, &NetworkMapper::DiscoverONVIFDevice);
     }
-    else if (boost::starts_with(address.address_, "192.168."))
+    
+    if (boost::starts_with(address.address_, "192.168."))
     {
-      classc = true;
-      //TODO we want the subnet mask so we can decide how much we want to fiddle...
-
+      scanners_.emplace_back(std::make_unique<NetworkMapperScanner>(192, std::make_pair(168, 168), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS, networkdata, netmaskdata));
+      connect(scanners_.back().get(), &NetworkMapperScanner::DiscoverONVIFDevice, this, &NetworkMapper::DiscoverONVIFDevice);
     }
-    else if (boost::starts_with(address.address_, "169.254."))
+    
+    if (boost::starts_with(address.address_, "169.254."))
     {
-      linklocal = true;
-
+      scanners_.emplace_back(std::make_unique<NetworkMapperScanner>(169, std::make_pair(254, 254), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS, networkdata, netmaskdata));
+      connect(scanners_.back().get(), &NetworkMapperScanner::DiscoverONVIFDevice, this, &NetworkMapper::DiscoverONVIFDevice);
     }
-  }
-
-  if (classa)
-  {
-    scanners_.emplace_back(std::make_unique<NetworkMapperScanner>(10, std::make_pair(0, 255), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS));//TODO pass in the netmask here
-    connect(scanners_.back().get(), &NetworkMapperScanner::DiscoverONVIFDevice, this, &NetworkMapper::DiscoverONVIFDevice);
-  }
-
-  if (classc)
-  {
-    scanners_.emplace_back(std::make_unique<NetworkMapperScanner>(192, std::make_pair(168, 168), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS));
-    connect(scanners_.back().get(), &NetworkMapperScanner::DiscoverONVIFDevice, this, &NetworkMapper::DiscoverONVIFDevice);
-  }
-
-  if (linklocal)
-  {
-    scanners_.emplace_back(std::make_unique<NetworkMapperScanner>(169, std::make_pair(254, 254), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS));
-    connect(scanners_.back().get(), &NetworkMapperScanner::DiscoverONVIFDevice, this, &NetworkMapper::DiscoverONVIFDevice);
   }
 }
 
