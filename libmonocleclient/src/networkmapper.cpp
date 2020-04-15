@@ -46,6 +46,8 @@ NetworkMapperScanner::NetworkMapperScanner(const uint8_t a, const std::pair<uint
           return;
         }
 
+        //TODO check utility::IsIPV4InRange(address, network, netmask);
+
         //TODO we want to pass in port_ which can be empty, 8080 OR 80 as well...
 
         //TODO add ports in here...
@@ -146,8 +148,7 @@ std::vector<uint8_t> NetworkMapperScanner::CreateRange(const std::pair<uint8_t, 
   return range;
 }
 
-NetworkMapper::NetworkMapper() :
-  mutex_(boost::make_shared<std::recursive_mutex>())
+NetworkMapper::NetworkMapper()
 {
   const std::pair< int, std::vector<utility::ADDRESS> > addresses = utility::GetAddresses();
   if (addresses.first)
@@ -198,7 +199,7 @@ NetworkMapper::NetworkMapper() :
 
   if (classa)
   {
-    scanners_.emplace_back(std::make_unique<NetworkMapperScanner>(10, std::make_pair(0, 255), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS));
+    scanners_.emplace_back(std::make_unique<NetworkMapperScanner>(10, std::make_pair(0, 255), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS));//TODO pass in the netmask here
     connect(scanners_.back().get(), &NetworkMapperScanner::DiscoverONVIFDevice, this, &NetworkMapper::DiscoverONVIFDevice);
   }
 

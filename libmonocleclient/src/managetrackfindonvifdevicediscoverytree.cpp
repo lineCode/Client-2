@@ -343,6 +343,8 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::DiscoveryHello(const std::vector<s
   for (const std::string& address : addresses)
   {
 
+    //TODO maybe create a method which adds these addresses in, so we can use it below...
+
     //TODO network::uri uri(address); to make sure it looks reasonable and collect the details. Then dump them into the setData
 
     if (HasItem(address)) // Ignore duplicates

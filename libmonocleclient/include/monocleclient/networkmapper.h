@@ -75,7 +75,6 @@ class NetworkMapper : public QObject
 
  private:
 
-  boost::shared_ptr<std::recursive_mutex> mutex_;
   std::vector< std::unique_ptr<NetworkMapperScanner> > scanners_;
 
  signals:
