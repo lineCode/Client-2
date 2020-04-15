@@ -21,12 +21,12 @@ namespace onvif
 
 ///// Methods /////
 
-Connection::Connection()
+Connection::Connection() noexcept
 {
 
 }
 
-Connection::Connection(boost::shared_ptr<ConnectionBlock>& connectionblock) :
+Connection::Connection(boost::shared_ptr<ConnectionBlock>& connectionblock) noexcept :
   connectionblock_(connectionblock)
 {
 

@@ -30,10 +30,10 @@ class Connection
 {
  public:
 
-  Connection();
+  Connection() noexcept;
   Connection(const Connection&) = delete;
   Connection(Connection&& connection) noexcept;
-  Connection(boost::shared_ptr<ConnectionBlock>& connectionblock);
+  Connection(boost::shared_ptr<ConnectionBlock>& connectionblock) noexcept;
   ~Connection();
 
   void Close();

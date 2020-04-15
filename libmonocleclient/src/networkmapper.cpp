@@ -19,11 +19,12 @@ namespace client
 
 ///// Globals /////
 
-const size_t MAX_CONNECTIONS = 20;//TODO maybe more?
+const size_t MAX_CONNECTIONS = 400;//TODO maybe more?
 
 ///// Methods /////
 
 NetworkMapper::Scanner::Scanner(const boost::shared_ptr<std::recursive_mutex>& mutex, const uint8_t a, const std::pair<uint8_t, uint8_t>& b, const std::pair<uint8_t, uint8_t>& c, const std::pair<uint8_t, uint8_t>& d, const size_t maxconnections) :
+  running_(true),
   mutex_(mutex),
   a_(std::to_string(a)),
   b_(b),
@@ -34,65 +35,63 @@ NetworkMapper::Scanner::Scanner(const boost::shared_ptr<std::recursive_mutex>& m
   currentc_(CreateRange(c)),
   currentd_(CreateRange(d))
 {
+  thread_ = std::thread([this]()
+  {
+    while (running_)
+    {
+      if (connections_.size() < maxconnections_)
+      {
+        const std::string address = TakeAddress();
+        if (address.empty()) // Finished
+        {
 
+          return;
+        }
+
+        //TODO we want to pass in port_ which can be empty, 8080 OR 80 as well...
+
+        //TODO add ports in here...
+        const std::string uri = std::string("http://") + address + "/onvif/device_service";
+        boost::shared_ptr<onvif::device::DeviceClient> connection = boost::make_shared<onvif::device::DeviceClient>(mutex_);//TODO pass in a branc new mutex imo
+        if (connection->Init(sock::ProxyParams(), uri, "username", "password", 1, false, true))
+        {
+          // This should never happen, but lets crack on...
+          continue;
+        }
+
+        //TODO qDebug() << QString::fromStdString(uri);//TODO remove
+        connections_.emplace_back(std::move(std::make_pair(boost::make_shared<onvif::Connection>(std::move(connection->GetSystemDateAndTimeCallback([this, uri, connection](const onvif::device::GetSystemDateAndTimeResponse& response)
+        {
+          if (response.Error())
+          {
+            // Some cameras require authentication for GetSystemDateAndTime(DLink) which is totally bananas, so lets ignore them
+
+          }
+          else
+          {
+            qDebug() << QString::fromStdString(uri);//TODO remove
+            //TODO maybe send a signal?
+
+
+            //TODO maybe do GetCapabilities/GetServices/GetServiceCapabilities etc here?
+
+          }
+        }))), connection)));
+      }
+
+      connections_.erase(std::remove_if(connections_.begin(), connections_.end(), [](const std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> >& connection) { return connection.second->Update(); }), connections_.end()); // Update and remove any that error
+      connections_.erase(std::remove_if(connections_.begin(), connections_.end(), [](const std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> >& connection) { return !connection.first->IsConnected(); }), connections_.end());
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  });
 }
 
 NetworkMapper::Scanner::~Scanner()
 {
-  std::for_each(connections_.begin(), connections_.end(), [](std::pair<onvif::Connection, boost::shared_ptr<onvif::device::DeviceClient> >& connection) { connection.first.Close(); });
+  std::for_each(connections_.begin(), connections_.end(), [](std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> >& connection) { connection.first->Close(); });
 
-}
-
-void NetworkMapper::Scanner::Update()
-{
-  while ((connections_.size() < maxconnections_) || (currentb_.size() && currentc_.size() && currentd_.size()))
-  {
-    const std::string address = TakeAddress();
-    if (address.empty()) // Finished
-    {
-
-      return;
-    }
-
-    //TODO add ports in here...
-    const std::string uri = std::string("http://") + address + "/onvif/device_service";
-    boost::shared_ptr<onvif::device::DeviceClient> connection = boost::make_shared<onvif::device::DeviceClient>(mutex_);
-    if (connection->Init(sock::ProxyParams(), uri, "username", "password", 1, false, true))
-    {
-      // This should never happen, but lets crack on...
-      continue;
-    }
-    qDebug() << QString::fromStdString(uri);//TODO remove
-    connections_.push_back(std::make_pair(connection->GetSystemDateAndTimeCallback([this, connection](const onvif::device::GetSystemDateAndTimeResponse& response)
-    {
-      if (response.Error())
-      {
-        // Didn't find anything at this ip,
-
-      }
-      else
-      {
-        //TODO maybe send a signal?
-
-
-        //TODO maybe do GetCapabilities/GetServices/GetServiceCapabilities etc here?
-
-      }
-
-      auto i = std::find_if(connections_.begin(), connections_.end(), [connection](const std::pair<onvif::Connection, boost::shared_ptr<onvif::device::DeviceClient> >& c) { return (c.second == connection); });
-      if (i != connections_.end())
-      {
-        connections_.erase(i);
-
-      }
-    }), connection));
-  }
-
-  for (const std::pair<onvif::Connection, boost::shared_ptr<onvif::device::DeviceClient> >& connection : connections_)
-  {
-    connection.second->Update();//TODO if this fails do we remove it?
-
-  }
+  running_ = false;
+  thread_.join();
 }
 
 std::string NetworkMapper::Scanner::TakeAddress()
@@ -121,15 +120,15 @@ std::string NetworkMapper::Scanner::TakeAddress()
     else
     {
       currentd_ = CreateRange(d_);
-      b = std::to_string(currentb_.back());
+      b = std::to_string(currentb_.front());
       c = TakeElement(currentc_);
       d = TakeElement(currentd_);
     }
   }
   else
   {
-    b = std::to_string(currentb_.back());
-    c = std::to_string(currentc_.back());
+    b = std::to_string(currentb_.front());
+    c = std::to_string(currentc_.front());
     d = TakeElement(currentd_);
   }
 
@@ -138,8 +137,8 @@ std::string NetworkMapper::Scanner::TakeAddress()
 
 std::string NetworkMapper::Scanner::TakeElement(std::vector<uint8_t>& elements)
 {
-  const std::string element = std::to_string(elements.back());
-  elements.erase(elements.end() - 1);
+  const std::string element = std::to_string(elements.front());
+  elements.erase(elements.begin());
   return element;
 }
 
@@ -200,44 +199,33 @@ NetworkMapper::NetworkMapper() :
     }
     else if (boost::starts_with(address.address_, "169.254."))
     {
-      linklocal = true;
+      //TODO linklocal = true;
 
     }
   }
 
   if (classa)
   {
-    scanners_.push_back(Scanner(mutex_, 10, { 0, 255 }, { 0, 255 }, { 1, 255 }, MAX_CONNECTIONS));
-
+    scanners_.emplace_back(std::make_unique<Scanner>(mutex_, 10, std::make_pair(0, 255), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS));//TODO don't pass in mutex_
+    //TODO attach signal
   }
 
   if (classc)
   {
-    scanners_.push_back(Scanner(mutex_, 192, { 168, 168 }, { 0, 255 }, { 1, 255 }, MAX_CONNECTIONS));
-
+    scanners_.emplace_back(std::make_unique<Scanner>(mutex_, 192, std::make_pair(168, 168), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS));
+    //TODO attach signal
   }
 
   if (linklocal)
   {
-    scanners_.push_back(Scanner(mutex_, 169, { 254, 254 }, { 0, 255 }, { 1, 255 }, MAX_CONNECTIONS));
-
+    scanners_.emplace_back(std::make_unique<Scanner>(mutex_, 169, std::make_pair(254, 254), std::make_pair(0, 255), std::make_pair(1, 255), MAX_CONNECTIONS));
+    //TODO attach signal
   }
-
-  startTimer(std::chrono::milliseconds(100));
 }
 
 NetworkMapper::~NetworkMapper()
 {
 
-}
-
-void NetworkMapper::timerEvent(QTimerEvent*)
-{
-  for (Scanner& scanner : scanners_)
-  {
-    scanner.Update();
-
-  }
 }
 
 }
