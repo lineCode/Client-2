@@ -287,6 +287,16 @@
           KeyPath="yes" />
       </Component>
 
+      <Component Id="ffmpeglgpl" Directory="INSTALLFOLDER" Guid="386CD68B-CBF9-4EF9-9F18-93E3CB36B8EC">
+        <File
+          Id="ffmpeglgpl"
+          Name="ffmpeglgpl.txt"
+          Source="$(env.FFMPEG_DIR)\COPYING.LGPLv2.1"
+          DiskId="1"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+
       <Component Id="swresample" Directory="INSTALLFOLDER" Guid="CD891EF2-A5CF-48CE-B518-48DE66DBA80F">
         <File
           Id="swresample"
