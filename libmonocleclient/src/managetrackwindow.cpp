@@ -1061,7 +1061,7 @@ void ManageTrackWindow::on_edituri_textChanged(const QString&)
       ui_.buttonobjectdetectorsettings->setEnabled(enableobjectdetector);
       ui_.buttontest->setEnabled(true);
     }
-    else if (((uri.scheme().compare("http") == 0) || (uri.scheme().compare("https") == 0)) && uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))
+    else if ((uri.scheme().compare("http") == 0) || (uri.scheme().compare("https") == 0))
     {
       ui_.editprofiletoken->setEnabled(true);
       ui_.editsourcetag->setEnabled(true);
@@ -1075,6 +1075,8 @@ void ManageTrackWindow::on_edituri_textChanged(const QString&)
     }
     else
     {
+      //TODO does it look like an ipv4 or ipv6 address thanks to boost?
+
       DisableSource();
       ui_.buttontest->setEnabled(false);
     }
@@ -1226,8 +1228,22 @@ void ManageTrackWindow::on_buttontest_clicked()
 
       RTSPCallback(ui_.edituri->text().toStdString(), uri.host().to_string(), port);
     }
-    else if (((uri.scheme().compare("http") == 0) || (uri.scheme().compare("https") == 0)) && uri.has_path() && (uri.path().compare("/onvif/device_service") == 0))
+    else if ((uri.scheme().compare("http") == 0) || (uri.scheme().compare("https") == 0))
     {
+      if (!uri.has_path() || uri.path().empty())
+      {
+        if (QMessageBox::question(this, tr("Warning"), tr("The uri is missing a path, would you like to append \"/onvif/device_service\""), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+        {
+          ui_.edituri->setText(ui_.edituri->text() + "/onvif/device_service");
+
+        }
+      }
+      else if (uri.has_path() && uri.path().compare("/onvif/device_service"))
+      {
+        ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid path: \"" + QString::fromStdString(uri.path().to_string()) + "\" Try \"/onvif/device_service\"" + "</font><br/>");
+        return;
+      }
+
       uint16_t port = 80;
       if (uri.has_port())
       {
@@ -1243,6 +1259,7 @@ void ManageTrackWindow::on_buttontest_clicked()
         }
       }
 
+      //TODO does this need to go into a method?
       deviceclient_ = boost::make_shared<onvif::device::DeviceClient>(mutex_);
       mediaclient_ = boost::make_shared<onvif::media::MediaClient>(mutex_);
       if (deviceclient_->Init(sock::ProxyParams(sock::PROXYTYPE_HTTP, device_->GetAddress().toStdString(), device_->GetPort(), true, device_->GetUsername().toStdString(), device_->GetPassword().toStdString()), ui_.edituri->text().toStdString(), ui_.editusername->text().toStdString(), ui_.editpassword->text().toStdString(), 1, false, true))
@@ -1377,8 +1394,31 @@ void ManageTrackWindow::on_buttontest_clicked()
   }
   catch (...)
   {
-    ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid URI: " + ui_.edituri->text() + " invalid uri</font><br/>");
+    boost::system::error_code err;
+    const boost::asio::ip::address address = boost::asio::ip::address::from_string(ui_.edituri->text().toStdString(), err);
+    if (err)
+    {
+      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid URI: " + ui_.edituri->text() + " invalid uri</font><br/>");
 
+    }
+    else if (address.is_v4())
+    {
+      if (QMessageBox::question(this, tr("Warning"), tr("This address is missing a schema and path, would you like"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+      {
+        ui_.edituri->setText("http://" + ui_.edituri->text() + "/onvif/device_service");
+        //TODO now kick off a connection
+      }
+    }
+    else if (address.is_v6())
+    {
+      //TODO same  as above
+
+    }
+    else
+    {
+      ui_.labeltestresult->setText(ui_.labeltestresult->text() + "<font color=\"red\">Invalid URI: " + ui_.edituri->text() + " invalid uri</font><br/>");
+
+    }
   }
 }
 
@@ -1391,10 +1431,9 @@ void ManageTrackWindow::on_buttonok_clicked()
   }
 
   // Make sure the URI looks reasonable
-  const std::string mediauri = ui_.edituri->text().toStdString();
-  if (mediauri.size()) // Empty URI is satisfactory, it just remains idle on the server
+  try
   {
-    const network::uri uri(mediauri);
+    const network::uri uri(ui_.edituri->text().toStdString());
     if (!uri.has_scheme())
     {
       QMessageBox(QMessageBox::Warning, tr("Error"), tr("Invalid URI: ") + ui_.edituri->text() + " no scheme present", QMessageBox::Ok, nullptr, Qt::MSWindowsFixedSizeDialogHint).exec();
@@ -1414,9 +1453,10 @@ void ManageTrackWindow::on_buttonok_clicked()
     }
     else if ((uri.scheme().compare("http") == 0) || (uri.scheme().compare("https") == 0))
     {
+      //TODO same questions as above
       if (uri.has_path() && (uri.path().compare("/onvif/device_service/") == 0))
       {
-        if (QMessageBox::question(this, tr("Warning"), tr("The uri aooears invalid(trailing slash '/'), are you sure you want to continue?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+        if (QMessageBox::question(this, tr("Warning"), tr("The uri appears invalid(contains a trailing slash '/'), are you sure you want to continue?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)//TODO ask this same question in the testing
         {
 
           return;
@@ -1444,6 +1484,11 @@ void ManageTrackWindow::on_buttonok_clicked()
         return;
       }
     }
+  }
+  catch (...)
+  {
+    //TODO now look to see if it is just an address and do teh same as above
+
   }
 
   QSharedPointer<RecordingJob> job = GetJob();
