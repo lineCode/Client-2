@@ -6,6 +6,7 @@
 #include "monocleclient/managetrackfindonvifdevicediscoverytree.h"
 
 #include <boost/asio/ip/address.hpp>
+#include <network/uri.hpp>
 #include <onviftypes/onviftypes.hpp>
 #include <QTimer>
 #include <QUrl>
@@ -150,14 +151,14 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::Filter(QTreeWidgetItem* item)
 {
   if (textfilter_.size())
   {
-    if (!item->text(0).contains(textfilter_, Qt::CaseInsensitive) && !item->text(1).contains(textfilter_, Qt::CaseInsensitive) && !item->text(2).contains(textfilter_, Qt::CaseInsensitive) && !ChildrenContainsTextFilter(item))
+    if (!item->text(0).contains(textfilter_, Qt::CaseInsensitive) && !ChildrenContainsTextFilter(item))
     {
       item->setHidden(true);
       return;
     }
   }
 
-  const QUrl url(item->text(2));
+  const QUrl url(item->text(0));
   if (!url.isValid())
   {
     item->setHidden(true);
@@ -214,6 +215,96 @@ bool ManageTrackFindONVIFDeviceDiscoveryTree::ChildrenContainsTextFilter(QTreeWi
   return false;
 }
 
+std::vector<QTreeWidgetItem*> ManageTrackFindONVIFDeviceDiscoveryTree::FindItems(const std::string& address)//TODO this should just return a boolean
+{
+  std::string schema;
+  std::string port;
+  std::string host;
+  std::string path;
+  try
+  {
+    const network::uri uri(address);
+    if (!uri.has_scheme() || !uri.has_host() || !uri.has_path())
+    {
+
+      return std::vector<QTreeWidgetItem*>();
+    }
+    schema = uri.scheme().to_string();
+    if (uri.has_port() && !uri.port().empty())
+    {
+      port = uri.port().to_string();
+
+    }
+    else
+    {
+      if (schema == "https")
+      {
+        port = "443";
+
+      }
+      else
+      {
+        port = "80";
+
+      }
+    }
+    host = uri.host().to_string();
+    path = uri.path().to_string();
+  }
+  catch (...)
+  {
+
+    return std::vector<QTreeWidgetItem*>();
+  }
+
+
+  std::vector<QTreeWidgetItem*> items;
+  for (int i = 0; i < topLevelItemCount(); ++i)
+  {
+    QTreeWidgetItem* item = topLevelItem(i);
+    try
+    {
+      const network::uri uri(item->text(0).toStdString());//TODO store up these details so we don't have to parse them every time imo cos there could be a lot of work to do here...
+      if (!uri.has_scheme() || !uri.has_host() || !uri.has_path())
+      {
+
+        continue;
+      }
+
+      std::string port2;
+      if (uri.has_port() && !uri.port().empty())
+      {
+        port2 = uri.port().to_string();
+
+      }
+      else
+      {
+        if (uri.scheme().to_string() == "https")
+        {
+          port2 = "443";
+
+        }
+        else
+        {
+          port2 = "80";
+
+        }
+      }
+
+      if ((uri.scheme().to_string() == schema) && (port2 == port) && (uri.host().to_string() == host) && (uri.path().to_string() == path))
+      {
+        items.push_back(item);
+        //TODO should just return true here
+      }
+    }
+    catch (...)
+    {
+
+    }
+  }
+  return items;
+}
+
 void ManageTrackFindONVIFDeviceDiscoveryTree::ItemCollapsed(QTreeWidgetItem* item)
 {
   static_cast<ManageTrackFindONVIFDeviceDiscoveryTreeItem*>(item)->Collapsed();
@@ -250,19 +341,21 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::DiscoveryHello(const std::vector<s
     }
   }
 
-  //TODO make the uri accross the whole thing, and have the tooltip be the correct thing
-  
   for (const std::string& address : addresses)
   {
-    //TODO FindItem(address)
-      //TODO we want to replace it here
-    if (!findItems(QString::fromStdString(address), Qt::MatchExactly, 2).isEmpty()) // Ignore duplicates
+
+    //TODO network::uri uri(address); to make sure it looks reasonable and collect the details. Then dump them into the setData
+
+    if (!FindItems(address).empty()) // Ignore duplicates
     {
 
       continue;
     }
 
     ManageTrackFindONVIFDeviceDiscoveryTreeItem* item = new ManageTrackFindONVIFDeviceDiscoveryTreeItem(device_, names, locations, address, username_, password_);
+
+    //TODO add names and locations to the item if they don't already exist
+      //TODO they just go on tooltips I think?
     item->setData(0, Qt::UserRole, RECEIVERDISCOVERYITEM_DEVICE);
     item->setData(0, Qt::UserRole + 1, QString::fromStdString(address));
     Filter(item);
@@ -272,14 +365,13 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::DiscoveryHello(const std::vector<s
 
 void ManageTrackFindONVIFDeviceDiscoveryTree::DiscoverONVIFDevice(const std::string& address)
 {
-  //TODO we need to match ip, port, schema and path
-    //TODO where port is defaulted by the schema http(80)/https(443)
-
-  if (!findItems(QString::fromStdString(address), Qt::MatchExactly, 2).isEmpty()) // Ignore duplicates
+  if (!FindItems(address).empty()) // Ignore duplicates
   {
 
     return;
   }
+
+  //TODO network::uri uri(address); to make sure it looks reasonable and collect the details
 
   ManageTrackFindONVIFDeviceDiscoveryTreeItem* item = new ManageTrackFindONVIFDeviceDiscoveryTreeItem(device_, std::vector<std::string>(), std::vector<std::string>(), address, username_, password_);
   item->setData(0, Qt::UserRole, RECEIVERDISCOVERYITEM_DEVICE);

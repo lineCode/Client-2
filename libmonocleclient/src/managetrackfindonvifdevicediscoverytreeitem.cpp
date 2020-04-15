@@ -20,13 +20,16 @@ namespace client
 ///// Methods /////
 
 ManageTrackFindONVIFDeviceDiscoveryTreeItem::ManageTrackFindONVIFDeviceDiscoveryTreeItem(const boost::shared_ptr<Device>& device, const std::vector<std::string>& names, const std::vector<std::string>& locations, const std::string& address, const std::string& username, const std::string& password) :
-  QTreeWidgetItem(QStringList({ QString::fromStdString(boost::algorithm::join(names, ", ")), QString::fromStdString(boost::algorithm::join(locations, ", ")), QString::fromStdString(address) })),
+  QTreeWidgetItem(QStringList({ QString::fromStdString(address) })),
   device_(device),
   address_(address),
   username_(username),
   password_(password)
 {
   setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
+
+  //TODO setTooltip I think
+  //TODO QString::fromStdString(boost::algorithm::join(names, ", ")), QString::fromStdString(boost::algorithm::join(locations, ", ")), 
 
 }
 
