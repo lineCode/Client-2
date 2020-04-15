@@ -11,6 +11,14 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
+///// Declarations /////
+
+namespace onvif { class Connection; }
+
+///// Prototypes /////
+
+void swap(onvif::Connection& lhs, onvif::Connection& rhs) noexcept;
+
 ///// Namespaces /////
 
 namespace onvif

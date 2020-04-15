@@ -5,6 +5,15 @@
 
 #include "onvifclient/connection.hpp"
 
+///// Functions /////
+
+void swap(onvif::Connection& lhs, onvif::Connection& rhs) noexcept
+{
+  auto tmp = std::move(lhs);
+  lhs = std::move(rhs);
+  rhs = std::move(tmp);
+}
+
 ///// Namespaces /////
 
 namespace onvif
