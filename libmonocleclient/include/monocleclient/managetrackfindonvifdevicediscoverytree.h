@@ -10,6 +10,8 @@
 #include <memory>
 #include <QTreeWidget>
 
+#include "monocleclient/networkmapper.h"
+
 ///// Namespaces /////
 
 namespace client
@@ -55,6 +57,7 @@ class ManageTrackFindONVIFDeviceDiscoveryTree : public QTreeWidget
 
   boost::shared_ptr<Device> device_;
   monocle::client::Connection connection_;
+  NetworkMapper networkmapper_;
 
   QString textfilter_;
   bool showipv4_;
@@ -70,6 +73,7 @@ class ManageTrackFindONVIFDeviceDiscoveryTree : public QTreeWidget
   void ItemCollapsed(QTreeWidgetItem* item);
   void ItemExpanded(QTreeWidgetItem* item);
   void DiscoveryHello(const std::vector<std::string>& addresses, const std::vector<std::string>& scopes);
+  void DiscoverONVIFDevice();
 
 
 };

@@ -1,5 +1,5 @@
 // managetrackfindonvifdevicediscoverytree.cpp
-//
+// 
 
 ///// Includes /////
 
@@ -32,8 +32,7 @@ ManageTrackFindONVIFDeviceDiscoveryTree::ManageTrackFindONVIFDeviceDiscoveryTree
   connect(this, &QTreeWidget::itemCollapsed, this, &ManageTrackFindONVIFDeviceDiscoveryTree::ItemCollapsed);
   connect(this, &QTreeWidget::itemExpanded, this, &ManageTrackFindONVIFDeviceDiscoveryTree::ItemExpanded);
   connect(MainWindow::Instance(), &MainWindow::DiscoveryStreamingDeviceHello, this, &ManageTrackFindONVIFDeviceDiscoveryTree::DiscoveryHello);
-
-  MainWindow::Instance()->DiscoveryBroadcast();
+  connect(&networkmapper_, &NetworkMapper::DiscoverONVIFDevice, this, &ManageTrackFindONVIFDeviceDiscoveryTree::DiscoverONVIFDevice);
   
   startTimer(std::chrono::milliseconds(60));
 }
@@ -55,8 +54,6 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::Init(const boost::shared_ptr<Devic
   username_ = username;
   password_ = password;
 
-  connect(device_.get(), &Connection::SignalDiscoveryHello, this, &ManageTrackFindONVIFDeviceDiscoveryTree::DiscoveryHello);
-
   connection_ = device_->SubscribeDiscovery(true, [this](const std::chrono::steady_clock::duration latency, const monocle::client::SUBSCRIBEDISCOVERYRESPONSE& subscribediscoveryresponse)
   {
     if (subscribediscoveryresponse.GetErrorCode() != monocle::ErrorCode::Success)
@@ -65,6 +62,10 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::Init(const boost::shared_ptr<Devic
       return;
     }
   });
+
+  connect(device_.get(), &Connection::SignalDiscoveryHello, this, &ManageTrackFindONVIFDeviceDiscoveryTree::DiscoveryHello);
+
+  Refresh();
 }
 
 void ManageTrackFindONVIFDeviceDiscoveryTree::SetTextFilter(const QString& textfilter)
@@ -94,7 +95,6 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::ShowLinkLocal(const bool showlinkl
 void ManageTrackFindONVIFDeviceDiscoveryTree::Refresh()
 {
   clear();
-  connection_.Close();
   connection_ = device_->DiscoveryBroadcast([this](const std::chrono::steady_clock::duration latency, const monocle::client::DISCOVERYBROADCASTRESPONSE& discoverybroadcastresponse)
   {
     if (discoverybroadcastresponse.GetErrorCode() != monocle::ErrorCode::Success)
@@ -264,6 +264,12 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::DiscoveryHello(const std::vector<s
     Filter(item);
     addTopLevelItem(item);
   }
+}
+
+void ManageTrackFindONVIFDeviceDiscoveryTree::DiscoverONVIFDevice()
+{
+  //TODO we should end up with an ip address passed in here, and hopefully some other useful things perhaps? perhaps a uri?
+
 }
 
 }
