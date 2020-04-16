@@ -55,7 +55,8 @@ class NetworkMapperScanner : public QObject
   uint16_t currentc_;
   uint16_t currentd_;
 
-  std::vector< std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> > > connections_;
+  std::vector< std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> > > getsystemdateandtimeconnections_;
+  std::vector< std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> > > getcapabilitiesconnections_;
 
  signals:
 

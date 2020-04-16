@@ -39,7 +39,7 @@ NetworkMapperScanner::NetworkMapperScanner(const uint8_t a, const std::pair<uint
   {
     while (running_)
     {
-      if (connections_.size() < maxconnections_)
+      if (getsystemdateandtimeconnections_.size() < maxconnections_)
       {
         const std::string address = NextAddress();
         if (address.empty()) // Finished
@@ -62,8 +62,6 @@ NetworkMapperScanner::NetworkMapperScanner(const uint8_t a, const std::pair<uint
           continue;
         }
 
-        //TODO qDebug() << QString::fromStdString(address);//TODO
-
         //TODO we want to pass in port_ which can be empty, 8080 OR 80 as well...
 
         //TODO add ports in here...
@@ -75,23 +73,39 @@ NetworkMapperScanner::NetworkMapperScanner(const uint8_t a, const std::pair<uint
           continue;
         }
 
-        connections_.emplace_back(std::move(std::make_pair(boost::make_shared<onvif::Connection>(std::move(connection->GetSystemDateAndTimeCallback([this, uri, connection](const onvif::device::GetSystemDateAndTimeResponse& response)
+        getsystemdateandtimeconnections_.emplace_back(std::move(std::make_pair(boost::make_shared<onvif::Connection>(std::move(connection->GetSystemDateAndTimeCallback([this, uri, connection](const onvif::device::GetSystemDateAndTimeResponse& response)
         {
           if (response.Error())
           {
-            // Some cameras require authentication for GetSystemDateAndTime(DLink) which is totally bananas, so lets ignore them
+            if (response.Message() != onvif::UNABLETOCONNECT) // If the device responded, but not quite as we expected, it is possible we can crack on anyway, so lets give it another go
+            {
+              getcapabilitiesconnections_.emplace_back(std::move(std::make_pair(boost::make_shared<onvif::Connection>(std::move(connection->GetCapabilitiesCallback(onvif::CAPABILITYCATEGORY_ALL, [this, uri](const onvif::device::GetCapabilitiesResponse& response)
+              {
+                if (response.Error())
+                {
+                  // Give up now
 
+                }
+                else
+                {
+                  emit DiscoverONVIFDevice(uri);
+
+                }
+              }))), connection)));
+            }
           }
           else
           {
-            // We could go further and grab GetServices GetServiceCapabilities, GetCapabilities, but they aren't really necessary
             emit DiscoverONVIFDevice(uri);
+
           }
         }))), connection)));
       }
 
-      connections_.erase(std::remove_if(connections_.begin(), connections_.end(), [](const std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> >& connection) { return connection.second->Update(); }), connections_.end()); // Update and remove any that error
-      connections_.erase(std::remove_if(connections_.begin(), connections_.end(), [](const std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> >& connection) { return !connection.first->IsConnected(); }), connections_.end());
+      getsystemdateandtimeconnections_.erase(std::remove_if(getsystemdateandtimeconnections_.begin(), getsystemdateandtimeconnections_.end(), [](const std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> >& connection) { return connection.second->Update(); }), getsystemdateandtimeconnections_.end()); // Update and remove any that error
+      getsystemdateandtimeconnections_.erase(std::remove_if(getsystemdateandtimeconnections_.begin(), getsystemdateandtimeconnections_.end(), [](const std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> >& connection) { return !connection.first->IsConnected(); }), getsystemdateandtimeconnections_.end());
+      getcapabilitiesconnections_.erase(std::remove_if(getcapabilitiesconnections_.begin(), getcapabilitiesconnections_.end(), [](const std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> >& connection) { return connection.second->Update(); }), getcapabilitiesconnections_.end()); // Update and remove any that error
+      getcapabilitiesconnections_.erase(std::remove_if(getcapabilitiesconnections_.begin(), getcapabilitiesconnections_.end(), [](const std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> >& connection) { return !connection.first->IsConnected(); }), getcapabilitiesconnections_.end());
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
   });
@@ -103,7 +117,8 @@ NetworkMapperScanner::~NetworkMapperScanner()
   {
     running_ = false;
     thread_.join();
-    std::for_each(connections_.begin(), connections_.end(), [](std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> >& connection) { connection.first->Close(); });
+    std::for_each(getsystemdateandtimeconnections_.begin(), getsystemdateandtimeconnections_.end(), [](std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> >& connection) { connection.first->Close(); });
+    std::for_each(getcapabilitiesconnections_.begin(), getcapabilitiesconnections_.end(), [](std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> >& connection) { connection.first->Close(); });
   }
 }
 
