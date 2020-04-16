@@ -283,7 +283,7 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::AddItem(const std::string& address
     return;
   }
 
-  ManageTrackFindONVIFDeviceDiscoveryTreeItem* item = FindItem(schema, port, host, path);//TODO reinterprate cast here into the appropriate 
+  ManageTrackFindONVIFDeviceDiscoveryTreeItem* item = FindItem(schema, port, host, path);
   if (item) // Ignore duplicates
   {
     item->AddNames(names);
