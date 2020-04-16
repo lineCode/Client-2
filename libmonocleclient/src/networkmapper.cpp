@@ -62,9 +62,6 @@ NetworkMapperScanner::NetworkMapperScanner(const uint8_t a, const std::pair<uint
           continue;
         }
 
-        //TODO we want to pass in port_ which can be empty, 8080 OR 80 as well...
-
-        //TODO add ports in here...
         const std::string uri = std::string("http://") + address + "/onvif/device_service";
         boost::shared_ptr<onvif::device::DeviceClient> connection = boost::make_shared<onvif::device::DeviceClient>(boost::make_shared<std::recursive_mutex>());
         if (connection->Init(sock::ProxyParams(), uri, "username", "password", 1, false, true))
@@ -79,14 +76,9 @@ NetworkMapperScanner::NetworkMapperScanner(const uint8_t a, const std::pair<uint
           {
             if (response.Message() != onvif::UNABLETOCONNECT) // If the device responded, but not quite as we expected, it is possible we can crack on anyway, so lets give it another go
             {
-              getcapabilitiesconnections_.emplace_back(std::move(std::make_pair(boost::make_shared<onvif::Connection>(std::move(connection->GetCapabilitiesCallback(onvif::CAPABILITYCATEGORY_ALL, [this, uri](const onvif::device::GetCapabilitiesResponse& response)
+              getcapabilitiesconnections_.emplace_back(std::move(std::make_pair(boost::make_shared<onvif::Connection>(std::move(connection->GetCapabilitiesCallback(onvif::CAPABILITYCATEGORY_MEDIA, [this, uri](const onvif::device::GetCapabilitiesResponse& response)
               {
-                if (response.Error())
-                {
-                  // Give up now
-
-                }
-                else
+                if (response.capabilities_.is_initialized() && response.capabilities_->media_.is_initialized() && response.capabilities_->media_->xaddr_.is_initialized()) // We only care if it has a media profile
                 {
                   emit DiscoverONVIFDevice(uri);
 
@@ -127,7 +119,7 @@ std::string NetworkMapperScanner::NextAddress()
   const uint8_t b = currentb_;
   const uint8_t c = currentc_;
   const uint8_t d = currentd_;
-  if (++currentd_ > d_.second)
+  if (++currentd_ > d_.second) // Increment and find the next suitable address
   {
     currentd_ = d_.first;
     if (++currentc_ > c_.second)
@@ -193,9 +185,6 @@ void NetworkMapper::Init()
 
     const uint32_t netmaskdata = netmask.to_v4().to_ulong();
     const uint32_t networkdata = network.to_v4().to_ulong() & netmaskdata;
-
-    //TODO pass in the ports as well... we want http on 80,8888,8080,88 and https on 443
-
     if (std::find_if(scanners_.cbegin(), scanners_.cend(), [networkdata, netmaskdata](const std::unique_ptr<NetworkMapperScanner>& scanner) { return ((scanner->GetNetwork() == networkdata) && (scanner->GetNetmask() == netmaskdata)); }) != scanners_.cend())
     {
 
