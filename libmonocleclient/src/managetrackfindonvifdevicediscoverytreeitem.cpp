@@ -5,12 +5,14 @@
 
 #include "monocleclient/managetrackfindonvifdevicediscoverytreeitem.h"
 
+#include <boost/algorithm/string/find.hpp>
 #include <boost/algorithm/string/join.hpp>
 #include <onvifclient/deviceclient.hpp>
 #include <onvifclient/mediaclient.hpp>
 #include <QString>
 
 #include "monocleclient/device.h"
+#include "monocleclient/managetrackfindonvifdevicediscoverytree.h"
 
 ///// Namespaces /////
 
@@ -20,14 +22,17 @@ namespace client
 ///// Methods /////
 
 ManageTrackFindONVIFDeviceDiscoveryTreeItem::ManageTrackFindONVIFDeviceDiscoveryTreeItem(const boost::shared_ptr<Device>& device, const std::vector<std::string>& names, const std::vector<std::string>& locations, const std::string& address, const std::string& username, const std::string& password) :
-  QTreeWidgetItem(QStringList({ QString::fromStdString(boost::algorithm::join(names, ", ")), QString::fromStdString(boost::algorithm::join(locations, ", ")), QString::fromStdString(address) })),
+  QTreeWidgetItem(QStringList({ QString::fromStdString(address) })),
   device_(device),
+  names_(names),
+  locations_(names),
   address_(address),
   username_(username),
   password_(password)
 {
   setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
 
+  UpdateTooltip();
 }
 
 ManageTrackFindONVIFDeviceDiscoveryTreeItem::~ManageTrackFindONVIFDeviceDiscoveryTreeItem()
@@ -93,6 +98,67 @@ int ManageTrackFindONVIFDeviceDiscoveryTreeItem::Update()
 
   }
   return 0;
+}
+
+void ManageTrackFindONVIFDeviceDiscoveryTreeItem::AddNames(const std::vector<std::string>& names)
+{
+  for (const std::string& name : names)
+  {
+    if (name.empty())
+    {
+
+      continue;
+    }
+
+    if (std::find(names_.cbegin(), names_.cend(), name) == names_.cend())
+    {
+      names_.push_back(name);
+
+    }
+  }
+  UpdateTooltip();
+}
+
+void ManageTrackFindONVIFDeviceDiscoveryTreeItem::AddLocations(const std::vector<std::string>& locations)
+{
+  for (const std::string& location : locations)
+  {
+    if (location.empty())
+    {
+
+      continue;
+    }
+
+    if (std::find(locations_.cbegin(), locations_.cend(), location) == locations_.cend())
+    {
+      locations_.push_back(location);
+
+    }
+  }
+  UpdateTooltip();
+}
+
+bool ManageTrackFindONVIFDeviceDiscoveryTreeItem::TextFilter(const std::string& textfilter) const
+{
+  for (const std::string& name : names_)
+  {
+    if (boost::ifind_first(name, textfilter))
+    {
+
+      return true;
+    }
+  }
+
+  for (const std::string& location : locations_)
+  {
+    if (boost::ifind_first(location, textfilter))
+    {
+
+      return true;
+    }
+  }
+
+  return false;
 }
 
 void ManageTrackFindONVIFDeviceDiscoveryTreeItem::RemoveChildren()
@@ -216,8 +282,8 @@ void ManageTrackFindONVIFDeviceDiscoveryTreeItem::GetProfiles()
 
           QTreeWidgetItem* profileitem = new QTreeWidgetItem(this, { QString::fromStdString(*profile.token_) + name });
           profileitem->setData(0, Qt::UserRole, RECEIVERDISCOVERYITEM_PROFILE);
-          profileitem->setData(0, Qt::UserRole + 1, QString::fromStdString(address_));
-          profileitem->setData(0, Qt::UserRole + 2, QString::fromStdString(*profile.token_));
+          profileitem->setData(0, ADDRESS_ROLE, QString::fromStdString(address_));
+          profileitem->setData(0, PROFILE_TOKEN_ROLE, QString::fromStdString(*profile.token_));
           QStringList listitems;
           if (profile.videosourceconfiguration_.is_initialized())
           {
@@ -368,7 +434,7 @@ void ManageTrackFindONVIFDeviceDiscoveryTreeItem::GetProfiles()
 
             }
           }
-          profileitem->setData(0, Qt::UserRole + 3, listitems);
+          profileitem->setToolTip(0, listitems.join("\n"));
           addChild(profileitem);
         }
 
@@ -386,6 +452,25 @@ void ManageTrackFindONVIFDeviceDiscoveryTreeItem::SetChildText(const QString& te
 {
   RemoveChildren();
   addChild(new QTreeWidgetItem(this, { QString(text) }));
+}
+
+void ManageTrackFindONVIFDeviceDiscoveryTreeItem::UpdateTooltip()
+{
+  QStringList tooltips;
+  tooltips.reserve(static_cast<int>(names_.size() + locations_.size()));
+  for (const std::string& name : names_)
+  {
+    tooltips.push_back(QString::fromStdString(name));
+
+  }
+
+  for (const std::string& location : locations_)
+  {
+    tooltips.push_back(QString::fromStdString(location));
+
+  }
+
+  setToolTip(0, tooltips.join("\n"));
 }
 
 }

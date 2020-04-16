@@ -57,6 +57,7 @@ class ManageTrackFindONVIFDeviceWindow : public QDialog
   QString uri_;
   QString username_;
   QString password_;
+  QString profile_;
 
  protected:
 

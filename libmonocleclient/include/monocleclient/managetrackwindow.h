@@ -67,8 +67,6 @@ class ManageTrackWindow : public QDialog, public boost::enable_shared_from_this<
   ManageTrackWindow(QWidget* parent, const boost::shared_ptr<Device>& device, const QSharedPointer<Recording>& recording, const QSharedPointer<RecordingJob>& recordingjob, const QSharedPointer<RecordingJobSource>& recordingjobsource, const QSharedPointer<RecordingJobSourceTrack>& recordingjobsourcetrack, const QSharedPointer<RecordingTrack>& recordingtrack, const QString& uri);
   ~ManageTrackWindow();
 
-  void Destroy();
-
  protected:
 
   void timerEvent(QTimerEvent*) override;
@@ -83,6 +81,7 @@ class ManageTrackWindow : public QDialog, public boost::enable_shared_from_this<
   void RTSPCallback(const std::string& uri, const std::string& host, const uint16_t port);
   void SetTrack(const uint64_t recordingtoken, const uint64_t recordingjobtoken, const uint64_t objectdetectortrackid, const uint64_t objectdetectorrecordingjobsourcetoken, const uint64_t objectdetectorrecordingjobsourcetracktoken);
   void SetEnabled(const bool enabled);
+  void Test();
 
   boost::shared_ptr<std::recursive_mutex> mutex_;
 

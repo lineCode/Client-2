@@ -84,10 +84,12 @@ enum class OPERATINGSYSTEM : int
 
 struct ADDRESS
 {
-  ADDRESS(const std::string& name, const std::string& address);
+  ADDRESS(const std::string& name, const std::string& address, const std::string& netmask);
 
   std::string name_;
   std::string address_;
+  std::string netmask_;
+
 };
 
 ///// Functions /////
@@ -98,6 +100,7 @@ bool IsValidSubnetMask(const uint32_t subnetmask);
 int SubnetMaskToPrefix(const uint32_t subnetmask);
 std::string PrefixToSubnetMask(const int prefix);
 bool IsIPV4InRange(const uint32_t ip, const uint32_t network, const uint32_t netmask);
+bool IsAddress(const std::string& address);
 
 // Containers
 template<class T, class U>

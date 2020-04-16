@@ -144,6 +144,23 @@ TEST(Utility, IsIPV4InRange)
   ASSERT_FALSE(IsIPV4InRange(boost::asio::ip::address_v4::from_string("169.253.4.177").to_ulong(), boost::asio::ip::address_v4::from_string("169.254.0.0").to_ulong(), boost::asio::ip::address_v4::from_string("255.255.0.0").to_ulong()));
 }
 
+TEST(Utility, IsAddress)
+{
+  ASSERT_TRUE(IsAddress("255.255.255.255"));
+  ASSERT_TRUE(IsAddress("0.0.0.0"));
+  ASSERT_TRUE(IsAddress("192.168.0.1"));
+  ASSERT_FALSE(IsAddress("192.168.0."));
+  ASSERT_FALSE(IsAddress("192.168.0"));
+  ASSERT_FALSE(IsAddress("192.168."));
+  ASSERT_FALSE(IsAddress("192.168"));
+  ASSERT_FALSE(IsAddress("192."));
+  ASSERT_FALSE(IsAddress("192"));
+  ASSERT_FALSE(IsAddress(std::string()));
+  ASSERT_FALSE(IsAddress("255.255.255.256"));
+  ASSERT_FALSE(IsAddress("http://192.168.0.1"));
+  ASSERT_FALSE(IsAddress("192.168.0.1/"));
+}
+
 TEST(Utility, Contains)
 {
   const std::vector<std::string> strings =

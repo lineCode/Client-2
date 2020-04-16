@@ -21,7 +21,7 @@ class SearchSignals
 {
  public:
 
-  Signal<SEARCHOPERATION, SearchClient, GetServiceCapabilitiesResponse> getservicecapabilities_;
+  std::unique_ptr< Signal<SEARCHOPERATION, SearchClient, GetServiceCapabilitiesResponse> > getservicecapabilities_;
     
 };
 
@@ -31,7 +31,7 @@ SearchClient::SearchClient(const boost::shared_ptr<std::recursive_mutex>& mutex)
   Client(mutex),
   signals_(new SearchSignals(
   {
-    Signal<SEARCHOPERATION, SearchClient, GetServiceCapabilitiesResponse>(this, SEARCHOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/search/wsdl/GetServiceCapabilities"), false)
+    std::make_unique< Signal<SEARCHOPERATION, SearchClient, GetServiceCapabilitiesResponse> >(this, SEARCHOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/search/wsdl/GetServiceCapabilities"), false)
   }))
 {
 
@@ -50,31 +50,31 @@ void SearchClient::Destroy()
 {
   Client::Destroy();
 
-  signals_->getservicecapabilities_.Destroy();
+  signals_->getservicecapabilities_->Destroy();
 }
 
 // Requests
 void SearchClient::GetServiceCapabilities()
 {
-  signals_->getservicecapabilities_.Create(GetServiceCapabilitiesBody());
+  signals_->getservicecapabilities_->Create(GetServiceCapabilitiesBody());
 }
 
 // Callbacks
 Connection SearchClient::GetServiceCapabilitiesCallback(boost::function<void(const GetServiceCapabilitiesResponse&)> callback)
 {
-  return signals_->getservicecapabilities_.CreateCallback(GetServiceCapabilitiesBody(), callback);
+  return signals_->getservicecapabilities_->CreateCallback(GetServiceCapabilitiesBody(), callback);
 }
 
 // Futures
 boost::unique_future<GetServiceCapabilitiesResponse> SearchClient::GetServiceCapabilitiesFuture()
 {
-  return signals_->getservicecapabilities_.CreateFuture(GetServiceCapabilitiesBody());
+  return signals_->getservicecapabilities_->CreateFuture(GetServiceCapabilitiesBody());
 }
 
 // Signals
 boost::signals2::signal<void(const GetServiceCapabilitiesResponse&)>& SearchClient::GetServiceCapabilitiesSignal()
 {
-  return signals_->getservicecapabilities_.GetSignal();
+  return signals_->getservicecapabilities_->GetSignal();
 }
 
 void SearchClient::Update(SEARCHOPERATION operation, CURL* handle, const boost::asio::ip::address& localendpoint, int64_t latency, const pugi::xml_document& document, const std::map< std::string, std::vector<char> >& mtomdata)
@@ -90,7 +90,7 @@ void SearchClient::Update(SEARCHOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->getservicecapabilities_.Emit(handle, localendpoint, latency, std::string(), GetClass<Capabilities>(getservicecapabilitiesresponse, "*[local-name()='Capabilities']"));
+      signals_->getservicecapabilities_->Emit(handle, localendpoint, latency, std::string(), GetClass<Capabilities>(getservicecapabilitiesresponse, "*[local-name()='Capabilities']"));
       break;
     }
     default:
@@ -107,7 +107,7 @@ void SearchClient::SignalError(SEARCHOPERATION operation, CURL* handle, const bo
   {
     case SEARCHOPERATION_GETSERVICECAPABILITIES:
     {
-      signals_->getservicecapabilities_.Emit(handle, localendpoint, latency, message);
+      signals_->getservicecapabilities_->Emit(handle, localendpoint, latency, message);
       break;
     }
     default:

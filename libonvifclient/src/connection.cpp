@@ -5,6 +5,15 @@
 
 #include "onvifclient/connection.hpp"
 
+///// Functions /////
+
+void swap(onvif::Connection& lhs, onvif::Connection& rhs) noexcept
+{
+  auto tmp = std::move(lhs);
+  lhs = std::move(rhs);
+  rhs = std::move(tmp);
+}
+
 ///// Namespaces /////
 
 namespace onvif
@@ -12,12 +21,12 @@ namespace onvif
 
 ///// Methods /////
 
-Connection::Connection()
+Connection::Connection() noexcept
 {
 
 }
 
-Connection::Connection(boost::shared_ptr<ConnectionBlock>& connectionblock) :
+Connection::Connection(boost::shared_ptr<ConnectionBlock>& connectionblock) noexcept :
   connectionblock_(connectionblock)
 {
 

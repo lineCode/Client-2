@@ -9,6 +9,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/predef.h>
 #include <boost/random.hpp>
+#include <boost/regex.hpp>
 #include <boost/scope_exit.hpp>
 #include <iomanip>
 #include <malloc.h>
@@ -56,9 +57,10 @@ static const char HEXCHARS[] = "0123456789abcdef";
 
 ///// Methods /////
 
-ADDRESS::ADDRESS(const std::string& name, const std::string& address) :
+ADDRESS::ADDRESS(const std::string& name, const std::string& address, const std::string& netmask) :
   name_(name),
-  address_(address)
+  address_(address),
+  netmask_(netmask)
 {
 
 }
@@ -113,7 +115,7 @@ std::pair<int, std::vector<ADDRESS> > GetAddresses()
           const boost::asio::ip::address address = boost::asio::ip::address::from_string(utility::ToString(reinterpret_cast<sockaddr_in*>(unicastaddress->Address.lpSockaddr)), err);
           if (!err && !address.is_unspecified())
           {
-            addresses.emplace_back(adaptersaddresses->AdapterName, address.to_string());
+            addresses.emplace_back(adaptersaddresses->AdapterName, address.to_string(), PrefixToSubnetMask(unicastaddress->OnLinkPrefixLength));
 
           }
         }
@@ -525,6 +527,12 @@ bool IsIPV4InRange(const uint32_t ip, const uint32_t network, const uint32_t sub
 
     return false;
   }
+}
+
+bool IsAddress(const std::string& address)
+{
+  static const boost::regex regex(R"REGEX(((^\s*((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s*$)|(^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$)))REGEX");
+  return boost::regex_match(address, regex);
 }
 
 // Strings

@@ -68,7 +68,7 @@ static const QString MAINSHOWTOOLBAR("showtoolbar");
 static const QString NEWDEVICEIDENTIFIERS("newdeviceidentifiers");
 static const QString NEWCAMERAS("newcameras");
 
-static const std::chrono::seconds DISCOVERY_DELAY(30);
+static const std::chrono::seconds DISCOVERY_DELAY(60);
 
 ///// Methods /////
 
@@ -120,6 +120,7 @@ MainWindow::MainWindow(const uint32_t numioservices) :
   connect(ui_.docklog, &QDockWidget::visibilityChanged, [this](bool visible) { ui_.actionlog->setChecked(visible); });
   connect(ui_.dockplayback, &QDockWidget::visibilityChanged, [this](bool visible) { ui_.actionplayback->setChecked(visible); });
   connect(ui_.toolbar, &QToolBar::visibilityChanged, [this](bool visible) { ui_.actiontoolbar->setChecked(visible); ui_.actionfindmotion->setChecked(false); ui_.actioncolourpicker->setChecked(false); ui_.actionfindobject->setChecked(false); });
+  connect(&networkmapper_, &NetworkMapper::DiscoverONVIFDevice, this, &MainWindow::DiscoverONVIFDevice);
 
   const int ibmplexmonobold = QFontDatabase::addApplicationFont(":/IBMPlexMono-Bold.ttf");
   if (ibmplexmonobold == -1)
@@ -736,6 +737,15 @@ std::vector< std::pair< boost::shared_ptr<Device>, monocle::LAYOUT> > MainWindow
   return layouts;
 }
 
+void MainWindow::DiscoveryBroadcast()
+{
+  if (discover_)
+  {
+    discover_->Broadcast();
+
+  }
+}
+
 void MainWindow::closeEvent(QCloseEvent* event)
 {
   if (Options::Instance().GetHideMainWindowCloseDialog() == false)
@@ -843,7 +853,7 @@ void MainWindow::timerEvent(QTimerEvent* event)
   if (event->timerId() == discoverytimer_)
   {
     discover_->Broadcast();
-
+    networkmapper_.Init();
   }
   else if (event->timerId() == iotimer_)
   {
@@ -1266,6 +1276,7 @@ void MainWindow::DiscoverCallback(const std::vector<std::string>& addresses, con
   {
     QMetaObject::invokeMethod(this, [this, addresses, scopes]() 
     {
+      emit DiscoveryStreamingDeviceHello(addresses, scopes);
       std::random_device rd;
       std::mt19937 gen(rd());
       std::uniform_int_distribution<uint64_t> dist(0, 20 * 1000);
@@ -1482,6 +1493,12 @@ void MainWindow::SaveNewCameras() const
     }
   }
   settings.setValue(NEWCAMERAS, newcameras);
+}
+
+void MainWindow::DiscoverONVIFDevice(const std::string& address)
+{
+  DiscoverCallback({ address }, { std::string("onvif://www.onvif.org/Profile/Streaming") });
+  
 }
 
 void MainWindow::LanguageChanged(QAction* action)

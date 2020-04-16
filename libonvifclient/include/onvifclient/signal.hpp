@@ -55,25 +55,10 @@ class Signal
 
   }
 
-  Signal(Signal&& rhs) :
-    client_(rhs.client_),
-    operation_(rhs.operation_),
-    authentication_(rhs.authentication_),
-    action_(rhs.action_),
-    event_(rhs.event_),
-    signal_(std::move(rhs.signal_)),
-    promises_(std::move(rhs.promises_)),
-    callbacks_(std::move(rhs.callbacks_)),
-    args_(std::move(rhs.args_))
-  {
-
-  }
-
   ~Signal()
   {
-    // Destroy should have been called before we destruct so that all futures and callbacks have returned an error
-    assert(promises_.empty());
-    assert(callbacks_.empty());
+    Destroy();
+
   }
 
   void Destroy()

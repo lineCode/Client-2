@@ -21,10 +21,10 @@ class ImagingSignals
 {
  public:
 
-  Signal<IMAGINGOPERATION, ImagingClient, GetImagingSettingsResponse, std::string> getimagingsettings_;
-  Signal<IMAGINGOPERATION, ImagingClient, GetOptionsResponse, std::string> getoptions_;
-  Signal<IMAGINGOPERATION, ImagingClient, GetServiceCapabilitiesResponse> getservicecapabilities_;
-  Signal<IMAGINGOPERATION, ImagingClient, SetImagingSettingsResponse, std::string, ImagingSettings20, bool> setimagingsettings_;
+  std::unique_ptr< Signal<IMAGINGOPERATION, ImagingClient, GetImagingSettingsResponse, std::string> > getimagingsettings_;
+  std::unique_ptr< Signal<IMAGINGOPERATION, ImagingClient, GetOptionsResponse, std::string> > getoptions_;
+  std::unique_ptr< Signal<IMAGINGOPERATION, ImagingClient, GetServiceCapabilitiesResponse> > getservicecapabilities_;
+  std::unique_ptr< Signal<IMAGINGOPERATION, ImagingClient, SetImagingSettingsResponse, std::string, ImagingSettings20, bool> > setimagingsettings_;
 
 };
 
@@ -34,10 +34,10 @@ ImagingClient::ImagingClient(const boost::shared_ptr<std::recursive_mutex>& mute
   Client(mutex),
   signals_(new ImagingSignals(
   {
-    Signal<IMAGINGOPERATION, ImagingClient, GetImagingSettingsResponse, std::string>(this, IMAGINGOPERATION_GETIMAGINGSETTINGS, true, std::string("http://www.onvif.org/ver20/imaging/wsdl/GetImagingSettings"), false),
-    Signal<IMAGINGOPERATION, ImagingClient, GetOptionsResponse, std::string>(this, IMAGINGOPERATION_GETOPTIONS, true, std::string("http://www.onvif.org/ver20/imaging/wsdl/GetOptions"), false),
-    Signal<IMAGINGOPERATION, ImagingClient, GetServiceCapabilitiesResponse>(this, IMAGINGOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver20/imaging/wsdl/GetServiceCapabilities"), false),
-      Signal<IMAGINGOPERATION, ImagingClient, SetImagingSettingsResponse, std::string, ImagingSettings20, bool>(this, IMAGINGOPERATION_SETIMAGINGSETTINGS, true, std::string("http://www.onvif.org/ver20/imaging/wsdl/SetImagingSettings"), false)
+    std::make_unique< Signal<IMAGINGOPERATION, ImagingClient, GetImagingSettingsResponse, std::string> >(this, IMAGINGOPERATION_GETIMAGINGSETTINGS, true, std::string("http://www.onvif.org/ver20/imaging/wsdl/GetImagingSettings"), false),
+    std::make_unique< Signal<IMAGINGOPERATION, ImagingClient, GetOptionsResponse, std::string> >(this, IMAGINGOPERATION_GETOPTIONS, true, std::string("http://www.onvif.org/ver20/imaging/wsdl/GetOptions"), false),
+    std::make_unique< Signal<IMAGINGOPERATION, ImagingClient, GetServiceCapabilitiesResponse> >(this, IMAGINGOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver20/imaging/wsdl/GetServiceCapabilities"), false),
+    std::make_unique< Signal<IMAGINGOPERATION, ImagingClient, SetImagingSettingsResponse, std::string, ImagingSettings20, bool> >(this, IMAGINGOPERATION_SETIMAGINGSETTINGS, true, std::string("http://www.onvif.org/ver20/imaging/wsdl/SetImagingSettings"), false)
   }))
 {
   
@@ -56,94 +56,94 @@ void ImagingClient::Destroy()
 {
   Client::Destroy();
 
-  signals_->getimagingsettings_.Destroy();
-  signals_->getoptions_.Destroy();
-  signals_->getservicecapabilities_.Destroy();
-  signals_->setimagingsettings_.Destroy();
+  signals_->getimagingsettings_->Destroy();
+  signals_->getoptions_->Destroy();
+  signals_->getservicecapabilities_->Destroy();
+  signals_->setimagingsettings_->Destroy();
 }
 
 // Requests
 void ImagingClient::GetImagingSettings(const std::string& videosourcetoken)
 {
-  signals_->getimagingsettings_.Create(GetImagingSettingsBody(videosourcetoken), videosourcetoken);
+  signals_->getimagingsettings_->Create(GetImagingSettingsBody(videosourcetoken), videosourcetoken);
 }
 
 void ImagingClient::GetOptions(const std::string& videosourcetoken)
 {
-  signals_->getoptions_.Create(GetOptionsBody(videosourcetoken), videosourcetoken);
+  signals_->getoptions_->Create(GetOptionsBody(videosourcetoken), videosourcetoken);
 }
 
 void ImagingClient::GetServiceCapabilities()
 {
-  signals_->getservicecapabilities_.Create(GetServiceCapabilitiesBody());
+  signals_->getservicecapabilities_->Create(GetServiceCapabilitiesBody());
 }
 
 void ImagingClient::SetImagingSettings(const std::string& videosourcetoken, const ImagingSettings20& imagingsettings, bool forcepersistence)
 {
-  signals_->setimagingsettings_.Create(SetImagingSettingsBody(videosourcetoken, imagingsettings, forcepersistence), videosourcetoken, imagingsettings, forcepersistence);
+  signals_->setimagingsettings_->Create(SetImagingSettingsBody(videosourcetoken, imagingsettings, forcepersistence), videosourcetoken, imagingsettings, forcepersistence);
 }
 
 // Callbacks
 Connection ImagingClient::GetImagingSettingsCallback(const std::string& videosourcetoken, boost::function<void(const GetImagingSettingsResponse&)> callback)
 {
-  return signals_->getimagingsettings_.CreateCallback(GetImagingSettingsBody(videosourcetoken), callback, videosourcetoken);
+  return signals_->getimagingsettings_->CreateCallback(GetImagingSettingsBody(videosourcetoken), callback, videosourcetoken);
 }
 
 Connection ImagingClient::GetOptionsCallback(const std::string& videosourcetoken, boost::function<void(const GetOptionsResponse&)> callback)
 {
-  return signals_->getoptions_.CreateCallback(GetOptionsBody(videosourcetoken), callback, videosourcetoken);
+  return signals_->getoptions_->CreateCallback(GetOptionsBody(videosourcetoken), callback, videosourcetoken);
 }
 
 Connection ImagingClient::GetServiceCapabilitiesCallback(boost::function<void(const GetServiceCapabilitiesResponse&)> callback)
 {
-  return signals_->getservicecapabilities_.CreateCallback(GetServiceCapabilitiesBody(), callback);
+  return signals_->getservicecapabilities_->CreateCallback(GetServiceCapabilitiesBody(), callback);
 }
 
 Connection ImagingClient::SetImagingSettingsCallback(const std::string& videosourcetoken, const ImagingSettings20& imagingsettings, bool forcepersistence, boost::function<void(const SetImagingSettingsResponse&)> callback)
 {
-  return signals_->setimagingsettings_.CreateCallback(SetImagingSettingsBody(videosourcetoken, imagingsettings, forcepersistence), callback, videosourcetoken, imagingsettings, forcepersistence);
+  return signals_->setimagingsettings_->CreateCallback(SetImagingSettingsBody(videosourcetoken, imagingsettings, forcepersistence), callback, videosourcetoken, imagingsettings, forcepersistence);
 }
 
 // Futures
 boost::unique_future<GetOptionsResponse> ImagingClient::GetOptionsFuture(const std::string& videosourcetoken)
 {
-  return signals_->getoptions_.CreateFuture(GetOptionsBody(videosourcetoken), videosourcetoken);
+  return signals_->getoptions_->CreateFuture(GetOptionsBody(videosourcetoken), videosourcetoken);
 }
 
 boost::unique_future<GetImagingSettingsResponse> ImagingClient::GetImagingSettingsFuture(const std::string& videosourcetoken)
 {
-  return signals_->getimagingsettings_.CreateFuture(GetImagingSettingsBody(videosourcetoken), videosourcetoken);
+  return signals_->getimagingsettings_->CreateFuture(GetImagingSettingsBody(videosourcetoken), videosourcetoken);
 }
 
 boost::unique_future<GetServiceCapabilitiesResponse> ImagingClient::GetServiceCapabilitiesFuture()
 {
-  return signals_->getservicecapabilities_.CreateFuture(GetServiceCapabilitiesBody());
+  return signals_->getservicecapabilities_->CreateFuture(GetServiceCapabilitiesBody());
 }
 
 boost::unique_future<SetImagingSettingsResponse> ImagingClient::SetImagingSettingsFuture(const std::string& videosourcetoken, const ImagingSettings20& imagingsettings, bool forcepersistence)
 {
-  return signals_->setimagingsettings_.CreateFuture(SetImagingSettingsBody(videosourcetoken, imagingsettings, forcepersistence), videosourcetoken, imagingsettings, forcepersistence);
+  return signals_->setimagingsettings_->CreateFuture(SetImagingSettingsBody(videosourcetoken, imagingsettings, forcepersistence), videosourcetoken, imagingsettings, forcepersistence);
 }
 
 // Signals
 boost::signals2::signal<void(const GetImagingSettingsResponse&)>& ImagingClient::GetImagingSettingsSignal(const std::string& videosourcetoken)
 {
-  return signals_->getimagingsettings_.GetSignal();
+  return signals_->getimagingsettings_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetOptionsResponse&)>& ImagingClient::GetOptionsSignal(const std::string& videosourcetoken)
 {
-  return signals_->getoptions_.GetSignal();
+  return signals_->getoptions_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetServiceCapabilitiesResponse&)>& ImagingClient::GetServiceCapabilitiesSignal()
 {
-  return signals_->getservicecapabilities_.GetSignal();
+  return signals_->getservicecapabilities_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetImagingSettingsResponse&)>& ImagingClient::SetImagingSettingsSignal(const std::string& videosourcetoken)
 {
-  return signals_->setimagingsettings_.GetSignal();
+  return signals_->setimagingsettings_->GetSignal();
 }
 
 void ImagingClient::Update(IMAGINGOPERATION operation, CURL* handle, const boost::asio::ip::address& localendpoint, int64_t latency, const pugi::xml_document& document, const std::map< std::string, std::vector<char> >& mtomdata)
@@ -159,7 +159,7 @@ void ImagingClient::Update(IMAGINGOPERATION operation, CURL* handle, const boost
         break;
       }
       
-      signals_->getimagingsettings_.Emit(handle, localendpoint, latency, std::string(), GetClass<ImagingSettings20>(getimagingsettingsresponse, "*[local-name()='ImagingSettings']"));
+      signals_->getimagingsettings_->Emit(handle, localendpoint, latency, std::string(), GetClass<ImagingSettings20>(getimagingsettingsresponse, "*[local-name()='ImagingSettings']"));
       break;
     }
     case IMAGINGOPERATION_GETOPTIONS:
@@ -171,7 +171,7 @@ void ImagingClient::Update(IMAGINGOPERATION operation, CURL* handle, const boost
         break;
       }
       
-      signals_->getoptions_.Emit(handle, localendpoint, latency, std::string(), GetClass<ImagingOptions20>(getoptionsresponse, "*[local-name()='ImagingOptions']"));
+      signals_->getoptions_->Emit(handle, localendpoint, latency, std::string(), GetClass<ImagingOptions20>(getoptionsresponse, "*[local-name()='ImagingOptions']"));
       break;
     }
     case IMAGINGOPERATION_GETSERVICECAPABILITIES:
@@ -183,7 +183,7 @@ void ImagingClient::Update(IMAGINGOPERATION operation, CURL* handle, const boost
         break;
       }
       
-      signals_->getservicecapabilities_.Emit(handle, localendpoint, latency, std::string(), GetClass<Capabilities>(getserviecapabilitiesresponse, "*[local-name()='Capabilities']"));
+      signals_->getservicecapabilities_->Emit(handle, localendpoint, latency, std::string(), GetClass<Capabilities>(getserviecapabilitiesresponse, "*[local-name()='Capabilities']"));
       break;
     }
     case IMAGINGOPERATION_SETIMAGINGSETTINGS:
@@ -195,7 +195,7 @@ void ImagingClient::Update(IMAGINGOPERATION operation, CURL* handle, const boost
         break;
       }
 
-      signals_->setimagingsettings_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setimagingsettings_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     default:
@@ -212,22 +212,22 @@ void ImagingClient::SignalError(IMAGINGOPERATION operation, CURL* handle, const 
   {
     case IMAGINGOPERATION_GETIMAGINGSETTINGS:
     {
-      signals_->getimagingsettings_.Emit(handle, localendpoint, latency, message);
+      signals_->getimagingsettings_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case IMAGINGOPERATION_GETOPTIONS:
     {
-      signals_->getoptions_.Emit(handle, localendpoint, latency, message);
+      signals_->getoptions_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case IMAGINGOPERATION_GETSERVICECAPABILITIES:
     {
-      signals_->getservicecapabilities_.Emit(handle, localendpoint, latency, message);
+      signals_->getservicecapabilities_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case IMAGINGOPERATION_SETIMAGINGSETTINGS:
     {
-      signals_->setimagingsettings_.Emit(handle, localendpoint, latency, message);
+      signals_->setimagingsettings_->Emit(handle, localendpoint, latency, message);
       break;
     }
     default:

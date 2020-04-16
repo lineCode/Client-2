@@ -56,6 +56,11 @@ class ManageTrackFindONVIFDeviceDiscoveryTreeItem : public QTreeWidgetItem
 
   int Update();
 
+  void AddNames(const std::vector<std::string>& names);
+  void AddLocations(const std::vector<std::string>& locations);
+
+  bool TextFilter(const std::string& textfilter) const;
+
  protected:
 
 
@@ -64,9 +69,12 @@ class ManageTrackFindONVIFDeviceDiscoveryTreeItem : public QTreeWidgetItem
   void RemoveChildren();
   void GetProfiles();
   void SetChildText(const QString& text); // This removes all current children and adds one new one with text
+  void UpdateTooltip();
 
   const boost::shared_ptr<Device> device_;
 
+  std::vector<std::string> names_;
+  std::vector<std::string> locations_;
   std::string address_;
   std::string username_;
   std::string password_;

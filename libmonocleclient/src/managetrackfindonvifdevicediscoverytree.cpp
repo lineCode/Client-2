@@ -1,11 +1,12 @@
 // managetrackfindonvifdevicediscoverytree.cpp
-//
+// 
 
 ///// Includes /////
 
 #include "monocleclient/managetrackfindonvifdevicediscoverytree.h"
 
 #include <boost/asio/ip/address.hpp>
+#include <network/uri.hpp>
 #include <onviftypes/onviftypes.hpp>
 #include <QTimer>
 #include <QUrl>
@@ -20,6 +21,15 @@
 namespace client
 {
 
+///// Globals /////
+
+const int ADDRESS_ROLE = Qt::UserRole + 1;
+const int PROFILE_TOKEN_ROLE = Qt::UserRole + 2;
+const int SCHEMA_ROLE = Qt::UserRole + 3;
+const int PORT_ROLE = Qt::UserRole + 4;
+const int HOST_ROLE = Qt::UserRole + 5;
+const int PATH_ROLE = Qt::UserRole + 6;
+
 ///// Methods /////
 
 ManageTrackFindONVIFDeviceDiscoveryTree::ManageTrackFindONVIFDeviceDiscoveryTree(QWidget* parent) :
@@ -31,6 +41,8 @@ ManageTrackFindONVIFDeviceDiscoveryTree::ManageTrackFindONVIFDeviceDiscoveryTree
 {
   connect(this, &QTreeWidget::itemCollapsed, this, &ManageTrackFindONVIFDeviceDiscoveryTree::ItemCollapsed);
   connect(this, &QTreeWidget::itemExpanded, this, &ManageTrackFindONVIFDeviceDiscoveryTree::ItemExpanded);
+  connect(MainWindow::Instance(), &MainWindow::DiscoveryStreamingDeviceHello, this, &ManageTrackFindONVIFDeviceDiscoveryTree::DiscoveryHello);
+  connect(&networkmapper_, &NetworkMapper::DiscoverONVIFDevice, this, &ManageTrackFindONVIFDeviceDiscoveryTree::DiscoverONVIFDevice);
   
   startTimer(std::chrono::milliseconds(60));
 }
@@ -52,8 +64,6 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::Init(const boost::shared_ptr<Devic
   username_ = username;
   password_ = password;
 
-  connect(device_.get(), &Connection::SignalDiscoveryHello, this, &ManageTrackFindONVIFDeviceDiscoveryTree::DiscoveryHello);
-
   connection_ = device_->SubscribeDiscovery(true, [this](const std::chrono::steady_clock::duration latency, const monocle::client::SUBSCRIBEDISCOVERYRESPONSE& subscribediscoveryresponse)
   {
     if (subscribediscoveryresponse.GetErrorCode() != monocle::ErrorCode::Success)
@@ -62,6 +72,10 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::Init(const boost::shared_ptr<Devic
       return;
     }
   });
+
+  connect(device_.get(), &Connection::SignalDiscoveryHello, this, &ManageTrackFindONVIFDeviceDiscoveryTree::DiscoveryHello);
+
+  Refresh();
 }
 
 void ManageTrackFindONVIFDeviceDiscoveryTree::SetTextFilter(const QString& textfilter)
@@ -91,7 +105,6 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::ShowLinkLocal(const bool showlinkl
 void ManageTrackFindONVIFDeviceDiscoveryTree::Refresh()
 {
   clear();
-  connection_.Close();
   connection_ = device_->DiscoveryBroadcast([this](const std::chrono::steady_clock::duration latency, const monocle::client::DISCOVERYBROADCASTRESPONSE& discoverybroadcastresponse)
   {
     if (discoverybroadcastresponse.GetErrorCode() != monocle::ErrorCode::Success)
@@ -100,6 +113,10 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::Refresh()
       return;
     }
   });
+
+  MainWindow::Instance()->DiscoveryBroadcast();
+
+  networkmapper_.Init();
 }
 
 void ManageTrackFindONVIFDeviceDiscoveryTree::SetUserPass(const std::string& username, const std::string& password)
@@ -136,31 +153,24 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::Filter()
 {
   for (int i = 0; i < topLevelItemCount(); ++i)
   {
-    Filter(topLevelItem(i));
+    Filter(static_cast<ManageTrackFindONVIFDeviceDiscoveryTreeItem*>(topLevelItem(i)));
 
   }
 }
 
-void ManageTrackFindONVIFDeviceDiscoveryTree::Filter(QTreeWidgetItem* item)
+void ManageTrackFindONVIFDeviceDiscoveryTree::Filter(ManageTrackFindONVIFDeviceDiscoveryTreeItem* item)
 {
   if (textfilter_.size())
   {
-    if (!item->text(0).contains(textfilter_, Qt::CaseInsensitive) && !item->text(1).contains(textfilter_, Qt::CaseInsensitive) && !item->text(2).contains(textfilter_, Qt::CaseInsensitive) && !ChildrenContainsTextFilter(item))
+    if (!item->text(0).contains(textfilter_, Qt::CaseInsensitive) && !ChildrenContainsTextFilter(item) && !item->TextFilter(textfilter_.toStdString()))
     {
       item->setHidden(true);
       return;
     }
   }
 
-  const QUrl url(item->text(2));
-  if (!url.isValid())
-  {
-    item->setHidden(true);
-    return;
-  }
-
   boost::system::error_code err;
-  const boost::asio::ip::address address = boost::asio::ip::address::from_string(url.host().toStdString(), err);
+  const boost::asio::ip::address address = boost::asio::ip::address::from_string(item->data(0, HOST_ROLE).toString().toStdString(), err);
   if (err)
   {
     item->setHidden(true);
@@ -189,10 +199,16 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::Filter(QTreeWidgetItem* item)
     }
     else
     {
-      item->setHidden(!showipv6_);
+      item->setHidden(showipv6_);
       
     }
   }
+  else
+  {
+    item->setHidden(true);
+
+  }
+  update();
 }
 
 bool ManageTrackFindONVIFDeviceDiscoveryTree::ChildrenContainsTextFilter(QTreeWidgetItem* item)
@@ -200,13 +216,91 @@ bool ManageTrackFindONVIFDeviceDiscoveryTree::ChildrenContainsTextFilter(QTreeWi
   // Look to see if any children contain the text filter
   for (int i = 0; i < item->childCount(); ++i)
   {
-    if (item->child(i)->text(0).contains(textfilter_))
+    if (item->child(i)->text(0).contains(textfilter_, Qt::CaseInsensitive))
     {
 
       return true;
     }
   }
   return false;
+}
+
+ManageTrackFindONVIFDeviceDiscoveryTreeItem* ManageTrackFindONVIFDeviceDiscoveryTree::FindItem(const QString& schema, const uint16_t port, const QString& host, const QString& path)
+{
+  for (int i = 0; i < topLevelItemCount(); ++i)
+  {
+    ManageTrackFindONVIFDeviceDiscoveryTreeItem* item = static_cast<ManageTrackFindONVIFDeviceDiscoveryTreeItem*>(topLevelItem(i));
+    if ((item->data(0, SCHEMA_ROLE).toString() == schema) && (item->data(0, PORT_ROLE).toUInt() == port) && (item->data(0, HOST_ROLE).toString() == host) && (item->data(0, PATH_ROLE).toString() == path))
+    {
+
+      return item;
+    }
+  }
+  return nullptr;
+}
+
+void ManageTrackFindONVIFDeviceDiscoveryTree::AddItem(const std::string& address, const std::vector<std::string>& names, const std::vector<std::string>& locations)
+{
+  // Break it down
+  QString schema;
+  uint16_t port;
+  QString host;
+  QString path;
+  try
+  {
+    const network::uri uri(address);
+    if (!uri.has_scheme() || !uri.has_host() || !uri.has_path())
+    {
+
+      return;
+    }
+    schema = QString::fromStdString(uri.scheme().to_string());
+    if (uri.has_port() && !uri.port().empty())
+    {
+      port = boost::lexical_cast<uint16_t>(uri.port().to_string());
+
+    }
+    else
+    {
+      if (schema == "https")
+      {
+        port = 443;
+
+      }
+      else
+      {
+        port = 80;
+
+      }
+    }
+    host = QString::fromStdString(uri.host().to_string());
+    path = QString::fromStdString(uri.path().to_string());
+  }
+  catch (...)
+  {
+
+    return;
+  }
+
+  ManageTrackFindONVIFDeviceDiscoveryTreeItem* item = FindItem(schema, port, host, path);
+  if (item) // Ignore duplicates
+  {
+    item->AddNames(names);
+    item->AddLocations(locations);
+    Filter(item);
+    return;
+  }
+
+  item = new ManageTrackFindONVIFDeviceDiscoveryTreeItem(device_, names, locations, address, username_, password_);
+
+  item->setData(0, Qt::UserRole, RECEIVERDISCOVERYITEM_DEVICE);
+  item->setData(0, ADDRESS_ROLE, QString::fromStdString(address));
+  item->setData(0, SCHEMA_ROLE, schema);
+  item->setData(0, PORT_ROLE, port);
+  item->setData(0, HOST_ROLE, host);
+  item->setData(0, PATH_ROLE, path);
+  Filter(item);
+  addTopLevelItem(item);
 }
 
 void ManageTrackFindONVIFDeviceDiscoveryTree::ItemCollapsed(QTreeWidgetItem* item)
@@ -247,18 +341,15 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::DiscoveryHello(const std::vector<s
 
   for (const std::string& address : addresses)
   {
-    if (!findItems(QString::fromStdString(address), Qt::MatchExactly, 2).isEmpty()) // Ignore duplicates
-    {
+    AddItem(address, names, locations);
 
-      continue;
-    }
-
-    ManageTrackFindONVIFDeviceDiscoveryTreeItem* item = new ManageTrackFindONVIFDeviceDiscoveryTreeItem(device_, names, locations, address, username_, password_);
-    item->setData(0, Qt::UserRole, RECEIVERDISCOVERYITEM_DEVICE);
-    item->setData(0, Qt::UserRole + 1, QString::fromStdString(address));
-    Filter(item);
-    addTopLevelItem(item);
   }
+}
+
+void ManageTrackFindONVIFDeviceDiscoveryTree::DiscoverONVIFDevice(const std::string& address)
+{
+  AddItem(address, std::vector<std::string>(), std::vector<std::string>());
+
 }
 
 }

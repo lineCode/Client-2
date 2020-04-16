@@ -25,85 +25,85 @@ class DeviceSignals
 {
  public:
 
-  Signal< DEVICEOPERATION, DeviceClient, AddIPAddressFilterResponse, IPAddressFilter> addipaddressfilter_;
-  Signal< DEVICEOPERATION, DeviceClient, AddScopesResponse, std::vector<std::string> > addscopes_;
-  Signal< DEVICEOPERATION, DeviceClient, CreateCertificateResponse, boost::optional<std::string>, boost::optional<std::string>, boost::optional<onvif::ws::DateTime>, boost::optional<onvif::ws::DateTime> > createcertificate_;
-  Signal< DEVICEOPERATION, DeviceClient, CreateStorageConfigurationResponse, StorageConfigurationData> createstorageconfiguration_;
-  Signal< DEVICEOPERATION, DeviceClient, CreateUsersResponse, std::vector<User> > createusers_;
-  Signal< DEVICEOPERATION, DeviceClient, DeleteCertificatesResponse, std::vector<std::string> > deletecertificates_;
-  Signal< DEVICEOPERATION, DeviceClient, DeleteDot1XConfigurationResponse, std::vector<std::string> > deletedot1xconfiguration_;
-  Signal< DEVICEOPERATION, DeviceClient, DeleteStorageConfigurationResponse, std::vector<std::string> > deletestorageconfiguration_;
-  Signal< DEVICEOPERATION, DeviceClient, DeleteUsersResponse, std::vector<std::string> > deleteusers_;
-  Signal< DEVICEOPERATION, DeviceClient, GetAccessPolicyResponse> getaccesspolicy_;
-  Signal< DEVICEOPERATION, DeviceClient, GetCACertificatesResponse> getcacertificates_;
-  Signal< DEVICEOPERATION, DeviceClient, GetCapabilitiesResponse, CAPABILITYCATEGORY> getcapabilities_;
-  Signal< DEVICEOPERATION, DeviceClient, GetCertificateInformationResponse, std::string> getcertificateinformation_;
-  Signal< DEVICEOPERATION, DeviceClient, GetCertificatesResponse> getcertificates_;
-  Signal< DEVICEOPERATION, DeviceClient, GetCertificatesStatusResponse> getcertificatesstatus_;
-  Signal< DEVICEOPERATION, DeviceClient, GetClientCertificateModeResponse> getclientcertificatemode_;
-  Signal< DEVICEOPERATION, DeviceClient, GetDeviceInformationResponse> getdeviceinformation_;
-  Signal< DEVICEOPERATION, DeviceClient, GetDiscoveryModeResponse> getdiscoverymode_;
-  Signal< DEVICEOPERATION, DeviceClient, GetDNSResponse> getdns_;
-  Signal< DEVICEOPERATION, DeviceClient, GetDot11CapabilitiesResponse> getdot11capabilities_;
-  Signal< DEVICEOPERATION, DeviceClient, GetDot11StatusResponse, std::string> getdot11status_;
-  Signal< DEVICEOPERATION, DeviceClient, GetDot1XConfigurationResponse, std::string> getdot1xconfiguration_;
-  Signal< DEVICEOPERATION, DeviceClient, GetDot1XConfigurationsResponse> getdot1xconfigurations_;
-  Signal< DEVICEOPERATION, DeviceClient, GetDPAddressesResponse> getdpaddresses_;
-  Signal< DEVICEOPERATION, DeviceClient, GetDynamicDNSResponse> getdynamicdns_;
-  Signal< DEVICEOPERATION, DeviceClient, GetEndpointReferenceResponse> getendpointreference_;
-  Signal< DEVICEOPERATION, DeviceClient, GetHostnameResponse> gethostname_;
-  Signal< DEVICEOPERATION, DeviceClient, GetIPAddressFilterResponse> getipaddressfilter_;
-  Signal< DEVICEOPERATION, DeviceClient, GetNetworkDefaultGatewayResponse> getnetworkdefaultgateway_;
-  Signal< DEVICEOPERATION, DeviceClient, GetNetworkInterfacesResponse> getnetworkinterfaces_;
-  Signal< DEVICEOPERATION, DeviceClient, GetNetworkProtocolsResponse> getnetworkprotocols_;
-  Signal< DEVICEOPERATION, DeviceClient, GetPkcs10RequestResponse, std::string, boost::optional<std::string>, boost::optional<BinaryData> > getpkcs10request_;
-  Signal< DEVICEOPERATION, DeviceClient, GetRelayOutputsResponse> getrelayoutputs_;
-  Signal< DEVICEOPERATION, DeviceClient, GetNTPResponse> getntp_;
-  Signal< DEVICEOPERATION, DeviceClient, GetRemoteDiscoveryModeResponse> getremotediscoverymode_;
-  Signal< DEVICEOPERATION, DeviceClient, GetRemoteUserResponse> getremoteuser_;
-  Signal< DEVICEOPERATION, DeviceClient, GetScopesResponse> getscopes_;
-  Signal< DEVICEOPERATION, DeviceClient, GetServiceCapabilitiesResponse> getservicecapabilities_;
-  Signal< DEVICEOPERATION, DeviceClient, GetServicesResponse, bool> getservices_;
-  Signal< DEVICEOPERATION, DeviceClient, GetStorageConfigurationResponse, std::string> getstorageconfiguration_;
-  Signal< DEVICEOPERATION, DeviceClient, GetStorageConfigurationsResponse> getstorageconfigurations_;
-  Signal< DEVICEOPERATION, DeviceClient, GetSystemBackupResponse> getsystembackup_;
-  Signal< DEVICEOPERATION, DeviceClient, GetSystemDateAndTimeResponse> getsystemdateandtime_;
-  Signal< DEVICEOPERATION, DeviceClient, GetSystemLogResponse, SYSTEMLOGTYPE> getsystemlog_;
-  Signal< DEVICEOPERATION, DeviceClient, GetSystemSupportInformationResponse> getsystemsupportinformation_;
-  Signal< DEVICEOPERATION, DeviceClient, GetSystemUrisResponse> getsystemuris_;
-  Signal< DEVICEOPERATION, DeviceClient, GetUsersResponse> getusers_;
-  Signal< DEVICEOPERATION, DeviceClient, GetWsdlUrlResponse> getwsdlurl_;
-  Signal< DEVICEOPERATION, DeviceClient, GetZeroConfigurationResponse> getzeroconfiguration_;
-  Signal< DEVICEOPERATION, DeviceClient, LoadCACertificatesResponse, std::vector<Certificate> > loadcacertificates_;
-  Signal< DEVICEOPERATION, DeviceClient, LoadCertificatesResponse, std::vector<Certificate> > loadcertificates_;
-  Signal< DEVICEOPERATION, DeviceClient, LoadCertificateWithPrivateKeyResponse, std::vector<CertificateWithPrivateKey> > loadcertificatewithprivatekey_;
-  Signal< DEVICEOPERATION, DeviceClient, RemoveIPAddressFilterResponse, IPAddressFilter> removeipaddressfilter_;
-  Signal< DEVICEOPERATION, DeviceClient, RemoveScopesResponse, std::vector<std::string> > removescopes_;
-  Signal< DEVICEOPERATION, DeviceClient, RestoreSystemResponse, std::vector<BackupFile> > restoresystem_;
-  Signal< DEVICEOPERATION, DeviceClient, ScanAvailableDot11NetworksResponse, std::string> scanavailabledot11networks_;
-  Signal< DEVICEOPERATION, DeviceClient, SendAuxiliaryCommandResponse, std::string> sendauxiliarycommand_;
-  Signal< DEVICEOPERATION, DeviceClient, SetAccessPolicyResponse, BinaryData> setaccesspolicy_;
-  Signal< DEVICEOPERATION, DeviceClient, SetCertificatesStatusResponse, std::vector<CertificateStatus> > setcertificatesstatus_;
-  Signal< DEVICEOPERATION, DeviceClient, SetClientCertificateModeResponse, bool> setclientcertificatemode_;
-  Signal< DEVICEOPERATION, DeviceClient, SetDiscoveryModeResponse, DISCOVERYMODE> setdiscoverymode_;
-  Signal< DEVICEOPERATION, DeviceClient, SetDNSResponse, bool, std::vector<std::string>, std::vector<IPAddress> > setdns_;
-  Signal< DEVICEOPERATION, DeviceClient, SetDot1XConfigurationResponse, Dot1XConfiguration> setdot1xconfiguration_;
-  Signal< DEVICEOPERATION, DeviceClient, SetDPAddressesResponse, std::vector<NetworkHost> > setdpaddresses_;
-  Signal< DEVICEOPERATION, DeviceClient, SetDynamicDNSResponse, DYNAMICDNSTYPE, boost::optional<std::string>, boost::optional<Duration> > setdynamicdns_;
-  Signal< DEVICEOPERATION, DeviceClient, SetHostnameResponse, std::string> sethostname_;
-  Signal< DEVICEOPERATION, DeviceClient, SetHostnameFromDHCPResponse, bool> sethostnamefromdhcp_;
-  Signal< DEVICEOPERATION, DeviceClient, SetIPAddressFilterResponse, IPAddressFilter> setipaddressfilter_;
-  Signal< DEVICEOPERATION, DeviceClient, SetNetworkDefaultGatewayResponse, std::vector<std::string>, std::vector<std::string> > setnetworkdefaultgateway_;
-  Signal< DEVICEOPERATION, DeviceClient, SetNetworkInterfacesResponse, std::string, onvif::NetworkInterfaceSetConfiguration > setnetworkinterfaces_;
-  Signal< DEVICEOPERATION, DeviceClient, SetNetworkProtocolsResponse, std::vector<NetworkProtocol> > setnetworkprotocols_;
-  Signal< DEVICEOPERATION, DeviceClient, SetNTPResponse, bool, std::vector<NetworkHost> > setntp_;
-  Signal< DEVICEOPERATION, DeviceClient, SetRelayOutputSettingsResponse, std::string, RelayOutputSettings> setrelayoutputsettings_;
-  Signal< DEVICEOPERATION, DeviceClient, SetRemoteDiscoveryModeResponse, DISCOVERYMODE> setremotediscoverymode_;
-  Signal< DEVICEOPERATION, DeviceClient, SetSystemDateAndTimeResponse, DATETIMETYPE, bool, boost::optional<TimeZone>, boost::optional<DateTime> > setsystemdateandtime_;
-  Signal< DEVICEOPERATION, DeviceClient, SetSystemFactoryDefaultResponse, FACTORYDEFAULTTYPE> setsystemfactorydefault_;
-  Signal< DEVICEOPERATION, DeviceClient, SetUserResponse, std::vector<User> > setuser_;
-  Signal< DEVICEOPERATION, DeviceClient, SetZeroConfigurationResponse, std::string, bool> setzeroconfiguration_;
-  Signal< DEVICEOPERATION, DeviceClient, SystemRebootResponse> systemreboot_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, AddIPAddressFilterResponse, IPAddressFilter> > addipaddressfilter_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, AddScopesResponse, std::vector<std::string> > > addscopes_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, CreateCertificateResponse, boost::optional<std::string>, boost::optional<std::string>, boost::optional<onvif::ws::DateTime>, boost::optional<onvif::ws::DateTime> > > createcertificate_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, CreateStorageConfigurationResponse, StorageConfigurationData> > createstorageconfiguration_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, CreateUsersResponse, std::vector<User> > > createusers_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, DeleteCertificatesResponse, std::vector<std::string> > > deletecertificates_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, DeleteDot1XConfigurationResponse, std::vector<std::string> > > deletedot1xconfiguration_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, DeleteStorageConfigurationResponse, std::vector<std::string> > > deletestorageconfiguration_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, DeleteUsersResponse, std::vector<std::string> > > deleteusers_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetAccessPolicyResponse> > getaccesspolicy_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetCACertificatesResponse> > getcacertificates_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetCapabilitiesResponse, CAPABILITYCATEGORY> > getcapabilities_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetCertificateInformationResponse, std::string> > getcertificateinformation_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetCertificatesResponse> > getcertificates_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetCertificatesStatusResponse> > getcertificatesstatus_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetClientCertificateModeResponse> > getclientcertificatemode_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetDeviceInformationResponse> > getdeviceinformation_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetDiscoveryModeResponse> > getdiscoverymode_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetDNSResponse> > getdns_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetDot11CapabilitiesResponse> > getdot11capabilities_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetDot11StatusResponse, std::string> > getdot11status_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetDot1XConfigurationResponse, std::string> > getdot1xconfiguration_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetDot1XConfigurationsResponse> > getdot1xconfigurations_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetDPAddressesResponse> > getdpaddresses_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetDynamicDNSResponse> > getdynamicdns_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetEndpointReferenceResponse> > getendpointreference_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetHostnameResponse> > gethostname_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetIPAddressFilterResponse> > getipaddressfilter_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetNetworkDefaultGatewayResponse> > getnetworkdefaultgateway_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetNetworkInterfacesResponse> > getnetworkinterfaces_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetNetworkProtocolsResponse> > getnetworkprotocols_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetPkcs10RequestResponse, std::string, boost::optional<std::string>, boost::optional<BinaryData> > > getpkcs10request_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetRelayOutputsResponse> > getrelayoutputs_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetNTPResponse> > getntp_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetRemoteDiscoveryModeResponse> > getremotediscoverymode_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetRemoteUserResponse> > getremoteuser_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetScopesResponse> > getscopes_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetServiceCapabilitiesResponse> > getservicecapabilities_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetServicesResponse, bool> > getservices_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetStorageConfigurationResponse, std::string> > getstorageconfiguration_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetStorageConfigurationsResponse> > getstorageconfigurations_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetSystemBackupResponse> > getsystembackup_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetSystemDateAndTimeResponse> > getsystemdateandtime_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetSystemLogResponse, SYSTEMLOGTYPE> > getsystemlog_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetSystemSupportInformationResponse> > getsystemsupportinformation_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetSystemUrisResponse> > getsystemuris_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetUsersResponse> > getusers_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetWsdlUrlResponse> > getwsdlurl_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, GetZeroConfigurationResponse> > getzeroconfiguration_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, LoadCACertificatesResponse, std::vector<Certificate> > > loadcacertificates_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, LoadCertificatesResponse, std::vector<Certificate> > > loadcertificates_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, LoadCertificateWithPrivateKeyResponse, std::vector<CertificateWithPrivateKey> > > loadcertificatewithprivatekey_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, RemoveIPAddressFilterResponse, IPAddressFilter> > removeipaddressfilter_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, RemoveScopesResponse, std::vector<std::string> > > removescopes_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, RestoreSystemResponse, std::vector<BackupFile> > > restoresystem_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, ScanAvailableDot11NetworksResponse, std::string> > scanavailabledot11networks_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, SendAuxiliaryCommandResponse, std::string> > sendauxiliarycommand_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, SetAccessPolicyResponse, BinaryData> > setaccesspolicy_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, SetCertificatesStatusResponse, std::vector<CertificateStatus> > > setcertificatesstatus_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, SetClientCertificateModeResponse, bool> > setclientcertificatemode_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, SetDiscoveryModeResponse, DISCOVERYMODE> > setdiscoverymode_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, SetDNSResponse, bool, std::vector<std::string>, std::vector<IPAddress> > > setdns_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, SetDot1XConfigurationResponse, Dot1XConfiguration> > setdot1xconfiguration_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, SetDPAddressesResponse, std::vector<NetworkHost> > > setdpaddresses_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, SetDynamicDNSResponse, DYNAMICDNSTYPE, boost::optional<std::string>, boost::optional<Duration> > > setdynamicdns_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, SetHostnameResponse, std::string> > sethostname_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, SetHostnameFromDHCPResponse, bool> > sethostnamefromdhcp_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, SetIPAddressFilterResponse, IPAddressFilter> > setipaddressfilter_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, SetNetworkDefaultGatewayResponse, std::vector<std::string>, std::vector<std::string> > > setnetworkdefaultgateway_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, SetNetworkInterfacesResponse, std::string, onvif::NetworkInterfaceSetConfiguration > > setnetworkinterfaces_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, SetNetworkProtocolsResponse, std::vector<NetworkProtocol> > > setnetworkprotocols_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, SetNTPResponse, bool, std::vector<NetworkHost> > > setntp_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, SetRelayOutputSettingsResponse, std::string, RelayOutputSettings> > setrelayoutputsettings_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, SetRemoteDiscoveryModeResponse, DISCOVERYMODE> > setremotediscoverymode_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, SetSystemDateAndTimeResponse, DATETIMETYPE, bool, boost::optional<TimeZone>, boost::optional<DateTime> > > setsystemdateandtime_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, SetSystemFactoryDefaultResponse, FACTORYDEFAULTTYPE> > setsystemfactorydefault_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, SetUserResponse, std::vector<User> > > setuser_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, SetZeroConfigurationResponse, std::string, bool> > setzeroconfiguration_;
+  std::unique_ptr< Signal< DEVICEOPERATION, DeviceClient, SystemRebootResponse> > systemreboot_;
 
 };
 
@@ -113,85 +113,85 @@ DeviceClient::DeviceClient(const boost::shared_ptr<std::recursive_mutex>& mutex)
   Client(mutex),
   signals_(new DeviceSignals(
   {
-    Signal< DEVICEOPERATION, DeviceClient, AddIPAddressFilterResponse, IPAddressFilter>(this, DEVICEOPERATION_ADDIPADDRESSFILTER, true, std::string("http://www.onvif.org/ver10/device/wsdl/AddIPAddressFilter"), false),
-    Signal< DEVICEOPERATION, DeviceClient, AddScopesResponse, std::vector<std::string> >(this, DEVICEOPERATION_ADDSCOPES, true, std::string("http://www.onvif.org/ver10/device/wsdl/AddScopes"), false),
-    Signal< DEVICEOPERATION, DeviceClient, CreateCertificateResponse, boost::optional<std::string>, boost::optional<std::string>, boost::optional<onvif::ws::DateTime>, boost::optional<onvif::ws::DateTime> >(this, DEVICEOPERATION_CREATECERTIFICATE, true, std::string("http://www.onvif.org/ver10/device/wsdl/CreateCertificate"), false),
-    Signal< DEVICEOPERATION, DeviceClient, CreateStorageConfigurationResponse, StorageConfigurationData>(this, DEVICEOPERATION_CREATESTORAGECONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/CreateStorageConfiguration"), false),
-    Signal< DEVICEOPERATION, DeviceClient, CreateUsersResponse, std::vector<User> >(this, DEVICEOPERATION_CREATEUSERS, true, std::string("http://www.onvif.org/ver10/device/wsdl/CreateUsers"), false),
-    Signal< DEVICEOPERATION, DeviceClient, DeleteCertificatesResponse, std::vector<std::string> >(this, DEVICEOPERATION_DELETECERTIFICATES, true, std::string("http://www.onvif.org/ver10/device/wsdl/DeleteCertificates"), false),
-    Signal< DEVICEOPERATION, DeviceClient, DeleteDot1XConfigurationResponse, std::vector<std::string> >(this, DEVICEOPERATION_DELETEDOT1XCONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/DeleteDot1XConfiguration"), false),
-    Signal< DEVICEOPERATION, DeviceClient, DeleteStorageConfigurationResponse, std::vector<std::string> >(this, DEVICEOPERATION_DELETESTORAGECONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/DeleteStorageConfiguration"), false),
-    Signal< DEVICEOPERATION, DeviceClient, DeleteUsersResponse, std::vector<std::string> >(this, DEVICEOPERATION_DELETEUSERS, true, std::string("http://www.onvif.org/ver10/device/wsdl/DeleteUsers"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetAccessPolicyResponse>(this, DEVICEOPERATION_GETACCESSPOLICY, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetAccessPolicy"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetCACertificatesResponse>(this, DEVICEOPERATION_GETCACERTIFICATES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetCACertificates"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetCapabilitiesResponse, CAPABILITYCATEGORY>(this, DEVICEOPERATION_GETCAPABILITIES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetCapabilities"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetCertificateInformationResponse, std::string>(this, DEVICEOPERATION_GETCERTIFICATEINFORMATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetCertificateInformation"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetCertificatesResponse>(this, DEVICEOPERATION_GETCERTIFICATES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetCertificates"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetCertificatesStatusResponse>(this, DEVICEOPERATION_GETCERTIFICATESSTATUS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetCertificatesStatus"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetClientCertificateModeResponse>(this, DEVICEOPERATION_GETCLIENTCERTIFICATEMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetClientCertificateMode"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetDeviceInformationResponse>(this, DEVICEOPERATION_GETDEVICEINFORMATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDeviceInformation"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetDiscoveryModeResponse>(this, DEVICEOPERATION_GETDISCOVERYMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDiscoveryMode"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetDNSResponse>(this, DEVICEOPERATION_GETDNS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDNS"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetDot11CapabilitiesResponse>(this, DEVICEOPERATION_GETDOT11CAPABILITIES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDot11Capabilities"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetDot11StatusResponse, std::string>(this, DEVICEOPERATION_GETDOT11STATUS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDot11Status"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetDot1XConfigurationResponse, std::string>(this, DEVICEOPERATION_GETDOT1XCONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDot1XConfiguration"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetDot1XConfigurationsResponse>(this, DEVICEOPERATION_GETDOT1XCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDot1XConfigurations"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetDPAddressesResponse>(this, DEVICEOPERATION_GETDPADDRESSES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDPAddresses"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetDynamicDNSResponse>(this, DEVICEOPERATION_GETDYNAMICDNS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDynamicDNS"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetEndpointReferenceResponse>(this, DEVICEOPERATION_GETENDPOINTREFERENCE, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetEndpointReference"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetHostnameResponse>(this, DEVICEOPERATION_GETHOSTNAME, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetHostname"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetIPAddressFilterResponse>(this, DEVICEOPERATION_GETIPADDRESSFILTER, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetIPAddressFilter"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetNetworkDefaultGatewayResponse>(this, DEVICEOPERATION_GETNETWORKDEFAULTGATEWAY, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetNetworkDefaultGateway"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetNetworkInterfacesResponse>(this, DEVICEOPERATION_GETNETWORKINTERFACES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetNetworkInterfaces"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetNetworkProtocolsResponse>(this, DEVICEOPERATION_GETNETWORKPROTOCOLS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetNetworkProtocols"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetPkcs10RequestResponse, std::string, boost::optional<std::string>, boost::optional<BinaryData> >(this, DEVICEOPERATION_GETPKCS10REQUEST, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetPkcs10Request"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetRelayOutputsResponse>(this, DEVICEOPERATION_GETRELAYOUTPUTS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetRelayOutputs"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetNTPResponse>(this, DEVICEOPERATION_GETNTP, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetNTP"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetRemoteDiscoveryModeResponse>(this, DEVICEOPERATION_GETREMOTEDISCOVERYMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetRemoteDiscoveryMode"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetRemoteUserResponse>(this, DEVICEOPERATION_GETREMOTEUSER, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetRemoteUser"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetScopesResponse>(this, DEVICEOPERATION_GETSCOPES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetScopes"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetServiceCapabilitiesResponse>(this, DEVICEOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetServiceCapabilities"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetServicesResponse, bool>(this, DEVICEOPERATION_GETSERVICES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetServices"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetStorageConfigurationResponse, std::string>(this, DEVICEOPERATION_GETSTORAGECONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetStorageConfiguration"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetStorageConfigurationsResponse>(this, DEVICEOPERATION_GETSTORAGECONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetStorageConfigurations"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetSystemBackupResponse>(this, DEVICEOPERATION_GETSYSTEMBACKUP, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetSystemBackup"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetSystemDateAndTimeResponse>(this, DEVICEOPERATION_GETSYSTEMDATEANDTIME, false, std::string("http://www.onvif.org/ver10/device/wsdl/GetSystemDateAndTime"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetSystemLogResponse, SYSTEMLOGTYPE>(this, DEVICEOPERATION_GETSYSTEMLOG, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetSystemLog"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetSystemSupportInformationResponse>(this, DEVICEOPERATION_GETSYSTEMSUPPORTINFORMATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetSystemSupportInformation"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetSystemUrisResponse>(this, DEVICEOPERATION_GETSYSTEMURIS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetSystemUris"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetUsersResponse>(this, DEVICEOPERATION_GETUSERS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetUsers"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetWsdlUrlResponse>(this, DEVICEOPERATION_GETWSDLURL, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetWsdlUrl"), false),
-    Signal< DEVICEOPERATION, DeviceClient, GetZeroConfigurationResponse>(this, DEVICEOPERATION_GETZEROCONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetZeroConfiguration"), false),
-    Signal< DEVICEOPERATION, DeviceClient, LoadCACertificatesResponse, std::vector<Certificate> >(this, DEVICEOPERATION_LOADCACERTIFICATES, true, std::string("http://www.onvif.org/ver10/device/wsdl/LoadCACertificates"), false),
-    Signal< DEVICEOPERATION, DeviceClient, LoadCertificatesResponse, std::vector<Certificate> >(this, DEVICEOPERATION_LOADCERTIFICATES, true, std::string("http://www.onvif.org/ver10/device/wsdl/LoadCertificates"), false),
-    Signal< DEVICEOPERATION, DeviceClient, LoadCertificateWithPrivateKeyResponse, std::vector<CertificateWithPrivateKey> >(this, DEVICEOPERATION_LOADCERTIFICATEWITHPRIVATEKEY, true, std::string("http://www.onvif.org/ver10/device/wsdl/LoadCertificateWithPrivateKey"), false),
-    Signal< DEVICEOPERATION, DeviceClient, RemoveIPAddressFilterResponse, IPAddressFilter>(this, DEVICEOPERATION_REMOVEIPADDRESSFILTER, true, std::string("http://www.onvif.org/ver10/device/wsdl/RemoveIPAddressFilter"), false),
-    Signal< DEVICEOPERATION, DeviceClient, RemoveScopesResponse, std::vector<std::string> >(this, DEVICEOPERATION_REMOVESCOPES, true, std::string("http://www.onvif.org/ver10/device/wsdl/RemoveScopes"), false),
-    Signal< DEVICEOPERATION, DeviceClient, RestoreSystemResponse, std::vector<BackupFile> >(this, DEVICEOPERATION_RESTORESYSTEM, true, std::string("http://www.onvif.org/ver10/device/wsdl/RestoreSystem"), false),
-    Signal< DEVICEOPERATION, DeviceClient, ScanAvailableDot11NetworksResponse, std::string>(this, DEVICEOPERATION_SCANAVAILABLEDOT11NETWORKS, true, std::string("http://www.onvif.org/ver10/device/wsdl/ScanAvailableDot11Networks"), false),
-    Signal< DEVICEOPERATION, DeviceClient, SendAuxiliaryCommandResponse, std::string>(this, DEVICEOPERATION_SENDAUXILIARYCOMMAND, true, std::string("http://www.onvif.org/ver10/device/wsdl/SendAuxiliaryCommand"), false),
-    Signal< DEVICEOPERATION, DeviceClient, SetAccessPolicyResponse, BinaryData>(this, DEVICEOPERATION_SETACCESSPOLICY, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetAccessPolicy"), false),
-    Signal< DEVICEOPERATION, DeviceClient, SetCertificatesStatusResponse, std::vector<CertificateStatus> >(this, DEVICEOPERATION_SETCERTIFICATESSTATUS, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetCertificatesStatus"), false),
-    Signal< DEVICEOPERATION, DeviceClient, SetClientCertificateModeResponse, bool>(this, DEVICEOPERATION_SETCLIENTCERTIFICATEMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetClientCertificateMode"), false),
-    Signal< DEVICEOPERATION, DeviceClient, SetDiscoveryModeResponse, DISCOVERYMODE>(this, DEVICEOPERATION_SETDISCOVERYMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetDiscoveryMode"), false),
-    Signal< DEVICEOPERATION, DeviceClient, SetDNSResponse, bool, std::vector<std::string>, std::vector<IPAddress> >(this, DEVICEOPERATION_SETDNS, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetDNS"), false),
-    Signal< DEVICEOPERATION, DeviceClient, SetDot1XConfigurationResponse, Dot1XConfiguration>(this, DEVICEOPERATION_SETDOT1XCONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetDot1XConfiguration"), false),
-    Signal< DEVICEOPERATION, DeviceClient, SetDPAddressesResponse, std::vector<NetworkHost> >(this, DEVICEOPERATION_SETDPADDRESSES, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetDPAddresses"), false),
-    Signal< DEVICEOPERATION, DeviceClient, SetDynamicDNSResponse, DYNAMICDNSTYPE, boost::optional<std::string>, boost::optional<Duration> >(this, DEVICEOPERATION_SETDYNAMICDNS, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetDynamicDNS"), false),
-    Signal< DEVICEOPERATION, DeviceClient, SetHostnameResponse, std::string>(this, DEVICEOPERATION_SETHOSTNAME, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetHostname"), false),
-    Signal< DEVICEOPERATION, DeviceClient, SetHostnameFromDHCPResponse, bool>(this, DEVICEOPERATION_SETHOSTNAMEFROMDHCP, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetHostnameFromDHCP"), false),
-    Signal< DEVICEOPERATION, DeviceClient, SetIPAddressFilterResponse, IPAddressFilter>(this, DEVICEOPERATION_SETIPADDRESSFILTER, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetIPAddressFilter"), false),
-    Signal< DEVICEOPERATION, DeviceClient, SetNetworkDefaultGatewayResponse, std::vector<std::string>, std::vector<std::string> >(this, DEVICEOPERATION_SETNETWORKDEFAULTGATEWAY, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetNetworkDefaultGateway"), false),
-    Signal< DEVICEOPERATION, DeviceClient, SetNetworkInterfacesResponse, std::string, onvif::NetworkInterfaceSetConfiguration >(this, DEVICEOPERATION_SETNETWORKINTERFACES, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetNetworkInterfaces"), false),
-    Signal< DEVICEOPERATION, DeviceClient, SetNetworkProtocolsResponse, std::vector<NetworkProtocol> >(this, DEVICEOPERATION_SETNETWORKPROTOCOLS, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetNetworkProtocols"), false),
-    Signal< DEVICEOPERATION, DeviceClient, SetNTPResponse, bool, std::vector<NetworkHost> >(this, DEVICEOPERATION_SETNTP, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetNTP"), false),
-    Signal< DEVICEOPERATION, DeviceClient, SetRelayOutputSettingsResponse, std::string, RelayOutputSettings>(this, DEVICEOPERATION_SETRELAYOUTPUTSETTINGS, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetRelayOutputSettings"), false),
-    Signal< DEVICEOPERATION, DeviceClient, SetRemoteDiscoveryModeResponse, DISCOVERYMODE>(this, DEVICEOPERATION_SETREMOTEDISCOVERYMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetRemoteDiscoveryMode"), false),
-    Signal< DEVICEOPERATION, DeviceClient, SetSystemDateAndTimeResponse, DATETIMETYPE, bool, boost::optional<TimeZone>, boost::optional<DateTime> >(this, DEVICEOPERATION_SETSYSTEMDATEANDTIME, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetSystemDateAndTime"), false),
-    Signal< DEVICEOPERATION, DeviceClient, SetSystemFactoryDefaultResponse, FACTORYDEFAULTTYPE>(this, DEVICEOPERATION_SETSYSTEMFACTORYDEFAULT, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetSystemFactoryDefault"), false),
-    Signal< DEVICEOPERATION, DeviceClient, SetUserResponse, std::vector<User> >(this, DEVICEOPERATION_SETUSER, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetUser"), false),
-    Signal< DEVICEOPERATION, DeviceClient, SetZeroConfigurationResponse, std::string, bool>(this, DEVICEOPERATION_SETZEROCONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetZeroConfiguration"), false),
-    Signal< DEVICEOPERATION, DeviceClient, SystemRebootResponse>(this, DEVICEOPERATION_SYSTEMREBOOT, true, std::string("http://www.onvif.org/ver10/device/wsdl/SystemReboot"), false)
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, AddIPAddressFilterResponse, IPAddressFilter> >(this, DEVICEOPERATION_ADDIPADDRESSFILTER, true, std::string("http://www.onvif.org/ver10/device/wsdl/AddIPAddressFilter"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, AddScopesResponse, std::vector<std::string> > >(this, DEVICEOPERATION_ADDSCOPES, true, std::string("http://www.onvif.org/ver10/device/wsdl/AddScopes"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, CreateCertificateResponse, boost::optional<std::string>, boost::optional<std::string>, boost::optional<onvif::ws::DateTime>, boost::optional<onvif::ws::DateTime> > >(this, DEVICEOPERATION_CREATECERTIFICATE, true, std::string("http://www.onvif.org/ver10/device/wsdl/CreateCertificate"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, CreateStorageConfigurationResponse, StorageConfigurationData> >(this, DEVICEOPERATION_CREATESTORAGECONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/CreateStorageConfiguration"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, CreateUsersResponse, std::vector<User> > >(this, DEVICEOPERATION_CREATEUSERS, true, std::string("http://www.onvif.org/ver10/device/wsdl/CreateUsers"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, DeleteCertificatesResponse, std::vector<std::string> > >(this, DEVICEOPERATION_DELETECERTIFICATES, true, std::string("http://www.onvif.org/ver10/device/wsdl/DeleteCertificates"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, DeleteDot1XConfigurationResponse, std::vector<std::string> > >(this, DEVICEOPERATION_DELETEDOT1XCONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/DeleteDot1XConfiguration"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, DeleteStorageConfigurationResponse, std::vector<std::string> > >(this, DEVICEOPERATION_DELETESTORAGECONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/DeleteStorageConfiguration"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, DeleteUsersResponse, std::vector<std::string> > >(this, DEVICEOPERATION_DELETEUSERS, true, std::string("http://www.onvif.org/ver10/device/wsdl/DeleteUsers"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetAccessPolicyResponse> >(this, DEVICEOPERATION_GETACCESSPOLICY, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetAccessPolicy"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetCACertificatesResponse> >(this, DEVICEOPERATION_GETCACERTIFICATES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetCACertificates"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetCapabilitiesResponse, CAPABILITYCATEGORY> >(this, DEVICEOPERATION_GETCAPABILITIES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetCapabilities"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetCertificateInformationResponse, std::string> >(this, DEVICEOPERATION_GETCERTIFICATEINFORMATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetCertificateInformation"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetCertificatesResponse> >(this, DEVICEOPERATION_GETCERTIFICATES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetCertificates"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetCertificatesStatusResponse> >(this, DEVICEOPERATION_GETCERTIFICATESSTATUS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetCertificatesStatus"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetClientCertificateModeResponse> >(this, DEVICEOPERATION_GETCLIENTCERTIFICATEMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetClientCertificateMode"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDeviceInformationResponse> >(this, DEVICEOPERATION_GETDEVICEINFORMATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDeviceInformation"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDiscoveryModeResponse> >(this, DEVICEOPERATION_GETDISCOVERYMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDiscoveryMode"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDNSResponse> >(this, DEVICEOPERATION_GETDNS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDNS"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDot11CapabilitiesResponse> >(this, DEVICEOPERATION_GETDOT11CAPABILITIES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDot11Capabilities"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDot11StatusResponse, std::string> >(this, DEVICEOPERATION_GETDOT11STATUS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDot11Status"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDot1XConfigurationResponse, std::string> >(this, DEVICEOPERATION_GETDOT1XCONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDot1XConfiguration"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDot1XConfigurationsResponse> >(this, DEVICEOPERATION_GETDOT1XCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDot1XConfigurations"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDPAddressesResponse> >(this, DEVICEOPERATION_GETDPADDRESSES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDPAddresses"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDynamicDNSResponse> >(this, DEVICEOPERATION_GETDYNAMICDNS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDynamicDNS"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetEndpointReferenceResponse> >(this, DEVICEOPERATION_GETENDPOINTREFERENCE, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetEndpointReference"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetHostnameResponse> >(this, DEVICEOPERATION_GETHOSTNAME, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetHostname"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetIPAddressFilterResponse> >(this, DEVICEOPERATION_GETIPADDRESSFILTER, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetIPAddressFilter"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetNetworkDefaultGatewayResponse> >(this, DEVICEOPERATION_GETNETWORKDEFAULTGATEWAY, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetNetworkDefaultGateway"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetNetworkInterfacesResponse> >(this, DEVICEOPERATION_GETNETWORKINTERFACES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetNetworkInterfaces"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetNetworkProtocolsResponse> >(this, DEVICEOPERATION_GETNETWORKPROTOCOLS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetNetworkProtocols"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetPkcs10RequestResponse, std::string, boost::optional<std::string>, boost::optional<BinaryData> > >(this, DEVICEOPERATION_GETPKCS10REQUEST, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetPkcs10Request"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetRelayOutputsResponse> >(this, DEVICEOPERATION_GETRELAYOUTPUTS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetRelayOutputs"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetNTPResponse> >(this, DEVICEOPERATION_GETNTP, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetNTP"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetRemoteDiscoveryModeResponse> >(this, DEVICEOPERATION_GETREMOTEDISCOVERYMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetRemoteDiscoveryMode"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetRemoteUserResponse> >(this, DEVICEOPERATION_GETREMOTEUSER, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetRemoteUser"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetScopesResponse> >(this, DEVICEOPERATION_GETSCOPES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetScopes"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetServiceCapabilitiesResponse> >(this, DEVICEOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetServiceCapabilities"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetServicesResponse, bool> >(this, DEVICEOPERATION_GETSERVICES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetServices"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetStorageConfigurationResponse, std::string> >(this, DEVICEOPERATION_GETSTORAGECONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetStorageConfiguration"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetStorageConfigurationsResponse> >(this, DEVICEOPERATION_GETSTORAGECONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetStorageConfigurations"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetSystemBackupResponse> >(this, DEVICEOPERATION_GETSYSTEMBACKUP, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetSystemBackup"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetSystemDateAndTimeResponse> >(this, DEVICEOPERATION_GETSYSTEMDATEANDTIME, false, std::string("http://www.onvif.org/ver10/device/wsdl/GetSystemDateAndTime"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetSystemLogResponse, SYSTEMLOGTYPE> >(this, DEVICEOPERATION_GETSYSTEMLOG, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetSystemLog"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetSystemSupportInformationResponse> >(this, DEVICEOPERATION_GETSYSTEMSUPPORTINFORMATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetSystemSupportInformation"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetSystemUrisResponse> >(this, DEVICEOPERATION_GETSYSTEMURIS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetSystemUris"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetUsersResponse> >(this, DEVICEOPERATION_GETUSERS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetUsers"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetWsdlUrlResponse> >(this, DEVICEOPERATION_GETWSDLURL, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetWsdlUrl"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetZeroConfigurationResponse> >(this, DEVICEOPERATION_GETZEROCONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetZeroConfiguration"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, LoadCACertificatesResponse, std::vector<Certificate> > >(this, DEVICEOPERATION_LOADCACERTIFICATES, true, std::string("http://www.onvif.org/ver10/device/wsdl/LoadCACertificates"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, LoadCertificatesResponse, std::vector<Certificate> > >(this, DEVICEOPERATION_LOADCERTIFICATES, true, std::string("http://www.onvif.org/ver10/device/wsdl/LoadCertificates"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, LoadCertificateWithPrivateKeyResponse, std::vector<CertificateWithPrivateKey> > >(this, DEVICEOPERATION_LOADCERTIFICATEWITHPRIVATEKEY, true, std::string("http://www.onvif.org/ver10/device/wsdl/LoadCertificateWithPrivateKey"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, RemoveIPAddressFilterResponse, IPAddressFilter> >(this, DEVICEOPERATION_REMOVEIPADDRESSFILTER, true, std::string("http://www.onvif.org/ver10/device/wsdl/RemoveIPAddressFilter"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, RemoveScopesResponse, std::vector<std::string> > >(this, DEVICEOPERATION_REMOVESCOPES, true, std::string("http://www.onvif.org/ver10/device/wsdl/RemoveScopes"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, RestoreSystemResponse, std::vector<BackupFile> > >(this, DEVICEOPERATION_RESTORESYSTEM, true, std::string("http://www.onvif.org/ver10/device/wsdl/RestoreSystem"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, ScanAvailableDot11NetworksResponse, std::string> >(this, DEVICEOPERATION_SCANAVAILABLEDOT11NETWORKS, true, std::string("http://www.onvif.org/ver10/device/wsdl/ScanAvailableDot11Networks"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SendAuxiliaryCommandResponse, std::string> >(this, DEVICEOPERATION_SENDAUXILIARYCOMMAND, true, std::string("http://www.onvif.org/ver10/device/wsdl/SendAuxiliaryCommand"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetAccessPolicyResponse, BinaryData> >(this, DEVICEOPERATION_SETACCESSPOLICY, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetAccessPolicy"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetCertificatesStatusResponse, std::vector<CertificateStatus> > >(this, DEVICEOPERATION_SETCERTIFICATESSTATUS, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetCertificatesStatus"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetClientCertificateModeResponse, bool> >(this, DEVICEOPERATION_SETCLIENTCERTIFICATEMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetClientCertificateMode"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetDiscoveryModeResponse, DISCOVERYMODE> >(this, DEVICEOPERATION_SETDISCOVERYMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetDiscoveryMode"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetDNSResponse, bool, std::vector<std::string>, std::vector<IPAddress> > >(this, DEVICEOPERATION_SETDNS, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetDNS"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetDot1XConfigurationResponse, Dot1XConfiguration> >(this, DEVICEOPERATION_SETDOT1XCONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetDot1XConfiguration"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetDPAddressesResponse, std::vector<NetworkHost> > >(this, DEVICEOPERATION_SETDPADDRESSES, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetDPAddresses"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetDynamicDNSResponse, DYNAMICDNSTYPE, boost::optional<std::string>, boost::optional<Duration> > >(this, DEVICEOPERATION_SETDYNAMICDNS, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetDynamicDNS"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetHostnameResponse, std::string> >(this, DEVICEOPERATION_SETHOSTNAME, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetHostname"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetHostnameFromDHCPResponse, bool> >(this, DEVICEOPERATION_SETHOSTNAMEFROMDHCP, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetHostnameFromDHCP"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetIPAddressFilterResponse, IPAddressFilter> >(this, DEVICEOPERATION_SETIPADDRESSFILTER, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetIPAddressFilter"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetNetworkDefaultGatewayResponse, std::vector<std::string>, std::vector<std::string> > >(this, DEVICEOPERATION_SETNETWORKDEFAULTGATEWAY, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetNetworkDefaultGateway"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetNetworkInterfacesResponse, std::string, onvif::NetworkInterfaceSetConfiguration> >(this, DEVICEOPERATION_SETNETWORKINTERFACES, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetNetworkInterfaces"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetNetworkProtocolsResponse, std::vector<NetworkProtocol> > >(this, DEVICEOPERATION_SETNETWORKPROTOCOLS, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetNetworkProtocols"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetNTPResponse, bool, std::vector<NetworkHost> > >(this, DEVICEOPERATION_SETNTP, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetNTP"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetRelayOutputSettingsResponse, std::string, RelayOutputSettings> >(this, DEVICEOPERATION_SETRELAYOUTPUTSETTINGS, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetRelayOutputSettings"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetRemoteDiscoveryModeResponse, DISCOVERYMODE> >(this, DEVICEOPERATION_SETREMOTEDISCOVERYMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetRemoteDiscoveryMode"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetSystemDateAndTimeResponse, DATETIMETYPE, bool, boost::optional<TimeZone>, boost::optional<DateTime> > >(this, DEVICEOPERATION_SETSYSTEMDATEANDTIME, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetSystemDateAndTime"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetSystemFactoryDefaultResponse, FACTORYDEFAULTTYPE> >(this, DEVICEOPERATION_SETSYSTEMFACTORYDEFAULT, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetSystemFactoryDefault"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetUserResponse, std::vector<User> > >(this, DEVICEOPERATION_SETUSER, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetUser"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetZeroConfigurationResponse, std::string, bool> >(this, DEVICEOPERATION_SETZEROCONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetZeroConfiguration"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SystemRebootResponse> >(this, DEVICEOPERATION_SYSTEMREBOOT, true, std::string("http://www.onvif.org/ver10/device/wsdl/SystemReboot"), false)
   }))
 {
 
@@ -210,1666 +210,1666 @@ void DeviceClient::Destroy()
 {
   Client::Destroy();
 
-  signals_->addipaddressfilter_.Destroy();
-  signals_->addscopes_.Destroy();
-  signals_->createcertificate_.Destroy();
-  signals_->createusers_.Destroy();
-  signals_->deletecertificates_.Destroy();
-  signals_->deletedot1xconfiguration_.Destroy();
-  signals_->deletestorageconfiguration_.Destroy();
-  signals_->deleteusers_.Destroy();
-  signals_->getaccesspolicy_.Destroy();
-  signals_->getcacertificates_.Destroy();
-  signals_->getcapabilities_.Destroy();
-  signals_->getcertificateinformation_.Destroy();
-  signals_->getcertificates_.Destroy();
-  signals_->getcertificatesstatus_.Destroy();
-  signals_->getclientcertificatemode_.Destroy();
-  signals_->getdeviceinformation_.Destroy();
-  signals_->getdiscoverymode_.Destroy();
-  signals_->getdns_.Destroy();
-  signals_->getdot11capabilities_.Destroy();
-  signals_->getdot11status_.Destroy();
-  signals_->getdot1xconfiguration_.Destroy();
-  signals_->getdot1xconfigurations_.Destroy();
-  signals_->getdpaddresses_.Destroy();
-  signals_->getdynamicdns_.Destroy();
-  signals_->getendpointreference_.Destroy();
-  signals_->gethostname_.Destroy();
-  signals_->getipaddressfilter_.Destroy();
-  signals_->getnetworkdefaultgateway_.Destroy();
-  signals_->getnetworkinterfaces_.Destroy();
-  signals_->getnetworkprotocols_.Destroy();
-  signals_->getpkcs10request_.Destroy();
-  signals_->getrelayoutputs_.Destroy();
-  signals_->getntp_.Destroy();
-  signals_->getremotediscoverymode_.Destroy();
-  signals_->getremoteuser_.Destroy();
-  signals_->getscopes_.Destroy();
-  signals_->getservicecapabilities_.Destroy();
-  signals_->getservices_.Destroy();
-  signals_->getstorageconfiguration_.Destroy();
-  signals_->getstorageconfigurations_.Destroy();
-  signals_->getsystembackup_.Destroy();
-  signals_->getsystemdateandtime_.Destroy();
-  signals_->getsystemlog_.Destroy();
-  signals_->getsystemsupportinformation_.Destroy();
-  signals_->getsystemuris_.Destroy();
-  signals_->getusers_.Destroy();
-  signals_->getwsdlurl_.Destroy();
-  signals_->getzeroconfiguration_.Destroy();
-  signals_->loadcacertificates_.Destroy();
-  signals_->loadcertificates_.Destroy();
-  signals_->loadcertificatewithprivatekey_.Destroy();
-  signals_->removeipaddressfilter_.Destroy();
-  signals_->removescopes_.Destroy();
-  signals_->restoresystem_.Destroy();
-  signals_->scanavailabledot11networks_.Destroy();
-  signals_->sendauxiliarycommand_.Destroy();
-  signals_->setaccesspolicy_.Destroy();
-  signals_->setcertificatesstatus_.Destroy();
-  signals_->setclientcertificatemode_.Destroy();
-  signals_->setdiscoverymode_.Destroy();
-  signals_->setdns_.Destroy();
-  signals_->setdot1xconfiguration_.Destroy();
-  signals_->setdpaddresses_.Destroy();
-  signals_->setdynamicdns_.Destroy();
-  signals_->sethostname_.Destroy();
-  signals_->sethostnamefromdhcp_.Destroy();
-  signals_->setipaddressfilter_.Destroy();
-  signals_->setnetworkdefaultgateway_.Destroy();
-  signals_->setnetworkinterfaces_.Destroy();
-  signals_->setnetworkprotocols_.Destroy();
-  signals_->setntp_.Destroy();
-  signals_->setrelayoutputsettings_.Destroy();
-  signals_->setremotediscoverymode_.Destroy();
-  signals_->setsystemdateandtime_.Destroy();
-  signals_->setsystemfactorydefault_.Destroy();
-  signals_->setuser_.Destroy();
-  signals_->setzeroconfiguration_.Destroy();
-  signals_->systemreboot_.Destroy();
+  signals_->addipaddressfilter_->Destroy();
+  signals_->addscopes_->Destroy();
+  signals_->createcertificate_->Destroy();
+  signals_->createusers_->Destroy();
+  signals_->deletecertificates_->Destroy();
+  signals_->deletedot1xconfiguration_->Destroy();
+  signals_->deletestorageconfiguration_->Destroy();
+  signals_->deleteusers_->Destroy();
+  signals_->getaccesspolicy_->Destroy();
+  signals_->getcacertificates_->Destroy();
+  signals_->getcapabilities_->Destroy();
+  signals_->getcertificateinformation_->Destroy();
+  signals_->getcertificates_->Destroy();
+  signals_->getcertificatesstatus_->Destroy();
+  signals_->getclientcertificatemode_->Destroy();
+  signals_->getdeviceinformation_->Destroy();
+  signals_->getdiscoverymode_->Destroy();
+  signals_->getdns_->Destroy();
+  signals_->getdot11capabilities_->Destroy();
+  signals_->getdot11status_->Destroy();
+  signals_->getdot1xconfiguration_->Destroy();
+  signals_->getdot1xconfigurations_->Destroy();
+  signals_->getdpaddresses_->Destroy();
+  signals_->getdynamicdns_->Destroy();
+  signals_->getendpointreference_->Destroy();
+  signals_->gethostname_->Destroy();
+  signals_->getipaddressfilter_->Destroy();
+  signals_->getnetworkdefaultgateway_->Destroy();
+  signals_->getnetworkinterfaces_->Destroy();
+  signals_->getnetworkprotocols_->Destroy();
+  signals_->getpkcs10request_->Destroy();
+  signals_->getrelayoutputs_->Destroy();
+  signals_->getntp_->Destroy();
+  signals_->getremotediscoverymode_->Destroy();
+  signals_->getremoteuser_->Destroy();
+  signals_->getscopes_->Destroy();
+  signals_->getservicecapabilities_->Destroy();
+  signals_->getservices_->Destroy();
+  signals_->getstorageconfiguration_->Destroy();
+  signals_->getstorageconfigurations_->Destroy();
+  signals_->getsystembackup_->Destroy();
+  signals_->getsystemdateandtime_->Destroy();
+  signals_->getsystemlog_->Destroy();
+  signals_->getsystemsupportinformation_->Destroy();
+  signals_->getsystemuris_->Destroy();
+  signals_->getusers_->Destroy();
+  signals_->getwsdlurl_->Destroy();
+  signals_->getzeroconfiguration_->Destroy();
+  signals_->loadcacertificates_->Destroy();
+  signals_->loadcertificates_->Destroy();
+  signals_->loadcertificatewithprivatekey_->Destroy();
+  signals_->removeipaddressfilter_->Destroy();
+  signals_->removescopes_->Destroy();
+  signals_->restoresystem_->Destroy();
+  signals_->scanavailabledot11networks_->Destroy();
+  signals_->sendauxiliarycommand_->Destroy();
+  signals_->setaccesspolicy_->Destroy();
+  signals_->setcertificatesstatus_->Destroy();
+  signals_->setclientcertificatemode_->Destroy();
+  signals_->setdiscoverymode_->Destroy();
+  signals_->setdns_->Destroy();
+  signals_->setdot1xconfiguration_->Destroy();
+  signals_->setdpaddresses_->Destroy();
+  signals_->setdynamicdns_->Destroy();
+  signals_->sethostname_->Destroy();
+  signals_->sethostnamefromdhcp_->Destroy();
+  signals_->setipaddressfilter_->Destroy();
+  signals_->setnetworkdefaultgateway_->Destroy();
+  signals_->setnetworkinterfaces_->Destroy();
+  signals_->setnetworkprotocols_->Destroy();
+  signals_->setntp_->Destroy();
+  signals_->setrelayoutputsettings_->Destroy();
+  signals_->setremotediscoverymode_->Destroy();
+  signals_->setsystemdateandtime_->Destroy();
+  signals_->setsystemfactorydefault_->Destroy();
+  signals_->setuser_->Destroy();
+  signals_->setzeroconfiguration_->Destroy();
+  signals_->systemreboot_->Destroy();
 }
 
 // Requests
 void DeviceClient::AddIPAddressFilter(const IPAddressFilter& ipaddressfilter)
 {
-  signals_->addipaddressfilter_.Create(AddIPAddressFilterBody(ipaddressfilter), ipaddressfilter);
+  signals_->addipaddressfilter_->Create(AddIPAddressFilterBody(ipaddressfilter), ipaddressfilter);
 }
 
 void DeviceClient::AddScopes(const std::vector<std::string>& scopes)
 {
-  signals_->addscopes_.Create(AddScopesBody(scopes), scopes);
+  signals_->addscopes_->Create(AddScopesBody(scopes), scopes);
 }
 
 void DeviceClient::CreateCertificate(const boost::optional<std::string>& certificateid, const boost::optional<std::string>& subject, const boost::optional<onvif::ws::DateTime>& validnotbefore, const boost::optional<onvif::ws::DateTime>& validnotafter)
 {
-  signals_->createcertificate_.Create(CreateCertificateBody(certificateid, subject, validnotbefore, validnotafter), certificateid, subject, validnotbefore, validnotafter);
+  signals_->createcertificate_->Create(CreateCertificateBody(certificateid, subject, validnotbefore, validnotafter), certificateid, subject, validnotbefore, validnotafter);
 }
 
 void DeviceClient::CreateStorageConfiguration(const StorageConfigurationData& storageconfiguration)
 {
-  signals_->createstorageconfiguration_.Create(CreateStorageConfigurationBody(storageconfiguration), storageconfiguration);
+  signals_->createstorageconfiguration_->Create(CreateStorageConfigurationBody(storageconfiguration), storageconfiguration);
 }
 
 void DeviceClient::CreateUsers(const std::vector<User>& users)
 {
-  signals_->createusers_.Create(CreateUsersBody(users), users);
+  signals_->createusers_->Create(CreateUsersBody(users), users);
 }
 
 void DeviceClient::DeleteCertificates(const std::vector<std::string>& certificateid)
 {
-  signals_->deletecertificates_.Create(DeleteCertificatesBody(certificateid), certificateid);
+  signals_->deletecertificates_->Create(DeleteCertificatesBody(certificateid), certificateid);
 }
 
 void DeviceClient::DeleteDot1XConfiguration(const std::vector<std::string>& dot1xconfigurationtoken)
 {
-  signals_->deletedot1xconfiguration_.Create(DeleteDot1XConfigurationBody(dot1xconfigurationtoken), dot1xconfigurationtoken);
+  signals_->deletedot1xconfiguration_->Create(DeleteDot1XConfigurationBody(dot1xconfigurationtoken), dot1xconfigurationtoken);
 }
 
 void DeviceClient::DeleteStorageConfiguration(const std::vector<std::string>& token)
 {
-  signals_->deletestorageconfiguration_.Create(DeleteStorageConfigurationBody(token), token);
+  signals_->deletestorageconfiguration_->Create(DeleteStorageConfigurationBody(token), token);
 }
 
 void DeviceClient::DeleteUsers(const std::vector<std::string>& usernames)
 {
-  signals_->deleteusers_.Create(DeleteUsersBody(usernames), usernames);
+  signals_->deleteusers_->Create(DeleteUsersBody(usernames), usernames);
 }
 
 void DeviceClient::GetAccessPolicy()
 {
-  signals_->getaccesspolicy_.Create(GetAccessPolicyBody());
+  signals_->getaccesspolicy_->Create(GetAccessPolicyBody());
 }
 
 void DeviceClient::GetCACertificates()
 {
-  signals_->getcacertificates_.Create(GetCACertificatesBody());
+  signals_->getcacertificates_->Create(GetCACertificatesBody());
 }
 
 void DeviceClient::GetCapabilities(CAPABILITYCATEGORY capabilitycategory)
 {
-  signals_->getcapabilities_.Create(GetCapabilitiesBody(capabilitycategory), capabilitycategory);
+  signals_->getcapabilities_->Create(GetCapabilitiesBody(capabilitycategory), capabilitycategory);
 }
 
 void DeviceClient::GetCertificateInformation(const std::string& certificateid)
 {
-  signals_->getcertificateinformation_.Create(GetCertificateInformationBody(certificateid), certificateid);
+  signals_->getcertificateinformation_->Create(GetCertificateInformationBody(certificateid), certificateid);
 }
 
 void DeviceClient::GetCertificates()
 {
-  signals_->getcertificates_.Create(GetCertificatesBody());
+  signals_->getcertificates_->Create(GetCertificatesBody());
 }
 
 void DeviceClient::GetCertificatesStatus()
 {
-  signals_->getcertificatesstatus_.Create(GetCertificatesStatusBody());
+  signals_->getcertificatesstatus_->Create(GetCertificatesStatusBody());
 }
 
 void DeviceClient::GetClientCertificateMode()
 {
-  signals_->getclientcertificatemode_.Create(GetClientCertificateModeBody());
+  signals_->getclientcertificatemode_->Create(GetClientCertificateModeBody());
 }
 
 void DeviceClient::GetDeviceInformation()
 {
-  signals_->getdeviceinformation_.Create(GetDeviceInformationBody());
+  signals_->getdeviceinformation_->Create(GetDeviceInformationBody());
 }
 
 void DeviceClient::GetDiscoveryMode()
 {
-  signals_->getdiscoverymode_.Create(GetDiscoveryModeBody());
+  signals_->getdiscoverymode_->Create(GetDiscoveryModeBody());
 }
 
 void DeviceClient::GetDNS()
 {
-  signals_->getdns_.Create(GetDNSBody());
+  signals_->getdns_->Create(GetDNSBody());
 }
 
 void DeviceClient::GetDot11Capabilities()
 {
-  signals_->getdot11capabilities_.Create(GetDot11CapabilitiesBody());
+  signals_->getdot11capabilities_->Create(GetDot11CapabilitiesBody());
 }
 
 void DeviceClient::GetDot11Status(const std::string& interfacetoken)
 {
-  signals_->getdot11status_.Create(GetDot11StatusBody(interfacetoken), interfacetoken);
+  signals_->getdot11status_->Create(GetDot11StatusBody(interfacetoken), interfacetoken);
 }
 
 void DeviceClient::GetDot1XConfiguration(const std::string& dot1xconfigurationtoken)
 {
-  signals_->getdot1xconfiguration_.Create(GetDot1XConfigurationBody(dot1xconfigurationtoken), dot1xconfigurationtoken);
+  signals_->getdot1xconfiguration_->Create(GetDot1XConfigurationBody(dot1xconfigurationtoken), dot1xconfigurationtoken);
 }
 
 void DeviceClient::GetDot1XConfigurations()
 {
-  signals_->getdot1xconfigurations_.Create(GetDot1XConfigurationsBody());
+  signals_->getdot1xconfigurations_->Create(GetDot1XConfigurationsBody());
 }
 
 void DeviceClient::GetDPAddresses()
 {
-  signals_->getdpaddresses_.Create(GetDPAddressesBody());
+  signals_->getdpaddresses_->Create(GetDPAddressesBody());
 }
 
 void DeviceClient::GetDynamicDNS()
 {
-  signals_->getdynamicdns_.Create(GetDynamicDNSBody());
+  signals_->getdynamicdns_->Create(GetDynamicDNSBody());
 }
 
 void DeviceClient::GetEndpointReference()
 {
-  signals_->getendpointreference_.Create(GetEndpointReferenceBody());
+  signals_->getendpointreference_->Create(GetEndpointReferenceBody());
 }
 
 void DeviceClient::GetHostname()
 {
-  signals_->gethostname_.Create(GetHostnameBody());
+  signals_->gethostname_->Create(GetHostnameBody());
 }
 
 void DeviceClient::GetIPAddressFilter()
 {
-  signals_->getipaddressfilter_.Create(GetIPAddressFilterBody());
+  signals_->getipaddressfilter_->Create(GetIPAddressFilterBody());
 }
 
 void DeviceClient::GetNetworkDefaultGateway()
 {
-  signals_->getnetworkdefaultgateway_.Create(GetNetworkDefaultGatewayBody());
+  signals_->getnetworkdefaultgateway_->Create(GetNetworkDefaultGatewayBody());
 }
 
 void DeviceClient::GetNetworkInterfaces()
 {
-  signals_->getnetworkinterfaces_.Create(GetNetworkInterfacesBody());
+  signals_->getnetworkinterfaces_->Create(GetNetworkInterfacesBody());
 }
 
 void DeviceClient::GetNetworkProtocols()
 {
-  signals_->getnetworkprotocols_.Create(GetNetworkProtocolsBody());
+  signals_->getnetworkprotocols_->Create(GetNetworkProtocolsBody());
 }
 
 void DeviceClient::GetPkcs10Request(const std::string& certificateid, const boost::optional<std::string>& subject, const boost::optional<BinaryData>& attributes)
 {
-  signals_->getpkcs10request_.Create(GetPkcs10RequestBody(certificateid, subject, attributes), certificateid, subject, attributes);
+  signals_->getpkcs10request_->Create(GetPkcs10RequestBody(certificateid, subject, attributes), certificateid, subject, attributes);
 }
 
 void DeviceClient::GetRelayOutputs()
 {
-  signals_->getrelayoutputs_.Create(GetRelayOutputsBody());
+  signals_->getrelayoutputs_->Create(GetRelayOutputsBody());
 }
 
 void DeviceClient::GetNTP()
 {
-  signals_->getntp_.Create(GetNTPBody());
+  signals_->getntp_->Create(GetNTPBody());
 }
 
 void DeviceClient::GetRemoteDiscoveryMode()
 {
-  signals_->getremotediscoverymode_.Create(GetRemoteDiscoveryModeBody());
+  signals_->getremotediscoverymode_->Create(GetRemoteDiscoveryModeBody());
 }
 
 void DeviceClient::GetRemoteUser()
 {
-  signals_->getremoteuser_.Create(GetRemoteUserBody());
+  signals_->getremoteuser_->Create(GetRemoteUserBody());
 }
 
 void DeviceClient::GetScopes()
 {
-  signals_->getscopes_.Create(GetScopesBody());
+  signals_->getscopes_->Create(GetScopesBody());
 }
 
 void DeviceClient::GetServiceCapabilities()
 {
-  signals_->getservicecapabilities_.Create(GetServiceCapabilitiesBody());
+  signals_->getservicecapabilities_->Create(GetServiceCapabilitiesBody());
 }
 
 void DeviceClient::GetServices(bool includecapability)
 {
-  signals_->getservices_.Create(GetServicesBody(includecapability), includecapability);
+  signals_->getservices_->Create(GetServicesBody(includecapability), includecapability);
 }
 
 void DeviceClient::GetStorageConfiguration(const std::string& token)
 {
-  signals_->getstorageconfiguration_.Create(GetStorageConfigurationBody(token), token);
+  signals_->getstorageconfiguration_->Create(GetStorageConfigurationBody(token), token);
 }
 
 void DeviceClient::GetStorageConfigurations()
 {
-  signals_->getstorageconfigurations_.Create(GetStorageConfigurationsBody());
+  signals_->getstorageconfigurations_->Create(GetStorageConfigurationsBody());
 }
 
 void DeviceClient::GetSystemBackup()
 {
-  signals_->getsystembackup_.Create(GetSystemBackupBody());
+  signals_->getsystembackup_->Create(GetSystemBackupBody());
 }
 
 void DeviceClient::GetSystemDateAndTime()
 {
-  signals_->getsystemdateandtime_.Create(GetSystemDateAndTimeBody());
+  signals_->getsystemdateandtime_->Create(GetSystemDateAndTimeBody());
 }
 
 void DeviceClient::GetSystemLog(SYSTEMLOGTYPE logtype)
 {
-  signals_->getsystemlog_.Create(GetSystemLogBody(logtype), logtype);
+  signals_->getsystemlog_->Create(GetSystemLogBody(logtype), logtype);
 }
 
 void DeviceClient::GetSystemSupportInformation()
 {
-  signals_->getsystemsupportinformation_.Create(GetSystemSupportInformationBody());
+  signals_->getsystemsupportinformation_->Create(GetSystemSupportInformationBody());
 }
 
 void DeviceClient::GetSystemUris()
 {
-  signals_->getsystemuris_.Create(GetSystemUrisBody());
+  signals_->getsystemuris_->Create(GetSystemUrisBody());
 }
 
 void DeviceClient::GetUsers()
 {
-  signals_->getusers_.Create(GetUsersBody());
+  signals_->getusers_->Create(GetUsersBody());
 }
 
 void DeviceClient::GetWsdlUrl()
 {
-  signals_->getwsdlurl_.Create(GetWsdlUrlBody());
+  signals_->getwsdlurl_->Create(GetWsdlUrlBody());
 }
 
 void DeviceClient::GetZeroConfiguration()
 {
-  signals_->getzeroconfiguration_.Create(GetZeroConfigurationBody());
+  signals_->getzeroconfiguration_->Create(GetZeroConfigurationBody());
 }
 
 void DeviceClient::LoadCACertificates(const std::vector<Certificate>& cacertificate)
 {
-  signals_->loadcacertificates_.Create(LoadCACertificatesBody(cacertificate), cacertificate);
+  signals_->loadcacertificates_->Create(LoadCACertificatesBody(cacertificate), cacertificate);
 }
 
 void DeviceClient::LoadCertificates(const std::vector<Certificate>& nvtcertificate)
 {
-  signals_->loadcertificates_.Create(LoadCertificatesBody(nvtcertificate), nvtcertificate);
+  signals_->loadcertificates_->Create(LoadCertificatesBody(nvtcertificate), nvtcertificate);
 }
 
 void DeviceClient::LoadCertificateWithPrivateKey(const std::vector<CertificateWithPrivateKey>& certificatewithprivatekey)
 {
-  signals_->loadcertificatewithprivatekey_.Create(LoadCertificateWithPrivateKeyBody(certificatewithprivatekey), certificatewithprivatekey);
+  signals_->loadcertificatewithprivatekey_->Create(LoadCertificateWithPrivateKeyBody(certificatewithprivatekey), certificatewithprivatekey);
 }
 
 void DeviceClient::RemoveIPAddressFilter(const IPAddressFilter& ipaddressfilter)
 {
-  signals_->removeipaddressfilter_.Create(RemoveIPAddressFilterBody(ipaddressfilter), ipaddressfilter);
+  signals_->removeipaddressfilter_->Create(RemoveIPAddressFilterBody(ipaddressfilter), ipaddressfilter);
 }
 
 void DeviceClient::RemoveScopes(const std::vector<std::string>& scopes)
 {
-  signals_->removescopes_.Create(RemoveScopesBody(scopes), scopes);
+  signals_->removescopes_->Create(RemoveScopesBody(scopes), scopes);
 }
 
 void DeviceClient::RestoreSystem(const std::vector<BackupFile>& backupfiles)
 {
   const auto body = RestoreSystemBody(backupfiles);
-  signals_->restoresystem_.Create(body.first, body.second, backupfiles);
+  signals_->restoresystem_->Create(body.first, body.second, backupfiles);
 }
 
 void DeviceClient::ScanAvailableDot11Networks(const std::string& interfacetoken)
 {
-  signals_->scanavailabledot11networks_.Create(ScanAvailableDot11NetworksBody(interfacetoken), interfacetoken);
+  signals_->scanavailabledot11networks_->Create(ScanAvailableDot11NetworksBody(interfacetoken), interfacetoken);
 }
 
 void DeviceClient::SendAuxiliaryCommand(const std::string& auxiliarycommand)
 {
-  signals_->sendauxiliarycommand_.Create(SendAuxiliaryCommandBody(auxiliarycommand), auxiliarycommand);
+  signals_->sendauxiliarycommand_->Create(SendAuxiliaryCommandBody(auxiliarycommand), auxiliarycommand);
 }
 
 void DeviceClient::SetAccessPolicy(const BinaryData& policyfile)
 {
-  signals_->setaccesspolicy_.Create(SetAccessPolicyBody(policyfile), policyfile);
+  signals_->setaccesspolicy_->Create(SetAccessPolicyBody(policyfile), policyfile);
 }
 
 void DeviceClient::SetCertificatesStatus(const std::vector<CertificateStatus>& certificatestatus)
 {
-  signals_->setcertificatesstatus_.Create(SetCertificatesStatusBody(certificatestatus), certificatestatus);
+  signals_->setcertificatesstatus_->Create(SetCertificatesStatusBody(certificatestatus), certificatestatus);
 }
 
 void DeviceClient::SetClientCertificateMode(bool enabled)
 {
-  signals_->setclientcertificatemode_.Create(SetClientCertificateModeBody(enabled), enabled);
+  signals_->setclientcertificatemode_->Create(SetClientCertificateModeBody(enabled), enabled);
 }
 
 void DeviceClient::SetDiscoveryMode(DISCOVERYMODE discoverymode)
 {
-  signals_->setdiscoverymode_.Create(SetDiscoveryModeBody(discoverymode), discoverymode);
+  signals_->setdiscoverymode_->Create(SetDiscoveryModeBody(discoverymode), discoverymode);
 }
 
 void DeviceClient::SetDNS(bool fromdhcp, const std::vector<std::string>& searchdomain, const std::vector<IPAddress>& dnsmanual)
 {
-  signals_->setdns_.Create(SetDNSBody(fromdhcp, searchdomain, dnsmanual), fromdhcp, searchdomain, dnsmanual);
+  signals_->setdns_->Create(SetDNSBody(fromdhcp, searchdomain, dnsmanual), fromdhcp, searchdomain, dnsmanual);
 }
 
 void DeviceClient::SetDot1XConfiguration(const Dot1XConfiguration& dot1xconfiguration)
 {
-  signals_->setdot1xconfiguration_.Create(SetDot1XConfigurationBody(dot1xconfiguration), dot1xconfiguration);
+  signals_->setdot1xconfiguration_->Create(SetDot1XConfigurationBody(dot1xconfiguration), dot1xconfiguration);
 }
 
 void DeviceClient::SetDPAddresses(const std::vector<NetworkHost>& dpaddress)
 {
-  signals_->setdpaddresses_.Create(SetDPAddressesBody(dpaddress), dpaddress);
+  signals_->setdpaddresses_->Create(SetDPAddressesBody(dpaddress), dpaddress);
 }
 
 void DeviceClient::SetDynamicDNS(DYNAMICDNSTYPE type, const boost::optional<std::string>& name, const boost::optional<Duration>& ttl)
 {
-  signals_->setdynamicdns_.Create(SetDynamicDNSBody(type, name, ttl), type, name, ttl);
+  signals_->setdynamicdns_->Create(SetDynamicDNSBody(type, name, ttl), type, name, ttl);
 }
 
 void DeviceClient::SetHostname(const std::string& name)
 {
-  signals_->sethostname_.Create(SetHostnameBody(name), name);
+  signals_->sethostname_->Create(SetHostnameBody(name), name);
 }
 
 void DeviceClient::SetHostnameFromDHCP(bool fromdhcp)
 {
-  signals_->sethostnamefromdhcp_.Create(SetHostnameFromDHCPBody(fromdhcp), fromdhcp);
+  signals_->sethostnamefromdhcp_->Create(SetHostnameFromDHCPBody(fromdhcp), fromdhcp);
 }
 
 void DeviceClient::SetIPAddressFilter(const IPAddressFilter& ipaddressfilter)
 {
-  signals_->setipaddressfilter_.Create(SetIPAddressFilterBody(ipaddressfilter), ipaddressfilter);
+  signals_->setipaddressfilter_->Create(SetIPAddressFilterBody(ipaddressfilter), ipaddressfilter);
 }
 
 void DeviceClient::SetNetworkDefaultGateway(const std::vector<std::string>& ipv4address, const std::vector<std::string>& ipv6address)
 {
-  signals_->setnetworkdefaultgateway_.Create(SetNetworkDefaultGatewayBody(ipv4address, ipv6address), ipv4address, ipv6address);
+  signals_->setnetworkdefaultgateway_->Create(SetNetworkDefaultGatewayBody(ipv4address, ipv6address), ipv4address, ipv6address);
 }
 
 void DeviceClient::SetNetworkInterfaces(const std::string& token, const onvif::NetworkInterfaceSetConfiguration& networkinterface)
 {
-  signals_->setnetworkinterfaces_.Create(SetNetworkInterfacesBody(token, networkinterface), token, networkinterface);
+  signals_->setnetworkinterfaces_->Create(SetNetworkInterfacesBody(token, networkinterface), token, networkinterface);
 }
 
 void DeviceClient::SetNetworkProtocols(const std::vector<NetworkProtocol>& networkprotocols)
 {
-  signals_->setnetworkprotocols_.Create(SetNetworkProtocolsBody(networkprotocols), networkprotocols);
+  signals_->setnetworkprotocols_->Create(SetNetworkProtocolsBody(networkprotocols), networkprotocols);
 }
 
 void DeviceClient::SetNTP(bool fromdhcp, const std::vector<NetworkHost>& ntpmanual)
 {
-  signals_->setntp_.Create(SetNTPBody(fromdhcp, ntpmanual), fromdhcp, ntpmanual);
+  signals_->setntp_->Create(SetNTPBody(fromdhcp, ntpmanual), fromdhcp, ntpmanual);
 }
 
 void DeviceClient::SetRelayOutputSettings(const std::string& relayoutputtoken, const RelayOutputSettings& properties)
 {
-  signals_->setrelayoutputsettings_.Create(SetRelayOutputSettingsBody(relayoutputtoken, properties), relayoutputtoken, properties);
+  signals_->setrelayoutputsettings_->Create(SetRelayOutputSettingsBody(relayoutputtoken, properties), relayoutputtoken, properties);
 }
 
 void DeviceClient::SetRemoteDiscoveryMode(DISCOVERYMODE remotediscoverymode)
 {
-  signals_->setremotediscoverymode_.Create(SetRemoteDiscoveryModeBody(remotediscoverymode), remotediscoverymode);
+  signals_->setremotediscoverymode_->Create(SetRemoteDiscoveryModeBody(remotediscoverymode), remotediscoverymode);
 }
 
 void DeviceClient::SetSystemDateAndTime(DATETIMETYPE datetimetype, bool daylightsavings, const boost::optional<TimeZone>& timezone, const boost::optional<DateTime>& utcdatetime)
 {
-  signals_->setsystemdateandtime_.Create(SetSystemDateAndTimeBody(datetimetype, daylightsavings, timezone, utcdatetime), datetimetype, daylightsavings, timezone, utcdatetime);
+  signals_->setsystemdateandtime_->Create(SetSystemDateAndTimeBody(datetimetype, daylightsavings, timezone, utcdatetime), datetimetype, daylightsavings, timezone, utcdatetime);
 }
 
 void DeviceClient::SetSystemFactoryDefault(FACTORYDEFAULTTYPE factorydefault)
 {
-  signals_->setsystemfactorydefault_.Create(SetSystemFactoryDefaultBody(factorydefault), factorydefault);
+  signals_->setsystemfactorydefault_->Create(SetSystemFactoryDefaultBody(factorydefault), factorydefault);
 }
 
 void DeviceClient::SetUser(const std::vector<User>& users)
 {
-  signals_->setuser_.Create(SetUserBody(users), users);
+  signals_->setuser_->Create(SetUserBody(users), users);
 }
 
 void DeviceClient::SetZeroConfiguration(const std::string& interfacetoken, bool enabled)
 {
-  signals_->setzeroconfiguration_.Create(SetZeroConfigurationBody(interfacetoken, enabled), interfacetoken, enabled);
+  signals_->setzeroconfiguration_->Create(SetZeroConfigurationBody(interfacetoken, enabled), interfacetoken, enabled);
 }
 
 void DeviceClient::SystemReboot()
 {
-  signals_->systemreboot_.Create(SystemRebootBody());
+  signals_->systemreboot_->Create(SystemRebootBody());
 }
 
 // Callbacks
 Connection DeviceClient::AddIPAddressFilterCallback(const IPAddressFilter& ipaddressfilter, boost::function<void(const AddIPAddressFilterResponse&)> callback)
 {
-  return signals_->addipaddressfilter_.CreateCallback(AddIPAddressFilterBody(ipaddressfilter), callback, ipaddressfilter);
+  return signals_->addipaddressfilter_->CreateCallback(AddIPAddressFilterBody(ipaddressfilter), callback, ipaddressfilter);
 }
 
 Connection DeviceClient::AddScopesCallback(const std::vector<std::string>& scopes, boost::function<void(const AddScopesResponse&)> callback)
 {
-  return signals_->addscopes_.CreateCallback(AddScopesBody(scopes), callback, scopes);
+  return signals_->addscopes_->CreateCallback(AddScopesBody(scopes), callback, scopes);
 }
 
 Connection DeviceClient::CreateCertificateCallback(const boost::optional<std::string>& certificateid, const boost::optional<std::string>& subject, const boost::optional<onvif::ws::DateTime>& validnotbefore, const boost::optional<onvif::ws::DateTime>& validnotafter, boost::function<void(const CreateCertificateResponse&)> callback)
 {
-  return signals_->createcertificate_.CreateCallback(CreateCertificateBody(certificateid, subject, validnotbefore, validnotafter), callback, certificateid, subject, validnotbefore, validnotafter);
+  return signals_->createcertificate_->CreateCallback(CreateCertificateBody(certificateid, subject, validnotbefore, validnotafter), callback, certificateid, subject, validnotbefore, validnotafter);
 }
 
 Connection DeviceClient::CreateStorageConfigurationCallback(const StorageConfigurationData& storageconfiguration, boost::function<void(const CreateStorageConfigurationResponse&)> callback)
 {
-  return signals_->createstorageconfiguration_.CreateCallback(CreateStorageConfigurationBody(storageconfiguration), callback, storageconfiguration);
+  return signals_->createstorageconfiguration_->CreateCallback(CreateStorageConfigurationBody(storageconfiguration), callback, storageconfiguration);
 }
 
 Connection DeviceClient::CreateUsersCallback(const std::vector<User>& users, boost::function<void(const CreateUsersResponse&)> callback)
 {
-  return signals_->createusers_.CreateCallback(CreateUsersBody(users), callback, users);
+  return signals_->createusers_->CreateCallback(CreateUsersBody(users), callback, users);
 }
 
 Connection DeviceClient::DeleteCertificatesCallback(const std::vector<std::string>& certificateid, boost::function<void(const DeleteCertificatesResponse&)> callback)
 {
-  return signals_->deletecertificates_.CreateCallback(DeleteCertificatesBody(certificateid), callback, certificateid);
+  return signals_->deletecertificates_->CreateCallback(DeleteCertificatesBody(certificateid), callback, certificateid);
 }
 
 Connection DeviceClient::DeleteDot1XConfigurationCallback(const std::vector<std::string>& dot1xconfigurationtoken, boost::function<void(const DeleteDot1XConfigurationResponse&)> callback)
 {
-  return signals_->deletedot1xconfiguration_.CreateCallback(DeleteDot1XConfigurationBody(dot1xconfigurationtoken), callback, dot1xconfigurationtoken);
+  return signals_->deletedot1xconfiguration_->CreateCallback(DeleteDot1XConfigurationBody(dot1xconfigurationtoken), callback, dot1xconfigurationtoken);
 }
 
 Connection DeviceClient::DeleteStorageConfigurationCallback(const std::vector<std::string>& token, boost::function<void(const DeleteStorageConfigurationResponse&)> callback)
 {
-  return signals_->deletestorageconfiguration_.CreateCallback(DeleteStorageConfigurationBody(token), callback, token);
+  return signals_->deletestorageconfiguration_->CreateCallback(DeleteStorageConfigurationBody(token), callback, token);
 }
 
 Connection DeviceClient::DeleteUsersCallback(const std::vector<std::string>& usernames, boost::function<void(const DeleteUsersResponse&)> callback)
 {
-  return signals_->deleteusers_.CreateCallback(DeleteUsersBody(usernames), callback, usernames);
+  return signals_->deleteusers_->CreateCallback(DeleteUsersBody(usernames), callback, usernames);
 }
 
 Connection DeviceClient::GetAccessPolicyCallback(boost::function<void(const GetAccessPolicyResponse&)> callback)
 {
-  return signals_->getaccesspolicy_.CreateCallback(GetAccessPolicyBody(), callback);
+  return signals_->getaccesspolicy_->CreateCallback(GetAccessPolicyBody(), callback);
 }
 
 Connection DeviceClient::GetCACertificatesCallback(boost::function<void(const GetCACertificatesResponse&)> callback)
 {
-  return signals_->getcacertificates_.CreateCallback(GetCACertificatesBody(), callback);
+  return signals_->getcacertificates_->CreateCallback(GetCACertificatesBody(), callback);
 }
 
 Connection DeviceClient::GetCapabilitiesCallback(CAPABILITYCATEGORY capabilitycategory, boost::function<void(const GetCapabilitiesResponse&)> callback)
 {
-  return signals_->getcapabilities_.CreateCallback(GetCapabilitiesBody(capabilitycategory), callback, capabilitycategory);
+  return signals_->getcapabilities_->CreateCallback(GetCapabilitiesBody(capabilitycategory), callback, capabilitycategory);
 }
 
 Connection DeviceClient::GetCertificateInformationCallback(const std::string& certificateid, boost::function<void(const GetCertificateInformationResponse&)> callback)
 {
-  return signals_->getcertificateinformation_.CreateCallback(GetCertificateInformationBody(certificateid), callback, certificateid);
+  return signals_->getcertificateinformation_->CreateCallback(GetCertificateInformationBody(certificateid), callback, certificateid);
 }
 
 Connection DeviceClient::GetCertificatesStatusCallback(boost::function<void(const GetCertificatesStatusResponse&)> callback)
 {
-  return signals_->getcertificatesstatus_.CreateCallback(GetCertificatesStatusBody(), callback);
+  return signals_->getcertificatesstatus_->CreateCallback(GetCertificatesStatusBody(), callback);
 }
 
 Connection DeviceClient::GetClientCertificateModeCallback(boost::function<void(const GetClientCertificateModeResponse&)> callback)
 {
-  return signals_->getclientcertificatemode_.CreateCallback(GetClientCertificateModeBody(), callback);
+  return signals_->getclientcertificatemode_->CreateCallback(GetClientCertificateModeBody(), callback);
 }
 
 Connection DeviceClient::GetCertificatesCallback(boost::function<void(const GetCertificatesResponse&)> callback)
 {
-  return signals_->getcertificates_.CreateCallback(GetCertificatesBody(), callback);
+  return signals_->getcertificates_->CreateCallback(GetCertificatesBody(), callback);
 }
 
 Connection DeviceClient::GetDeviceInformationCallback(boost::function<void(const GetDeviceInformationResponse&)> callback)
 {
-  return signals_->getdeviceinformation_.CreateCallback(GetDeviceInformationBody(), callback);
+  return signals_->getdeviceinformation_->CreateCallback(GetDeviceInformationBody(), callback);
 }
 
 Connection DeviceClient::GetDiscoveryModeCallback(boost::function<void(const GetDiscoveryModeResponse&)> callback)
 {
-  return signals_->getdiscoverymode_.CreateCallback(GetDiscoveryModeBody(), callback);
+  return signals_->getdiscoverymode_->CreateCallback(GetDiscoveryModeBody(), callback);
 }
 
 Connection DeviceClient::GetDNSCallback(boost::function<void(const GetDNSResponse&)> callback)
 {
-  return signals_->getdns_.CreateCallback(GetDNSBody(), callback);
+  return signals_->getdns_->CreateCallback(GetDNSBody(), callback);
 }
 
 Connection DeviceClient::GetDot11CapabilitiesCallback(boost::function<void(const GetDot11CapabilitiesResponse&)> callback)
 {
-  return signals_->getdot11capabilities_.CreateCallback(GetDot11CapabilitiesBody(), callback);
+  return signals_->getdot11capabilities_->CreateCallback(GetDot11CapabilitiesBody(), callback);
 }
 
 Connection DeviceClient::GetDot11StatusCallback(const std::string& interfacetoken, boost::function<void(const GetDot11StatusResponse&)> callback)
 {
-  return signals_->getdot11status_.CreateCallback(GetDot11StatusBody(interfacetoken), callback, interfacetoken);
+  return signals_->getdot11status_->CreateCallback(GetDot11StatusBody(interfacetoken), callback, interfacetoken);
 }
 
 Connection DeviceClient::GetDot1XConfigurationCallback(const std::string& dot1xconfigurationtoken, boost::function<void(const GetDot1XConfigurationResponse&)> callback)
 {
-  return signals_->getdot1xconfiguration_.CreateCallback(GetDot1XConfigurationBody(dot1xconfigurationtoken), callback, dot1xconfigurationtoken);
+  return signals_->getdot1xconfiguration_->CreateCallback(GetDot1XConfigurationBody(dot1xconfigurationtoken), callback, dot1xconfigurationtoken);
 }
 
 Connection DeviceClient::GetDot1XConfigurationsCallback(boost::function<void(const GetDot1XConfigurationsResponse&)> callback)
 {
-  return signals_->getdot1xconfigurations_.CreateCallback(GetDot1XConfigurationsBody(), callback);
+  return signals_->getdot1xconfigurations_->CreateCallback(GetDot1XConfigurationsBody(), callback);
 }
 
 Connection DeviceClient::GetDPAddressesCallback(boost::function<void(const GetDPAddressesResponse&)> callback)
 {
-  return signals_->getdpaddresses_.CreateCallback(GetDPAddressesBody(), callback);
+  return signals_->getdpaddresses_->CreateCallback(GetDPAddressesBody(), callback);
 }
 
 Connection DeviceClient::GetDynamicDNSCallback(boost::function<void(const GetDynamicDNSResponse&)> callback)
 {
-  return signals_->getdynamicdns_.CreateCallback(GetDynamicDNSBody(), callback);
+  return signals_->getdynamicdns_->CreateCallback(GetDynamicDNSBody(), callback);
 }
 
 Connection DeviceClient::GetEndpointReferenceCallback(boost::function<void(const GetEndpointReferenceResponse&)> callback)
 {
-  return signals_->getendpointreference_.CreateCallback(GetEndpointReferenceBody(), callback);
+  return signals_->getendpointreference_->CreateCallback(GetEndpointReferenceBody(), callback);
 }
 
 Connection DeviceClient::GetHostnameCallback(boost::function<void(const GetHostnameResponse&)> callback)
 {
-  return signals_->gethostname_.CreateCallback(GetHostnameBody(), callback);
+  return signals_->gethostname_->CreateCallback(GetHostnameBody(), callback);
 }
 
 Connection DeviceClient::GetIPAddressFilterCallback(boost::function<void(const GetIPAddressFilterResponse&)> callback)
 {
-  return signals_->getipaddressfilter_.CreateCallback(GetIPAddressFilterBody(), callback);
+  return signals_->getipaddressfilter_->CreateCallback(GetIPAddressFilterBody(), callback);
 }
 
 Connection DeviceClient::GetNetworkDefaultGatewayCallback(boost::function<void(const GetNetworkDefaultGatewayResponse&)> callback)
 {
-  return signals_->getnetworkdefaultgateway_.CreateCallback(GetNetworkDefaultGatewayBody(), callback);
+  return signals_->getnetworkdefaultgateway_->CreateCallback(GetNetworkDefaultGatewayBody(), callback);
 }
 
 Connection DeviceClient::GetNetworkInterfacesCallback(boost::function<void(const GetNetworkInterfacesResponse&)> callback)
 {
-  return signals_->getnetworkinterfaces_.CreateCallback(GetNetworkInterfacesBody(), callback);
+  return signals_->getnetworkinterfaces_->CreateCallback(GetNetworkInterfacesBody(), callback);
 }
 
 Connection DeviceClient::GetNetworkProtocolsCallback(boost::function<void(const GetNetworkProtocolsResponse&)> callback)
 {
-  return signals_->getnetworkprotocols_.CreateCallback(GetNetworkProtocolsBody(), callback);
+  return signals_->getnetworkprotocols_->CreateCallback(GetNetworkProtocolsBody(), callback);
 }
 
 Connection DeviceClient::GetPkcs10RequestCallback(const std::string& certificateid, const boost::optional<std::string>& subject, const boost::optional<BinaryData>& attributes, boost::function<void(const GetPkcs10RequestResponse&)> callback)
 {
-  return signals_->getpkcs10request_.CreateCallback(GetPkcs10RequestBody(certificateid, subject, attributes), callback, certificateid, subject, attributes);
+  return signals_->getpkcs10request_->CreateCallback(GetPkcs10RequestBody(certificateid, subject, attributes), callback, certificateid, subject, attributes);
 }
 
 Connection DeviceClient::GetRelayOutputsCallback(boost::function<void(const GetRelayOutputsResponse&)> callback)
 {
-  return signals_->getrelayoutputs_.CreateCallback(GetRelayOutputsBody(), callback);
+  return signals_->getrelayoutputs_->CreateCallback(GetRelayOutputsBody(), callback);
 }
 
 Connection DeviceClient::GetNTPCallback(boost::function<void(const GetNTPResponse&)> callback)
 {
-  return signals_->getntp_.CreateCallback(GetNTPBody(), callback);
+  return signals_->getntp_->CreateCallback(GetNTPBody(), callback);
 }
 
 Connection DeviceClient::GetRemoteDiscoveryModeCallback(boost::function<void(const GetRemoteDiscoveryModeResponse&)> callback)
 {
-  return signals_->getremotediscoverymode_.CreateCallback(GetRemoteDiscoveryModeBody(), callback);
+  return signals_->getremotediscoverymode_->CreateCallback(GetRemoteDiscoveryModeBody(), callback);
 }
 
 Connection DeviceClient::GetRemoteUserCallback(boost::function<void(const GetRemoteUserResponse&)> callback)
 {
-  return signals_->getremoteuser_.CreateCallback(GetRemoteUserBody(), callback);
+  return signals_->getremoteuser_->CreateCallback(GetRemoteUserBody(), callback);
 }
 
 Connection DeviceClient::GetScopesCallback(boost::function<void(const GetScopesResponse&)> callback)
 {
-  return signals_->getscopes_.CreateCallback(GetScopesBody(), callback);
+  return signals_->getscopes_->CreateCallback(GetScopesBody(), callback);
 }
 
 Connection DeviceClient::GetServiceCapabilitiesCallback(boost::function<void(const GetServiceCapabilitiesResponse&)> callback)
 {
-  return signals_->getservicecapabilities_.CreateCallback(GetServiceCapabilitiesBody(), callback);
+  return signals_->getservicecapabilities_->CreateCallback(GetServiceCapabilitiesBody(), callback);
 }
 
 Connection DeviceClient::GetServicesCallback(bool includecapability, boost::function<void(const GetServicesResponse&)> callback)
 {
-  return signals_->getservices_.CreateCallback(GetServicesBody(includecapability), callback, includecapability);
+  return signals_->getservices_->CreateCallback(GetServicesBody(includecapability), callback, includecapability);
 }
 
 Connection DeviceClient::GetStorageConfigurationCallback(const std::string& token, boost::function<void(const GetStorageConfigurationResponse&)> callback)
 {
-  return signals_->getstorageconfiguration_.CreateCallback(GetStorageConfigurationBody(token), callback, token);
+  return signals_->getstorageconfiguration_->CreateCallback(GetStorageConfigurationBody(token), callback, token);
 }
 
 Connection DeviceClient::GetStorageConfigurationsCallback(boost::function<void(const GetStorageConfigurationsResponse&)> callback)
 {
-  return signals_->getstorageconfigurations_.CreateCallback(GetStorageConfigurationsBody(), callback);
+  return signals_->getstorageconfigurations_->CreateCallback(GetStorageConfigurationsBody(), callback);
 }
 
 Connection DeviceClient::GetSystemBackupCallback(boost::function<void(const GetSystemBackupResponse&)> callback)
 {
-  return signals_->getsystembackup_.CreateCallback(GetSystemBackupBody(), callback);
+  return signals_->getsystembackup_->CreateCallback(GetSystemBackupBody(), callback);
 }
 
 Connection DeviceClient::GetSystemDateAndTimeCallback(boost::function<void(const GetSystemDateAndTimeResponse&)> callback)
 {
-  return signals_->getsystemdateandtime_.CreateCallback(GetSystemDateAndTimeBody(), callback);
+  return signals_->getsystemdateandtime_->CreateCallback(GetSystemDateAndTimeBody(), callback);
 }
 
 Connection DeviceClient::GetSystemLogCallback(SYSTEMLOGTYPE logtype, boost::function<void(const GetSystemLogResponse&)> callback)
 {
-  return signals_->getsystemlog_.CreateCallback(GetSystemLogBody(logtype), callback, logtype);
+  return signals_->getsystemlog_->CreateCallback(GetSystemLogBody(logtype), callback, logtype);
 }
 
 Connection DeviceClient::GetSystemSupportInformationCallback(boost::function<void(const GetSystemSupportInformationResponse&)> callback)
 {
-  return signals_->getsystemsupportinformation_.CreateCallback(GetSystemSupportInformationBody(), callback);
+  return signals_->getsystemsupportinformation_->CreateCallback(GetSystemSupportInformationBody(), callback);
 }
 
 Connection DeviceClient::GetSystemUrisCallback(boost::function<void(const GetSystemUrisResponse&)> callback)
 {
-  return signals_->getsystemuris_.CreateCallback(GetSystemUrisBody(), callback);
+  return signals_->getsystemuris_->CreateCallback(GetSystemUrisBody(), callback);
 }
 
 Connection DeviceClient::GetUsersCallback(boost::function<void(const GetUsersResponse&)> callback)
 {
-  return signals_->getusers_.CreateCallback(GetUsersBody(), callback);
+  return signals_->getusers_->CreateCallback(GetUsersBody(), callback);
 }
 
 Connection DeviceClient::GetWsdlUrlCallback(boost::function<void(const GetWsdlUrlResponse&)> callback)
 {
-  return signals_->getwsdlurl_.CreateCallback(GetWsdlUrlBody(), callback);
+  return signals_->getwsdlurl_->CreateCallback(GetWsdlUrlBody(), callback);
 }
 
 Connection DeviceClient::GetZeroConfigurationCallback(boost::function<void(const GetZeroConfigurationResponse&)> callback)
 {
-  return signals_->getzeroconfiguration_.CreateCallback(GetZeroConfigurationBody(), callback);
+  return signals_->getzeroconfiguration_->CreateCallback(GetZeroConfigurationBody(), callback);
 }
 
 Connection DeviceClient::LoadCACertificatesCallback(const std::vector<Certificate>& cacertificate, boost::function<void(const LoadCACertificatesResponse&)> callback)
 {
-  return signals_->loadcacertificates_.CreateCallback(LoadCACertificatesBody(cacertificate), callback, cacertificate);
+  return signals_->loadcacertificates_->CreateCallback(LoadCACertificatesBody(cacertificate), callback, cacertificate);
 }
 
 Connection DeviceClient::LoadCertificatesCallback(const std::vector<Certificate>& nvtcertificate, boost::function<void(const LoadCertificatesResponse&)> callback)
 {
-  return signals_->loadcertificates_.CreateCallback(LoadCertificatesBody(nvtcertificate), callback, nvtcertificate);
+  return signals_->loadcertificates_->CreateCallback(LoadCertificatesBody(nvtcertificate), callback, nvtcertificate);
 }
 
 Connection DeviceClient::LoadCertificateWithPrivateKeyCallback(const std::vector<CertificateWithPrivateKey>& certificatewithprivatekey, boost::function<void(const LoadCertificateWithPrivateKeyResponse&)> callback)
 {
-  return signals_->loadcertificatewithprivatekey_.CreateCallback(LoadCertificateWithPrivateKeyBody(certificatewithprivatekey), callback, certificatewithprivatekey);
+  return signals_->loadcertificatewithprivatekey_->CreateCallback(LoadCertificateWithPrivateKeyBody(certificatewithprivatekey), callback, certificatewithprivatekey);
 }
 
 Connection DeviceClient::RemoveIPAddressFilterCallback(const IPAddressFilter& ipaddressfilter, boost::function<void(const RemoveIPAddressFilterResponse&)> callback)
 {
-  return signals_->removeipaddressfilter_.CreateCallback(RemoveIPAddressFilterBody(ipaddressfilter), callback, ipaddressfilter);
+  return signals_->removeipaddressfilter_->CreateCallback(RemoveIPAddressFilterBody(ipaddressfilter), callback, ipaddressfilter);
 }
 
 Connection DeviceClient::RemoveScopesCallback(const std::vector<std::string>& scopes, boost::function<void(const RemoveScopesResponse&)> callback)
 {
-  return signals_->removescopes_.CreateCallback(RemoveScopesBody(scopes), callback, scopes);
+  return signals_->removescopes_->CreateCallback(RemoveScopesBody(scopes), callback, scopes);
 }
 
 Connection DeviceClient::RestoreSystemCallback(const std::vector<BackupFile>& backupfiles, boost::function<void(const RestoreSystemResponse&)> callback)
 {
   const auto body = RestoreSystemBody(backupfiles);
-  return signals_->restoresystem_.CreateCallback(body.first, body.second, callback, backupfiles);
+  return signals_->restoresystem_->CreateCallback(body.first, body.second, callback, backupfiles);
 }
 
 Connection DeviceClient::ScanAvailableDot11NetworksCallback(const std::string& interfacetoken, boost::function<void(const ScanAvailableDot11NetworksResponse&)> callback)
 {
-  return signals_->scanavailabledot11networks_.CreateCallback(ScanAvailableDot11NetworksBody(interfacetoken), callback, interfacetoken);
+  return signals_->scanavailabledot11networks_->CreateCallback(ScanAvailableDot11NetworksBody(interfacetoken), callback, interfacetoken);
 }
 
 Connection DeviceClient::SendAuxiliaryCommandCallback(const std::string& auxiliarycommand, boost::function<void(const SendAuxiliaryCommandResponse&)> callback)
 {
-  return signals_->sendauxiliarycommand_.CreateCallback(SendAuxiliaryCommandBody(auxiliarycommand), callback, auxiliarycommand);
+  return signals_->sendauxiliarycommand_->CreateCallback(SendAuxiliaryCommandBody(auxiliarycommand), callback, auxiliarycommand);
 }
 
 Connection DeviceClient::SetAccessPolicyCallback(const BinaryData& policyfile, boost::function<void(const SetAccessPolicyResponse&)> callback)
 {
-  return signals_->setaccesspolicy_.CreateCallback(SetAccessPolicyBody(policyfile), callback, policyfile);
+  return signals_->setaccesspolicy_->CreateCallback(SetAccessPolicyBody(policyfile), callback, policyfile);
 }
 
 Connection DeviceClient::SetCertificatesStatusCallback(const std::vector<CertificateStatus>& certificatesstatus, boost::function<void(const SetCertificatesStatusResponse&)> callback)
 {
-  return signals_->setcertificatesstatus_.CreateCallback(SetCertificatesStatusBody(certificatesstatus), callback, certificatesstatus);
+  return signals_->setcertificatesstatus_->CreateCallback(SetCertificatesStatusBody(certificatesstatus), callback, certificatesstatus);
 }
 
 Connection DeviceClient::SetClientCertificateModeCallback(bool enabled, boost::function<void(const SetClientCertificateModeResponse&)> callback)
 {
-  return signals_->setclientcertificatemode_.CreateCallback(SetClientCertificateModeBody(enabled), callback, enabled);
+  return signals_->setclientcertificatemode_->CreateCallback(SetClientCertificateModeBody(enabled), callback, enabled);
 }
 
 Connection DeviceClient::SetDiscoveryModeCallback(DISCOVERYMODE discoverymode, boost::function<void(const SetDiscoveryModeResponse&)> callback)
 {
-  return signals_->setdiscoverymode_.CreateCallback(SetDiscoveryModeBody(discoverymode), callback, discoverymode);
+  return signals_->setdiscoverymode_->CreateCallback(SetDiscoveryModeBody(discoverymode), callback, discoverymode);
 }
 
 Connection DeviceClient::SetDNSCallback(bool fromdhcp, const std::vector<std::string>& searchdomain, const std::vector<IPAddress>& dnsmanual, boost::function<void(const SetDNSResponse&)> callback)
 {
-  return signals_->setdns_.CreateCallback(SetDNSBody(fromdhcp, searchdomain, dnsmanual), callback, fromdhcp, searchdomain, dnsmanual);
+  return signals_->setdns_->CreateCallback(SetDNSBody(fromdhcp, searchdomain, dnsmanual), callback, fromdhcp, searchdomain, dnsmanual);
 }
 
 Connection DeviceClient::SetDot1XConfigurationCallback(const Dot1XConfiguration& dot1xconfiguration, boost::function<void(const SetDot1XConfigurationResponse&)> callback)
 {
-  return signals_->setdot1xconfiguration_.CreateCallback(SetDot1XConfigurationBody(dot1xconfiguration), callback, dot1xconfiguration);
+  return signals_->setdot1xconfiguration_->CreateCallback(SetDot1XConfigurationBody(dot1xconfiguration), callback, dot1xconfiguration);
 }
 
 Connection DeviceClient::SetDPAddressesCallback(const std::vector<NetworkHost>& dpaddress, boost::function<void(const SetDPAddressesResponse&)> callback)
 {
-  return signals_->setdpaddresses_.CreateCallback(SetDPAddressesBody(dpaddress), callback, dpaddress);
+  return signals_->setdpaddresses_->CreateCallback(SetDPAddressesBody(dpaddress), callback, dpaddress);
 }
 
 Connection DeviceClient::SetDynamicDNSCallback(DYNAMICDNSTYPE type, const boost::optional<std::string>& name, const boost::optional<Duration>& ttl, boost::function<void(const SetDynamicDNSResponse&)> callback)
 {
-  return signals_->setdynamicdns_.CreateCallback(SetDynamicDNSBody(type, name, ttl), callback, type, name, ttl);
+  return signals_->setdynamicdns_->CreateCallback(SetDynamicDNSBody(type, name, ttl), callback, type, name, ttl);
 }
 
 Connection DeviceClient::SetHostnameCallback(const std::string& name, boost::function<void(const SetHostnameResponse&)> callback)
 {
-  return signals_->sethostname_.CreateCallback(SetHostnameBody(name), callback, name);
+  return signals_->sethostname_->CreateCallback(SetHostnameBody(name), callback, name);
 }
 
 Connection DeviceClient::SetHostnameFromDHCPCallback(bool fromdhcp, boost::function<void(const SetHostnameFromDHCPResponse&)> callback)
 {
-  return signals_->sethostnamefromdhcp_.CreateCallback(SetHostnameFromDHCPBody(fromdhcp), callback, fromdhcp);
+  return signals_->sethostnamefromdhcp_->CreateCallback(SetHostnameFromDHCPBody(fromdhcp), callback, fromdhcp);
 }
 
 Connection DeviceClient::SetIPAddressFilterCallback(const IPAddressFilter& ipaddressfilter, boost::function<void(const SetIPAddressFilterResponse&)> callback)
 {
-  return signals_->setipaddressfilter_.CreateCallback(SetIPAddressFilterBody(ipaddressfilter), callback, ipaddressfilter);
+  return signals_->setipaddressfilter_->CreateCallback(SetIPAddressFilterBody(ipaddressfilter), callback, ipaddressfilter);
 }
 
 Connection DeviceClient::SetNetworkDefaultGatewayCallback(const std::vector<std::string>& ipv4address, const std::vector<std::string>& ipv6address, boost::function<void(const SetNetworkDefaultGatewayResponse&)> callback)
 {
-  return signals_->setnetworkdefaultgateway_.CreateCallback(SetNetworkDefaultGatewayBody(ipv4address, ipv6address), callback, ipv4address, ipv6address);
+  return signals_->setnetworkdefaultgateway_->CreateCallback(SetNetworkDefaultGatewayBody(ipv4address, ipv6address), callback, ipv4address, ipv6address);
 }
 
 Connection DeviceClient::SetNetworkInterfacesCallback(const std::string& token, const onvif::NetworkInterfaceSetConfiguration& networkinterface, boost::function<void(const SetNetworkInterfacesResponse&)> callback)
 {
-  return signals_->setnetworkinterfaces_.CreateCallback(SetNetworkInterfacesBody(token, networkinterface), callback, token, networkinterface);
+  return signals_->setnetworkinterfaces_->CreateCallback(SetNetworkInterfacesBody(token, networkinterface), callback, token, networkinterface);
 }
 
 Connection DeviceClient::SetNetworkProtocolsCallback(const std::vector<NetworkProtocol>& networkprotocols, boost::function<void(const SetNetworkProtocolsResponse&)> callback)
 {
-  return signals_->setnetworkprotocols_.CreateCallback(SetNetworkProtocolsBody(networkprotocols), callback, networkprotocols);
+  return signals_->setnetworkprotocols_->CreateCallback(SetNetworkProtocolsBody(networkprotocols), callback, networkprotocols);
 }
 
 Connection DeviceClient::SetNTPCallback(bool fromdhcp, const std::vector<NetworkHost>& ntpmanual, boost::function<void(const SetNTPResponse&)> callback)
 {
-  return signals_->setntp_.CreateCallback(SetNTPBody(fromdhcp, ntpmanual), callback, fromdhcp, ntpmanual);
+  return signals_->setntp_->CreateCallback(SetNTPBody(fromdhcp, ntpmanual), callback, fromdhcp, ntpmanual);
 }
 
 Connection DeviceClient::SetRelayOutputSettingsCallback(const std::string& relayoutputtoken, const RelayOutputSettings& properties, boost::function<void(const SetRelayOutputSettingsResponse&)> callback)
 {
-  return signals_->setrelayoutputsettings_.CreateCallback(SetRelayOutputSettingsBody(relayoutputtoken, properties), callback, relayoutputtoken, properties);
+  return signals_->setrelayoutputsettings_->CreateCallback(SetRelayOutputSettingsBody(relayoutputtoken, properties), callback, relayoutputtoken, properties);
 }
 
 Connection DeviceClient::SetRemoteDiscoveryModeCallback(DISCOVERYMODE remotediscoverymode, boost::function<void(const SetRemoteDiscoveryModeResponse&)> callback)
 {
-  return signals_->setremotediscoverymode_.CreateCallback(SetRemoteDiscoveryModeBody(remotediscoverymode), callback, remotediscoverymode);
+  return signals_->setremotediscoverymode_->CreateCallback(SetRemoteDiscoveryModeBody(remotediscoverymode), callback, remotediscoverymode);
 }
 
 Connection DeviceClient::SetSystemDateAndTimeCallback(DATETIMETYPE datetimetype, bool daylightsavings, const boost::optional<TimeZone>& timezone, const boost::optional<DateTime>& utcdatetime, boost::function<void(const SetSystemDateAndTimeResponse&)> callback)
 {
-  return signals_->setsystemdateandtime_.CreateCallback(SetSystemDateAndTimeBody(datetimetype, daylightsavings, timezone, utcdatetime), callback, datetimetype, daylightsavings, timezone, utcdatetime);
+  return signals_->setsystemdateandtime_->CreateCallback(SetSystemDateAndTimeBody(datetimetype, daylightsavings, timezone, utcdatetime), callback, datetimetype, daylightsavings, timezone, utcdatetime);
 }
 
 Connection DeviceClient::SetSystemFactoryDefaultCallback(FACTORYDEFAULTTYPE factorydefault, boost::function<void(const SetSystemFactoryDefaultResponse&)> callback)
 {
-  return signals_->setsystemfactorydefault_.CreateCallback(SetSystemFactoryDefaultBody(factorydefault), callback, factorydefault);
+  return signals_->setsystemfactorydefault_->CreateCallback(SetSystemFactoryDefaultBody(factorydefault), callback, factorydefault);
 }
 
 Connection DeviceClient::SetUserCallback(const std::vector<User>& users, boost::function<void(const SetUserResponse&)> callback)
 {
-  return signals_->setuser_.CreateCallback(SetUserBody(users), callback, users);
+  return signals_->setuser_->CreateCallback(SetUserBody(users), callback, users);
 }
 
 Connection DeviceClient::SetZeroConfigurationCallback(const std::string& interfacetoken, bool enabled, boost::function<void(const SetZeroConfigurationResponse&)> callback)
 {
-  return signals_->setzeroconfiguration_.CreateCallback(SetZeroConfigurationBody(interfacetoken, enabled), callback, interfacetoken, enabled);
+  return signals_->setzeroconfiguration_->CreateCallback(SetZeroConfigurationBody(interfacetoken, enabled), callback, interfacetoken, enabled);
 }
 
 Connection DeviceClient::SystemRebootCallback(boost::function<void(const SystemRebootResponse&)> callback)
 {
-  return signals_->systemreboot_.CreateCallback(SystemRebootBody(), callback);
+  return signals_->systemreboot_->CreateCallback(SystemRebootBody(), callback);
 }
 
 // Futures
 boost::unique_future<AddIPAddressFilterResponse> DeviceClient::AddIPAddressFilterFuture(const IPAddressFilter& ipaddressfilter)
 {
-  return signals_->addipaddressfilter_.CreateFuture(AddIPAddressFilterBody(ipaddressfilter), ipaddressfilter);
+  return signals_->addipaddressfilter_->CreateFuture(AddIPAddressFilterBody(ipaddressfilter), ipaddressfilter);
 }
 
 boost::unique_future<AddScopesResponse> DeviceClient::AddScopesFuture(const std::vector<std::string>& scopes)
 {
-  return signals_->addscopes_.CreateFuture(AddScopesBody(scopes), scopes);
+  return signals_->addscopes_->CreateFuture(AddScopesBody(scopes), scopes);
 }
 
 boost::unique_future<CreateCertificateResponse> DeviceClient::CreateCertificateFuture(const boost::optional<std::string>& certificateid, const boost::optional<std::string>& subject, const boost::optional<onvif::ws::DateTime>& validnotbefore, const boost::optional<onvif::ws::DateTime>& validnotafter)
 {
-  return signals_->createcertificate_.CreateFuture(CreateCertificateBody(certificateid, subject, validnotbefore, validnotafter), certificateid, subject, validnotbefore, validnotafter);
+  return signals_->createcertificate_->CreateFuture(CreateCertificateBody(certificateid, subject, validnotbefore, validnotafter), certificateid, subject, validnotbefore, validnotafter);
 }
 
 boost::unique_future<CreateStorageConfigurationResponse> DeviceClient::CreateStorageConfigurationFuture(const StorageConfigurationData& storageconfiguration)
 {
-  return signals_->createstorageconfiguration_.CreateFuture(CreateStorageConfigurationBody(storageconfiguration), storageconfiguration);
+  return signals_->createstorageconfiguration_->CreateFuture(CreateStorageConfigurationBody(storageconfiguration), storageconfiguration);
 }
 
 boost::unique_future<CreateUsersResponse> DeviceClient::CreateUsersFuture(const std::vector<User>& users)
 {
-  return signals_->createusers_.CreateFuture(CreateUsersBody(users), users);
+  return signals_->createusers_->CreateFuture(CreateUsersBody(users), users);
 }
 
 boost::unique_future<DeleteCertificatesResponse> DeviceClient::DeleteCertificatesFuture(const std::vector<std::string>& certificateid)
 {
-  return signals_->deletecertificates_.CreateFuture(DeleteCertificatesBody(certificateid), certificateid);
+  return signals_->deletecertificates_->CreateFuture(DeleteCertificatesBody(certificateid), certificateid);
 }
 
 boost::unique_future<DeleteDot1XConfigurationResponse> DeviceClient::DeleteDot1XConfigurationFuture(const std::vector<std::string>& dot1xconfigurationtoken)
 {
-  return signals_->deletedot1xconfiguration_.CreateFuture(DeleteDot1XConfigurationBody(dot1xconfigurationtoken), dot1xconfigurationtoken);
+  return signals_->deletedot1xconfiguration_->CreateFuture(DeleteDot1XConfigurationBody(dot1xconfigurationtoken), dot1xconfigurationtoken);
 }
 
 boost::unique_future<DeleteStorageConfigurationResponse> DeviceClient::DeleteStorageConfigurationFuture(const std::vector<std::string>& token)
 {
-  return signals_->deletestorageconfiguration_.CreateFuture(DeleteStorageConfigurationBody(token), token);
+  return signals_->deletestorageconfiguration_->CreateFuture(DeleteStorageConfigurationBody(token), token);
 }
 
 boost::unique_future<DeleteUsersResponse> DeviceClient::DeleteUsersFuture(const std::vector<std::string>& usernames)
 {
-  return signals_->deleteusers_.CreateFuture(DeleteUsersBody(usernames), usernames);
+  return signals_->deleteusers_->CreateFuture(DeleteUsersBody(usernames), usernames);
 }
 
 boost::unique_future<GetAccessPolicyResponse> DeviceClient::GetAccessPolicyFuture()
 {
-  return signals_->getaccesspolicy_.CreateFuture(GetAccessPolicyBody());
+  return signals_->getaccesspolicy_->CreateFuture(GetAccessPolicyBody());
 }
 
 boost::unique_future<GetCACertificatesResponse> DeviceClient::GetCACertificatesFuture()
 {
-  return signals_->getcacertificates_.CreateFuture(GetCACertificatesBody());
+  return signals_->getcacertificates_->CreateFuture(GetCACertificatesBody());
 }
 
 boost::unique_future<GetCapabilitiesResponse> DeviceClient::GetCapabilitiesFuture(CAPABILITYCATEGORY capabilitycategory)
 {
-  return signals_->getcapabilities_.CreateFuture(GetCapabilitiesBody(capabilitycategory), capabilitycategory);
+  return signals_->getcapabilities_->CreateFuture(GetCapabilitiesBody(capabilitycategory), capabilitycategory);
 }
 
 boost::unique_future<GetCertificateInformationResponse> DeviceClient::GetCertificateInformationFuture(const std::string& certificateid)
 {
-  return signals_->getcertificateinformation_.CreateFuture(GetCertificateInformationBody(certificateid), certificateid);
+  return signals_->getcertificateinformation_->CreateFuture(GetCertificateInformationBody(certificateid), certificateid);
 }
 
 boost::unique_future<GetCertificatesResponse> DeviceClient::GetCertificatesFuture()
 {
-  return signals_->getcertificates_.CreateFuture(GetCertificatesBody());
+  return signals_->getcertificates_->CreateFuture(GetCertificatesBody());
 }
 
 boost::unique_future<GetCertificatesStatusResponse> DeviceClient::GetCertificatesStatusFuture()
 {
-  return signals_->getcertificatesstatus_.CreateFuture(GetCertificatesStatusBody());
+  return signals_->getcertificatesstatus_->CreateFuture(GetCertificatesStatusBody());
 }
 
 boost::unique_future<GetClientCertificateModeResponse> DeviceClient::GetClientCertificateModeFuture()
 {
-  return signals_->getclientcertificatemode_.CreateFuture(GetClientCertificateModeBody());
+  return signals_->getclientcertificatemode_->CreateFuture(GetClientCertificateModeBody());
 }
 
 boost::unique_future<GetDeviceInformationResponse> DeviceClient::GetDeviceInformationFuture()
 {
-  return signals_->getdeviceinformation_.CreateFuture(GetDeviceInformationBody());
+  return signals_->getdeviceinformation_->CreateFuture(GetDeviceInformationBody());
 }
 
 boost::unique_future<GetDiscoveryModeResponse> DeviceClient::GetDiscoveryModeFuture()
 {
-  return signals_->getdiscoverymode_.CreateFuture(GetDiscoveryModeBody());
+  return signals_->getdiscoverymode_->CreateFuture(GetDiscoveryModeBody());
 }
 
 boost::unique_future<GetDNSResponse> DeviceClient::GetDNSFuture()
 {
-  return signals_->getdns_.CreateFuture(GetDNSBody());
+  return signals_->getdns_->CreateFuture(GetDNSBody());
 }
 
 boost::unique_future<GetDot11CapabilitiesResponse> DeviceClient::GetDot11CapabilitiesFuture()
 {
-  return signals_->getdot11capabilities_.CreateFuture(GetDot11CapabilitiesBody());
+  return signals_->getdot11capabilities_->CreateFuture(GetDot11CapabilitiesBody());
 }
 
 boost::unique_future<GetDot11StatusResponse> DeviceClient::GetDot11StatusFuture(const std::string& interfacetoken)
 {
-  return signals_->getdot11status_.CreateFuture(GetDot11StatusBody(interfacetoken), interfacetoken);
+  return signals_->getdot11status_->CreateFuture(GetDot11StatusBody(interfacetoken), interfacetoken);
 }
 
 boost::unique_future<GetDot1XConfigurationResponse> DeviceClient::GetDot1XConfigurationFuture(const std::string& dot1xconfigurationtoken)
 {
-  return signals_->getdot1xconfiguration_.CreateFuture(GetDot1XConfigurationBody(dot1xconfigurationtoken), dot1xconfigurationtoken);
+  return signals_->getdot1xconfiguration_->CreateFuture(GetDot1XConfigurationBody(dot1xconfigurationtoken), dot1xconfigurationtoken);
 }
 
 boost::unique_future<GetDot1XConfigurationsResponse> DeviceClient::GetDot1XConfigurationsFuture()
 {
-  return signals_->getdot1xconfigurations_.CreateFuture(GetDot1XConfigurationsBody());
+  return signals_->getdot1xconfigurations_->CreateFuture(GetDot1XConfigurationsBody());
 }
 
 boost::unique_future<GetDPAddressesResponse> DeviceClient::GetDPAddressesFuture()
 {
-  return signals_->getdpaddresses_.CreateFuture(GetDPAddressesBody());
+  return signals_->getdpaddresses_->CreateFuture(GetDPAddressesBody());
 }
 
 boost::unique_future<GetDynamicDNSResponse> DeviceClient::GetDynamicDNSFuture()
 {
-  return signals_->getdynamicdns_.CreateFuture(GetDynamicDNSBody());
+  return signals_->getdynamicdns_->CreateFuture(GetDynamicDNSBody());
 }
 
 boost::unique_future<GetEndpointReferenceResponse> DeviceClient::GetEndpointReferenceFuture()
 {
-  return signals_->getendpointreference_.CreateFuture(GetEndpointReferenceBody());
+  return signals_->getendpointreference_->CreateFuture(GetEndpointReferenceBody());
 }
 
 boost::unique_future<GetHostnameResponse> DeviceClient::GetHostnameFuture()
 {
-  return signals_->gethostname_.CreateFuture(GetHostnameBody());
+  return signals_->gethostname_->CreateFuture(GetHostnameBody());
 }
 
 boost::unique_future<GetIPAddressFilterResponse> DeviceClient::GetIPAddressFilterFuture()
 {
-  return signals_->getipaddressfilter_.CreateFuture(GetIPAddressFilterBody());
+  return signals_->getipaddressfilter_->CreateFuture(GetIPAddressFilterBody());
 }
 
 boost::unique_future<GetNetworkDefaultGatewayResponse> DeviceClient::GetNetworkDefaultGatewayFuture()
 {
-  return signals_->getnetworkdefaultgateway_.CreateFuture(GetNetworkDefaultGatewayBody());
+  return signals_->getnetworkdefaultgateway_->CreateFuture(GetNetworkDefaultGatewayBody());
 }
 
 boost::unique_future<GetNetworkInterfacesResponse> DeviceClient::GetNetworkInterfacesFuture()
 {
-  return signals_->getnetworkinterfaces_.CreateFuture(GetNetworkInterfacesBody());
+  return signals_->getnetworkinterfaces_->CreateFuture(GetNetworkInterfacesBody());
 }
 
 boost::unique_future<GetNetworkProtocolsResponse> DeviceClient::GetNetworkProtocolsFuture()
 {
-  return signals_->getnetworkprotocols_.CreateFuture(GetNetworkProtocolsBody());
+  return signals_->getnetworkprotocols_->CreateFuture(GetNetworkProtocolsBody());
 }
 
 boost::unique_future<GetPkcs10RequestResponse> DeviceClient::GetPkcs10RequestFuture(const std::string& certificateid, const boost::optional<std::string>& subject, const boost::optional<BinaryData>& attributes)
 {
-  return signals_->getpkcs10request_.CreateFuture(GetPkcs10RequestBody(certificateid, subject, attributes), certificateid, subject, attributes);
+  return signals_->getpkcs10request_->CreateFuture(GetPkcs10RequestBody(certificateid, subject, attributes), certificateid, subject, attributes);
 }
 
 boost::unique_future<GetRelayOutputsResponse> DeviceClient::GetRelayOutputsFuture()
 {
-  return signals_->getrelayoutputs_.CreateFuture(GetRelayOutputsBody());
+  return signals_->getrelayoutputs_->CreateFuture(GetRelayOutputsBody());
 }
 
 boost::unique_future<GetNTPResponse> DeviceClient::GetNTPFuture()
 {
-  return signals_->getntp_.CreateFuture(GetNTPBody());
+  return signals_->getntp_->CreateFuture(GetNTPBody());
 }
 
 boost::unique_future<GetRemoteDiscoveryModeResponse> DeviceClient::GetRemoteDiscoveryModeFuture()
 {
-  return signals_->getremotediscoverymode_.CreateFuture(GetRemoteDiscoveryModeBody());
+  return signals_->getremotediscoverymode_->CreateFuture(GetRemoteDiscoveryModeBody());
 }
 
 boost::unique_future<GetRemoteUserResponse> DeviceClient::GetRemoteUserFuture()
 {
-  return signals_->getremoteuser_.CreateFuture(GetRemoteUserBody());
+  return signals_->getremoteuser_->CreateFuture(GetRemoteUserBody());
 }
 
 boost::unique_future<GetScopesResponse> DeviceClient::GetScopesFuture()
 {
-  return signals_->getscopes_.CreateFuture(GetScopesBody());
+  return signals_->getscopes_->CreateFuture(GetScopesBody());
 }
 
 boost::unique_future<GetServiceCapabilitiesResponse> DeviceClient::GetServiceCapabilitiesFuture()
 {
-  return signals_->getservicecapabilities_.CreateFuture(GetServiceCapabilitiesBody());
+  return signals_->getservicecapabilities_->CreateFuture(GetServiceCapabilitiesBody());
 }
 
 boost::unique_future<GetServicesResponse> DeviceClient::GetServicesFuture(bool includecapability)
 {
-  return signals_->getservices_.CreateFuture(GetServicesBody(includecapability), includecapability);
+  return signals_->getservices_->CreateFuture(GetServicesBody(includecapability), includecapability);
 }
 
 boost::unique_future<GetStorageConfigurationResponse> DeviceClient::GetStorageConfigurationFuture(const std::string& token)
 {
-  return signals_->getstorageconfiguration_.CreateFuture(GetStorageConfigurationBody(token), token);
+  return signals_->getstorageconfiguration_->CreateFuture(GetStorageConfigurationBody(token), token);
 }
 
 boost::unique_future<GetStorageConfigurationsResponse> DeviceClient::GetStorageConfigurationsFuture()
 {
-  return signals_->getstorageconfigurations_.CreateFuture(GetStorageConfigurationsBody());
+  return signals_->getstorageconfigurations_->CreateFuture(GetStorageConfigurationsBody());
 }
 
 boost::unique_future<GetSystemBackupResponse> DeviceClient::GetSystemBackupFuture()
 {
-  return signals_->getsystembackup_.CreateFuture(GetSystemBackupBody());
+  return signals_->getsystembackup_->CreateFuture(GetSystemBackupBody());
 }
 
 boost::unique_future<GetSystemDateAndTimeResponse> DeviceClient::GetSystemDateAndTimeFuture()
 {
-  return signals_->getsystemdateandtime_.CreateFuture(GetSystemDateAndTimeBody());
+  return signals_->getsystemdateandtime_->CreateFuture(GetSystemDateAndTimeBody());
 }
 
 boost::unique_future<GetSystemLogResponse> DeviceClient::GetSystemLogFuture(SYSTEMLOGTYPE logtype)
 {
-  return signals_->getsystemlog_.CreateFuture(GetSystemLogBody(logtype), logtype);
+  return signals_->getsystemlog_->CreateFuture(GetSystemLogBody(logtype), logtype);
 }
 
 boost::unique_future<GetSystemSupportInformationResponse> DeviceClient::GetSystemSupportInformationFuture()
 {
-  return signals_->getsystemsupportinformation_.CreateFuture(GetSystemSupportInformationBody());
+  return signals_->getsystemsupportinformation_->CreateFuture(GetSystemSupportInformationBody());
 }
 
 boost::unique_future<GetSystemUrisResponse> DeviceClient::GetSystemUrisFuture()
 {
-  return signals_->getsystemuris_.CreateFuture(GetSystemUrisBody());
+  return signals_->getsystemuris_->CreateFuture(GetSystemUrisBody());
 }
 
 boost::unique_future<GetUsersResponse> DeviceClient::GetUsersFuture()
 {
-  return signals_->getusers_.CreateFuture(GetUsersBody());
+  return signals_->getusers_->CreateFuture(GetUsersBody());
 }
 
 boost::unique_future<GetWsdlUrlResponse> DeviceClient::GetWsdlUrlFuture()
 {
-  return signals_->getwsdlurl_.CreateFuture(GetWsdlUrlBody());
+  return signals_->getwsdlurl_->CreateFuture(GetWsdlUrlBody());
 }
 
 boost::unique_future<GetZeroConfigurationResponse> DeviceClient::GetZeroConfigurationFuture()
 {
-  return signals_->getzeroconfiguration_.CreateFuture(GetZeroConfigurationBody());
+  return signals_->getzeroconfiguration_->CreateFuture(GetZeroConfigurationBody());
 }
 
 boost::unique_future<LoadCACertificatesResponse> DeviceClient::LoadCACertificatesFuture(const std::vector<Certificate>& cacertificate)
 {
-  return signals_->loadcacertificates_.CreateFuture(LoadCACertificatesBody(cacertificate), cacertificate);
+  return signals_->loadcacertificates_->CreateFuture(LoadCACertificatesBody(cacertificate), cacertificate);
 }
 
 boost::unique_future<LoadCertificatesResponse> DeviceClient::LoadCertificatesFuture(const std::vector<Certificate>& nvtcertificate)
 {
-  return signals_->loadcertificates_.CreateFuture(LoadCertificatesBody(nvtcertificate), nvtcertificate);
+  return signals_->loadcertificates_->CreateFuture(LoadCertificatesBody(nvtcertificate), nvtcertificate);
 }
 
 boost::unique_future<LoadCertificateWithPrivateKeyResponse> DeviceClient::LoadCertificateWithPrivateKeyFuture(const std::vector<CertificateWithPrivateKey>& certificatewithprivatekey)
 {
-  return signals_->loadcertificatewithprivatekey_.CreateFuture(LoadCertificateWithPrivateKeyBody(certificatewithprivatekey), certificatewithprivatekey);
+  return signals_->loadcertificatewithprivatekey_->CreateFuture(LoadCertificateWithPrivateKeyBody(certificatewithprivatekey), certificatewithprivatekey);
 }
 
 boost::unique_future<RemoveIPAddressFilterResponse> DeviceClient::RemoveIPAddressFilterFuture(const IPAddressFilter& ipaddressfilter)
 {
-  return signals_->removeipaddressfilter_.CreateFuture(RemoveIPAddressFilterBody(ipaddressfilter), ipaddressfilter);
+  return signals_->removeipaddressfilter_->CreateFuture(RemoveIPAddressFilterBody(ipaddressfilter), ipaddressfilter);
 }
 
 boost::unique_future<RemoveScopesResponse> DeviceClient::RemoveScopesFuture(const std::vector<std::string>& scopes)
 {
-  return signals_->removescopes_.CreateFuture(RemoveScopesBody(scopes), scopes);
+  return signals_->removescopes_->CreateFuture(RemoveScopesBody(scopes), scopes);
 }
 
 boost::unique_future<RestoreSystemResponse> DeviceClient::RestoreSystemFuture(const std::vector<BackupFile>& backupfiles)
 {
   const auto body = RestoreSystemBody(backupfiles);
-  return signals_->restoresystem_.CreateFuture(body.first, body.second, backupfiles);
+  return signals_->restoresystem_->CreateFuture(body.first, body.second, backupfiles);
 }
 
 boost::unique_future<ScanAvailableDot11NetworksResponse> DeviceClient::ScanAvailableDot11NetworksFuture(const std::string& interfacetoken)
 {
-  return signals_->scanavailabledot11networks_.CreateFuture(ScanAvailableDot11NetworksBody(interfacetoken), interfacetoken);
+  return signals_->scanavailabledot11networks_->CreateFuture(ScanAvailableDot11NetworksBody(interfacetoken), interfacetoken);
 }
 
 boost::unique_future<SendAuxiliaryCommandResponse> DeviceClient::SendAuxiliaryCommandFuture(const std::string& auxiliarycommand)
 {
-  return signals_->sendauxiliarycommand_.CreateFuture(SendAuxiliaryCommandBody(auxiliarycommand), auxiliarycommand);
+  return signals_->sendauxiliarycommand_->CreateFuture(SendAuxiliaryCommandBody(auxiliarycommand), auxiliarycommand);
 }
 
 boost::unique_future<SetAccessPolicyResponse> DeviceClient::SetAccessPolicyFuture(const BinaryData& policyfile)
 {
-  return signals_->setaccesspolicy_.CreateFuture(SetAccessPolicyBody(policyfile), policyfile);
+  return signals_->setaccesspolicy_->CreateFuture(SetAccessPolicyBody(policyfile), policyfile);
 }
 
 boost::unique_future<SetCertificatesStatusResponse> DeviceClient::SetCertificatesStatusFuture(const std::vector<CertificateStatus>& certificatestatus)
 {
-  return signals_->setcertificatesstatus_.CreateFuture(SetCertificatesStatusBody(certificatestatus), certificatestatus);
+  return signals_->setcertificatesstatus_->CreateFuture(SetCertificatesStatusBody(certificatestatus), certificatestatus);
 }
 
 boost::unique_future<SetClientCertificateModeResponse> DeviceClient::SetClientCertificateModeFuture(bool enabled)
 {
-  return signals_->setclientcertificatemode_.CreateFuture(SetClientCertificateModeBody(enabled), enabled);
+  return signals_->setclientcertificatemode_->CreateFuture(SetClientCertificateModeBody(enabled), enabled);
 }
 
 boost::unique_future<SetDiscoveryModeResponse> DeviceClient::SetDiscoveryModeFuture(DISCOVERYMODE discoverymode)
 {
-  return signals_->setdiscoverymode_.CreateFuture(SetDiscoveryModeBody(discoverymode), discoverymode);
+  return signals_->setdiscoverymode_->CreateFuture(SetDiscoveryModeBody(discoverymode), discoverymode);
 }
 
 boost::unique_future<SetDNSResponse> DeviceClient::SetDNSFuture(bool fromdhcp, const std::vector<std::string>& searchdomain, const std::vector<IPAddress>& dnsmanual)
 {
-  return signals_->setdns_.CreateFuture(SetDNSBody(fromdhcp, searchdomain, dnsmanual), fromdhcp, searchdomain, dnsmanual);
+  return signals_->setdns_->CreateFuture(SetDNSBody(fromdhcp, searchdomain, dnsmanual), fromdhcp, searchdomain, dnsmanual);
 }
 
 boost::unique_future<SetDot1XConfigurationResponse> DeviceClient::SetDot1XConfigurationFuture(const Dot1XConfiguration& dot1xconfiguration)
 {
-  return signals_->setdot1xconfiguration_.CreateFuture(SetDot1XConfigurationBody(dot1xconfiguration), dot1xconfiguration);
+  return signals_->setdot1xconfiguration_->CreateFuture(SetDot1XConfigurationBody(dot1xconfiguration), dot1xconfiguration);
 }
 
 boost::unique_future<SetDPAddressesResponse> DeviceClient::SetDPAddressesFuture(const std::vector<NetworkHost>& dpaddress)
 {
-  return signals_->setdpaddresses_.CreateFuture(SetDPAddressesBody(dpaddress), dpaddress);
+  return signals_->setdpaddresses_->CreateFuture(SetDPAddressesBody(dpaddress), dpaddress);
 }
 
 boost::unique_future<SetDynamicDNSResponse> DeviceClient::SetDynamicDNSFuture(DYNAMICDNSTYPE type, const boost::optional<std::string>& name, const boost::optional<Duration>& ttl)
 {
-  return signals_->setdynamicdns_.CreateFuture(SetDynamicDNSBody(type, name, ttl), type, name, ttl);
+  return signals_->setdynamicdns_->CreateFuture(SetDynamicDNSBody(type, name, ttl), type, name, ttl);
 }
 
 boost::unique_future<SetHostnameResponse> DeviceClient::SetHostnameFuture(const std::string& name)
 {
-  return signals_->sethostname_.CreateFuture(SetHostnameBody(name), name);
+  return signals_->sethostname_->CreateFuture(SetHostnameBody(name), name);
 }
 
 boost::unique_future<SetHostnameFromDHCPResponse> DeviceClient::SetHostnameFromDHCPFuture(bool fromdhcp)
 {
-  return signals_->sethostnamefromdhcp_.CreateFuture(SetHostnameFromDHCPBody(fromdhcp), fromdhcp);
+  return signals_->sethostnamefromdhcp_->CreateFuture(SetHostnameFromDHCPBody(fromdhcp), fromdhcp);
 }
 
 boost::unique_future<SetIPAddressFilterResponse> DeviceClient::SetIPAddressFilterFuture(const IPAddressFilter& ipaddressfilter)
 {
-  return signals_->setipaddressfilter_.CreateFuture(SetIPAddressFilterBody(ipaddressfilter), ipaddressfilter);
+  return signals_->setipaddressfilter_->CreateFuture(SetIPAddressFilterBody(ipaddressfilter), ipaddressfilter);
 }
 
 boost::unique_future<SetNetworkDefaultGatewayResponse> DeviceClient::SetNetworkDefaultGatewayFuture(const std::vector<std::string>& ipv4address, const std::vector<std::string>& ipv6address)
 {
-  return signals_->setnetworkdefaultgateway_.CreateFuture(SetNetworkDefaultGatewayBody(ipv4address, ipv6address), ipv4address, ipv6address);
+  return signals_->setnetworkdefaultgateway_->CreateFuture(SetNetworkDefaultGatewayBody(ipv4address, ipv6address), ipv4address, ipv6address);
 }
 
 boost::unique_future<SetNetworkInterfacesResponse> DeviceClient::SetNetworkInterfacesFuture(const std::string& token, const onvif::NetworkInterfaceSetConfiguration& networkinterface)
 {
-  return signals_->setnetworkinterfaces_.CreateFuture(SetNetworkInterfacesBody(token, networkinterface), token, networkinterface);
+  return signals_->setnetworkinterfaces_->CreateFuture(SetNetworkInterfacesBody(token, networkinterface), token, networkinterface);
 }
 
 boost::unique_future<SetNetworkProtocolsResponse> DeviceClient::SetNetworkProtocolsFuture(const std::vector<NetworkProtocol>& networkprotocols)
 {
-  return signals_->setnetworkprotocols_.CreateFuture(SetNetworkProtocolsBody(networkprotocols), networkprotocols);
+  return signals_->setnetworkprotocols_->CreateFuture(SetNetworkProtocolsBody(networkprotocols), networkprotocols);
 }
 
 boost::unique_future<SetNTPResponse> DeviceClient::SetNTPFuture(bool dhcp, const std::vector<NetworkHost>& ntpmanual)
 {
-  return signals_->setntp_.CreateFuture(SetNTPBody(dhcp, ntpmanual), dhcp, ntpmanual);
+  return signals_->setntp_->CreateFuture(SetNTPBody(dhcp, ntpmanual), dhcp, ntpmanual);
 }
 
 boost::unique_future<SetRelayOutputSettingsResponse> DeviceClient::SetRelayOutputSettingsFuture(const std::string& relayoutputtoken, const RelayOutputSettings& properties)
 {
-  return signals_->setrelayoutputsettings_.CreateFuture(SetRelayOutputSettingsBody(relayoutputtoken, properties), relayoutputtoken, properties);
+  return signals_->setrelayoutputsettings_->CreateFuture(SetRelayOutputSettingsBody(relayoutputtoken, properties), relayoutputtoken, properties);
 }
 
 boost::unique_future<SetRemoteDiscoveryModeResponse> DeviceClient::SetRemoteDiscoveryModeFuture(DISCOVERYMODE remotediscoverymode)
 {
-  return signals_->setremotediscoverymode_.CreateFuture(SetRemoteDiscoveryModeBody(remotediscoverymode), remotediscoverymode);
+  return signals_->setremotediscoverymode_->CreateFuture(SetRemoteDiscoveryModeBody(remotediscoverymode), remotediscoverymode);
 }
 
 boost::unique_future<SetSystemDateAndTimeResponse> DeviceClient::SetSystemDateAndTimeFuture(DATETIMETYPE datetimetype, bool daylightsavings, const boost::optional<TimeZone>& timezone, const boost::optional<DateTime>& utcdatetime)
 {
-  return signals_->setsystemdateandtime_.CreateFuture(SetSystemDateAndTimeBody(datetimetype, daylightsavings, timezone, utcdatetime), datetimetype, daylightsavings, timezone, utcdatetime);
+  return signals_->setsystemdateandtime_->CreateFuture(SetSystemDateAndTimeBody(datetimetype, daylightsavings, timezone, utcdatetime), datetimetype, daylightsavings, timezone, utcdatetime);
 }
 
 boost::unique_future<SetSystemFactoryDefaultResponse> DeviceClient::SetSystemFactoryDefaultFuture(FACTORYDEFAULTTYPE factorydefault)
 {
-  return signals_->setsystemfactorydefault_.CreateFuture(SetSystemFactoryDefaultBody(factorydefault), factorydefault);
+  return signals_->setsystemfactorydefault_->CreateFuture(SetSystemFactoryDefaultBody(factorydefault), factorydefault);
 }
 
 boost::unique_future<SetUserResponse> DeviceClient::SetUserFuture(const std::vector<User>& users)
 {
-  return signals_->setuser_.CreateFuture(SetUserBody(users), users);
+  return signals_->setuser_->CreateFuture(SetUserBody(users), users);
 }
 
 boost::unique_future<SetZeroConfigurationResponse> DeviceClient::SetZeroConfigurationFuture(const std::string& interfacetoken, bool enabled)
 {
-  return signals_->setzeroconfiguration_.CreateFuture(SetZeroConfigurationBody(interfacetoken, enabled), interfacetoken, enabled);
+  return signals_->setzeroconfiguration_->CreateFuture(SetZeroConfigurationBody(interfacetoken, enabled), interfacetoken, enabled);
 }
 
 boost::unique_future<SystemRebootResponse> DeviceClient::SystemRebootFuture()
 {
-  return signals_->systemreboot_.CreateFuture(SystemRebootBody());
+  return signals_->systemreboot_->CreateFuture(SystemRebootBody());
 }
 
 // Signals
 boost::signals2::signal<void(const AddIPAddressFilterResponse&)>& DeviceClient::AddIPAddressFilterSignal()
 {
-  return signals_->addipaddressfilter_.GetSignal();
+  return signals_->addipaddressfilter_->GetSignal();
 }
 
 boost::signals2::signal<void(const AddScopesResponse&)>& DeviceClient::AddScopesSignal()
 {
-  return signals_->addscopes_.GetSignal();
+  return signals_->addscopes_->GetSignal();
 }
 
 boost::signals2::signal<void(const CreateCertificateResponse&)>& DeviceClient::CreateCertificateSignal()
 {
-  return signals_->createcertificate_.GetSignal();
+  return signals_->createcertificate_->GetSignal();
 }
 
 boost::signals2::signal<void(const CreateUsersResponse&)>& DeviceClient::GetCreateUsersSignal()
 {
-  return signals_->createusers_.GetSignal();
+  return signals_->createusers_->GetSignal();
 }
 
 boost::signals2::signal<void(const DeleteCertificatesResponse&)>& DeviceClient::GetDeleteCertificatesSignal()
 {
-  return signals_->deletecertificates_.GetSignal();
+  return signals_->deletecertificates_->GetSignal();
 }
 
 boost::signals2::signal<void(const DeleteDot1XConfigurationResponse&)>& DeviceClient::GetDeleteDot1XConfigurationSignal()
 {
-  return signals_->deletedot1xconfiguration_.GetSignal();
+  return signals_->deletedot1xconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const DeleteStorageConfigurationResponse&)>& DeviceClient::GetDeleteStorageConfigurationSignal()
 {
-  return signals_->deletestorageconfiguration_.GetSignal();
+  return signals_->deletestorageconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const DeleteUsersResponse&)>& DeviceClient::GetDeleteUsersSignal()
 {
-  return signals_->deleteusers_.GetSignal();
+  return signals_->deleteusers_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetAccessPolicyResponse&)>& DeviceClient::GetAccessPolicySignal()
 {
-  return signals_->getaccesspolicy_.GetSignal();
+  return signals_->getaccesspolicy_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetCACertificatesResponse&)>& DeviceClient::GetCACertificatesSignal()
 {
-  return signals_->getcacertificates_.GetSignal();
+  return signals_->getcacertificates_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetCapabilitiesResponse&)>& DeviceClient::GetCapabilitiesSignal()
 {
-  return signals_->getcapabilities_.GetSignal();
+  return signals_->getcapabilities_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetCertificateInformationResponse&)>& DeviceClient::GetCertificateInformationSignal()
 {
-  return signals_->getcertificateinformation_.GetSignal();
+  return signals_->getcertificateinformation_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetCertificatesResponse&)>& DeviceClient::GetCertificatesSignal()
 {
-  return signals_->getcertificates_.GetSignal();
+  return signals_->getcertificates_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetCertificatesStatusResponse&)>& DeviceClient::GetCertificatesStatusSignal()
 {
-  return signals_->getcertificatesstatus_.GetSignal();
+  return signals_->getcertificatesstatus_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetClientCertificateModeResponse&)>& DeviceClient::GetClientCertificateModeSignal()
 {
-  return signals_->getclientcertificatemode_.GetSignal();
+  return signals_->getclientcertificatemode_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetDeviceInformationResponse&)>& DeviceClient::GetDeviceInformationSignal()
 {
-  return signals_->getdeviceinformation_.GetSignal();
+  return signals_->getdeviceinformation_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetDiscoveryModeResponse&)>& DeviceClient::GetDiscoveryModeSignal()
 {
-  return signals_->getdiscoverymode_.GetSignal();
+  return signals_->getdiscoverymode_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetDNSResponse&)>& DeviceClient::GetDNSSignal()
 {
-  return signals_->getdns_.GetSignal();
+  return signals_->getdns_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetDot11CapabilitiesResponse&)>& DeviceClient::GetDot11CapabilitiesSignal()
 {
-  return signals_->getdot11capabilities_.GetSignal();
+  return signals_->getdot11capabilities_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetDot11StatusResponse&)>& DeviceClient::GetDot11StatusSignal()
 {
-  return signals_->getdot11status_.GetSignal();
+  return signals_->getdot11status_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetDot1XConfigurationResponse&)>& DeviceClient::GetDot1XConfigurationSignal()
 {
-  return signals_->getdot1xconfiguration_.GetSignal();
+  return signals_->getdot1xconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetDot1XConfigurationsResponse&)>& DeviceClient::GetDot1XConfigurationsSignal()
 {
-  return signals_->getdot1xconfigurations_.GetSignal();
+  return signals_->getdot1xconfigurations_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetDPAddressesResponse&)>& DeviceClient::GetDPAddressesSignal()
 {
-  return signals_->getdpaddresses_.GetSignal();
+  return signals_->getdpaddresses_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetDynamicDNSResponse&)>& DeviceClient::GetDynamicDNSSignal()
 {
-  return signals_->getdynamicdns_.GetSignal();
+  return signals_->getdynamicdns_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetEndpointReferenceResponse&)>& DeviceClient::GetEndpointReferenceSignal()
 {
-  return signals_->getendpointreference_.GetSignal();
+  return signals_->getendpointreference_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetHostnameResponse&)>& DeviceClient::GetHsotnameSignal()
 {
-  return signals_->gethostname_.GetSignal();
+  return signals_->gethostname_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetIPAddressFilterResponse&)>& DeviceClient::GetIPAddressFilterSignal()
 {
-  return signals_->getipaddressfilter_.GetSignal();
+  return signals_->getipaddressfilter_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetNetworkDefaultGatewayResponse&)>& DeviceClient::GetNetworkDefaultGatewaySignal()
 {
-  return signals_->getnetworkdefaultgateway_.GetSignal();
+  return signals_->getnetworkdefaultgateway_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetNetworkInterfacesResponse&)>& DeviceClient::GetNetworkInterfacesSignal()
 {
-  return signals_->getnetworkinterfaces_.GetSignal();
+  return signals_->getnetworkinterfaces_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetNetworkProtocolsResponse&)>& DeviceClient::GetNetworkProtocolsSignal()
 {
-  return signals_->getnetworkprotocols_.GetSignal();
+  return signals_->getnetworkprotocols_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetPkcs10RequestResponse&)>& DeviceClient::GetPkcs10RequestSignal()
 {
-  return signals_->getpkcs10request_.GetSignal();
+  return signals_->getpkcs10request_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetRelayOutputsResponse&)>& DeviceClient::GetRelayOutputsSignal()
 {
-  return signals_->getrelayoutputs_.GetSignal();
+  return signals_->getrelayoutputs_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetNTPResponse&)>& DeviceClient::GetNTPSignal()
 {
-  return signals_->getntp_.GetSignal();
+  return signals_->getntp_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetRemoteDiscoveryModeResponse&)>& DeviceClient::GetRemoteDiscoveryModeSignal()
 {
-  return signals_->getremotediscoverymode_.GetSignal();
+  return signals_->getremotediscoverymode_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetRemoteUserResponse&)>& DeviceClient::GetRemoteUserSignal()
 {
-  return signals_->getremoteuser_.GetSignal();
+  return signals_->getremoteuser_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetScopesResponse&)>& DeviceClient::GetScopesSignal()
 {
-  return signals_->getscopes_.GetSignal();
+  return signals_->getscopes_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetServiceCapabilitiesResponse&)>& DeviceClient::GetServiceCapabilitiesSignal()
 {
-  return signals_->getservicecapabilities_.GetSignal();
+  return signals_->getservicecapabilities_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetServicesResponse&)>& DeviceClient::GetServicesSignal()
 {
-  return signals_->getservices_.GetSignal();
+  return signals_->getservices_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetStorageConfigurationResponse&)>& DeviceClient::GetStorageConfigurationSignal()
 {
-  return signals_->getstorageconfiguration_.GetSignal();
+  return signals_->getstorageconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetStorageConfigurationsResponse&)>& DeviceClient::GetStorageConfigurationsSignal()
 {
-  return signals_->getstorageconfigurations_.GetSignal();
+  return signals_->getstorageconfigurations_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetSystemBackupResponse&)>& DeviceClient::GetSystemBackupSignal()
 {
-  return signals_->getsystembackup_.GetSignal();
+  return signals_->getsystembackup_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetSystemDateAndTimeResponse&)>& DeviceClient::GetSystemDateAndTimeSignal()
 {
-  return signals_->getsystemdateandtime_.GetSignal();
+  return signals_->getsystemdateandtime_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetSystemLogResponse&)>& DeviceClient::GetSystemLogSignal()
 {
-  return signals_->getsystemlog_.GetSignal();
+  return signals_->getsystemlog_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetSystemSupportInformationResponse&)>& DeviceClient::GetSystemSupportInformationSignal()
 {
-  return signals_->getsystemsupportinformation_.GetSignal();
+  return signals_->getsystemsupportinformation_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetSystemUrisResponse&)>& DeviceClient::GetSystemUrisSignal()
 {
-  return signals_->getsystemuris_.GetSignal();
+  return signals_->getsystemuris_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetUsersResponse&)>& DeviceClient::GetUsersSignal()
 {
-  return signals_->getusers_.GetSignal();
+  return signals_->getusers_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetWsdlUrlResponse&)>& DeviceClient::GetWsdlUrlSignal()
 {
-  return signals_->getwsdlurl_.GetSignal();
+  return signals_->getwsdlurl_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetZeroConfigurationResponse&)>& DeviceClient::GetZeroConfigurationSignal()
 {
-  return signals_->getzeroconfiguration_.GetSignal();
+  return signals_->getzeroconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const LoadCACertificatesResponse&)>& DeviceClient::LoadCACertificatesSignal()
 {
-  return signals_->loadcacertificates_.GetSignal();
+  return signals_->loadcacertificates_->GetSignal();
 }
 
 boost::signals2::signal<void(const LoadCertificatesResponse&)>& DeviceClient::LoadCertificatesSignal()
 {
-  return signals_->loadcertificates_.GetSignal();
+  return signals_->loadcertificates_->GetSignal();
 }
 
 boost::signals2::signal<void(const LoadCertificateWithPrivateKeyResponse&)>& DeviceClient::LoadCertificateWithPrivateKeySignal()
 {
-  return signals_->loadcertificatewithprivatekey_.GetSignal();
+  return signals_->loadcertificatewithprivatekey_->GetSignal();
 }
 
 boost::signals2::signal<void(const RemoveIPAddressFilterResponse&)>& DeviceClient::RemoveIPAddressFilterSignal()
 {
-  return signals_->removeipaddressfilter_.GetSignal();
+  return signals_->removeipaddressfilter_->GetSignal();
 }
 
 boost::signals2::signal<void(const RemoveScopesResponse&)>& DeviceClient::RemoveScopesSignal()
 {
-  return signals_->removescopes_.GetSignal();
+  return signals_->removescopes_->GetSignal();
 }
 
 boost::signals2::signal<void(const RestoreSystemResponse&)>& DeviceClient::RestoreSystemSignal()
 {
-  return signals_->restoresystem_.GetSignal();
+  return signals_->restoresystem_->GetSignal();
 }
 
 boost::signals2::signal<void(const ScanAvailableDot11NetworksResponse&)>& DeviceClient::ScanAvailableDot11NetworksSignal()
 {
-  return signals_->scanavailabledot11networks_.GetSignal();
+  return signals_->scanavailabledot11networks_->GetSignal();
 }
 
 boost::signals2::signal<void(const SendAuxiliaryCommandResponse&)>& DeviceClient::SendAuxiliaryCommandSignal()
 {
-  return signals_->sendauxiliarycommand_.GetSignal();
+  return signals_->sendauxiliarycommand_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetAccessPolicyResponse&)>& DeviceClient::SetAccessPolicySignal()
 {
-  return signals_->setaccesspolicy_.GetSignal();
+  return signals_->setaccesspolicy_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetCertificatesStatusResponse&)>& DeviceClient::SetCertificatesStatusSignal()
 {
-  return signals_->setcertificatesstatus_.GetSignal();
+  return signals_->setcertificatesstatus_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetClientCertificateModeResponse&)>& DeviceClient::SetClientCertificateModeSignal()
 {
-  return signals_->setclientcertificatemode_.GetSignal();
+  return signals_->setclientcertificatemode_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetDiscoveryModeResponse&)>& DeviceClient::SetDiscoveryModeSignal()
 {
-  return signals_->setdiscoverymode_.GetSignal();
+  return signals_->setdiscoverymode_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetDNSResponse&)>& DeviceClient::SetDNSSignal()
 {
-  return signals_->setdns_.GetSignal();
+  return signals_->setdns_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetDot1XConfigurationResponse&)>& DeviceClient::SetDot1XConfigurationSignal()
 {
-  return signals_->setdot1xconfiguration_.GetSignal();
+  return signals_->setdot1xconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetDPAddressesResponse&)>& DeviceClient::SetDPAddressesSignal()
 {
-  return signals_->setdpaddresses_.GetSignal();
+  return signals_->setdpaddresses_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetDynamicDNSResponse&)>& DeviceClient::SetDynamicDNSSignal()
 {
-  return signals_->setdynamicdns_.GetSignal();
+  return signals_->setdynamicdns_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetHostnameResponse&)>& DeviceClient::SetHostnameSignal()
 {
-  return signals_->sethostname_.GetSignal();
+  return signals_->sethostname_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetHostnameFromDHCPResponse&)>& DeviceClient::SetHostnameFromDHCPSignal()
 {
-  return signals_->sethostnamefromdhcp_.GetSignal();
+  return signals_->sethostnamefromdhcp_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetIPAddressFilterResponse&)>& DeviceClient::SetIPAddressFilterSignal()
 {
-  return signals_->setipaddressfilter_.GetSignal();
+  return signals_->setipaddressfilter_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetNetworkDefaultGatewayResponse&)>& DeviceClient::SetNetworkDefaultGatewaySignal()
 {
-  return signals_->setnetworkdefaultgateway_.GetSignal();
+  return signals_->setnetworkdefaultgateway_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetNetworkInterfacesResponse&)>& DeviceClient::SetNetworkInterfacesSignal()
 {
-  return signals_->setnetworkinterfaces_.GetSignal();
+  return signals_->setnetworkinterfaces_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetNetworkProtocolsResponse&)>& DeviceClient::SetNetworkProtocolsSignal()
 {
-  return signals_->setnetworkprotocols_.GetSignal();
+  return signals_->setnetworkprotocols_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetNTPResponse&)>& DeviceClient::SetNTPSignal()
 {
-  return signals_->setntp_.GetSignal();
+  return signals_->setntp_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetRelayOutputSettingsResponse&)>& DeviceClient::SetRelayOutputSettingsSignal()
 {
-  return signals_->setrelayoutputsettings_.GetSignal();
+  return signals_->setrelayoutputsettings_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetRemoteDiscoveryModeResponse&)>& DeviceClient::SetRemoteDiscoveryModeSignal()
 {
-  return signals_->setremotediscoverymode_.GetSignal();
+  return signals_->setremotediscoverymode_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetSystemDateAndTimeResponse&)>& DeviceClient::SetSystemDateAndTimeSignal()
 {
-  return signals_->setsystemdateandtime_.GetSignal();
+  return signals_->setsystemdateandtime_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetSystemFactoryDefaultResponse&)>& DeviceClient::SetSystemFactoryDefaultSignal()
 {
-  return signals_->setsystemfactorydefault_.GetSignal();
+  return signals_->setsystemfactorydefault_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetUserResponse&)>& DeviceClient::SetUserSignal()
 {
-  return signals_->setuser_.GetSignal();
+  return signals_->setuser_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetZeroConfigurationResponse&)>& DeviceClient::SetZeroConfigurationSignal()
 {
-  return signals_->setzeroconfiguration_.GetSignal();
+  return signals_->setzeroconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const SystemRebootResponse&)>& DeviceClient::SystemRebootSignal()
 {
-  return signals_->systemreboot_.GetSignal();
+  return signals_->systemreboot_->GetSignal();
 }
 
 void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::asio::ip::address& localendpoint, int64_t latency, const pugi::xml_document& document, const std::map< std::string, std::vector<char> >& mtomdata)
@@ -1885,7 +1885,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->addipaddressfilter_.Emit(handle, localendpoint, latency, std::string());
+      signals_->addipaddressfilter_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_ADDSCOPES:
@@ -1897,7 +1897,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->addscopes_.Emit(handle, localendpoint, latency, std::string());
+      signals_->addscopes_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_CREATECERTIFICATE:
@@ -1909,7 +1909,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->createcertificate_.Emit(handle, localendpoint, latency, std::string(), GetClass<Certificate>(createcertificateresponse, "*[local-name()='NvtCertificate']"));
+      signals_->createcertificate_->Emit(handle, localendpoint, latency, std::string(), GetClass<Certificate>(createcertificateresponse, "*[local-name()='NvtCertificate']"));
       break;
     }
     case DEVICEOPERATION_CREATESTORAGECONFIGURATION:
@@ -1921,7 +1921,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->createstorageconfiguration_.Emit(handle, localendpoint, latency, std::string(), GetText(createcertificateresponse, "*[local-name()='Token']"));
+      signals_->createstorageconfiguration_->Emit(handle, localendpoint, latency, std::string(), GetText(createcertificateresponse, "*[local-name()='Token']"));
       break;
     }
     case DEVICEOPERATION_CREATEUSERS:
@@ -1933,7 +1933,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->createusers_.Emit(handle, localendpoint, latency, std::string());
+      signals_->createusers_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_DELETECERTIFICATES:
@@ -1945,7 +1945,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->deletecertificates_.Emit(handle, localendpoint, latency, std::string());
+      signals_->deletecertificates_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_DELETEDOT1XCONFIGURATION:
@@ -1957,7 +1957,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->deletedot1xconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->deletedot1xconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_DELETESTORAGECONFIGURATION:
@@ -1969,7 +1969,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->deletestorageconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->deletestorageconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_DELETEUSERS:
@@ -1981,7 +1981,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->deleteusers_.Emit(handle, localendpoint, latency, std::string());
+      signals_->deleteusers_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_GETACCESSPOLICY:
@@ -1993,7 +1993,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->getaccesspolicy_.Emit(handle, localendpoint, latency, std::string(), GetClass<BinaryData>(getaccesspolicyresponse, "*[local-name()='PolicyFile']"));
+      signals_->getaccesspolicy_->Emit(handle, localendpoint, latency, std::string(), GetClass<BinaryData>(getaccesspolicyresponse, "*[local-name()='PolicyFile']"));
       break;
     }
     case DEVICEOPERATION_GETCACERTIFICATES:
@@ -2012,7 +2012,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
 
       }
 
-      signals_->getcacertificates_.Emit(handle, localendpoint, latency, std::string(), certificates);
+      signals_->getcacertificates_->Emit(handle, localendpoint, latency, std::string(), certificates);
       break;
     }
     case DEVICEOPERATION_GETCAPABILITIES:
@@ -2024,7 +2024,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->getcapabilities_.Emit(handle, localendpoint, latency, std::string(), GetClass<Capabilities>(getcapabilitiesresponse, "*[local-name()='Capabilities']"));
+      signals_->getcapabilities_->Emit(handle, localendpoint, latency, std::string(), GetClass<Capabilities>(getcapabilitiesresponse, "*[local-name()='Capabilities']"));
       break;
     }
     case DEVICEOPERATION_GETCERTIFICATEINFORMATION:
@@ -2036,7 +2036,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->getcertificateinformation_.Emit(handle, localendpoint, latency, std::string(), GetClass<CertificateInformation>(getcertificateinformationresponse, "*[local-name()='CertificateInformation']"));
+      signals_->getcertificateinformation_->Emit(handle, localendpoint, latency, std::string(), GetClass<CertificateInformation>(getcertificateinformationresponse, "*[local-name()='CertificateInformation']"));
       break;
     }
     case DEVICEOPERATION_GETCERTIFICATES:
@@ -2055,7 +2055,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
 
       }
 
-      signals_->getcertificates_.Emit(handle, localendpoint, latency, std::string(), certificates);
+      signals_->getcertificates_->Emit(handle, localendpoint, latency, std::string(), certificates);
       break;
     }
     case DEVICEOPERATION_GETCERTIFICATESSTATUS:
@@ -2074,7 +2074,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
 
       }
 
-      signals_->getcertificatesstatus_.Emit(handle, localendpoint, latency, std::string(), certificatesstatus);
+      signals_->getcertificatesstatus_->Emit(handle, localendpoint, latency, std::string(), certificatesstatus);
       break;
     }
     case DEVICEOPERATION_GETCLIENTCERTIFICATEMODE:
@@ -2086,7 +2086,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->getclientcertificatemode_.Emit(handle, localendpoint, latency, std::string(), GetBool(getclientcertificatemoderesponse, "*[local-name()='Enabled']"));
+      signals_->getclientcertificatemode_->Emit(handle, localendpoint, latency, std::string(), GetBool(getclientcertificatemoderesponse, "*[local-name()='Enabled']"));
       break;
     }
     case DEVICEOPERATION_GETDEVICEINFORMATION:
@@ -2098,7 +2098,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->getdeviceinformation_.Emit(handle, localendpoint, latency, std::string(), GetText(getdeviceinformationresponse, "*[local-name()='Manufacturer']"), GetText(getdeviceinformationresponse, "*[local-name()='Model']"), GetText(getdeviceinformationresponse, "*[local-name()='FirmwareVersion']"), GetText(getdeviceinformationresponse, "*[local-name()='SerialNumber']"), GetText(getdeviceinformationresponse, "*[local-name()='HardwareId']"));
+      signals_->getdeviceinformation_->Emit(handle, localendpoint, latency, std::string(), GetText(getdeviceinformationresponse, "*[local-name()='Manufacturer']"), GetText(getdeviceinformationresponse, "*[local-name()='Model']"), GetText(getdeviceinformationresponse, "*[local-name()='FirmwareVersion']"), GetText(getdeviceinformationresponse, "*[local-name()='SerialNumber']"), GetText(getdeviceinformationresponse, "*[local-name()='HardwareId']"));
       break;
     }
     case DEVICEOPERATION_GETDISCOVERYMODE:
@@ -2110,7 +2110,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->getdiscoverymode_.Emit(handle, localendpoint, latency, std::string(), onvif::GetDiscoveryMode(discoverymodenode.node().text().get()));
+      signals_->getdiscoverymode_->Emit(handle, localendpoint, latency, std::string(), onvif::GetDiscoveryMode(discoverymodenode.node().text().get()));
       break;
     }
     case DEVICEOPERATION_GETDNS:
@@ -2122,7 +2122,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->getdns_.Emit(handle, localendpoint, latency, std::string(), GetClass<DNSInformation>(getdnsresponse, "*[local-name()='DNSInformation']"));
+      signals_->getdns_->Emit(handle, localendpoint, latency, std::string(), GetClass<DNSInformation>(getdnsresponse, "*[local-name()='DNSInformation']"));
       break;
     }
     case DEVICEOPERATION_GETDOT11CAPABILITIES:
@@ -2134,7 +2134,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->getdot11capabilities_.Emit(handle, localendpoint, latency, std::string(), GetClass<Dot11Capabilities>(getdot11capabilitiesresponse, "*[local-name()='Capabilities']"));
+      signals_->getdot11capabilities_->Emit(handle, localendpoint, latency, std::string(), GetClass<Dot11Capabilities>(getdot11capabilitiesresponse, "*[local-name()='Capabilities']"));
       break;
     }
     case DEVICEOPERATION_GETDOT11STATUS:
@@ -2146,7 +2146,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->getdot11status_.Emit(handle, localendpoint, latency, std::string(), GetClass<Dot11Status>(getdot11statusresponse, "*[local-name()='Status']"));
+      signals_->getdot11status_->Emit(handle, localendpoint, latency, std::string(), GetClass<Dot11Status>(getdot11statusresponse, "*[local-name()='Status']"));
       break;
     }
     case DEVICEOPERATION_GETDOT1XCONFIGURATION:
@@ -2158,7 +2158,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->getdot1xconfiguration_.Emit(handle, localendpoint, latency, std::string(), GetClass<Dot1XConfiguration>(getdot1xconfigurationresponse, "*[local-name()='Dot1XConfiguration']"));
+      signals_->getdot1xconfiguration_->Emit(handle, localendpoint, latency, std::string(), GetClass<Dot1XConfiguration>(getdot1xconfigurationresponse, "*[local-name()='Dot1XConfiguration']"));
       break;
     }
     case DEVICEOPERATION_GETDOT1XCONFIGURATIONS:
@@ -2177,7 +2177,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
 
       }
 
-      signals_->getdot1xconfigurations_.Emit(handle, localendpoint, latency, std::string(), dot1xconfigurations);
+      signals_->getdot1xconfigurations_->Emit(handle, localendpoint, latency, std::string(), dot1xconfigurations);
       break;
     }
     case DEVICEOPERATION_GETDPADDRESSES:
@@ -2196,7 +2196,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
 
       }
 
-      signals_->getdpaddresses_.Emit(handle, localendpoint, latency, std::string(), dpaddresses);
+      signals_->getdpaddresses_->Emit(handle, localendpoint, latency, std::string(), dpaddresses);
       break;
     }
     case DEVICEOPERATION_GETDYNAMICDNS:
@@ -2208,7 +2208,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->getdynamicdns_.Emit(handle, localendpoint, latency, std::string(), GetClass<DynamicDNSInformation>(getdynamicdnsresponse, "*[local-name()='DynamicDNSInformation']"));
+      signals_->getdynamicdns_->Emit(handle, localendpoint, latency, std::string(), GetClass<DynamicDNSInformation>(getdynamicdnsresponse, "*[local-name()='DynamicDNSInformation']"));
       break;
     }
     case DEVICEOPERATION_GETENDPOINTREFERENCE:
@@ -2220,7 +2220,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->getendpointreference_.Emit(handle, localendpoint, latency, std::string(), GetText(getendpointreferenceresponse, "*[local-name()='GUID']"));
+      signals_->getendpointreference_->Emit(handle, localendpoint, latency, std::string(), GetText(getendpointreferenceresponse, "*[local-name()='GUID']"));
       break;
     }
     case DEVICEOPERATION_GETHOSTNAME:
@@ -2232,7 +2232,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->gethostname_.Emit(handle, localendpoint, latency, std::string(), GetClass<HostnameInformation>(gethostnameresponse, "*[local-name()='HostnameInformation']"));
+      signals_->gethostname_->Emit(handle, localendpoint, latency, std::string(), GetClass<HostnameInformation>(gethostnameresponse, "*[local-name()='HostnameInformation']"));
       break;
     }
     case DEVICEOPERATION_GETIPADDRESSFILTER:
@@ -2244,7 +2244,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->getipaddressfilter_.Emit(handle, localendpoint, latency, std::string(), GetClass<IPAddressFilter>(getipaddressfilterresponse, "*[local-name()='IPAddressFilter']"));
+      signals_->getipaddressfilter_->Emit(handle, localendpoint, latency, std::string(), GetClass<IPAddressFilter>(getipaddressfilterresponse, "*[local-name()='IPAddressFilter']"));
       break;
     }
     case DEVICEOPERATION_GETNETWORKDEFAULTGATEWAY:
@@ -2256,7 +2256,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->getnetworkdefaultgateway_.Emit(handle, localendpoint, latency, std::string(), GetClass<NetworkGateway>(getnetworkdefaultgatewayresponse, "*[local-name()='NetworkGateway']"));
+      signals_->getnetworkdefaultgateway_->Emit(handle, localendpoint, latency, std::string(), GetClass<NetworkGateway>(getnetworkdefaultgatewayresponse, "*[local-name()='NetworkGateway']"));
       break;
     }
     case DEVICEOPERATION_GETNETWORKINTERFACES:
@@ -2275,7 +2275,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
 
       }
 
-      signals_->getnetworkinterfaces_.Emit(handle, localendpoint, latency, std::string(), networkinterfaces);
+      signals_->getnetworkinterfaces_->Emit(handle, localendpoint, latency, std::string(), networkinterfaces);
       break;
     }
     case DEVICEOPERATION_GETNETWORKPROTOCOLS:
@@ -2294,7 +2294,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
 
       }
 
-      signals_->getnetworkprotocols_.Emit(handle, localendpoint, latency, std::string(), networkprotocols);
+      signals_->getnetworkprotocols_->Emit(handle, localendpoint, latency, std::string(), networkprotocols);
       break;
     }
     case DEVICEOPERATION_GETPKCS10REQUEST:
@@ -2306,7 +2306,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->getpkcs10request_.Emit(handle, localendpoint, latency, std::string(), GetClass<BinaryData>(getpkcs10requestresponse, "*[local-name()='Pkcs10Request']"));
+      signals_->getpkcs10request_->Emit(handle, localendpoint, latency, std::string(), GetClass<BinaryData>(getpkcs10requestresponse, "*[local-name()='Pkcs10Request']"));
       break;
     }
     case DEVICEOPERATION_GETRELAYOUTPUTS:
@@ -2325,7 +2325,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
 
       }
 
-      signals_->getrelayoutputs_.Emit(handle, localendpoint, latency, std::string(), relayoutputs);
+      signals_->getrelayoutputs_->Emit(handle, localendpoint, latency, std::string(), relayoutputs);
       break;
     }
     case DEVICEOPERATION_GETNTP:
@@ -2337,7 +2337,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->getntp_.Emit(handle, localendpoint, latency, std::string(), GetClass<NTPInformation>(getntpresponse, "*[local-name()='NTPInformation']"));
+      signals_->getntp_->Emit(handle, localendpoint, latency, std::string(), GetClass<NTPInformation>(getntpresponse, "*[local-name()='NTPInformation']"));
       break;
     }
     case DEVICEOPERATION_GETREMOTEDISCOVERYMODE:
@@ -2349,7 +2349,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->getremotediscoverymode_.Emit(handle, localendpoint, latency, std::string(), onvif::GetDiscoveryMode(remotediscoverymodenode.node().text().get()));
+      signals_->getremotediscoverymode_->Emit(handle, localendpoint, latency, std::string(), onvif::GetDiscoveryMode(remotediscoverymodenode.node().text().get()));
       break;
     }
     case DEVICEOPERATION_GETREMOTEUSER:
@@ -2361,7 +2361,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->getremoteuser_.Emit(handle, localendpoint, latency, std::string(), GetClass<RemoteUser>(getremoteuserresponse, "*[local-name()='RemoteUser']"));
+      signals_->getremoteuser_->Emit(handle, localendpoint, latency, std::string(), GetClass<RemoteUser>(getremoteuserresponse, "*[local-name()='RemoteUser']"));
       break;
     }
     case DEVICEOPERATION_GETSCOPES:
@@ -2380,7 +2380,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
 
       }
       
-      signals_->getscopes_.Emit(handle, localendpoint, latency, std::string(), scopes);
+      signals_->getscopes_->Emit(handle, localendpoint, latency, std::string(), scopes);
       break;
     }
     case DEVICEOPERATION_GETSERVICECAPABILITIES:
@@ -2392,7 +2392,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->getservicecapabilities_.Emit(handle, localendpoint, latency, std::string(), GetClass<DeviceServiceCapabilities>(getservicecapabilitiesresponse, "*[local-name()='Capabilities']"));
+      signals_->getservicecapabilities_->Emit(handle, localendpoint, latency, std::string(), GetClass<DeviceServiceCapabilities>(getservicecapabilitiesresponse, "*[local-name()='Capabilities']"));
       break;
     }
     case DEVICEOPERATION_GETSERVICES:
@@ -2411,7 +2411,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
 
       }
       
-      signals_->getservices_.Emit(handle, localendpoint, latency, std::string(), services);
+      signals_->getservices_->Emit(handle, localendpoint, latency, std::string(), services);
       break;
     }
     case DEVICEOPERATION_GETSTORAGECONFIGURATION:
@@ -2423,7 +2423,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->getstorageconfiguration_.Emit(handle, localendpoint, latency, std::string(), GetClass<StorageConfiguration>(getstorageconfigurationresponse, "*[local-name()='StorageConfiguration']"));
+      signals_->getstorageconfiguration_->Emit(handle, localendpoint, latency, std::string(), GetClass<StorageConfiguration>(getstorageconfigurationresponse, "*[local-name()='StorageConfiguration']"));
       break;
     }
     case DEVICEOPERATION_GETSTORAGECONFIGURATIONS:
@@ -2442,7 +2442,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
 
       }
       
-      signals_->getstorageconfigurations_.Emit(handle, localendpoint, latency, std::string(), storageconfigurations);
+      signals_->getstorageconfigurations_->Emit(handle, localendpoint, latency, std::string(), storageconfigurations);
       break;
     }
     case DEVICEOPERATION_GETSYSTEMBACKUP:
@@ -2484,7 +2484,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->getsystembackup_.Emit(handle, localendpoint, latency, std::string(), backupfiles);
+      signals_->getsystembackup_->Emit(handle, localendpoint, latency, std::string(), backupfiles);
       break;
     }
     case DEVICEOPERATION_GETSYSTEMDATEANDTIME:
@@ -2496,7 +2496,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->getsystemdateandtime_.Emit(handle, localendpoint, latency, std::string(), GetClass<SystemDateTime>(getsystemdateandtimeresponse, "*[local-name()='SystemDateAndTime']"));
+      signals_->getsystemdateandtime_->Emit(handle, localendpoint, latency, std::string(), GetClass<SystemDateTime>(getsystemdateandtimeresponse, "*[local-name()='SystemDateAndTime']"));
       break;
     }
     case DEVICEOPERATION_GETSYSTEMLOG:
@@ -2508,7 +2508,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->getsystemlog_.Emit(handle, localendpoint, latency, std::string(), GetClass<SystemLog>(getsystemlogresponse, "*[local-name()='SystemLog']"));
+      signals_->getsystemlog_->Emit(handle, localendpoint, latency, std::string(), GetClass<SystemLog>(getsystemlogresponse, "*[local-name()='SystemLog']"));
       break;
     }
     case DEVICEOPERATION_GETSYSTEMSUPPORTINFORMATION:
@@ -2520,7 +2520,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->getsystemsupportinformation_.Emit(handle, localendpoint, latency, std::string(), GetClass<SupportInformation>(getsystemsupportinformationresponse, "*[local-name()='SupportInformation']"));
+      signals_->getsystemsupportinformation_->Emit(handle, localendpoint, latency, std::string(), GetClass<SupportInformation>(getsystemsupportinformationresponse, "*[local-name()='SupportInformation']"));
       break;
     }
     case DEVICEOPERATION_GETSYSTEMURIS:
@@ -2532,7 +2532,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->getsystemuris_.Emit(handle, localendpoint, latency, std::string(), GetClass<SystemLogUriList>(getsystemurisresponse, "*[local-name()='SystemLogUris']"), GetText(getsystemurisresponse, "*[local-name()='SupportInfoUri']"), GetText(getsystemurisresponse, "*[local-name()='SystemBackupUri']"));
+      signals_->getsystemuris_->Emit(handle, localendpoint, latency, std::string(), GetClass<SystemLogUriList>(getsystemurisresponse, "*[local-name()='SystemLogUris']"), GetText(getsystemurisresponse, "*[local-name()='SupportInfoUri']"), GetText(getsystemurisresponse, "*[local-name()='SystemBackupUri']"));
       break;
     }
     case DEVICEOPERATION_GETUSERS:
@@ -2551,7 +2551,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
 
       }
 
-      signals_->getusers_.Emit(handle, localendpoint, latency, std::string(), users);
+      signals_->getusers_->Emit(handle, localendpoint, latency, std::string(), users);
       break;
     }
     case DEVICEOPERATION_GETWSDLURL:
@@ -2563,7 +2563,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->getwsdlurl_.Emit(handle, localendpoint, latency, std::string(), GetText(getwsdlurlresponse, "*[local-name()='WsdlUrl']"));
+      signals_->getwsdlurl_->Emit(handle, localendpoint, latency, std::string(), GetText(getwsdlurlresponse, "*[local-name()='WsdlUrl']"));
       break;
     }
     case DEVICEOPERATION_GETZEROCONFIGURATION:
@@ -2575,7 +2575,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->getzeroconfiguration_.Emit(handle, localendpoint, latency, std::string(), GetClass<NetworkZeroConfiguration>(getzeroconfigurationresponse, "*[local-name()='ZeroConfiguration']"));
+      signals_->getzeroconfiguration_->Emit(handle, localendpoint, latency, std::string(), GetClass<NetworkZeroConfiguration>(getzeroconfigurationresponse, "*[local-name()='ZeroConfiguration']"));
       break;
     }
     case DEVICEOPERATION_LOADCACERTIFICATES:
@@ -2587,7 +2587,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->loadcacertificates_.Emit(handle, localendpoint, latency, std::string());
+      signals_->loadcacertificates_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_LOADCERTIFICATES:
@@ -2599,7 +2599,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->loadcertificates_.Emit(handle, localendpoint, latency, std::string());
+      signals_->loadcertificates_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_LOADCERTIFICATEWITHPRIVATEKEY:
@@ -2611,7 +2611,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->loadcertificatewithprivatekey_.Emit(handle, localendpoint, latency, std::string());
+      signals_->loadcertificatewithprivatekey_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_SETHOSTNAME:
@@ -2623,7 +2623,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->sethostname_.Emit(handle, localendpoint, latency, std::string());
+      signals_->sethostname_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_SETHOSTNAMEFROMDHCP:
@@ -2635,7 +2635,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->sethostnamefromdhcp_.Emit(handle, localendpoint, latency, std::string(), GetBool(sethostnamefromdhcpresponse, "*[local-name()='RebootNeeded']"));
+      signals_->sethostnamefromdhcp_->Emit(handle, localendpoint, latency, std::string(), GetBool(sethostnamefromdhcpresponse, "*[local-name()='RebootNeeded']"));
       break;
     }
     case DEVICEOPERATION_SETIPADDRESSFILTER:
@@ -2647,7 +2647,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->setipaddressfilter_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setipaddressfilter_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_SETNETWORKDEFAULTGATEWAY:
@@ -2659,7 +2659,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->setnetworkdefaultgateway_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setnetworkdefaultgateway_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_SETNETWORKINTERFACES:
@@ -2671,7 +2671,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->setnetworkinterfaces_.Emit(handle, localendpoint, latency, std::string(), GetBool(setnetworkinterfacesresponse, "*[local-name()='RebootNeeded']"));
+      signals_->setnetworkinterfaces_->Emit(handle, localendpoint, latency, std::string(), GetBool(setnetworkinterfacesresponse, "*[local-name()='RebootNeeded']"));
       break;
     }
     case DEVICEOPERATION_SETNETWORKPROTOCOLS:
@@ -2683,7 +2683,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->setnetworkprotocols_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setnetworkprotocols_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_SETNTP:
@@ -2695,7 +2695,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->setntp_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setntp_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_REMOVEIPADDRESSFILTER:
@@ -2707,7 +2707,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->removeipaddressfilter_.Emit(handle, localendpoint, latency, std::string());
+      signals_->removeipaddressfilter_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_REMOVESCOPES:
@@ -2719,7 +2719,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->removescopes_.Emit(handle, localendpoint, latency, std::string());
+      signals_->removescopes_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_RESTORESYSTEM:
@@ -2731,7 +2731,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->restoresystem_.Emit(handle, localendpoint, latency, std::string());
+      signals_->restoresystem_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_SCANAVAILABLEDOT11NETWORKS:
@@ -2750,7 +2750,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
 
       }
 
-      signals_->scanavailabledot11networks_.Emit(handle, localendpoint, latency, std::string(), networks);
+      signals_->scanavailabledot11networks_->Emit(handle, localendpoint, latency, std::string(), networks);
       break;
     }
     case DEVICEOPERATION_SENDAUXILIARYCOMMAND:
@@ -2762,7 +2762,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->sendauxiliarycommand_.Emit(handle, localendpoint, latency, std::string(), GetText(sendauxiliarycommandresponse, "*[local-name()='AuxiliaryCommandResponse']"));
+      signals_->sendauxiliarycommand_->Emit(handle, localendpoint, latency, std::string(), GetText(sendauxiliarycommandresponse, "*[local-name()='AuxiliaryCommandResponse']"));
       break;
     }
     case DEVICEOPERATION_SETACCESSPOLICY:
@@ -2774,7 +2774,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->setaccesspolicy_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setaccesspolicy_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_SETCERTIFICATESSTATUS:
@@ -2786,7 +2786,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->setcertificatesstatus_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setcertificatesstatus_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_SETCLIENTCERTIFICATEMODE:
@@ -2798,7 +2798,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->setclientcertificatemode_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setclientcertificatemode_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_SETDISCOVERYMODE:
@@ -2810,7 +2810,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->setdiscoverymode_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setdiscoverymode_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_SETDNS:
@@ -2822,7 +2822,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->setdns_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setdns_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_SETDOT1XCONFIGURATION:
@@ -2834,7 +2834,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->setdot1xconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setdot1xconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_SETDPADDRESSES:
@@ -2846,7 +2846,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->setdpaddresses_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setdpaddresses_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_SETDYNAMICDNS:
@@ -2858,7 +2858,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->setdynamicdns_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setdynamicdns_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_SETRELAYOUTPUTSETTINGS:
@@ -2870,7 +2870,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->setrelayoutputsettings_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setrelayoutputsettings_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_SETREMOTEDISCOVERYMODE:
@@ -2882,7 +2882,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
 
-      signals_->setremotediscoverymode_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setremotediscoverymode_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_SETSYSTEMDATEANDTIME:
@@ -2894,7 +2894,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->setsystemdateandtime_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setsystemdateandtime_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_SETSYSTEMFACTORYDEFAULT:
@@ -2906,7 +2906,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->setsystemfactorydefault_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setsystemfactorydefault_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_SETUSER:
@@ -2918,7 +2918,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->setuser_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setuser_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_SETZEROCONFIGURATION:
@@ -2930,7 +2930,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->setzeroconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setzeroconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEOPERATION_SYSTEMREBOOT:
@@ -2942,7 +2942,7 @@ void DeviceClient::Update(DEVICEOPERATION operation, CURL* handle, const boost::
         break;
       }
       
-      signals_->systemreboot_.Emit(handle, localendpoint, latency, std::string(), GetText(systemrebootresponse, "*[local-name()='Message']"));
+      signals_->systemreboot_->Emit(handle, localendpoint, latency, std::string(), GetText(systemrebootresponse, "*[local-name()='Message']"));
       break;
     }
     default:
@@ -2959,397 +2959,397 @@ void DeviceClient::SignalError(DEVICEOPERATION operation, CURL* handle, const bo
   {
     case DEVICEOPERATION_ADDIPADDRESSFILTER:
     {
-      signals_->addipaddressfilter_.Emit(handle, localendpoint, latency, message);
+      signals_->addipaddressfilter_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_ADDSCOPES:
     {
-      signals_->addscopes_.Emit(handle, localendpoint, latency, message);
+      signals_->addscopes_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_CREATECERTIFICATE:
     {
-      signals_->createcertificate_.Emit(handle, localendpoint, latency, message);
+      signals_->createcertificate_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_CREATESTORAGECONFIGURATION:
     {
-      signals_->createstorageconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->createstorageconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_CREATEUSERS:
     {
-      signals_->createusers_.Emit(handle, localendpoint, latency, message);
+      signals_->createusers_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_DELETECERTIFICATES:
     {
-      signals_->deletecertificates_.Emit(handle, localendpoint, latency, message);
+      signals_->deletecertificates_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_DELETEDOT1XCONFIGURATION:
     {
-      signals_->deletedot1xconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->deletedot1xconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_DELETESTORAGECONFIGURATION:
     {
-      signals_->deletestorageconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->deletestorageconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_DELETEUSERS:
     {
-      signals_->deleteusers_.Emit(handle, localendpoint, latency, message);
+      signals_->deleteusers_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETACCESSPOLICY:
     {
-      signals_->getaccesspolicy_.Emit(handle, localendpoint, latency, message);
+      signals_->getaccesspolicy_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETCACERTIFICATES:
     {
-      signals_->getcacertificates_.Emit(handle, localendpoint, latency, message);
+      signals_->getcacertificates_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETCAPABILITIES:
     {
-      signals_->getcapabilities_.Emit(handle, localendpoint, latency, message);
+      signals_->getcapabilities_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETCERTIFICATEINFORMATION:
     {
-      signals_->getcertificateinformation_.Emit(handle, localendpoint, latency, message);
+      signals_->getcertificateinformation_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETCERTIFICATES:
     {
-      signals_->getcertificates_.Emit(handle, localendpoint, latency, message);
+      signals_->getcertificates_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETCERTIFICATESSTATUS:
     {
-      signals_->getcertificatesstatus_.Emit(handle, localendpoint, latency, message);
+      signals_->getcertificatesstatus_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETCLIENTCERTIFICATEMODE:
     {
-      signals_->getclientcertificatemode_.Emit(handle, localendpoint, latency, message);
+      signals_->getclientcertificatemode_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETDEVICEINFORMATION:
     {
-      signals_->getdeviceinformation_.Emit(handle, localendpoint, latency, message);
+      signals_->getdeviceinformation_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETDISCOVERYMODE:
     {
-      signals_->getdiscoverymode_.Emit(handle, localendpoint, latency, message);
+      signals_->getdiscoverymode_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETDNS:
     {
-      signals_->getdns_.Emit(handle, localendpoint, latency, message);
+      signals_->getdns_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETDOT11CAPABILITIES:
     {
-      signals_->getdot11capabilities_.Emit(handle, localendpoint, latency, message);
+      signals_->getdot11capabilities_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETDOT11STATUS:
     {
-      signals_->getdot11status_.Emit(handle, localendpoint, latency, message);
+      signals_->getdot11status_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETDOT1XCONFIGURATION:
     {
-      signals_->getdot1xconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->getdot1xconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETDOT1XCONFIGURATIONS:
     {
-      signals_->getdot1xconfigurations_.Emit(handle, localendpoint, latency, message);
+      signals_->getdot1xconfigurations_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETDPADDRESSES:
     {
-      signals_->getdpaddresses_.Emit(handle, localendpoint, latency, message);
+      signals_->getdpaddresses_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETDYNAMICDNS:
     {
-      signals_->getdynamicdns_.Emit(handle, localendpoint, latency, message);
+      signals_->getdynamicdns_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETENDPOINTREFERENCE:
     {
-      signals_->getendpointreference_.Emit(handle, localendpoint, latency, message);
+      signals_->getendpointreference_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETHOSTNAME:
     {
-      signals_->gethostname_.Emit(handle, localendpoint, latency, message);
+      signals_->gethostname_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETIPADDRESSFILTER:
     {
-      signals_->getipaddressfilter_.Emit(handle, localendpoint, latency, message);
+      signals_->getipaddressfilter_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETNETWORKDEFAULTGATEWAY:
     {
-      signals_->getnetworkdefaultgateway_.Emit(handle, localendpoint, latency, message);
+      signals_->getnetworkdefaultgateway_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETNETWORKINTERFACES:
     {
-      signals_->getnetworkinterfaces_.Emit(handle, localendpoint, latency, message);
+      signals_->getnetworkinterfaces_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETNETWORKPROTOCOLS:
     {
-      signals_->getnetworkprotocols_.Emit(handle, localendpoint, latency, message);
+      signals_->getnetworkprotocols_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETPKCS10REQUEST:
     {
-      signals_->getpkcs10request_.Emit(handle, localendpoint, latency, message);
+      signals_->getpkcs10request_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETRELAYOUTPUTS:
     {
-      signals_->getrelayoutputs_.Emit(handle, localendpoint, latency, message);
+      signals_->getrelayoutputs_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETNTP:
     {
-      signals_->getntp_.Emit(handle, localendpoint, latency, message);
+      signals_->getntp_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETREMOTEDISCOVERYMODE:
     {
-      signals_->getremotediscoverymode_.Emit(handle, localendpoint, latency, message);
+      signals_->getremotediscoverymode_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETREMOTEUSER:
     {
-      signals_->getremoteuser_.Emit(handle, localendpoint, latency, message);
+      signals_->getremoteuser_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETSCOPES:
     {
-      signals_->getscopes_.Emit(handle, localendpoint, latency, message);
+      signals_->getscopes_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETSERVICECAPABILITIES:
     {
-      signals_->getservicecapabilities_.Emit(handle, localendpoint, latency, message);
+      signals_->getservicecapabilities_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETSERVICES:
     {
-      signals_->getservices_.Emit(handle, localendpoint, latency, message);
+      signals_->getservices_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETSTORAGECONFIGURATION:
     {
-      signals_->getstorageconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->getstorageconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETSTORAGECONFIGURATIONS:
     {
-      signals_->getstorageconfigurations_.Emit(handle, localendpoint, latency, message);
+      signals_->getstorageconfigurations_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETSYSTEMBACKUP:
     {
-      signals_->getsystembackup_.Emit(handle, localendpoint, latency, message);
+      signals_->getsystembackup_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETSYSTEMDATEANDTIME:
     {
-      signals_->getsystemdateandtime_.Emit(handle, localendpoint, latency, message);
+      signals_->getsystemdateandtime_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETSYSTEMLOG:
     {
-      signals_->getsystemlog_.Emit(handle, localendpoint, latency, message);
+      signals_->getsystemlog_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETSYSTEMSUPPORTINFORMATION:
     {
-      signals_->getsystemsupportinformation_.Emit(handle, localendpoint, latency, message);
+      signals_->getsystemsupportinformation_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETSYSTEMURIS:
     {
-      signals_->getsystemuris_.Emit(handle, localendpoint, latency, message);
+      signals_->getsystemuris_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETUSERS:
     {
-      signals_->getusers_.Emit(handle, localendpoint, latency, message);
+      signals_->getusers_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETWSDLURL:
     {
-      signals_->getwsdlurl_.Emit(handle, localendpoint, latency, message);
+      signals_->getwsdlurl_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_GETZEROCONFIGURATION:
     {
-      signals_->getzeroconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->getzeroconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_LOADCACERTIFICATES:
     {
-      signals_->loadcacertificates_.Emit(handle, localendpoint, latency, message);
+      signals_->loadcacertificates_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_LOADCERTIFICATES:
     {
-      signals_->loadcertificates_.Emit(handle, localendpoint, latency, message);
+      signals_->loadcertificates_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_LOADCERTIFICATEWITHPRIVATEKEY:
     {
-      signals_->loadcertificatewithprivatekey_.Emit(handle, localendpoint, latency, message);
+      signals_->loadcertificatewithprivatekey_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_REMOVEIPADDRESSFILTER:
     {
-      signals_->removeipaddressfilter_.Emit(handle, localendpoint, latency, message);
+      signals_->removeipaddressfilter_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_REMOVESCOPES:
     {
-      signals_->removescopes_.Emit(handle, localendpoint, latency, message);
+      signals_->removescopes_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_RESTORESYSTEM:
     {
-      signals_->restoresystem_.Emit(handle, localendpoint, latency, message);
+      signals_->restoresystem_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SCANAVAILABLEDOT11NETWORKS:
     {
-      signals_->scanavailabledot11networks_.Emit(handle, localendpoint, latency, message);
+      signals_->scanavailabledot11networks_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SENDAUXILIARYCOMMAND:
     {
-      signals_->sendauxiliarycommand_.Emit(handle, localendpoint, latency, message);
+      signals_->sendauxiliarycommand_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SETACCESSPOLICY:
     {
-      signals_->setaccesspolicy_.Emit(handle, localendpoint, latency, message);
+      signals_->setaccesspolicy_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SETCERTIFICATESSTATUS:
     {
-      signals_->setcertificatesstatus_.Emit(handle, localendpoint, latency, message);
+      signals_->setcertificatesstatus_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SETCLIENTCERTIFICATEMODE:
     {
-      signals_->setclientcertificatemode_.Emit(handle, localendpoint, latency, message);
+      signals_->setclientcertificatemode_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SETDISCOVERYMODE:
     {
-      signals_->setdiscoverymode_.Emit(handle, localendpoint, latency, message);
+      signals_->setdiscoverymode_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SETDNS:
     {
-      signals_->setdns_.Emit(handle, localendpoint, latency, message);
+      signals_->setdns_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SETDOT1XCONFIGURATION:
     {
-      signals_->setdot1xconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->setdot1xconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SETDPADDRESSES:
     {
-      signals_->setdpaddresses_.Emit(handle, localendpoint, latency, message);
+      signals_->setdpaddresses_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SETDYNAMICDNS:
     {
-      signals_->setdynamicdns_.Emit(handle, localendpoint, latency, message);
+      signals_->setdynamicdns_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SETHOSTNAME:
     {
-      signals_->sethostname_.Emit(handle, localendpoint, latency, message);
+      signals_->sethostname_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SETHOSTNAMEFROMDHCP:
     {
-      signals_->sethostnamefromdhcp_.Emit(handle, localendpoint, latency, message);
+      signals_->sethostnamefromdhcp_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SETIPADDRESSFILTER:
     {
-      signals_->setipaddressfilter_.Emit(handle, localendpoint, latency, message);
+      signals_->setipaddressfilter_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SETNETWORKDEFAULTGATEWAY:
     {
-      signals_->setnetworkdefaultgateway_.Emit(handle, localendpoint, latency, message);
+      signals_->setnetworkdefaultgateway_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SETNETWORKINTERFACES:
     {
-      signals_->setnetworkinterfaces_.Emit(handle, localendpoint, latency, message);
+      signals_->setnetworkinterfaces_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SETNETWORKPROTOCOLS:
     {
-      signals_->setnetworkprotocols_.Emit(handle, localendpoint, latency, message);
+      signals_->setnetworkprotocols_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SETNTP:
     {
-      signals_->setntp_.Emit(handle, localendpoint, latency, message);
+      signals_->setntp_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SETRELAYOUTPUTSETTINGS:
     {
-      signals_->setrelayoutputsettings_.Emit(handle, localendpoint, latency, message);
+      signals_->setrelayoutputsettings_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SETREMOTEDISCOVERYMODE:
     {
-      signals_->setremotediscoverymode_.Emit(handle, localendpoint, latency, message);
+      signals_->setremotediscoverymode_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SETSYSTEMDATEANDTIME:
     {
-      signals_->setsystemdateandtime_.Emit(handle, localendpoint, latency, message);
+      signals_->setsystemdateandtime_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SETSYSTEMFACTORYDEFAULT:
     {
-      signals_->setsystemfactorydefault_.Emit(handle, localendpoint, latency, message);
+      signals_->setsystemfactorydefault_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SETUSER:
     {
-      signals_->setuser_.Emit(handle, localendpoint, latency, message);
+      signals_->setuser_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SETZEROCONFIGURATION:
     {
-      signals_->setzeroconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->setzeroconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEOPERATION_SYSTEMREBOOT:
     {
-      signals_->systemreboot_.Emit(handle, localendpoint, latency, message);
+      signals_->systemreboot_->Emit(handle, localendpoint, latency, message);
       break;
     }
     default:

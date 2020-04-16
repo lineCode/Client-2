@@ -11,6 +11,14 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
+///// Declarations /////
+
+namespace onvif { class Connection; }
+
+///// Prototypes /////
+
+void swap(onvif::Connection& lhs, onvif::Connection& rhs) noexcept;
+
 ///// Namespaces /////
 
 namespace onvif
@@ -22,10 +30,10 @@ class Connection
 {
  public:
 
-  Connection();
+  Connection() noexcept;
   Connection(const Connection&) = delete;
   Connection(Connection&& connection) noexcept;
-  Connection(boost::shared_ptr<ConnectionBlock>& connectionblock);
+  Connection(boost::shared_ptr<ConnectionBlock>& connectionblock) noexcept;
   ~Connection();
 
   void Close();
