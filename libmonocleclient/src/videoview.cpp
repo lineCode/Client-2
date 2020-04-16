@@ -1332,8 +1332,12 @@ QSharedPointer<RecordingTrack> VideoView::GetBestRecordingTrack() const
   const QSharedPointer<RecordingJob> activejob = recording_->GetActiveJob();
   if (!activejob)
   {
+    if (recording_->GetTracks().empty()) // Just return anything
+    {
 
-    return nullptr;
+      return nullptr;
+    }
+    return recording_->GetTracks().front();
   }
 
   std::vector< std::pair<QSharedPointer<RecordingTrack>, uint64_t> > trackarea; // <trackid, area>
