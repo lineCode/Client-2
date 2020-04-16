@@ -434,7 +434,7 @@ void ManageTrackFindONVIFDeviceDiscoveryTreeItem::GetProfiles()
 
             }
           }
-          profileitem->setData(0, Qt::UserRole + 3, listitems);//TODO how are these used?
+          profileitem->setToolTip(0, listitems.join("\n"));
           addChild(profileitem);
         }
 
