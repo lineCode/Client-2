@@ -56,6 +56,12 @@ CopyViewAction::~CopyViewAction()
 
 bool CopyViewAction::KeyPress(const bool autorepeat)
 {
+  if (!IsVideoWidgetWindowActive())
+  {
+
+    return false;
+  }
+
   const QSharedPointer<View> view = MainWindow::Instance()->GetVideoWidgetsMgr().GetLastSelectedView();
   if (view == nullptr)
   {
