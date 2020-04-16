@@ -162,7 +162,6 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::Filter(ManageTrackFindONVIFDeviceD
 {
   if (textfilter_.size())
   {
-    //TODO needs some work....
     if (!item->text(0).contains(textfilter_, Qt::CaseInsensitive) && !ChildrenContainsTextFilter(item) && !item->TextFilter(textfilter_.toStdString()))
     {
       item->setHidden(true);

@@ -1305,6 +1305,7 @@ void ManageTrackWindow::on_buttonfindonvifdevice_clicked()
     ui_.edituri->setText(managetrackfindonvifdevicewindow.uri_);
     ui_.editusername->setText(managetrackfindonvifdevicewindow.username_);
     ui_.editpassword->setText(managetrackfindonvifdevicewindow.password_);
+    ui_.editprofiletoken->setText(managetrackfindonvifdevicewindow.profile_);
   }
 }
 
