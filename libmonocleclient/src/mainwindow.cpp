@@ -1497,7 +1497,7 @@ void MainWindow::SaveNewCameras() const
 
 void MainWindow::DiscoverONVIFDevice(const std::string& address)
 {
-  DiscoverCallback({ address }, { std::string("onvif://www.onvif.org/Profile/Streaming") });//TODO does this work ok?
+  DiscoverCallback({ address }, { std::string("onvif://www.onvif.org/Profile/Streaming") });
   
 }
 
