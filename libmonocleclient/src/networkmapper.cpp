@@ -18,7 +18,7 @@ namespace client
 
 ///// Globals /////
 
-const size_t MAX_CONNECTIONS = 500;
+const size_t MAX_CONNECTIONS = 100;
 
 ///// Methods /////
 
@@ -106,8 +106,8 @@ NetworkMapperScanner::NetworkMapperScanner(const uint8_t a, const std::pair<uint
       getsystemdateandtimeconnections_.erase(std::remove_if(getsystemdateandtimeconnections_.begin(), getsystemdateandtimeconnections_.end(), [](const std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> >& connection) { return !connection.first->IsConnected(); }), getsystemdateandtimeconnections_.end());
       getcapabilitiesconnections_.erase(std::remove_if(getcapabilitiesconnections_.begin(), getcapabilitiesconnections_.end(), [](const std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> >& connection) { return connection.second->Update(); }), getcapabilitiesconnections_.end()); // Update and remove any that error
       getcapabilitiesconnections_.erase(std::remove_if(getcapabilitiesconnections_.begin(), getcapabilitiesconnections_.end(), [](const std::pair< boost::shared_ptr<onvif::Connection>, boost::shared_ptr<onvif::device::DeviceClient> >& connection) { return !connection.first->IsConnected(); }), getcapabilitiesconnections_.end());
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
   });
 }
 
