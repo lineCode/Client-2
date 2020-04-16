@@ -162,14 +162,12 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::Filter(ManageTrackFindONVIFDeviceD
 {
   if (textfilter_.size())
   {
-    if (!item->text(0).contains(textfilter_, Qt::CaseInsensitive) && !ChildrenContainsTextFilter(item))
+    //TODO needs some work....
+    if (!item->text(0).contains(textfilter_, Qt::CaseInsensitive) && !ChildrenContainsTextFilter(item) && !item->TextFilter(textfilter_.toStdString()))
     {
       item->setHidden(true);
       return;
     }
-
-    //TODO Check names and locations here too
-
   }
 
   boost::system::error_code err;

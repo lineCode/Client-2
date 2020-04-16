@@ -5,6 +5,7 @@
 
 #include "monocleclient/managetrackfindonvifdevicediscoverytreeitem.h"
 
+#include <boost/algorithm/string/find.hpp>
 #include <boost/algorithm/string/join.hpp>
 #include <onvifclient/deviceclient.hpp>
 #include <onvifclient/mediaclient.hpp>
@@ -135,6 +136,29 @@ void ManageTrackFindONVIFDeviceDiscoveryTreeItem::AddLocations(const std::vector
     }
   }
   UpdateTooltip();
+}
+
+bool ManageTrackFindONVIFDeviceDiscoveryTreeItem::TextFilter(const std::string& textfilter) const
+{
+  for (const std::string& name : names_)
+  {
+    if (boost::ifind_first(name, textfilter))
+    {
+
+      return true;
+    }
+  }
+
+  for (const std::string& location : locations_)
+  {
+    if (boost::ifind_first(location, textfilter))
+    {
+
+      return true;
+    }
+  }
+
+  return false;
 }
 
 void ManageTrackFindONVIFDeviceDiscoveryTreeItem::RemoveChildren()
