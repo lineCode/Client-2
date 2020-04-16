@@ -21,26 +21,26 @@ class DeviceIOSignals
 {
  public:
 
-  Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputConfigurationResponse, std::string> getaudiooutputconfiguration_;
-  Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputConfigurationOptionsResponse, std::string> getaudiooutputconfigurationoptions_;
-  Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputsResponse> getaudiooutputs_;
-  Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourceConfigurationResponse, std::string> getaudiosourceconfiguration_;
-  Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourceConfigurationOptionsResponse, std::string> getaudiosourceconfigurationoptions_;
-  Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourcesResponse> getaudiosources_;
-  Signal<DEVICEIOOPERATION, DeviceIOClient, GetDigitalInputConfigurationOptionsResponse, std::string> getdigitalinputconfigurationoptions_;
-  Signal<DEVICEIOOPERATION, DeviceIOClient, GetDigitalInputsResponse> getdigitalinputs_;
-  Signal<DEVICEIOOPERATION, DeviceIOClient, GetRelayOutputsResponse> getrelayoutputs_;
-  Signal<DEVICEIOOPERATION, DeviceIOClient, GetRelayOutputOptionsResponse, std::string> getrelayoutputoptions_;
-  Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortConfigurationResponse, std::string> getserialportconfiguration_;
-  Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortConfigurationOptionsResponse, std::string> getserialportconfigurationoptions_;
-  Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortsResponse> getserialports_;
-  Signal<DEVICEIOOPERATION, DeviceIOClient, GetServiceCapabilitiesResponse> getservicecapabilities_;
-  Signal<DEVICEIOOPERATION, DeviceIOClient, SetAudioOutputConfigurationResponse, AudioOutputConfiguration, bool> setaudiooutputconfiguration_;
-  Signal<DEVICEIOOPERATION, DeviceIOClient, SetAudioSourceConfigurationResponse, AudioSourceConfiguration, bool> setaudiosourceconfiguration_;
-  Signal< DEVICEIOOPERATION, DeviceIOClient, SetDigitalInputConfigurationsResponse, std::vector<DigitalInput> > setdigitalinputconfigurations_;
-  Signal<DEVICEIOOPERATION, DeviceIOClient, SetRelayOutputSettingsResponse, RelayOutput> setrelayoutputsettings_;
-  Signal<DEVICEIOOPERATION, DeviceIOClient, SetRelayOutputStateResponse, std::string, RELAYLOGICALSTATE> setrelayoutputstate_;
-  Signal<DEVICEIOOPERATION, DeviceIOClient, SetSerialPortConfigurationResponse, SerialPortConfiguration, bool> setserialportconfiguration_;
+  std::unique_ptr< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputConfigurationResponse, std::string> > getaudiooutputconfiguration_;
+  std::unique_ptr< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputConfigurationOptionsResponse, std::string> > getaudiooutputconfigurationoptions_;
+  std::unique_ptr< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputsResponse> > getaudiooutputs_;
+  std::unique_ptr< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourceConfigurationResponse, std::string> > getaudiosourceconfiguration_;
+  std::unique_ptr< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourceConfigurationOptionsResponse, std::string> > getaudiosourceconfigurationoptions_;
+  std::unique_ptr< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourcesResponse> > getaudiosources_;
+  std::unique_ptr< Signal<DEVICEIOOPERATION, DeviceIOClient, GetDigitalInputConfigurationOptionsResponse, std::string> > getdigitalinputconfigurationoptions_;
+  std::unique_ptr< Signal<DEVICEIOOPERATION, DeviceIOClient, GetDigitalInputsResponse> > getdigitalinputs_;
+  std::unique_ptr< Signal<DEVICEIOOPERATION, DeviceIOClient, GetRelayOutputsResponse> > getrelayoutputs_;
+  std::unique_ptr< Signal<DEVICEIOOPERATION, DeviceIOClient, GetRelayOutputOptionsResponse, std::string> > getrelayoutputoptions_;
+  std::unique_ptr< Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortConfigurationResponse, std::string> > getserialportconfiguration_;
+  std::unique_ptr< Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortConfigurationOptionsResponse, std::string> > getserialportconfigurationoptions_;
+  std::unique_ptr< Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortsResponse> > getserialports_;
+  std::unique_ptr< Signal<DEVICEIOOPERATION, DeviceIOClient, GetServiceCapabilitiesResponse> > getservicecapabilities_;
+  std::unique_ptr< Signal<DEVICEIOOPERATION, DeviceIOClient, SetAudioOutputConfigurationResponse, AudioOutputConfiguration, bool> > setaudiooutputconfiguration_;
+  std::unique_ptr< Signal<DEVICEIOOPERATION, DeviceIOClient, SetAudioSourceConfigurationResponse, AudioSourceConfiguration, bool> > setaudiosourceconfiguration_;
+  std::unique_ptr< Signal< DEVICEIOOPERATION, DeviceIOClient, SetDigitalInputConfigurationsResponse, std::vector<DigitalInput> > > setdigitalinputconfigurations_;
+  std::unique_ptr< Signal<DEVICEIOOPERATION, DeviceIOClient, SetRelayOutputSettingsResponse, RelayOutput> > setrelayoutputsettings_;
+  std::unique_ptr< Signal<DEVICEIOOPERATION, DeviceIOClient, SetRelayOutputStateResponse, std::string, RELAYLOGICALSTATE> > setrelayoutputstate_;
+  std::unique_ptr< Signal<DEVICEIOOPERATION, DeviceIOClient, SetSerialPortConfigurationResponse, SerialPortConfiguration, bool> > setserialportconfiguration_;
 
 };
 
@@ -50,26 +50,26 @@ DeviceIOClient::DeviceIOClient(const boost::shared_ptr<std::recursive_mutex>& mu
   Client(mutex),
   signals_(new DeviceIOSignals(
   {
-    Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputConfigurationResponse, std::string>(this, DEVICEIOOPERATION_GETAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioOutputConfiguration"), false),
-    Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputConfigurationOptionsResponse, std::string>(this, DEVICEIOOPERATION_GETAUDIOOUTPUTCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioOutputConfigurationOptions"), false),
-    Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputsResponse>(this, DEVICEIOOPERATION_GETAUDIOOUTPUTS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioOutputs"), false),
-    Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourceConfigurationResponse, std::string>(this, DEVICEIOOPERATION_GETAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioSourceConfiguration"), false),
-    Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourceConfigurationOptionsResponse, std::string>(this, DEVICEIOOPERATION_GETAUDIOSOURCECONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioSourceConfigurationOptions"), false),
-    Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourcesResponse>(this, DEVICEIOOPERATION_GETAUDIOSOURCES, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioSources"), false),
-    Signal<DEVICEIOOPERATION, DeviceIOClient, GetDigitalInputConfigurationOptionsResponse, std::string>(this, DEVICEIOOPERATION_GETDIGITALINPUTCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetDigitalInputConfigurationOptions"), false),
-    Signal<DEVICEIOOPERATION, DeviceIOClient, GetDigitalInputsResponse>(this, DEVICEIOOPERATION_GETDIGITALINPUTS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetDigitalInputs"), false),
-    Signal<DEVICEIOOPERATION, DeviceIOClient, GetRelayOutputsResponse>(this, DEVICEIOOPERATION_GETRELAYOUTPUTS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetRelayOutputs"), false),
-    Signal<DEVICEIOOPERATION, DeviceIOClient, GetRelayOutputOptionsResponse, std::string>(this, DEVICEIOOPERATION_GETRELAYOUTPUTOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetRelayOutputOptions"), false),
-    Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortConfigurationResponse, std::string>(this, DEVICEIOOPERATION_GETSERIALPORTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetSerialPortConfigurations"), false),
-    Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortConfigurationOptionsResponse, std::string>(this, DEVICEIOOPERATION_GETSERIALPORTCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetSerialPortConfigurationOptions"), false),
-    Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortsResponse>(this, DEVICEIOOPERATION_GETSERIALPORTS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetSerialPorts"), false),
-    Signal<DEVICEIOOPERATION, DeviceIOClient, GetServiceCapabilitiesResponse>(this, DEVICEIOOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetServiceCapabilities"), false),
-    Signal<DEVICEIOOPERATION, DeviceIOClient, SetAudioOutputConfigurationResponse, AudioOutputConfiguration, bool>(this, DEVICEIOOPERATION_SETAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetAudioOutputConfiguration"), false),
-    Signal<DEVICEIOOPERATION, DeviceIOClient, SetAudioSourceConfigurationResponse, AudioSourceConfiguration, bool>(this, DEVICEIOOPERATION_SETAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetAudioSourceConfiguration"), false),
-    Signal< DEVICEIOOPERATION, DeviceIOClient, SetDigitalInputConfigurationsResponse, std::vector<DigitalInput> >(this, DEVICEIOOPERATION_SETDIGITALINPUTCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetDigitalInputConfigurations"), false),
-    Signal<DEVICEIOOPERATION, DeviceIOClient, SetRelayOutputSettingsResponse, RelayOutput>(this, DEVICEIOOPERATION_SETRELAYOUTPUTSETTINGS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetRelayOutputSettings"), false),
-    Signal<DEVICEIOOPERATION, DeviceIOClient, SetRelayOutputStateResponse, std::string, RELAYLOGICALSTATE>(this, DEVICEIOOPERATION_SETRELAYOUTPUTSTATE, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetRelayOutputState"), false),
-    Signal<DEVICEIOOPERATION, DeviceIOClient, SetSerialPortConfigurationResponse, SerialPortConfiguration, bool>(this, DEVICEIOOPERATION_SETSERIALPORTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetSerialPortConfiguration"), false)
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputConfigurationResponse, std::string> >(this, DEVICEIOOPERATION_GETAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioOutputConfiguration"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputConfigurationOptionsResponse, std::string> >(this, DEVICEIOOPERATION_GETAUDIOOUTPUTCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioOutputConfigurationOptions"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputsResponse> >(this, DEVICEIOOPERATION_GETAUDIOOUTPUTS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioOutputs"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourceConfigurationResponse, std::string> >(this, DEVICEIOOPERATION_GETAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioSourceConfiguration"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourceConfigurationOptionsResponse, std::string> >(this, DEVICEIOOPERATION_GETAUDIOSOURCECONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioSourceConfigurationOptions"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourcesResponse> >(this, DEVICEIOOPERATION_GETAUDIOSOURCES, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioSources"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetDigitalInputConfigurationOptionsResponse, std::string> >(this, DEVICEIOOPERATION_GETDIGITALINPUTCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetDigitalInputConfigurationOptions"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetDigitalInputsResponse> >(this, DEVICEIOOPERATION_GETDIGITALINPUTS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetDigitalInputs"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetRelayOutputsResponse> >(this, DEVICEIOOPERATION_GETRELAYOUTPUTS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetRelayOutputs"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetRelayOutputOptionsResponse, std::string> >(this, DEVICEIOOPERATION_GETRELAYOUTPUTOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetRelayOutputOptions"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortConfigurationResponse, std::string> >(this, DEVICEIOOPERATION_GETSERIALPORTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetSerialPortConfigurations"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortConfigurationOptionsResponse, std::string> >(this, DEVICEIOOPERATION_GETSERIALPORTCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetSerialPortConfigurationOptions"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortsResponse> >(this, DEVICEIOOPERATION_GETSERIALPORTS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetSerialPorts"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetServiceCapabilitiesResponse> >(this, DEVICEIOOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetServiceCapabilities"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, SetAudioOutputConfigurationResponse, AudioOutputConfiguration, bool> >(this, DEVICEIOOPERATION_SETAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetAudioOutputConfiguration"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, SetAudioSourceConfigurationResponse, AudioSourceConfiguration, bool> >(this, DEVICEIOOPERATION_SETAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetAudioSourceConfiguration"), false),
+    std::make_unique< Signal< DEVICEIOOPERATION, DeviceIOClient, SetDigitalInputConfigurationsResponse, std::vector<DigitalInput> > >(this, DEVICEIOOPERATION_SETDIGITALINPUTCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetDigitalInputConfigurations"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, SetRelayOutputSettingsResponse, RelayOutput> >(this, DEVICEIOOPERATION_SETRELAYOUTPUTSETTINGS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetRelayOutputSettings"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, SetRelayOutputStateResponse, std::string, RELAYLOGICALSTATE> >(this, DEVICEIOOPERATION_SETRELAYOUTPUTSTATE, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetRelayOutputState"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, SetSerialPortConfigurationResponse, SerialPortConfiguration, bool> >(this, DEVICEIOOPERATION_SETSERIALPORTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetSerialPortConfiguration"), false)
   }))
 {
 
@@ -88,429 +88,429 @@ void DeviceIOClient::Destroy()
 {
   Client::Destroy();
 
-  signals_->getaudiooutputconfiguration_.Destroy();
-  signals_->getaudiooutputconfigurationoptions_.Destroy();
-  signals_->getaudiooutputs_.Destroy();
-  signals_->getaudiosourceconfiguration_.Destroy();
-  signals_->getaudiosourceconfigurationoptions_.Destroy();
-  signals_->getaudiosources_.Destroy();
-  signals_->getdigitalinputconfigurationoptions_.Destroy();
-  signals_->getdigitalinputs_.Destroy();
-  signals_->getrelayoutputs_.Destroy();
-  signals_->getrelayoutputoptions_.Destroy();
-  signals_->getserialportconfiguration_.Destroy();
-  signals_->getserialportconfigurationoptions_.Destroy();
-  signals_->getserialports_.Destroy();
-  signals_->setaudiooutputconfiguration_.Destroy();
-  signals_->setaudiosourceconfiguration_.Destroy();
-  signals_->setdigitalinputconfigurations_.Destroy();
-  signals_->setrelayoutputsettings_.Destroy();
-  signals_->setrelayoutputstate_.Destroy();
-  signals_->setserialportconfiguration_.Destroy();
+  signals_->getaudiooutputconfiguration_->Destroy();
+  signals_->getaudiooutputconfigurationoptions_->Destroy();
+  signals_->getaudiooutputs_->Destroy();
+  signals_->getaudiosourceconfiguration_->Destroy();
+  signals_->getaudiosourceconfigurationoptions_->Destroy();
+  signals_->getaudiosources_->Destroy();
+  signals_->getdigitalinputconfigurationoptions_->Destroy();
+  signals_->getdigitalinputs_->Destroy();
+  signals_->getrelayoutputs_->Destroy();
+  signals_->getrelayoutputoptions_->Destroy();
+  signals_->getserialportconfiguration_->Destroy();
+  signals_->getserialportconfigurationoptions_->Destroy();
+  signals_->getserialports_->Destroy();
+  signals_->setaudiooutputconfiguration_->Destroy();
+  signals_->setaudiosourceconfiguration_->Destroy();
+  signals_->setdigitalinputconfigurations_->Destroy();
+  signals_->setrelayoutputsettings_->Destroy();
+  signals_->setrelayoutputstate_->Destroy();
+  signals_->setserialportconfiguration_->Destroy();
 }
 
 // Requests
 void DeviceIOClient::GetAudioOutputConfiguration(const std::string& audiooutputtoken)
 {
-  signals_->getaudiooutputconfiguration_.Create(GetAudioOutputConfigurationBody(audiooutputtoken), audiooutputtoken);
+  signals_->getaudiooutputconfiguration_->Create(GetAudioOutputConfigurationBody(audiooutputtoken), audiooutputtoken);
 }
 
 void DeviceIOClient::GetAudioOutputConfigurationOptions(const std::string& audiooutputtoken)
 {
-  signals_->getaudiooutputconfigurationoptions_.Create(GetAudioOutputConfigurationOptionsBody(audiooutputtoken), audiooutputtoken);
+  signals_->getaudiooutputconfigurationoptions_->Create(GetAudioOutputConfigurationOptionsBody(audiooutputtoken), audiooutputtoken);
 }
 
 void DeviceIOClient::GetAudioOutputs()
 {
-  signals_->getaudiooutputs_.Create(GetAudioOutputsBody());
+  signals_->getaudiooutputs_->Create(GetAudioOutputsBody());
 }
 
 void DeviceIOClient::GetAudioSourceConfiguration(const std::string& audiooutputtoken)
 {
-  signals_->getaudiosourceconfiguration_.Create(GetAudioSourceConfigurationBody(audiooutputtoken), audiooutputtoken);
+  signals_->getaudiosourceconfiguration_->Create(GetAudioSourceConfigurationBody(audiooutputtoken), audiooutputtoken);
 }
 
 void DeviceIOClient::GetAudioSourceConfigurationOptions(const std::string& audiooutputtoken)
 {
-  signals_->getaudiosourceconfigurationoptions_.Create(GetAudioSourceConfigurationOptionsBody(audiooutputtoken), audiooutputtoken);
+  signals_->getaudiosourceconfigurationoptions_->Create(GetAudioSourceConfigurationOptionsBody(audiooutputtoken), audiooutputtoken);
 }
 
 void DeviceIOClient::GetAudioSources()
 {
-  signals_->getaudiosources_.Create(GetAudioSourcesBody());
+  signals_->getaudiosources_->Create(GetAudioSourcesBody());
 }
 
 void DeviceIOClient::GetDigitalInputConfigurationOptions(const std::string& token)
 {
-  signals_->getdigitalinputconfigurationoptions_.Create(GetDigitalInputConfigurationOptionsBody(token), token);
+  signals_->getdigitalinputconfigurationoptions_->Create(GetDigitalInputConfigurationOptionsBody(token), token);
 }
 
 void DeviceIOClient::GetDigitalInputs()
 {
-  signals_->getdigitalinputs_.Create(GetDigitalInputsBody());
+  signals_->getdigitalinputs_->Create(GetDigitalInputsBody());
 }
 
 void DeviceIOClient::GetRelayOutputOptions(const std::string& relayoutputtoken)
 {
-  signals_->getrelayoutputoptions_.Create(GetRelayOutputOptionsBody(relayoutputtoken), relayoutputtoken);
+  signals_->getrelayoutputoptions_->Create(GetRelayOutputOptionsBody(relayoutputtoken), relayoutputtoken);
 }
 
 void DeviceIOClient::GetRelayOutputs()
 {
-  signals_->getrelayoutputs_.Create(GetRelayOutputsBody());
+  signals_->getrelayoutputs_->Create(GetRelayOutputsBody());
 }
 
 void DeviceIOClient::GetSerialPortConfiguration(const std::string& serialporttoken)
 {
-  signals_->getserialportconfiguration_.Create(GetSerialPortConfigurationBody(serialporttoken), serialporttoken);
+  signals_->getserialportconfiguration_->Create(GetSerialPortConfigurationBody(serialporttoken), serialporttoken);
 }
 
 void DeviceIOClient::GetSerialPortConfigurationOptions(const std::string& serialporttoken)
 {
-  signals_->getserialportconfigurationoptions_.Create(GetSerialPortConfigurationOptionsBody(serialporttoken), serialporttoken);
+  signals_->getserialportconfigurationoptions_->Create(GetSerialPortConfigurationOptionsBody(serialporttoken), serialporttoken);
 }
 
 void DeviceIOClient::GetSerialPorts()
 {
-  signals_->getserialports_.Create(GetSerialPortsBody());
+  signals_->getserialports_->Create(GetSerialPortsBody());
 }
 
 void DeviceIOClient::GetServiceCapabilities()
 {
-  signals_->getservicecapabilities_.Create(GetServiceCapabilitiesBody());
+  signals_->getservicecapabilities_->Create(GetServiceCapabilitiesBody());
 }
 
 void DeviceIOClient::SetAudioOutputConfiguration(const AudioOutputConfiguration& configuration, bool forcepersistence)
 {
-  signals_->setaudiooutputconfiguration_.Create(SetAudioOutputConfigurationBody(configuration, forcepersistence), configuration, forcepersistence);
+  signals_->setaudiooutputconfiguration_->Create(SetAudioOutputConfigurationBody(configuration, forcepersistence), configuration, forcepersistence);
 }
 
 void DeviceIOClient::SetAudioSourceConfiguration(const AudioSourceConfiguration& configuration, bool forcepersistence)
 {
-  signals_->setaudiosourceconfiguration_.Create(SetAudioSourceConfigurationBody(configuration, forcepersistence), configuration, forcepersistence);
+  signals_->setaudiosourceconfiguration_->Create(SetAudioSourceConfigurationBody(configuration, forcepersistence), configuration, forcepersistence);
 }
 
 void DeviceIOClient::SetDigitalInputConfigurations(const std::vector<DigitalInput>& digitalinputs)
 {
-  signals_->setdigitalinputconfigurations_.Create(SetDigitalInputConfigurationsBody(digitalinputs), digitalinputs);
+  signals_->setdigitalinputconfigurations_->Create(SetDigitalInputConfigurationsBody(digitalinputs), digitalinputs);
 }
 
 void DeviceIOClient::SetRelayOutputSettings(const RelayOutput& relayoutput)
 {
-  signals_->setrelayoutputsettings_.Create(SetRelayOutputSettingsBody(relayoutput), relayoutput);
+  signals_->setrelayoutputsettings_->Create(SetRelayOutputSettingsBody(relayoutput), relayoutput);
 }
 
 void DeviceIOClient::SetRelayOutputState(const std::string& relayoutputtoken, RELAYLOGICALSTATE logicalstate)
 {
-  signals_->setrelayoutputstate_.Create(SetRelayOutputStateBody(relayoutputtoken, logicalstate), relayoutputtoken, logicalstate);
+  signals_->setrelayoutputstate_->Create(SetRelayOutputStateBody(relayoutputtoken, logicalstate), relayoutputtoken, logicalstate);
 }
 
 void DeviceIOClient::SetSerialPortConfiguration(const SerialPortConfiguration& serialportconfiguration, bool forcepersistence)
 {
-  signals_->setserialportconfiguration_.Create(SetSerialPortConfigurationBody(serialportconfiguration, forcepersistence), serialportconfiguration, forcepersistence);
+  signals_->setserialportconfiguration_->Create(SetSerialPortConfigurationBody(serialportconfiguration, forcepersistence), serialportconfiguration, forcepersistence);
 }
 
 // Callbacks
 Connection DeviceIOClient::GetAudioOutputConfigurationCallback(const std::string& audiooutputtoken, boost::function<void(const GetAudioOutputConfigurationResponse&)> callback)
 {
-  return signals_->getaudiooutputconfiguration_.CreateCallback(GetAudioOutputConfigurationBody(audiooutputtoken), callback, audiooutputtoken);
+  return signals_->getaudiooutputconfiguration_->CreateCallback(GetAudioOutputConfigurationBody(audiooutputtoken), callback, audiooutputtoken);
 }
 
 Connection DeviceIOClient::GetAudioOutputConfigurationOptionsCallback(const std::string& audiooutputtoken, boost::function<void(const GetAudioOutputConfigurationOptionsResponse&)> callback)
 {
-  return signals_->getaudiooutputconfigurationoptions_.CreateCallback(GetAudioOutputConfigurationOptionsBody(audiooutputtoken), callback, audiooutputtoken);
+  return signals_->getaudiooutputconfigurationoptions_->CreateCallback(GetAudioOutputConfigurationOptionsBody(audiooutputtoken), callback, audiooutputtoken);
 }
 
 Connection DeviceIOClient::GetAudioOutputsCallback(boost::function<void(const GetAudioOutputsResponse&)> callback)
 {
-  return signals_->getaudiooutputs_.CreateCallback(GetAudioOutputsBody(), callback);
+  return signals_->getaudiooutputs_->CreateCallback(GetAudioOutputsBody(), callback);
 }
 
 Connection DeviceIOClient::GetAudioSourceConfigurationCallback(const std::string& audiooutputtoken, boost::function<void(const GetAudioSourceConfigurationResponse&)> callback)
 {
-  return signals_->getaudiosourceconfiguration_.CreateCallback(GetAudioSourceConfigurationBody(audiooutputtoken), callback, audiooutputtoken);
+  return signals_->getaudiosourceconfiguration_->CreateCallback(GetAudioSourceConfigurationBody(audiooutputtoken), callback, audiooutputtoken);
 }
 
 Connection DeviceIOClient::GetAudioSourceConfigurationOptionsCallback(const std::string& audiooutputtoken, boost::function<void(const GetAudioSourceConfigurationOptionsResponse&)> callback)
 {
-  return signals_->getaudiosourceconfigurationoptions_.CreateCallback(GetAudioSourceConfigurationOptionsBody(audiooutputtoken), callback, audiooutputtoken);
+  return signals_->getaudiosourceconfigurationoptions_->CreateCallback(GetAudioSourceConfigurationOptionsBody(audiooutputtoken), callback, audiooutputtoken);
 }
 
 Connection DeviceIOClient::GetAudioSourcesCallback(boost::function<void(const GetAudioSourcesResponse&)> callback)
 {
-  return signals_->getaudiosources_.CreateCallback(GetAudioSourcesBody(), callback);
+  return signals_->getaudiosources_->CreateCallback(GetAudioSourcesBody(), callback);
 }
 
 Connection DeviceIOClient::GetDigitalInputConfigurationOptionsCallback(const std::string& token, boost::function<void(const GetDigitalInputConfigurationOptionsResponse&)> callback)
 {
-  return signals_->getdigitalinputconfigurationoptions_.CreateCallback(GetDigitalInputConfigurationOptionsBody(token), callback, token);
+  return signals_->getdigitalinputconfigurationoptions_->CreateCallback(GetDigitalInputConfigurationOptionsBody(token), callback, token);
 }
 
 Connection DeviceIOClient::GetDigitalInputsCallback(boost::function<void(const GetDigitalInputsResponse&)> callback)
 {
-  return signals_->getdigitalinputs_.CreateCallback(GetDigitalInputsBody(), callback);
+  return signals_->getdigitalinputs_->CreateCallback(GetDigitalInputsBody(), callback);
 }
 
 Connection DeviceIOClient::GetRelayOutputOptionsCallback(const std::string& relayoutputtoken, boost::function<void(const GetRelayOutputOptionsResponse&)> callback)
 {
-  return signals_->getrelayoutputoptions_.CreateCallback(GetRelayOutputOptionsBody(relayoutputtoken), callback, relayoutputtoken);
+  return signals_->getrelayoutputoptions_->CreateCallback(GetRelayOutputOptionsBody(relayoutputtoken), callback, relayoutputtoken);
 }
 
 Connection DeviceIOClient::GetRelayOutputsCallback(boost::function<void(const GetRelayOutputsResponse&)> callback)
 {
-  return signals_->getrelayoutputs_.CreateCallback(GetRelayOutputsBody(), callback);
+  return signals_->getrelayoutputs_->CreateCallback(GetRelayOutputsBody(), callback);
 }
 
 Connection DeviceIOClient::GetSerialPortConfigurationCallback(const std::string& serialporttoken, boost::function<void(const GetSerialPortConfigurationResponse&)> callback)
 {
-  return signals_->getserialportconfiguration_.CreateCallback(GetSerialPortConfigurationBody(serialporttoken), callback, serialporttoken);
+  return signals_->getserialportconfiguration_->CreateCallback(GetSerialPortConfigurationBody(serialporttoken), callback, serialporttoken);
 }
 
 Connection DeviceIOClient::GetSerialPortConfigurationOptionsCallback(const std::string& serialporttoken, boost::function<void(const GetSerialPortConfigurationOptionsResponse&)> callback)
 {
-  return signals_->getserialportconfigurationoptions_.CreateCallback(GetSerialPortConfigurationOptionsBody(serialporttoken), callback, serialporttoken);
+  return signals_->getserialportconfigurationoptions_->CreateCallback(GetSerialPortConfigurationOptionsBody(serialporttoken), callback, serialporttoken);
 }
 
 Connection DeviceIOClient::GetSerialPortsCallback(boost::function<void(const GetSerialPortsResponse&)> callback)
 {
-  return signals_->getserialports_.CreateCallback(GetSerialPortsBody(), callback);
+  return signals_->getserialports_->CreateCallback(GetSerialPortsBody(), callback);
 }
 
 Connection DeviceIOClient::GetServiceCapabilitiesCallback(boost::function<void(const GetServiceCapabilitiesResponse&)> callback)
 {
-  return signals_->getservicecapabilities_.CreateCallback(GetServiceCapabilitiesBody(), callback);
+  return signals_->getservicecapabilities_->CreateCallback(GetServiceCapabilitiesBody(), callback);
 }
 
 Connection DeviceIOClient::SetAudioOutputConfigurationCallback(const AudioOutputConfiguration& configuration, bool forcepersistence, boost::function<void(const SetAudioOutputConfigurationResponse&)> callback)
 {
-  return signals_->setaudiooutputconfiguration_.CreateCallback(SetAudioOutputConfigurationBody(configuration, forcepersistence), callback, configuration, forcepersistence);
+  return signals_->setaudiooutputconfiguration_->CreateCallback(SetAudioOutputConfigurationBody(configuration, forcepersistence), callback, configuration, forcepersistence);
 }
 
 Connection DeviceIOClient::SetAudioSourceConfigurationCallback(const AudioSourceConfiguration& configuration, bool forcepersistence, boost::function<void(const SetAudioSourceConfigurationResponse&)> callback)
 {
-  return signals_->setaudiosourceconfiguration_.CreateCallback(SetAudioSourceConfigurationBody(configuration, forcepersistence), callback, configuration, forcepersistence);
+  return signals_->setaudiosourceconfiguration_->CreateCallback(SetAudioSourceConfigurationBody(configuration, forcepersistence), callback, configuration, forcepersistence);
 }
 
 Connection DeviceIOClient::SetDigitalInputConfigurationsCallback(const std::vector<DigitalInput>& digitalinputs, boost::function<void(const SetDigitalInputConfigurationsResponse&)> callback)
 {
-  return signals_->setdigitalinputconfigurations_.CreateCallback(SetDigitalInputConfigurationsBody(digitalinputs), callback, digitalinputs);
+  return signals_->setdigitalinputconfigurations_->CreateCallback(SetDigitalInputConfigurationsBody(digitalinputs), callback, digitalinputs);
 }
 
 Connection DeviceIOClient::SetRelayOutputSettingsCallback(const RelayOutput& relayoutput, boost::function<void(const SetRelayOutputSettingsResponse&)> callback)
 {
-  return signals_->setrelayoutputsettings_.CreateCallback(SetRelayOutputSettingsBody(relayoutput), callback, relayoutput);
+  return signals_->setrelayoutputsettings_->CreateCallback(SetRelayOutputSettingsBody(relayoutput), callback, relayoutput);
 }
 
 Connection DeviceIOClient::SetRelayOutputStateCallback(const std::string& relayoutputtoken, RELAYLOGICALSTATE logicalstate, boost::function<void(const SetRelayOutputStateResponse&)> callback)
 {
-  return signals_->setrelayoutputstate_.CreateCallback(SetRelayOutputStateBody(relayoutputtoken, logicalstate), callback, relayoutputtoken, logicalstate);
+  return signals_->setrelayoutputstate_->CreateCallback(SetRelayOutputStateBody(relayoutputtoken, logicalstate), callback, relayoutputtoken, logicalstate);
 }
 
 Connection DeviceIOClient::SetSerialPortConfigurationCallback(const SerialPortConfiguration& serialportconfiguration, bool forcepersistence, boost::function<void(const SetSerialPortConfigurationResponse&)> callback)
 {
-  return signals_->setserialportconfiguration_.CreateCallback(SetSerialPortConfigurationBody(serialportconfiguration, forcepersistence), callback, serialportconfiguration, forcepersistence);
+  return signals_->setserialportconfiguration_->CreateCallback(SetSerialPortConfigurationBody(serialportconfiguration, forcepersistence), callback, serialportconfiguration, forcepersistence);
 }
 
 // Futures
 boost::unique_future<GetAudioOutputConfigurationResponse> DeviceIOClient::GetAudioOutputConfigurationFuture(const std::string& audiooutputtoken)
 {
-  return signals_->getaudiooutputconfiguration_.CreateFuture(GetAudioOutputConfigurationBody(audiooutputtoken), audiooutputtoken);
+  return signals_->getaudiooutputconfiguration_->CreateFuture(GetAudioOutputConfigurationBody(audiooutputtoken), audiooutputtoken);
 }
 
 boost::unique_future<GetAudioOutputConfigurationOptionsResponse> DeviceIOClient::GetAudioOutputConfigurationOptionsFuture(const std::string& audiooutputtoken)
 {
-  return signals_->getaudiooutputconfigurationoptions_.CreateFuture(GetAudioOutputConfigurationOptionsBody(audiooutputtoken), audiooutputtoken);
+  return signals_->getaudiooutputconfigurationoptions_->CreateFuture(GetAudioOutputConfigurationOptionsBody(audiooutputtoken), audiooutputtoken);
 }
 
 boost::unique_future<GetAudioOutputsResponse> DeviceIOClient::GetAudioOutputsFuture()
 {
-  return signals_->getaudiooutputs_.CreateFuture(GetAudioOutputsBody());
+  return signals_->getaudiooutputs_->CreateFuture(GetAudioOutputsBody());
 }
 
 boost::unique_future<GetAudioSourceConfigurationResponse> DeviceIOClient::GetAudioSourceConfigurationFuture(const std::string& audiooutputtoken)
 {
-  return signals_->getaudiosourceconfiguration_.CreateFuture(GetAudioSourceConfigurationBody(audiooutputtoken), audiooutputtoken);
+  return signals_->getaudiosourceconfiguration_->CreateFuture(GetAudioSourceConfigurationBody(audiooutputtoken), audiooutputtoken);
 }
 
 boost::unique_future<GetAudioSourceConfigurationOptionsResponse> DeviceIOClient::GetAudioSourceConfigurationOptionsFuture(const std::string& audiooutputtoken)
 {
-  return signals_->getaudiosourceconfigurationoptions_.CreateFuture(GetAudioSourceConfigurationOptionsBody(audiooutputtoken), audiooutputtoken);
+  return signals_->getaudiosourceconfigurationoptions_->CreateFuture(GetAudioSourceConfigurationOptionsBody(audiooutputtoken), audiooutputtoken);
 }
 
 boost::unique_future<GetAudioSourcesResponse> DeviceIOClient::GetAudioSourcesFuture()
 {
-  return signals_->getaudiosources_.CreateFuture(GetAudioSourcesBody());
+  return signals_->getaudiosources_->CreateFuture(GetAudioSourcesBody());
 }
 
 boost::unique_future<GetDigitalInputConfigurationOptionsResponse> DeviceIOClient::GetDigitalInputConfigurationOptionsFuture(const std::string& token)
 {
-  return signals_->getdigitalinputconfigurationoptions_.CreateFuture(GetDigitalInputConfigurationOptionsBody(token), token);
+  return signals_->getdigitalinputconfigurationoptions_->CreateFuture(GetDigitalInputConfigurationOptionsBody(token), token);
 }
 
 boost::unique_future<GetDigitalInputsResponse> DeviceIOClient::GetDigitalInputsFuture()
 {
-  return signals_->getdigitalinputs_.CreateFuture(GetDigitalInputsBody());
+  return signals_->getdigitalinputs_->CreateFuture(GetDigitalInputsBody());
 }
 
 boost::unique_future<GetRelayOutputOptionsResponse> DeviceIOClient::GetRelayOutputOptionsFuture(const std::string& relayoutputtoken)
 {
-  return signals_->getrelayoutputoptions_.CreateFuture(GetRelayOutputOptionsBody(relayoutputtoken), relayoutputtoken);
+  return signals_->getrelayoutputoptions_->CreateFuture(GetRelayOutputOptionsBody(relayoutputtoken), relayoutputtoken);
 }
 
 boost::unique_future<GetRelayOutputsResponse> DeviceIOClient::GetRelayOutputsFuture()
 {
-  return signals_->getrelayoutputs_.CreateFuture(GetRelayOutputsBody());
+  return signals_->getrelayoutputs_->CreateFuture(GetRelayOutputsBody());
 }
 
 boost::unique_future<GetSerialPortConfigurationResponse> DeviceIOClient::GetSerialPortConfigurationFuture(const std::string& serialporttoken)
 {
-  return signals_->getserialportconfiguration_.CreateFuture(GetSerialPortConfigurationBody(serialporttoken), serialporttoken);
+  return signals_->getserialportconfiguration_->CreateFuture(GetSerialPortConfigurationBody(serialporttoken), serialporttoken);
 }
 
 boost::unique_future<GetSerialPortConfigurationOptionsResponse> DeviceIOClient::GetSerialPortConfigurationOptionsFuture(const std::string& serialporttoken)
 {
-  return signals_->getserialportconfigurationoptions_.CreateFuture(GetSerialPortConfigurationOptionsBody(serialporttoken), serialporttoken);
+  return signals_->getserialportconfigurationoptions_->CreateFuture(GetSerialPortConfigurationOptionsBody(serialporttoken), serialporttoken);
 }
 
 boost::unique_future<GetSerialPortsResponse> DeviceIOClient::GetSerialPortsFuture()
 {
-  return signals_->getserialports_.CreateFuture(GetSerialPortsBody());
+  return signals_->getserialports_->CreateFuture(GetSerialPortsBody());
 }
 
 boost::unique_future<GetServiceCapabilitiesResponse> DeviceIOClient::GetServiceCapabilitiesFuture()
 {
-  return signals_->getservicecapabilities_.CreateFuture(GetServiceCapabilitiesBody());
+  return signals_->getservicecapabilities_->CreateFuture(GetServiceCapabilitiesBody());
 }
 
 boost::unique_future<SetAudioOutputConfigurationResponse> DeviceIOClient::SetAudioOutputConfigurationFuture(const AudioOutputConfiguration& configuration, bool forcepersistence)
 {
-  return signals_->setaudiooutputconfiguration_.CreateFuture(SetAudioOutputConfigurationBody(configuration, forcepersistence), configuration, forcepersistence);
+  return signals_->setaudiooutputconfiguration_->CreateFuture(SetAudioOutputConfigurationBody(configuration, forcepersistence), configuration, forcepersistence);
 }
 
 boost::unique_future<SetAudioSourceConfigurationResponse> DeviceIOClient::SetAudioSourceConfigurationFuture(const AudioSourceConfiguration& configuration, bool forcepersistence)
 {
-  return signals_->setaudiosourceconfiguration_.CreateFuture(SetAudioSourceConfigurationBody(configuration, forcepersistence), configuration, forcepersistence);
+  return signals_->setaudiosourceconfiguration_->CreateFuture(SetAudioSourceConfigurationBody(configuration, forcepersistence), configuration, forcepersistence);
 }
 
 boost::unique_future<SetDigitalInputConfigurationsResponse> DeviceIOClient::SetDigitalInputConfigurationsFuture(const std::vector<DigitalInput>& digitalinputs)
 {
-  return signals_->setdigitalinputconfigurations_.CreateFuture(SetDigitalInputConfigurationsBody(digitalinputs), digitalinputs);
+  return signals_->setdigitalinputconfigurations_->CreateFuture(SetDigitalInputConfigurationsBody(digitalinputs), digitalinputs);
 }
 
 boost::unique_future<SetRelayOutputSettingsResponse> DeviceIOClient::SetRelayOutputSettingsFuture(const RelayOutput& relayoutput)
 {
-  return signals_->setrelayoutputsettings_.CreateFuture(SetRelayOutputSettingsBody(relayoutput), relayoutput);
+  return signals_->setrelayoutputsettings_->CreateFuture(SetRelayOutputSettingsBody(relayoutput), relayoutput);
 }
 
 boost::unique_future<SetRelayOutputStateResponse> DeviceIOClient::SetRelayOutputStateFuture(const std::string& relayoutputtoken, RELAYLOGICALSTATE logicalstate)
 {
-  return signals_->setrelayoutputstate_.CreateFuture(SetRelayOutputStateBody(relayoutputtoken, logicalstate), relayoutputtoken, logicalstate);
+  return signals_->setrelayoutputstate_->CreateFuture(SetRelayOutputStateBody(relayoutputtoken, logicalstate), relayoutputtoken, logicalstate);
 }
 
 boost::unique_future<SetSerialPortConfigurationResponse> DeviceIOClient::SetSerialPortConfigurationFuture(const SerialPortConfiguration& serialportconfiguration, bool forcepersistence)
 {
-  return signals_->setserialportconfiguration_.CreateFuture(SetSerialPortConfigurationBody(serialportconfiguration, forcepersistence), serialportconfiguration, forcepersistence);
+  return signals_->setserialportconfiguration_->CreateFuture(SetSerialPortConfigurationBody(serialportconfiguration, forcepersistence), serialportconfiguration, forcepersistence);
 }
 
 // Signals
 boost::signals2::signal<void(const GetAudioOutputConfigurationResponse&)>& DeviceIOClient::GetAudioOutputConfigurationSignal()
 {
-  return signals_->getaudiooutputconfiguration_.GetSignal();
+  return signals_->getaudiooutputconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetAudioOutputConfigurationOptionsResponse&)>& DeviceIOClient::GetAudioOutputConfigurationOptionsSignal()
 {
-  return signals_->getaudiooutputconfigurationoptions_.GetSignal();
+  return signals_->getaudiooutputconfigurationoptions_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetAudioOutputsResponse&)>& DeviceIOClient::GetAudioOutputsSignal()
 {
-  return signals_->getaudiooutputs_.GetSignal();
+  return signals_->getaudiooutputs_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetAudioSourceConfigurationResponse&)>& DeviceIOClient::GetAudioSourceConfigurationSignal()
 {
-  return signals_->getaudiosourceconfiguration_.GetSignal();
+  return signals_->getaudiosourceconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetAudioSourceConfigurationOptionsResponse&)>& DeviceIOClient::GetAudioSourceConfigurationOptionsSignal()
 {
-  return signals_->getaudiosourceconfigurationoptions_.GetSignal();
+  return signals_->getaudiosourceconfigurationoptions_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetAudioSourcesResponse&)>& DeviceIOClient::GetAudioSourcesSignal()
 {
-  return signals_->getaudiosources_.GetSignal();
+  return signals_->getaudiosources_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetDigitalInputConfigurationOptionsResponse&)>& DeviceIOClient::GetDigitalInputConfigurationOptionsSignal()
 {
-  return signals_->getdigitalinputconfigurationoptions_.GetSignal();
+  return signals_->getdigitalinputconfigurationoptions_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetDigitalInputsResponse&)>& DeviceIOClient::GetDigitalInputsSignal()
 {
-  return signals_->getdigitalinputs_.GetSignal();
+  return signals_->getdigitalinputs_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetRelayOutputsResponse&)>& DeviceIOClient::GetRelayOutputsSignal()
 {
-  return signals_->getrelayoutputs_.GetSignal();
+  return signals_->getrelayoutputs_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetRelayOutputOptionsResponse&)>& DeviceIOClient::GetRelayOutputOptionsSignal()
 {
-  return signals_->getrelayoutputoptions_.GetSignal();
+  return signals_->getrelayoutputoptions_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetSerialPortConfigurationResponse&)>& DeviceIOClient::GetSerialPortConfigurationSignal()
 {
-  return signals_->getserialportconfiguration_.GetSignal();
+  return signals_->getserialportconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetSerialPortConfigurationOptionsResponse&)>& DeviceIOClient::GetSerialPortConfigurationOptionsSignal()
 {
-  return signals_->getserialportconfigurationoptions_.GetSignal();
+  return signals_->getserialportconfigurationoptions_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetSerialPortsResponse&)>& DeviceIOClient::GetSerialPortsSignal()
 {
-  return signals_->getserialports_.GetSignal();
+  return signals_->getserialports_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetServiceCapabilitiesResponse&)>& DeviceIOClient::GetServiceCapabilitiesSignal()
 {
-  return signals_->getservicecapabilities_.GetSignal();
+  return signals_->getservicecapabilities_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetAudioOutputConfigurationResponse&)>& DeviceIOClient::SetAudioOutputConfigurationSignal()
 {
-  return signals_->setaudiooutputconfiguration_.GetSignal();
+  return signals_->setaudiooutputconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetAudioSourceConfigurationResponse&)>& DeviceIOClient::SetAudioSourceConfigurationSignal()
 {
-  return signals_->setaudiosourceconfiguration_.GetSignal();
+  return signals_->setaudiosourceconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetDigitalInputConfigurationsResponse&)>& DeviceIOClient::SetDigitalInputConfigurationsSignal()
 {
-  return signals_->setdigitalinputconfigurations_.GetSignal();
+  return signals_->setdigitalinputconfigurations_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetRelayOutputSettingsResponse&)>& DeviceIOClient::SetRelayOutputSettingsSignal()
 {
-  return signals_->setrelayoutputsettings_.GetSignal();
+  return signals_->setrelayoutputsettings_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetRelayOutputStateResponse&)>& DeviceIOClient::SetRelayOutputStateSignal()
 {
-  return signals_->setrelayoutputstate_.GetSignal();
+  return signals_->setrelayoutputstate_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetSerialPortConfigurationResponse&)>& DeviceIOClient::SetSerialPortConfigurationSignal()
 {
-  return signals_->setserialportconfiguration_.GetSignal();
+  return signals_->setserialportconfiguration_->GetSignal();
 }
 
 void DeviceIOClient::Update(DEVICEIOOPERATION operation, CURL* handle, const boost::asio::ip::address& localendpoint, int64_t latency, const pugi::xml_document& document, const std::map< std::string, std::vector<char> >& mtomdata)
@@ -526,7 +526,7 @@ void DeviceIOClient::Update(DEVICEIOOPERATION operation, CURL* handle, const boo
         break;
       }
 
-      signals_->getaudiooutputconfiguration_.Emit(handle, localendpoint, latency, std::string(), GetClass<AudioOutputConfiguration>(getaudiooutputconfigurationresponse, "*[local-name()='AudioOutputConfiguration']"));
+      signals_->getaudiooutputconfiguration_->Emit(handle, localendpoint, latency, std::string(), GetClass<AudioOutputConfiguration>(getaudiooutputconfigurationresponse, "*[local-name()='AudioOutputConfiguration']"));
       break;
     }
     case DEVICEIOOPERATION_GETAUDIOOUTPUTCONFIGURATIONOPTIONS:
@@ -538,7 +538,7 @@ void DeviceIOClient::Update(DEVICEIOOPERATION operation, CURL* handle, const boo
         break;
       }
 
-      signals_->getaudiooutputconfigurationoptions_.Emit(handle, localendpoint, latency, std::string(), GetClass<AudioOutputConfigurationOptions>(getaudiooutputconfigurationoptionsresponse, "*[local-name()='AudioOutputOptions']"));
+      signals_->getaudiooutputconfigurationoptions_->Emit(handle, localendpoint, latency, std::string(), GetClass<AudioOutputConfigurationOptions>(getaudiooutputconfigurationoptionsresponse, "*[local-name()='AudioOutputOptions']"));
       break;
     }
     case DEVICEIOOPERATION_GETAUDIOOUTPUTS:
@@ -557,7 +557,7 @@ void DeviceIOClient::Update(DEVICEIOOPERATION operation, CURL* handle, const boo
 
       }
 
-      signals_->getaudiooutputs_.Emit(handle, localendpoint, latency, std::string(), tokens);
+      signals_->getaudiooutputs_->Emit(handle, localendpoint, latency, std::string(), tokens);
       break;
     }
     case DEVICEIOOPERATION_GETAUDIOSOURCECONFIGURATION:
@@ -569,7 +569,7 @@ void DeviceIOClient::Update(DEVICEIOOPERATION operation, CURL* handle, const boo
         break;
       }
 
-      signals_->getaudiosourceconfiguration_.Emit(handle, localendpoint, latency, std::string(), GetClass<AudioSourceConfiguration>(getaudiosourceconfigurationresponse, "*[local-name()='AudioSourceConfiguration']"));
+      signals_->getaudiosourceconfiguration_->Emit(handle, localendpoint, latency, std::string(), GetClass<AudioSourceConfiguration>(getaudiosourceconfigurationresponse, "*[local-name()='AudioSourceConfiguration']"));
       break;
     }
     case DEVICEIOOPERATION_GETAUDIOSOURCECONFIGURATIONOPTIONS:
@@ -581,7 +581,7 @@ void DeviceIOClient::Update(DEVICEIOOPERATION operation, CURL* handle, const boo
         break;
       }
 
-      signals_->getaudiosourceconfigurationoptions_.Emit(handle, localendpoint, latency, std::string(), GetClass<AudioSourceConfigurationOptions>(getaudiosourceconfigurationoptionsresponse, "*[local-name()='AudioSourceOptions']"));
+      signals_->getaudiosourceconfigurationoptions_->Emit(handle, localendpoint, latency, std::string(), GetClass<AudioSourceConfigurationOptions>(getaudiosourceconfigurationoptionsresponse, "*[local-name()='AudioSourceOptions']"));
       break;
     }
     case DEVICEIOOPERATION_GETAUDIOSOURCES:
@@ -600,7 +600,7 @@ void DeviceIOClient::Update(DEVICEIOOPERATION operation, CURL* handle, const boo
 
       }
 
-      signals_->getaudiosources_.Emit(handle, localendpoint, latency, std::string(), tokens);
+      signals_->getaudiosources_->Emit(handle, localendpoint, latency, std::string(), tokens);
       break;
     }
     case DEVICEIOOPERATION_GETDIGITALINPUTCONFIGURATIONOPTIONS:
@@ -623,7 +623,7 @@ void DeviceIOClient::Update(DEVICEIOOPERATION operation, CURL* handle, const boo
         }
       }
 
-      signals_->getdigitalinputconfigurationoptions_.Emit(handle, localendpoint, latency, std::string(), idlestates);
+      signals_->getdigitalinputconfigurationoptions_->Emit(handle, localendpoint, latency, std::string(), idlestates);
       break;
     }
     case DEVICEIOOPERATION_GETDIGITALINPUTS:
@@ -642,7 +642,7 @@ void DeviceIOClient::Update(DEVICEIOOPERATION operation, CURL* handle, const boo
 
       }
 
-      signals_->getdigitalinputs_.Emit(handle, localendpoint, latency, std::string(), digitalinputs);
+      signals_->getdigitalinputs_->Emit(handle, localendpoint, latency, std::string(), digitalinputs);
       break;
     }
     case DEVICEIOOPERATION_GETRELAYOUTPUTOPTIONS:
@@ -661,7 +661,7 @@ void DeviceIOClient::Update(DEVICEIOOPERATION operation, CURL* handle, const boo
 
       }
 
-      signals_->getrelayoutputoptions_.Emit(handle, localendpoint, latency, std::string(), relayoutputoptions);
+      signals_->getrelayoutputoptions_->Emit(handle, localendpoint, latency, std::string(), relayoutputoptions);
       break;
     }
     case DEVICEIOOPERATION_GETRELAYOUTPUTS:
@@ -680,7 +680,7 @@ void DeviceIOClient::Update(DEVICEIOOPERATION operation, CURL* handle, const boo
 
       }
 
-      signals_->getrelayoutputs_.Emit(handle, localendpoint, latency, std::string(), relayoutputs);
+      signals_->getrelayoutputs_->Emit(handle, localendpoint, latency, std::string(), relayoutputs);
       break;
     }
     case DEVICEIOOPERATION_GETSERIALPORTCONFIGURATION:
@@ -692,7 +692,7 @@ void DeviceIOClient::Update(DEVICEIOOPERATION operation, CURL* handle, const boo
         break;
       }
 
-      signals_->getserialportconfiguration_.Emit(handle, localendpoint, latency, std::string(), GetClass<SerialPortConfiguration>(getserialportconfigurationresponse, "*[local-name()='SerialPortConfiguration']"));
+      signals_->getserialportconfiguration_->Emit(handle, localendpoint, latency, std::string(), GetClass<SerialPortConfiguration>(getserialportconfigurationresponse, "*[local-name()='SerialPortConfiguration']"));
       break;
     }
     case DEVICEIOOPERATION_GETSERIALPORTCONFIGURATIONOPTIONS:
@@ -704,7 +704,7 @@ void DeviceIOClient::Update(DEVICEIOOPERATION operation, CURL* handle, const boo
         break;
       }
 
-      signals_->getserialportconfigurationoptions_.Emit(handle, localendpoint, latency, std::string(), GetClass<SerialPortConfigurationOptions>(getserialportconfigurationoptionsresponse, "*[local-name()='SerialPortOptions']"));
+      signals_->getserialportconfigurationoptions_->Emit(handle, localendpoint, latency, std::string(), GetClass<SerialPortConfigurationOptions>(getserialportconfigurationoptionsresponse, "*[local-name()='SerialPortOptions']"));
       break;
     }
     case DEVICEIOOPERATION_GETSERIALPORTS:
@@ -723,7 +723,7 @@ void DeviceIOClient::Update(DEVICEIOOPERATION operation, CURL* handle, const boo
 
       }
 
-      signals_->getserialports_.Emit(handle, localendpoint, latency, std::string(), serialports);
+      signals_->getserialports_->Emit(handle, localendpoint, latency, std::string(), serialports);
       break;
     }
     case DEVICEIOOPERATION_GETSERVICECAPABILITIES:
@@ -735,7 +735,7 @@ void DeviceIOClient::Update(DEVICEIOOPERATION operation, CURL* handle, const boo
         break;
       }
 
-      signals_->getservicecapabilities_.Emit(handle, localendpoint, latency, std::string(), GetClass<Capabilities>(getservicecapabilitiesresponse, "*[local-name()='Capabilities']"));
+      signals_->getservicecapabilities_->Emit(handle, localendpoint, latency, std::string(), GetClass<Capabilities>(getservicecapabilitiesresponse, "*[local-name()='Capabilities']"));
       break;
     }
     case DEVICEIOOPERATION_SETAUDIOOUTPUTCONFIGURATION:
@@ -747,7 +747,7 @@ void DeviceIOClient::Update(DEVICEIOOPERATION operation, CURL* handle, const boo
         break;
       }
 
-      signals_->setaudiooutputconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setaudiooutputconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEIOOPERATION_SETAUDIOSOURCECONFIGURATION:
@@ -759,7 +759,7 @@ void DeviceIOClient::Update(DEVICEIOOPERATION operation, CURL* handle, const boo
         break;
       }
 
-      signals_->setaudiosourceconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setaudiosourceconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEIOOPERATION_SETDIGITALINPUTCONFIGURATIONS:
@@ -771,7 +771,7 @@ void DeviceIOClient::Update(DEVICEIOOPERATION operation, CURL* handle, const boo
         break;
       }
 
-      signals_->setdigitalinputconfigurations_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setdigitalinputconfigurations_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEIOOPERATION_SETRELAYOUTPUTSETTINGS:
@@ -783,7 +783,7 @@ void DeviceIOClient::Update(DEVICEIOOPERATION operation, CURL* handle, const boo
         break;
       }
 
-      signals_->setrelayoutputsettings_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setrelayoutputsettings_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEIOOPERATION_SETRELAYOUTPUTSTATE:
@@ -795,7 +795,7 @@ void DeviceIOClient::Update(DEVICEIOOPERATION operation, CURL* handle, const boo
         break;
       }
 
-      signals_->setrelayoutputstate_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setrelayoutputstate_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case DEVICEIOOPERATION_SETSERIALPORTCONFIGURATION:
@@ -807,7 +807,7 @@ void DeviceIOClient::Update(DEVICEIOOPERATION operation, CURL* handle, const boo
         break;
       }
 
-      signals_->setserialportconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setserialportconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     default:
@@ -824,102 +824,102 @@ void DeviceIOClient::SignalError(DEVICEIOOPERATION operation, CURL* handle, cons
   {
     case DEVICEIOOPERATION_GETAUDIOOUTPUTCONFIGURATION:
     {
-      signals_->getaudiooutputconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->getaudiooutputconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEIOOPERATION_GETAUDIOOUTPUTCONFIGURATIONOPTIONS:
     {
-      signals_->getaudiooutputconfigurationoptions_.Emit(handle, localendpoint, latency, message);
+      signals_->getaudiooutputconfigurationoptions_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEIOOPERATION_GETAUDIOOUTPUTS:
     {
-      signals_->getaudiooutputs_.Emit(handle, localendpoint, latency, message);
+      signals_->getaudiooutputs_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEIOOPERATION_GETAUDIOSOURCECONFIGURATION:
     {
-      signals_->getaudiosourceconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->getaudiosourceconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEIOOPERATION_GETAUDIOSOURCECONFIGURATIONOPTIONS:
     {
-      signals_->getaudiosourceconfigurationoptions_.Emit(handle, localendpoint, latency, message);
+      signals_->getaudiosourceconfigurationoptions_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEIOOPERATION_GETAUDIOSOURCES:
     {
-      signals_->getaudiosources_.Emit(handle, localendpoint, latency, message);
+      signals_->getaudiosources_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEIOOPERATION_GETDIGITALINPUTS:
     {
-      signals_->getdigitalinputs_.Emit(handle, localendpoint, latency, message);
+      signals_->getdigitalinputs_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEIOOPERATION_GETDIGITALINPUTCONFIGURATIONOPTIONS:
     {
-      signals_->getdigitalinputconfigurationoptions_.Emit(handle, localendpoint, latency, message);
+      signals_->getdigitalinputconfigurationoptions_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEIOOPERATION_GETRELAYOUTPUTOPTIONS:
     {
-      signals_->getrelayoutputoptions_.Emit(handle, localendpoint, latency, message);
+      signals_->getrelayoutputoptions_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEIOOPERATION_GETRELAYOUTPUTS:
     {
-      signals_->getrelayoutputs_.Emit(handle, localendpoint, latency, message);
+      signals_->getrelayoutputs_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEIOOPERATION_GETSERIALPORTCONFIGURATION:
     {
-      signals_->getserialportconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->getserialportconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEIOOPERATION_GETSERIALPORTCONFIGURATIONOPTIONS:
     {
-      signals_->getserialportconfigurationoptions_.Emit(handle, localendpoint, latency, message);
+      signals_->getserialportconfigurationoptions_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEIOOPERATION_GETSERIALPORTS:
     {
-      signals_->getserialports_.Emit(handle, localendpoint, latency, message);
+      signals_->getserialports_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEIOOPERATION_GETSERVICECAPABILITIES:
     {
-      signals_->getservicecapabilities_.Emit(handle, localendpoint, latency, message);
+      signals_->getservicecapabilities_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEIOOPERATION_SETAUDIOOUTPUTCONFIGURATION:
     {
-      signals_->setaudiooutputconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->setaudiooutputconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEIOOPERATION_SETAUDIOSOURCECONFIGURATION:
     {
-      signals_->setaudiosourceconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->setaudiosourceconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEIOOPERATION_SETDIGITALINPUTCONFIGURATIONS:
     {
-      signals_->setdigitalinputconfigurations_.Emit(handle, localendpoint, latency, message);
+      signals_->setdigitalinputconfigurations_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEIOOPERATION_SETRELAYOUTPUTSETTINGS:
     {
-      signals_->setrelayoutputsettings_.Emit(handle, localendpoint, latency, message);
+      signals_->setrelayoutputsettings_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEIOOPERATION_SETRELAYOUTPUTSTATE:
     {
-      signals_->setrelayoutputstate_.Emit(handle, localendpoint, latency, message);
+      signals_->setrelayoutputstate_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case DEVICEIOOPERATION_SETSERIALPORTCONFIGURATION:
     {
-      signals_->setserialportconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->setserialportconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     default:

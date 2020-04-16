@@ -18,7 +18,7 @@ namespace client
 
 ///// Globals /////
 
-const size_t MAX_CONNECTIONS = 100;
+const size_t MAX_CONNECTIONS = 200;
 
 ///// Methods /////
 
@@ -72,25 +72,20 @@ NetworkMapperScanner::NetworkMapperScanner(const uint8_t a, const std::pair<uint
 
         getsystemdateandtimeconnections_.emplace_back(std::move(std::make_pair(boost::make_shared<onvif::Connection>(std::move(connection->GetSystemDateAndTimeCallback([this, uri, connection](const onvif::device::GetSystemDateAndTimeResponse& response)
         {
-          if (response.Error())
+          if (response.Message() == onvif::UNABLETOCONNECT)
           {
-            if (response.Message() != onvif::UNABLETOCONNECT) // If the device responded, but not quite as we expected, it is possible we can crack on anyway, so lets give it another go
+
+            return;
+          }
+
+          getcapabilitiesconnections_.emplace_back(std::move(std::make_pair(boost::make_shared<onvif::Connection>(std::move(connection->GetCapabilitiesCallback(onvif::CAPABILITYCATEGORY_MEDIA, [this, uri, connection](const onvif::device::GetCapabilitiesResponse& response)
+          {
+            if (response.capabilities_.is_initialized() && response.capabilities_->media_.is_initialized() && response.capabilities_->media_->xaddr_.is_initialized()) // We only care if it has a media profile
             {
-              getcapabilitiesconnections_.emplace_back(std::move(std::make_pair(boost::make_shared<onvif::Connection>(std::move(connection->GetCapabilitiesCallback(onvif::CAPABILITYCATEGORY_MEDIA, [this, uri](const onvif::device::GetCapabilitiesResponse& response)
-              {
-                if (response.capabilities_.is_initialized() && response.capabilities_->media_.is_initialized() && response.capabilities_->media_->xaddr_.is_initialized()) // We only care if it has a media profile
-                {
-                  emit DiscoverONVIFDevice(uri);
+              emit DiscoverONVIFDevice(uri);
 
-                }
-              }))), connection)));
             }
-          }
-          else
-          {
-            emit DiscoverONVIFDevice(uri);
-
-          }
+          }))), connection)));
         }))), connection)));
       }
 

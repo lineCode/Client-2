@@ -21,74 +21,74 @@ class MediaSignals
 {
  public:
 
-  Signal< MEDIAOPERATION, MediaClient, AddAudioDecoderConfigurationResponse, std::string, std::string > addaudiodecoderconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, AddAudioEncoderConfigurationResponse, std::string, std::string > addaudioencoderconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, AddAudioOutputConfigurationResponse, std::string, std::string > addaudiooutputconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, AddAudioSourceConfigurationResponse, std::string, std::string > addaudiosourceconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, AddMetadataConfigurationResponse, std::string, std::string > addmetadataconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, AddPTZConfigurationResponse, std::string, std::string > addptzconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, AddVideoAnalyticsConfigurationResponse, std::string, std::string > addvideoanalyticsconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, AddVideoEncoderConfigurationResponse, std::string, std::string > addvideoencoderconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, AddVideoSourceConfigurationResponse, std::string, std::string > addvideosourceconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, CreateProfileResponse, std::string, boost::optional<std::string> > createprofile_;
-  Signal< MEDIAOPERATION, MediaClient, DeleteProfileResponse, std::string> deleteprofile_;
-  Signal< MEDIAOPERATION, MediaClient, GetAudioDecoderConfigurationResponse, std::string> getaudiodecoderconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, GetAudioDecoderConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > getaudiodecoderconfigurationoptions_;
-  Signal< MEDIAOPERATION, MediaClient, GetAudioDecoderConfigurationsResponse> getaudiodecoderconfigurations_;
-  Signal< MEDIAOPERATION, MediaClient, GetAudioEncoderConfigurationResponse, std::string> getaudioencoderconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, GetAudioEncoderConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > getaudioencoderconfigurationoptions_;
-  Signal< MEDIAOPERATION, MediaClient, GetAudioEncoderConfigurationsResponse> getaudioencoderconfigurations_;
-  Signal< MEDIAOPERATION, MediaClient, GetAudioOutputConfigurationResponse, std::string> getaudiooutputconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, GetAudioOutputConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > getaudiooutputconfigurationoptions_;
-  Signal< MEDIAOPERATION, MediaClient, GetAudioOutputConfigurationsResponse> getaudiooutputconfigurations_;
-  Signal< MEDIAOPERATION, MediaClient, GetAudioSourceConfigurationResponse, std::string> getaudiosourceconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, GetAudioSourceConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > getaudiosourceconfigurationoptions_;
-  Signal< MEDIAOPERATION, MediaClient, GetAudioSourceConfigurationsResponse> getaudiosourceconfigurations_;
-  Signal< MEDIAOPERATION, MediaClient, GetAudioSourcesResponse> getaudiosources_;
-  Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioDecoderConfigurationsResponse, std::string> getcompatibleaudiodecoderconfigurations_;
-  Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioEncoderConfigurationsResponse, std::string> getcompatibleaudioencoderconfigurations_;
-  Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioOutputConfigurationsResponse, std::string> getcompatibleaudiooutputconfigurations_;
-  Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioSourceConfigurationsResponse, std::string> getcompatibleaudiosourceconfigurations_;
-  Signal< MEDIAOPERATION, MediaClient, GetCompatibleMetadataConfigurationsResponse, std::string> getcompatiblemetadataconfigurations_;
-  Signal< MEDIAOPERATION, MediaClient, GetCompatibleVideoAnalyticsConfigurationsResponse, std::string> getcompatiblevideoanalyticsconfigurations_;
-  Signal< MEDIAOPERATION, MediaClient, GetCompatibleVideoEncoderConfigurationsResponse, std::string> getcompatiblevideoencoderconfigurations_;
-  Signal< MEDIAOPERATION, MediaClient, GetCompatibleVideoSourceConfigurationsResponse, std::string> getcompatiblevideosourceconfigurations_;
-  Signal< MEDIAOPERATION, MediaClient, GetMetadataConfigurationResponse, std::string> getmetadataconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, GetMetadataConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > getmetadataconfigurationoptions_;
-  Signal< MEDIAOPERATION, MediaClient, GetMetadataConfigurationsResponse> getmetadataconfigurations_;
-  Signal< MEDIAOPERATION, MediaClient, GetProfileResponse, std::string> getprofile_;
-  Signal< MEDIAOPERATION, MediaClient, GetProfilesResponse> getprofiles_;
-  Signal< MEDIAOPERATION, MediaClient, GetServiceCapabilitiesResponse> getservicecapabilities_;
-  Signal< MEDIAOPERATION, MediaClient, GetSnapshotUriResponse, std::string> getsnapshoturi_;
-  Signal< MEDIAOPERATION, MediaClient, GetStreamUriResponse, StreamSetup, std::string> getstreamuri_;
-  Signal< MEDIAOPERATION, MediaClient, GetVideoAnalyticsConfigurationsResponse> getvideoanalyticsconfigurations_;
-  Signal< MEDIAOPERATION, MediaClient, GetVideoEncoderConfigurationResponse, std::string> getvideoencoderconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, GetVideoEncoderConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > getvideoencoderconfigurationoptions_;
-  Signal< MEDIAOPERATION, MediaClient, GetVideoEncoderConfigurationsResponse> getvideoencoderconfigurations_;
-  Signal< MEDIAOPERATION, MediaClient, GetVideoSourceConfigurationResponse, std::string> getvideosourceconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, GetVideoSourceConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > getvideosourceconfigurationoptions_;
-  Signal< MEDIAOPERATION, MediaClient, GetVideoSourceConfigurationsResponse> getvideosourceconfigurations_;
-  Signal< MEDIAOPERATION, MediaClient, GetVideoSourceModesResponse, std::string> getvideosourcemodes_;
-  Signal< MEDIAOPERATION, MediaClient, GetVideoSourcesResponse> getvideosources_;
-  Signal< MEDIAOPERATION, MediaClient, RemoveAudioDecoderConfigurationResponse, std::string > removeaudiodecoderconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, RemoveAudioEncoderConfigurationResponse, std::string > removeaudioencoderconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, RemoveAudioOutputConfigurationResponse, std::string > removeaudiooutputconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, RemoveAudioSourceConfigurationResponse, std::string > removeaudiosourceconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, RemoveMetadataConfigurationResponse, std::string > removemetadataconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, RemovePTZConfigurationResponse, std::string > removeptzconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, RemoveVideoAnalyticsConfigurationResponse, std::string > removevideoanalyticsconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, RemoveVideoEncoderConfigurationResponse, std::string > removevideoencoderconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, RemoveVideoSourceConfigurationResponse, std::string > removevideosourceconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, SetAudioDecoderConfigurationResponse, AudioDecoderConfiguration> setaudiodecoderconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, SetAudioEncoderConfigurationResponse, AudioEncoderConfiguration> setaudioencoderconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, SetAudioOutputConfigurationResponse, AudioOutputConfiguration> setaudiooutputconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, SetAudioSourceConfigurationResponse, AudioSourceConfiguration> setaudiosourceconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, SetMetadataConfigurationResponse, MetadataConfiguration> setmetadataconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, SetSynchronizationPointResponse, std::string> setsynchronizationpoint_;
-  Signal< MEDIAOPERATION, MediaClient, SetVideoEncoderConfigurationResponse, VideoEncoderConfiguration> setvideoencoderconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, SetVideoSourceConfigurationResponse, VideoSourceConfiguration> setvideosourceconfiguration_;
-  Signal< MEDIAOPERATION, MediaClient, StartMulticastStreamingResponse, std::string> startmulticaststreaming_;
-  Signal< MEDIAOPERATION, MediaClient, StopMulticastStreamingResponse, std::string> stopmulticaststreaming_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, AddAudioDecoderConfigurationResponse, std::string, std::string > > addaudiodecoderconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, AddAudioEncoderConfigurationResponse, std::string, std::string > > addaudioencoderconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, AddAudioOutputConfigurationResponse, std::string, std::string > > addaudiooutputconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, AddAudioSourceConfigurationResponse, std::string, std::string > > addaudiosourceconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, AddMetadataConfigurationResponse, std::string, std::string > > addmetadataconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, AddPTZConfigurationResponse, std::string, std::string > > addptzconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, AddVideoAnalyticsConfigurationResponse, std::string, std::string > > addvideoanalyticsconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, AddVideoEncoderConfigurationResponse, std::string, std::string > > addvideoencoderconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, AddVideoSourceConfigurationResponse, std::string, std::string > > addvideosourceconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, CreateProfileResponse, std::string, boost::optional<std::string> > > createprofile_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, DeleteProfileResponse, std::string> > deleteprofile_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetAudioDecoderConfigurationResponse, std::string> > getaudiodecoderconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetAudioDecoderConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > > getaudiodecoderconfigurationoptions_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetAudioDecoderConfigurationsResponse >> getaudiodecoderconfigurations_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetAudioEncoderConfigurationResponse, std::string> > getaudioencoderconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetAudioEncoderConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > > getaudioencoderconfigurationoptions_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetAudioEncoderConfigurationsResponse> > getaudioencoderconfigurations_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetAudioOutputConfigurationResponse, std::string> > getaudiooutputconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetAudioOutputConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > > getaudiooutputconfigurationoptions_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetAudioOutputConfigurationsResponse> > getaudiooutputconfigurations_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetAudioSourceConfigurationResponse, std::string> > getaudiosourceconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetAudioSourceConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > > getaudiosourceconfigurationoptions_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetAudioSourceConfigurationsResponse> > getaudiosourceconfigurations_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetAudioSourcesResponse> > getaudiosources_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioDecoderConfigurationsResponse, std::string> > getcompatibleaudiodecoderconfigurations_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioEncoderConfigurationsResponse, std::string> > getcompatibleaudioencoderconfigurations_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioOutputConfigurationsResponse, std::string> > getcompatibleaudiooutputconfigurations_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioSourceConfigurationsResponse, std::string> > getcompatibleaudiosourceconfigurations_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetCompatibleMetadataConfigurationsResponse, std::string> > getcompatiblemetadataconfigurations_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetCompatibleVideoAnalyticsConfigurationsResponse, std::string> > getcompatiblevideoanalyticsconfigurations_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetCompatibleVideoEncoderConfigurationsResponse, std::string> > getcompatiblevideoencoderconfigurations_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetCompatibleVideoSourceConfigurationsResponse, std::string> > getcompatiblevideosourceconfigurations_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetMetadataConfigurationResponse, std::string> > getmetadataconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetMetadataConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > > getmetadataconfigurationoptions_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetMetadataConfigurationsResponse> > getmetadataconfigurations_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetProfileResponse, std::string> > getprofile_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetProfilesResponse> > getprofiles_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetServiceCapabilitiesResponse> > getservicecapabilities_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetSnapshotUriResponse, std::string> > getsnapshoturi_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetStreamUriResponse, StreamSetup, std::string> > getstreamuri_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetVideoAnalyticsConfigurationsResponse> > getvideoanalyticsconfigurations_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetVideoEncoderConfigurationResponse, std::string> > getvideoencoderconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetVideoEncoderConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > > getvideoencoderconfigurationoptions_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetVideoEncoderConfigurationsResponse> > getvideoencoderconfigurations_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetVideoSourceConfigurationResponse, std::string> > getvideosourceconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetVideoSourceConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > > getvideosourceconfigurationoptions_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetVideoSourceConfigurationsResponse> > getvideosourceconfigurations_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetVideoSourceModesResponse, std::string> > getvideosourcemodes_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, GetVideoSourcesResponse> > getvideosources_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, RemoveAudioDecoderConfigurationResponse, std::string > > removeaudiodecoderconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, RemoveAudioEncoderConfigurationResponse, std::string > > removeaudioencoderconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, RemoveAudioOutputConfigurationResponse, std::string > > removeaudiooutputconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, RemoveAudioSourceConfigurationResponse, std::string > > removeaudiosourceconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, RemoveMetadataConfigurationResponse, std::string > > removemetadataconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, RemovePTZConfigurationResponse, std::string > > removeptzconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, RemoveVideoAnalyticsConfigurationResponse, std::string > > removevideoanalyticsconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, RemoveVideoEncoderConfigurationResponse, std::string > > removevideoencoderconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, RemoveVideoSourceConfigurationResponse, std::string > > removevideosourceconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, SetAudioDecoderConfigurationResponse, AudioDecoderConfiguration> > setaudiodecoderconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, SetAudioEncoderConfigurationResponse, AudioEncoderConfiguration> > setaudioencoderconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, SetAudioOutputConfigurationResponse, AudioOutputConfiguration> > setaudiooutputconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, SetAudioSourceConfigurationResponse, AudioSourceConfiguration> > setaudiosourceconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, SetMetadataConfigurationResponse, MetadataConfiguration> > setmetadataconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, SetSynchronizationPointResponse, std::string> > setsynchronizationpoint_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, SetVideoEncoderConfigurationResponse, VideoEncoderConfiguration> > setvideoencoderconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, SetVideoSourceConfigurationResponse, VideoSourceConfiguration> > setvideosourceconfiguration_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, StartMulticastStreamingResponse, std::string> > startmulticaststreaming_;
+  std::unique_ptr< Signal< MEDIAOPERATION, MediaClient, StopMulticastStreamingResponse, std::string> > stopmulticaststreaming_;
 
 };
 
@@ -98,74 +98,74 @@ MediaClient::MediaClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
   signals_(new MediaSignals(
   {
-    Signal< MEDIAOPERATION, MediaClient, AddAudioDecoderConfigurationResponse, std::string, std::string >(this, MEDIAOPERATION_ADDAUDIODECODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddAudioDecoderConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, AddAudioEncoderConfigurationResponse, std::string, std::string >(this, MEDIAOPERATION_ADDAUDIOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddAudioEncoderConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, AddAudioOutputConfigurationResponse, std::string, std::string >(this, MEDIAOPERATION_ADDAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddAudioOutputConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, AddAudioSourceConfigurationResponse, std::string, std::string >(this, MEDIAOPERATION_ADDAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddAudioSourceConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, AddMetadataConfigurationResponse, std::string, std::string >(this, MEDIAOPERATION_ADDMETADATACONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddMetadataConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, AddPTZConfigurationResponse, std::string, std::string >(this, MEDIAOPERATION_ADDPTZCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddPTZConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, AddVideoAnalyticsConfigurationResponse, std::string, std::string >(this, MEDIAOPERATION_ADDVIDEOANALYTICSCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddVideoAnalyticsConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, AddVideoEncoderConfigurationResponse, std::string, std::string >(this, MEDIAOPERATION_ADDVIDEOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddVideoEncoderConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, AddVideoSourceConfigurationResponse, std::string, std::string >(this, MEDIAOPERATION_ADDVIDEOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddVideoSourceConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, CreateProfileResponse, std::string, boost::optional<std::string> >(this, MEDIAOPERATION_CREATEPROFILE, true, std::string("http://www.onvif.org/ver10/media/wsdl/CreateProfile"), false),
-    Signal< MEDIAOPERATION, MediaClient, DeleteProfileResponse, std::string>(this, MEDIAOPERATION_DELETEPROFILE, true, std::string("http://www.onvif.org/ver10/media/wsdl/DeleteProfile"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetAudioDecoderConfigurationResponse, std::string>(this, MEDIAOPERATION_GETAUDIODECODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioDecoderConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetAudioDecoderConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> >(this, MEDIAOPERATION_GETAUDIODECODERCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioDecoderConfigurationOptions"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetAudioDecoderConfigurationsResponse>(this, MEDIAOPERATION_GETAUDIODECODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioDecoderConfigurations"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetAudioEncoderConfigurationResponse, std::string>(this, MEDIAOPERATION_GETAUDIOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioEncoderConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetAudioEncoderConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> >(this, MEDIAOPERATION_GETAUDIOENCODERCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioEncoderConfigurationOptions"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetAudioEncoderConfigurationsResponse>(this, MEDIAOPERATION_GETAUDIOENCODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioEncoderConfigurations"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetAudioOutputConfigurationResponse, std::string>(this, MEDIAOPERATION_GETAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioOutputConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetAudioOutputConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> >(this, MEDIAOPERATION_GETAUDIOOUTPUTCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioOutputConfigurationOptions"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetAudioOutputConfigurationsResponse>(this, MEDIAOPERATION_GETAUDIOOUTPUTCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioOutputConfigurations"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetAudioSourceConfigurationResponse, std::string>(this, MEDIAOPERATION_GETAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioSourceConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetAudioSourceConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> >(this, MEDIAOPERATION_GETAUDIOSOURCECONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioSourceConfigurationOptions"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetAudioSourceConfigurationsResponse>(this, MEDIAOPERATION_GETAUDIOSOURCECONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioSourceConfigurations"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetAudioSourcesResponse>(this, MEDIAOPERATION_GETAUDIOSOURCES, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioSources"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioDecoderConfigurationsResponse, std::string>(this, MEDIAOPERATION_GETCOMPATIBLEAUDIODECODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleAudioDecoderConfigurations"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioEncoderConfigurationsResponse, std::string>(this, MEDIAOPERATION_GETCOMPATIBLEAUDIOENCODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleAudioEncoderConfigurations"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioOutputConfigurationsResponse, std::string>(this, MEDIAOPERATION_GETCOMPATIBLEAUDIOOUTPUTCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleAudioOutputConfigurations"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioSourceConfigurationsResponse, std::string>(this, MEDIAOPERATION_GETCOMPATIBLEAUDIOSOURCECONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleAudioSourceConfigurations"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetCompatibleMetadataConfigurationsResponse, std::string>(this, MEDIAOPERATION_GETCOMPATIBLEMETADATACONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleMetadataConfigurations"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetCompatibleVideoAnalyticsConfigurationsResponse, std::string>(this, MEDIAOPERATION_GETCOMPATIBLEVIDEOANALYTICSCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleVideoAnalyticsConfigurations"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetCompatibleVideoEncoderConfigurationsResponse, std::string>(this, MEDIAOPERATION_GETCOMPATIBLEVIDEOENCODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleVideoEncoderConfigurations"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetCompatibleVideoSourceConfigurationsResponse, std::string>(this, MEDIAOPERATION_GETCOMPATIBLEVIDEOSOURCECONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleVideoSourceConfigurations"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetMetadataConfigurationResponse, std::string>(this, MEDIAOPERATION_GETMETADATACONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetMetadataConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetMetadataConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> >(this, MEDIAOPERATION_GETMETADATACONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetMetadataConfigurationOptions"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetMetadataConfigurationsResponse>(this, MEDIAOPERATION_GETMETADATACONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetMetadataConfigurations"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetProfileResponse, std::string>(this, MEDIAOPERATION_GETPROFILE, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetProfile"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetProfilesResponse>(this, MEDIAOPERATION_GETPROFILES, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetProfiles"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetServiceCapabilitiesResponse>(this, MEDIAOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetServiceCapabilities"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetSnapshotUriResponse, std::string>(this, MEDIAOPERATION_GETSNAPSHOTURI, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetSnapshotUri"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetStreamUriResponse, StreamSetup, std::string>(this, MEDIAOPERATION_GETSTREAMURI, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetStreamUri"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetVideoAnalyticsConfigurationsResponse>(this, MEDIAOPERATION_GETVIDEOANALYTICSCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoAnalyticsConfigurations"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetVideoEncoderConfigurationResponse, std::string>(this, MEDIAOPERATION_GETVIDEOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoEncoderConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetVideoEncoderConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> >(this, MEDIAOPERATION_GETVIDEOENCODERCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoEncoderConfigurationOptions"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetVideoEncoderConfigurationsResponse>(this, MEDIAOPERATION_GETVIDEOENCODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoEncoderConfigurations"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetVideoSourceConfigurationResponse, std::string>(this, MEDIAOPERATION_GETVIDEOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoSourceConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetVideoSourceConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> >(this, MEDIAOPERATION_GETVIDEOSOURCECONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoSourceConfigurationOptions"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetVideoSourceConfigurationsResponse>(this, MEDIAOPERATION_GETVIDEOSOURCECONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoSourceConfigurations"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetVideoSourceModesResponse, std::string>(this, MEDIAOPERATION_GETVIDEOSOURCEMODES, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoSourceModes"), false),
-    Signal< MEDIAOPERATION, MediaClient, GetVideoSourcesResponse>(this, MEDIAOPERATION_GETVIDEOSOURCES, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoSources"), false),
-    Signal< MEDIAOPERATION, MediaClient, RemoveAudioDecoderConfigurationResponse, std::string >(this, MEDIAOPERATION_REMOVEAUDIODECODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveAudioDecoderConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, RemoveAudioEncoderConfigurationResponse, std::string >(this, MEDIAOPERATION_REMOVEAUDIOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveAudioEncoderConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, RemoveAudioOutputConfigurationResponse, std::string >(this, MEDIAOPERATION_REMOVEAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveAudioOutputConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, RemoveAudioSourceConfigurationResponse, std::string >(this, MEDIAOPERATION_REMOVEAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveAudioSourceConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, RemoveMetadataConfigurationResponse, std::string >(this, MEDIAOPERATION_REMOVEMETADATACONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveMetadataConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, RemovePTZConfigurationResponse, std::string >(this, MEDIAOPERATION_REMOVEPTZCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemovePTZConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, RemoveVideoAnalyticsConfigurationResponse, std::string >(this, MEDIAOPERATION_REMOVEVIDEOANALYTICSCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveVideoAnalyticsConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, RemoveVideoEncoderConfigurationResponse, std::string >(this, MEDIAOPERATION_REMOVEVIDEOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveVideoEncoderConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, RemoveVideoSourceConfigurationResponse, std::string >(this, MEDIAOPERATION_REMOVEVIDEOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveVideoSourceConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, SetAudioDecoderConfigurationResponse, AudioDecoderConfiguration>(this, MEDIAOPERATION_SETAUDIODECODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetAudioDecoderConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, SetAudioEncoderConfigurationResponse, AudioEncoderConfiguration>(this, MEDIAOPERATION_SETAUDIOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetAudioEncoderConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, SetAudioOutputConfigurationResponse, AudioOutputConfiguration>(this, MEDIAOPERATION_SETAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetAudioOutputConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, SetAudioSourceConfigurationResponse, AudioSourceConfiguration>(this, MEDIAOPERATION_SETAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetAudioSourceConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, SetMetadataConfigurationResponse, MetadataConfiguration>(this, MEDIAOPERATION_SETMETADATACONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetMetadataConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, SetSynchronizationPointResponse, std::string>(this, MEDIAOPERATION_SETSYNCHRONIZATIONPOINT, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetSynchronizationPoint"), false),
-    Signal< MEDIAOPERATION, MediaClient, SetVideoEncoderConfigurationResponse, VideoEncoderConfiguration>(this, MEDIAOPERATION_SETVIDEOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetVideoEncoderConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, SetVideoSourceConfigurationResponse, VideoSourceConfiguration>(this, MEDIAOPERATION_SETVIDEOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetVideoSourceConfiguration"), false),
-    Signal< MEDIAOPERATION, MediaClient, StartMulticastStreamingResponse, std::string>(this, MEDIAOPERATION_STARTMULTICASTSTREAMING, true, std::string("http://www.onvif.org/ver10/media/wsdl/StartMulticastStreaming"), false),
-    Signal< MEDIAOPERATION, MediaClient, StopMulticastStreamingResponse, std::string>(this, MEDIAOPERATION_STOPMULTICASTSTREAMING, true, std::string("http://www.onvif.org/ver10/media/wsdl/StopMulticastStreaming"), false)
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddAudioDecoderConfigurationResponse, std::string, std::string > >(this, MEDIAOPERATION_ADDAUDIODECODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddAudioDecoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddAudioEncoderConfigurationResponse, std::string, std::string > >(this, MEDIAOPERATION_ADDAUDIOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddAudioEncoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddAudioOutputConfigurationResponse, std::string, std::string > >(this, MEDIAOPERATION_ADDAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddAudioOutputConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddAudioSourceConfigurationResponse, std::string, std::string > >(this, MEDIAOPERATION_ADDAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddAudioSourceConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddMetadataConfigurationResponse, std::string, std::string > >(this, MEDIAOPERATION_ADDMETADATACONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddMetadataConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddPTZConfigurationResponse, std::string, std::string > >(this, MEDIAOPERATION_ADDPTZCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddPTZConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddVideoAnalyticsConfigurationResponse, std::string, std::string > >(this, MEDIAOPERATION_ADDVIDEOANALYTICSCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddVideoAnalyticsConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddVideoEncoderConfigurationResponse, std::string, std::string > >(this, MEDIAOPERATION_ADDVIDEOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddVideoEncoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddVideoSourceConfigurationResponse, std::string, std::string > >(this, MEDIAOPERATION_ADDVIDEOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddVideoSourceConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, CreateProfileResponse, std::string, boost::optional<std::string> > >(this, MEDIAOPERATION_CREATEPROFILE, true, std::string("http://www.onvif.org/ver10/media/wsdl/CreateProfile"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, DeleteProfileResponse, std::string> >(this, MEDIAOPERATION_DELETEPROFILE, true, std::string("http://www.onvif.org/ver10/media/wsdl/DeleteProfile"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioDecoderConfigurationResponse, std::string> >(this, MEDIAOPERATION_GETAUDIODECODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioDecoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioDecoderConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > >(this, MEDIAOPERATION_GETAUDIODECODERCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioDecoderConfigurationOptions"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioDecoderConfigurationsResponse> >(this, MEDIAOPERATION_GETAUDIODECODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioDecoderConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioEncoderConfigurationResponse, std::string> >(this, MEDIAOPERATION_GETAUDIOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioEncoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioEncoderConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > >(this, MEDIAOPERATION_GETAUDIOENCODERCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioEncoderConfigurationOptions"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioEncoderConfigurationsResponse> >(this, MEDIAOPERATION_GETAUDIOENCODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioEncoderConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioOutputConfigurationResponse, std::string> >(this, MEDIAOPERATION_GETAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioOutputConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioOutputConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > >(this, MEDIAOPERATION_GETAUDIOOUTPUTCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioOutputConfigurationOptions"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioOutputConfigurationsResponse> >(this, MEDIAOPERATION_GETAUDIOOUTPUTCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioOutputConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioSourceConfigurationResponse, std::string> >(this, MEDIAOPERATION_GETAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioSourceConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioSourceConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > >(this, MEDIAOPERATION_GETAUDIOSOURCECONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioSourceConfigurationOptions"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioSourceConfigurationsResponse> >(this, MEDIAOPERATION_GETAUDIOSOURCECONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioSourceConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioSourcesResponse> >(this, MEDIAOPERATION_GETAUDIOSOURCES, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioSources"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioDecoderConfigurationsResponse, std::string> >(this, MEDIAOPERATION_GETCOMPATIBLEAUDIODECODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleAudioDecoderConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioEncoderConfigurationsResponse, std::string> >(this, MEDIAOPERATION_GETCOMPATIBLEAUDIOENCODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleAudioEncoderConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioOutputConfigurationsResponse, std::string> >(this, MEDIAOPERATION_GETCOMPATIBLEAUDIOOUTPUTCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleAudioOutputConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioSourceConfigurationsResponse, std::string> >(this, MEDIAOPERATION_GETCOMPATIBLEAUDIOSOURCECONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleAudioSourceConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleMetadataConfigurationsResponse, std::string> >(this, MEDIAOPERATION_GETCOMPATIBLEMETADATACONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleMetadataConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleVideoAnalyticsConfigurationsResponse, std::string> >(this, MEDIAOPERATION_GETCOMPATIBLEVIDEOANALYTICSCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleVideoAnalyticsConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleVideoEncoderConfigurationsResponse, std::string> >(this, MEDIAOPERATION_GETCOMPATIBLEVIDEOENCODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleVideoEncoderConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleVideoSourceConfigurationsResponse, std::string> >(this, MEDIAOPERATION_GETCOMPATIBLEVIDEOSOURCECONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleVideoSourceConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetMetadataConfigurationResponse, std::string> >(this, MEDIAOPERATION_GETMETADATACONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetMetadataConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetMetadataConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > >(this, MEDIAOPERATION_GETMETADATACONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetMetadataConfigurationOptions"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetMetadataConfigurationsResponse> >(this, MEDIAOPERATION_GETMETADATACONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetMetadataConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetProfileResponse, std::string> >(this, MEDIAOPERATION_GETPROFILE, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetProfile"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetProfilesResponse> >(this, MEDIAOPERATION_GETPROFILES, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetProfiles"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetServiceCapabilitiesResponse> >(this, MEDIAOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetServiceCapabilities"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetSnapshotUriResponse, std::string> >(this, MEDIAOPERATION_GETSNAPSHOTURI, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetSnapshotUri"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetStreamUriResponse, StreamSetup, std::string> >(this, MEDIAOPERATION_GETSTREAMURI, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetStreamUri"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoAnalyticsConfigurationsResponse> >(this, MEDIAOPERATION_GETVIDEOANALYTICSCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoAnalyticsConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoEncoderConfigurationResponse, std::string> >(this, MEDIAOPERATION_GETVIDEOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoEncoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoEncoderConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > >(this, MEDIAOPERATION_GETVIDEOENCODERCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoEncoderConfigurationOptions"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoEncoderConfigurationsResponse> >(this, MEDIAOPERATION_GETVIDEOENCODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoEncoderConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoSourceConfigurationResponse, std::string> >(this, MEDIAOPERATION_GETVIDEOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoSourceConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoSourceConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > >(this, MEDIAOPERATION_GETVIDEOSOURCECONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoSourceConfigurationOptions"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoSourceConfigurationsResponse> >(this, MEDIAOPERATION_GETVIDEOSOURCECONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoSourceConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoSourceModesResponse, std::string> >(this, MEDIAOPERATION_GETVIDEOSOURCEMODES, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoSourceModes"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoSourcesResponse> >(this, MEDIAOPERATION_GETVIDEOSOURCES, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoSources"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveAudioDecoderConfigurationResponse, std::string > >(this, MEDIAOPERATION_REMOVEAUDIODECODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveAudioDecoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveAudioEncoderConfigurationResponse, std::string > >(this, MEDIAOPERATION_REMOVEAUDIOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveAudioEncoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveAudioOutputConfigurationResponse, std::string > >(this, MEDIAOPERATION_REMOVEAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveAudioOutputConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveAudioSourceConfigurationResponse, std::string > >(this, MEDIAOPERATION_REMOVEAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveAudioSourceConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveMetadataConfigurationResponse, std::string > >(this, MEDIAOPERATION_REMOVEMETADATACONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveMetadataConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemovePTZConfigurationResponse, std::string > >(this, MEDIAOPERATION_REMOVEPTZCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemovePTZConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveVideoAnalyticsConfigurationResponse, std::string > >(this, MEDIAOPERATION_REMOVEVIDEOANALYTICSCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveVideoAnalyticsConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveVideoEncoderConfigurationResponse, std::string > >(this, MEDIAOPERATION_REMOVEVIDEOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveVideoEncoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveVideoSourceConfigurationResponse, std::string > >(this, MEDIAOPERATION_REMOVEVIDEOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveVideoSourceConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetAudioDecoderConfigurationResponse, AudioDecoderConfiguration> >(this, MEDIAOPERATION_SETAUDIODECODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetAudioDecoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetAudioEncoderConfigurationResponse, AudioEncoderConfiguration> >(this, MEDIAOPERATION_SETAUDIOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetAudioEncoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetAudioOutputConfigurationResponse, AudioOutputConfiguration> >(this, MEDIAOPERATION_SETAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetAudioOutputConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetAudioSourceConfigurationResponse, AudioSourceConfiguration> >(this, MEDIAOPERATION_SETAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetAudioSourceConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetMetadataConfigurationResponse, MetadataConfiguration> >(this, MEDIAOPERATION_SETMETADATACONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetMetadataConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetSynchronizationPointResponse, std::string> >(this, MEDIAOPERATION_SETSYNCHRONIZATIONPOINT, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetSynchronizationPoint"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetVideoEncoderConfigurationResponse, VideoEncoderConfiguration> >(this, MEDIAOPERATION_SETVIDEOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetVideoEncoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetVideoSourceConfigurationResponse, VideoSourceConfiguration> >(this, MEDIAOPERATION_SETVIDEOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetVideoSourceConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, StartMulticastStreamingResponse, std::string> >(this, MEDIAOPERATION_STARTMULTICASTSTREAMING, true, std::string("http://www.onvif.org/ver10/media/wsdl/StartMulticastStreaming"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, StopMulticastStreamingResponse, std::string> >(this, MEDIAOPERATION_STOPMULTICASTSTREAMING, true, std::string("http://www.onvif.org/ver10/media/wsdl/StopMulticastStreaming"), false)
   }))
 {
   
@@ -184,1437 +184,1437 @@ void MediaClient::Destroy()
 {
   Client::Destroy();
 
-  signals_->addaudiodecoderconfiguration_.Destroy();
-  signals_->addaudioencoderconfiguration_.Destroy();
-  signals_->addaudiooutputconfiguration_.Destroy();
-  signals_->addaudiosourceconfiguration_.Destroy();
-  signals_->addmetadataconfiguration_.Destroy();
-  signals_->addptzconfiguration_.Destroy();
-  signals_->addvideoanalyticsconfiguration_.Destroy();
-  signals_->addvideoencoderconfiguration_.Destroy();
-  signals_->addvideosourceconfiguration_.Destroy();
-  signals_->createprofile_.Destroy();
-  signals_->deleteprofile_.Destroy();
-  signals_->getaudiodecoderconfiguration_.Destroy();
-  signals_->getaudiodecoderconfigurationoptions_.Destroy();
-  signals_->getaudiodecoderconfigurations_.Destroy();
-  signals_->getaudioencoderconfiguration_.Destroy();
-  signals_->getaudioencoderconfigurationoptions_.Destroy();
-  signals_->getaudioencoderconfigurations_.Destroy();
-  signals_->getaudiooutputconfiguration_.Destroy();
-  signals_->getaudiooutputconfigurationoptions_.Destroy();
-  signals_->getaudiooutputconfigurations_.Destroy();
-  signals_->getaudiosourceconfiguration_.Destroy();
-  signals_->getaudiosourceconfigurationoptions_.Destroy();
-  signals_->getaudiosourceconfigurations_.Destroy();
-  signals_->getaudiosources_.Destroy();
-  signals_->getcompatibleaudiodecoderconfigurations_.Destroy();
-  signals_->getcompatibleaudioencoderconfigurations_.Destroy();
-  signals_->getcompatibleaudiooutputconfigurations_.Destroy();
-  signals_->getcompatibleaudiosourceconfigurations_.Destroy();
-  signals_->getcompatiblemetadataconfigurations_.Destroy();
-  signals_->getcompatiblevideoanalyticsconfigurations_.Destroy();
-  signals_->getcompatiblevideoencoderconfigurations_.Destroy();
-  signals_->getcompatiblevideosourceconfigurations_.Destroy();
-  signals_->getmetadataconfiguration_.Destroy();
-  signals_->getmetadataconfigurationoptions_.Destroy();
-  signals_->getmetadataconfigurations_.Destroy();
-  signals_->getprofile_.Destroy();
-  signals_->getprofiles_.Destroy();
-  signals_->getservicecapabilities_.Destroy();
-  signals_->getsnapshoturi_.Destroy();
-  signals_->getstreamuri_.Destroy();
-  signals_->getvideoanalyticsconfigurations_.Destroy();
-  signals_->getvideoencoderconfiguration_.Destroy();
-  signals_->getvideoencoderconfigurationoptions_.Destroy();
-  signals_->getvideoencoderconfigurations_.Destroy();
-  signals_->getvideosourceconfiguration_.Destroy();
-  signals_->getvideosourceconfigurationoptions_.Destroy();
-  signals_->getvideosourceconfigurations_.Destroy();
-  signals_->getvideosourcemodes_.Destroy();
-  signals_->getvideosources_.Destroy();
-  signals_->removeaudiodecoderconfiguration_.Destroy();
-  signals_->removeaudioencoderconfiguration_.Destroy();
-  signals_->removeaudiooutputconfiguration_.Destroy();
-  signals_->removeaudiosourceconfiguration_.Destroy();
-  signals_->removemetadataconfiguration_.Destroy();
-  signals_->removeptzconfiguration_.Destroy();
-  signals_->removevideoanalyticsconfiguration_.Destroy();
-  signals_->removevideoencoderconfiguration_.Destroy();
-  signals_->removevideosourceconfiguration_.Destroy();
-  signals_->setaudiodecoderconfiguration_.Destroy();
-  signals_->setaudioencoderconfiguration_.Destroy();
-  signals_->setaudiooutputconfiguration_.Destroy();
-  signals_->setaudiosourceconfiguration_.Destroy();
-  signals_->setmetadataconfiguration_.Destroy();
-  signals_->setsynchronizationpoint_.Destroy();
-  signals_->setvideoencoderconfiguration_.Destroy();
-  signals_->setvideosourceconfiguration_.Destroy();
-  signals_->startmulticaststreaming_.Destroy();
-  signals_->stopmulticaststreaming_.Destroy();
+  signals_->addaudiodecoderconfiguration_->Destroy();
+  signals_->addaudioencoderconfiguration_->Destroy();
+  signals_->addaudiooutputconfiguration_->Destroy();
+  signals_->addaudiosourceconfiguration_->Destroy();
+  signals_->addmetadataconfiguration_->Destroy();
+  signals_->addptzconfiguration_->Destroy();
+  signals_->addvideoanalyticsconfiguration_->Destroy();
+  signals_->addvideoencoderconfiguration_->Destroy();
+  signals_->addvideosourceconfiguration_->Destroy();
+  signals_->createprofile_->Destroy();
+  signals_->deleteprofile_->Destroy();
+  signals_->getaudiodecoderconfiguration_->Destroy();
+  signals_->getaudiodecoderconfigurationoptions_->Destroy();
+  signals_->getaudiodecoderconfigurations_->Destroy();
+  signals_->getaudioencoderconfiguration_->Destroy();
+  signals_->getaudioencoderconfigurationoptions_->Destroy();
+  signals_->getaudioencoderconfigurations_->Destroy();
+  signals_->getaudiooutputconfiguration_->Destroy();
+  signals_->getaudiooutputconfigurationoptions_->Destroy();
+  signals_->getaudiooutputconfigurations_->Destroy();
+  signals_->getaudiosourceconfiguration_->Destroy();
+  signals_->getaudiosourceconfigurationoptions_->Destroy();
+  signals_->getaudiosourceconfigurations_->Destroy();
+  signals_->getaudiosources_->Destroy();
+  signals_->getcompatibleaudiodecoderconfigurations_->Destroy();
+  signals_->getcompatibleaudioencoderconfigurations_->Destroy();
+  signals_->getcompatibleaudiooutputconfigurations_->Destroy();
+  signals_->getcompatibleaudiosourceconfigurations_->Destroy();
+  signals_->getcompatiblemetadataconfigurations_->Destroy();
+  signals_->getcompatiblevideoanalyticsconfigurations_->Destroy();
+  signals_->getcompatiblevideoencoderconfigurations_->Destroy();
+  signals_->getcompatiblevideosourceconfigurations_->Destroy();
+  signals_->getmetadataconfiguration_->Destroy();
+  signals_->getmetadataconfigurationoptions_->Destroy();
+  signals_->getmetadataconfigurations_->Destroy();
+  signals_->getprofile_->Destroy();
+  signals_->getprofiles_->Destroy();
+  signals_->getservicecapabilities_->Destroy();
+  signals_->getsnapshoturi_->Destroy();
+  signals_->getstreamuri_->Destroy();
+  signals_->getvideoanalyticsconfigurations_->Destroy();
+  signals_->getvideoencoderconfiguration_->Destroy();
+  signals_->getvideoencoderconfigurationoptions_->Destroy();
+  signals_->getvideoencoderconfigurations_->Destroy();
+  signals_->getvideosourceconfiguration_->Destroy();
+  signals_->getvideosourceconfigurationoptions_->Destroy();
+  signals_->getvideosourceconfigurations_->Destroy();
+  signals_->getvideosourcemodes_->Destroy();
+  signals_->getvideosources_->Destroy();
+  signals_->removeaudiodecoderconfiguration_->Destroy();
+  signals_->removeaudioencoderconfiguration_->Destroy();
+  signals_->removeaudiooutputconfiguration_->Destroy();
+  signals_->removeaudiosourceconfiguration_->Destroy();
+  signals_->removemetadataconfiguration_->Destroy();
+  signals_->removeptzconfiguration_->Destroy();
+  signals_->removevideoanalyticsconfiguration_->Destroy();
+  signals_->removevideoencoderconfiguration_->Destroy();
+  signals_->removevideosourceconfiguration_->Destroy();
+  signals_->setaudiodecoderconfiguration_->Destroy();
+  signals_->setaudioencoderconfiguration_->Destroy();
+  signals_->setaudiooutputconfiguration_->Destroy();
+  signals_->setaudiosourceconfiguration_->Destroy();
+  signals_->setmetadataconfiguration_->Destroy();
+  signals_->setsynchronizationpoint_->Destroy();
+  signals_->setvideoencoderconfiguration_->Destroy();
+  signals_->setvideosourceconfiguration_->Destroy();
+  signals_->startmulticaststreaming_->Destroy();
+  signals_->stopmulticaststreaming_->Destroy();
 }
 
 // Requests
 void MediaClient::AddAudioDecoderConfiguration(const std::string& profiletoken, const std::string& configurationtoken)
 {
-  signals_->addaudiodecoderconfiguration_.Create(AddAudioDecoderConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
+  signals_->addaudiodecoderconfiguration_->Create(AddAudioDecoderConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
 }
 
 void MediaClient::AddAudioEncoderConfiguration(const std::string& profiletoken, const std::string& configurationtoken)
 {
-  signals_->addaudioencoderconfiguration_.Create(AddAudioEncoderConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
+  signals_->addaudioencoderconfiguration_->Create(AddAudioEncoderConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
 }
 
 void MediaClient::AddAudioOutputConfiguration(const std::string& profiletoken, const std::string& configurationtoken)
 {
-  signals_->addaudiooutputconfiguration_.Create(AddAudioOutputConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
+  signals_->addaudiooutputconfiguration_->Create(AddAudioOutputConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
 }
 
 void MediaClient::AddAudioSourceConfiguration(const std::string& profiletoken, const std::string& configurationtoken)
 {
-  signals_->addaudiosourceconfiguration_.Create(AddAudioSourceConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
+  signals_->addaudiosourceconfiguration_->Create(AddAudioSourceConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
 }
 
 void MediaClient::AddMetadataConfiguration(const std::string& profiletoken, const std::string& configurationtoken)
 {
-  signals_->addmetadataconfiguration_.Create(AddMetadataConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
+  signals_->addmetadataconfiguration_->Create(AddMetadataConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
 }
 
 void MediaClient::AddPTZConfiguration(const std::string& profiletoken, const std::string& configurationtoken)
 {
-  signals_->addptzconfiguration_.Create(AddPTZConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
+  signals_->addptzconfiguration_->Create(AddPTZConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
 }
 
 void MediaClient::AddVideoAnalyticsConfiguration(const std::string& profiletoken, const std::string& configurationtoken)
 {
-  signals_->addvideoanalyticsconfiguration_.Create(AddVideoAnalyticsConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
+  signals_->addvideoanalyticsconfiguration_->Create(AddVideoAnalyticsConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
 }
 
 void MediaClient::AddVideoEncoderConfiguration(const std::string& profiletoken, const std::string& configurationtoken)
 {
-  signals_->addvideoencoderconfiguration_.Create(AddVideoEncoderConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
+  signals_->addvideoencoderconfiguration_->Create(AddVideoEncoderConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
 }
 
 void MediaClient::AddVideoSourceConfiguration(const std::string& profiletoken, const std::string& configurationtoken)
 {
-  signals_->addvideosourceconfiguration_.Create(AddVideoSourceConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
+  signals_->addvideosourceconfiguration_->Create(AddVideoSourceConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
 }
 
 void MediaClient::CreateProfile(const std::string& name, const boost::optional<std::string>& token)
 {
-  signals_->createprofile_.Create(CreateProfileBody(name, token), name, token);
+  signals_->createprofile_->Create(CreateProfileBody(name, token), name, token);
 }
 
 void MediaClient::DeleteProfile(const std::string& token)
 {
-  signals_->deleteprofile_.Create(DeleteProfileBody(token), token);
+  signals_->deleteprofile_->Create(DeleteProfileBody(token), token);
 }
 
 void MediaClient::GetAudioDecoderConfiguration(const std::string& configurationtoken)
 {
-  signals_->getaudiodecoderconfiguration_.Create(GetAudioDecoderConfigurationBody(configurationtoken), configurationtoken);
+  signals_->getaudiodecoderconfiguration_->Create(GetAudioDecoderConfigurationBody(configurationtoken), configurationtoken);
 }
 
 void MediaClient::GetAudioDecoderConfigurationOptions(const boost::optional<std::string>& configurationtoken, const boost::optional<std::string>& profiletoken)
 {
-  signals_->getaudiodecoderconfigurationoptions_.Create(GetAudioDecoderConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
+  signals_->getaudiodecoderconfigurationoptions_->Create(GetAudioDecoderConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
 }
 
 void MediaClient::GetAudioDecoderConfigurations()
 {
-  signals_->getaudiodecoderconfigurations_.Create(GetAudioDecoderConfigurationsBody());
+  signals_->getaudiodecoderconfigurations_->Create(GetAudioDecoderConfigurationsBody());
 }
 
 void MediaClient::GetAudioEncoderConfiguration(const std::string& configurationtoken)
 {
-  signals_->getaudioencoderconfiguration_.Create(GetAudioEncoderConfigurationBody(configurationtoken), configurationtoken);
+  signals_->getaudioencoderconfiguration_->Create(GetAudioEncoderConfigurationBody(configurationtoken), configurationtoken);
 }
 
 void MediaClient::GetAudioEncoderConfigurationOptions(const boost::optional<std::string>& configurationtoken, const boost::optional<std::string>& profiletoken)
 {
-  signals_->getaudioencoderconfigurationoptions_.Create(GetAudioEncoderConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
+  signals_->getaudioencoderconfigurationoptions_->Create(GetAudioEncoderConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
 }
 
 void MediaClient::GetAudioEncoderConfigurations()
 {
-  signals_->getaudioencoderconfigurations_.Create(GetAudioEncoderConfigurationsBody());
+  signals_->getaudioencoderconfigurations_->Create(GetAudioEncoderConfigurationsBody());
 }
 
 void MediaClient::GetAudioOutputConfiguration(const std::string& configurationtoken)
 {
-  signals_->getaudiooutputconfiguration_.Create(GetAudioOutputConfigurationBody(configurationtoken), configurationtoken);
+  signals_->getaudiooutputconfiguration_->Create(GetAudioOutputConfigurationBody(configurationtoken), configurationtoken);
 }
 
 void MediaClient::GetAudioOutputConfigurationOptions(const boost::optional<std::string>& configurationtoken, const boost::optional<std::string>& profiletoken)
 {
-  signals_->getaudiooutputconfigurationoptions_.Create(GetAudioOutputConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
+  signals_->getaudiooutputconfigurationoptions_->Create(GetAudioOutputConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
 }
 
 void MediaClient::GetAudioOutputConfigurations()
 {
-  signals_->getaudiooutputconfigurations_.Create(GetAudioOutputConfigurationsBody());
+  signals_->getaudiooutputconfigurations_->Create(GetAudioOutputConfigurationsBody());
 }
 
 void MediaClient::GetAudioSourceConfiguration(const std::string& configurationtoken)
 {
-  signals_->getaudiosourceconfiguration_.Create(GetAudioSourceConfigurationBody(configurationtoken), configurationtoken);
+  signals_->getaudiosourceconfiguration_->Create(GetAudioSourceConfigurationBody(configurationtoken), configurationtoken);
 }
 
 void MediaClient::GetAudioSourceConfigurationOptions(const boost::optional<std::string>& configurationtoken, const boost::optional<std::string>& profiletoken)
 {
-  signals_->getaudiosourceconfigurationoptions_.Create(GetAudioSourceConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
+  signals_->getaudiosourceconfigurationoptions_->Create(GetAudioSourceConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
 }
 
 void MediaClient::GetAudioSourceConfigurations()
 {
-  signals_->getaudiosourceconfigurations_.Create(GetAudioSourceConfigurationsBody());
+  signals_->getaudiosourceconfigurations_->Create(GetAudioSourceConfigurationsBody());
 }
 
 void MediaClient::GetAudioSources()
 {
-  signals_->getaudiosources_.Create(GetAudioSourcesBody());
+  signals_->getaudiosources_->Create(GetAudioSourcesBody());
 }
 
 void MediaClient::GetCompatibleAudioDecoderConfigurations(const std::string& profiletoken)
 {
-  signals_->getcompatibleaudiodecoderconfigurations_.Create(GetCompatibleAudioDecoderConfigurationsBody(profiletoken), profiletoken);
+  signals_->getcompatibleaudiodecoderconfigurations_->Create(GetCompatibleAudioDecoderConfigurationsBody(profiletoken), profiletoken);
 }
 
 void MediaClient::GetCompatibleAudioEncoderConfigurations(const std::string& profiletoken)
 {
-  signals_->getcompatibleaudioencoderconfigurations_.Create(GetCompatibleAudioEncoderConfigurationsBody(profiletoken), profiletoken);
+  signals_->getcompatibleaudioencoderconfigurations_->Create(GetCompatibleAudioEncoderConfigurationsBody(profiletoken), profiletoken);
 }
 
 void MediaClient::GetCompatibleAudioOutputConfigurations(const std::string& profiletoken)
 {
-  signals_->getcompatibleaudiooutputconfigurations_.Create(GetCompatibleAudioOutputConfigurationsBody(profiletoken), profiletoken);
+  signals_->getcompatibleaudiooutputconfigurations_->Create(GetCompatibleAudioOutputConfigurationsBody(profiletoken), profiletoken);
 }
 
 void MediaClient::GetCompatibleAudioSourceConfigurations(const std::string& profiletoken)
 {
-  signals_->getcompatibleaudiosourceconfigurations_.Create(GetCompatibleAudioSourceConfigurationsBody(profiletoken), profiletoken);
+  signals_->getcompatibleaudiosourceconfigurations_->Create(GetCompatibleAudioSourceConfigurationsBody(profiletoken), profiletoken);
 }
 
 void MediaClient::GetCompatibleMetadataConfigurations(const std::string& profiletoken)
 {
-  signals_->getcompatiblemetadataconfigurations_.Create(GetCompatibleMetadataConfigurationsBody(profiletoken), profiletoken);
+  signals_->getcompatiblemetadataconfigurations_->Create(GetCompatibleMetadataConfigurationsBody(profiletoken), profiletoken);
 }
 
 void MediaClient::GetCompatibleVideoAnalyticsConfigurations(const std::string& profiletoken)
 {
-  signals_->getcompatiblevideoanalyticsconfigurations_.Create(GetCompatibleVideoAnalyticsConfigurationsBody(profiletoken), profiletoken);
+  signals_->getcompatiblevideoanalyticsconfigurations_->Create(GetCompatibleVideoAnalyticsConfigurationsBody(profiletoken), profiletoken);
 }
 
 void MediaClient::GetCompatibleVideoEncoderConfigurations(const std::string& profiletoken)
 {
-  signals_->getcompatiblevideoencoderconfigurations_.Create(GetCompatibleVideoEncoderConfigurationsBody(profiletoken), profiletoken);
+  signals_->getcompatiblevideoencoderconfigurations_->Create(GetCompatibleVideoEncoderConfigurationsBody(profiletoken), profiletoken);
 }
 
 void MediaClient::GetCompatibleVideoSourceConfigurations(const std::string& profiletoken)
 {
-  signals_->getcompatiblevideosourceconfigurations_.Create(GetCompatibleVideoSourceConfigurationsBody(profiletoken), profiletoken);
+  signals_->getcompatiblevideosourceconfigurations_->Create(GetCompatibleVideoSourceConfigurationsBody(profiletoken), profiletoken);
 }
 
 void MediaClient::GetMetadataConfiguration(const std::string& configurationtoken)
 {
-  signals_->getmetadataconfiguration_.Create(GetMetadataConfigurationBody(configurationtoken), configurationtoken);
+  signals_->getmetadataconfiguration_->Create(GetMetadataConfigurationBody(configurationtoken), configurationtoken);
 }
 
 void MediaClient::GetMetadataConfigurationOptions(const boost::optional<std::string>& configurationtoken, const boost::optional<std::string>& profiletoken)
 {
-  signals_->getmetadataconfigurationoptions_.Create(GetMetadataConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
+  signals_->getmetadataconfigurationoptions_->Create(GetMetadataConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
 }
 
 void MediaClient::GetMetadataConfigurations()
 {
-  signals_->getmetadataconfigurations_.Create(GetMetadataConfigurationsBody());
+  signals_->getmetadataconfigurations_->Create(GetMetadataConfigurationsBody());
 }
 
 void MediaClient::GetProfile(const std::string& token)
 {
-  signals_->getprofile_.Create(GetProfileBody(token), token);
+  signals_->getprofile_->Create(GetProfileBody(token), token);
 }
 
 void MediaClient::GetProfiles()
 {
-  signals_->getprofiles_.Create(GetProfilesBody());
+  signals_->getprofiles_->Create(GetProfilesBody());
 }
 
 void MediaClient::GetServiceCapabilities()
 {
-  signals_->getservicecapabilities_.Create(GetServiceCapabilitiesBody());
+  signals_->getservicecapabilities_->Create(GetServiceCapabilitiesBody());
 }
 
 void MediaClient::GetSnapshotUri(const std::string& token)
 {
-  signals_->getsnapshoturi_.Create(GetSnapshotUriBody(token), token);
+  signals_->getsnapshoturi_->Create(GetSnapshotUriBody(token), token);
 }
 
 void MediaClient::GetStreamUri(const StreamSetup& streamsetup, const std::string& token)
 {
-  signals_->getstreamuri_.Create(GetStreamUriBody(streamsetup, token), streamsetup, token);
+  signals_->getstreamuri_->Create(GetStreamUriBody(streamsetup, token), streamsetup, token);
 }
 
 void MediaClient::GetVideoAnalyticsConfigurations()
 {
-  signals_->getvideoanalyticsconfigurations_.Create(GetVideoAnalyticsConfigurationsBody());
+  signals_->getvideoanalyticsconfigurations_->Create(GetVideoAnalyticsConfigurationsBody());
 }
 
 void MediaClient::GetVideoEncoderConfiguration(const std::string& token)
 {
-  signals_->getvideoencoderconfiguration_.Create(GetVideoEncoderConfigurationBody(token), token);
+  signals_->getvideoencoderconfiguration_->Create(GetVideoEncoderConfigurationBody(token), token);
 }
 
 void MediaClient::GetVideoEncoderConfigurationOptions(const boost::optional<std::string>& configurationtoken, const boost::optional<std::string>& profiletoken)
 {
-  signals_->getvideoencoderconfigurationoptions_.Create(GetVideoEncoderConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
+  signals_->getvideoencoderconfigurationoptions_->Create(GetVideoEncoderConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
 }
 
 void MediaClient::GetVideoEncoderConfigurations()
 {
-  signals_->getvideoencoderconfigurations_.Create(GetVideoEncoderConfigurationsBody());
+  signals_->getvideoencoderconfigurations_->Create(GetVideoEncoderConfigurationsBody());
 }
 
 void MediaClient::GetVideoSourceConfiguration(const std::string& token)
 {
-  signals_->getvideosourceconfiguration_.Create(GetVideoSourceConfigurationBody(token), token);
+  signals_->getvideosourceconfiguration_->Create(GetVideoSourceConfigurationBody(token), token);
 }
 void MediaClient::GetVideoSourceConfigurationOptions(const boost::optional<std::string>& configurationtoken, const boost::optional<std::string>& profiletoken)
 {
-  signals_->getvideosourceconfigurationoptions_.Create(GetVideoSourceConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
+  signals_->getvideosourceconfigurationoptions_->Create(GetVideoSourceConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
 }
 
 void MediaClient::GetVideoSourceConfigurations()
 {
-  signals_->getvideosourceconfigurations_.Create(GetVideoSourceConfigurationsBody());
+  signals_->getvideosourceconfigurations_->Create(GetVideoSourceConfigurationsBody());
 }
 
 void MediaClient::GetVideoSourceModes(const std::string& token)
 {
-  signals_->getvideosourcemodes_.Create(GetVideoSourceModesBody(token), token);
+  signals_->getvideosourcemodes_->Create(GetVideoSourceModesBody(token), token);
 }
 
 void MediaClient::GetVideoSources()
 {
-  signals_->getvideosources_.Create(GetVideoSourcesBody());
+  signals_->getvideosources_->Create(GetVideoSourcesBody());
 }
 
 void MediaClient::RemoveAudioDecoderConfiguration(const std::string& profiletoken)
 {
-  signals_->removeaudiodecoderconfiguration_.Create(RemoveAudioDecoderConfigurationBody(profiletoken), profiletoken);
+  signals_->removeaudiodecoderconfiguration_->Create(RemoveAudioDecoderConfigurationBody(profiletoken), profiletoken);
 }
 
 void MediaClient::RemoveAudioEncoderConfiguration(const std::string& profiletoken)
 {
-  signals_->removeaudioencoderconfiguration_.Create(RemoveAudioEncoderConfigurationBody(profiletoken), profiletoken);
+  signals_->removeaudioencoderconfiguration_->Create(RemoveAudioEncoderConfigurationBody(profiletoken), profiletoken);
 }
 
 void MediaClient::RemoveAudioOutputConfiguration(const std::string& profiletoken)
 {
-  signals_->removeaudiooutputconfiguration_.Create(RemoveAudioOutputConfigurationBody(profiletoken), profiletoken);
+  signals_->removeaudiooutputconfiguration_->Create(RemoveAudioOutputConfigurationBody(profiletoken), profiletoken);
 }
 
 void MediaClient::RemoveAudioSourceConfiguration(const std::string& profiletoken)
 {
-  signals_->removeaudiosourceconfiguration_.Create(RemoveAudioSourceConfigurationBody(profiletoken), profiletoken);
+  signals_->removeaudiosourceconfiguration_->Create(RemoveAudioSourceConfigurationBody(profiletoken), profiletoken);
 }
 
 void MediaClient::RemoveMetadataConfiguration(const std::string& profiletoken)
 {
-  signals_->removemetadataconfiguration_.Create(RemoveMetadataConfigurationBody(profiletoken), profiletoken);
+  signals_->removemetadataconfiguration_->Create(RemoveMetadataConfigurationBody(profiletoken), profiletoken);
 }
 
 void MediaClient::RemovePTZConfiguration(const std::string& profiletoken)
 {
-  signals_->removeptzconfiguration_.Create(RemovePTZConfigurationBody(profiletoken), profiletoken);
+  signals_->removeptzconfiguration_->Create(RemovePTZConfigurationBody(profiletoken), profiletoken);
 }
 
 void MediaClient::RemoveVideoAnalyticsConfiguration(const std::string& profiletoken)
 {
-  signals_->removevideoanalyticsconfiguration_.Create(RemoveVideoAnalyticsConfigurationBody(profiletoken), profiletoken);
+  signals_->removevideoanalyticsconfiguration_->Create(RemoveVideoAnalyticsConfigurationBody(profiletoken), profiletoken);
 }
 
 void MediaClient::RemoveVideoEncoderConfiguration(const std::string& profiletoken)
 {
-  signals_->removevideoencoderconfiguration_.Create(RemoveVideoEncoderConfigurationBody(profiletoken), profiletoken);
+  signals_->removevideoencoderconfiguration_->Create(RemoveVideoEncoderConfigurationBody(profiletoken), profiletoken);
 }
 
 void MediaClient::RemoveVideoSourceConfiguration(const std::string& profiletoken)
 {
-  signals_->removevideosourceconfiguration_.Create(RemoveVideoSourceConfigurationBody(profiletoken), profiletoken);
+  signals_->removevideosourceconfiguration_->Create(RemoveVideoSourceConfigurationBody(profiletoken), profiletoken);
 }
 
 void MediaClient::SetAudioDecoderConfiguration(const AudioDecoderConfiguration& configuration)
 {
-  signals_->setaudiodecoderconfiguration_.Create(SetAudioDecoderConfigurationBody(configuration), configuration);
+  signals_->setaudiodecoderconfiguration_->Create(SetAudioDecoderConfigurationBody(configuration), configuration);
 }
 
 void MediaClient::SetAudioEncoderConfiguration(const AudioEncoderConfiguration& configuration)
 {
-  signals_->setaudioencoderconfiguration_.Create(SetAudioEncoderConfigurationBody(configuration), configuration);
+  signals_->setaudioencoderconfiguration_->Create(SetAudioEncoderConfigurationBody(configuration), configuration);
 }
 
 void MediaClient::SetAudioOutputConfiguration(const AudioOutputConfiguration& configuration)
 {
-  signals_->setaudiooutputconfiguration_.Create(SetAudioOutputConfigurationBody(configuration), configuration);
+  signals_->setaudiooutputconfiguration_->Create(SetAudioOutputConfigurationBody(configuration), configuration);
 }
 
 void MediaClient::SetAudioSourceConfiguration(const AudioSourceConfiguration& configuration)
 {
-  signals_->setaudiosourceconfiguration_.Create(SetAudioSourceConfigurationBody(configuration), configuration);
+  signals_->setaudiosourceconfiguration_->Create(SetAudioSourceConfigurationBody(configuration), configuration);
 }
 
 void MediaClient::SetMetadataConfiguration(const MetadataConfiguration& configuration)
 {
-  signals_->setmetadataconfiguration_.Create(SetMetadataConfigurationBody(configuration), configuration);
+  signals_->setmetadataconfiguration_->Create(SetMetadataConfigurationBody(configuration), configuration);
 }
 
 void MediaClient::SetSynchronizationPoint(const std::string& profiletoken)
 {
-  signals_->setsynchronizationpoint_.Create(SetSynchronizationPointBody(profiletoken), profiletoken);
+  signals_->setsynchronizationpoint_->Create(SetSynchronizationPointBody(profiletoken), profiletoken);
 }
 
 void MediaClient::SetVideoEncoderConfiguration(const VideoEncoderConfiguration& videoencoderconfiguration)
 {
-  signals_->setvideoencoderconfiguration_.Create(SetVideoEncoderConfigurationBody(videoencoderconfiguration), videoencoderconfiguration);
+  signals_->setvideoencoderconfiguration_->Create(SetVideoEncoderConfigurationBody(videoencoderconfiguration), videoencoderconfiguration);
 }
 
 void MediaClient::SetVideoSourceConfiguration(const VideoSourceConfiguration& videosourceconfiguration)
 {
-  signals_->setvideosourceconfiguration_.Create(SetVideoSourceConfigurationBody(videosourceconfiguration), videosourceconfiguration);
+  signals_->setvideosourceconfiguration_->Create(SetVideoSourceConfigurationBody(videosourceconfiguration), videosourceconfiguration);
 }
 
 void MediaClient::StartMulticastStreaming(const std::string& profiletoken)
 {
-  signals_->startmulticaststreaming_.Create(StartMulticastStreamingBody(profiletoken), profiletoken);
+  signals_->startmulticaststreaming_->Create(StartMulticastStreamingBody(profiletoken), profiletoken);
 }
 
 void MediaClient::StopMulticastStreaming(const std::string& profiletoken)
 {
-  signals_->stopmulticaststreaming_.Create(StopMulticastStreamingBody(profiletoken), profiletoken);
+  signals_->stopmulticaststreaming_->Create(StopMulticastStreamingBody(profiletoken), profiletoken);
 }
 
 // Callbacks
 Connection MediaClient::AddAudioDecoderConfigurationCallback(const std::string& profiletoken, const std::string& configurationtoken, boost::function<void(const AddAudioDecoderConfigurationResponse&)> callback)
 {
-  return signals_->addaudiodecoderconfiguration_.CreateCallback(AddAudioDecoderConfigurationBody(profiletoken, configurationtoken), callback, profiletoken, configurationtoken);
+  return signals_->addaudiodecoderconfiguration_->CreateCallback(AddAudioDecoderConfigurationBody(profiletoken, configurationtoken), callback, profiletoken, configurationtoken);
 }
 
 Connection MediaClient::AddAudioEncoderConfigurationCallback(const std::string& profiletoken, const std::string& configurationtoken, boost::function<void(const AddAudioEncoderConfigurationResponse&)> callback)
 {
-  return signals_->addaudioencoderconfiguration_.CreateCallback(AddAudioEncoderConfigurationBody(profiletoken, configurationtoken), callback, profiletoken, configurationtoken);
+  return signals_->addaudioencoderconfiguration_->CreateCallback(AddAudioEncoderConfigurationBody(profiletoken, configurationtoken), callback, profiletoken, configurationtoken);
 }
 
 Connection MediaClient::AddAudioOutputConfigurationCallback(const std::string& profiletoken, const std::string& configurationtoken, boost::function<void(const AddAudioOutputConfigurationResponse&)> callback)
 {
-  return signals_->addaudiooutputconfiguration_.CreateCallback(AddAudioOutputConfigurationBody(profiletoken, configurationtoken), callback, profiletoken, configurationtoken);
+  return signals_->addaudiooutputconfiguration_->CreateCallback(AddAudioOutputConfigurationBody(profiletoken, configurationtoken), callback, profiletoken, configurationtoken);
 }
 
 Connection MediaClient::AddAudioSourceConfigurationCallback(const std::string& profiletoken, const std::string& configurationtoken, boost::function<void(const AddAudioSourceConfigurationResponse&)> callback)
 {
-  return signals_->addaudiosourceconfiguration_.CreateCallback(AddAudioSourceConfigurationBody(profiletoken, configurationtoken), callback, profiletoken, configurationtoken);
+  return signals_->addaudiosourceconfiguration_->CreateCallback(AddAudioSourceConfigurationBody(profiletoken, configurationtoken), callback, profiletoken, configurationtoken);
 }
 
 Connection MediaClient::AddMetadataConfigurationCallback(const std::string& profiletoken, const std::string& configurationtoken, boost::function<void(const AddMetadataConfigurationResponse&)> callback)
 {
-  return signals_->addmetadataconfiguration_.CreateCallback(AddMetadataConfigurationBody(profiletoken, configurationtoken), callback, profiletoken, configurationtoken);
+  return signals_->addmetadataconfiguration_->CreateCallback(AddMetadataConfigurationBody(profiletoken, configurationtoken), callback, profiletoken, configurationtoken);
 }
 
 Connection MediaClient::AddPTZConfigurationCallback(const std::string& profiletoken, const std::string& configurationtoken, boost::function<void(const AddPTZConfigurationResponse&)> callback)
 {
-  return signals_->addptzconfiguration_.CreateCallback(AddPTZConfigurationBody(profiletoken, configurationtoken), callback, profiletoken, configurationtoken);
+  return signals_->addptzconfiguration_->CreateCallback(AddPTZConfigurationBody(profiletoken, configurationtoken), callback, profiletoken, configurationtoken);
 }
 
 Connection MediaClient::AddVideoAnalyticsConfigurationCallback(const std::string& profiletoken, const std::string& configurationtoken, boost::function<void(const AddVideoAnalyticsConfigurationResponse&)> callback)
 {
-  return signals_->addvideoanalyticsconfiguration_.CreateCallback(AddVideoAnalyticsConfigurationBody(profiletoken, configurationtoken), callback, profiletoken, configurationtoken);
+  return signals_->addvideoanalyticsconfiguration_->CreateCallback(AddVideoAnalyticsConfigurationBody(profiletoken, configurationtoken), callback, profiletoken, configurationtoken);
 }
 
 Connection MediaClient::AddVideoEncoderConfigurationCallback(const std::string& profiletoken, const std::string& configurationtoken, boost::function<void(const AddVideoEncoderConfigurationResponse&)> callback)
 {
-  return signals_->addvideoencoderconfiguration_.CreateCallback(AddVideoEncoderConfigurationBody(profiletoken, configurationtoken), callback, profiletoken, configurationtoken);
+  return signals_->addvideoencoderconfiguration_->CreateCallback(AddVideoEncoderConfigurationBody(profiletoken, configurationtoken), callback, profiletoken, configurationtoken);
 }
 
 Connection MediaClient::AddVideoSourceConfigurationCallback(const std::string& profiletoken, const std::string& configurationtoken, boost::function<void(const AddVideoSourceConfigurationResponse&)> callback)
 {
-  return signals_->addvideosourceconfiguration_.CreateCallback(AddVideoSourceConfigurationBody(profiletoken, configurationtoken), callback, profiletoken, configurationtoken);
+  return signals_->addvideosourceconfiguration_->CreateCallback(AddVideoSourceConfigurationBody(profiletoken, configurationtoken), callback, profiletoken, configurationtoken);
 }
 
 Connection MediaClient::CreateProfileCallback(const std::string& name, const boost::optional<std::string>& token, boost::function<void(const CreateProfileResponse&)> callback)
 {
-  return signals_->createprofile_.CreateCallback(CreateProfileBody(name, token), callback, name, token);
+  return signals_->createprofile_->CreateCallback(CreateProfileBody(name, token), callback, name, token);
 }
 
 Connection MediaClient::DeleteProfileCallback(const std::string& token, boost::function<void(const DeleteProfileResponse&)> callback)
 {
-  return signals_->deleteprofile_.CreateCallback(DeleteProfileBody(token), callback, token);
+  return signals_->deleteprofile_->CreateCallback(DeleteProfileBody(token), callback, token);
 }
 
 Connection MediaClient::GetAudioDecoderConfigurationCallback(const std::string& configurationtoken, boost::function<void(const GetAudioDecoderConfigurationResponse&)> callback)
 {
-  return signals_->getaudiodecoderconfiguration_.CreateCallback(GetAudioDecoderConfigurationBody(configurationtoken), callback, configurationtoken);
+  return signals_->getaudiodecoderconfiguration_->CreateCallback(GetAudioDecoderConfigurationBody(configurationtoken), callback, configurationtoken);
 }
 
 Connection MediaClient::GetAudioDecoderConfigurationOptionsCallback(const boost::optional<std::string>& configurationtoken, const boost::optional<std::string>& profiletoken, boost::function<void(const GetAudioDecoderConfigurationOptionsResponse&)> callback)
 {
-  return signals_->getaudiodecoderconfigurationoptions_.CreateCallback(GetAudioDecoderConfigurationOptionsBody(configurationtoken, profiletoken), callback, configurationtoken, profiletoken);
+  return signals_->getaudiodecoderconfigurationoptions_->CreateCallback(GetAudioDecoderConfigurationOptionsBody(configurationtoken, profiletoken), callback, configurationtoken, profiletoken);
 }
 
 Connection MediaClient::GetAudioDecoderConfigurationsCallback(boost::function<void(const GetAudioDecoderConfigurationsResponse&)> callback)
 {
-  return signals_->getaudiodecoderconfigurations_.CreateCallback(GetAudioDecoderConfigurationsBody(), callback);
+  return signals_->getaudiodecoderconfigurations_->CreateCallback(GetAudioDecoderConfigurationsBody(), callback);
 }
 
 Connection MediaClient::GetAudioEncoderConfigurationCallback(const std::string& configurationtoken, boost::function<void(const GetAudioEncoderConfigurationResponse&)> callback)
 {
-  return signals_->getaudioencoderconfiguration_.CreateCallback(GetAudioEncoderConfigurationBody(configurationtoken), callback, configurationtoken);
+  return signals_->getaudioencoderconfiguration_->CreateCallback(GetAudioEncoderConfigurationBody(configurationtoken), callback, configurationtoken);
 }
 
 Connection MediaClient::GetAudioEncoderConfigurationOptionsCallback(const boost::optional<std::string>& configurationtoken, const boost::optional<std::string>& profiletoken, boost::function<void(const GetAudioEncoderConfigurationOptionsResponse&)> callback)
 {
-  return signals_->getaudioencoderconfigurationoptions_.CreateCallback(GetAudioEncoderConfigurationOptionsBody(configurationtoken, profiletoken), callback, configurationtoken, profiletoken);
+  return signals_->getaudioencoderconfigurationoptions_->CreateCallback(GetAudioEncoderConfigurationOptionsBody(configurationtoken, profiletoken), callback, configurationtoken, profiletoken);
 }
 
 Connection MediaClient::GetAudioEncoderConfigurationsCallback(boost::function<void(const GetAudioEncoderConfigurationsResponse&)> callback)
 {
-  return signals_->getaudioencoderconfigurations_.CreateCallback(GetAudioEncoderConfigurationsBody(), callback);
+  return signals_->getaudioencoderconfigurations_->CreateCallback(GetAudioEncoderConfigurationsBody(), callback);
 }
 
 Connection MediaClient::GetAudioOutputConfigurationCallback(const std::string& configurationtoken, boost::function<void(const GetAudioOutputConfigurationResponse&)> callback)
 {
-  return signals_->getaudiooutputconfiguration_.CreateCallback(GetAudioOutputConfigurationBody(configurationtoken), callback, configurationtoken);
+  return signals_->getaudiooutputconfiguration_->CreateCallback(GetAudioOutputConfigurationBody(configurationtoken), callback, configurationtoken);
 }
 
 Connection MediaClient::GetAudioOutputConfigurationOptionsCallback(const boost::optional<std::string>& configurationtoken, const boost::optional<std::string>& profiletoken, boost::function<void(const GetAudioOutputConfigurationOptionsResponse&)> callback)
 {
-  return signals_->getaudiooutputconfigurationoptions_.CreateCallback(GetAudioOutputConfigurationOptionsBody(configurationtoken, profiletoken), callback, configurationtoken, profiletoken);
+  return signals_->getaudiooutputconfigurationoptions_->CreateCallback(GetAudioOutputConfigurationOptionsBody(configurationtoken, profiletoken), callback, configurationtoken, profiletoken);
 }
 
 Connection MediaClient::GetAudioOutputConfigurationsCallback(boost::function<void(const GetAudioOutputConfigurationsResponse&)> callback)
 {
-  return signals_->getaudiooutputconfigurations_.CreateCallback(GetAudioOutputConfigurationsBody(), callback);
+  return signals_->getaudiooutputconfigurations_->CreateCallback(GetAudioOutputConfigurationsBody(), callback);
 }
 
 Connection MediaClient::GetAudioSourceConfigurationCallback(const std::string& configurationtoken, boost::function<void(const GetAudioSourceConfigurationResponse&)> callback)
 {
-  return signals_->getaudiosourceconfiguration_.CreateCallback(GetAudioSourceConfigurationBody(configurationtoken), callback, configurationtoken);
+  return signals_->getaudiosourceconfiguration_->CreateCallback(GetAudioSourceConfigurationBody(configurationtoken), callback, configurationtoken);
 }
 
 Connection MediaClient::GetAudioSourceConfigurationOptionsCallback(const boost::optional<std::string>& configurationtoken, const boost::optional<std::string>& profiletoken, boost::function<void(const GetAudioSourceConfigurationOptionsResponse&)> callback)
 {
-  return signals_->getaudiosourceconfigurationoptions_.CreateCallback(GetAudioSourceConfigurationOptionsBody(configurationtoken, profiletoken), callback, configurationtoken, profiletoken);
+  return signals_->getaudiosourceconfigurationoptions_->CreateCallback(GetAudioSourceConfigurationOptionsBody(configurationtoken, profiletoken), callback, configurationtoken, profiletoken);
 }
 
 Connection MediaClient::GetAudioSourceConfigurationsCallback(boost::function<void(const GetAudioSourceConfigurationsResponse&)> callback)
 {
-  return signals_->getaudiosourceconfigurations_.CreateCallback(GetAudioSourceConfigurationsBody(), callback);
+  return signals_->getaudiosourceconfigurations_->CreateCallback(GetAudioSourceConfigurationsBody(), callback);
 }
 
 Connection MediaClient::GetAudioSourcesCallback(boost::function<void(const GetAudioSourcesResponse&)> callback)
 {
-  return signals_->getaudiosources_.CreateCallback(GetAudioSourcesBody(), callback);
+  return signals_->getaudiosources_->CreateCallback(GetAudioSourcesBody(), callback);
 }
 
 Connection MediaClient::GetCompatibleAudioDecoderConfigurationsCallback(const std::string& profiletoken, boost::function<void(const GetCompatibleAudioDecoderConfigurationsResponse&)> callback)
 {
-  return signals_->getcompatibleaudiodecoderconfigurations_.CreateCallback(GetCompatibleAudioDecoderConfigurationsBody(profiletoken), callback, profiletoken);
+  return signals_->getcompatibleaudiodecoderconfigurations_->CreateCallback(GetCompatibleAudioDecoderConfigurationsBody(profiletoken), callback, profiletoken);
 }
 
 Connection MediaClient::GetCompatibleAudioEncoderConfigurationsCallback(const std::string& profiletoken, boost::function<void(const GetCompatibleAudioEncoderConfigurationsResponse&)> callback)
 {
-  return signals_->getcompatibleaudioencoderconfigurations_.CreateCallback(GetCompatibleAudioEncoderConfigurationsBody(profiletoken), callback, profiletoken);
+  return signals_->getcompatibleaudioencoderconfigurations_->CreateCallback(GetCompatibleAudioEncoderConfigurationsBody(profiletoken), callback, profiletoken);
 }
 
 Connection MediaClient::GetCompatibleAudioOutputConfigurationsCallback(const std::string& profiletoken, boost::function<void(const GetCompatibleAudioOutputConfigurationsResponse&)> callback)
 {
-  return signals_->getcompatibleaudiooutputconfigurations_.CreateCallback(GetCompatibleAudioOutputConfigurationsBody(profiletoken), callback, profiletoken);
+  return signals_->getcompatibleaudiooutputconfigurations_->CreateCallback(GetCompatibleAudioOutputConfigurationsBody(profiletoken), callback, profiletoken);
 }
 
 Connection MediaClient::GetCompatibleAudioSourceConfigurationsCallback(const std::string& profiletoken, boost::function<void(const GetCompatibleAudioSourceConfigurationsResponse&)> callback)
 {
-  return signals_->getcompatibleaudiosourceconfigurations_.CreateCallback(GetCompatibleAudioSourceConfigurationsBody(profiletoken), callback, profiletoken);
+  return signals_->getcompatibleaudiosourceconfigurations_->CreateCallback(GetCompatibleAudioSourceConfigurationsBody(profiletoken), callback, profiletoken);
 }
 
 Connection MediaClient::GetCompatibleMetadataConfigurationsCallback(const std::string& profiletoken, boost::function<void(const GetCompatibleMetadataConfigurationsResponse&)> callback)
 {
-  return signals_->getcompatiblemetadataconfigurations_.CreateCallback(GetCompatibleMetadataConfigurationsBody(profiletoken), callback, profiletoken);
+  return signals_->getcompatiblemetadataconfigurations_->CreateCallback(GetCompatibleMetadataConfigurationsBody(profiletoken), callback, profiletoken);
 }
 
 Connection MediaClient::GetCompatibleVideoAnalyticsConfigurationsCallback(const std::string& profiletoken, boost::function<void(const GetCompatibleVideoAnalyticsConfigurationsResponse&)> callback)
 {
-  return signals_->getcompatiblevideoanalyticsconfigurations_.CreateCallback(GetCompatibleVideoAnalyticsConfigurationsBody(profiletoken), callback, profiletoken);
+  return signals_->getcompatiblevideoanalyticsconfigurations_->CreateCallback(GetCompatibleVideoAnalyticsConfigurationsBody(profiletoken), callback, profiletoken);
 }
 
 Connection MediaClient::GetCompatibleVideoEncoderConfigurationsCallback(const std::string& profiletoken, boost::function<void(const GetCompatibleVideoEncoderConfigurationsResponse&)> callback)
 {
-  return signals_->getcompatiblevideoencoderconfigurations_.CreateCallback(GetCompatibleVideoEncoderConfigurationsBody(profiletoken), callback, profiletoken);
+  return signals_->getcompatiblevideoencoderconfigurations_->CreateCallback(GetCompatibleVideoEncoderConfigurationsBody(profiletoken), callback, profiletoken);
 }
 
 Connection MediaClient::GetCompatibleVideoSourceConfigurationsCallback(const std::string& profiletoken, boost::function<void(const GetCompatibleVideoSourceConfigurationsResponse&)> callback)
 {
-  return signals_->getcompatiblevideosourceconfigurations_.CreateCallback(GetCompatibleVideoSourceConfigurationsBody(profiletoken), callback, profiletoken);
+  return signals_->getcompatiblevideosourceconfigurations_->CreateCallback(GetCompatibleVideoSourceConfigurationsBody(profiletoken), callback, profiletoken);
 }
 
 Connection MediaClient::GetMetadataConfigurationCallback(const std::string& configurationtoken, boost::function<void(const GetMetadataConfigurationResponse&)> callback)
 {
-  return signals_->getmetadataconfiguration_.CreateCallback(GetMetadataConfigurationBody(configurationtoken), callback, configurationtoken);
+  return signals_->getmetadataconfiguration_->CreateCallback(GetMetadataConfigurationBody(configurationtoken), callback, configurationtoken);
 }
 
 Connection MediaClient::GetMetadataConfigurationOptionsCallback(const boost::optional<std::string>& configurationtoken, const boost::optional<std::string>& profiletoken, boost::function<void(const GetMetadataConfigurationOptionsResponse&)> callback)
 {
-  return signals_->getmetadataconfigurationoptions_.CreateCallback(GetMetadataConfigurationOptionsBody(configurationtoken, profiletoken), callback, configurationtoken, profiletoken);
+  return signals_->getmetadataconfigurationoptions_->CreateCallback(GetMetadataConfigurationOptionsBody(configurationtoken, profiletoken), callback, configurationtoken, profiletoken);
 }
 
 Connection MediaClient::GetMetadataConfigurationsCallback(boost::function<void(const GetMetadataConfigurationsResponse&)> callback)
 {
-  return signals_->getmetadataconfigurations_.CreateCallback(GetMetadataConfigurationsBody(), callback);
+  return signals_->getmetadataconfigurations_->CreateCallback(GetMetadataConfigurationsBody(), callback);
 }
 
 Connection MediaClient::GetProfileCallback(const std::string& token, boost::function<void(const GetProfileResponse&)> callback)
 {
-  return signals_->getprofile_.CreateCallback(GetProfileBody(token), callback, token);
+  return signals_->getprofile_->CreateCallback(GetProfileBody(token), callback, token);
 }
 
 Connection MediaClient::GetProfilesCallback(boost::function<void(const GetProfilesResponse&)> callback)
 {
-  return signals_->getprofiles_.CreateCallback(GetProfilesBody(), callback);
+  return signals_->getprofiles_->CreateCallback(GetProfilesBody(), callback);
 }
 
 Connection MediaClient::GetServiceCapabilitiesCallback(boost::function<void(const GetServiceCapabilitiesResponse&)> callback)
 {
-  return signals_->getservicecapabilities_.CreateCallback(GetServiceCapabilitiesBody(), callback);
+  return signals_->getservicecapabilities_->CreateCallback(GetServiceCapabilitiesBody(), callback);
 }
 
 Connection MediaClient::GetSnapshotUriCallback(const std::string& token, boost::function<void(const GetSnapshotUriResponse&)> callback)
 {
-  return signals_->getsnapshoturi_.CreateCallback(GetSnapshotUriBody(token), callback, token);
+  return signals_->getsnapshoturi_->CreateCallback(GetSnapshotUriBody(token), callback, token);
 }
 
 Connection MediaClient::GetStreamUriCallback(const StreamSetup& streamsetup, const std::string& token, boost::function<void(const GetStreamUriResponse&)> callback)
 {
-  return signals_->getstreamuri_.CreateCallback(GetStreamUriBody(streamsetup, token), callback, streamsetup, token);
+  return signals_->getstreamuri_->CreateCallback(GetStreamUriBody(streamsetup, token), callback, streamsetup, token);
 }
 
 Connection MediaClient::GetVideoAnalyticsConfigurationsCallback(boost::function<void(const GetVideoAnalyticsConfigurationsResponse&)> callback)
 {
-  return signals_->getvideoanalyticsconfigurations_.CreateCallback(GetVideoAnalyticsConfigurationsBody(), callback);
+  return signals_->getvideoanalyticsconfigurations_->CreateCallback(GetVideoAnalyticsConfigurationsBody(), callback);
 }
 
 Connection MediaClient::GetVideoEncoderConfigurationCallback(const std::string& token, boost::function<void(const GetVideoEncoderConfigurationResponse&)> callback)
 {
-  return signals_->getvideoencoderconfiguration_.CreateCallback(GetVideoEncoderConfigurationBody(token), callback, token);
+  return signals_->getvideoencoderconfiguration_->CreateCallback(GetVideoEncoderConfigurationBody(token), callback, token);
 }
 
 Connection MediaClient::GetVideoEncoderConfigurationOptionsCallback(const boost::optional<std::string>& configurationtoken, const boost::optional<std::string>& profiletoken, boost::function<void(const GetVideoEncoderConfigurationOptionsResponse&)> callback)
 {
-  return signals_->getvideoencoderconfigurationoptions_.CreateCallback(GetVideoEncoderConfigurationOptionsBody(configurationtoken, profiletoken), callback, configurationtoken, profiletoken);
+  return signals_->getvideoencoderconfigurationoptions_->CreateCallback(GetVideoEncoderConfigurationOptionsBody(configurationtoken, profiletoken), callback, configurationtoken, profiletoken);
 }
 
 Connection MediaClient::GetVideoEncoderConfigurationsCallback(boost::function<void(const GetVideoEncoderConfigurationsResponse&)> callback)
 {
-  return signals_->getvideoencoderconfigurations_.CreateCallback(GetVideoEncoderConfigurationsBody(), callback);
+  return signals_->getvideoencoderconfigurations_->CreateCallback(GetVideoEncoderConfigurationsBody(), callback);
 }
 
 Connection MediaClient::GetVideoSourceConfigurationCallback(const std::string& token, boost::function<void(const GetVideoSourceConfigurationResponse&)> callback)
 {
-  return signals_->getvideosourceconfiguration_.CreateCallback(GetVideoSourceConfigurationBody(token), callback, token);
+  return signals_->getvideosourceconfiguration_->CreateCallback(GetVideoSourceConfigurationBody(token), callback, token);
 }
 
 Connection MediaClient::GetVideoSourceConfigurationOptionsCallback(const boost::optional<std::string>& configurationtoken, const boost::optional<std::string>& profiletoken, boost::function<void(const GetVideoSourceConfigurationOptionsResponse&)> callback)
 {
-  return signals_->getvideosourceconfigurationoptions_.CreateCallback(GetVideoSourceConfigurationOptionsBody(configurationtoken, profiletoken), callback, configurationtoken, profiletoken);
+  return signals_->getvideosourceconfigurationoptions_->CreateCallback(GetVideoSourceConfigurationOptionsBody(configurationtoken, profiletoken), callback, configurationtoken, profiletoken);
 }
 
 Connection MediaClient::GetVideoSourceConfigurationsCallback(boost::function<void(const GetVideoSourceConfigurationsResponse&)> callback)
 {
-  return signals_->getvideosourceconfigurations_.CreateCallback(GetVideoSourceConfigurationsBody(), callback);
+  return signals_->getvideosourceconfigurations_->CreateCallback(GetVideoSourceConfigurationsBody(), callback);
 }
 
 Connection MediaClient::GetVideoSourceModesCallback(const std::string& token, boost::function<void(const GetVideoSourceModesResponse&)> callback)
 {
-  return signals_->getvideosourcemodes_.CreateCallback(GetVideoSourceModesBody(token), callback, token);
+  return signals_->getvideosourcemodes_->CreateCallback(GetVideoSourceModesBody(token), callback, token);
 }
 
 Connection MediaClient::GetVideoSourcesCallback(boost::function<void(const GetVideoSourcesResponse&)> callback)
 {
-  return signals_->getvideosources_.CreateCallback(GetVideoSourcesBody(), callback);
+  return signals_->getvideosources_->CreateCallback(GetVideoSourcesBody(), callback);
 }
 
 Connection MediaClient::RemoveAudioDecoderConfigurationCallback(const std::string& profiletoken, boost::function<void(const RemoveAudioDecoderConfigurationResponse&)> callback)
 {
-  return signals_->removeaudiodecoderconfiguration_.CreateCallback(RemoveAudioDecoderConfigurationBody(profiletoken), callback, profiletoken);
+  return signals_->removeaudiodecoderconfiguration_->CreateCallback(RemoveAudioDecoderConfigurationBody(profiletoken), callback, profiletoken);
 }
 
 Connection MediaClient::RemoveAudioEncoderConfigurationCallback(const std::string& profiletoken, boost::function<void(const RemoveAudioEncoderConfigurationResponse&)> callback)
 {
-  return signals_->removeaudioencoderconfiguration_.CreateCallback(RemoveAudioEncoderConfigurationBody(profiletoken), callback, profiletoken);
+  return signals_->removeaudioencoderconfiguration_->CreateCallback(RemoveAudioEncoderConfigurationBody(profiletoken), callback, profiletoken);
 }
 
 Connection MediaClient::RemoveAudioOutputConfigurationCallback(const std::string& profiletoken, boost::function<void(const RemoveAudioOutputConfigurationResponse&)> callback)
 {
-  return signals_->removeaudiooutputconfiguration_.CreateCallback(RemoveAudioOutputConfigurationBody(profiletoken), callback, profiletoken);
+  return signals_->removeaudiooutputconfiguration_->CreateCallback(RemoveAudioOutputConfigurationBody(profiletoken), callback, profiletoken);
 }
 
 Connection MediaClient::RemoveAudioSourceConfigurationCallback(const std::string& profiletoken, boost::function<void(const RemoveAudioSourceConfigurationResponse&)> callback)
 {
-  return signals_->removeaudiosourceconfiguration_.CreateCallback(RemoveAudioSourceConfigurationBody(profiletoken), callback, profiletoken);
+  return signals_->removeaudiosourceconfiguration_->CreateCallback(RemoveAudioSourceConfigurationBody(profiletoken), callback, profiletoken);
 }
 
 Connection MediaClient::RemoveMetadataConfigurationCallback(const std::string& profiletoken, boost::function<void(const RemoveMetadataConfigurationResponse&)> callback)
 {
-  return signals_->removemetadataconfiguration_.CreateCallback(RemoveMetadataConfigurationBody(profiletoken), callback, profiletoken);
+  return signals_->removemetadataconfiguration_->CreateCallback(RemoveMetadataConfigurationBody(profiletoken), callback, profiletoken);
 }
 
 Connection MediaClient::RemovePTZConfigurationCallback(const std::string& profiletoken, boost::function<void(const RemovePTZConfigurationResponse&)> callback)
 {
-  return signals_->removeptzconfiguration_.CreateCallback(RemovePTZConfigurationBody(profiletoken), callback, profiletoken);
+  return signals_->removeptzconfiguration_->CreateCallback(RemovePTZConfigurationBody(profiletoken), callback, profiletoken);
 }
 
 Connection MediaClient::RemoveVideoAnalyticsConfigurationCallback(const std::string& profiletoken, boost::function<void(const RemoveVideoAnalyticsConfigurationResponse&)> callback)
 {
-  return signals_->removevideoanalyticsconfiguration_.CreateCallback(RemoveVideoAnalyticsConfigurationBody(profiletoken), callback, profiletoken);
+  return signals_->removevideoanalyticsconfiguration_->CreateCallback(RemoveVideoAnalyticsConfigurationBody(profiletoken), callback, profiletoken);
 }
 
 Connection MediaClient::RemoveVideoEncoderConfigurationCallback(const std::string& profiletoken, boost::function<void(const RemoveVideoEncoderConfigurationResponse&)> callback)
 {
-  return signals_->removevideoencoderconfiguration_.CreateCallback(RemoveVideoEncoderConfigurationBody(profiletoken), callback, profiletoken);
+  return signals_->removevideoencoderconfiguration_->CreateCallback(RemoveVideoEncoderConfigurationBody(profiletoken), callback, profiletoken);
 }
 
 Connection MediaClient::RemoveVideoSourceConfigurationCallback(const std::string& profiletoken, boost::function<void(const RemoveVideoSourceConfigurationResponse&)> callback)
 {
-  return signals_->removevideosourceconfiguration_.CreateCallback(RemoveVideoSourceConfigurationBody(profiletoken), callback, profiletoken);
+  return signals_->removevideosourceconfiguration_->CreateCallback(RemoveVideoSourceConfigurationBody(profiletoken), callback, profiletoken);
 }
 
 Connection MediaClient::SetAudioDecoderConfigurationCallback(const AudioDecoderConfiguration& configuration, boost::function<void(const SetAudioDecoderConfigurationResponse&)> callback)
 {
-  return signals_->setaudiodecoderconfiguration_.CreateCallback(SetAudioDecoderConfigurationBody(configuration), callback, configuration);
+  return signals_->setaudiodecoderconfiguration_->CreateCallback(SetAudioDecoderConfigurationBody(configuration), callback, configuration);
 }
 
 Connection MediaClient::SetAudioEncoderConfigurationCallback(const AudioEncoderConfiguration& configuration, boost::function<void(const SetAudioEncoderConfigurationResponse&)> callback)
 {
-  return signals_->setaudioencoderconfiguration_.CreateCallback(SetAudioEncoderConfigurationBody(configuration), callback, configuration);
+  return signals_->setaudioencoderconfiguration_->CreateCallback(SetAudioEncoderConfigurationBody(configuration), callback, configuration);
 }
 
 Connection MediaClient::SetAudioOutputConfigurationCallback(const AudioOutputConfiguration& configuration, boost::function<void(const SetAudioOutputConfigurationResponse&)> callback)
 {
-  return signals_->setaudiooutputconfiguration_.CreateCallback(SetAudioOutputConfigurationBody(configuration), callback, configuration);
+  return signals_->setaudiooutputconfiguration_->CreateCallback(SetAudioOutputConfigurationBody(configuration), callback, configuration);
 }
 
 Connection MediaClient::SetAudioSourceConfigurationCallback(const AudioSourceConfiguration& configuration, boost::function<void(const SetAudioSourceConfigurationResponse&)> callback)
 {
-  return signals_->setaudiosourceconfiguration_.CreateCallback(SetAudioSourceConfigurationBody(configuration), callback, configuration);
+  return signals_->setaudiosourceconfiguration_->CreateCallback(SetAudioSourceConfigurationBody(configuration), callback, configuration);
 }
 
 Connection MediaClient::SetMetadataConfigurationCallback(const MetadataConfiguration& configuration, boost::function<void(const SetMetadataConfigurationResponse&)> callback)
 {
-  return signals_->setmetadataconfiguration_.CreateCallback(SetMetadataConfigurationBody(configuration), callback, configuration);
+  return signals_->setmetadataconfiguration_->CreateCallback(SetMetadataConfigurationBody(configuration), callback, configuration);
 }
 
 Connection MediaClient::SetSynchronizationPointCallback(const std::string& profiletoken, boost::function<void(const SetSynchronizationPointResponse&)> callback)
 {
-  return signals_->setsynchronizationpoint_.CreateCallback(SetSynchronizationPointBody(profiletoken), callback, profiletoken);
+  return signals_->setsynchronizationpoint_->CreateCallback(SetSynchronizationPointBody(profiletoken), callback, profiletoken);
 }
 
 Connection MediaClient::SetVideoEncoderConfigurationCallback(const VideoEncoderConfiguration& videoencoderconfiguration, boost::function<void(const SetVideoEncoderConfigurationResponse&)> callback)
 {
-  return signals_->setvideoencoderconfiguration_.CreateCallback(SetVideoEncoderConfigurationBody(videoencoderconfiguration), callback, videoencoderconfiguration);
+  return signals_->setvideoencoderconfiguration_->CreateCallback(SetVideoEncoderConfigurationBody(videoencoderconfiguration), callback, videoencoderconfiguration);
 }
 
 Connection MediaClient::SetVideoSourceConfigurationCallback(const VideoSourceConfiguration& videosourceconfiguration, boost::function<void(const SetVideoSourceConfigurationResponse&)> callback)
 {
-  return signals_->setvideosourceconfiguration_.CreateCallback(SetVideoSourceConfigurationBody(videosourceconfiguration), callback, videosourceconfiguration);
+  return signals_->setvideosourceconfiguration_->CreateCallback(SetVideoSourceConfigurationBody(videosourceconfiguration), callback, videosourceconfiguration);
 }
 
 Connection MediaClient::StartMulticastStreamingCallback(const std::string& profiletoken, boost::function<void(const StartMulticastStreamingResponse&)> callback)
 {
-  return signals_->startmulticaststreaming_.CreateCallback(StartMulticastStreamingBody(profiletoken), callback, profiletoken);
+  return signals_->startmulticaststreaming_->CreateCallback(StartMulticastStreamingBody(profiletoken), callback, profiletoken);
 }
 
 Connection MediaClient::StopMulticastStreamingCallback(const std::string& profiletoken, boost::function<void(const StopMulticastStreamingResponse&)> callback)
 {
-  return signals_->stopmulticaststreaming_.CreateCallback(StartMulticastStreamingBody(profiletoken), callback, profiletoken);
+  return signals_->stopmulticaststreaming_->CreateCallback(StartMulticastStreamingBody(profiletoken), callback, profiletoken);
 }
 
 // Futures
 boost::unique_future<AddAudioDecoderConfigurationResponse> MediaClient::AddAudioDecoderConfigurationFuture(const std::string& profiletoken, const std::string& configurationtoken)
 {
-  return signals_->addaudiodecoderconfiguration_.CreateFuture(AddAudioDecoderConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
+  return signals_->addaudiodecoderconfiguration_->CreateFuture(AddAudioDecoderConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
 }
 
 boost::unique_future<AddAudioEncoderConfigurationResponse> MediaClient::AddAudioEncoderConfigurationFuture(const std::string& profiletoken, const std::string& configurationtoken)
 {
-  return signals_->addaudioencoderconfiguration_.CreateFuture(AddAudioEncoderConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
+  return signals_->addaudioencoderconfiguration_->CreateFuture(AddAudioEncoderConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
 }
 
 boost::unique_future<AddAudioOutputConfigurationResponse> MediaClient::AddAudioOutputConfigurationFuture(const std::string& profiletoken, const std::string& configurationtoken)
 {
-  return signals_->addaudiooutputconfiguration_.CreateFuture(AddAudioOutputConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
+  return signals_->addaudiooutputconfiguration_->CreateFuture(AddAudioOutputConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
 }
 
 boost::unique_future<AddAudioSourceConfigurationResponse> MediaClient::AddAudioSourceConfigurationFuture(const std::string& profiletoken, const std::string& configurationtoken)
 {
-  return signals_->addaudiosourceconfiguration_.CreateFuture(AddAudioSourceConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
+  return signals_->addaudiosourceconfiguration_->CreateFuture(AddAudioSourceConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
 }
 
 boost::unique_future<AddMetadataConfigurationResponse> MediaClient::AddMetadataConfigurationFuture(const std::string& profiletoken, const std::string& configurationtoken)
 {
-  return signals_->addmetadataconfiguration_.CreateFuture(AddMetadataConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
+  return signals_->addmetadataconfiguration_->CreateFuture(AddMetadataConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
 }
 
 boost::unique_future<AddPTZConfigurationResponse> MediaClient::AddPTZConfigurationFuture(const std::string& profiletoken, const std::string& configurationtoken)
 {
-  return signals_->addptzconfiguration_.CreateFuture(AddPTZConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
+  return signals_->addptzconfiguration_->CreateFuture(AddPTZConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
 }
 
 boost::unique_future<AddVideoAnalyticsConfigurationResponse> MediaClient::AddVideoAnalyticsConfigurationFuture(const std::string& profiletoken, const std::string& configurationtoken)
 {
-  return signals_->addvideoanalyticsconfiguration_.CreateFuture(AddVideoAnalyticsConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
+  return signals_->addvideoanalyticsconfiguration_->CreateFuture(AddVideoAnalyticsConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
 }
 
 boost::unique_future<AddVideoEncoderConfigurationResponse> MediaClient::AddVideoEncoderConfigurationFuture(const std::string& profiletoken, const std::string& configurationtoken)
 {
-  return signals_->addvideoencoderconfiguration_.CreateFuture(AddVideoEncoderConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
+  return signals_->addvideoencoderconfiguration_->CreateFuture(AddVideoEncoderConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
 }
 
 boost::unique_future<AddVideoSourceConfigurationResponse> MediaClient::AddVideoSourceConfigurationFuture(const std::string& profiletoken, const std::string& configurationtoken)
 {
-  return signals_->addvideosourceconfiguration_.CreateFuture(AddVideoSourceConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
+  return signals_->addvideosourceconfiguration_->CreateFuture(AddVideoSourceConfigurationBody(profiletoken, configurationtoken), profiletoken, configurationtoken);
 }
 
 boost::unique_future<CreateProfileResponse> MediaClient::CreateProfileFuture(const std::string& name, const boost::optional<std::string>& token)
 {
-  return signals_->createprofile_.CreateFuture(CreateProfileBody(name, token), name, token);
+  return signals_->createprofile_->CreateFuture(CreateProfileBody(name, token), name, token);
 }
 
 boost::unique_future<DeleteProfileResponse> MediaClient::DeleteProfileFuture(const std::string& token)
 {
-  return signals_->deleteprofile_.CreateFuture(DeleteProfileBody(token), token);
+  return signals_->deleteprofile_->CreateFuture(DeleteProfileBody(token), token);
 }
 
 boost::unique_future<GetAudioDecoderConfigurationResponse> MediaClient::GetAudioDecoderConfigurationFuture(const std::string& configurationtoken)
 {
-  return signals_->getaudiodecoderconfiguration_.CreateFuture(GetAudioDecoderConfigurationBody(configurationtoken), configurationtoken);
+  return signals_->getaudiodecoderconfiguration_->CreateFuture(GetAudioDecoderConfigurationBody(configurationtoken), configurationtoken);
 }
 
 boost::unique_future<GetAudioDecoderConfigurationOptionsResponse> MediaClient::GetAudioDecoderConfigurationOptionsFuture(const boost::optional<std::string>& configurationtoken, const boost::optional<std::string>& profiletoken)
 {
-  return signals_->getaudiodecoderconfigurationoptions_.CreateFuture(GetAudioDecoderConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
+  return signals_->getaudiodecoderconfigurationoptions_->CreateFuture(GetAudioDecoderConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
 }
 
 boost::unique_future<GetAudioDecoderConfigurationsResponse> MediaClient::GetAudioDecoderConfigurationsFuture()
 {
-  return signals_->getaudiodecoderconfigurations_.CreateFuture(GetAudioDecoderConfigurationsBody());
+  return signals_->getaudiodecoderconfigurations_->CreateFuture(GetAudioDecoderConfigurationsBody());
 }
 
 boost::unique_future<GetAudioEncoderConfigurationResponse> MediaClient::GetAudioEncoderConfigurationFuture(const std::string& configurationtoken)
 {
-  return signals_->getaudioencoderconfiguration_.CreateFuture(GetAudioEncoderConfigurationBody(configurationtoken), configurationtoken);
+  return signals_->getaudioencoderconfiguration_->CreateFuture(GetAudioEncoderConfigurationBody(configurationtoken), configurationtoken);
 }
 
 boost::unique_future<GetAudioEncoderConfigurationOptionsResponse> MediaClient::GetAudioEncoderConfigurationOptionsFuture(const boost::optional<std::string>& configurationtoken, const boost::optional<std::string>& profiletoken)
 {
-  return signals_->getaudioencoderconfigurationoptions_.CreateFuture(GetAudioEncoderConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
+  return signals_->getaudioencoderconfigurationoptions_->CreateFuture(GetAudioEncoderConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
 }
 
 boost::unique_future<GetAudioEncoderConfigurationsResponse> MediaClient::GetAudioEncoderConfigurationsFuture()
 {
-  return signals_->getaudioencoderconfigurations_.CreateFuture(GetAudioEncoderConfigurationsBody());
+  return signals_->getaudioencoderconfigurations_->CreateFuture(GetAudioEncoderConfigurationsBody());
 }
 
 boost::unique_future<GetAudioOutputConfigurationResponse> MediaClient::GetAudioOutputConfigurationFuture(const std::string& configurationtoken)
 {
-  return signals_->getaudiooutputconfiguration_.CreateFuture(GetAudioOutputConfigurationBody(configurationtoken), configurationtoken);
+  return signals_->getaudiooutputconfiguration_->CreateFuture(GetAudioOutputConfigurationBody(configurationtoken), configurationtoken);
 }
 
 boost::unique_future<GetAudioOutputConfigurationOptionsResponse> MediaClient::GetAudioOutputConfigurationOptionsFuture(const boost::optional<std::string>& configurationtoken, const boost::optional<std::string>& profiletoken)
 {
-  return signals_->getaudiooutputconfigurationoptions_.CreateFuture(GetAudioOutputConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
+  return signals_->getaudiooutputconfigurationoptions_->CreateFuture(GetAudioOutputConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
 }
 
 boost::unique_future<GetAudioOutputConfigurationsResponse> MediaClient::GetAudioOutputConfigurationsFuture()
 {
-  return signals_->getaudiooutputconfigurations_.CreateFuture(GetAudioOutputConfigurationsBody());
+  return signals_->getaudiooutputconfigurations_->CreateFuture(GetAudioOutputConfigurationsBody());
 }
 
 boost::unique_future<GetAudioSourceConfigurationResponse> MediaClient::GetAudioSourceConfigurationFuture(const std::string& configurationtoken)
 {
-  return signals_->getaudiosourceconfiguration_.CreateFuture(GetAudioSourceConfigurationBody(configurationtoken), configurationtoken);
+  return signals_->getaudiosourceconfiguration_->CreateFuture(GetAudioSourceConfigurationBody(configurationtoken), configurationtoken);
 }
 
 boost::unique_future<GetAudioSourceConfigurationOptionsResponse> MediaClient::GetAudioSourceConfigurationOptionsFuture(const boost::optional<std::string>& configurationtoken, const boost::optional<std::string>& profiletoken)
 {
-  return signals_->getaudiosourceconfigurationoptions_.CreateFuture(GetAudioSourceConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
+  return signals_->getaudiosourceconfigurationoptions_->CreateFuture(GetAudioSourceConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
 }
 
 boost::unique_future<GetAudioSourceConfigurationsResponse> MediaClient::GetAudioSourceConfigurationsFuture()
 {
-  return signals_->getaudiosourceconfigurations_.CreateFuture(GetAudioSourceConfigurationsBody());
+  return signals_->getaudiosourceconfigurations_->CreateFuture(GetAudioSourceConfigurationsBody());
 }
 
 boost::unique_future<GetAudioSourcesResponse> MediaClient::GetAudioSourcesFuture()
 {
-  return signals_->getaudiosources_.CreateFuture(GetAudioSourcesBody());
+  return signals_->getaudiosources_->CreateFuture(GetAudioSourcesBody());
 }
 
 boost::unique_future<GetCompatibleAudioDecoderConfigurationsResponse> MediaClient::GetCompatibleAudioDecoderConfigurationsFuture(const std::string& profiletoken)
 {
-  return signals_->getcompatibleaudiodecoderconfigurations_.CreateFuture(GetCompatibleAudioDecoderConfigurationsBody(profiletoken), profiletoken);
+  return signals_->getcompatibleaudiodecoderconfigurations_->CreateFuture(GetCompatibleAudioDecoderConfigurationsBody(profiletoken), profiletoken);
 }
 
 boost::unique_future<GetCompatibleAudioEncoderConfigurationsResponse> MediaClient::GetCompatibleAudioEncoderConfigurationsFuture(const std::string& profiletoken)
 {
-  return signals_->getcompatibleaudioencoderconfigurations_.CreateFuture(GetCompatibleAudioEncoderConfigurationsBody(profiletoken), profiletoken);
+  return signals_->getcompatibleaudioencoderconfigurations_->CreateFuture(GetCompatibleAudioEncoderConfigurationsBody(profiletoken), profiletoken);
 }
 
 boost::unique_future<GetCompatibleAudioOutputConfigurationsResponse> MediaClient::GetCompatibleAudioOutputConfigurationsFuture(const std::string& profiletoken)
 {
-  return signals_->getcompatibleaudiooutputconfigurations_.CreateFuture(GetCompatibleAudioOutputConfigurationsBody(profiletoken), profiletoken);
+  return signals_->getcompatibleaudiooutputconfigurations_->CreateFuture(GetCompatibleAudioOutputConfigurationsBody(profiletoken), profiletoken);
 }
 
 boost::unique_future<GetCompatibleAudioSourceConfigurationsResponse> MediaClient::GetCompatibleAudioSourceConfigurationsFuture(const std::string& profiletoken)
 {
-  return signals_->getcompatibleaudiosourceconfigurations_.CreateFuture(GetCompatibleAudioSourceConfigurationsBody(profiletoken), profiletoken);
+  return signals_->getcompatibleaudiosourceconfigurations_->CreateFuture(GetCompatibleAudioSourceConfigurationsBody(profiletoken), profiletoken);
 }
 
 boost::unique_future<GetCompatibleMetadataConfigurationsResponse> MediaClient::GetCompatibleMetadataConfigurationsFuture(const std::string& profiletoken)
 {
-  return signals_->getcompatiblemetadataconfigurations_.CreateFuture(GetCompatibleMetadataConfigurationsBody(profiletoken), profiletoken);
+  return signals_->getcompatiblemetadataconfigurations_->CreateFuture(GetCompatibleMetadataConfigurationsBody(profiletoken), profiletoken);
 }
 
 boost::unique_future<GetCompatibleVideoAnalyticsConfigurationsResponse> MediaClient::GetCompatibleVideoAnalyticsConfigurationsFuture(const std::string& profiletoken)
 {
-  return signals_->getcompatiblevideoanalyticsconfigurations_.CreateFuture(GetCompatibleVideoAnalyticsConfigurationsBody(profiletoken), profiletoken);
+  return signals_->getcompatiblevideoanalyticsconfigurations_->CreateFuture(GetCompatibleVideoAnalyticsConfigurationsBody(profiletoken), profiletoken);
 }
 
 boost::unique_future<GetCompatibleVideoEncoderConfigurationsResponse> MediaClient::GetCompatibleVideoEncoderConfigurationsFuture(const std::string& profiletoken)
 {
-  return signals_->getcompatiblevideoencoderconfigurations_.CreateFuture(GetCompatibleVideoEncoderConfigurationsBody(profiletoken), profiletoken);
+  return signals_->getcompatiblevideoencoderconfigurations_->CreateFuture(GetCompatibleVideoEncoderConfigurationsBody(profiletoken), profiletoken);
 }
 
 boost::unique_future<GetCompatibleVideoSourceConfigurationsResponse> MediaClient::GetCompatibleVideoSourceConfigurationsFuture(const std::string& profiletoken)
 {
-  return signals_->getcompatiblevideosourceconfigurations_.CreateFuture(GetCompatibleVideoSourceConfigurationsBody(profiletoken), profiletoken);
+  return signals_->getcompatiblevideosourceconfigurations_->CreateFuture(GetCompatibleVideoSourceConfigurationsBody(profiletoken), profiletoken);
 }
 
 boost::unique_future<GetMetadataConfigurationResponse> MediaClient::GetMetadataConfigurationFuture(const std::string& configurationtoken)
 {
-  return signals_->getmetadataconfiguration_.CreateFuture(GetMetadataConfigurationBody(configurationtoken), configurationtoken);
+  return signals_->getmetadataconfiguration_->CreateFuture(GetMetadataConfigurationBody(configurationtoken), configurationtoken);
 }
 
 boost::unique_future<GetMetadataConfigurationOptionsResponse> MediaClient::GetMetadataConfigurationOptionsFuture(const boost::optional<std::string>& configurationtoken, const boost::optional<std::string>& profiletoken)
 {
-  return signals_->getmetadataconfigurationoptions_.CreateFuture(GetMetadataConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
+  return signals_->getmetadataconfigurationoptions_->CreateFuture(GetMetadataConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
 }
 
 boost::unique_future<GetMetadataConfigurationsResponse> MediaClient::GetMetadataConfigurationsFuture()
 {
-  return signals_->getmetadataconfigurations_.CreateFuture(GetMetadataConfigurationsBody());
+  return signals_->getmetadataconfigurations_->CreateFuture(GetMetadataConfigurationsBody());
 }
 
 boost::unique_future<GetProfileResponse> MediaClient::GetProfileFuture(const std::string& token)
 {
-  return signals_->getprofile_.CreateFuture(GetProfileBody(token), token);
+  return signals_->getprofile_->CreateFuture(GetProfileBody(token), token);
 }
 
 boost::unique_future<GetProfilesResponse> MediaClient::GetProfilesFuture()
 {
-  return signals_->getprofiles_.CreateFuture(GetProfilesBody());
+  return signals_->getprofiles_->CreateFuture(GetProfilesBody());
 }
 
 boost::unique_future<GetServiceCapabilitiesResponse> MediaClient::GetServiceCapabilitiesFuture()
 {
-  return signals_->getservicecapabilities_.CreateFuture(GetServiceCapabilitiesBody());
+  return signals_->getservicecapabilities_->CreateFuture(GetServiceCapabilitiesBody());
 }
 
 boost::unique_future<GetSnapshotUriResponse> MediaClient::GetSnapshotUriFuture(const std::string& token)
 {
-  return signals_->getsnapshoturi_.CreateFuture(GetSnapshotUriBody(token), token);
+  return signals_->getsnapshoturi_->CreateFuture(GetSnapshotUriBody(token), token);
 }
 
 boost::unique_future<GetStreamUriResponse> MediaClient::GetStreamUriFuture(const StreamSetup& streamsetup, const std::string& token)
 {
-  return signals_->getstreamuri_.CreateFuture(GetStreamUriBody(streamsetup, token), streamsetup, token);
+  return signals_->getstreamuri_->CreateFuture(GetStreamUriBody(streamsetup, token), streamsetup, token);
 }
 
 boost::unique_future<GetVideoAnalyticsConfigurationsResponse> MediaClient::GetVideoAnalyticsConfigurationsFuture()
 {
-  return signals_->getvideoanalyticsconfigurations_.CreateFuture(GetVideoAnalyticsConfigurationsBody());
+  return signals_->getvideoanalyticsconfigurations_->CreateFuture(GetVideoAnalyticsConfigurationsBody());
 }
 
 boost::unique_future<GetVideoEncoderConfigurationResponse> MediaClient::GetVideoEncoderConfigurationFuture(const std::string& token)
 {
-  return signals_->getvideoencoderconfiguration_.CreateFuture(GetVideoEncoderConfigurationBody(token), token);
+  return signals_->getvideoencoderconfiguration_->CreateFuture(GetVideoEncoderConfigurationBody(token), token);
 }
 
 boost::unique_future<GetVideoEncoderConfigurationOptionsResponse> MediaClient::GetVideoEncoderConfigurationOptionsFuture(const boost::optional<std::string>& configurationtoken, const boost::optional<std::string>& profiletoken)
 {
-  return signals_->getvideoencoderconfigurationoptions_.CreateFuture(GetVideoEncoderConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
+  return signals_->getvideoencoderconfigurationoptions_->CreateFuture(GetVideoEncoderConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
 }
 
 boost::unique_future<GetVideoEncoderConfigurationsResponse> MediaClient::GetVideoEncoderConfigurationsFuture()
 {
-  return signals_->getvideoencoderconfigurations_.CreateFuture(GetVideoEncoderConfigurationsBody());
+  return signals_->getvideoencoderconfigurations_->CreateFuture(GetVideoEncoderConfigurationsBody());
 }
 
 boost::unique_future<GetVideoSourceConfigurationResponse> MediaClient::GetVideoSourceConfigurationFuture(const std::string& token)
 {
-  return signals_->getvideosourceconfiguration_.CreateFuture(GetVideoSourceConfigurationBody(token), token);
+  return signals_->getvideosourceconfiguration_->CreateFuture(GetVideoSourceConfigurationBody(token), token);
 }
 
 boost::unique_future<GetVideoSourceConfigurationOptionsResponse> MediaClient::GetVideoSourceConfigurationOptionsFuture(const boost::optional<std::string>& configurationtoken, const boost::optional<std::string>& profiletoken)
 {
-  return signals_->getvideosourceconfigurationoptions_.CreateFuture(GetVideoSourceConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
+  return signals_->getvideosourceconfigurationoptions_->CreateFuture(GetVideoSourceConfigurationOptionsBody(configurationtoken, profiletoken), configurationtoken, profiletoken);
 }
 
 boost::unique_future<GetVideoSourceConfigurationsResponse> MediaClient::GetVideoSourceConfigurationsFuture()
 {
-  return signals_->getvideosourceconfigurations_.CreateFuture(GetVideoSourceConfigurationsBody());
+  return signals_->getvideosourceconfigurations_->CreateFuture(GetVideoSourceConfigurationsBody());
 }
 
 boost::unique_future<GetVideoSourceModesResponse> MediaClient::GetVideoSourceModesFuture(const std::string& token)
 {
-  return signals_->getvideosourcemodes_.CreateFuture(GetVideoSourceModesBody(token), token);
+  return signals_->getvideosourcemodes_->CreateFuture(GetVideoSourceModesBody(token), token);
 }
 
 boost::unique_future<GetVideoSourcesResponse> MediaClient::GetVideoSourcesFuture()
 {
-  return signals_->getvideosources_.CreateFuture(GetVideoSourcesBody());
+  return signals_->getvideosources_->CreateFuture(GetVideoSourcesBody());
 }
 
 boost::unique_future<RemoveAudioDecoderConfigurationResponse> MediaClient::RemoveAudioDecoderConfigurationFuture(const std::string& profiletoken)
 {
-  return signals_->removeaudiodecoderconfiguration_.CreateFuture(RemoveAudioDecoderConfigurationBody(profiletoken), profiletoken);
+  return signals_->removeaudiodecoderconfiguration_->CreateFuture(RemoveAudioDecoderConfigurationBody(profiletoken), profiletoken);
 }
 
 boost::unique_future<RemoveAudioEncoderConfigurationResponse> MediaClient::RemoveAudioEncoderConfigurationFuture(const std::string& profiletoken)
 {
-  return signals_->removeaudioencoderconfiguration_.CreateFuture(RemoveAudioEncoderConfigurationBody(profiletoken), profiletoken);
+  return signals_->removeaudioencoderconfiguration_->CreateFuture(RemoveAudioEncoderConfigurationBody(profiletoken), profiletoken);
 }
 
 boost::unique_future<RemoveAudioOutputConfigurationResponse> MediaClient::RemoveAudioOutputConfigurationFuture(const std::string& profiletoken)
 {
-  return signals_->removeaudiooutputconfiguration_.CreateFuture(RemoveAudioOutputConfigurationBody(profiletoken), profiletoken);
+  return signals_->removeaudiooutputconfiguration_->CreateFuture(RemoveAudioOutputConfigurationBody(profiletoken), profiletoken);
 }
 
 boost::unique_future<RemoveAudioSourceConfigurationResponse> MediaClient::RemoveAudioSourceConfigurationFuture(const std::string& profiletoken)
 {
-  return signals_->removeaudiosourceconfiguration_.CreateFuture(RemoveAudioSourceConfigurationBody(profiletoken), profiletoken);
+  return signals_->removeaudiosourceconfiguration_->CreateFuture(RemoveAudioSourceConfigurationBody(profiletoken), profiletoken);
 }
 
 boost::unique_future<RemoveMetadataConfigurationResponse> MediaClient::RemoveMetadataConfigurationFuture(const std::string& profiletoken)
 {
-  return signals_->removemetadataconfiguration_.CreateFuture(RemoveMetadataConfigurationBody(profiletoken), profiletoken);
+  return signals_->removemetadataconfiguration_->CreateFuture(RemoveMetadataConfigurationBody(profiletoken), profiletoken);
 }
 
 boost::unique_future<RemovePTZConfigurationResponse> MediaClient::RemovePTZConfigurationFuture(const std::string& profiletoken)
 {
-  return signals_->removeptzconfiguration_.CreateFuture(RemovePTZConfigurationBody(profiletoken), profiletoken);
+  return signals_->removeptzconfiguration_->CreateFuture(RemovePTZConfigurationBody(profiletoken), profiletoken);
 }
 
 boost::unique_future<RemoveVideoAnalyticsConfigurationResponse> MediaClient::RemoveVideoAnalyticsConfigurationFuture(const std::string& profiletoken)
 {
-  return signals_->removevideoanalyticsconfiguration_.CreateFuture(RemoveVideoAnalyticsConfigurationBody(profiletoken), profiletoken);
+  return signals_->removevideoanalyticsconfiguration_->CreateFuture(RemoveVideoAnalyticsConfigurationBody(profiletoken), profiletoken);
 }
 
 boost::unique_future<RemoveVideoEncoderConfigurationResponse> MediaClient::RemoveVideoEncoderConfigurationFuture(const std::string& profiletoken)
 {
-  return signals_->removevideoencoderconfiguration_.CreateFuture(RemoveVideoEncoderConfigurationBody(profiletoken), profiletoken);
+  return signals_->removevideoencoderconfiguration_->CreateFuture(RemoveVideoEncoderConfigurationBody(profiletoken), profiletoken);
 }
 
 boost::unique_future<RemoveVideoSourceConfigurationResponse> MediaClient::RemoveVideoSourceConfigurationFuture(const std::string& profiletoken)
 {
-  return signals_->removevideosourceconfiguration_.CreateFuture(RemoveVideoSourceConfigurationBody(profiletoken), profiletoken);
+  return signals_->removevideosourceconfiguration_->CreateFuture(RemoveVideoSourceConfigurationBody(profiletoken), profiletoken);
 }
 
 boost::unique_future<SetAudioDecoderConfigurationResponse> MediaClient::SetAudioDecoderConfigurationFuture(const AudioDecoderConfiguration& configuration)
 {
-  return signals_->setaudiodecoderconfiguration_.CreateFuture(SetAudioDecoderConfigurationBody(configuration), configuration);
+  return signals_->setaudiodecoderconfiguration_->CreateFuture(SetAudioDecoderConfigurationBody(configuration), configuration);
 }
 
 boost::unique_future<SetAudioEncoderConfigurationResponse> MediaClient::SetAudioEncoderConfigurationFuture(const AudioEncoderConfiguration& configuration)
 {
-  return signals_->setaudioencoderconfiguration_.CreateFuture(SetAudioEncoderConfigurationBody(configuration), configuration);
+  return signals_->setaudioencoderconfiguration_->CreateFuture(SetAudioEncoderConfigurationBody(configuration), configuration);
 }
 
 boost::unique_future<SetAudioOutputConfigurationResponse> MediaClient::SetAudioOutputConfigurationFuture(const AudioOutputConfiguration& configuration)
 {
-  return signals_->setaudiooutputconfiguration_.CreateFuture(SetAudioOutputConfigurationBody(configuration), configuration);
+  return signals_->setaudiooutputconfiguration_->CreateFuture(SetAudioOutputConfigurationBody(configuration), configuration);
 }
 
 boost::unique_future<SetAudioSourceConfigurationResponse> MediaClient::SetAudioSourceConfigurationFuture(const AudioSourceConfiguration& configuration)
 {
-  return signals_->setaudiosourceconfiguration_.CreateFuture(SetAudioSourceConfigurationBody(configuration), configuration);
+  return signals_->setaudiosourceconfiguration_->CreateFuture(SetAudioSourceConfigurationBody(configuration), configuration);
 }
 
 boost::unique_future<SetMetadataConfigurationResponse> MediaClient::SetMetadataConfigurationFuture(const MetadataConfiguration& configuration)
 {
-  return signals_->setmetadataconfiguration_.CreateFuture(SetMetadataConfigurationBody(configuration), configuration);
+  return signals_->setmetadataconfiguration_->CreateFuture(SetMetadataConfigurationBody(configuration), configuration);
 }
 
 boost::unique_future<SetSynchronizationPointResponse> MediaClient::SetSynchronizationPointFuture(const std::string& profiletoken)
 {
-  return signals_->setsynchronizationpoint_.CreateFuture(SetSynchronizationPointBody(profiletoken), profiletoken);
+  return signals_->setsynchronizationpoint_->CreateFuture(SetSynchronizationPointBody(profiletoken), profiletoken);
 }
 
 boost::unique_future<SetVideoEncoderConfigurationResponse> MediaClient::SetVideoEncoderConfigurationFuture(const VideoEncoderConfiguration& videoencoderconfiguration)
 {
-  return signals_->setvideoencoderconfiguration_.CreateFuture(SetVideoEncoderConfigurationBody(videoencoderconfiguration), videoencoderconfiguration);
+  return signals_->setvideoencoderconfiguration_->CreateFuture(SetVideoEncoderConfigurationBody(videoencoderconfiguration), videoencoderconfiguration);
 }
 
 boost::unique_future<SetVideoSourceConfigurationResponse> MediaClient::SetVideoSourceConfigurationFuture(const VideoSourceConfiguration& videosourceconfiguration)
 {
-  return signals_->setvideosourceconfiguration_.CreateFuture(SetVideoSourceConfigurationBody(videosourceconfiguration), videosourceconfiguration);
+  return signals_->setvideosourceconfiguration_->CreateFuture(SetVideoSourceConfigurationBody(videosourceconfiguration), videosourceconfiguration);
 }
 
 boost::unique_future<StartMulticastStreamingResponse> MediaClient::StartMulticastStreamingFuture(const std::string& profiletoken)
 {
-  return signals_->startmulticaststreaming_.CreateFuture(StartMulticastStreamingBody(profiletoken), profiletoken);
+  return signals_->startmulticaststreaming_->CreateFuture(StartMulticastStreamingBody(profiletoken), profiletoken);
 }
 
 boost::unique_future<StopMulticastStreamingResponse> MediaClient::StopMulticastStreamingFuture(const std::string& profiletoken)
 {
-  return signals_->stopmulticaststreaming_.CreateFuture(StopMulticastStreamingBody(profiletoken), profiletoken);
+  return signals_->stopmulticaststreaming_->CreateFuture(StopMulticastStreamingBody(profiletoken), profiletoken);
 }
 
 // Signals
 boost::signals2::signal<void(const AddAudioDecoderConfigurationResponse&)>& MediaClient::AddAudioDecoderConfigurationSignal()
 {
-  return signals_->addaudiodecoderconfiguration_.GetSignal();
+  return signals_->addaudiodecoderconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const AddAudioEncoderConfigurationResponse&)>& MediaClient::AddAudioEncoderConfigurationSignal()
 {
-  return signals_->addaudioencoderconfiguration_.GetSignal();
+  return signals_->addaudioencoderconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const AddAudioOutputConfigurationResponse&)>& MediaClient::AddAudioOutputConfigurationSignal()
 {
-  return signals_->addaudiooutputconfiguration_.GetSignal();
+  return signals_->addaudiooutputconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const AddAudioSourceConfigurationResponse&)>& MediaClient::AddAudioSourceConfigurationSignal()
 {
-  return signals_->addaudiosourceconfiguration_.GetSignal();
+  return signals_->addaudiosourceconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const AddMetadataConfigurationResponse&)>& MediaClient::AddMetadataConfigurationSignal()
 {
-  return signals_->addmetadataconfiguration_.GetSignal();
+  return signals_->addmetadataconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const AddPTZConfigurationResponse&)>& MediaClient::AddPTZConfigurationSignal()
 {
-  return signals_->addptzconfiguration_.GetSignal();
+  return signals_->addptzconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const AddVideoAnalyticsConfigurationResponse&)>& MediaClient::AddVideoAnalyticsConfigurationSignal()
 {
-  return signals_->addvideoanalyticsconfiguration_.GetSignal();
+  return signals_->addvideoanalyticsconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const AddVideoEncoderConfigurationResponse&)>& MediaClient::AddVideoEncoderConfigurationSignal()
 {
-  return signals_->addvideoencoderconfiguration_.GetSignal();
+  return signals_->addvideoencoderconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const AddVideoSourceConfigurationResponse&)>& MediaClient::AddVideoSourceConfigurationSignal()
 {
-  return signals_->addvideosourceconfiguration_.GetSignal();
+  return signals_->addvideosourceconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const CreateProfileResponse&)>& MediaClient::CreateProfileSignal()
 {
-  return signals_->createprofile_.GetSignal();
+  return signals_->createprofile_->GetSignal();
 }
 
 boost::signals2::signal<void(const DeleteProfileResponse&)>& MediaClient::DeleteProfileSignal()
 {
-  return signals_->deleteprofile_.GetSignal();
+  return signals_->deleteprofile_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetAudioDecoderConfigurationResponse&)>& MediaClient::GetAudioDecoderConfigurationSignal()
 {
-  return signals_->getaudiodecoderconfiguration_.GetSignal();
+  return signals_->getaudiodecoderconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetAudioDecoderConfigurationOptionsResponse&)>& MediaClient::GetAudioDecoderConfigurationOptionsSignal()
 {
-  return signals_->getaudiodecoderconfigurationoptions_.GetSignal();
+  return signals_->getaudiodecoderconfigurationoptions_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetAudioDecoderConfigurationsResponse&)>& MediaClient::GetAudioDecoderConfigurationsSignal()
 {
-  return signals_->getaudiodecoderconfigurations_.GetSignal();
+  return signals_->getaudiodecoderconfigurations_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetAudioEncoderConfigurationResponse&)>& MediaClient::GetAudioEncoderConfigurationSignal()
 {
-  return signals_->getaudioencoderconfiguration_.GetSignal();
+  return signals_->getaudioencoderconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetAudioEncoderConfigurationOptionsResponse&)>& MediaClient::GetAudioEncoderConfigurationOptionsSignal()
 {
-  return signals_->getaudioencoderconfigurationoptions_.GetSignal();
+  return signals_->getaudioencoderconfigurationoptions_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetAudioEncoderConfigurationsResponse&)>& MediaClient::GetAudioEncoderConfigurationsSignal()
 {
-  return signals_->getaudioencoderconfigurations_.GetSignal();
+  return signals_->getaudioencoderconfigurations_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetAudioOutputConfigurationResponse&)>& MediaClient::GetAudioOutputConfigurationSignal()
 {
-  return signals_->getaudiooutputconfiguration_.GetSignal();
+  return signals_->getaudiooutputconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetAudioOutputConfigurationOptionsResponse&)>& MediaClient::GetAudioOutputConfigurationOptionsSignal()
 {
-  return signals_->getaudiooutputconfigurationoptions_.GetSignal();
+  return signals_->getaudiooutputconfigurationoptions_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetAudioOutputConfigurationsResponse&)>& MediaClient::GetAudioOutputConfigurationsSignal()
 {
-  return signals_->getaudiooutputconfigurations_.GetSignal();
+  return signals_->getaudiooutputconfigurations_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetAudioSourceConfigurationResponse&)>& MediaClient::GetAudioSourceConfigurationSignal()
 {
-  return signals_->getaudiosourceconfiguration_.GetSignal();
+  return signals_->getaudiosourceconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetAudioSourceConfigurationOptionsResponse&)>& MediaClient::GetAudioSourceConfigurationOptionsSignal()
 {
-  return signals_->getaudiosourceconfigurationoptions_.GetSignal();
+  return signals_->getaudiosourceconfigurationoptions_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetAudioSourceConfigurationsResponse&)>& MediaClient::GetAudioSourceConfigurationsSignal()
 {
-  return signals_->getaudiosourceconfigurations_.GetSignal();
+  return signals_->getaudiosourceconfigurations_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetAudioSourcesResponse&)>& MediaClient::GetAudioSourcesSignal()
 {
-  return signals_->getaudiosources_.GetSignal();
+  return signals_->getaudiosources_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetCompatibleAudioDecoderConfigurationsResponse&)>& MediaClient::GetCompatibleAudioDecoderConfigurations()
 {
-  return signals_->getcompatibleaudiodecoderconfigurations_.GetSignal();
+  return signals_->getcompatibleaudiodecoderconfigurations_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetCompatibleAudioEncoderConfigurationsResponse&)>& MediaClient::GetCompatibleAudioEncoderConfigurations()
 {
-  return signals_->getcompatibleaudioencoderconfigurations_.GetSignal();
+  return signals_->getcompatibleaudioencoderconfigurations_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetCompatibleAudioOutputConfigurationsResponse&)>& MediaClient::GetCompatibleAudioOutputConfigurations()
 {
-  return signals_->getcompatibleaudiooutputconfigurations_.GetSignal();
+  return signals_->getcompatibleaudiooutputconfigurations_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetCompatibleAudioSourceConfigurationsResponse&)>& MediaClient::GetCompatibleAudioSourceConfigurations()
 {
-  return signals_->getcompatibleaudiosourceconfigurations_.GetSignal();
+  return signals_->getcompatibleaudiosourceconfigurations_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetCompatibleMetadataConfigurationsResponse&)>& MediaClient::GetCompatibleMetadataConfigurations()
 {
-  return signals_->getcompatiblemetadataconfigurations_.GetSignal();
+  return signals_->getcompatiblemetadataconfigurations_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetCompatibleVideoAnalyticsConfigurationsResponse&)>& MediaClient::GetCompatibleVideoAnalyticsConfigurations()
 {
-  return signals_->getcompatiblevideoanalyticsconfigurations_.GetSignal();
+  return signals_->getcompatiblevideoanalyticsconfigurations_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetCompatibleVideoEncoderConfigurationsResponse&)>& MediaClient::GetCompatibleVideoEncoderConfigurations()
 {
-  return signals_->getcompatiblevideoencoderconfigurations_.GetSignal();
+  return signals_->getcompatiblevideoencoderconfigurations_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetCompatibleVideoSourceConfigurationsResponse&)>& MediaClient::GetCompatibleVideoSourceConfigurations()
 {
-  return signals_->getcompatiblevideosourceconfigurations_.GetSignal();
+  return signals_->getcompatiblevideosourceconfigurations_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetMetadataConfigurationResponse&)>& MediaClient::GetMetadataConfigurationSignal()
 {
-  return signals_->getmetadataconfiguration_.GetSignal();
+  return signals_->getmetadataconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetMetadataConfigurationOptionsResponse&)>& MediaClient::GetMetadataConfigurationOptionsSignal()
 {
-  return signals_->getmetadataconfigurationoptions_.GetSignal();
+  return signals_->getmetadataconfigurationoptions_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetMetadataConfigurationsResponse&)>& MediaClient::GetMetadataConfigurationsSignal()
 {
-  return signals_->getmetadataconfigurations_.GetSignal();
+  return signals_->getmetadataconfigurations_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetProfileResponse&)>& MediaClient::GetProfileSignal()
 {
-  return signals_->getprofile_.GetSignal();
+  return signals_->getprofile_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetProfilesResponse&)>& MediaClient::GetProfilesSignal()
 {
-  return signals_->getprofiles_.GetSignal();
+  return signals_->getprofiles_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetServiceCapabilitiesResponse&)>& MediaClient::GetServiceCapabilitiesSignal()
 {
-  return signals_->getservicecapabilities_.GetSignal();
+  return signals_->getservicecapabilities_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetSnapshotUriResponse&)>& MediaClient::GetSnapshotUriSignal()
 {
-  return signals_->getsnapshoturi_.GetSignal();
+  return signals_->getsnapshoturi_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetStreamUriResponse&)>& MediaClient::GetStreamUriSignal()
 {
-  return signals_->getstreamuri_.GetSignal();
+  return signals_->getstreamuri_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetVideoAnalyticsConfigurationsResponse&)>& MediaClient::GetVideoAnalyticsConfigurationsSignal()
 {
-  return signals_->getvideoanalyticsconfigurations_.GetSignal();
+  return signals_->getvideoanalyticsconfigurations_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetVideoEncoderConfigurationResponse&)>& MediaClient::GetVideoEncoderConfigurationSignal()
 {
-  return signals_->getvideoencoderconfiguration_.GetSignal();
+  return signals_->getvideoencoderconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetVideoEncoderConfigurationOptionsResponse&)>& MediaClient::GetVideoEncoderConfiguratioOptionsSignal()
 {
-  return signals_->getvideoencoderconfigurationoptions_.GetSignal();
+  return signals_->getvideoencoderconfigurationoptions_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetVideoEncoderConfigurationsResponse&)>& MediaClient::GetVideoEncoderConfigurationsSignal()
 {
-  return signals_->getvideoencoderconfigurations_.GetSignal();
+  return signals_->getvideoencoderconfigurations_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetVideoSourceConfigurationResponse&)>& MediaClient::GetVideoSourceConfigurationSignal()
 {
-  return signals_->getvideosourceconfiguration_.GetSignal();
+  return signals_->getvideosourceconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetVideoSourceConfigurationOptionsResponse&)>& MediaClient::GetVideoSourceConfiguratioOptionsSignal()
 {
-  return signals_->getvideosourceconfigurationoptions_.GetSignal();
+  return signals_->getvideosourceconfigurationoptions_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetVideoSourceConfigurationsResponse&)>& MediaClient::GetVideoSourceConfigurationsSignal()
 {
-  return signals_->getvideosourceconfigurations_.GetSignal();
+  return signals_->getvideosourceconfigurations_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetVideoSourceModesResponse&)>& MediaClient::GetVideoSourceModesSignal()
 {
-  return signals_->getvideosourcemodes_.GetSignal();
+  return signals_->getvideosourcemodes_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetVideoSourcesResponse&)>& MediaClient::GetVideoSourcesSignal()
 {
-  return signals_->getvideosources_.GetSignal();
+  return signals_->getvideosources_->GetSignal();
 }
 
 boost::signals2::signal<void(const RemoveAudioDecoderConfigurationResponse&)>& MediaClient::RemoveAudioDecoderConfigurationSignal()
 {
-  return signals_->removeaudiodecoderconfiguration_.GetSignal();
+  return signals_->removeaudiodecoderconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const RemoveAudioEncoderConfigurationResponse&)>& MediaClient::RemoveAudioEncoderConfigurationSignal()
 {
-  return signals_->removeaudioencoderconfiguration_.GetSignal();
+  return signals_->removeaudioencoderconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const RemoveAudioOutputConfigurationResponse&)>& MediaClient::RemoveAudioOutputConfigurationSignal()
 {
-  return signals_->removeaudiooutputconfiguration_.GetSignal();
+  return signals_->removeaudiooutputconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const RemoveAudioSourceConfigurationResponse&)>& MediaClient::RemoveAudioSourceConfigurationSignal()
 {
-  return signals_->removeaudiosourceconfiguration_.GetSignal();
+  return signals_->removeaudiosourceconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const RemoveMetadataConfigurationResponse&)>& MediaClient::RemoveMetadataConfigurationSignal()
 {
-  return signals_->removemetadataconfiguration_.GetSignal();
+  return signals_->removemetadataconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const RemovePTZConfigurationResponse&)>& MediaClient::RemovePTZConfigurationSignal()
 {
-  return signals_->removeptzconfiguration_.GetSignal();
+  return signals_->removeptzconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const RemoveVideoAnalyticsConfigurationResponse&)>& MediaClient::RemoveVideoAnalyticsConfigurationSignal()
 {
-  return signals_->removevideoanalyticsconfiguration_.GetSignal();
+  return signals_->removevideoanalyticsconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const RemoveVideoEncoderConfigurationResponse&)>& MediaClient::RemoveVideoEncoderConfigurationSignal()
 {
-  return signals_->removevideoencoderconfiguration_.GetSignal();
+  return signals_->removevideoencoderconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const RemoveVideoSourceConfigurationResponse&)>& MediaClient::RemoveVideoSourceConfigurationSignal()
 {
-  return signals_->removevideosourceconfiguration_.GetSignal();
+  return signals_->removevideosourceconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetAudioDecoderConfigurationResponse&)>& MediaClient::SetAudioDecoderConfigurationSignal()
 {
-  return signals_->setaudiodecoderconfiguration_.GetSignal();
+  return signals_->setaudiodecoderconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetAudioEncoderConfigurationResponse&)>& MediaClient::SetAudioEncoderConfigurationSignal()
 {
-  return signals_->setaudioencoderconfiguration_.GetSignal();
+  return signals_->setaudioencoderconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetAudioOutputConfigurationResponse&)>& MediaClient::SetAudioOutputConfigurationSignal()
 {
-  return signals_->setaudiooutputconfiguration_.GetSignal();
+  return signals_->setaudiooutputconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetAudioSourceConfigurationResponse&)>& MediaClient::SetAudioSourceConfigurationSignal()
 {
-  return signals_->setaudiosourceconfiguration_.GetSignal();
+  return signals_->setaudiosourceconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetMetadataConfigurationResponse&)>& MediaClient::SetMetadataConfigurationSignal()
 {
-  return signals_->setmetadataconfiguration_.GetSignal();
+  return signals_->setmetadataconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetSynchronizationPointResponse&)>& MediaClient::SetSynchronizationPointSignal()
 {
-  return signals_->setsynchronizationpoint_.GetSignal();
+  return signals_->setsynchronizationpoint_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetVideoEncoderConfigurationResponse&)>& MediaClient::SetVideoEncoderConfigurationSignal()
 {
-  return signals_->setvideoencoderconfiguration_.GetSignal();
+  return signals_->setvideoencoderconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetVideoSourceConfigurationResponse&)>& MediaClient::SetVideoSourceConfigurationSignal()
 {
-  return signals_->setvideosourceconfiguration_.GetSignal();
+  return signals_->setvideosourceconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const StartMulticastStreamingResponse&)>& MediaClient::GetStartMulticastStreamingSignal()
 {
-  return signals_->startmulticaststreaming_.GetSignal();
+  return signals_->startmulticaststreaming_->GetSignal();
 }
 
 boost::signals2::signal<void(const StopMulticastStreamingResponse&)>& MediaClient::GetStopMulticastStreamingSignal()
 {
-  return signals_->stopmulticaststreaming_.GetSignal();
+  return signals_->stopmulticaststreaming_->GetSignal();
 }
 
 void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::asio::ip::address& localendpoint, int64_t latency, const pugi::xml_document& document, const std::map< std::string, std::vector<char> >& mtomdata)
@@ -1630,7 +1630,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->addaudiodecoderconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->addaudiodecoderconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_ADDAUDIOENCODERCONFIGURATION:
@@ -1642,7 +1642,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->addaudioencoderconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->addaudioencoderconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_ADDAUDIOOUTPUTCONFIGURATION:
@@ -1654,7 +1654,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->addaudiooutputconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->addaudiooutputconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_ADDAUDIOSOURCECONFIGURATION:
@@ -1666,7 +1666,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->addaudiosourceconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->addaudiosourceconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_ADDMETADATACONFIGURATION:
@@ -1678,7 +1678,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->addmetadataconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->addmetadataconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_ADDPTZCONFIGURATION:
@@ -1690,7 +1690,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->addptzconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->addptzconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_ADDVIDEOANALYTICSCONFIGURATION:
@@ -1702,7 +1702,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->addvideoanalyticsconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->addvideoanalyticsconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_ADDVIDEOENCODERCONFIGURATION:
@@ -1714,7 +1714,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->addvideoencoderconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->addvideoencoderconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_ADDVIDEOSOURCECONFIGURATION:
@@ -1726,7 +1726,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->addvideosourceconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->addvideosourceconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_CREATEPROFILE:
@@ -1738,7 +1738,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
       
-      signals_->createprofile_.Emit(handle, localendpoint, latency, std::string(), GetClass<Profile>(createprofileresponse, "*[local-name()='Profile']"));
+      signals_->createprofile_->Emit(handle, localendpoint, latency, std::string(), GetClass<Profile>(createprofileresponse, "*[local-name()='Profile']"));
       break;
     }
     case MEDIAOPERATION_DELETEPROFILE:
@@ -1750,7 +1750,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->deleteprofile_.Emit(handle, localendpoint, latency, std::string());
+      signals_->deleteprofile_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_GETAUDIODECODERCONFIGURATION:
@@ -1762,7 +1762,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->getaudiodecoderconfiguration_.Emit(handle, localendpoint, latency, std::string(), GetClass<AudioDecoderConfiguration>(getaudiodecoderconfigurationresponse, "*[local-name()='Configuration']"));
+      signals_->getaudiodecoderconfiguration_->Emit(handle, localendpoint, latency, std::string(), GetClass<AudioDecoderConfiguration>(getaudiodecoderconfigurationresponse, "*[local-name()='Configuration']"));
       break;
     }
     case MEDIAOPERATION_GETAUDIODECODERCONFIGURATIONOPTIONS:
@@ -1774,7 +1774,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
       
-      signals_->getaudiodecoderconfigurationoptions_.Emit(handle, localendpoint, latency, std::string(), GetClass<AudioDecoderConfigurationOptions>(getaudiodecoderconfigurationoptions, "*[local-name()='Options']"));
+      signals_->getaudiodecoderconfigurationoptions_->Emit(handle, localendpoint, latency, std::string(), GetClass<AudioDecoderConfigurationOptions>(getaudiodecoderconfigurationoptions, "*[local-name()='Options']"));
       break;
     }
     case MEDIAOPERATION_GETAUDIODECODERCONFIGURATIONS:
@@ -1793,7 +1793,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
 
       }
 
-      signals_->getaudiodecoderconfigurations_.Emit(handle, localendpoint, latency, std::string(), audiodecoderconfigurations);
+      signals_->getaudiodecoderconfigurations_->Emit(handle, localendpoint, latency, std::string(), audiodecoderconfigurations);
       break;
     }
     case MEDIAOPERATION_GETAUDIOENCODERCONFIGURATION:
@@ -1805,7 +1805,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->getaudioencoderconfiguration_.Emit(handle, localendpoint, latency, std::string(), GetClass<AudioEncoderConfiguration>(getaudioencoderconfigurationresponse, "*[local-name()='Configuration']"));
+      signals_->getaudioencoderconfiguration_->Emit(handle, localendpoint, latency, std::string(), GetClass<AudioEncoderConfiguration>(getaudioencoderconfigurationresponse, "*[local-name()='Configuration']"));
       break;
     }
     case MEDIAOPERATION_GETAUDIOENCODERCONFIGURATIONOPTIONS:
@@ -1817,7 +1817,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->getaudioencoderconfigurationoptions_.Emit(handle, localendpoint, latency, std::string(), GetClass<AudioEncoderConfigurationOptions>(getaudioencoderconfigurationoptions, "*[local-name()='Options']"));
+      signals_->getaudioencoderconfigurationoptions_->Emit(handle, localendpoint, latency, std::string(), GetClass<AudioEncoderConfigurationOptions>(getaudioencoderconfigurationoptions, "*[local-name()='Options']"));
       break;
     }
     case MEDIAOPERATION_GETAUDIOENCODERCONFIGURATIONS:
@@ -1836,7 +1836,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
 
       }
 
-      signals_->getaudioencoderconfigurations_.Emit(handle, localendpoint, latency, std::string(), audioencoderconfigurations);
+      signals_->getaudioencoderconfigurations_->Emit(handle, localendpoint, latency, std::string(), audioencoderconfigurations);
       break;
     }
     case MEDIAOPERATION_GETAUDIOOUTPUTCONFIGURATION:
@@ -1848,7 +1848,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->getaudiooutputconfiguration_.Emit(handle, localendpoint, latency, std::string(), GetClass<AudioOutputConfiguration>(getaudiooutputconfigurationresponse, "*[local-name()='Configuration']"));
+      signals_->getaudiooutputconfiguration_->Emit(handle, localendpoint, latency, std::string(), GetClass<AudioOutputConfiguration>(getaudiooutputconfigurationresponse, "*[local-name()='Configuration']"));
       break;
     }
     case MEDIAOPERATION_GETAUDIOOUTPUTCONFIGURATIONOPTIONS:
@@ -1860,7 +1860,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->getaudiooutputconfigurationoptions_.Emit(handle, localendpoint, latency, std::string(), GetClass<AudioOutputConfigurationOptions>(getaudiooutputconfigurationoptions, "*[local-name()='Options']"));
+      signals_->getaudiooutputconfigurationoptions_->Emit(handle, localendpoint, latency, std::string(), GetClass<AudioOutputConfigurationOptions>(getaudiooutputconfigurationoptions, "*[local-name()='Options']"));
       break;
     }
     case MEDIAOPERATION_GETAUDIOOUTPUTCONFIGURATIONS:
@@ -1879,7 +1879,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
 
       }
 
-      signals_->getaudiooutputconfigurations_.Emit(handle, localendpoint, latency, std::string(), audiooutputconfigurations);
+      signals_->getaudiooutputconfigurations_->Emit(handle, localendpoint, latency, std::string(), audiooutputconfigurations);
       break;
     }
     case MEDIAOPERATION_GETAUDIOSOURCECONFIGURATION:
@@ -1891,7 +1891,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->getaudiosourceconfiguration_.Emit(handle, localendpoint, latency, std::string(), GetClass<AudioSourceConfiguration>(getaudiosourceconfigurationresponse, "*[local-name()='Configuration']"));
+      signals_->getaudiosourceconfiguration_->Emit(handle, localendpoint, latency, std::string(), GetClass<AudioSourceConfiguration>(getaudiosourceconfigurationresponse, "*[local-name()='Configuration']"));
       break;
     }
     case MEDIAOPERATION_GETAUDIOSOURCECONFIGURATIONOPTIONS:
@@ -1903,7 +1903,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->getaudiosourceconfigurationoptions_.Emit(handle, localendpoint, latency, std::string(), GetClass<AudioSourceConfigurationOptions>(getaudiosourceconfigurationoptions, "*[local-name()='Options']"));
+      signals_->getaudiosourceconfigurationoptions_->Emit(handle, localendpoint, latency, std::string(), GetClass<AudioSourceConfigurationOptions>(getaudiosourceconfigurationoptions, "*[local-name()='Options']"));
       break;
     }
     case MEDIAOPERATION_GETAUDIOSOURCECONFIGURATIONS:
@@ -1922,7 +1922,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
 
       }
 
-      signals_->getaudiosourceconfigurations_.Emit(handle, localendpoint, latency, std::string(), audiosourceconfigurations);
+      signals_->getaudiosourceconfigurations_->Emit(handle, localendpoint, latency, std::string(), audiosourceconfigurations);
       break;
     }
     case MEDIAOPERATION_GETAUDIOSOURCES:
@@ -1941,7 +1941,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
 
       }
 
-      signals_->getaudiosources_.Emit(handle, localendpoint, latency, std::string(), audiosources);
+      signals_->getaudiosources_->Emit(handle, localendpoint, latency, std::string(), audiosources);
       break;
     }
     case MEDIAOPERATION_GETCOMPATIBLEAUDIODECODERCONFIGURATIONS:
@@ -1960,7 +1960,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
 
       }
 
-      signals_->getcompatibleaudiodecoderconfigurations_.Emit(handle, localendpoint, latency, std::string(), getcompatibleaudiodecoderconfigurations);
+      signals_->getcompatibleaudiodecoderconfigurations_->Emit(handle, localendpoint, latency, std::string(), getcompatibleaudiodecoderconfigurations);
       break;
     }
     case MEDIAOPERATION_GETCOMPATIBLEAUDIOENCODERCONFIGURATIONS:
@@ -1979,7 +1979,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
 
       }
 
-      signals_->getcompatibleaudioencoderconfigurations_.Emit(handle, localendpoint, latency, std::string(), getcompatibleaudioencoderconfigurations);
+      signals_->getcompatibleaudioencoderconfigurations_->Emit(handle, localendpoint, latency, std::string(), getcompatibleaudioencoderconfigurations);
       break;
     }
     case MEDIAOPERATION_GETCOMPATIBLEAUDIOOUTPUTCONFIGURATIONS:
@@ -1998,7 +1998,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
 
       }
 
-      signals_->getcompatibleaudiooutputconfigurations_.Emit(handle, localendpoint, latency, std::string(), getcompatibleaudiooutputconfigurations);
+      signals_->getcompatibleaudiooutputconfigurations_->Emit(handle, localendpoint, latency, std::string(), getcompatibleaudiooutputconfigurations);
       break;
     }
     case MEDIAOPERATION_GETCOMPATIBLEAUDIOSOURCECONFIGURATIONS:
@@ -2017,7 +2017,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
 
       }
 
-      signals_->getcompatibleaudiosourceconfigurations_.Emit(handle, localendpoint, latency, std::string(), getcompatibleaudiosourceconfigurations);
+      signals_->getcompatibleaudiosourceconfigurations_->Emit(handle, localendpoint, latency, std::string(), getcompatibleaudiosourceconfigurations);
       break;
     }
     case MEDIAOPERATION_GETCOMPATIBLEMETADATACONFIGURATIONS:
@@ -2036,7 +2036,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
 
       }
 
-      signals_->getcompatiblemetadataconfigurations_.Emit(handle, localendpoint, latency, std::string(), getcompatiblemetadataconfigurations);
+      signals_->getcompatiblemetadataconfigurations_->Emit(handle, localendpoint, latency, std::string(), getcompatiblemetadataconfigurations);
       break;
     }
     case MEDIAOPERATION_GETCOMPATIBLEVIDEOANALYTICSCONFIGURATIONS:
@@ -2055,7 +2055,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
 
       }
 
-      signals_->getcompatiblevideoanalyticsconfigurations_.Emit(handle, localendpoint, latency, std::string(), getcompatiblevideoanalyticsconfigurations);
+      signals_->getcompatiblevideoanalyticsconfigurations_->Emit(handle, localendpoint, latency, std::string(), getcompatiblevideoanalyticsconfigurations);
       break;
     }
     case MEDIAOPERATION_GETCOMPATIBLEVIDEOENCODERCONFIGURATIONS:
@@ -2074,7 +2074,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
 
       }
 
-      signals_->getcompatiblevideoencoderconfigurations_.Emit(handle, localendpoint, latency, std::string(), getcompatiblevideoencoderconfigurations);
+      signals_->getcompatiblevideoencoderconfigurations_->Emit(handle, localendpoint, latency, std::string(), getcompatiblevideoencoderconfigurations);
       break;
     }
     case MEDIAOPERATION_GETCOMPATIBLEVIDEOSOURCECONFIGURATIONS:
@@ -2093,7 +2093,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
 
       }
 
-      signals_->getcompatiblevideosourceconfigurations_.Emit(handle, localendpoint, latency, std::string(), getcompatiblevideosourceconfigurations);
+      signals_->getcompatiblevideosourceconfigurations_->Emit(handle, localendpoint, latency, std::string(), getcompatiblevideosourceconfigurations);
       break;
     }
     case MEDIAOPERATION_GETMETADATACONFIGURATION:
@@ -2105,7 +2105,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->getmetadataconfiguration_.Emit(handle, localendpoint, latency, std::string(), GetClass<MetadataConfiguration>(getmetadataconfigurationresponse, "*[local-name()='Configuration']"));
+      signals_->getmetadataconfiguration_->Emit(handle, localendpoint, latency, std::string(), GetClass<MetadataConfiguration>(getmetadataconfigurationresponse, "*[local-name()='Configuration']"));
       break;
     }
     case MEDIAOPERATION_GETMETADATACONFIGURATIONOPTIONS:
@@ -2117,7 +2117,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->getmetadataconfigurationoptions_.Emit(handle, localendpoint, latency, std::string(), GetClass<MetadataConfigurationOptions>(getmetadataconfigurationoptionsresponse, "*[local-name()='Options']"));
+      signals_->getmetadataconfigurationoptions_->Emit(handle, localendpoint, latency, std::string(), GetClass<MetadataConfigurationOptions>(getmetadataconfigurationoptionsresponse, "*[local-name()='Options']"));
       break;
     }
     case MEDIAOPERATION_GETMETADATACONFIGURATIONS:
@@ -2136,7 +2136,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
 
       }
 
-      signals_->getmetadataconfigurations_.Emit(handle, localendpoint, latency, std::string(), configurations);
+      signals_->getmetadataconfigurations_->Emit(handle, localendpoint, latency, std::string(), configurations);
       break;
     }
     case MEDIAOPERATION_GETPROFILE:
@@ -2148,7 +2148,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
       
-      signals_->getprofile_.Emit(handle, localendpoint, latency, std::string(), GetClass<Profile>(getprofileresponse, "*[local-name()='Profile']"));
+      signals_->getprofile_->Emit(handle, localendpoint, latency, std::string(), GetClass<Profile>(getprofileresponse, "*[local-name()='Profile']"));
       break;
     }
     case MEDIAOPERATION_GETPROFILES:
@@ -2167,7 +2167,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
 
       }
 
-      signals_->getprofiles_.Emit(handle, localendpoint, latency, std::string(), profiles);
+      signals_->getprofiles_->Emit(handle, localendpoint, latency, std::string(), profiles);
       break;
     }
     case MEDIAOPERATION_GETSERVICECAPABILITIES:
@@ -2179,7 +2179,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
       
-      signals_->getservicecapabilities_.Emit(handle, localendpoint, latency, std::string(), GetClass<Capabilities>(getservicecapabilitiesresponse, "*[local-name()='Capabilities']"));
+      signals_->getservicecapabilities_->Emit(handle, localendpoint, latency, std::string(), GetClass<Capabilities>(getservicecapabilitiesresponse, "*[local-name()='Capabilities']"));
       break;
     }
     case MEDIAOPERATION_GETSNAPSHOTURI:
@@ -2191,7 +2191,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
       
-      signals_->getsnapshoturi_.Emit(handle, localendpoint, latency, std::string(), GetClass<MediaUri>(getsnapshoturiresponse, "*[local-name()='MediaUri']"));
+      signals_->getsnapshoturi_->Emit(handle, localendpoint, latency, std::string(), GetClass<MediaUri>(getsnapshoturiresponse, "*[local-name()='MediaUri']"));
       break;
     }
     case MEDIAOPERATION_GETSTREAMURI:
@@ -2203,7 +2203,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
       
-      signals_->getstreamuri_.Emit(handle, localendpoint, latency, std::string(), GetClass<MediaUri>(getstreamuriresponse, "*[local-name()='MediaUri']"));
+      signals_->getstreamuri_->Emit(handle, localendpoint, latency, std::string(), GetClass<MediaUri>(getstreamuriresponse, "*[local-name()='MediaUri']"));
       break;
     }
     case MEDIAOPERATION_GETVIDEOANALYTICSCONFIGURATIONS:
@@ -2222,7 +2222,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
 
       }
 
-      signals_->getvideoanalyticsconfigurations_.Emit(handle, localendpoint, latency, std::string(), videoanalyticsconfigurations);
+      signals_->getvideoanalyticsconfigurations_->Emit(handle, localendpoint, latency, std::string(), videoanalyticsconfigurations);
       break;
     }
     case MEDIAOPERATION_GETVIDEOENCODERCONFIGURATION:
@@ -2234,7 +2234,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
       
-      signals_->getvideoencoderconfiguration_.Emit(handle, localendpoint, latency, std::string(), GetClass<VideoEncoderConfiguration>(getvideoencoderconfigurationresponse, "*[local-name()='Configuration']"));
+      signals_->getvideoencoderconfiguration_->Emit(handle, localendpoint, latency, std::string(), GetClass<VideoEncoderConfiguration>(getvideoencoderconfigurationresponse, "*[local-name()='Configuration']"));
       break;
     }
     case MEDIAOPERATION_GETVIDEOENCODERCONFIGURATIONOPTIONS:
@@ -2246,7 +2246,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
       
-      signals_->getvideoencoderconfigurationoptions_.Emit(handle, localendpoint, latency, std::string(), GetClass<VideoEncoderConfigurationOptions>(getvideoencoderconfigurationoptionsresponse, "*[local-name()='Options']"));
+      signals_->getvideoencoderconfigurationoptions_->Emit(handle, localendpoint, latency, std::string(), GetClass<VideoEncoderConfigurationOptions>(getvideoencoderconfigurationoptionsresponse, "*[local-name()='Options']"));
       break;
     }
     case MEDIAOPERATION_GETVIDEOENCODERCONFIGURATIONS:
@@ -2265,7 +2265,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
 
       }
       
-      signals_->getvideoencoderconfigurations_.Emit(handle, localendpoint, latency, std::string(), videoencoderconfigurations);
+      signals_->getvideoencoderconfigurations_->Emit(handle, localendpoint, latency, std::string(), videoencoderconfigurations);
       break;
     }
     case MEDIAOPERATION_GETVIDEOSOURCECONFIGURATION:
@@ -2277,7 +2277,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
       
-      signals_->getvideosourceconfiguration_.Emit(handle, localendpoint, latency, std::string(), GetClass<VideoSourceConfiguration>(getvideosourceconfigurationresponse, "*[local-name()='Configuration']"));
+      signals_->getvideosourceconfiguration_->Emit(handle, localendpoint, latency, std::string(), GetClass<VideoSourceConfiguration>(getvideosourceconfigurationresponse, "*[local-name()='Configuration']"));
       break;
     }
     case MEDIAOPERATION_GETVIDEOSOURCECONFIGURATIONOPTIONS:
@@ -2289,7 +2289,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
       
-      signals_->getvideosourceconfigurationoptions_.Emit(handle, localendpoint, latency, std::string(), GetClass<VideoSourceConfigurationOptions>(getvideosourceconfigurationoptionsoptionsresponse, "*[local-name()='Options']"));
+      signals_->getvideosourceconfigurationoptions_->Emit(handle, localendpoint, latency, std::string(), GetClass<VideoSourceConfigurationOptions>(getvideosourceconfigurationoptionsoptionsresponse, "*[local-name()='Options']"));
       break;
     }
     case MEDIAOPERATION_GETVIDEOSOURCECONFIGURATIONS:
@@ -2308,7 +2308,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
 
       }
 
-      signals_->getvideosourceconfigurations_.Emit(handle, localendpoint, latency, std::string(), getvideosourceconfigurations);
+      signals_->getvideosourceconfigurations_->Emit(handle, localendpoint, latency, std::string(), getvideosourceconfigurations);
       break;
     }
     case MEDIAOPERATION_GETVIDEOSOURCEMODES:
@@ -2327,7 +2327,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
 
       }
 
-      signals_->getvideosourcemodes_.Emit(handle, localendpoint, latency, std::string(), getvideosourcemodes);
+      signals_->getvideosourcemodes_->Emit(handle, localendpoint, latency, std::string(), getvideosourcemodes);
       break;
     }
     case MEDIAOPERATION_GETVIDEOSOURCES:
@@ -2346,7 +2346,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
 
       }
 
-      signals_->getvideosources_.Emit(handle, localendpoint, latency, std::string(), videosources);
+      signals_->getvideosources_->Emit(handle, localendpoint, latency, std::string(), videosources);
       break;
     }
 
@@ -2359,7 +2359,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->removeaudiodecoderconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->removeaudiodecoderconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_REMOVEAUDIOENCODERCONFIGURATION:
@@ -2371,7 +2371,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->removeaudioencoderconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->removeaudioencoderconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_REMOVEAUDIOOUTPUTCONFIGURATION:
@@ -2383,7 +2383,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->removeaudiooutputconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->removeaudiooutputconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_REMOVEAUDIOSOURCECONFIGURATION:
@@ -2395,7 +2395,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->removeaudiosourceconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->removeaudiosourceconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_REMOVEMETADATACONFIGURATION:
@@ -2407,7 +2407,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->removemetadataconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->removemetadataconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_REMOVEPTZCONFIGURATION:
@@ -2419,7 +2419,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->removeptzconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->removeptzconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_REMOVEVIDEOANALYTICSCONFIGURATION:
@@ -2431,7 +2431,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->removevideoanalyticsconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->removevideoanalyticsconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_REMOVEVIDEOENCODERCONFIGURATION:
@@ -2443,7 +2443,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->removevideoencoderconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->removevideoencoderconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_REMOVEVIDEOSOURCECONFIGURATION:
@@ -2455,7 +2455,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->removevideosourceconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->removevideosourceconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
 
@@ -2468,7 +2468,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->setaudiodecoderconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setaudiodecoderconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_SETAUDIOENCODERCONFIGURATION:
@@ -2480,7 +2480,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->setaudioencoderconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setaudioencoderconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_SETAUDIOOUTPUTCONFIGURATION:
@@ -2492,7 +2492,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->setaudiooutputconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setaudiooutputconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_SETAUDIOSOURCECONFIGURATION:
@@ -2504,7 +2504,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->setaudiosourceconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setaudiosourceconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_SETMETADATACONFIGURATION:
@@ -2516,7 +2516,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->setmetadataconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setmetadataconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_SETSYNCHRONIZATIONPOINT:
@@ -2528,7 +2528,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->setsynchronizationpoint_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setsynchronizationpoint_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_SETVIDEOENCODERCONFIGURATION:
@@ -2540,7 +2540,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->setvideoencoderconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setvideoencoderconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_SETVIDEOSOURCECONFIGURATION:
@@ -2552,7 +2552,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->setvideosourceconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setvideosourceconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_STARTMULTICASTSTREAMING:
@@ -2564,7 +2564,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
       
-      signals_->startmulticaststreaming_.Emit(handle, localendpoint, latency, std::string());
+      signals_->startmulticaststreaming_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case MEDIAOPERATION_STOPMULTICASTSTREAMING:
@@ -2576,7 +2576,7 @@ void MediaClient::Update(MEDIAOPERATION operation, CURL* handle, const boost::as
         break;
       }
       
-      signals_->stopmulticaststreaming_.Emit(handle, localendpoint, latency, std::string());
+      signals_->stopmulticaststreaming_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     default:
@@ -2593,342 +2593,342 @@ void MediaClient::SignalError(MEDIAOPERATION operation, CURL* handle, const boos
   {
     case MEDIAOPERATION_ADDAUDIODECODERCONFIGURATION:
     {
-      signals_->addaudiodecoderconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->addaudiodecoderconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_ADDAUDIOENCODERCONFIGURATION:
     {
-      signals_->addaudioencoderconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->addaudioencoderconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_ADDAUDIOOUTPUTCONFIGURATION:
     {
-      signals_->addaudiooutputconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->addaudiooutputconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_ADDAUDIOSOURCECONFIGURATION:
     {
-      signals_->addaudiosourceconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->addaudiosourceconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_ADDMETADATACONFIGURATION:
     {
-      signals_->addmetadataconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->addmetadataconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_ADDPTZCONFIGURATION:
     {
-      signals_->addptzconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->addptzconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_ADDVIDEOANALYTICSCONFIGURATION:
     {
-      signals_->addvideoanalyticsconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->addvideoanalyticsconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_ADDVIDEOENCODERCONFIGURATION:
     {
-      signals_->addvideoencoderconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->addvideoencoderconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_ADDVIDEOSOURCECONFIGURATION:
     {
-      signals_->addvideosourceconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->addvideosourceconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_CREATEPROFILE:
     {
-      signals_->createprofile_.Emit(handle, localendpoint, latency, message);
+      signals_->createprofile_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_DELETEPROFILE:
     {
-      signals_->deleteprofile_.Emit(handle, localendpoint, latency, message);
+      signals_->deleteprofile_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETAUDIODECODERCONFIGURATION:
     {
-      signals_->getaudiodecoderconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->getaudiodecoderconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETAUDIODECODERCONFIGURATIONOPTIONS:
     {
-      signals_->getaudiodecoderconfigurationoptions_.Emit(handle, localendpoint, latency, message);
+      signals_->getaudiodecoderconfigurationoptions_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETAUDIODECODERCONFIGURATIONS:
     {
-      signals_->getaudiodecoderconfigurations_.Emit(handle, localendpoint, latency, message);
+      signals_->getaudiodecoderconfigurations_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETAUDIOENCODERCONFIGURATION:
     {
-      signals_->getaudioencoderconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->getaudioencoderconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETAUDIOENCODERCONFIGURATIONOPTIONS:
     {
-      signals_->getaudioencoderconfigurationoptions_.Emit(handle, localendpoint, latency, message);
+      signals_->getaudioencoderconfigurationoptions_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETAUDIOENCODERCONFIGURATIONS:
     {
-      signals_->getaudioencoderconfigurations_.Emit(handle, localendpoint, latency, message);
+      signals_->getaudioencoderconfigurations_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETAUDIOOUTPUTCONFIGURATION:
     {
-      signals_->getaudiooutputconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->getaudiooutputconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETAUDIOOUTPUTCONFIGURATIONOPTIONS:
     {
-      signals_->getaudiooutputconfigurationoptions_.Emit(handle, localendpoint, latency, message);
+      signals_->getaudiooutputconfigurationoptions_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETAUDIOOUTPUTCONFIGURATIONS:
     {
-      signals_->getaudiooutputconfigurations_.Emit(handle, localendpoint, latency, message);
+      signals_->getaudiooutputconfigurations_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETAUDIOSOURCECONFIGURATION:
     {
-      signals_->getaudiosourceconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->getaudiosourceconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETAUDIOSOURCECONFIGURATIONOPTIONS:
     {
-      signals_->getaudiosourceconfigurationoptions_.Emit(handle, localendpoint, latency, message);
+      signals_->getaudiosourceconfigurationoptions_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETAUDIOSOURCECONFIGURATIONS:
     {
-      signals_->getaudiosourceconfigurations_.Emit(handle, localendpoint, latency, message);
+      signals_->getaudiosourceconfigurations_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETAUDIOSOURCES:
     {
-      signals_->getaudiosources_.Emit(handle, localendpoint, latency, message);
+      signals_->getaudiosources_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETCOMPATIBLEAUDIODECODERCONFIGURATIONS:
     {
-      signals_->getcompatibleaudiodecoderconfigurations_.Emit(handle, localendpoint, latency, message);
+      signals_->getcompatibleaudiodecoderconfigurations_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETCOMPATIBLEAUDIOENCODERCONFIGURATIONS:
     {
-      signals_->getcompatibleaudioencoderconfigurations_.Emit(handle, localendpoint, latency, message);
+      signals_->getcompatibleaudioencoderconfigurations_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETCOMPATIBLEAUDIOOUTPUTCONFIGURATIONS:
     {
-      signals_->getcompatibleaudiooutputconfigurations_.Emit(handle, localendpoint, latency, message);
+      signals_->getcompatibleaudiooutputconfigurations_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETCOMPATIBLEAUDIOSOURCECONFIGURATIONS:
     {
-      signals_->getcompatibleaudiosourceconfigurations_.Emit(handle, localendpoint, latency, message);
+      signals_->getcompatibleaudiosourceconfigurations_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETCOMPATIBLEMETADATACONFIGURATIONS:
     {
-      signals_->getcompatiblemetadataconfigurations_.Emit(handle, localendpoint, latency, message);
+      signals_->getcompatiblemetadataconfigurations_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETCOMPATIBLEVIDEOANALYTICSCONFIGURATIONS:
     {
-      signals_->getcompatiblevideoanalyticsconfigurations_.Emit(handle, localendpoint, latency, message);
+      signals_->getcompatiblevideoanalyticsconfigurations_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETCOMPATIBLEVIDEOENCODERCONFIGURATIONS:
     {
-      signals_->getcompatiblevideoencoderconfigurations_.Emit(handle, localendpoint, latency, message);
+      signals_->getcompatiblevideoencoderconfigurations_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETCOMPATIBLEVIDEOSOURCECONFIGURATIONS:
     {
-      signals_->getcompatiblevideosourceconfigurations_.Emit(handle, localendpoint, latency, message);
+      signals_->getcompatiblevideosourceconfigurations_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETMETADATACONFIGURATION:
     {
-      signals_->getmetadataconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->getmetadataconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETMETADATACONFIGURATIONOPTIONS:
     {
-      signals_->getmetadataconfigurationoptions_.Emit(handle, localendpoint, latency, message);
+      signals_->getmetadataconfigurationoptions_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETMETADATACONFIGURATIONS:
     {
-      signals_->getmetadataconfigurations_.Emit(handle, localendpoint, latency, message);
+      signals_->getmetadataconfigurations_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETPROFILE:
     {
-      signals_->getprofile_.Emit(handle, localendpoint, latency, message);
+      signals_->getprofile_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETPROFILES:
     {
-      signals_->getprofiles_.Emit(handle, localendpoint, latency, message);
+      signals_->getprofiles_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETSERVICECAPABILITIES:
     {
-      signals_->getservicecapabilities_.Emit(handle, localendpoint, latency, message);
+      signals_->getservicecapabilities_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETSNAPSHOTURI:
     {
-      signals_->getsnapshoturi_.Emit(handle, localendpoint, latency, message);
+      signals_->getsnapshoturi_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETSTREAMURI:
     {
-      signals_->getstreamuri_.Emit(handle, localendpoint, latency, message);
+      signals_->getstreamuri_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETVIDEOANALYTICSCONFIGURATIONS:
     {
-      signals_->getvideoanalyticsconfigurations_.Emit(handle, localendpoint, latency, message);
+      signals_->getvideoanalyticsconfigurations_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETVIDEOENCODERCONFIGURATION:
     {
-      signals_->getvideoencoderconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->getvideoencoderconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETVIDEOENCODERCONFIGURATIONOPTIONS:
     {
-      signals_->getvideoencoderconfigurationoptions_.Emit(handle, localendpoint, latency, message);
+      signals_->getvideoencoderconfigurationoptions_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETVIDEOENCODERCONFIGURATIONS:
     {
-      signals_->getvideoencoderconfigurations_.Emit(handle, localendpoint, latency, message);
+      signals_->getvideoencoderconfigurations_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETVIDEOSOURCECONFIGURATION:
     {
-      signals_->getvideosourceconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->getvideosourceconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETVIDEOSOURCECONFIGURATIONOPTIONS:
     {
-      signals_->getvideosourceconfigurationoptions_.Emit(handle, localendpoint, latency, message);
+      signals_->getvideosourceconfigurationoptions_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETVIDEOSOURCECONFIGURATIONS:
     {
-      signals_->getvideosourceconfigurations_.Emit(handle, localendpoint, latency, message);
+      signals_->getvideosourceconfigurations_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETVIDEOSOURCEMODES:
     {
-      signals_->getvideosourcemodes_.Emit(handle, localendpoint, latency, message);
+      signals_->getvideosourcemodes_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_GETVIDEOSOURCES:
     {
-      signals_->getvideosources_.Emit(handle, localendpoint, latency, message);
+      signals_->getvideosources_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_REMOVEAUDIODECODERCONFIGURATION:
     {
-      signals_->removeaudiodecoderconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->removeaudiodecoderconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_REMOVEAUDIOENCODERCONFIGURATION:
     {
-      signals_->removeaudioencoderconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->removeaudioencoderconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_REMOVEAUDIOOUTPUTCONFIGURATION:
     {
-      signals_->removeaudiooutputconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->removeaudiooutputconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_REMOVEAUDIOSOURCECONFIGURATION:
     {
-      signals_->removeaudiosourceconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->removeaudiosourceconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_REMOVEMETADATACONFIGURATION:
     {
-      signals_->removemetadataconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->removemetadataconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_REMOVEPTZCONFIGURATION:
     {
-      signals_->removeptzconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->removeptzconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_REMOVEVIDEOANALYTICSCONFIGURATION:
     {
-      signals_->removevideoanalyticsconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->removevideoanalyticsconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_REMOVEVIDEOENCODERCONFIGURATION:
     {
-      signals_->removevideoencoderconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->removevideoencoderconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_REMOVEVIDEOSOURCECONFIGURATION:
     {
-      signals_->removevideosourceconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->removevideosourceconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_SETAUDIODECODERCONFIGURATION:
     {
-      signals_->setaudiodecoderconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->setaudiodecoderconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_SETAUDIOENCODERCONFIGURATION:
     {
-      signals_->setaudioencoderconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->setaudioencoderconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_SETAUDIOOUTPUTCONFIGURATION:
     {
-      signals_->setaudiooutputconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->setaudiooutputconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_SETAUDIOSOURCECONFIGURATION:
     {
-      signals_->setaudiosourceconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->setaudiosourceconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_SETMETADATACONFIGURATION:
     {
-      signals_->setmetadataconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->setmetadataconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_SETSYNCHRONIZATIONPOINT:
     {
-      signals_->setsynchronizationpoint_.Emit(handle, localendpoint, latency, message);
+      signals_->setsynchronizationpoint_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_SETVIDEOENCODERCONFIGURATION:
     {
-      signals_->setvideoencoderconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->setvideoencoderconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_SETVIDEOSOURCECONFIGURATION:
     {
-      signals_->setvideosourceconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->setvideosourceconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_STARTMULTICASTSTREAMING:
     {
-      signals_->startmulticaststreaming_.Emit(handle, localendpoint, latency, message);
+      signals_->startmulticaststreaming_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case MEDIAOPERATION_STOPMULTICASTSTREAMING:
     {
-      signals_->stopmulticaststreaming_.Emit(handle, localendpoint, latency, message);
+      signals_->stopmulticaststreaming_->Emit(handle, localendpoint, latency, message);
       break;
     }
     default:

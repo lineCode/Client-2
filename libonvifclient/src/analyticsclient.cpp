@@ -21,7 +21,7 @@ class AnalyticsSignals
 {
  public:
 
-  Signal<ANALYTICSOPERATION, AnalyticsClient, GetServiceCapabilitiesResponse> getservicecapabilities_;
+  std::unique_ptr< Signal<ANALYTICSOPERATION, AnalyticsClient, GetServiceCapabilitiesResponse> > getservicecapabilities_;
 
 };
 
@@ -31,7 +31,7 @@ AnalyticsClient::AnalyticsClient(const boost::shared_ptr<std::recursive_mutex>& 
   Client(mutex),
   signals_(new AnalyticsSignals(
   {
-    Signal<ANALYTICSOPERATION, AnalyticsClient, GetServiceCapabilitiesResponse>(this, ANALYTICSOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver20/analytics/wsdl/GetServiceCapabilities"), false)
+    std::make_unique< Signal<ANALYTICSOPERATION, AnalyticsClient, GetServiceCapabilitiesResponse> >(this, ANALYTICSOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver20/analytics/wsdl/GetServiceCapabilities"), false)
   }))
 {
 
@@ -50,31 +50,31 @@ void AnalyticsClient::Destroy()
 {
   Client::Destroy();
 
-  signals_->getservicecapabilities_.Destroy();
+  signals_->getservicecapabilities_->Destroy();
 }
 
 // Requests
 void AnalyticsClient::GetServiceCapabilities()
 {
-  signals_->getservicecapabilities_.Create(GetServiceCapabilitiesBody());
+  signals_->getservicecapabilities_->Create(GetServiceCapabilitiesBody());
 }
 
 // Callbacks
 Connection AnalyticsClient::GetServiceCapabilitiesCallback(boost::function<void(const GetServiceCapabilitiesResponse&)> callback)
 {
-  return signals_->getservicecapabilities_.CreateCallback(GetServiceCapabilitiesBody(), callback);
+  return signals_->getservicecapabilities_->CreateCallback(GetServiceCapabilitiesBody(), callback);
 }
 
 // Futures
 boost::unique_future<GetServiceCapabilitiesResponse> AnalyticsClient::GetServiceCapabilitiesFuture()
 {
-  return signals_->getservicecapabilities_.CreateFuture(GetServiceCapabilitiesBody());
+  return signals_->getservicecapabilities_->CreateFuture(GetServiceCapabilitiesBody());
 }
 
 // Signals
 boost::signals2::signal<void(const GetServiceCapabilitiesResponse&)>& AnalyticsClient::GetServiceCapabilitiesSignal()
 {
-  return signals_->getservicecapabilities_.GetSignal();
+  return signals_->getservicecapabilities_->GetSignal();
 }
 
 void AnalyticsClient::Update(ANALYTICSOPERATION operation, CURL* handle, const boost::asio::ip::address& localendpoint, int64_t latency, const pugi::xml_document& document, const std::map< std::string, std::vector<char> >& mtomdata)
@@ -90,7 +90,7 @@ void AnalyticsClient::Update(ANALYTICSOPERATION operation, CURL* handle, const b
         break;
       }
       
-      signals_->getservicecapabilities_.Emit(handle, localendpoint, latency, std::string(), GetClass<Capabilities>(getservicecapabilitiesresponse, "*[local-name()='Capabilities']"));
+      signals_->getservicecapabilities_->Emit(handle, localendpoint, latency, std::string(), GetClass<Capabilities>(getservicecapabilitiesresponse, "*[local-name()='Capabilities']"));
       break;
     }
     default:
@@ -107,7 +107,7 @@ void AnalyticsClient::SignalError(ANALYTICSOPERATION operation, CURL* handle, co
   {
     case ANALYTICSOPERATION_GETSERVICECAPABILITIES:
     {
-      signals_->getservicecapabilities_.Emit(handle, localendpoint, latency, message);
+      signals_->getservicecapabilities_->Emit(handle, localendpoint, latency, message);
       break;
     }
     default:

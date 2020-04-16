@@ -21,10 +21,10 @@ class EventSignals
 {
  public:
 
-  Signal< EVENTOPERATION, EventClient, CreatePullPointSubscriptionResponse, boost::optional<std::string>, boost::optional<std::string>, boost::optional<std::string> > createpullpointsubscription_;
-  Signal<EVENTOPERATION, EventClient, GetEventPropertiesResponse> geteventproperties_;
-  Signal<EVENTOPERATION, EventClient, GetServiceCapabilitiesResponse> getservicecapabilities_;
-  Signal<EVENTOPERATION, EventClient, PullMessagesResponse, onvif::Duration, int> pullmessages_;
+  std::unique_ptr< Signal< EVENTOPERATION, EventClient, CreatePullPointSubscriptionResponse, boost::optional<std::string>, boost::optional<std::string>, boost::optional<std::string> > > createpullpointsubscription_;
+  std::unique_ptr< Signal<EVENTOPERATION, EventClient, GetEventPropertiesResponse> > geteventproperties_;
+  std::unique_ptr< Signal<EVENTOPERATION, EventClient, GetServiceCapabilitiesResponse> > getservicecapabilities_;
+  std::unique_ptr< Signal<EVENTOPERATION, EventClient, PullMessagesResponse, onvif::Duration, int> > pullmessages_;
 
 };
 
@@ -34,10 +34,10 @@ EventClient::EventClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
   signals_(new EventSignals(
   {
-    Signal< EVENTOPERATION, EventClient, CreatePullPointSubscriptionResponse, boost::optional<std::string>, boost::optional<std::string>, boost::optional<std::string> >(this, EVENTOPERATION_CREATEPULLPOINTSUBSCRIPTION, true, std::string("http://www.onvif.org/ver10/events/wsdl/EventPortType/CreatePullPointSubscriptionRequest"), true),
-    Signal<EVENTOPERATION, EventClient, GetEventPropertiesResponse>(this, EVENTOPERATION_GETEVENTPROPERTIES, true, std::string("http://www.onvif.org/ver10/events/wsdl/EventPortType/GetEventPropertiesRequest"), true),
-    Signal<EVENTOPERATION, EventClient, GetServiceCapabilitiesResponse>(this, EVENTOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/events/wsdl/EventPortType/GetServiceCapabilitiesRequest"), true),
-    Signal<EVENTOPERATION, EventClient, PullMessagesResponse, onvif::Duration, int>(this, EVENTOPERATION_PULLMESSAGES, true, std::string("http://www.onvif.org/ver10/events/wsdl/PullPointSubscription/PullMessagesRequest"), true)
+    std::make_unique< Signal< EVENTOPERATION, EventClient, CreatePullPointSubscriptionResponse, boost::optional<std::string>, boost::optional<std::string>, boost::optional<std::string> > >(this, EVENTOPERATION_CREATEPULLPOINTSUBSCRIPTION, true, std::string("http://www.onvif.org/ver10/events/wsdl/EventPortType/CreatePullPointSubscriptionRequest"), true),
+    std::make_unique< Signal<EVENTOPERATION, EventClient, GetEventPropertiesResponse> >(this, EVENTOPERATION_GETEVENTPROPERTIES, true, std::string("http://www.onvif.org/ver10/events/wsdl/EventPortType/GetEventPropertiesRequest"), true),
+    std::make_unique< Signal<EVENTOPERATION, EventClient, GetServiceCapabilitiesResponse> >(this, EVENTOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/events/wsdl/EventPortType/GetServiceCapabilitiesRequest"), true),
+    std::make_unique< Signal<EVENTOPERATION, EventClient, PullMessagesResponse, onvif::Duration, int> >(this, EVENTOPERATION_PULLMESSAGES, true, std::string("http://www.onvif.org/ver10/events/wsdl/PullPointSubscription/PullMessagesRequest"), true)
   }))
 {
 
@@ -56,94 +56,94 @@ void EventClient::Destroy()
 {
   Client::Destroy();
 
-  signals_->createpullpointsubscription_.Destroy();
-  signals_->geteventproperties_.Destroy();
-  signals_->getservicecapabilities_.Destroy();
-  signals_->pullmessages_.Destroy();
+  signals_->createpullpointsubscription_->Destroy();
+  signals_->geteventproperties_->Destroy();
+  signals_->getservicecapabilities_->Destroy();
+  signals_->pullmessages_->Destroy();
 }
 
 // Requests
 void EventClient::CreatePullPointSubscription(const boost::optional<std::string>& filter, const boost::optional<std::string>& initialterminationtime, const boost::optional<std::string>& subscriptionpolicy)
 {
-  signals_->createpullpointsubscription_.Create(CreatePullPointSubscriptionBody(filter, initialterminationtime, subscriptionpolicy), filter, initialterminationtime, subscriptionpolicy);
+  signals_->createpullpointsubscription_->Create(CreatePullPointSubscriptionBody(filter, initialterminationtime, subscriptionpolicy), filter, initialterminationtime, subscriptionpolicy);
 }
 
 void EventClient::GetEventProperties()
 {
-  signals_->geteventproperties_.Create(GetEventPropertiesBody());
+  signals_->geteventproperties_->Create(GetEventPropertiesBody());
 }
 
 void EventClient::GetServiceCapabilities()
 {
-  signals_->getservicecapabilities_.Create(GetServiceCapabilitiesBody());
+  signals_->getservicecapabilities_->Create(GetServiceCapabilitiesBody());
 }
 
 void EventClient::PullMessages(const std::vector<Element>& referenceparameters, const std::string& to, const onvif::Duration& timeout, const int messagelimit)
 {
-  signals_->pullmessages_.Create(referenceparameters, to, PullMessagesBody(timeout, messagelimit), std::map< std::string, std::vector<char> >(), timeout, messagelimit);
+  signals_->pullmessages_->Create(referenceparameters, to, PullMessagesBody(timeout, messagelimit), std::map< std::string, std::vector<char> >(), timeout, messagelimit);
 }
 
 // Callbacks
 Connection EventClient::CreatePullPointSubscriptionCallback(const boost::optional<std::string>& filter, const boost::optional<std::string>& initialterminationtime, const boost::optional<std::string>& subscriptionpolicy, boost::function<void(const CreatePullPointSubscriptionResponse&)> callback)
 {
-  return signals_->createpullpointsubscription_.CreateCallback(CreatePullPointSubscriptionBody(filter, initialterminationtime, subscriptionpolicy), callback, filter, initialterminationtime, subscriptionpolicy);
+  return signals_->createpullpointsubscription_->CreateCallback(CreatePullPointSubscriptionBody(filter, initialterminationtime, subscriptionpolicy), callback, filter, initialterminationtime, subscriptionpolicy);
 }
 
 Connection EventClient::GetEventPropertiesCallback(boost::function<void(const GetEventPropertiesResponse&)> callback)
 {
-  return signals_->geteventproperties_.CreateCallback(GetEventPropertiesBody(), callback);
+  return signals_->geteventproperties_->CreateCallback(GetEventPropertiesBody(), callback);
 }
 
 Connection EventClient::GetServiceCapabilitiesCallback(boost::function<void(const GetServiceCapabilitiesResponse&)> callback)
 {
-  return signals_->getservicecapabilities_.CreateCallback(GetServiceCapabilitiesBody(), callback);
+  return signals_->getservicecapabilities_->CreateCallback(GetServiceCapabilitiesBody(), callback);
 }
 
 Connection EventClient::PullMessagesCallback(const std::vector<Element>& referenceparameters, const std::string& to, const onvif::Duration& timeout, const int messagelimit, boost::function<void(const PullMessagesResponse&)> callback)
 {
-  return signals_->pullmessages_.CreateCallback(referenceparameters, to, PullMessagesBody(timeout, messagelimit), std::map< std::string, std::vector<char> >(), callback, timeout, messagelimit);
+  return signals_->pullmessages_->CreateCallback(referenceparameters, to, PullMessagesBody(timeout, messagelimit), std::map< std::string, std::vector<char> >(), callback, timeout, messagelimit);
 }
 
 // Futures
 boost::unique_future<CreatePullPointSubscriptionResponse> EventClient::CreatePullPointSubscriptionFuture(const boost::optional<std::string>& filter, const boost::optional<std::string>& initialterminationtime, const boost::optional<std::string>& subscriptionpolicy)
 {
-  return signals_->createpullpointsubscription_.CreateFuture(CreatePullPointSubscriptionBody(filter, initialterminationtime, subscriptionpolicy), filter, initialterminationtime, subscriptionpolicy);
+  return signals_->createpullpointsubscription_->CreateFuture(CreatePullPointSubscriptionBody(filter, initialterminationtime, subscriptionpolicy), filter, initialterminationtime, subscriptionpolicy);
 }
 
 boost::unique_future<GetEventPropertiesResponse> EventClient::GetEventPropertiesFuture()
 {
-  return signals_->geteventproperties_.CreateFuture(GetEventPropertiesBody());
+  return signals_->geteventproperties_->CreateFuture(GetEventPropertiesBody());
 }
 
 boost::unique_future<GetServiceCapabilitiesResponse> EventClient::GetServiceCapabilitiesFuture()
 {
-  return signals_->getservicecapabilities_.CreateFuture(GetServiceCapabilitiesBody());
+  return signals_->getservicecapabilities_->CreateFuture(GetServiceCapabilitiesBody());
 }
 
 boost::unique_future<PullMessagesResponse> EventClient::PullMessagesFuture(const std::vector<Element>& referenceparameters, const std::string& to, const onvif::Duration& timeout, const int messagelimit)
 {
-  return signals_->pullmessages_.CreateFuture(referenceparameters, to, PullMessagesBody(timeout, messagelimit), std::map< std::string, std::vector<char> >(), timeout, messagelimit);
+  return signals_->pullmessages_->CreateFuture(referenceparameters, to, PullMessagesBody(timeout, messagelimit), std::map< std::string, std::vector<char> >(), timeout, messagelimit);
 }
 
 // Signals
 boost::signals2::signal<void(const CreatePullPointSubscriptionResponse&)>& EventClient::CreatePullPointSubscriptionSignal()
 {
-  return signals_->createpullpointsubscription_.GetSignal();
+  return signals_->createpullpointsubscription_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetEventPropertiesResponse&)>& EventClient::GetEventPropertiesSignal()
 {
-  return signals_->geteventproperties_.GetSignal();
+  return signals_->geteventproperties_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetServiceCapabilitiesResponse&)>& EventClient::GetServiceCapabilitiesSignal()
 {
-  return signals_->getservicecapabilities_.GetSignal();
+  return signals_->getservicecapabilities_->GetSignal();
 }
 
 boost::signals2::signal<void(const PullMessagesResponse&)>& EventClient::PullMessagesSignal()
 {
-  return signals_->pullmessages_.GetSignal();
+  return signals_->pullmessages_->GetSignal();
 }
 
 void EventClient::Update(EVENTOPERATION operation, CURL* handle, const boost::asio::ip::address& localendpoint, int64_t latency, const pugi::xml_document& document, const std::map< std::string, std::vector<char> >& mtomdata)
@@ -159,7 +159,7 @@ void EventClient::Update(EVENTOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->createpullpointsubscription_.Emit(handle, localendpoint, latency, std::string(), GetClass<ws::EndpointReferenceType>(createapullpointsubscriptionresponse, "*[local-name()='SubscriptionReference']"), GetText(createapullpointsubscriptionresponse, "*[local-name()='CurrentTime']"), GetText(createapullpointsubscriptionresponse, "*[local-name()='TerminationTime']"));
+      signals_->createpullpointsubscription_->Emit(handle, localendpoint, latency, std::string(), GetClass<ws::EndpointReferenceType>(createapullpointsubscriptionresponse, "*[local-name()='SubscriptionReference']"), GetText(createapullpointsubscriptionresponse, "*[local-name()='CurrentTime']"), GetText(createapullpointsubscriptionresponse, "*[local-name()='TerminationTime']"));
       break;
     }
     case EVENTOPERATION_GETEVENTPROPERTIES:
@@ -206,7 +206,7 @@ void EventClient::Update(EVENTOPERATION operation, CURL* handle, const boost::as
 
       }
 
-      signals_->geteventproperties_.Emit(handle, localendpoint, latency, std::string(), topicnamespacelocations, GetBool(geteventpropertiesresponse, "*[local-name()='FixedTopicSet']"), GetClass<ws::TopicSet>(geteventpropertiesresponse, "*[local-name()='TopicSet']"), topicexpressiondialects, messagecontentfilterdialects, producerpropertiesfilterdialects, messagecontentschemalocations);
+      signals_->geteventproperties_->Emit(handle, localendpoint, latency, std::string(), topicnamespacelocations, GetBool(geteventpropertiesresponse, "*[local-name()='FixedTopicSet']"), GetClass<ws::TopicSet>(geteventpropertiesresponse, "*[local-name()='TopicSet']"), topicexpressiondialects, messagecontentfilterdialects, producerpropertiesfilterdialects, messagecontentschemalocations);
       break;
     }
     case EVENTOPERATION_GETSERVICECAPABILITIES:
@@ -218,7 +218,7 @@ void EventClient::Update(EVENTOPERATION operation, CURL* handle, const boost::as
         break;
       }
 
-      signals_->getservicecapabilities_.Emit(handle, localendpoint, latency, std::string(), GetClass<Capabilities>(getservicecapabilitiesresponse, "*[local-name()='Capabilities']"));
+      signals_->getservicecapabilities_->Emit(handle, localendpoint, latency, std::string(), GetClass<Capabilities>(getservicecapabilitiesresponse, "*[local-name()='Capabilities']"));
       break;
     }
     case EVENTOPERATION_PULLMESSAGES:
@@ -237,7 +237,7 @@ void EventClient::Update(EVENTOPERATION operation, CURL* handle, const boost::as
 
       }
 
-      signals_->pullmessages_.Emit(handle, localendpoint, latency, std::string(), GetClass<onvif::DateTime>(pullmessagesresponse, "*[local-name()='CurrentTime']"), GetClass<onvif::DateTime>(pullmessagesresponse, "*[local-name()='TerminationTime']"), notificationmessages);
+      signals_->pullmessages_->Emit(handle, localendpoint, latency, std::string(), GetClass<onvif::DateTime>(pullmessagesresponse, "*[local-name()='CurrentTime']"), GetClass<onvif::DateTime>(pullmessagesresponse, "*[local-name()='TerminationTime']"), notificationmessages);
       break;
     }
     default:
@@ -254,22 +254,22 @@ void EventClient::SignalError(EVENTOPERATION operation, CURL* handle, const boos
   {
     case EVENTOPERATION_CREATEPULLPOINTSUBSCRIPTION:
     {
-      signals_->createpullpointsubscription_.Emit(handle, localendpoint, latency, message);
+      signals_->createpullpointsubscription_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case EVENTOPERATION_GETEVENTPROPERTIES:
     {
-      signals_->geteventproperties_.Emit(handle, localendpoint, latency, message);
+      signals_->geteventproperties_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case EVENTOPERATION_GETSERVICECAPABILITIES:
     {
-      signals_->getservicecapabilities_.Emit(handle, localendpoint, latency, message);
+      signals_->getservicecapabilities_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case EVENTOPERATION_PULLMESSAGES:
     {
-      signals_->pullmessages_.Emit(handle, localendpoint, latency, message);
+      signals_->pullmessages_->Emit(handle, localendpoint, latency, message);
       break;
     }
     default:

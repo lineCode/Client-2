@@ -28,6 +28,7 @@
 #include "devicemgr.h"
 #include "log.h"
 #include "mediamgr.h"
+#include "networkmapper.h"
 #include "shortcutmgr.h"
 #include "ui_mainwindow.h"
 #include "videowidgetsmgr.h"
@@ -275,6 +276,7 @@ class MainWindow : public QMainWindow
   QVector3D colourpickercolour_;
 
   boost::shared_ptr<onvif::wsdiscover::WsDiscoverClient> discover_;
+  NetworkMapper networkmapper_;
 
   int discoverytimer_;
   int iotimer_;
@@ -292,6 +294,7 @@ class MainWindow : public QMainWindow
 
  private slots:
 
+  void DiscoverONVIFDevice(const std::string& address);
   void LanguageChanged(QAction* action);
   void LayoutAdded(const QSharedPointer<Layout>& layout);
   void LayoutChanged(const QSharedPointer<Layout>& layout);

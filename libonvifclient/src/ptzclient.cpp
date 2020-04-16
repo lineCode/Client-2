@@ -21,15 +21,15 @@ class PTZSignals
 {
  public:
 
-  Signal<PTZOPERATION, PTZClient, ContinuousMoveResponse, std::string, PTZSpeed, Duration> continuousmove_;
-  Signal<PTZOPERATION, PTZClient, GetCompatibleConfigurationsResponse, std::string> getcompatibleconfigurations_;
-  Signal<PTZOPERATION, PTZClient, GetConfigurationResponse, std::string> getconfiguration_;
-  Signal<PTZOPERATION, PTZClient, GetConfigurationOptionsResponse, std::string> getconfigurationoptions_;
-  Signal<PTZOPERATION, PTZClient, GetConfigurationsResponse> getconfigurations_;
-  Signal<PTZOPERATION, PTZClient, GetNodesResponse> getnodes_;
-  Signal<PTZOPERATION, PTZClient, GetServiceCapabilitiesResponse> getservicecapabilities_;
-  Signal<PTZOPERATION, PTZClient, SetConfigurationResponse, PTZConfiguration, bool> setconfiguration_;
-  Signal<PTZOPERATION, PTZClient, StopResponse, std::string, bool, bool> stop_;
+  std::unique_ptr< Signal<PTZOPERATION, PTZClient, ContinuousMoveResponse, std::string, PTZSpeed, Duration> > continuousmove_;
+  std::unique_ptr< Signal<PTZOPERATION, PTZClient, GetCompatibleConfigurationsResponse, std::string> > getcompatibleconfigurations_;
+  std::unique_ptr< Signal<PTZOPERATION, PTZClient, GetConfigurationResponse, std::string> > getconfiguration_;
+  std::unique_ptr< Signal<PTZOPERATION, PTZClient, GetConfigurationOptionsResponse, std::string> > getconfigurationoptions_;
+  std::unique_ptr< Signal<PTZOPERATION, PTZClient, GetConfigurationsResponse> > getconfigurations_;
+  std::unique_ptr< Signal<PTZOPERATION, PTZClient, GetNodesResponse> > getnodes_;
+  std::unique_ptr< Signal<PTZOPERATION, PTZClient, GetServiceCapabilitiesResponse> > getservicecapabilities_;
+  std::unique_ptr< Signal<PTZOPERATION, PTZClient, SetConfigurationResponse, PTZConfiguration, bool> > setconfiguration_;
+  std::unique_ptr< Signal<PTZOPERATION, PTZClient, StopResponse, std::string, bool, bool> > stop_;
 
 };
 
@@ -39,15 +39,15 @@ PTZClient::PTZClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
   signals_(new PTZSignals(
   {
-    Signal<PTZOPERATION, PTZClient, ContinuousMoveResponse, std::string, PTZSpeed, Duration>(this, PTZOPERATION_CONTINUOUSMOVE, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/ContinuousMove"), false),
-    Signal<PTZOPERATION, PTZClient, GetCompatibleConfigurationsResponse, std::string>(this, PTZOPERATION_GETCOMPATIBLECONFIGURATIONS, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetCompatibleConfigurations"), false),
-    Signal<PTZOPERATION, PTZClient, GetConfigurationResponse, std::string>(this, PTZOPERATION_GETCONFIGURATION, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetConfiguration"), false),
-    Signal<PTZOPERATION, PTZClient, GetConfigurationOptionsResponse, std::string>(this, PTZOPERATION_GETCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetConfigurationOptions"), false),
-    Signal<PTZOPERATION, PTZClient, GetConfigurationsResponse>(this, PTZOPERATION_GETCONFIGURATIONS, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetConfigurations"), false),
-    Signal<PTZOPERATION, PTZClient, GetNodesResponse>(this, PTZOPERATION_GETNODES, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetNodes"), false),
-    Signal<PTZOPERATION, PTZClient, GetServiceCapabilitiesResponse>(this, PTZOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetServiceCapabilities"), false),
-    Signal<PTZOPERATION, PTZClient, SetConfigurationResponse, PTZConfiguration, bool>(this, PTZOPERATION_SETCONFIGURATION, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/SetConfiguration"), false),
-    Signal<PTZOPERATION, PTZClient, StopResponse, std::string, bool, bool>(this, PTZOPERATION_STOP, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/Stop"), false)
+    std::make_unique< Signal<PTZOPERATION, PTZClient, ContinuousMoveResponse, std::string, PTZSpeed, Duration> >(this, PTZOPERATION_CONTINUOUSMOVE, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/ContinuousMove"), false),
+    std::make_unique< Signal<PTZOPERATION, PTZClient, GetCompatibleConfigurationsResponse, std::string> >(this, PTZOPERATION_GETCOMPATIBLECONFIGURATIONS, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetCompatibleConfigurations"), false),
+    std::make_unique< Signal<PTZOPERATION, PTZClient, GetConfigurationResponse, std::string> >(this, PTZOPERATION_GETCONFIGURATION, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetConfiguration"), false),
+    std::make_unique< Signal<PTZOPERATION, PTZClient, GetConfigurationOptionsResponse, std::string> >(this, PTZOPERATION_GETCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetConfigurationOptions"), false),
+    std::make_unique< Signal<PTZOPERATION, PTZClient, GetConfigurationsResponse> >(this, PTZOPERATION_GETCONFIGURATIONS, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetConfigurations"), false),
+    std::make_unique< Signal<PTZOPERATION, PTZClient, GetNodesResponse> >(this, PTZOPERATION_GETNODES, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetNodes"), false),
+    std::make_unique< Signal<PTZOPERATION, PTZClient, GetServiceCapabilitiesResponse> >(this, PTZOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetServiceCapabilities"), false),
+    std::make_unique< Signal<PTZOPERATION, PTZClient, SetConfigurationResponse, PTZConfiguration, bool> >(this, PTZOPERATION_SETCONFIGURATION, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/SetConfiguration"), false),
+    std::make_unique< Signal<PTZOPERATION, PTZClient, StopResponse, std::string, bool, bool> >(this, PTZOPERATION_STOP, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/Stop"), false)
   }))
 {
 
@@ -66,199 +66,199 @@ void PTZClient::Destroy()
 {
   Client::Destroy();
 
-  signals_->continuousmove_.Destroy();
-  signals_->getcompatibleconfigurations_.Destroy();
-  signals_->getconfiguration_.Destroy();
-  signals_->getconfigurationoptions_.Destroy();
-  signals_->getconfigurations_.Destroy();
-  signals_->getnodes_.Destroy();
-  signals_->getservicecapabilities_.Destroy();
-  signals_->setconfiguration_.Destroy();
-  signals_->stop_.Destroy();
+  signals_->continuousmove_->Destroy();
+  signals_->getcompatibleconfigurations_->Destroy();
+  signals_->getconfiguration_->Destroy();
+  signals_->getconfigurationoptions_->Destroy();
+  signals_->getconfigurations_->Destroy();
+  signals_->getnodes_->Destroy();
+  signals_->getservicecapabilities_->Destroy();
+  signals_->setconfiguration_->Destroy();
+  signals_->stop_->Destroy();
 }
 
 // Requests
 void PTZClient::ContinuousMove(const std::string& profiletoken, const PTZSpeed& velocity, const Duration& timeout)
 {
-  signals_->continuousmove_.Create(ContinuousMoveBody(profiletoken, velocity, timeout), profiletoken, velocity, timeout);
+  signals_->continuousmove_->Create(ContinuousMoveBody(profiletoken, velocity, timeout), profiletoken, velocity, timeout);
 }
 
 void PTZClient::GetCompatibleConfigurations(const std::string& profiletoken)
 {
-  signals_->getcompatibleconfigurations_.Create(GetCompatibleConfigurationsBody(profiletoken), profiletoken);
+  signals_->getcompatibleconfigurations_->Create(GetCompatibleConfigurationsBody(profiletoken), profiletoken);
 }
 
 void PTZClient::GetConfiguration(const std::string& ptzconfigurationtoken)
 {
-  signals_->getconfiguration_.Create(GetConfigurationBody(ptzconfigurationtoken), ptzconfigurationtoken);
+  signals_->getconfiguration_->Create(GetConfigurationBody(ptzconfigurationtoken), ptzconfigurationtoken);
 }
 
 void PTZClient::GetConfigurationOptions(const std::string& configurationtoken)
 {
-  signals_->getconfigurationoptions_.Create(GetConfigurationOptionsBody(configurationtoken), configurationtoken);
+  signals_->getconfigurationoptions_->Create(GetConfigurationOptionsBody(configurationtoken), configurationtoken);
 }
 
 void PTZClient::GetConfigurations()
 {
-  signals_->getconfigurations_.Create(GetConfigurationsBody());
+  signals_->getconfigurations_->Create(GetConfigurationsBody());
 }
 
 void PTZClient::GetNodes()
 {
-  signals_->getnodes_.Create(GetNodesBody());
+  signals_->getnodes_->Create(GetNodesBody());
 }
 
 void PTZClient::GetServiceCapabilities()
 {
-  signals_->getservicecapabilities_.Create(GetServiceCapabilitiesBody());
+  signals_->getservicecapabilities_->Create(GetServiceCapabilitiesBody());
 }
 
 void PTZClient::SetConfiguration(const PTZConfiguration& ptzconfiguration, bool forcepersistence)
 {
-  signals_->setconfiguration_.Create(SetConfigurationBody(ptzconfiguration, forcepersistence), ptzconfiguration, forcepersistence);
+  signals_->setconfiguration_->Create(SetConfigurationBody(ptzconfiguration, forcepersistence), ptzconfiguration, forcepersistence);
 }
 
 void PTZClient::Stop(const std::string& profiletoken, bool pantilt, bool zoom)
 {
-  signals_->stop_.Create(StopBody(profiletoken, pantilt, zoom), profiletoken, pantilt, zoom);
+  signals_->stop_->Create(StopBody(profiletoken, pantilt, zoom), profiletoken, pantilt, zoom);
 }
 
 // Callbacks
 Connection PTZClient::ContinuousMoveCallback(const std::string& profiletoken, const PTZSpeed& velocity, const Duration& timeout, boost::function<void(const ContinuousMoveResponse&)> callback)
 {
-  return signals_->continuousmove_.CreateCallback(ContinuousMoveBody(profiletoken, velocity, timeout), callback, profiletoken, velocity, timeout);
+  return signals_->continuousmove_->CreateCallback(ContinuousMoveBody(profiletoken, velocity, timeout), callback, profiletoken, velocity, timeout);
 }
 
 Connection PTZClient::GetCompatibleConfigurationsCallback(const std::string& profiletoken, boost::function<void(const GetCompatibleConfigurationsResponse&)> callback)
 {
-  return signals_->getcompatibleconfigurations_.CreateCallback(GetCompatibleConfigurationsBody(profiletoken), callback, profiletoken);
+  return signals_->getcompatibleconfigurations_->CreateCallback(GetCompatibleConfigurationsBody(profiletoken), callback, profiletoken);
 }
 
 Connection PTZClient::GetConfigurationCallback(const std::string& ptzconfigurationtoken, boost::function<void(const GetConfigurationResponse&)> callback)
 {
-  return signals_->getconfiguration_.CreateCallback(GetConfigurationBody(ptzconfigurationtoken), callback, ptzconfigurationtoken);
+  return signals_->getconfiguration_->CreateCallback(GetConfigurationBody(ptzconfigurationtoken), callback, ptzconfigurationtoken);
 }
 
 Connection PTZClient::GetConfigurationOptionsCallback(const std::string& configurationtoken, boost::function<void(const GetConfigurationOptionsResponse&)> callback)
 {
-  return signals_->getconfigurationoptions_.CreateCallback(GetConfigurationOptionsBody(configurationtoken), callback, configurationtoken);
+  return signals_->getconfigurationoptions_->CreateCallback(GetConfigurationOptionsBody(configurationtoken), callback, configurationtoken);
 }
 
 Connection PTZClient::GetConfigurationsCallback(boost::function<void(const GetConfigurationsResponse&)> callback)
 {
-  return signals_->getconfigurations_.CreateCallback(GetConfigurationsBody(), callback);
+  return signals_->getconfigurations_->CreateCallback(GetConfigurationsBody(), callback);
 }
 
 Connection PTZClient::GetNodesCallback(boost::function<void(const GetNodesResponse&)> callback)
 {
-  return signals_->getnodes_.CreateCallback(GetNodesBody(), callback);
+  return signals_->getnodes_->CreateCallback(GetNodesBody(), callback);
 }
 
 Connection PTZClient::GetServiceCapabilitiesCallback(boost::function<void(const GetServiceCapabilitiesResponse&)> callback)
 {
-  return signals_->getservicecapabilities_.CreateCallback(GetServiceCapabilitiesBody(), callback);
+  return signals_->getservicecapabilities_->CreateCallback(GetServiceCapabilitiesBody(), callback);
 }
 
 Connection PTZClient::SetConfigurationCallback(const PTZConfiguration& ptzconfiguration, bool forcepersistence, boost::function<void(const SetConfigurationResponse&)> callback)
 {
-  return signals_->setconfiguration_.CreateCallback(SetConfigurationBody(ptzconfiguration, forcepersistence), callback, ptzconfiguration, forcepersistence);
+  return signals_->setconfiguration_->CreateCallback(SetConfigurationBody(ptzconfiguration, forcepersistence), callback, ptzconfiguration, forcepersistence);
 }
 
 Connection PTZClient::StopCallback(const std::string& profiletoken, bool pantilt, bool zoom, boost::function<void(const StopResponse&)> callback)
 {
-  return signals_->stop_.CreateCallback(StopBody(profiletoken, pantilt, zoom), callback, profiletoken, pantilt, zoom);
+  return signals_->stop_->CreateCallback(StopBody(profiletoken, pantilt, zoom), callback, profiletoken, pantilt, zoom);
 }
 
 // Futures
 boost::unique_future<ContinuousMoveResponse> PTZClient::ContinuousMoveFuture(const std::string& profiletoken, const PTZSpeed& velocity, const Duration& timeout)
 {
-  return signals_->continuousmove_.CreateFuture(ContinuousMoveBody(profiletoken, velocity, timeout), profiletoken, velocity, timeout);
+  return signals_->continuousmove_->CreateFuture(ContinuousMoveBody(profiletoken, velocity, timeout), profiletoken, velocity, timeout);
 }
 
 boost::unique_future<GetCompatibleConfigurationsResponse> PTZClient::GetCompatibleConfigurationsFuture(const std::string& profiletoken)
 {
-  return signals_->getcompatibleconfigurations_.CreateFuture(GetCompatibleConfigurationsBody(profiletoken), profiletoken);
+  return signals_->getcompatibleconfigurations_->CreateFuture(GetCompatibleConfigurationsBody(profiletoken), profiletoken);
 }
 
 boost::unique_future<GetConfigurationResponse> PTZClient::GetConfigurationFuture(const std::string& ptzconfigurationtoken)
 {
-  return signals_->getconfiguration_.CreateFuture(GetConfigurationBody(ptzconfigurationtoken), ptzconfigurationtoken);
+  return signals_->getconfiguration_->CreateFuture(GetConfigurationBody(ptzconfigurationtoken), ptzconfigurationtoken);
 }
 
 boost::unique_future<GetConfigurationOptionsResponse> PTZClient::GetConfigurationOptionsFuture(const std::string& configurationtoken)
 {
-  return signals_->getconfigurationoptions_.CreateFuture(GetConfigurationOptionsBody(configurationtoken), configurationtoken);
+  return signals_->getconfigurationoptions_->CreateFuture(GetConfigurationOptionsBody(configurationtoken), configurationtoken);
 }
 
 boost::unique_future<GetConfigurationsResponse> PTZClient::GetConfigurationsFuture()
 {
-  return signals_->getconfigurations_.CreateFuture(GetConfigurationsBody());
+  return signals_->getconfigurations_->CreateFuture(GetConfigurationsBody());
 }
 
 boost::unique_future<GetNodesResponse> PTZClient::GetNodesFuture()
 {
-  return signals_->getnodes_.CreateFuture(GetNodesBody());
+  return signals_->getnodes_->CreateFuture(GetNodesBody());
 }
 
 boost::unique_future<GetServiceCapabilitiesResponse> PTZClient::GetServiceCapabilitiesFuture()
 {
-  return signals_->getservicecapabilities_.CreateFuture(GetServiceCapabilitiesBody());
+  return signals_->getservicecapabilities_->CreateFuture(GetServiceCapabilitiesBody());
 }
 
 boost::unique_future<SetConfigurationResponse> PTZClient::SetConfigurationFuture(const PTZConfiguration& ptzconfiguration, bool forcepersistence)
 {
-  return signals_->setconfiguration_.CreateFuture(SetConfigurationBody(ptzconfiguration, forcepersistence), ptzconfiguration, forcepersistence);
+  return signals_->setconfiguration_->CreateFuture(SetConfigurationBody(ptzconfiguration, forcepersistence), ptzconfiguration, forcepersistence);
 }
 
 boost::unique_future<StopResponse> PTZClient::StopFuture(const std::string& profiletoken, bool pantilt, bool zoom)
 {
-  return signals_->stop_.CreateFuture(StopBody(profiletoken, pantilt, zoom), profiletoken, pantilt, zoom);
+  return signals_->stop_->CreateFuture(StopBody(profiletoken, pantilt, zoom), profiletoken, pantilt, zoom);
 }
 
 // Signals
 boost::signals2::signal<void(const ContinuousMoveResponse&)>& PTZClient::ContinuousMoveSignal()
 {
-  return signals_->continuousmove_.GetSignal();
+  return signals_->continuousmove_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetCompatibleConfigurationsResponse&)>& PTZClient::GetCompatibleConfigurationsSignal()
 {
-  return signals_->getcompatibleconfigurations_.GetSignal();
+  return signals_->getcompatibleconfigurations_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetConfigurationResponse&)>& PTZClient::GetConfigurationSignal()
 {
-  return signals_->getconfiguration_.GetSignal();
+  return signals_->getconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetConfigurationOptionsResponse&)>& PTZClient::GetConfigurationOptionsSignal()
 {
-  return signals_->getconfigurationoptions_.GetSignal();
+  return signals_->getconfigurationoptions_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetConfigurationsResponse&)>& PTZClient::GetConfigurationsSignal()
 {
-  return signals_->getconfigurations_.GetSignal();
+  return signals_->getconfigurations_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetNodesResponse&)>& PTZClient::GetNodesSignal()
 {
-  return signals_->getnodes_.GetSignal();
+  return signals_->getnodes_->GetSignal();
 }
 
 boost::signals2::signal<void(const GetServiceCapabilitiesResponse&)>& PTZClient::GetServiceCapabilitiesSignal()
 {
-  return signals_->getservicecapabilities_.GetSignal();
+  return signals_->getservicecapabilities_->GetSignal();
 }
 
 boost::signals2::signal<void(const SetConfigurationResponse&)>& PTZClient::SetConfigurationSignal()
 {
-  return signals_->setconfiguration_.GetSignal();
+  return signals_->setconfiguration_->GetSignal();
 }
 
 boost::signals2::signal<void(const StopResponse&)>& PTZClient::StopSignal()
 {
-  return signals_->stop_.GetSignal();
+  return signals_->stop_->GetSignal();
 }
 
 void PTZClient::Update(PTZOPERATION operation, CURL* handle, const boost::asio::ip::address& localendpoint, int64_t latency, const pugi::xml_document& document, const std::map< std::string, std::vector<char> >& mtomdata)
@@ -274,7 +274,7 @@ void PTZClient::Update(PTZOPERATION operation, CURL* handle, const boost::asio::
         break;
       }
 
-      signals_->continuousmove_.Emit(handle, localendpoint, latency, std::string());
+      signals_->continuousmove_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case PTZOPERATION_GETCOMPATIBLECONFIGURATIONS:
@@ -293,7 +293,7 @@ void PTZClient::Update(PTZOPERATION operation, CURL* handle, const boost::asio::
 
       }
 
-      signals_->getcompatibleconfigurations_.Emit(handle, localendpoint, latency, std::string(), ptzconfigurations);
+      signals_->getcompatibleconfigurations_->Emit(handle, localendpoint, latency, std::string(), ptzconfigurations);
       break;
     }
     case PTZOPERATION_GETCONFIGURATION:
@@ -305,7 +305,7 @@ void PTZClient::Update(PTZOPERATION operation, CURL* handle, const boost::asio::
         break;
       }
 
-      signals_->getconfiguration_.Emit(handle, localendpoint, latency, std::string(), GetClass<PTZConfiguration>(getconfigurationresponse, "*[local-name()='PTZConfiguration']"));
+      signals_->getconfiguration_->Emit(handle, localendpoint, latency, std::string(), GetClass<PTZConfiguration>(getconfigurationresponse, "*[local-name()='PTZConfiguration']"));
       break;
     }
     case PTZOPERATION_GETCONFIGURATIONOPTIONS:
@@ -317,7 +317,7 @@ void PTZClient::Update(PTZOPERATION operation, CURL* handle, const boost::asio::
         break;
       }
 
-      signals_->getconfigurationoptions_.Emit(handle, localendpoint, latency, std::string(), GetClass<PTZConfigurationOptions>(getconfigurationoptionsresponse, "*[local-name()='PTZConfigurationOptions']"));
+      signals_->getconfigurationoptions_->Emit(handle, localendpoint, latency, std::string(), GetClass<PTZConfigurationOptions>(getconfigurationoptionsresponse, "*[local-name()='PTZConfigurationOptions']"));
       break;
     }
     case PTZOPERATION_GETCONFIGURATIONS:
@@ -336,7 +336,7 @@ void PTZClient::Update(PTZOPERATION operation, CURL* handle, const boost::asio::
 
       }
 
-      signals_->getconfigurations_.Emit(handle, localendpoint, latency, std::string(), ptzconfigurations);
+      signals_->getconfigurations_->Emit(handle, localendpoint, latency, std::string(), ptzconfigurations);
       break;
     }
     case PTZOPERATION_GETNODES:
@@ -355,7 +355,7 @@ void PTZClient::Update(PTZOPERATION operation, CURL* handle, const boost::asio::
 
       }
 
-      signals_->getnodes_.Emit(handle, localendpoint, latency, std::string(), ptznodes);
+      signals_->getnodes_->Emit(handle, localendpoint, latency, std::string(), ptznodes);
       break;
     }
     case PTZOPERATION_GETSERVICECAPABILITIES:
@@ -367,7 +367,7 @@ void PTZClient::Update(PTZOPERATION operation, CURL* handle, const boost::asio::
         break;
       }
 
-      signals_->getservicecapabilities_.Emit(handle, localendpoint, latency, std::string(), GetClass<Capabilities>(getservicecapabilitiesresponse, "*[local-name()='Capabilities']"));
+      signals_->getservicecapabilities_->Emit(handle, localendpoint, latency, std::string(), GetClass<Capabilities>(getservicecapabilitiesresponse, "*[local-name()='Capabilities']"));
       break;
     }
     case PTZOPERATION_SETCONFIGURATION:
@@ -379,7 +379,7 @@ void PTZClient::Update(PTZOPERATION operation, CURL* handle, const boost::asio::
         break;
       }
 
-      signals_->setconfiguration_.Emit(handle, localendpoint, latency, std::string());
+      signals_->setconfiguration_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     case PTZOPERATION_STOP:
@@ -391,7 +391,7 @@ void PTZClient::Update(PTZOPERATION operation, CURL* handle, const boost::asio::
         break;
       }
 
-      signals_->stop_.Emit(handle, localendpoint, latency, std::string());
+      signals_->stop_->Emit(handle, localendpoint, latency, std::string());
       break;
     }
     default:
@@ -408,47 +408,47 @@ void PTZClient::SignalError(PTZOPERATION operation, CURL* handle, const boost::a
   {
     case PTZOPERATION_CONTINUOUSMOVE:
     {
-      signals_->continuousmove_.Emit(handle, localendpoint, latency, message);
+      signals_->continuousmove_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case PTZOPERATION_GETCOMPATIBLECONFIGURATIONS:
     {
-      signals_->getcompatibleconfigurations_.Emit(handle, localendpoint, latency, message);
+      signals_->getcompatibleconfigurations_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case PTZOPERATION_GETCONFIGURATION:
     {
-      signals_->getconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->getconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case PTZOPERATION_GETCONFIGURATIONOPTIONS:
     {
-      signals_->getconfigurationoptions_.Emit(handle, localendpoint, latency, message);
+      signals_->getconfigurationoptions_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case PTZOPERATION_GETCONFIGURATIONS:
     {
-      signals_->getconfigurations_.Emit(handle, localendpoint, latency, message);
+      signals_->getconfigurations_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case PTZOPERATION_GETNODES:
     {
-      signals_->getnodes_.Emit(handle, localendpoint, latency, message);
+      signals_->getnodes_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case PTZOPERATION_GETSERVICECAPABILITIES:
     {
-      signals_->getservicecapabilities_.Emit(handle, localendpoint, latency, message);
+      signals_->getservicecapabilities_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case PTZOPERATION_SETCONFIGURATION:
     {
-      signals_->setconfiguration_.Emit(handle, localendpoint, latency, message);
+      signals_->setconfiguration_->Emit(handle, localendpoint, latency, message);
       break;
     }
     case PTZOPERATION_STOP:
     {
-      signals_->stop_.Emit(handle, localendpoint, latency, message);
+      signals_->stop_->Emit(handle, localendpoint, latency, message);
       break;
     }
     default:
