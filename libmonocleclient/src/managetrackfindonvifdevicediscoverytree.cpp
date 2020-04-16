@@ -175,7 +175,7 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::Filter(QTreeWidgetItem* item)
     item->setHidden(true);
     return;
   }
-
+  //TODO we can just peel the host now with HOST_ROLE
   boost::system::error_code err;
   const boost::asio::ip::address address = boost::asio::ip::address::from_string(url.host().toStdString(), err);
   if (err)
