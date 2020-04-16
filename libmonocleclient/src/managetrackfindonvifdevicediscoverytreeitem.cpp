@@ -23,15 +23,15 @@ namespace client
 ManageTrackFindONVIFDeviceDiscoveryTreeItem::ManageTrackFindONVIFDeviceDiscoveryTreeItem(const boost::shared_ptr<Device>& device, const std::vector<std::string>& names, const std::vector<std::string>& locations, const std::string& address, const std::string& username, const std::string& password) :
   QTreeWidgetItem(QStringList({ QString::fromStdString(address) })),
   device_(device),
+  names_(names),
+  locations_(names),
   address_(address),
   username_(username),
   password_(password)
 {
   setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
 
-  //TODO setTooltip I think
-  //TODO QString::fromStdString(boost::algorithm::join(names, ", ")), QString::fromStdString(boost::algorithm::join(locations, ", ")), 
-
+  UpdateTooltip();
 }
 
 ManageTrackFindONVIFDeviceDiscoveryTreeItem::~ManageTrackFindONVIFDeviceDiscoveryTreeItem()
@@ -101,14 +101,40 @@ int ManageTrackFindONVIFDeviceDiscoveryTreeItem::Update()
 
 void ManageTrackFindONVIFDeviceDiscoveryTreeItem::AddNames(const std::vector<std::string>& names)
 {
-  //TODO names and locations and update the tooltip
+  for (const std::string& name : names)
+  {
+    if (name.empty())
+    {
 
+      continue;
+    }
+
+    if (std::find(names_.cbegin(), names_.cend(), name) == names_.cend())
+    {
+      names_.push_back(name);
+
+    }
+  }
+  UpdateTooltip();
 }
 
 void ManageTrackFindONVIFDeviceDiscoveryTreeItem::AddLocations(const std::vector<std::string>& locations)
 {
-  //TODO names and locations and update the tooltip
+  for (const std::string& location : locations)
+  {
+    if (location.empty())
+    {
 
+      continue;
+    }
+
+    if (std::find(locations_.cbegin(), locations_.cend(), location) == locations_.cend())
+    {
+      locations_.push_back(location);
+
+    }
+  }
+  UpdateTooltip();
 }
 
 void ManageTrackFindONVIFDeviceDiscoveryTreeItem::RemoveChildren()
@@ -402,6 +428,25 @@ void ManageTrackFindONVIFDeviceDiscoveryTreeItem::SetChildText(const QString& te
 {
   RemoveChildren();
   addChild(new QTreeWidgetItem(this, { QString(text) }));
+}
+
+void ManageTrackFindONVIFDeviceDiscoveryTreeItem::UpdateTooltip()
+{
+  QStringList tooltips;
+  tooltips.reserve(static_cast<int>(names_.size() + locations_.size()));
+  for (const std::string& name : names_)
+  {
+    tooltips.push_back(QString::fromStdString(name));
+
+  }
+
+  for (const std::string& location : locations_)
+  {
+    tooltips.push_back(QString::fromStdString(location));
+
+  }
+
+  setToolTip(0, tooltips.join("\n"));
 }
 
 }

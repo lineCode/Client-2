@@ -56,13 +56,13 @@ NetworkMapperScanner::NetworkMapperScanner(const uint8_t a, const std::pair<uint
           continue;
         }
 
-        if (!utility::IsIPV4InRange(a.to_v4().to_ulong(), network_, netmask_))//TODO check this works...
+        if (!utility::IsIPV4InRange(a.to_v4().to_ulong(), network_, netmask_))
         {
 
           continue;
         }
 
-        qDebug() << QString::fromStdString(address);//TODO
+        //TODO qDebug() << QString::fromStdString(address);//TODO
 
         //TODO we want to pass in port_ which can be empty, 8080 OR 80 as well...
 

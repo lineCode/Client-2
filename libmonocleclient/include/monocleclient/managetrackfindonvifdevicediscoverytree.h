@@ -62,7 +62,7 @@ class ManageTrackFindONVIFDeviceDiscoveryTree : public QTreeWidget
  private:
 
   void Filter();
-  void Filter(QTreeWidgetItem* item);
+  void Filter(ManageTrackFindONVIFDeviceDiscoveryTreeItem* item);
   bool ChildrenContainsTextFilter(QTreeWidgetItem* item);
   ManageTrackFindONVIFDeviceDiscoveryTreeItem* FindItem(const QString& schema, const uint16_t port, const QString& host, const QString& path);
   void AddItem(const std::string& address, const std::vector<std::string>& names, const std::vector<std::string>& locations);

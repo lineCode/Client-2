@@ -153,12 +153,12 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::Filter()
 {
   for (int i = 0; i < topLevelItemCount(); ++i)
   {
-    Filter(topLevelItem(i));
+    Filter(static_cast<ManageTrackFindONVIFDeviceDiscoveryTreeItem*>(topLevelItem(i)));
 
   }
 }
 
-void ManageTrackFindONVIFDeviceDiscoveryTree::Filter(QTreeWidgetItem* item)
+void ManageTrackFindONVIFDeviceDiscoveryTree::Filter(ManageTrackFindONVIFDeviceDiscoveryTreeItem* item)
 {
   if (textfilter_.size())
   {
@@ -167,17 +167,13 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::Filter(QTreeWidgetItem* item)
       item->setHidden(true);
       return;
     }
+
+    //TODO Check names and locations here too
+
   }
 
-  const QUrl url(item->text(0));
-  if (!url.isValid())
-  {
-    item->setHidden(true);
-    return;
-  }
-  //TODO we can just peel the host now with HOST_ROLE
   boost::system::error_code err;
-  const boost::asio::ip::address address = boost::asio::ip::address::from_string(url.host().toStdString(), err);
+  const boost::asio::ip::address address = boost::asio::ip::address::from_string(item->data(0, HOST_ROLE).toString().toStdString(), err);
   if (err)
   {
     item->setHidden(true);
@@ -206,10 +202,16 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::Filter(QTreeWidgetItem* item)
     }
     else
     {
-      item->setHidden(!showipv6_);
+      item->setHidden(showipv6_);
       
     }
   }
+  else
+  {
+    item->setHidden(true);
+
+  }
+  update();
 }
 
 bool ManageTrackFindONVIFDeviceDiscoveryTree::ChildrenContainsTextFilter(QTreeWidgetItem* item)
@@ -288,6 +290,7 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::AddItem(const std::string& address
   {
     item->AddNames(names);
     item->AddLocations(locations);
+    Filter(item);
     return;
   }
 
@@ -341,7 +344,7 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::DiscoveryHello(const std::vector<s
 
   for (const std::string& address : addresses)
   {
-    AddItem(address, addresses, scopes);
+    AddItem(address, names, locations);
 
   }
 }
