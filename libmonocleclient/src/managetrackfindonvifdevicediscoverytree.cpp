@@ -216,7 +216,7 @@ bool ManageTrackFindONVIFDeviceDiscoveryTree::ChildrenContainsTextFilter(QTreeWi
   // Look to see if any children contain the text filter
   for (int i = 0; i < item->childCount(); ++i)
   {
-    if (item->child(i)->text(0).contains(textfilter_))
+    if (item->child(i)->text(0).contains(textfilter_, Qt::CaseInsensitive))
     {
 
       return true;
