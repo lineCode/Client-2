@@ -118,13 +118,13 @@ void ManageTrackFindONVIFDeviceWindow::on_treediscovery_itemPressed(QTreeWidgetI
 {
   if (item && (item->data(0, Qt::UserRole) == RECEIVERDISCOVERYITEM_DEVICE))
   {
-    ui_.edituri->setText(item->data(0, Qt::UserRole + 1).toString());
-
+    ui_.edituri->setText(item->data(0, ADDRESS_ROLE).toString());
+    //TODO reset the profile token to default
   }
   else if (item && (item->data(0, Qt::UserRole) == RECEIVERDISCOVERYITEM_PROFILE))
   {
-    ui_.edituri->setText(item->data(0, Qt::UserRole + 1).toString());
-
+    ui_.edituri->setText(item->data(0, ADDRESS_ROLE).toString());
+    //TODO set the profile token too now, if it is available
   }
 }
 

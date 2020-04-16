@@ -56,6 +56,9 @@ class ManageTrackFindONVIFDeviceDiscoveryTreeItem : public QTreeWidgetItem
 
   int Update();
 
+  void AddNames(const std::vector<std::string>& names);
+  void AddLocations(const std::vector<std::string>& locations);
+
  protected:
 
 

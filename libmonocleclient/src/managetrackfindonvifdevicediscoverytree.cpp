@@ -21,6 +21,15 @@
 namespace client
 {
 
+///// Globals /////
+
+const int ADDRESS_ROLE = Qt::UserRole + 1;
+const int PROFILE_TOKEN_ROLE = Qt::UserRole + 2;
+const int SCHEMA_ROLE = Qt::UserRole + 3;
+const int PORT_ROLE = Qt::UserRole + 4;
+const int HOST_ROLE = Qt::UserRole + 5;
+const int PATH_ROLE = Qt::UserRole + 6;
+
 ///// Methods /////
 
 ManageTrackFindONVIFDeviceDiscoveryTree::ManageTrackFindONVIFDeviceDiscoveryTree(QWidget* parent) :
@@ -217,93 +226,81 @@ bool ManageTrackFindONVIFDeviceDiscoveryTree::ChildrenContainsTextFilter(QTreeWi
   return false;
 }
 
-bool ManageTrackFindONVIFDeviceDiscoveryTree::HasItem(const std::string& address)
+ManageTrackFindONVIFDeviceDiscoveryTreeItem* ManageTrackFindONVIFDeviceDiscoveryTree::FindItem(const QString& schema, const uint16_t port, const QString& host, const QString& path)
 {
-  std::string schema;
-  std::string port;
-  std::string host;
-  std::string path;
+  for (int i = 0; i < topLevelItemCount(); ++i)
+  {
+    ManageTrackFindONVIFDeviceDiscoveryTreeItem* item = static_cast<ManageTrackFindONVIFDeviceDiscoveryTreeItem*>(topLevelItem(i));
+    if ((item->data(0, SCHEMA_ROLE).toString() == schema) && (item->data(0, PORT_ROLE).toUInt() == port) && (item->data(0, HOST_ROLE).toString() == host) && (item->data(0, PATH_ROLE).toString() == path))
+    {
+
+      return item;
+    }
+  }
+  return nullptr;
+}
+
+void ManageTrackFindONVIFDeviceDiscoveryTree::AddItem(const std::string& address, const std::vector<std::string>& names, const std::vector<std::string>& locations)
+{
+  // Break it down
+  QString schema;
+  uint16_t port;
+  QString host;
+  QString path;
   try
   {
     const network::uri uri(address);
     if (!uri.has_scheme() || !uri.has_host() || !uri.has_path())
     {
 
-      return false;
+      return;
     }
-    schema = uri.scheme().to_string();
+    schema = QString::fromStdString(uri.scheme().to_string());
     if (uri.has_port() && !uri.port().empty())
     {
-      port = uri.port().to_string();
+      port = boost::lexical_cast<uint16_t>(uri.port().to_string());
 
     }
     else
     {
       if (schema == "https")
       {
-        port = "443";
+        port = 443;
 
       }
       else
       {
-        port = "80";
+        port = 80;
 
       }
     }
-    host = uri.host().to_string();
-    path = uri.path().to_string();
+    host = QString::fromStdString(uri.host().to_string());
+    path = QString::fromStdString(uri.path().to_string());
   }
   catch (...)
   {
 
-    return false;
+    return;
   }
 
-
-  for (int i = 0; i < topLevelItemCount(); ++i)
+  ManageTrackFindONVIFDeviceDiscoveryTreeItem* item = FindItem(schema, port, host, path);//TODO reinterprate cast here into the appropriate 
+  if (item) // Ignore duplicates
   {
-    QTreeWidgetItem* item = topLevelItem(i);
-    try
-    {
-      const network::uri uri(item->text(0).toStdString());//TODO store up these details so we don't have to parse them every time imo cos there could be a lot of work to do here...
-      if (!uri.has_scheme() || !uri.has_host() || !uri.has_path())
-      {
-
-        continue;
-      }
-
-      std::string port2;
-      if (uri.has_port() && !uri.port().empty())
-      {
-        port2 = uri.port().to_string();
-
-      }
-      else
-      {
-        if (uri.scheme().to_string() == "https")
-        {
-          port2 = "443";
-
-        }
-        else
-        {
-          port2 = "80";
-
-        }
-      }
-
-      if ((uri.scheme().to_string() == schema) && (port2 == port) && (uri.host().to_string() == host) && (uri.path().to_string() == path))
-      {
-
-        return true;
-      }
-    }
-    catch (...)
-    {
-
-    }
+    item->AddNames(names);
+    item->AddLocations(locations);
+    return;
   }
-  return false;
+
+  item = new ManageTrackFindONVIFDeviceDiscoveryTreeItem(device_, names, locations, address, username_, password_);
+
+  item->setData(0, Qt::UserRole, RECEIVERDISCOVERYITEM_DEVICE);
+  item->setData(0, ADDRESS_ROLE, QString::fromStdString(address));
+  item->setData(0, SCHEMA_ROLE, schema);
+  item->setData(0, PORT_ROLE, port);
+  item->setData(0, HOST_ROLE, host);
+  item->setData(0, PATH_ROLE, path);
+  Filter(item);
+  addTopLevelItem(item);
 }
 
 void ManageTrackFindONVIFDeviceDiscoveryTree::ItemCollapsed(QTreeWidgetItem* item)
@@ -344,43 +341,15 @@ void ManageTrackFindONVIFDeviceDiscoveryTree::DiscoveryHello(const std::vector<s
 
   for (const std::string& address : addresses)
   {
+    AddItem(address, addresses, scopes);
 
-    //TODO maybe create a method which adds these addresses in, so we can use it below...
-
-    //TODO network::uri uri(address); to make sure it looks reasonable and collect the details. Then dump them into the setData
-
-    if (HasItem(address)) // Ignore duplicates
-    {
-
-      continue;
-    }
-
-    ManageTrackFindONVIFDeviceDiscoveryTreeItem* item = new ManageTrackFindONVIFDeviceDiscoveryTreeItem(device_, names, locations, address, username_, password_);
-
-    //TODO add names and locations to the item if they don't already exist
-      //TODO they just go on tooltips I think?
-    item->setData(0, Qt::UserRole, RECEIVERDISCOVERYITEM_DEVICE);
-    item->setData(0, Qt::UserRole + 1, QString::fromStdString(address));
-    Filter(item);
-    //TODO addTopLevelItem(item);
   }
 }
 
 void ManageTrackFindONVIFDeviceDiscoveryTree::DiscoverONVIFDevice(const std::string& address)
 {
-  if (HasItem(address)) // Ignore duplicates
-  {
+  AddItem(address, std::vector<std::string>(), std::vector<std::string>());
 
-    return;
-  }
-
-  //TODO network::uri uri(address); to make sure it looks reasonable and collect the details
-
-  ManageTrackFindONVIFDeviceDiscoveryTreeItem* item = new ManageTrackFindONVIFDeviceDiscoveryTreeItem(device_, std::vector<std::string>(), std::vector<std::string>(), address, username_, password_);
-  item->setData(0, Qt::UserRole, RECEIVERDISCOVERYITEM_DEVICE);
-  item->setData(0, Qt::UserRole + 1, QString::fromStdString(address));
-  Filter(item);
-  addTopLevelItem(item);
 }
 
 }

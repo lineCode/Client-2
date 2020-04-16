@@ -11,6 +11,7 @@
 #include <QString>
 
 #include "monocleclient/device.h"
+#include "monocleclient/managetrackfindonvifdevicediscoverytree.h"
 
 ///// Namespaces /////
 
@@ -96,6 +97,18 @@ int ManageTrackFindONVIFDeviceDiscoveryTreeItem::Update()
 
   }
   return 0;
+}
+
+void ManageTrackFindONVIFDeviceDiscoveryTreeItem::AddNames(const std::vector<std::string>& names)
+{
+  //TODO names and locations and update the tooltip
+
+}
+
+void ManageTrackFindONVIFDeviceDiscoveryTreeItem::AddLocations(const std::vector<std::string>& locations)
+{
+  //TODO names and locations and update the tooltip
+
 }
 
 void ManageTrackFindONVIFDeviceDiscoveryTreeItem::RemoveChildren()
@@ -219,8 +232,8 @@ void ManageTrackFindONVIFDeviceDiscoveryTreeItem::GetProfiles()
 
           QTreeWidgetItem* profileitem = new QTreeWidgetItem(this, { QString::fromStdString(*profile.token_) + name });
           profileitem->setData(0, Qt::UserRole, RECEIVERDISCOVERYITEM_PROFILE);
-          profileitem->setData(0, Qt::UserRole + 1, QString::fromStdString(address_));
-          profileitem->setData(0, Qt::UserRole + 2, QString::fromStdString(*profile.token_));
+          profileitem->setData(0, ADDRESS_ROLE, QString::fromStdString(address_));
+          profileitem->setData(0, PROFILE_TOKEN_ROLE, QString::fromStdString(*profile.token_));
           QStringList listitems;
           if (profile.videosourceconfiguration_.is_initialized())
           {
@@ -371,7 +384,7 @@ void ManageTrackFindONVIFDeviceDiscoveryTreeItem::GetProfiles()
 
             }
           }
-          profileitem->setData(0, Qt::UserRole + 3, listitems);
+          profileitem->setData(0, Qt::UserRole + 3, listitems);//TODO how are these used?
           addChild(profileitem);
         }
 

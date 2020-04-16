@@ -1,4 +1,4 @@
-// managetrackfindonvifdeviceonvifwindow.h
+// managetrackfindonvifdevicediscoverytree.h
 //
 
 #ifndef IDEPG4GNCJDSADASDASDASDA4PS7Z3HTYF
@@ -17,9 +17,19 @@
 namespace client
 {
 
+///// Globals /////
+
+extern const int ADDRESS_ROLE;
+extern const int PROFILE_TOKEN_ROLE;
+extern const int SCHEMA_ROLE;
+extern const int PORT_ROLE;
+extern const int HOST_ROLE;
+extern const int PATH_ROLE;
+
 ///// Declarations /////
 
 class Device;
+class ManageTrackFindONVIFDeviceDiscoveryTreeItem;
 
 ///// Classes /////
 
@@ -54,7 +64,8 @@ class ManageTrackFindONVIFDeviceDiscoveryTree : public QTreeWidget
   void Filter();
   void Filter(QTreeWidgetItem* item);
   bool ChildrenContainsTextFilter(QTreeWidgetItem* item);
-  bool HasItem(const std::string& address);
+  ManageTrackFindONVIFDeviceDiscoveryTreeItem* FindItem(const QString& schema, const uint16_t port, const QString& host, const QString& path);
+  void AddItem(const std::string& address, const std::vector<std::string>& names, const std::vector<std::string>& locations);
 
   boost::shared_ptr<Device> device_;
   monocle::client::Connection connection_;
