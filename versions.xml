@@ -60,4 +60,18 @@
       <change>Added Chart View for looking at object data in graph form</change>
     </changes>
   </version>
+  <version>
+    <major>1</major>
+    <minor>14</minor>
+    <build>0</build>
+    <date>Thur Apr 17 2020</date>
+    <windowsfilename>MonocleClient_1_14_0.msi</windowsfilename>
+    <changes>
+      <change>Improved camera discovery</change>
+      <change>Fixed a bug where sometimes Find Motion and Find Object windows couldn't be opened</change>
+      <change>Added digital zoom</change>
+      <change>Adaptive streaming</change>
+      <change>Fixed a bug where swapping views would cause a crash</change>
+    </changes>
+  </version>
 </versions>
