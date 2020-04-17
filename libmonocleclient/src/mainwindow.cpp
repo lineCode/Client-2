@@ -215,7 +215,7 @@ MainWindow::MainWindow(const uint32_t numioservices) :
     cumemalloc_ = reinterpret_cast<CUMEMALLOC>(GetProcAddress(nvcudadll_, "cuMemAlloc_v2"));
     cumemcpy2d_ = reinterpret_cast<CUMEMCPY2D>(GetProcAddress(nvcudadll_, "cuMemcpy2D_v2"));
     cumemfree_ = reinterpret_cast<CUMEMFREE>(GetProcAddress(nvcudadll_, "cuMemFree_v2"));
-    if (!cuinit_ || !cugraphicsglregisterimage_ || !cudevicegetcount_ || !cudeviceprimaryctxretain_ || !cudeviceprimaryctxrelease_ || !cuctxpushcurrent_ || !cuctxpopcurrent_ || !cumemcpy2d_ || !cugraphicsunregisterresource_ || !cugraphicssubresourcegetmappedarray_ || !cugraphicsmapresources_ || !cugraphicsunmapresources_ || !cumemfree_ || !cumemalloc_)
+    if (!cuctxpopcurrent_ || !cuctxpushcurrent_ || !cudevicegetcount_ || !cudeviceprimaryctxrelease_ || !cudeviceprimaryctxretain_ || !cugraphicsglregisterimage_ || !cugraphicsmapresources_ || !cugraphicssubresourcegetmappedarray_ || !cugraphicsunmapresources_ || !cugraphicsunregisterresource_ || !cuinit_ || !cumemalloc_ || !cumemcpy2d_ || !cumemfree_)
     {
       FreeCuda();
 
