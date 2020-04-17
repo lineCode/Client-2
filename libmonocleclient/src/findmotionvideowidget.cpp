@@ -5,9 +5,6 @@
 
 #include "monocleclient/findmotionvideowidget.h"
 
-#include <cuda.h>
-#include <cudaGL.h>
-
 #include "monocleclient/decoder.h"
 #include "monocleclient/findmotionwindow.h"
 #include "monocleclient/mainwindow.h"
@@ -78,7 +75,7 @@ FindMotionVideoWidget::~FindMotionVideoWidget()
   {
     if (cudaresource)
     {
-      cuGraphicsUnregisterResource(cudaresource);
+      MainWindow::Instance()->cugraphicsunregisterresource_(cudaresource);
       cudaresource = nullptr;
     }
   }
@@ -487,7 +484,7 @@ void FindMotionVideoWidget::paintGL()
       }
       else if (imagebuffer.type_ == IMAGEBUFFERTYPE_NV12)
       {
-        cuCtxPushCurrent_v2(imagebuffer.cudacontext_);
+        MainWindow::Instance()->cuctxpushcurrent_(imagebuffer.cudacontext_);
         bool resetresources = false; // Do we need to reinitialise the cuda stuff if dimensions and format have changed
         if ((imagebuffer.type_ != type_) || (imagebuffer.widths_[0] != GetFindMotionWindow()->imagewidth_) || (imagebuffer.heights_[0] != GetFindMotionWindow()->imageheight_) || !cudaresources_[0] || !cudaresources_[1])
         {
@@ -498,7 +495,7 @@ void FindMotionVideoWidget::paintGL()
             {
               if (resource)
               {
-                cuGraphicsUnregisterResource(resource);
+                MainWindow::Instance()->cugraphicsunregisterresource_(resource);
                 resource = nullptr;
               }
             }
@@ -519,7 +516,7 @@ void FindMotionVideoWidget::paintGL()
           {
             glTexImage2D(GL_TEXTURE_2D, 0, (texture == 0) ? GL_RED : GL_RG, imagebuffer.widths_.at(texture), imagebuffer.heights_[texture], 0, (texture == 0) ? GL_RED : GL_RG, GL_UNSIGNED_BYTE, nullptr);
 
-            cuGraphicsGLRegisterImage(&resource, textures_[texture], GL_TEXTURE_2D, CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD);
+            MainWindow::Instance()->cugraphicsglregisterimage_(&resource, textures_[texture], GL_TEXTURE_2D, CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD);
             cudaresources_[texture] = resource;
           }
           else
@@ -528,9 +525,9 @@ void FindMotionVideoWidget::paintGL()
 
           }
 
-          cuGraphicsMapResources(1, &resource, 0);
+          MainWindow::Instance()->cugraphicsmapresources_(1, &resource, 0);
           CUarray resourceptr;
-          cuGraphicsSubResourceGetMappedArray(&resourceptr, resource, 0, 0);
+          MainWindow::Instance()->cugraphicssubresourcegetmappedarray_(&resourceptr, resource, 0, 0);
 
           CUDA_MEMCPY2D copy;
           memset(&copy, 0, sizeof(copy));
@@ -542,13 +539,13 @@ void FindMotionVideoWidget::paintGL()
           copy.dstPitch = imagebuffer.strides_[texture];
           copy.WidthInBytes = (texture == 0) ? imagebuffer.widths_[texture] : imagebuffer.widths_.at(texture) * 2;
           copy.Height = imagebuffer.heights_[texture];
-          cuMemcpy2D(&copy);
-          cuGraphicsUnmapResources(1, &resource, 0);
+          MainWindow::Instance()->cumemcpy2d_(&copy);
+          MainWindow::Instance()->cugraphicsunmapresources_(1, &resource, 0);
           glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
         }
 
         CUcontext dummy;
-        cuCtxPopCurrent_v2(&dummy);
+        MainWindow::Instance()->cuctxpopcurrent_(&dummy);
       }
       freeimagequeue_.AddFreeImage(imagebuffer);
     }

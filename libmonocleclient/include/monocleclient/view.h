@@ -12,7 +12,6 @@
 #include <atomic>
 #include <boost/circular_buffer.hpp>
 #include <chrono>
-#include <cuda.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include <map>

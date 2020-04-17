@@ -122,6 +122,23 @@ class Layout;
 class LayoutView;
 class LayoutWindow;
 
+///// Typedefs /////
+
+typedef CUresult(*CUCTXPOPCURRENT)(CUcontext* pctx);
+typedef CUresult(*CUCTXPUSHCURRENT)(CUcontext ctx);
+typedef CUresult(*CUDEVICEGETCOUNT)(int* count);
+typedef CUresult(*CUDEVICEPRIMARYCTXRELEASE)(CUdevice dev);
+typedef CUresult(*CUDEVICEPRIMARYCTXRETAIN)(CUcontext* pctx, CUdevice dev);
+typedef CUresult(*CUGRAPHICSGLREGISTERIMAGE)(CUgraphicsResource* pCudaResource, GLuint image, GLenum target, unsigned int Flags);
+typedef CUresult(*CUGRAPHICSMAPRESOURCES)(unsigned int count, CUgraphicsResource* resources, CUstream hStream);
+typedef CUresult(*CUGRAPHICSSUBRESOURCEGETMAPPEDARRAY)(CUarray* pArray, CUgraphicsResource resource, unsigned int arrayIndex, unsigned int mipLevel);
+typedef CUresult(*CUGRAPHICSUNMAPRESOURCES)(unsigned int count, CUgraphicsResource* resources, CUstream hStream);
+typedef CUresult(*CUGRAPHICSUNREGISTERRESOURCE)(CUgraphicsResource resource);
+typedef CUresult(*CUINIT)(unsigned int Flags);
+typedef CUresult(*CUMEMALLOC)(CUdeviceptr* dptr, size_t bytesize);
+typedef CUresult(*CUMEMCPY2D)(const CUDA_MEMCPY2D* pCopy);
+typedef CUresult(*CUMEMFREE)(CUdeviceptr dptr);
+
 ///// Structures /////
 
 struct CUDADEVICE
@@ -206,6 +223,28 @@ class MainWindow : public QMainWindow
 
   void DiscoveryBroadcast();
 
+#ifdef _WIN32
+  HMODULE nvcudadll_;
+  CUCTXPOPCURRENT cuctxpopcurrent_;
+  CUCTXPUSHCURRENT cuctxpushcurrent_;
+  CUDEVICEGETCOUNT cudevicegetcount_;
+  CUDEVICEPRIMARYCTXRELEASE cudeviceprimaryctxrelease_;
+  CUDEVICEPRIMARYCTXRETAIN cudeviceprimaryctxretain_;
+  CUGRAPHICSGLREGISTERIMAGE cugraphicsglregisterimage_;
+  CUGRAPHICSMAPRESOURCES cugraphicsmapresources_;
+  CUGRAPHICSSUBRESOURCEGETMAPPEDARRAY cugraphicssubresourcegetmappedarray_;
+  CUGRAPHICSUNMAPRESOURCES cugraphicsunmapresources_;
+  CUGRAPHICSUNREGISTERRESOURCE cugraphicsunregisterresource_;
+  CUINIT cuinit_;
+  CUMEMALLOC cumemalloc_;
+  CUMEMCPY2D cumemcpy2d_;
+  CUMEMFREE cumemfree_;
+#else
+
+#error "need to sort this out for linux..."
+
+#endif
+
  protected:
 
   virtual void changeEvent(QEvent* event) override;
@@ -220,6 +259,7 @@ class MainWindow : public QMainWindow
 
   static MainWindow* instance_;
 
+  void FreeCuda();
   uint32_t GridWidth(const std::vector< QSharedPointer<LayoutWindow> >& layouts);
   uint32_t GridHeight(const std::vector< QSharedPointer<LayoutWindow> >& layouts);
   void AcceptDrop(QDragMoveEvent* event);

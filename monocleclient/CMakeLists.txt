@@ -70,11 +70,6 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 
 ##### LIBRARIES #####
 
-get_filename_component(CUDA_LIB_PATH ${CUDA_CUDART_LIBRARY} DIRECTORY)
-find_library(CUDA_CUDA_LIBRARY cuda PATHS ${CUDA_LIB_PATH})
-
-target_link_libraries(monocleclient ${CUDA_LIBRARIES})
-target_link_libraries(monocleclient ${CUDA_CUDA_LIBRARY})
 target_link_libraries(monocleclient ${OPENGL_LIBRARIES})
 target_link_libraries(monocleclient ${OPENSSL_LIBRARIES})
 target_link_libraries(monocleclient ${Qt5Gui_EGL_LIBRARIES})

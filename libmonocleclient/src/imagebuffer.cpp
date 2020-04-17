@@ -5,6 +5,8 @@
 
 #include "monocleclient/imagebuffer.h"
 
+#include "monocleclient/mainwindow.h"
+
 ///// Namespaces /////
 
 namespace client
@@ -58,20 +60,20 @@ void ImageBuffer::Destroy()
 {
   if (cudacontext_ && (type_ == IMAGEBUFFERTYPE_NV12))
   {
-    if (cuCtxPushCurrent_v2(cudacontext_) == CUDA_SUCCESS)
+    if (MainWindow::Instance()->cuctxpushcurrent_(cudacontext_) == CUDA_SUCCESS)
     {
       if (data_[0])
       {
-        cuMemFree(reinterpret_cast<CUdeviceptr>(data_[0]));
+        MainWindow::Instance()->cumemfree_(reinterpret_cast<CUdeviceptr>(data_[0]));
 
       }
       if (data_[1])
       {
-        cuMemFree(reinterpret_cast<CUdeviceptr>(data_[1]));
+        MainWindow::Instance()->cumemfree_(reinterpret_cast<CUdeviceptr>(data_[1]));
 
       }
       CUcontext dummy;
-      cuCtxPopCurrent_v2(&dummy);
+      MainWindow::Instance()->cuctxpopcurrent_(&dummy);
     }
   }
   else
