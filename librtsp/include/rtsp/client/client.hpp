@@ -405,22 +405,28 @@ class Client : public boost::enable_shared_from_this< Client<T> >
 
   void HandleTimeout(const boost::system::error_code& err, uint64_t cseq)
   {
-    std::lock_guard<std::mutex> lock(clientrequestsmutex_);
-
-    auto clientrequest = std::find_if(clientrequests_.begin(), clientrequests_.end(), [&cseq](const ClientRequest& clientrequest) { return (cseq == clientrequest.request_.cseq_); });
-    if (clientrequest == clientrequests_.end())
+    RtspRequest request;
+    uint64_t id = 0;
+    std::chrono::high_resolution_clock::time_point latency;
     {
+      std::lock_guard<std::mutex> lock(clientrequestsmutex_);
+      auto clientrequest = std::find_if(clientrequests_.begin(), clientrequests_.end(), [&cseq](const ClientRequest& clientrequest) { return (cseq == clientrequest.request_.cseq_); });
+      if (clientrequest == clientrequests_.end())
+      {
 
-      return;
+        return;
+      }
+      request = clientrequest->request_;
+      id = clientrequest->id_;
+      latency = clientrequest->latency_;
+      clientrequests_.erase(clientrequest);
     }
 
     if (!err)
     {
-      Error(clientrequest->request_, clientrequest->id_, std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - clientrequest->latency_).count(), boost::system::errc::make_error_code(boost::system::errc::stream_timeout));
+      Error(request, id, std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - latency).count(), boost::system::errc::make_error_code(boost::system::errc::stream_timeout));
 
     }
-
-    clientrequests_.erase(clientrequest);
   }
 
   void HandleSessionKeepalive(const boost::system::error_code& err, boost::shared_ptr< client::Session<T> > session, KEEPALIVEMODE keepalivemode, std::string url, unsigned int timeout)

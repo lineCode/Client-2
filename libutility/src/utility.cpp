@@ -139,7 +139,8 @@ std::pair<int, std::vector<ADDRESS> > GetAddresses()
     if (ifaddr->ifa_addr->sa_family == AF_INET)
     {
       struct sockaddr_in* sa = reinterpret_cast<struct sockaddr_in*>(ifaddr->ifa_addr);
-      addresses.push_back(ADDRESS(ifaddr->ifa_name, inet_ntoa(sa->sin_addr)));
+      const std::string nm = inet_ntoa(reinterpret_cast<struct sockaddr_in*>(ifaddr->ifa_netmask)->sin_addr);
+      addresses.push_back(ADDRESS(ifaddr->ifa_name, inet_ntoa(sa->sin_addr), nm));
     }
   }
   freeifaddrs(ifaddrs);
