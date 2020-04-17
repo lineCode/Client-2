@@ -11,7 +11,6 @@
 #endif
 
 #include <boost/algorithm/string.hpp>
-#include <cuda_gl_interop.h>
 #include <utility/utility.hpp>
 
 extern "C"
@@ -178,7 +177,7 @@ DECODERERROR H264Decoder::Init()
   }
 
   // Do we support CUDA decoding?
-  if (cudacontext_ && Options::Instance().GetMaxCUDADecodersPerDevice() && MainWindow::Instance()->GetNumCUDADevices() && utility::Contains(types, AV_HWDEVICE_TYPE_CUDA))
+  if (cudacontext_ && Options::Instance().GetMaxCUDADecodersPerDevice() && MainWindow::Instance()->GetNumCUDADevices() && utility::Contains(types, AV_HWDEVICE_TYPE_CUDA) && MainWindow::Instance()->nvcudadll_)
   {
     // Count the number of views using this cuda context as their hardware decoder
     const std::vector< QSharedPointer<View> > views = MainWindow::Instance()->GetVideoWidgetsMgr().GetViews();

@@ -227,26 +227,6 @@
           KeyPath="yes" />
       </Component>
 
-      <Component Directory="INSTALLFOLDER" Guid="08df5dbe-680f-42cb-8efc-f4e8fcd580be">
-        <File
-          Id="nvcuda"
-          Name="nvcuda.dll"
-          Source="nvcuda.dll"
-          DiskId="1"
-          Vital="yes"
-          KeyPath="yes" />
-      </Component>
-
-      <Component Directory="INSTALLFOLDER" Guid="c7818f3d-d4a2-43f7-b3c6-8eafe6d886d1">
-        <File
-          Id="nvfatbinaryLoader"
-          Name="nvfatbinaryLoader.dll"
-          Source="nvfatbinaryLoader.dll"
-          DiskId="1"
-          Vital="yes"
-          KeyPath="yes" />
-      </Component>
-
       <Component Directory="INSTALLFOLDER" Guid="6f044adf-1844-4012-bd78-2828da193ebf">
         <File
           Id="D3Dcompiler_47"

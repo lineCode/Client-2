@@ -13,7 +13,6 @@ extern "C"
 
 #include <boost/scope_exit.hpp>
 #include <cuda.h>
-#include <cuda_runtime.h>
 
 #include "monocleclient/mainwindow.h"
 
@@ -354,7 +353,7 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
       }
 
       {
-        if (cuCtxPushCurrent_v2(cudacontext_) != CUDA_SUCCESS)
+        if (MainWindow::Instance()->cuctxpushcurrent_(cudacontext_) != CUDA_SUCCESS)
         {
           imagebuffer.Destroy();
           return ImageBuffer();
@@ -363,7 +362,7 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
         BOOST_SCOPE_EXIT(void)
         {
           CUcontext dummy;
-          cuCtxPopCurrent_v2(&dummy);
+          MainWindow::Instance()->cuctxpopcurrent_(&dummy);
         } BOOST_SCOPE_EXIT_END
 
         if ((imagebuffer.type_ != IMAGEBUFFERTYPE_NV12) || (imagebuffer.strides_[0] != frame_->linesize[0]) || (imagebuffer.widths_[0] != frame_->width) || (imagebuffer.heights_[0] != frame_->height)
@@ -372,16 +371,16 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
           imagebuffer.Destroy();
           CUdeviceptr yptr = 0;
           CUdeviceptr uvptr = 0;
-          CUresult ret = cuMemAlloc(&yptr, frame_->linesize[0] * frame_->height);
+          CUresult ret = MainWindow::Instance()->cumemalloc_(&yptr, frame_->linesize[0] * frame_->height);
           if (ret != CUDA_SUCCESS)
           {
 
             return ImageBuffer();
           }
-          ret = cuMemAlloc(&uvptr, frame_->linesize[1] * (frame_->height / 2));
+          ret = MainWindow::Instance()->cumemalloc_(&uvptr, frame_->linesize[1] * (frame_->height / 2));
           if (ret != CUDA_SUCCESS)
           {
-            cuMemFree(yptr);
+            MainWindow::Instance()->cumemfree_(yptr);
             return ImageBuffer();
           }
           imagebuffer.type_ = IMAGEBUFFERTYPE_NV12;
@@ -406,7 +405,7 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
         ycopy.dstPitch = frame_->linesize[0];
         ycopy.WidthInBytes = frame_->width;
         ycopy.Height = frame_->height;
-        if (cuMemcpy2D(&ycopy) != cudaSuccess)
+        if (MainWindow::Instance()->cumemcpy2d_(&ycopy) != CUDA_SUCCESS)
         {
           imagebuffer.Destroy();
           return ImageBuffer();
@@ -422,7 +421,7 @@ ImageBuffer Decoder::Decode(const uint64_t playrequestindex, const bool marker, 
         uvcopy.dstPitch = frame_->linesize[1];
         uvcopy.WidthInBytes = frame_->width;
         uvcopy.Height = frame_->height / 2;
-        if (cuMemcpy2D(&uvcopy) != cudaSuccess)
+        if (MainWindow::Instance()->cumemcpy2d_(&uvcopy) != CUDA_SUCCESS)
         {
           imagebuffer.Destroy();
           return ImageBuffer();

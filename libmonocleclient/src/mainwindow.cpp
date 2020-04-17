@@ -92,6 +92,21 @@ void MainWindow::Destroy()
 }
 
 MainWindow::MainWindow(const uint32_t numioservices) :
+  nvcudadll_(nullptr),
+  cugraphicsglregisterimage_(nullptr),
+  cuinit_(nullptr),
+  cudevicegetcount_(nullptr),
+  cudeviceprimaryctxretain_(nullptr),
+  cudeviceprimaryctxrelease_(nullptr),
+  cuctxpushcurrent_(nullptr),
+  cuctxpopcurrent_(nullptr),
+  cumemcpy2d_(nullptr),
+  cugraphicsunregisterresource_(nullptr),
+  cugraphicssubresourcegetmappedarray_(nullptr),
+  cugraphicsmapresources_(nullptr),
+  cugraphicsunmapresources_(nullptr),
+  cumemfree_(nullptr),
+  cumemalloc_(nullptr),
   version_(MONOCLE_CLIENT_VERSION_MAJOR, MONOCLE_CLIENT_VERSION_MINOR, MONOCLE_CLIENT_VERSION_BUILD),
   translationsdirectory_((QCoreApplication::applicationDirPath() + QString("/translations"))),
   arial_(new QResource(":/arial.ttf")),
@@ -183,21 +198,71 @@ MainWindow::MainWindow(const uint32_t numioservices) :
 
   // Get the CUDA devices and create a context on each of them
 #ifdef _WIN32
-  if (cuInit(0) == CUDA_SUCCESS)
+  nvcudadll_ = LoadLibrary("nvcuda.dll");
+  if (nvcudadll_)
   {
-    int tmp = 0;
-    if (cuDeviceGetCount(&tmp) == CUDA_SUCCESS)
+    cuinit_ = reinterpret_cast<CUINIT>(GetProcAddress(nvcudadll_, "cuInit"));
+    cugraphicsglregisterimage_ = reinterpret_cast<CUGRAPHICSGLREGISTERIMAGE>(GetProcAddress(nvcudadll_, "cuGraphicsGLRegisterImage"));//TODO alphabetical order
+    cudevicegetcount_ = reinterpret_cast<CUDEVICEGETCOUNT>(GetProcAddress(nvcudadll_, "cuDeviceGetCount"));
+    cudeviceprimaryctxretain_ = reinterpret_cast<CUDEVICEPRIMARYCTXRETAIN>(GetProcAddress(nvcudadll_, "cuDevicePrimaryCtxRetain"));
+    cudeviceprimaryctxrelease_ = reinterpret_cast<CUDEVICEPRIMARYCTXRELEASE>(GetProcAddress(nvcudadll_, "cuDevicePrimaryCtxRelease"));
+    cuctxpushcurrent_ = reinterpret_cast<CUCTXPUSHCURRENT>(GetProcAddress(nvcudadll_, "cuCtxPushCurrent"));
+    cuctxpopcurrent_ = reinterpret_cast<CUCTXPOPCURRENT>(GetProcAddress(nvcudadll_, "cuCtxPopCurrent"));
+    cumemcpy2d_ = reinterpret_cast<CUMEMCPY2D>(GetProcAddress(nvcudadll_, "cuMemcpy2D"));
+    cugraphicsunregisterresource_ = reinterpret_cast<CUGRAPHICSUNREGISTERRESOURCE>(GetProcAddress(nvcudadll_, "cuGraphicsUnregisterResource"));
+    cugraphicssubresourcegetmappedarray_ = reinterpret_cast<CUGRAPHICSSUBRESOURCEGETMAPPEDARRAY>(GetProcAddress(nvcudadll_, "cuGraphicsSubResourceGetMappedArray"));
+    cugraphicsmapresources_ = reinterpret_cast<CUGRAPHICSMAPRESOURCES>(GetProcAddress(nvcudadll_, "cuGraphicsMapResources"));
+    cugraphicsunmapresources_ = reinterpret_cast<CUGRAPHICSUNMAPRESOURCES>(GetProcAddress(nvcudadll_, "cuGraphicsUnmapResources"));
+    cumemfree_ = reinterpret_cast<CUMEMFREE>(GetProcAddress(nvcudadll_, "cuMemFree"));
+    cumemalloc_ = reinterpret_cast<CUMEMALLOC>(GetProcAddress(nvcudadll_, "cuMemAlloc"));
+    if (!cuinit_ || !cugraphicsglregisterimage_ || !cudevicegetcount_ || !cudeviceprimaryctxretain_ || !cudeviceprimaryctxrelease_ || !cuctxpushcurrent_ || !cuctxpopcurrent_ || !cumemcpy2d_ || !cugraphicsunregisterresource_ || !cugraphicssubresourcegetmappedarray_ || !cugraphicsmapresources_ || !cugraphicsunmapresources_ || !cumemfree_ || !cumemalloc_)
     {
-      cudadevices_.reserve(tmp);
-      for (int i = 0; i < tmp; ++i)
+      cuinit_ = nullptr;//TODO method to free all of this
+      cugraphicsglregisterimage_ = nullptr;
+      cudevicegetcount_ = nullptr;
+      cudeviceprimaryctxretain_ = nullptr;
+      cudeviceprimaryctxrelease_ = nullptr;
+      cuctxpushcurrent_ = nullptr;
+      cuctxpopcurrent_ = nullptr;
+      cumemcpy2d_ = nullptr;
+      cugraphicsunregisterresource_ = nullptr;
+      cugraphicssubresourcegetmappedarray_ = nullptr;
+      cugraphicsmapresources_ = nullptr;
+      cugraphicsunmapresources_ = nullptr;
+      cumemfree_ = nullptr;
+      cumemalloc_ = nullptr;
+      FreeLibrary(nvcudadll_);
+      nvcudadll_ = nullptr;
+    }
+    else
+    {
+      if (cuinit_(0) == CUDA_SUCCESS)
       {
-        CUcontext context = nullptr;
-        if (cuDevicePrimaryCtxRetain(&context, i) != CUDA_SUCCESS)
+        int tmp = 0;
+        if (cudevicegetcount_(&tmp) == CUDA_SUCCESS)
         {
+          cudadevices_.reserve(tmp);
+          for (int i = 0; i < tmp; ++i)
+          {
+            CUcontext context = nullptr;
+            if (cudeviceprimaryctxretain_(&context, i) != CUDA_SUCCESS)
+            {
 
-          continue;
+              continue;
+            }
+            cudadevices_.push_back(CUDADEVICE(i, context));
+          }
         }
-        cudadevices_.push_back(CUDADEVICE(i, context));
+        else
+        {
+          //TODO free it all again
+
+        }
+      }
+      else
+      {
+        //TODO free it all again
+
       }
     }
   }
@@ -451,15 +516,19 @@ MainWindow::~MainWindow()
   ioservicepool_.Destroy();
   guiioservice_.stop();
 
-  for (CUDADEVICE& cudadevice : cudadevices_)
+  if (nvcudadll_)
   {
-    if (cuDevicePrimaryCtxRelease(cudadevice.device_) != CUDA_SUCCESS)
+    for (CUDADEVICE& cudadevice : cudadevices_)
     {
-      LOG_GUI_WARNING(tr("Failed to destroy CUDA context: ") + QString::number(cudadevice.device_));
+      if (cudeviceprimaryctxrelease_(cudadevice.device_) != CUDA_SUCCESS)
+      {
+        LOG_GUI_WARNING(tr("Failed to destroy CUDA context: ") + QString::number(cudadevice.device_));
 
+      }
     }
+    cudadevices_.clear();
+    FreeLibrary(nvcudadll_);
   }
-  cudadevices_.clear();
 }
 
 void MainWindow::SetDiscoveryHelper(const bool discoveryhelper)

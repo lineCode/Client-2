@@ -8,7 +8,6 @@
 
 #include <boost/next_prior.hpp>
 #include <boost/lockfree/spsc_queue.hpp>
-#include <cuda.h>
 #include <monocleprotocol/codec_generated.h>
 #include <QObject>
 #include <QString>

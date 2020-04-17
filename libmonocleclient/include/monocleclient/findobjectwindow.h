@@ -10,7 +10,6 @@
 #include <boost/lockfree/spsc_queue.hpp>
 #include <boost/optional.hpp>
 #include <boost/shared_ptr.hpp>
-#include <cuda.h>
 #include <memory>
 #include <monocleprotocol/client/connection.hpp>
 #include <monocleprotocol/monocleprotocol.hpp>

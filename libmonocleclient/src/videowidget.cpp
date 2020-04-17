@@ -5,8 +5,6 @@
 
 #include "monocleclient/videowidget.h"
 
-#include <cuda.h>
-#include <cudaGL.h>
 #include <GL/gl.h>
 #include <QApplication>
 #include <QMenu>
@@ -1903,17 +1901,17 @@ void VideoWidget::paintGL()
           // Destroy any old CUDA stuff we had laying around
           if (imagebuffer.cudacontext_ && (view->GetCUDAResource(0) || view->GetCUDAResource(1) || view->GetCUDAResource(2)))
           {
-            cuCtxPushCurrent_v2(view->GetCUDAContext());
+            MainWindow::Instance()->cuctxpushcurrent_(view->GetCUDAContext());
             for (CUgraphicsResource& resource : view->GetCUDAResources())
             {
               if (resource)
               {
-                cuGraphicsUnregisterResource(resource);
+                MainWindow::Instance()->cugraphicsunregisterresource_(resource);
                 resource = nullptr;
               }
             }
             CUcontext dummy;
-            cuCtxPopCurrent_v2(&dummy);
+            MainWindow::Instance()->cuctxpopcurrent_(&dummy);
           }
 
           // Reset everything else
@@ -1955,7 +1953,7 @@ void VideoWidget::paintGL()
         }
         else if (imagebuffer.type_ == IMAGEBUFFERTYPE_NV12)
         {
-          cuCtxPushCurrent_v2(imagebuffer.cudacontext_);
+          MainWindow::Instance()->cuctxpushcurrent_(imagebuffer.cudacontext_);
           bool resetresources = false; // Do we need to reinitialise the cuda stuff if dimensions and format have changed
           if ((imagebuffer.type_ != view->GetImageType()) || (imagebuffer.widths_[0] != view->GetImageWidth()) || (imagebuffer.heights_[0] != view->GetImageHeight()) || !view->GetCUDAResource(0) || !view->GetCUDAResource(1))
           {
@@ -1964,7 +1962,7 @@ void VideoWidget::paintGL()
             {
               if (resource)
               {
-                cuGraphicsUnregisterResource(resource);
+                MainWindow::Instance()->cugraphicsunregisterresource_(resource);
                 resource = nullptr;
               }
             }
@@ -1983,7 +1981,7 @@ void VideoWidget::paintGL()
             if (resetresources)
             {
               glTexImage2D(GL_TEXTURE_2D, 0, (texture == 0) ? GL_RED : GL_RG, imagebuffer.widths_[texture], imagebuffer.heights_[texture], 0, (texture == 0) ? GL_RED : GL_RG, GL_UNSIGNED_BYTE, nullptr);
-              cuGraphicsGLRegisterImage(&resource, view->GetTextures().at(texture), GL_TEXTURE_2D, CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD);
+              MainWindow::Instance()->cugraphicsglregisterimage_(&resource, view->GetTextures().at(texture), GL_TEXTURE_2D, CU_GRAPHICS_REGISTER_FLAGS_WRITE_DISCARD);
               view->SetCUDAResource(texture, resource);
             }
             else
@@ -1992,9 +1990,9 @@ void VideoWidget::paintGL()
 
             }
 
-            cuGraphicsMapResources(1, &resource, 0);
+            MainWindow::Instance()->cugraphicsmapresources_(1, &resource, 0);
             CUarray resourceptr;
-            cuGraphicsSubResourceGetMappedArray(&resourceptr, resource, 0, 0);
+            MainWindow::Instance()->cugraphicssubresourcegetmappedarray_(&resourceptr, resource, 0, 0);
 
             CUDA_MEMCPY2D copy;
             memset(&copy, 0, sizeof(copy));
@@ -2006,13 +2004,13 @@ void VideoWidget::paintGL()
             copy.dstPitch = imagebuffer.strides_[texture];
             copy.WidthInBytes = (texture == 0) ? imagebuffer.widths_[texture] : (imagebuffer.widths_[texture] * 2);
             copy.Height = imagebuffer.heights_[texture];
-            cuMemcpy2D(&copy);
-            cuGraphicsUnmapResources(1, &resource, 0);
+            MainWindow::Instance()->cumemcpy2d_(&copy);
+            MainWindow::Instance()->cugraphicsunmapresources_(1, &resource, 0);
             glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
           }
 
           CUcontext dummy;
-          cuCtxPopCurrent_v2(&dummy);
+          MainWindow::Instance()->cuctxpopcurrent_(&dummy);
         }
         view->GetFreeFrameBuffers().AddFreeImage(imagebuffer);
       }
