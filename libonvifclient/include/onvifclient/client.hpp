@@ -42,7 +42,7 @@ namespace onvif
 
 ///// Globals /////
 
-const std::string UNABLETOCONNECT("Unable to Connect");
+const std::string UNABLETOCONNECT(curl_easy_strerror(CURLE_COULDNT_CONNECT));
 
 ///// Structures /////
 
@@ -276,7 +276,7 @@ class Client
 
       if (msg->data.result != CURLE_OK)
       {
-        SignalError(request->operation_, msg->easy_handle, localendpoint, latency, UNABLETOCONNECT);
+        SignalError(request->operation_, msg->easy_handle, localendpoint, latency, curl_easy_strerror(msg->data.result));
         continue;
       }
 
