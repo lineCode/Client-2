@@ -107,15 +107,7 @@ class Client : public boost::enable_shared_from_this< Client<T> >
     socket_(boost::make_shared<sock::TcpSocket>(io_)),
     port_(554),
     authenticationtype_(headers::AUTHENTICATIONTYPE_INVALID),
-    currentcseq_(0),
-    describesignal_(this),
-    getparametersignal_(this),
-    optionssignal_(this),
-    pausesignal_(this),
-    playsignal_(this),
-    setparametersignal_(this),
-    setupsignal_(this),
-    teardownsignal_(this)
+    currentcseq_(0)
   {
 
   }
@@ -136,6 +128,15 @@ class Client : public boost::enable_shared_from_this< Client<T> >
     password_ = password;
     realm_.clear();
     nonce_.clear();
+
+    describesignal_ = std::make_unique< client::Signal<Client, DescribeResponse> >(shared_from_this());
+    getparametersignal_ = std::make_unique< client::Signal<Client, GetParameterResponse> >(shared_from_this());
+    optionssignal_ = std::make_unique< client::Signal<Client, OptionsResponse> >(shared_from_this());
+    pausesignal_ = std::make_unique< client::Signal<Client, PauseResponse> >(shared_from_this());
+    playsignal_ = std::make_unique< client::Signal<Client, PlayResponse> >(shared_from_this());
+    setparametersignal_ = std::make_unique< client::Signal<Client, SetParameterResponse> >(shared_from_this());
+    setupsignal_ = std::make_unique< client::Signal<Client, SetupResponse> >(shared_from_this());
+    teardownsignal_ = std::make_unique< client::Signal<Client, TeardownResponse> >(shared_from_this());
   }
 
   void Destroy()
@@ -146,14 +147,46 @@ class Client : public boost::enable_shared_from_this< Client<T> >
       // Kill all requests while notifying all listeners that it has been aborted
       std::lock_guard<std::recursive_mutex> lock(*mutex_);
 
-      describesignal_.Destroy();
-      getparametersignal_.Destroy();
-      optionssignal_.Destroy();
-      pausesignal_.Destroy();
-      playsignal_.Destroy();
-      setparametersignal_.Destroy();
-      setupsignal_.Destroy();
-      teardownsignal_.Destroy();
+      if (describesignal_)
+      {
+        describesignal_->Destroy();
+        describesignal_.reset();
+      }
+      if (getparametersignal_)
+      {
+        getparametersignal_->Destroy();
+        getparametersignal_.reset();
+      }
+      if (optionssignal_)
+      {
+        optionssignal_->Destroy();
+        optionssignal_.reset();
+      }
+      if (pausesignal_)
+      {
+        pausesignal_->Destroy();
+        pausesignal_.reset();
+      }
+      if (playsignal_)
+      {
+        playsignal_->Destroy();
+        playsignal_.reset();
+      }
+      if (setparametersignal_)
+      {
+        setparametersignal_->Destroy();
+        setparametersignal_.reset();
+      }
+      if (setupsignal_)
+      {
+        setupsignal_->Destroy();
+        setupsignal_.reset();
+      }
+      if (teardownsignal_)
+      {
+        teardownsignal_->Destroy();
+        teardownsignal_.reset();
+      }
 
       proxyparams_.Clear();
       host_.clear();
@@ -306,32 +339,32 @@ class Client : public boost::enable_shared_from_this< Client<T> >
 
   std::future<DescribeResponse> DescribeFuture(const std::string& url)
   {
-    return describesignal_.CreateFuture(DescribeRequest(url));
+    return describesignal_->CreateFuture(DescribeRequest(url));
   }
 
   std::future<GetParameterResponse> GetParameterFuture(const std::string& url, const std::string& session, const std::vector<std::string>& parameters)
   {
-    return getparametersignal_.CreateFuture(GetParameterRequest(url, session, parameters));
+    return getparametersignal_->CreateFuture(GetParameterRequest(url, session, parameters));
   }
 
   std::future<OptionsResponse> OptionsFuture(const std::string& url)
   {
-    return optionssignal_.CreateFuture(OptionsRequest(url));
+    return optionssignal_->CreateFuture(OptionsRequest(url));
   }
 
   std::future<PauseResponse> PauseFuture(const std::string& url, const std::string& session)
   {
-    return pausesignal_.CreateFuture(PauseRequest(url, session));
+    return pausesignal_->CreateFuture(PauseRequest(url, session));
   }
 
   std::future<PlayResponse> PlayFuture(const std::string& url, const std::string& session, const headers::Range& range)
   {
-    return playsignal_.CreateFuture(PlayRequest(url, session, range));
+    return playsignal_->CreateFuture(PlayRequest(url, session, range));
   }
 
   std::future<SetParameterResponse> SetParameterFuture(const std::string& url, const std::string& session, const std::vector<headers::Parameter>& parameters)
   {
-    return setparametersignal_.CreateFuture(SetParameterRequest(url, session, parameters));
+    return setparametersignal_->CreateFuture(SetParameterRequest(url, session, parameters));
   }
 
   std::future<SetupResponse> SetupFuture(const std::string& url, sdp::ADDRESSTYPE addresstype, headers::PROTOCOLTYPE protocoltype, headers::ROUTINGTYPE routingtype, headers::MODE mode, double rtptimestampfrequency, KEEPALIVEMODE keepalivemode, const std::string& keepaliveurl, RtpCallback rtpcallback, void* rtpcallbackdata, RtcpCallback rtcpcallback)
@@ -345,42 +378,42 @@ class Client : public boost::enable_shared_from_this< Client<T> >
       return future;
     }
 
-    return setupsignal_.CreateFuture(*setuprequest);
+    return setupsignal_->CreateFuture(*setuprequest);
   }
 
   std::future<TeardownResponse> TeardownFuture(const std::string& url, const std::string& session)
   {
-    return teardownsignal_.CreateFuture(TeardownRequest(url, session));
+    return teardownsignal_->CreateFuture(TeardownRequest(url, session));
   }
 
   client::Connection DescribeCallback(const std::string& url, typename client::Signal<Client<T>, DescribeResponse>::CallbackType callback)
   {
-    return describesignal_.CreateCallback(DescribeRequest(url), callback);
+    return describesignal_->CreateCallback(DescribeRequest(url), callback);
   }
 
   client::Connection GetParameterCallback(const std::string& url, const std::string& session, const std::vector<std::string>& parameters, typename client::Signal<Client<T>, GetParameterResponse>::CallbackType callback)
   {
-    return getparametersignal_.CreateCallback(GetParameterRequest(url, session, parameters), callback);
+    return getparametersignal_->CreateCallback(GetParameterRequest(url, session, parameters), callback);
   }
 
   client::Connection OptionsCallback(const std::string& url, typename client::Signal<Client<T>, OptionsResponse>::CallbackType callback)
   {
-    return optionssignal_.CreateCallback(OptionsRequest(url), callback);
+    return optionssignal_->CreateCallback(OptionsRequest(url), callback);
   }
 
   client::Connection PauseCallback(const std::string& url, const std::string& session, typename client::Signal<Client<T>, PauseResponse>::CallbackType callback)
   {
-    return pausesignal_.CreateCallback(PauseRequest(url, session), callback);
+    return pausesignal_->CreateCallback(PauseRequest(url, session), callback);
   }
 
   client::Connection PlayCallback(const std::string& url, const std::string& session, const headers::Range& range, typename client::Signal<Client<T>, PlayResponse>::CallbackType callback)
   {
-    return playsignal_.CreateCallback(PlayRequest(url, session, range), callback);
+    return playsignal_->CreateCallback(PlayRequest(url, session, range), callback);
   }
 
   client::Connection SetParameterCallback(const std::string& url, const std::string& session, const std::vector<headers::Parameter>& parameters, typename client::Signal<Client<T>, SetParameterResponse>::CallbackType callback)
   {
-    return setparametersignal_.CreateCallback(SetParameterRequest(url, session, parameters), callback);
+    return setparametersignal_->CreateCallback(SetParameterRequest(url, session, parameters), callback);
   }
 
   client::Connection SetupCallback(const std::string& url, sdp::ADDRESSTYPE addresstype, headers::PROTOCOLTYPE protocoltype, headers::ROUTINGTYPE routingtype, headers::MODE mode, double rtptimestampfrequency, KEEPALIVEMODE keepalivemode, const std::string& keepaliveurl, RtpCallback rtpcallback, void* rtpcallbackdata, RtcpCallback rtcpcallback, typename client::Signal<Client<T>, SetupResponse>::CallbackType callback)
@@ -394,13 +427,13 @@ class Client : public boost::enable_shared_from_this< Client<T> >
     else
     {
 
-      return setupsignal_.CreateCallback(*setuprequest, callback);
+      return setupsignal_->CreateCallback(*setuprequest, callback);
     }
   }
 
   client::Connection TeardownCallback(const std::string& url, const std::string& session, typename client::Signal<Client<T>, TeardownResponse>::CallbackType callback)
   {
-    return teardownsignal_.CreateCallback(TeardownRequest(url, session), callback);
+    return teardownsignal_->CreateCallback(TeardownRequest(url, session), callback);
   }
 
   void HandleTimeout(const boost::system::error_code& err, uint64_t cseq)
@@ -902,32 +935,32 @@ class Client : public boost::enable_shared_from_this< Client<T> >
           break;
         }
 
-        describesignal_.Emit(clientrequest.id_, latency, boost::system::errc::make_error_code(boost::system::errc::success), response.contentbase_, *response.sdp_);
+        describesignal_->Emit(clientrequest.id_, latency, boost::system::errc::make_error_code(boost::system::errc::success), response.contentbase_, *response.sdp_);
         break;
       }
       case headers::REQUESTTYPE_GETPARAMETER:
       {
-        getparametersignal_.Emit(clientrequest.id_, latency, boost::system::errc::make_error_code(boost::system::errc::success), response.parameters_.parameters_);
+        getparametersignal_->Emit(clientrequest.id_, latency, boost::system::errc::make_error_code(boost::system::errc::success), response.parameters_.parameters_);
         break;
       }
       case headers::REQUESTTYPE_OPTIONS:
       {
-        optionssignal_.Emit(clientrequest.id_, latency, boost::system::errc::make_error_code(boost::system::errc::success), response.options_);
+        optionssignal_->Emit(clientrequest.id_, latency, boost::system::errc::make_error_code(boost::system::errc::success), response.options_);
         break;
       }
       case headers::REQUESTTYPE_PAUSE:
       {
-        pausesignal_.Emit(clientrequest.id_, latency, boost::system::errc::make_error_code(boost::system::errc::success));
+        pausesignal_->Emit(clientrequest.id_, latency, boost::system::errc::make_error_code(boost::system::errc::success));
         break;
       }
       case headers::REQUESTTYPE_PLAY:
       {
-        playsignal_.Emit(clientrequest.id_, latency, boost::system::errc::make_error_code(boost::system::errc::success));
+        playsignal_->Emit(clientrequest.id_, latency, boost::system::errc::make_error_code(boost::system::errc::success));
         break;
       }
       case headers::REQUESTTYPE_SETPARAMETER:
       {
-        setparametersignal_.Emit(clientrequest.id_, latency, boost::system::errc::make_error_code(boost::system::errc::success), response.parameters_.parameters_);
+        setparametersignal_->Emit(clientrequest.id_, latency, boost::system::errc::make_error_code(boost::system::errc::success), response.parameters_.parameters_);
         break;
       }
       case headers::REQUESTTYPE_SETUP:
@@ -1045,12 +1078,12 @@ class Client : public boost::enable_shared_from_this< Client<T> >
         }
 
         // Retrieve the RtpClient in transit to becoming part of a session
-        setupsignal_.Emit(clientrequest.id_, latency, boost::system::errc::make_error_code(boost::system::errc::success), response.session_, response.timeout_);
+        setupsignal_->Emit(clientrequest.id_, latency, boost::system::errc::make_error_code(boost::system::errc::success), response.session_, response.timeout_);
         break;
       }
       case headers::REQUESTTYPE_TEARDOWN:
       {
-        teardownsignal_.Emit(clientrequest.id_, latency, boost::system::errc::make_error_code(boost::system::errc::success));
+        teardownsignal_->Emit(clientrequest.id_, latency, boost::system::errc::make_error_code(boost::system::errc::success));
         break;
       }
       default:
@@ -1084,32 +1117,32 @@ class Client : public boost::enable_shared_from_this< Client<T> >
     {
       case headers::REQUESTTYPE_DESCRIBE:
       {
-        describesignal_.Emit(id, latency, error);
+        describesignal_->Emit(id, latency, error);
         break;
       }
       case headers::REQUESTTYPE_GETPARAMETER:
       {
-        getparametersignal_.Emit(id, latency, error);
+        getparametersignal_->Emit(id, latency, error);
         break;
       }
       case headers::REQUESTTYPE_OPTIONS:
       {
-        optionssignal_.Emit(id, latency, error);
+        optionssignal_->Emit(id, latency, error);
         break;
       }
       case headers::REQUESTTYPE_PAUSE:
       {
-        pausesignal_.Emit(id, latency, error);
+        pausesignal_->Emit(id, latency, error);
         break;
       }
       case headers::REQUESTTYPE_PLAY:
       {
-        playsignal_.Emit(id, latency, error);
+        playsignal_->Emit(id, latency, error);
         break;
       }
       case headers::REQUESTTYPE_SETPARAMETER:
       {
-        setparametersignal_.Emit(id, latency, error);
+        setparametersignal_->Emit(id, latency, error);
         break;
       }
       case headers::REQUESTTYPE_SETUP:
@@ -1124,12 +1157,12 @@ class Client : public boost::enable_shared_from_this< Client<T> >
           }
         }
 
-        setupsignal_.Emit(id, latency, error);
+        setupsignal_->Emit(id, latency, error);
         break;
       }
       case headers::REQUESTTYPE_TEARDOWN:
       {
-        teardownsignal_.Emit(id, latency, error);
+        teardownsignal_->Emit(id, latency, error);
         break;
       }
     }
@@ -1281,14 +1314,14 @@ class Client : public boost::enable_shared_from_this< Client<T> >
 
   uint64_t currentcseq_;
 
-  client::Signal<Client, DescribeResponse> describesignal_;
-  client::Signal<Client, GetParameterResponse> getparametersignal_;
-  client::Signal<Client, OptionsResponse> optionssignal_;
-  client::Signal<Client, PauseResponse> pausesignal_;
-  client::Signal<Client, PlayResponse> playsignal_;
-  client::Signal<Client, SetParameterResponse> setparametersignal_;
-  client::Signal<Client, SetupResponse> setupsignal_;
-  client::Signal<Client, TeardownResponse> teardownsignal_;
+  std::unique_ptr< client::Signal<Client, DescribeResponse> > describesignal_;
+  std::unique_ptr< client::Signal<Client, GetParameterResponse >> getparametersignal_;
+  std::unique_ptr< client::Signal<Client, OptionsResponse> > optionssignal_;
+  std::unique_ptr< client::Signal<Client, PauseResponse> > pausesignal_;
+  std::unique_ptr< client::Signal<Client, PlayResponse> > playsignal_;
+  std::unique_ptr< client::Signal<Client, SetParameterResponse> > setparametersignal_;
+  std::unique_ptr< client::Signal<Client, SetupResponse> > setupsignal_;
+  std::unique_ptr< client::Signal<Client, TeardownResponse> > teardownsignal_;
 
   std::mutex clientrequestsmutex_;
   std::vector<ClientRequest> clientrequests_;
