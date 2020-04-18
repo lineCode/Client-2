@@ -34,9 +34,6 @@
             <height>0</height>
            </size>
           </property>
-          <property name="selectionMode">
-           <enum>QAbstractItemView::MultiSelection</enum>
-          </property>
           <attribute name="headerVisible">
            <bool>false</bool>
           </attribute>

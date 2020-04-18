@@ -26,6 +26,8 @@ DeviceTree::DeviceTree(QWidget* parent) :
   connect(this, &DeviceTree::itemExpanded, this, &DeviceTree::ItemExpanded);
   connect(this, &DeviceTree::itemCollapsed, this, &DeviceTree::ItemCollapsed);
   connect(this, &DeviceTree::itemDoubleClicked, this, &DeviceTree::DoubleClicked);
+
+  startTimer(std::chrono::milliseconds(70));
 }
 
 DeviceTree::~DeviceTree()
@@ -60,6 +62,15 @@ void DeviceTree::contextMenuEvent(QContextMenuEvent* event)
       //TODO maybe we need inbetween DeviceTreeItem here too
 
     static_cast<DeviceTreeItem*>(item)->ContextMenuEvent(event);
+
+  }
+}
+
+void DeviceTree::timerEvent(QTimerEvent* event)
+{
+  for (int i = 0; i < topLevelItemCount(); ++i)
+  {
+    static_cast<DeviceTreeItem*>(topLevelItem(i))->Update();
 
   }
 }

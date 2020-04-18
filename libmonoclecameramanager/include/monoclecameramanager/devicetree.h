@@ -34,6 +34,7 @@ class DeviceTree : public QTreeWidget
  protected:
 
   void contextMenuEvent(QContextMenuEvent* event) override;
+  void timerEvent(QTimerEvent* event) override;
   
 
  private:

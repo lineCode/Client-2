@@ -29,12 +29,14 @@ class DeviceTreeItem : public QObject, public QTreeWidgetItem
  public:
 
   DeviceTreeItem(QTreeWidget* parent, const QString& name);
-  ~DeviceTreeItem();
+  virtual ~DeviceTreeItem();
 
   virtual void Expanded();
   virtual void Collapsed();
   virtual void DoubleClicked();
   virtual void ContextMenuEvent(QContextMenuEvent* event);
+
+  virtual void Update();
 
  private:
 

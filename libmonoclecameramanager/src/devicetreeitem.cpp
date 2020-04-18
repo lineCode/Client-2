@@ -47,4 +47,9 @@ void DeviceTreeItem::ContextMenuEvent(QContextMenuEvent* event)
 
 }
 
+void DeviceTreeItem::Update()
+{
+
+}
+
 }
