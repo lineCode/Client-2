@@ -15,7 +15,6 @@
 #include <stdint.h>
 #include <utility>
 
-#include "client.hpp"
 #include "connection.hpp"
 #include "connectionblock.hpp"
 #include "rtsp/rtsprequest.hpp"
@@ -38,7 +37,7 @@ class Signal
 
   typedef boost::function<void(const boost::system::error_code&, const ResponseType&)> CallbackType;
 
-  Signal(Client* client) :
+  Signal(const boost::shared_ptr<Client>& client) :
     client_(client)
   {
 
@@ -152,7 +151,7 @@ class Signal
 
  private:
 
-  Client* client_;
+  boost::shared_ptr<Client> client_;
 
   std::map< uint64_t, std::promise<ResponseType> > promises_;
   std::map< uint64_t, std::pair< boost::shared_ptr<ConnectionBlock>, CallbackType> > callbacks_;

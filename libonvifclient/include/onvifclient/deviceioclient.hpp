@@ -347,6 +347,7 @@ class DeviceIOClient : public Client<DEVICEIOOPERATION>, public boost::enable_sh
   DeviceIOClient(const boost::shared_ptr<std::recursive_mutex>& mutex);
   virtual ~DeviceIOClient();
 
+  virtual int Init(const sock::ProxyParams& proxyparams, const std::string& address, const std::string& username, const std::string& password, const unsigned int maxconcurrentrequests, const bool forcehttpauthentication, const bool forbidreuse) override;
   virtual void Destroy() override;
 
   // Requests

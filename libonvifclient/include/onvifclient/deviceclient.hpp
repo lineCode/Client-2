@@ -1171,6 +1171,7 @@ class DeviceClient : public Client<DEVICEOPERATION>, public boost::enable_shared
   DeviceClient(const boost::shared_ptr<std::recursive_mutex>& mutex);
   virtual ~DeviceClient();
 
+  virtual int Init(const sock::ProxyParams& proxyparams, const std::string& address, const std::string& username, const std::string& password, const unsigned int maxconcurrentrequests, const bool forcehttpauthentication, const bool forbidreuse) override;
   virtual void Destroy() override;
 
   // Requests

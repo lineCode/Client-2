@@ -96,77 +96,7 @@ class MediaSignals
 
 MediaClient::MediaClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
-  signals_(new MediaSignals(
-  {
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddAudioDecoderConfigurationResponse, std::string, std::string > >(this, MEDIAOPERATION_ADDAUDIODECODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddAudioDecoderConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddAudioEncoderConfigurationResponse, std::string, std::string > >(this, MEDIAOPERATION_ADDAUDIOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddAudioEncoderConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddAudioOutputConfigurationResponse, std::string, std::string > >(this, MEDIAOPERATION_ADDAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddAudioOutputConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddAudioSourceConfigurationResponse, std::string, std::string > >(this, MEDIAOPERATION_ADDAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddAudioSourceConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddMetadataConfigurationResponse, std::string, std::string > >(this, MEDIAOPERATION_ADDMETADATACONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddMetadataConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddPTZConfigurationResponse, std::string, std::string > >(this, MEDIAOPERATION_ADDPTZCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddPTZConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddVideoAnalyticsConfigurationResponse, std::string, std::string > >(this, MEDIAOPERATION_ADDVIDEOANALYTICSCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddVideoAnalyticsConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddVideoEncoderConfigurationResponse, std::string, std::string > >(this, MEDIAOPERATION_ADDVIDEOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddVideoEncoderConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddVideoSourceConfigurationResponse, std::string, std::string > >(this, MEDIAOPERATION_ADDVIDEOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddVideoSourceConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, CreateProfileResponse, std::string, boost::optional<std::string> > >(this, MEDIAOPERATION_CREATEPROFILE, true, std::string("http://www.onvif.org/ver10/media/wsdl/CreateProfile"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, DeleteProfileResponse, std::string> >(this, MEDIAOPERATION_DELETEPROFILE, true, std::string("http://www.onvif.org/ver10/media/wsdl/DeleteProfile"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioDecoderConfigurationResponse, std::string> >(this, MEDIAOPERATION_GETAUDIODECODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioDecoderConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioDecoderConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > >(this, MEDIAOPERATION_GETAUDIODECODERCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioDecoderConfigurationOptions"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioDecoderConfigurationsResponse> >(this, MEDIAOPERATION_GETAUDIODECODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioDecoderConfigurations"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioEncoderConfigurationResponse, std::string> >(this, MEDIAOPERATION_GETAUDIOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioEncoderConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioEncoderConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > >(this, MEDIAOPERATION_GETAUDIOENCODERCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioEncoderConfigurationOptions"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioEncoderConfigurationsResponse> >(this, MEDIAOPERATION_GETAUDIOENCODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioEncoderConfigurations"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioOutputConfigurationResponse, std::string> >(this, MEDIAOPERATION_GETAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioOutputConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioOutputConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > >(this, MEDIAOPERATION_GETAUDIOOUTPUTCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioOutputConfigurationOptions"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioOutputConfigurationsResponse> >(this, MEDIAOPERATION_GETAUDIOOUTPUTCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioOutputConfigurations"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioSourceConfigurationResponse, std::string> >(this, MEDIAOPERATION_GETAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioSourceConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioSourceConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > >(this, MEDIAOPERATION_GETAUDIOSOURCECONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioSourceConfigurationOptions"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioSourceConfigurationsResponse> >(this, MEDIAOPERATION_GETAUDIOSOURCECONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioSourceConfigurations"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioSourcesResponse> >(this, MEDIAOPERATION_GETAUDIOSOURCES, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioSources"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioDecoderConfigurationsResponse, std::string> >(this, MEDIAOPERATION_GETCOMPATIBLEAUDIODECODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleAudioDecoderConfigurations"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioEncoderConfigurationsResponse, std::string> >(this, MEDIAOPERATION_GETCOMPATIBLEAUDIOENCODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleAudioEncoderConfigurations"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioOutputConfigurationsResponse, std::string> >(this, MEDIAOPERATION_GETCOMPATIBLEAUDIOOUTPUTCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleAudioOutputConfigurations"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioSourceConfigurationsResponse, std::string> >(this, MEDIAOPERATION_GETCOMPATIBLEAUDIOSOURCECONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleAudioSourceConfigurations"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleMetadataConfigurationsResponse, std::string> >(this, MEDIAOPERATION_GETCOMPATIBLEMETADATACONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleMetadataConfigurations"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleVideoAnalyticsConfigurationsResponse, std::string> >(this, MEDIAOPERATION_GETCOMPATIBLEVIDEOANALYTICSCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleVideoAnalyticsConfigurations"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleVideoEncoderConfigurationsResponse, std::string> >(this, MEDIAOPERATION_GETCOMPATIBLEVIDEOENCODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleVideoEncoderConfigurations"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleVideoSourceConfigurationsResponse, std::string> >(this, MEDIAOPERATION_GETCOMPATIBLEVIDEOSOURCECONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleVideoSourceConfigurations"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetMetadataConfigurationResponse, std::string> >(this, MEDIAOPERATION_GETMETADATACONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetMetadataConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetMetadataConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > >(this, MEDIAOPERATION_GETMETADATACONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetMetadataConfigurationOptions"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetMetadataConfigurationsResponse> >(this, MEDIAOPERATION_GETMETADATACONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetMetadataConfigurations"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetProfileResponse, std::string> >(this, MEDIAOPERATION_GETPROFILE, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetProfile"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetProfilesResponse> >(this, MEDIAOPERATION_GETPROFILES, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetProfiles"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetServiceCapabilitiesResponse> >(this, MEDIAOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetServiceCapabilities"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetSnapshotUriResponse, std::string> >(this, MEDIAOPERATION_GETSNAPSHOTURI, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetSnapshotUri"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetStreamUriResponse, StreamSetup, std::string> >(this, MEDIAOPERATION_GETSTREAMURI, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetStreamUri"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoAnalyticsConfigurationsResponse> >(this, MEDIAOPERATION_GETVIDEOANALYTICSCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoAnalyticsConfigurations"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoEncoderConfigurationResponse, std::string> >(this, MEDIAOPERATION_GETVIDEOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoEncoderConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoEncoderConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > >(this, MEDIAOPERATION_GETVIDEOENCODERCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoEncoderConfigurationOptions"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoEncoderConfigurationsResponse> >(this, MEDIAOPERATION_GETVIDEOENCODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoEncoderConfigurations"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoSourceConfigurationResponse, std::string> >(this, MEDIAOPERATION_GETVIDEOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoSourceConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoSourceConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > >(this, MEDIAOPERATION_GETVIDEOSOURCECONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoSourceConfigurationOptions"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoSourceConfigurationsResponse> >(this, MEDIAOPERATION_GETVIDEOSOURCECONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoSourceConfigurations"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoSourceModesResponse, std::string> >(this, MEDIAOPERATION_GETVIDEOSOURCEMODES, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoSourceModes"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoSourcesResponse> >(this, MEDIAOPERATION_GETVIDEOSOURCES, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoSources"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveAudioDecoderConfigurationResponse, std::string > >(this, MEDIAOPERATION_REMOVEAUDIODECODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveAudioDecoderConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveAudioEncoderConfigurationResponse, std::string > >(this, MEDIAOPERATION_REMOVEAUDIOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveAudioEncoderConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveAudioOutputConfigurationResponse, std::string > >(this, MEDIAOPERATION_REMOVEAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveAudioOutputConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveAudioSourceConfigurationResponse, std::string > >(this, MEDIAOPERATION_REMOVEAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveAudioSourceConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveMetadataConfigurationResponse, std::string > >(this, MEDIAOPERATION_REMOVEMETADATACONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveMetadataConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemovePTZConfigurationResponse, std::string > >(this, MEDIAOPERATION_REMOVEPTZCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemovePTZConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveVideoAnalyticsConfigurationResponse, std::string > >(this, MEDIAOPERATION_REMOVEVIDEOANALYTICSCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveVideoAnalyticsConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveVideoEncoderConfigurationResponse, std::string > >(this, MEDIAOPERATION_REMOVEVIDEOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveVideoEncoderConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveVideoSourceConfigurationResponse, std::string > >(this, MEDIAOPERATION_REMOVEVIDEOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveVideoSourceConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetAudioDecoderConfigurationResponse, AudioDecoderConfiguration> >(this, MEDIAOPERATION_SETAUDIODECODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetAudioDecoderConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetAudioEncoderConfigurationResponse, AudioEncoderConfiguration> >(this, MEDIAOPERATION_SETAUDIOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetAudioEncoderConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetAudioOutputConfigurationResponse, AudioOutputConfiguration> >(this, MEDIAOPERATION_SETAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetAudioOutputConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetAudioSourceConfigurationResponse, AudioSourceConfiguration> >(this, MEDIAOPERATION_SETAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetAudioSourceConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetMetadataConfigurationResponse, MetadataConfiguration> >(this, MEDIAOPERATION_SETMETADATACONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetMetadataConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetSynchronizationPointResponse, std::string> >(this, MEDIAOPERATION_SETSYNCHRONIZATIONPOINT, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetSynchronizationPoint"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetVideoEncoderConfigurationResponse, VideoEncoderConfiguration> >(this, MEDIAOPERATION_SETVIDEOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetVideoEncoderConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetVideoSourceConfigurationResponse, VideoSourceConfiguration> >(this, MEDIAOPERATION_SETVIDEOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetVideoSourceConfiguration"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, StartMulticastStreamingResponse, std::string> >(this, MEDIAOPERATION_STARTMULTICASTSTREAMING, true, std::string("http://www.onvif.org/ver10/media/wsdl/StartMulticastStreaming"), false),
-    std::make_unique< Signal< MEDIAOPERATION, MediaClient, StopMulticastStreamingResponse, std::string> >(this, MEDIAOPERATION_STOPMULTICASTSTREAMING, true, std::string("http://www.onvif.org/ver10/media/wsdl/StopMulticastStreaming"), false)
-  }))
+  signals_(nullptr)
 {
   
 }
@@ -180,78 +110,160 @@ MediaClient::~MediaClient()
   }
 }
 
+int MediaClient::Init(const sock::ProxyParams& proxyparams, const std::string& address, const std::string& username, const std::string& password, const unsigned int maxconcurrentrequests, const bool forcehttpauthentication, const bool forbidreuse)
+{
+  signals_ = new MediaSignals(
+  {
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddAudioDecoderConfigurationResponse, std::string, std::string > >(shared_from_this(), MEDIAOPERATION_ADDAUDIODECODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddAudioDecoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddAudioEncoderConfigurationResponse, std::string, std::string > >(shared_from_this(), MEDIAOPERATION_ADDAUDIOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddAudioEncoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddAudioOutputConfigurationResponse, std::string, std::string > >(shared_from_this(), MEDIAOPERATION_ADDAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddAudioOutputConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddAudioSourceConfigurationResponse, std::string, std::string > >(shared_from_this(), MEDIAOPERATION_ADDAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddAudioSourceConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddMetadataConfigurationResponse, std::string, std::string > >(shared_from_this(), MEDIAOPERATION_ADDMETADATACONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddMetadataConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddPTZConfigurationResponse, std::string, std::string > >(shared_from_this(), MEDIAOPERATION_ADDPTZCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddPTZConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddVideoAnalyticsConfigurationResponse, std::string, std::string > >(shared_from_this(), MEDIAOPERATION_ADDVIDEOANALYTICSCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddVideoAnalyticsConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddVideoEncoderConfigurationResponse, std::string, std::string > >(shared_from_this(), MEDIAOPERATION_ADDVIDEOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddVideoEncoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, AddVideoSourceConfigurationResponse, std::string, std::string > >(shared_from_this(), MEDIAOPERATION_ADDVIDEOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/AddVideoSourceConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, CreateProfileResponse, std::string, boost::optional<std::string> > >(shared_from_this(), MEDIAOPERATION_CREATEPROFILE, true, std::string("http://www.onvif.org/ver10/media/wsdl/CreateProfile"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, DeleteProfileResponse, std::string> >(shared_from_this(), MEDIAOPERATION_DELETEPROFILE, true, std::string("http://www.onvif.org/ver10/media/wsdl/DeleteProfile"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioDecoderConfigurationResponse, std::string> >(shared_from_this(), MEDIAOPERATION_GETAUDIODECODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioDecoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioDecoderConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > >(shared_from_this(), MEDIAOPERATION_GETAUDIODECODERCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioDecoderConfigurationOptions"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioDecoderConfigurationsResponse> >(shared_from_this(), MEDIAOPERATION_GETAUDIODECODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioDecoderConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioEncoderConfigurationResponse, std::string> >(shared_from_this(), MEDIAOPERATION_GETAUDIOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioEncoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioEncoderConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > >(shared_from_this(), MEDIAOPERATION_GETAUDIOENCODERCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioEncoderConfigurationOptions"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioEncoderConfigurationsResponse> >(shared_from_this(), MEDIAOPERATION_GETAUDIOENCODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioEncoderConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioOutputConfigurationResponse, std::string> >(shared_from_this(), MEDIAOPERATION_GETAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioOutputConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioOutputConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > >(shared_from_this(), MEDIAOPERATION_GETAUDIOOUTPUTCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioOutputConfigurationOptions"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioOutputConfigurationsResponse> >(shared_from_this(), MEDIAOPERATION_GETAUDIOOUTPUTCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioOutputConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioSourceConfigurationResponse, std::string> >(shared_from_this(), MEDIAOPERATION_GETAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioSourceConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioSourceConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > >(shared_from_this(), MEDIAOPERATION_GETAUDIOSOURCECONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioSourceConfigurationOptions"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioSourceConfigurationsResponse> >(shared_from_this(), MEDIAOPERATION_GETAUDIOSOURCECONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioSourceConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetAudioSourcesResponse> >(shared_from_this(), MEDIAOPERATION_GETAUDIOSOURCES, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetAudioSources"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioDecoderConfigurationsResponse, std::string> >(shared_from_this(), MEDIAOPERATION_GETCOMPATIBLEAUDIODECODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleAudioDecoderConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioEncoderConfigurationsResponse, std::string> >(shared_from_this(), MEDIAOPERATION_GETCOMPATIBLEAUDIOENCODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleAudioEncoderConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioOutputConfigurationsResponse, std::string> >(shared_from_this(), MEDIAOPERATION_GETCOMPATIBLEAUDIOOUTPUTCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleAudioOutputConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleAudioSourceConfigurationsResponse, std::string> >(shared_from_this(), MEDIAOPERATION_GETCOMPATIBLEAUDIOSOURCECONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleAudioSourceConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleMetadataConfigurationsResponse, std::string> >(shared_from_this(), MEDIAOPERATION_GETCOMPATIBLEMETADATACONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleMetadataConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleVideoAnalyticsConfigurationsResponse, std::string> >(shared_from_this(), MEDIAOPERATION_GETCOMPATIBLEVIDEOANALYTICSCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleVideoAnalyticsConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleVideoEncoderConfigurationsResponse, std::string> >(shared_from_this(), MEDIAOPERATION_GETCOMPATIBLEVIDEOENCODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleVideoEncoderConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetCompatibleVideoSourceConfigurationsResponse, std::string> >(shared_from_this(), MEDIAOPERATION_GETCOMPATIBLEVIDEOSOURCECONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetCompatibleVideoSourceConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetMetadataConfigurationResponse, std::string> >(shared_from_this(), MEDIAOPERATION_GETMETADATACONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetMetadataConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetMetadataConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > >(shared_from_this(), MEDIAOPERATION_GETMETADATACONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetMetadataConfigurationOptions"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetMetadataConfigurationsResponse> >(shared_from_this(), MEDIAOPERATION_GETMETADATACONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetMetadataConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetProfileResponse, std::string> >(shared_from_this(), MEDIAOPERATION_GETPROFILE, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetProfile"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetProfilesResponse> >(shared_from_this(), MEDIAOPERATION_GETPROFILES, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetProfiles"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetServiceCapabilitiesResponse> >(shared_from_this(), MEDIAOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetServiceCapabilities"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetSnapshotUriResponse, std::string> >(shared_from_this(), MEDIAOPERATION_GETSNAPSHOTURI, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetSnapshotUri"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetStreamUriResponse, StreamSetup, std::string> >(shared_from_this(), MEDIAOPERATION_GETSTREAMURI, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetStreamUri"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoAnalyticsConfigurationsResponse> >(shared_from_this(), MEDIAOPERATION_GETVIDEOANALYTICSCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoAnalyticsConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoEncoderConfigurationResponse, std::string> >(shared_from_this(), MEDIAOPERATION_GETVIDEOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoEncoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoEncoderConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > >(shared_from_this(), MEDIAOPERATION_GETVIDEOENCODERCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoEncoderConfigurationOptions"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoEncoderConfigurationsResponse> >(shared_from_this(), MEDIAOPERATION_GETVIDEOENCODERCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoEncoderConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoSourceConfigurationResponse, std::string> >(shared_from_this(), MEDIAOPERATION_GETVIDEOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoSourceConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoSourceConfigurationOptionsResponse, boost::optional<std::string>, boost::optional<std::string> > >(shared_from_this(), MEDIAOPERATION_GETVIDEOSOURCECONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoSourceConfigurationOptions"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoSourceConfigurationsResponse> >(shared_from_this(), MEDIAOPERATION_GETVIDEOSOURCECONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoSourceConfigurations"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoSourceModesResponse, std::string> >(shared_from_this(), MEDIAOPERATION_GETVIDEOSOURCEMODES, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoSourceModes"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, GetVideoSourcesResponse> >(shared_from_this(), MEDIAOPERATION_GETVIDEOSOURCES, true, std::string("http://www.onvif.org/ver10/media/wsdl/GetVideoSources"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveAudioDecoderConfigurationResponse, std::string > >(shared_from_this(), MEDIAOPERATION_REMOVEAUDIODECODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveAudioDecoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveAudioEncoderConfigurationResponse, std::string > >(shared_from_this(), MEDIAOPERATION_REMOVEAUDIOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveAudioEncoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveAudioOutputConfigurationResponse, std::string > >(shared_from_this(), MEDIAOPERATION_REMOVEAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveAudioOutputConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveAudioSourceConfigurationResponse, std::string > >(shared_from_this(), MEDIAOPERATION_REMOVEAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveAudioSourceConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveMetadataConfigurationResponse, std::string > >(shared_from_this(), MEDIAOPERATION_REMOVEMETADATACONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveMetadataConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemovePTZConfigurationResponse, std::string > >(shared_from_this(), MEDIAOPERATION_REMOVEPTZCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemovePTZConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveVideoAnalyticsConfigurationResponse, std::string > >(shared_from_this(), MEDIAOPERATION_REMOVEVIDEOANALYTICSCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveVideoAnalyticsConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveVideoEncoderConfigurationResponse, std::string > >(shared_from_this(), MEDIAOPERATION_REMOVEVIDEOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveVideoEncoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, RemoveVideoSourceConfigurationResponse, std::string > >(shared_from_this(), MEDIAOPERATION_REMOVEVIDEOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/RemoveVideoSourceConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetAudioDecoderConfigurationResponse, AudioDecoderConfiguration> >(shared_from_this(), MEDIAOPERATION_SETAUDIODECODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetAudioDecoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetAudioEncoderConfigurationResponse, AudioEncoderConfiguration> >(shared_from_this(), MEDIAOPERATION_SETAUDIOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetAudioEncoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetAudioOutputConfigurationResponse, AudioOutputConfiguration> >(shared_from_this(), MEDIAOPERATION_SETAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetAudioOutputConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetAudioSourceConfigurationResponse, AudioSourceConfiguration> >(shared_from_this(), MEDIAOPERATION_SETAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetAudioSourceConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetMetadataConfigurationResponse, MetadataConfiguration> >(shared_from_this(), MEDIAOPERATION_SETMETADATACONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetMetadataConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetSynchronizationPointResponse, std::string> >(shared_from_this(), MEDIAOPERATION_SETSYNCHRONIZATIONPOINT, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetSynchronizationPoint"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetVideoEncoderConfigurationResponse, VideoEncoderConfiguration> >(shared_from_this(), MEDIAOPERATION_SETVIDEOENCODERCONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetVideoEncoderConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, SetVideoSourceConfigurationResponse, VideoSourceConfiguration> >(shared_from_this(), MEDIAOPERATION_SETVIDEOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/media/wsdl/SetVideoSourceConfiguration"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, StartMulticastStreamingResponse, std::string> >(shared_from_this(), MEDIAOPERATION_STARTMULTICASTSTREAMING, true, std::string("http://www.onvif.org/ver10/media/wsdl/StartMulticastStreaming"), false),
+    std::make_unique< Signal< MEDIAOPERATION, MediaClient, StopMulticastStreamingResponse, std::string> >(shared_from_this(), MEDIAOPERATION_STOPMULTICASTSTREAMING, true, std::string("http://www.onvif.org/ver10/media/wsdl/StopMulticastStreaming"), false)
+  });
+
+  return Client::Init(proxyparams, address, username, password, maxconcurrentrequests, forcehttpauthentication, forbidreuse);
+}
+
 void MediaClient::Destroy()
 {
   Client::Destroy();
 
-  signals_->addaudiodecoderconfiguration_->Destroy();
-  signals_->addaudioencoderconfiguration_->Destroy();
-  signals_->addaudiooutputconfiguration_->Destroy();
-  signals_->addaudiosourceconfiguration_->Destroy();
-  signals_->addmetadataconfiguration_->Destroy();
-  signals_->addptzconfiguration_->Destroy();
-  signals_->addvideoanalyticsconfiguration_->Destroy();
-  signals_->addvideoencoderconfiguration_->Destroy();
-  signals_->addvideosourceconfiguration_->Destroy();
-  signals_->createprofile_->Destroy();
-  signals_->deleteprofile_->Destroy();
-  signals_->getaudiodecoderconfiguration_->Destroy();
-  signals_->getaudiodecoderconfigurationoptions_->Destroy();
-  signals_->getaudiodecoderconfigurations_->Destroy();
-  signals_->getaudioencoderconfiguration_->Destroy();
-  signals_->getaudioencoderconfigurationoptions_->Destroy();
-  signals_->getaudioencoderconfigurations_->Destroy();
-  signals_->getaudiooutputconfiguration_->Destroy();
-  signals_->getaudiooutputconfigurationoptions_->Destroy();
-  signals_->getaudiooutputconfigurations_->Destroy();
-  signals_->getaudiosourceconfiguration_->Destroy();
-  signals_->getaudiosourceconfigurationoptions_->Destroy();
-  signals_->getaudiosourceconfigurations_->Destroy();
-  signals_->getaudiosources_->Destroy();
-  signals_->getcompatibleaudiodecoderconfigurations_->Destroy();
-  signals_->getcompatibleaudioencoderconfigurations_->Destroy();
-  signals_->getcompatibleaudiooutputconfigurations_->Destroy();
-  signals_->getcompatibleaudiosourceconfigurations_->Destroy();
-  signals_->getcompatiblemetadataconfigurations_->Destroy();
-  signals_->getcompatiblevideoanalyticsconfigurations_->Destroy();
-  signals_->getcompatiblevideoencoderconfigurations_->Destroy();
-  signals_->getcompatiblevideosourceconfigurations_->Destroy();
-  signals_->getmetadataconfiguration_->Destroy();
-  signals_->getmetadataconfigurationoptions_->Destroy();
-  signals_->getmetadataconfigurations_->Destroy();
-  signals_->getprofile_->Destroy();
-  signals_->getprofiles_->Destroy();
-  signals_->getservicecapabilities_->Destroy();
-  signals_->getsnapshoturi_->Destroy();
-  signals_->getstreamuri_->Destroy();
-  signals_->getvideoanalyticsconfigurations_->Destroy();
-  signals_->getvideoencoderconfiguration_->Destroy();
-  signals_->getvideoencoderconfigurationoptions_->Destroy();
-  signals_->getvideoencoderconfigurations_->Destroy();
-  signals_->getvideosourceconfiguration_->Destroy();
-  signals_->getvideosourceconfigurationoptions_->Destroy();
-  signals_->getvideosourceconfigurations_->Destroy();
-  signals_->getvideosourcemodes_->Destroy();
-  signals_->getvideosources_->Destroy();
-  signals_->removeaudiodecoderconfiguration_->Destroy();
-  signals_->removeaudioencoderconfiguration_->Destroy();
-  signals_->removeaudiooutputconfiguration_->Destroy();
-  signals_->removeaudiosourceconfiguration_->Destroy();
-  signals_->removemetadataconfiguration_->Destroy();
-  signals_->removeptzconfiguration_->Destroy();
-  signals_->removevideoanalyticsconfiguration_->Destroy();
-  signals_->removevideoencoderconfiguration_->Destroy();
-  signals_->removevideosourceconfiguration_->Destroy();
-  signals_->setaudiodecoderconfiguration_->Destroy();
-  signals_->setaudioencoderconfiguration_->Destroy();
-  signals_->setaudiooutputconfiguration_->Destroy();
-  signals_->setaudiosourceconfiguration_->Destroy();
-  signals_->setmetadataconfiguration_->Destroy();
-  signals_->setsynchronizationpoint_->Destroy();
-  signals_->setvideoencoderconfiguration_->Destroy();
-  signals_->setvideosourceconfiguration_->Destroy();
-  signals_->startmulticaststreaming_->Destroy();
-  signals_->stopmulticaststreaming_->Destroy();
+  if (signals_)
+  {
+    signals_->addaudiodecoderconfiguration_->Destroy();
+    signals_->addaudioencoderconfiguration_->Destroy();
+    signals_->addaudiooutputconfiguration_->Destroy();
+    signals_->addaudiosourceconfiguration_->Destroy();
+    signals_->addmetadataconfiguration_->Destroy();
+    signals_->addptzconfiguration_->Destroy();
+    signals_->addvideoanalyticsconfiguration_->Destroy();
+    signals_->addvideoencoderconfiguration_->Destroy();
+    signals_->addvideosourceconfiguration_->Destroy();
+    signals_->createprofile_->Destroy();
+    signals_->deleteprofile_->Destroy();
+    signals_->getaudiodecoderconfiguration_->Destroy();
+    signals_->getaudiodecoderconfigurationoptions_->Destroy();
+    signals_->getaudiodecoderconfigurations_->Destroy();
+    signals_->getaudioencoderconfiguration_->Destroy();
+    signals_->getaudioencoderconfigurationoptions_->Destroy();
+    signals_->getaudioencoderconfigurations_->Destroy();
+    signals_->getaudiooutputconfiguration_->Destroy();
+    signals_->getaudiooutputconfigurationoptions_->Destroy();
+    signals_->getaudiooutputconfigurations_->Destroy();
+    signals_->getaudiosourceconfiguration_->Destroy();
+    signals_->getaudiosourceconfigurationoptions_->Destroy();
+    signals_->getaudiosourceconfigurations_->Destroy();
+    signals_->getaudiosources_->Destroy();
+    signals_->getcompatibleaudiodecoderconfigurations_->Destroy();
+    signals_->getcompatibleaudioencoderconfigurations_->Destroy();
+    signals_->getcompatibleaudiooutputconfigurations_->Destroy();
+    signals_->getcompatibleaudiosourceconfigurations_->Destroy();
+    signals_->getcompatiblemetadataconfigurations_->Destroy();
+    signals_->getcompatiblevideoanalyticsconfigurations_->Destroy();
+    signals_->getcompatiblevideoencoderconfigurations_->Destroy();
+    signals_->getcompatiblevideosourceconfigurations_->Destroy();
+    signals_->getmetadataconfiguration_->Destroy();
+    signals_->getmetadataconfigurationoptions_->Destroy();
+    signals_->getmetadataconfigurations_->Destroy();
+    signals_->getprofile_->Destroy();
+    signals_->getprofiles_->Destroy();
+    signals_->getservicecapabilities_->Destroy();
+    signals_->getsnapshoturi_->Destroy();
+    signals_->getstreamuri_->Destroy();
+    signals_->getvideoanalyticsconfigurations_->Destroy();
+    signals_->getvideoencoderconfiguration_->Destroy();
+    signals_->getvideoencoderconfigurationoptions_->Destroy();
+    signals_->getvideoencoderconfigurations_->Destroy();
+    signals_->getvideosourceconfiguration_->Destroy();
+    signals_->getvideosourceconfigurationoptions_->Destroy();
+    signals_->getvideosourceconfigurations_->Destroy();
+    signals_->getvideosourcemodes_->Destroy();
+    signals_->getvideosources_->Destroy();
+    signals_->removeaudiodecoderconfiguration_->Destroy();
+    signals_->removeaudioencoderconfiguration_->Destroy();
+    signals_->removeaudiooutputconfiguration_->Destroy();
+    signals_->removeaudiosourceconfiguration_->Destroy();
+    signals_->removemetadataconfiguration_->Destroy();
+    signals_->removeptzconfiguration_->Destroy();
+    signals_->removevideoanalyticsconfiguration_->Destroy();
+    signals_->removevideoencoderconfiguration_->Destroy();
+    signals_->removevideosourceconfiguration_->Destroy();
+    signals_->setaudiodecoderconfiguration_->Destroy();
+    signals_->setaudioencoderconfiguration_->Destroy();
+    signals_->setaudiooutputconfiguration_->Destroy();
+    signals_->setaudiosourceconfiguration_->Destroy();
+    signals_->setmetadataconfiguration_->Destroy();
+    signals_->setsynchronizationpoint_->Destroy();
+    signals_->setvideoencoderconfiguration_->Destroy();
+    signals_->setvideosourceconfiguration_->Destroy();
+    signals_->startmulticaststreaming_->Destroy();
+    signals_->stopmulticaststreaming_->Destroy();
+    delete signals_;
+    signals_ = nullptr;
+  }
 }
 
 // Requests

@@ -111,88 +111,7 @@ class DeviceSignals
 
 DeviceClient::DeviceClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
-  signals_(new DeviceSignals(
-  {
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, AddIPAddressFilterResponse, IPAddressFilter> >(this, DEVICEOPERATION_ADDIPADDRESSFILTER, true, std::string("http://www.onvif.org/ver10/device/wsdl/AddIPAddressFilter"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, AddScopesResponse, std::vector<std::string> > >(this, DEVICEOPERATION_ADDSCOPES, true, std::string("http://www.onvif.org/ver10/device/wsdl/AddScopes"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, CreateCertificateResponse, boost::optional<std::string>, boost::optional<std::string>, boost::optional<onvif::ws::DateTime>, boost::optional<onvif::ws::DateTime> > >(this, DEVICEOPERATION_CREATECERTIFICATE, true, std::string("http://www.onvif.org/ver10/device/wsdl/CreateCertificate"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, CreateStorageConfigurationResponse, StorageConfigurationData> >(this, DEVICEOPERATION_CREATESTORAGECONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/CreateStorageConfiguration"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, CreateUsersResponse, std::vector<User> > >(this, DEVICEOPERATION_CREATEUSERS, true, std::string("http://www.onvif.org/ver10/device/wsdl/CreateUsers"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, DeleteCertificatesResponse, std::vector<std::string> > >(this, DEVICEOPERATION_DELETECERTIFICATES, true, std::string("http://www.onvif.org/ver10/device/wsdl/DeleteCertificates"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, DeleteDot1XConfigurationResponse, std::vector<std::string> > >(this, DEVICEOPERATION_DELETEDOT1XCONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/DeleteDot1XConfiguration"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, DeleteStorageConfigurationResponse, std::vector<std::string> > >(this, DEVICEOPERATION_DELETESTORAGECONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/DeleteStorageConfiguration"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, DeleteUsersResponse, std::vector<std::string> > >(this, DEVICEOPERATION_DELETEUSERS, true, std::string("http://www.onvif.org/ver10/device/wsdl/DeleteUsers"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetAccessPolicyResponse> >(this, DEVICEOPERATION_GETACCESSPOLICY, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetAccessPolicy"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetCACertificatesResponse> >(this, DEVICEOPERATION_GETCACERTIFICATES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetCACertificates"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetCapabilitiesResponse, CAPABILITYCATEGORY> >(this, DEVICEOPERATION_GETCAPABILITIES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetCapabilities"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetCertificateInformationResponse, std::string> >(this, DEVICEOPERATION_GETCERTIFICATEINFORMATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetCertificateInformation"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetCertificatesResponse> >(this, DEVICEOPERATION_GETCERTIFICATES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetCertificates"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetCertificatesStatusResponse> >(this, DEVICEOPERATION_GETCERTIFICATESSTATUS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetCertificatesStatus"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetClientCertificateModeResponse> >(this, DEVICEOPERATION_GETCLIENTCERTIFICATEMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetClientCertificateMode"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDeviceInformationResponse> >(this, DEVICEOPERATION_GETDEVICEINFORMATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDeviceInformation"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDiscoveryModeResponse> >(this, DEVICEOPERATION_GETDISCOVERYMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDiscoveryMode"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDNSResponse> >(this, DEVICEOPERATION_GETDNS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDNS"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDot11CapabilitiesResponse> >(this, DEVICEOPERATION_GETDOT11CAPABILITIES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDot11Capabilities"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDot11StatusResponse, std::string> >(this, DEVICEOPERATION_GETDOT11STATUS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDot11Status"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDot1XConfigurationResponse, std::string> >(this, DEVICEOPERATION_GETDOT1XCONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDot1XConfiguration"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDot1XConfigurationsResponse> >(this, DEVICEOPERATION_GETDOT1XCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDot1XConfigurations"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDPAddressesResponse> >(this, DEVICEOPERATION_GETDPADDRESSES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDPAddresses"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDynamicDNSResponse> >(this, DEVICEOPERATION_GETDYNAMICDNS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDynamicDNS"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetEndpointReferenceResponse> >(this, DEVICEOPERATION_GETENDPOINTREFERENCE, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetEndpointReference"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetHostnameResponse> >(this, DEVICEOPERATION_GETHOSTNAME, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetHostname"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetIPAddressFilterResponse> >(this, DEVICEOPERATION_GETIPADDRESSFILTER, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetIPAddressFilter"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetNetworkDefaultGatewayResponse> >(this, DEVICEOPERATION_GETNETWORKDEFAULTGATEWAY, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetNetworkDefaultGateway"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetNetworkInterfacesResponse> >(this, DEVICEOPERATION_GETNETWORKINTERFACES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetNetworkInterfaces"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetNetworkProtocolsResponse> >(this, DEVICEOPERATION_GETNETWORKPROTOCOLS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetNetworkProtocols"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetPkcs10RequestResponse, std::string, boost::optional<std::string>, boost::optional<BinaryData> > >(this, DEVICEOPERATION_GETPKCS10REQUEST, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetPkcs10Request"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetRelayOutputsResponse> >(this, DEVICEOPERATION_GETRELAYOUTPUTS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetRelayOutputs"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetNTPResponse> >(this, DEVICEOPERATION_GETNTP, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetNTP"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetRemoteDiscoveryModeResponse> >(this, DEVICEOPERATION_GETREMOTEDISCOVERYMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetRemoteDiscoveryMode"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetRemoteUserResponse> >(this, DEVICEOPERATION_GETREMOTEUSER, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetRemoteUser"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetScopesResponse> >(this, DEVICEOPERATION_GETSCOPES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetScopes"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetServiceCapabilitiesResponse> >(this, DEVICEOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetServiceCapabilities"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetServicesResponse, bool> >(this, DEVICEOPERATION_GETSERVICES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetServices"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetStorageConfigurationResponse, std::string> >(this, DEVICEOPERATION_GETSTORAGECONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetStorageConfiguration"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetStorageConfigurationsResponse> >(this, DEVICEOPERATION_GETSTORAGECONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetStorageConfigurations"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetSystemBackupResponse> >(this, DEVICEOPERATION_GETSYSTEMBACKUP, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetSystemBackup"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetSystemDateAndTimeResponse> >(this, DEVICEOPERATION_GETSYSTEMDATEANDTIME, false, std::string("http://www.onvif.org/ver10/device/wsdl/GetSystemDateAndTime"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetSystemLogResponse, SYSTEMLOGTYPE> >(this, DEVICEOPERATION_GETSYSTEMLOG, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetSystemLog"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetSystemSupportInformationResponse> >(this, DEVICEOPERATION_GETSYSTEMSUPPORTINFORMATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetSystemSupportInformation"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetSystemUrisResponse> >(this, DEVICEOPERATION_GETSYSTEMURIS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetSystemUris"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetUsersResponse> >(this, DEVICEOPERATION_GETUSERS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetUsers"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetWsdlUrlResponse> >(this, DEVICEOPERATION_GETWSDLURL, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetWsdlUrl"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetZeroConfigurationResponse> >(this, DEVICEOPERATION_GETZEROCONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetZeroConfiguration"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, LoadCACertificatesResponse, std::vector<Certificate> > >(this, DEVICEOPERATION_LOADCACERTIFICATES, true, std::string("http://www.onvif.org/ver10/device/wsdl/LoadCACertificates"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, LoadCertificatesResponse, std::vector<Certificate> > >(this, DEVICEOPERATION_LOADCERTIFICATES, true, std::string("http://www.onvif.org/ver10/device/wsdl/LoadCertificates"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, LoadCertificateWithPrivateKeyResponse, std::vector<CertificateWithPrivateKey> > >(this, DEVICEOPERATION_LOADCERTIFICATEWITHPRIVATEKEY, true, std::string("http://www.onvif.org/ver10/device/wsdl/LoadCertificateWithPrivateKey"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, RemoveIPAddressFilterResponse, IPAddressFilter> >(this, DEVICEOPERATION_REMOVEIPADDRESSFILTER, true, std::string("http://www.onvif.org/ver10/device/wsdl/RemoveIPAddressFilter"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, RemoveScopesResponse, std::vector<std::string> > >(this, DEVICEOPERATION_REMOVESCOPES, true, std::string("http://www.onvif.org/ver10/device/wsdl/RemoveScopes"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, RestoreSystemResponse, std::vector<BackupFile> > >(this, DEVICEOPERATION_RESTORESYSTEM, true, std::string("http://www.onvif.org/ver10/device/wsdl/RestoreSystem"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, ScanAvailableDot11NetworksResponse, std::string> >(this, DEVICEOPERATION_SCANAVAILABLEDOT11NETWORKS, true, std::string("http://www.onvif.org/ver10/device/wsdl/ScanAvailableDot11Networks"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SendAuxiliaryCommandResponse, std::string> >(this, DEVICEOPERATION_SENDAUXILIARYCOMMAND, true, std::string("http://www.onvif.org/ver10/device/wsdl/SendAuxiliaryCommand"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetAccessPolicyResponse, BinaryData> >(this, DEVICEOPERATION_SETACCESSPOLICY, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetAccessPolicy"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetCertificatesStatusResponse, std::vector<CertificateStatus> > >(this, DEVICEOPERATION_SETCERTIFICATESSTATUS, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetCertificatesStatus"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetClientCertificateModeResponse, bool> >(this, DEVICEOPERATION_SETCLIENTCERTIFICATEMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetClientCertificateMode"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetDiscoveryModeResponse, DISCOVERYMODE> >(this, DEVICEOPERATION_SETDISCOVERYMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetDiscoveryMode"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetDNSResponse, bool, std::vector<std::string>, std::vector<IPAddress> > >(this, DEVICEOPERATION_SETDNS, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetDNS"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetDot1XConfigurationResponse, Dot1XConfiguration> >(this, DEVICEOPERATION_SETDOT1XCONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetDot1XConfiguration"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetDPAddressesResponse, std::vector<NetworkHost> > >(this, DEVICEOPERATION_SETDPADDRESSES, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetDPAddresses"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetDynamicDNSResponse, DYNAMICDNSTYPE, boost::optional<std::string>, boost::optional<Duration> > >(this, DEVICEOPERATION_SETDYNAMICDNS, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetDynamicDNS"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetHostnameResponse, std::string> >(this, DEVICEOPERATION_SETHOSTNAME, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetHostname"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetHostnameFromDHCPResponse, bool> >(this, DEVICEOPERATION_SETHOSTNAMEFROMDHCP, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetHostnameFromDHCP"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetIPAddressFilterResponse, IPAddressFilter> >(this, DEVICEOPERATION_SETIPADDRESSFILTER, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetIPAddressFilter"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetNetworkDefaultGatewayResponse, std::vector<std::string>, std::vector<std::string> > >(this, DEVICEOPERATION_SETNETWORKDEFAULTGATEWAY, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetNetworkDefaultGateway"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetNetworkInterfacesResponse, std::string, onvif::NetworkInterfaceSetConfiguration> >(this, DEVICEOPERATION_SETNETWORKINTERFACES, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetNetworkInterfaces"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetNetworkProtocolsResponse, std::vector<NetworkProtocol> > >(this, DEVICEOPERATION_SETNETWORKPROTOCOLS, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetNetworkProtocols"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetNTPResponse, bool, std::vector<NetworkHost> > >(this, DEVICEOPERATION_SETNTP, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetNTP"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetRelayOutputSettingsResponse, std::string, RelayOutputSettings> >(this, DEVICEOPERATION_SETRELAYOUTPUTSETTINGS, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetRelayOutputSettings"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetRemoteDiscoveryModeResponse, DISCOVERYMODE> >(this, DEVICEOPERATION_SETREMOTEDISCOVERYMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetRemoteDiscoveryMode"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetSystemDateAndTimeResponse, DATETIMETYPE, bool, boost::optional<TimeZone>, boost::optional<DateTime> > >(this, DEVICEOPERATION_SETSYSTEMDATEANDTIME, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetSystemDateAndTime"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetSystemFactoryDefaultResponse, FACTORYDEFAULTTYPE> >(this, DEVICEOPERATION_SETSYSTEMFACTORYDEFAULT, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetSystemFactoryDefault"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetUserResponse, std::vector<User> > >(this, DEVICEOPERATION_SETUSER, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetUser"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetZeroConfigurationResponse, std::string, bool> >(this, DEVICEOPERATION_SETZEROCONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetZeroConfiguration"), false),
-    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SystemRebootResponse> >(this, DEVICEOPERATION_SYSTEMREBOOT, true, std::string("http://www.onvif.org/ver10/device/wsdl/SystemReboot"), false)
-  }))
+  signals_(nullptr)
 {
 
 }
@@ -206,88 +125,181 @@ DeviceClient::~DeviceClient()
   }
 }
 
+int DeviceClient::Init(const sock::ProxyParams& proxyparams, const std::string& address, const std::string& username, const std::string& password, const unsigned int maxconcurrentrequests, const bool forcehttpauthentication, const bool forbidreuse)
+{
+  signals_ = new DeviceSignals(
+  {
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, AddIPAddressFilterResponse, IPAddressFilter> >(shared_from_this(), DEVICEOPERATION_ADDIPADDRESSFILTER, true, std::string("http://www.onvif.org/ver10/device/wsdl/AddIPAddressFilter"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, AddScopesResponse, std::vector<std::string> > >(shared_from_this(), DEVICEOPERATION_ADDSCOPES, true, std::string("http://www.onvif.org/ver10/device/wsdl/AddScopes"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, CreateCertificateResponse, boost::optional<std::string>, boost::optional<std::string>, boost::optional<onvif::ws::DateTime>, boost::optional<onvif::ws::DateTime> > >(shared_from_this(), DEVICEOPERATION_CREATECERTIFICATE, true, std::string("http://www.onvif.org/ver10/device/wsdl/CreateCertificate"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, CreateStorageConfigurationResponse, StorageConfigurationData> >(shared_from_this(), DEVICEOPERATION_CREATESTORAGECONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/CreateStorageConfiguration"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, CreateUsersResponse, std::vector<User> > >(shared_from_this(), DEVICEOPERATION_CREATEUSERS, true, std::string("http://www.onvif.org/ver10/device/wsdl/CreateUsers"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, DeleteCertificatesResponse, std::vector<std::string> > >(shared_from_this(), DEVICEOPERATION_DELETECERTIFICATES, true, std::string("http://www.onvif.org/ver10/device/wsdl/DeleteCertificates"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, DeleteDot1XConfigurationResponse, std::vector<std::string> > >(shared_from_this(), DEVICEOPERATION_DELETEDOT1XCONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/DeleteDot1XConfiguration"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, DeleteStorageConfigurationResponse, std::vector<std::string> > >(shared_from_this(), DEVICEOPERATION_DELETESTORAGECONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/DeleteStorageConfiguration"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, DeleteUsersResponse, std::vector<std::string> > >(shared_from_this(), DEVICEOPERATION_DELETEUSERS, true, std::string("http://www.onvif.org/ver10/device/wsdl/DeleteUsers"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetAccessPolicyResponse> >(shared_from_this(), DEVICEOPERATION_GETACCESSPOLICY, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetAccessPolicy"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetCACertificatesResponse> >(shared_from_this(), DEVICEOPERATION_GETCACERTIFICATES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetCACertificates"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetCapabilitiesResponse, CAPABILITYCATEGORY> >(shared_from_this(), DEVICEOPERATION_GETCAPABILITIES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetCapabilities"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetCertificateInformationResponse, std::string> >(shared_from_this(), DEVICEOPERATION_GETCERTIFICATEINFORMATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetCertificateInformation"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetCertificatesResponse> >(shared_from_this(), DEVICEOPERATION_GETCERTIFICATES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetCertificates"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetCertificatesStatusResponse> >(shared_from_this(), DEVICEOPERATION_GETCERTIFICATESSTATUS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetCertificatesStatus"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetClientCertificateModeResponse> >(shared_from_this(), DEVICEOPERATION_GETCLIENTCERTIFICATEMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetClientCertificateMode"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDeviceInformationResponse> >(shared_from_this(), DEVICEOPERATION_GETDEVICEINFORMATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDeviceInformation"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDiscoveryModeResponse> >(shared_from_this(), DEVICEOPERATION_GETDISCOVERYMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDiscoveryMode"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDNSResponse> >(shared_from_this(), DEVICEOPERATION_GETDNS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDNS"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDot11CapabilitiesResponse> >(shared_from_this(), DEVICEOPERATION_GETDOT11CAPABILITIES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDot11Capabilities"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDot11StatusResponse, std::string> >(shared_from_this(), DEVICEOPERATION_GETDOT11STATUS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDot11Status"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDot1XConfigurationResponse, std::string> >(shared_from_this(), DEVICEOPERATION_GETDOT1XCONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDot1XConfiguration"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDot1XConfigurationsResponse> >(shared_from_this(), DEVICEOPERATION_GETDOT1XCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDot1XConfigurations"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDPAddressesResponse> >(shared_from_this(), DEVICEOPERATION_GETDPADDRESSES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDPAddresses"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetDynamicDNSResponse> >(shared_from_this(), DEVICEOPERATION_GETDYNAMICDNS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetDynamicDNS"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetEndpointReferenceResponse> >(shared_from_this(), DEVICEOPERATION_GETENDPOINTREFERENCE, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetEndpointReference"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetHostnameResponse> >(shared_from_this(), DEVICEOPERATION_GETHOSTNAME, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetHostname"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetIPAddressFilterResponse> >(shared_from_this(), DEVICEOPERATION_GETIPADDRESSFILTER, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetIPAddressFilter"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetNetworkDefaultGatewayResponse> >(shared_from_this(), DEVICEOPERATION_GETNETWORKDEFAULTGATEWAY, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetNetworkDefaultGateway"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetNetworkInterfacesResponse> >(shared_from_this(), DEVICEOPERATION_GETNETWORKINTERFACES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetNetworkInterfaces"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetNetworkProtocolsResponse> >(shared_from_this(), DEVICEOPERATION_GETNETWORKPROTOCOLS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetNetworkProtocols"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetPkcs10RequestResponse, std::string, boost::optional<std::string>, boost::optional<BinaryData> > >(shared_from_this(), DEVICEOPERATION_GETPKCS10REQUEST, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetPkcs10Request"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetRelayOutputsResponse> >(shared_from_this(), DEVICEOPERATION_GETRELAYOUTPUTS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetRelayOutputs"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetNTPResponse> >(shared_from_this(), DEVICEOPERATION_GETNTP, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetNTP"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetRemoteDiscoveryModeResponse> >(shared_from_this(), DEVICEOPERATION_GETREMOTEDISCOVERYMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetRemoteDiscoveryMode"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetRemoteUserResponse> >(shared_from_this(), DEVICEOPERATION_GETREMOTEUSER, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetRemoteUser"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetScopesResponse> >(shared_from_this(), DEVICEOPERATION_GETSCOPES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetScopes"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetServiceCapabilitiesResponse> >(shared_from_this(), DEVICEOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetServiceCapabilities"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetServicesResponse, bool> >(shared_from_this(), DEVICEOPERATION_GETSERVICES, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetServices"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetStorageConfigurationResponse, std::string> >(shared_from_this(), DEVICEOPERATION_GETSTORAGECONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetStorageConfiguration"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetStorageConfigurationsResponse> >(shared_from_this(), DEVICEOPERATION_GETSTORAGECONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetStorageConfigurations"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetSystemBackupResponse> >(shared_from_this(), DEVICEOPERATION_GETSYSTEMBACKUP, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetSystemBackup"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetSystemDateAndTimeResponse> >(shared_from_this(), DEVICEOPERATION_GETSYSTEMDATEANDTIME, false, std::string("http://www.onvif.org/ver10/device/wsdl/GetSystemDateAndTime"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetSystemLogResponse, SYSTEMLOGTYPE> >(shared_from_this(), DEVICEOPERATION_GETSYSTEMLOG, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetSystemLog"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetSystemSupportInformationResponse> >(shared_from_this(), DEVICEOPERATION_GETSYSTEMSUPPORTINFORMATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetSystemSupportInformation"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetSystemUrisResponse> >(shared_from_this(), DEVICEOPERATION_GETSYSTEMURIS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetSystemUris"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetUsersResponse> >(shared_from_this(), DEVICEOPERATION_GETUSERS, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetUsers"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetWsdlUrlResponse> >(shared_from_this(), DEVICEOPERATION_GETWSDLURL, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetWsdlUrl"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, GetZeroConfigurationResponse> >(shared_from_this(), DEVICEOPERATION_GETZEROCONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/GetZeroConfiguration"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, LoadCACertificatesResponse, std::vector<Certificate> > >(shared_from_this(), DEVICEOPERATION_LOADCACERTIFICATES, true, std::string("http://www.onvif.org/ver10/device/wsdl/LoadCACertificates"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, LoadCertificatesResponse, std::vector<Certificate> > >(shared_from_this(), DEVICEOPERATION_LOADCERTIFICATES, true, std::string("http://www.onvif.org/ver10/device/wsdl/LoadCertificates"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, LoadCertificateWithPrivateKeyResponse, std::vector<CertificateWithPrivateKey> > >(shared_from_this(), DEVICEOPERATION_LOADCERTIFICATEWITHPRIVATEKEY, true, std::string("http://www.onvif.org/ver10/device/wsdl/LoadCertificateWithPrivateKey"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, RemoveIPAddressFilterResponse, IPAddressFilter> >(shared_from_this(), DEVICEOPERATION_REMOVEIPADDRESSFILTER, true, std::string("http://www.onvif.org/ver10/device/wsdl/RemoveIPAddressFilter"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, RemoveScopesResponse, std::vector<std::string> > >(shared_from_this(), DEVICEOPERATION_REMOVESCOPES, true, std::string("http://www.onvif.org/ver10/device/wsdl/RemoveScopes"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, RestoreSystemResponse, std::vector<BackupFile> > >(shared_from_this(), DEVICEOPERATION_RESTORESYSTEM, true, std::string("http://www.onvif.org/ver10/device/wsdl/RestoreSystem"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, ScanAvailableDot11NetworksResponse, std::string> >(shared_from_this(), DEVICEOPERATION_SCANAVAILABLEDOT11NETWORKS, true, std::string("http://www.onvif.org/ver10/device/wsdl/ScanAvailableDot11Networks"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SendAuxiliaryCommandResponse, std::string> >(shared_from_this(), DEVICEOPERATION_SENDAUXILIARYCOMMAND, true, std::string("http://www.onvif.org/ver10/device/wsdl/SendAuxiliaryCommand"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetAccessPolicyResponse, BinaryData> >(shared_from_this(), DEVICEOPERATION_SETACCESSPOLICY, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetAccessPolicy"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetCertificatesStatusResponse, std::vector<CertificateStatus> > >(shared_from_this(), DEVICEOPERATION_SETCERTIFICATESSTATUS, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetCertificatesStatus"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetClientCertificateModeResponse, bool> >(shared_from_this(), DEVICEOPERATION_SETCLIENTCERTIFICATEMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetClientCertificateMode"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetDiscoveryModeResponse, DISCOVERYMODE> >(shared_from_this(), DEVICEOPERATION_SETDISCOVERYMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetDiscoveryMode"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetDNSResponse, bool, std::vector<std::string>, std::vector<IPAddress> > >(shared_from_this(), DEVICEOPERATION_SETDNS, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetDNS"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetDot1XConfigurationResponse, Dot1XConfiguration> >(shared_from_this(), DEVICEOPERATION_SETDOT1XCONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetDot1XConfiguration"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetDPAddressesResponse, std::vector<NetworkHost> > >(shared_from_this(), DEVICEOPERATION_SETDPADDRESSES, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetDPAddresses"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetDynamicDNSResponse, DYNAMICDNSTYPE, boost::optional<std::string>, boost::optional<Duration> > >(shared_from_this(), DEVICEOPERATION_SETDYNAMICDNS, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetDynamicDNS"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetHostnameResponse, std::string> >(shared_from_this(), DEVICEOPERATION_SETHOSTNAME, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetHostname"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetHostnameFromDHCPResponse, bool> >(shared_from_this(), DEVICEOPERATION_SETHOSTNAMEFROMDHCP, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetHostnameFromDHCP"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetIPAddressFilterResponse, IPAddressFilter> >(shared_from_this(), DEVICEOPERATION_SETIPADDRESSFILTER, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetIPAddressFilter"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetNetworkDefaultGatewayResponse, std::vector<std::string>, std::vector<std::string> > >(shared_from_this(), DEVICEOPERATION_SETNETWORKDEFAULTGATEWAY, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetNetworkDefaultGateway"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetNetworkInterfacesResponse, std::string, onvif::NetworkInterfaceSetConfiguration> >(shared_from_this(), DEVICEOPERATION_SETNETWORKINTERFACES, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetNetworkInterfaces"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetNetworkProtocolsResponse, std::vector<NetworkProtocol> > >(shared_from_this(), DEVICEOPERATION_SETNETWORKPROTOCOLS, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetNetworkProtocols"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetNTPResponse, bool, std::vector<NetworkHost> > >(shared_from_this(), DEVICEOPERATION_SETNTP, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetNTP"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetRelayOutputSettingsResponse, std::string, RelayOutputSettings> >(shared_from_this(), DEVICEOPERATION_SETRELAYOUTPUTSETTINGS, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetRelayOutputSettings"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetRemoteDiscoveryModeResponse, DISCOVERYMODE> >(shared_from_this(), DEVICEOPERATION_SETREMOTEDISCOVERYMODE, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetRemoteDiscoveryMode"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetSystemDateAndTimeResponse, DATETIMETYPE, bool, boost::optional<TimeZone>, boost::optional<DateTime> > >(shared_from_this(), DEVICEOPERATION_SETSYSTEMDATEANDTIME, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetSystemDateAndTime"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetSystemFactoryDefaultResponse, FACTORYDEFAULTTYPE> >(shared_from_this(), DEVICEOPERATION_SETSYSTEMFACTORYDEFAULT, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetSystemFactoryDefault"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetUserResponse, std::vector<User> > >(shared_from_this(), DEVICEOPERATION_SETUSER, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetUser"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SetZeroConfigurationResponse, std::string, bool> >(shared_from_this(), DEVICEOPERATION_SETZEROCONFIGURATION, true, std::string("http://www.onvif.org/ver10/device/wsdl/SetZeroConfiguration"), false),
+    std::make_unique< Signal< DEVICEOPERATION, DeviceClient, SystemRebootResponse> >(shared_from_this(), DEVICEOPERATION_SYSTEMREBOOT, true, std::string("http://www.onvif.org/ver10/device/wsdl/SystemReboot"), false)
+  });
+
+  return Client::Init(proxyparams, address, username, password, maxconcurrentrequests, forcehttpauthentication, forbidreuse);
+}
+
 void DeviceClient::Destroy()
 {
   Client::Destroy();
 
-  signals_->addipaddressfilter_->Destroy();
-  signals_->addscopes_->Destroy();
-  signals_->createcertificate_->Destroy();
-  signals_->createusers_->Destroy();
-  signals_->deletecertificates_->Destroy();
-  signals_->deletedot1xconfiguration_->Destroy();
-  signals_->deletestorageconfiguration_->Destroy();
-  signals_->deleteusers_->Destroy();
-  signals_->getaccesspolicy_->Destroy();
-  signals_->getcacertificates_->Destroy();
-  signals_->getcapabilities_->Destroy();
-  signals_->getcertificateinformation_->Destroy();
-  signals_->getcertificates_->Destroy();
-  signals_->getcertificatesstatus_->Destroy();
-  signals_->getclientcertificatemode_->Destroy();
-  signals_->getdeviceinformation_->Destroy();
-  signals_->getdiscoverymode_->Destroy();
-  signals_->getdns_->Destroy();
-  signals_->getdot11capabilities_->Destroy();
-  signals_->getdot11status_->Destroy();
-  signals_->getdot1xconfiguration_->Destroy();
-  signals_->getdot1xconfigurations_->Destroy();
-  signals_->getdpaddresses_->Destroy();
-  signals_->getdynamicdns_->Destroy();
-  signals_->getendpointreference_->Destroy();
-  signals_->gethostname_->Destroy();
-  signals_->getipaddressfilter_->Destroy();
-  signals_->getnetworkdefaultgateway_->Destroy();
-  signals_->getnetworkinterfaces_->Destroy();
-  signals_->getnetworkprotocols_->Destroy();
-  signals_->getpkcs10request_->Destroy();
-  signals_->getrelayoutputs_->Destroy();
-  signals_->getntp_->Destroy();
-  signals_->getremotediscoverymode_->Destroy();
-  signals_->getremoteuser_->Destroy();
-  signals_->getscopes_->Destroy();
-  signals_->getservicecapabilities_->Destroy();
-  signals_->getservices_->Destroy();
-  signals_->getstorageconfiguration_->Destroy();
-  signals_->getstorageconfigurations_->Destroy();
-  signals_->getsystembackup_->Destroy();
-  signals_->getsystemdateandtime_->Destroy();
-  signals_->getsystemlog_->Destroy();
-  signals_->getsystemsupportinformation_->Destroy();
-  signals_->getsystemuris_->Destroy();
-  signals_->getusers_->Destroy();
-  signals_->getwsdlurl_->Destroy();
-  signals_->getzeroconfiguration_->Destroy();
-  signals_->loadcacertificates_->Destroy();
-  signals_->loadcertificates_->Destroy();
-  signals_->loadcertificatewithprivatekey_->Destroy();
-  signals_->removeipaddressfilter_->Destroy();
-  signals_->removescopes_->Destroy();
-  signals_->restoresystem_->Destroy();
-  signals_->scanavailabledot11networks_->Destroy();
-  signals_->sendauxiliarycommand_->Destroy();
-  signals_->setaccesspolicy_->Destroy();
-  signals_->setcertificatesstatus_->Destroy();
-  signals_->setclientcertificatemode_->Destroy();
-  signals_->setdiscoverymode_->Destroy();
-  signals_->setdns_->Destroy();
-  signals_->setdot1xconfiguration_->Destroy();
-  signals_->setdpaddresses_->Destroy();
-  signals_->setdynamicdns_->Destroy();
-  signals_->sethostname_->Destroy();
-  signals_->sethostnamefromdhcp_->Destroy();
-  signals_->setipaddressfilter_->Destroy();
-  signals_->setnetworkdefaultgateway_->Destroy();
-  signals_->setnetworkinterfaces_->Destroy();
-  signals_->setnetworkprotocols_->Destroy();
-  signals_->setntp_->Destroy();
-  signals_->setrelayoutputsettings_->Destroy();
-  signals_->setremotediscoverymode_->Destroy();
-  signals_->setsystemdateandtime_->Destroy();
-  signals_->setsystemfactorydefault_->Destroy();
-  signals_->setuser_->Destroy();
-  signals_->setzeroconfiguration_->Destroy();
-  signals_->systemreboot_->Destroy();
+  if (signals_)
+  {
+    signals_->addipaddressfilter_->Destroy();
+    signals_->addscopes_->Destroy();
+    signals_->createcertificate_->Destroy();
+    signals_->createusers_->Destroy();
+    signals_->deletecertificates_->Destroy();
+    signals_->deletedot1xconfiguration_->Destroy();
+    signals_->deletestorageconfiguration_->Destroy();
+    signals_->deleteusers_->Destroy();
+    signals_->getaccesspolicy_->Destroy();
+    signals_->getcacertificates_->Destroy();
+    signals_->getcapabilities_->Destroy();
+    signals_->getcertificateinformation_->Destroy();
+    signals_->getcertificates_->Destroy();
+    signals_->getcertificatesstatus_->Destroy();
+    signals_->getclientcertificatemode_->Destroy();
+    signals_->getdeviceinformation_->Destroy();
+    signals_->getdiscoverymode_->Destroy();
+    signals_->getdns_->Destroy();
+    signals_->getdot11capabilities_->Destroy();
+    signals_->getdot11status_->Destroy();
+    signals_->getdot1xconfiguration_->Destroy();
+    signals_->getdot1xconfigurations_->Destroy();
+    signals_->getdpaddresses_->Destroy();
+    signals_->getdynamicdns_->Destroy();
+    signals_->getendpointreference_->Destroy();
+    signals_->gethostname_->Destroy();
+    signals_->getipaddressfilter_->Destroy();
+    signals_->getnetworkdefaultgateway_->Destroy();
+    signals_->getnetworkinterfaces_->Destroy();
+    signals_->getnetworkprotocols_->Destroy();
+    signals_->getpkcs10request_->Destroy();
+    signals_->getrelayoutputs_->Destroy();
+    signals_->getntp_->Destroy();
+    signals_->getremotediscoverymode_->Destroy();
+    signals_->getremoteuser_->Destroy();
+    signals_->getscopes_->Destroy();
+    signals_->getservicecapabilities_->Destroy();
+    signals_->getservices_->Destroy();
+    signals_->getstorageconfiguration_->Destroy();
+    signals_->getstorageconfigurations_->Destroy();
+    signals_->getsystembackup_->Destroy();
+    signals_->getsystemdateandtime_->Destroy();
+    signals_->getsystemlog_->Destroy();
+    signals_->getsystemsupportinformation_->Destroy();
+    signals_->getsystemuris_->Destroy();
+    signals_->getusers_->Destroy();
+    signals_->getwsdlurl_->Destroy();
+    signals_->getzeroconfiguration_->Destroy();
+    signals_->loadcacertificates_->Destroy();
+    signals_->loadcertificates_->Destroy();
+    signals_->loadcertificatewithprivatekey_->Destroy();
+    signals_->removeipaddressfilter_->Destroy();
+    signals_->removescopes_->Destroy();
+    signals_->restoresystem_->Destroy();
+    signals_->scanavailabledot11networks_->Destroy();
+    signals_->sendauxiliarycommand_->Destroy();
+    signals_->setaccesspolicy_->Destroy();
+    signals_->setcertificatesstatus_->Destroy();
+    signals_->setclientcertificatemode_->Destroy();
+    signals_->setdiscoverymode_->Destroy();
+    signals_->setdns_->Destroy();
+    signals_->setdot1xconfiguration_->Destroy();
+    signals_->setdpaddresses_->Destroy();
+    signals_->setdynamicdns_->Destroy();
+    signals_->sethostname_->Destroy();
+    signals_->sethostnamefromdhcp_->Destroy();
+    signals_->setipaddressfilter_->Destroy();
+    signals_->setnetworkdefaultgateway_->Destroy();
+    signals_->setnetworkinterfaces_->Destroy();
+    signals_->setnetworkprotocols_->Destroy();
+    signals_->setntp_->Destroy();
+    signals_->setrelayoutputsettings_->Destroy();
+    signals_->setremotediscoverymode_->Destroy();
+    signals_->setsystemdateandtime_->Destroy();
+    signals_->setsystemfactorydefault_->Destroy();
+    signals_->setuser_->Destroy();
+    signals_->setzeroconfiguration_->Destroy();
+    signals_->systemreboot_->Destroy();
+    delete signals_;
+    signals_ = nullptr;
+  }
 }
 
 // Requests

@@ -177,6 +177,7 @@ class PTZClient : public Client<PTZOPERATION>, public boost::enable_shared_from_
   PTZClient(const boost::shared_ptr<std::recursive_mutex>& mutex);
   virtual ~PTZClient();
 
+  virtual int Init(const sock::ProxyParams& proxyparams, const std::string& address, const std::string& username, const std::string& password, const unsigned int maxconcurrentrequests, const bool forcehttpauthentication, const bool forbidreuse) override;
   virtual void Destroy() override;
 
   // Requests

@@ -57,7 +57,7 @@ class TestClient : public testing::Test
     // Initialise the client
     ASSERT_FALSE(onvif::Init());
     client_ = boost::make_shared<T>(boost::make_shared<std::recursive_mutex>());
-    ASSERT_FALSE(client_->Init(sock::ProxyParams(), std::string("http://localhost:") + std::to_string(port) + uri, std::string(), std::string()));
+    ASSERT_FALSE(client_->Init(sock::ProxyParams(), std::string("http://localhost:") + std::to_string(port) + uri, std::string(), std::string(), 0, false, false));
     thread_ = std::thread(boost::bind(&TestClient::Run, this));
   }
 

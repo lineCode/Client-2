@@ -32,13 +32,7 @@ class ImagingSignals
 
 ImagingClient::ImagingClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
-  signals_(new ImagingSignals(
-  {
-    std::make_unique< Signal<IMAGINGOPERATION, ImagingClient, GetImagingSettingsResponse, std::string> >(this, IMAGINGOPERATION_GETIMAGINGSETTINGS, true, std::string("http://www.onvif.org/ver20/imaging/wsdl/GetImagingSettings"), false),
-    std::make_unique< Signal<IMAGINGOPERATION, ImagingClient, GetOptionsResponse, std::string> >(this, IMAGINGOPERATION_GETOPTIONS, true, std::string("http://www.onvif.org/ver20/imaging/wsdl/GetOptions"), false),
-    std::make_unique< Signal<IMAGINGOPERATION, ImagingClient, GetServiceCapabilitiesResponse> >(this, IMAGINGOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver20/imaging/wsdl/GetServiceCapabilities"), false),
-    std::make_unique< Signal<IMAGINGOPERATION, ImagingClient, SetImagingSettingsResponse, std::string, ImagingSettings20, bool> >(this, IMAGINGOPERATION_SETIMAGINGSETTINGS, true, std::string("http://www.onvif.org/ver20/imaging/wsdl/SetImagingSettings"), false)
-  }))
+  signals_(nullptr)
 {
   
 }
@@ -52,14 +46,32 @@ ImagingClient::~ImagingClient()
   }
 }
 
+int ImagingClient::Init(const sock::ProxyParams& proxyparams, const std::string& address, const std::string& username, const std::string& password, const unsigned int maxconcurrentrequests, const bool forcehttpauthentication, const bool forbidreuse)
+{
+  signals_ = new ImagingSignals(
+  {
+    std::make_unique< Signal<IMAGINGOPERATION, ImagingClient, GetImagingSettingsResponse, std::string> >(shared_from_this(), IMAGINGOPERATION_GETIMAGINGSETTINGS, true, std::string("http://www.onvif.org/ver20/imaging/wsdl/GetImagingSettings"), false),
+    std::make_unique< Signal<IMAGINGOPERATION, ImagingClient, GetOptionsResponse, std::string> >(shared_from_this(), IMAGINGOPERATION_GETOPTIONS, true, std::string("http://www.onvif.org/ver20/imaging/wsdl/GetOptions"), false),
+    std::make_unique< Signal<IMAGINGOPERATION, ImagingClient, GetServiceCapabilitiesResponse> >(shared_from_this(), IMAGINGOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver20/imaging/wsdl/GetServiceCapabilities"), false),
+    std::make_unique< Signal<IMAGINGOPERATION, ImagingClient, SetImagingSettingsResponse, std::string, ImagingSettings20, bool> >(shared_from_this(), IMAGINGOPERATION_SETIMAGINGSETTINGS, true, std::string("http://www.onvif.org/ver20/imaging/wsdl/SetImagingSettings"), false)
+  });
+
+  return Client::Init(proxyparams, address, username, password, maxconcurrentrequests, forcehttpauthentication, forbidreuse);
+}
+
 void ImagingClient::Destroy()
 {
   Client::Destroy();
 
-  signals_->getimagingsettings_->Destroy();
-  signals_->getoptions_->Destroy();
-  signals_->getservicecapabilities_->Destroy();
-  signals_->setimagingsettings_->Destroy();
+  if (signals_)
+  {
+    signals_->getimagingsettings_->Destroy();
+    signals_->getoptions_->Destroy();
+    signals_->getservicecapabilities_->Destroy();
+    signals_->setimagingsettings_->Destroy();
+    delete signals_;
+    signals_ = nullptr;
+  }
 }
 
 // Requests

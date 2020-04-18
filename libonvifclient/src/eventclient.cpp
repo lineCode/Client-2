@@ -32,13 +32,7 @@ class EventSignals
 
 EventClient::EventClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
-  signals_(new EventSignals(
-  {
-    std::make_unique< Signal< EVENTOPERATION, EventClient, CreatePullPointSubscriptionResponse, boost::optional<std::string>, boost::optional<std::string>, boost::optional<std::string> > >(this, EVENTOPERATION_CREATEPULLPOINTSUBSCRIPTION, true, std::string("http://www.onvif.org/ver10/events/wsdl/EventPortType/CreatePullPointSubscriptionRequest"), true),
-    std::make_unique< Signal<EVENTOPERATION, EventClient, GetEventPropertiesResponse> >(this, EVENTOPERATION_GETEVENTPROPERTIES, true, std::string("http://www.onvif.org/ver10/events/wsdl/EventPortType/GetEventPropertiesRequest"), true),
-    std::make_unique< Signal<EVENTOPERATION, EventClient, GetServiceCapabilitiesResponse> >(this, EVENTOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/events/wsdl/EventPortType/GetServiceCapabilitiesRequest"), true),
-    std::make_unique< Signal<EVENTOPERATION, EventClient, PullMessagesResponse, onvif::Duration, int> >(this, EVENTOPERATION_PULLMESSAGES, true, std::string("http://www.onvif.org/ver10/events/wsdl/PullPointSubscription/PullMessagesRequest"), true)
-  }))
+  signals_(nullptr)
 {
 
 }
@@ -52,14 +46,32 @@ EventClient::~EventClient()
   }
 }
 
+int EventClient::Init(const sock::ProxyParams& proxyparams, const std::string& address, const std::string& username, const std::string& password, const unsigned int maxconcurrentrequests, const bool forcehttpauthentication, const bool forbidreuse)
+{
+  signals_ = new EventSignals(
+  {
+    std::make_unique< Signal< EVENTOPERATION, EventClient, CreatePullPointSubscriptionResponse, boost::optional<std::string>, boost::optional<std::string>, boost::optional<std::string> > >(shared_from_this(), EVENTOPERATION_CREATEPULLPOINTSUBSCRIPTION, true, std::string("http://www.onvif.org/ver10/events/wsdl/EventPortType/CreatePullPointSubscriptionRequest"), true),
+    std::make_unique< Signal<EVENTOPERATION, EventClient, GetEventPropertiesResponse> >(shared_from_this(), EVENTOPERATION_GETEVENTPROPERTIES, true, std::string("http://www.onvif.org/ver10/events/wsdl/EventPortType/GetEventPropertiesRequest"), true),
+    std::make_unique< Signal<EVENTOPERATION, EventClient, GetServiceCapabilitiesResponse> >(shared_from_this(), EVENTOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/events/wsdl/EventPortType/GetServiceCapabilitiesRequest"), true),
+    std::make_unique< Signal<EVENTOPERATION, EventClient, PullMessagesResponse, onvif::Duration, int> >(shared_from_this(), EVENTOPERATION_PULLMESSAGES, true, std::string("http://www.onvif.org/ver10/events/wsdl/PullPointSubscription/PullMessagesRequest"), true)
+  });
+
+  return Client::Init(proxyparams, address, username, password, maxconcurrentrequests, forcehttpauthentication, forbidreuse);
+}
+
 void EventClient::Destroy()
 {
   Client::Destroy();
 
-  signals_->createpullpointsubscription_->Destroy();
-  signals_->geteventproperties_->Destroy();
-  signals_->getservicecapabilities_->Destroy();
-  signals_->pullmessages_->Destroy();
+  if (signals_)
+  {
+    signals_->createpullpointsubscription_->Destroy();
+    signals_->geteventproperties_->Destroy();
+    signals_->getservicecapabilities_->Destroy();
+    signals_->pullmessages_->Destroy();
+    delete signals_;
+    signals_ = nullptr;
+  }
 }
 
 // Requests

@@ -29,10 +29,7 @@ class SearchSignals
 
 SearchClient::SearchClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
-  signals_(new SearchSignals(
-  {
-    std::make_unique< Signal<SEARCHOPERATION, SearchClient, GetServiceCapabilitiesResponse> >(this, SEARCHOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/search/wsdl/GetServiceCapabilities"), false)
-  }))
+  signals_(nullptr)
 {
 
 }
@@ -46,11 +43,26 @@ SearchClient::~SearchClient()
   }
 }
 
+int SearchClient::Init(const sock::ProxyParams& proxyparams, const std::string& address, const std::string& username, const std::string& password, const unsigned int maxconcurrentrequests, const bool forcehttpauthentication, const bool forbidreuse)
+{
+  signals_ = new SearchSignals(
+  {
+    std::make_unique< Signal<SEARCHOPERATION, SearchClient, GetServiceCapabilitiesResponse> >(shared_from_this(), SEARCHOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/search/wsdl/GetServiceCapabilities"), false)
+  });
+
+  return Client::Init(proxyparams, address, username, password, maxconcurrentrequests, forcehttpauthentication, forbidreuse);
+}
+
 void SearchClient::Destroy()
 {
   Client::Destroy();
 
-  signals_->getservicecapabilities_->Destroy();
+  if (signals_)
+  {
+    signals_->getservicecapabilities_->Destroy();
+    delete signals_;
+    signals_ = nullptr;
+  }
 }
 
 // Requests

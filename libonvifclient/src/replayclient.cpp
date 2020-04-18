@@ -30,11 +30,7 @@ class ReplaySignals
 
 ReplayClient::ReplayClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
-  signals_(new ReplaySignals(
-  {
-    std::make_unique< Signal<REPLAYOPERATION, ReplayClient, GetReplayUriResponse, StreamSetup, std::string> >(this, REPLAYOPERATION_GETREPLAYURI, true, std::string("http://www.onvif.org/ver10/replay/wsdl/GetReplayUri"), false),
-    std::make_unique< Signal<REPLAYOPERATION, ReplayClient, GetServiceCapabilitiesResponse> >(this, REPLAYOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/replay/wsdl/GetServiceCapabilities"), false)
-  }))
+  signals_(nullptr)
 {
 
 }
@@ -48,12 +44,28 @@ ReplayClient::~ReplayClient()
   }
 }
 
+int ReplayClient::Init(const sock::ProxyParams& proxyparams, const std::string& address, const std::string& username, const std::string& password, const unsigned int maxconcurrentrequests, const bool forcehttpauthentication, const bool forbidreuse)
+{
+  signals_ = new ReplaySignals(
+  {
+    std::make_unique< Signal<REPLAYOPERATION, ReplayClient, GetReplayUriResponse, StreamSetup, std::string> >(shared_from_this(), REPLAYOPERATION_GETREPLAYURI, true, std::string("http://www.onvif.org/ver10/replay/wsdl/GetReplayUri"), false),
+    std::make_unique< Signal<REPLAYOPERATION, ReplayClient, GetServiceCapabilitiesResponse> >(shared_from_this(), REPLAYOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/replay/wsdl/GetServiceCapabilities"), false)
+  });
+
+  return Client::Init(proxyparams, address, username, password, maxconcurrentrequests, forcehttpauthentication, forbidreuse);
+}
+
 void ReplayClient::Destroy()
 {
   Client::Destroy();
 
-  signals_->getreplayuri_->Destroy();
-  signals_->getservicecapabilities_->Destroy();
+  if (signals_)
+  {
+    signals_->getreplayuri_->Destroy();
+    signals_->getservicecapabilities_->Destroy();
+    delete signals_;
+    signals_ = nullptr;
+  }
 }
 
 // Requests

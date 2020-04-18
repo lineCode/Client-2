@@ -150,11 +150,6 @@ class Client
 
   }
 
-  virtual int Init(const sock::ProxyParams& proxyparams, const std::string& address, const std::string& username, const std::string& password)
-  {
-    return Init(proxyparams, address, username, password, 0, false, false);
-  }
-
   virtual int Init(const sock::ProxyParams& proxyparams, const std::string& address, const std::string& username, const std::string& password, const unsigned int maxconcurrentrequests, const bool forcehttpauthentication, const bool forbidreuse)
   {
     if (address.empty())
