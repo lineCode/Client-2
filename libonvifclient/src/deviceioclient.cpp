@@ -50,26 +50,26 @@ DeviceIOClient::DeviceIOClient(const boost::shared_ptr<std::recursive_mutex>& mu
   Client(mutex),
   signals_(new DeviceIOSignals(
   {
-    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputConfigurationResponse, std::string> >(this, DEVICEIOOPERATION_GETAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioOutputConfiguration"), false),
-    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputConfigurationOptionsResponse, std::string> >(this, DEVICEIOOPERATION_GETAUDIOOUTPUTCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioOutputConfigurationOptions"), false),
-    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputsResponse> >(this, DEVICEIOOPERATION_GETAUDIOOUTPUTS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioOutputs"), false),
-    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourceConfigurationResponse, std::string> >(this, DEVICEIOOPERATION_GETAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioSourceConfiguration"), false),
-    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourceConfigurationOptionsResponse, std::string> >(this, DEVICEIOOPERATION_GETAUDIOSOURCECONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioSourceConfigurationOptions"), false),
-    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourcesResponse> >(this, DEVICEIOOPERATION_GETAUDIOSOURCES, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioSources"), false),
-    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetDigitalInputConfigurationOptionsResponse, std::string> >(this, DEVICEIOOPERATION_GETDIGITALINPUTCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetDigitalInputConfigurationOptions"), false),
-    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetDigitalInputsResponse> >(this, DEVICEIOOPERATION_GETDIGITALINPUTS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetDigitalInputs"), false),
-    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetRelayOutputsResponse> >(this, DEVICEIOOPERATION_GETRELAYOUTPUTS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetRelayOutputs"), false),
-    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetRelayOutputOptionsResponse, std::string> >(this, DEVICEIOOPERATION_GETRELAYOUTPUTOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetRelayOutputOptions"), false),
-    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortConfigurationResponse, std::string> >(this, DEVICEIOOPERATION_GETSERIALPORTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetSerialPortConfigurations"), false),
-    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortConfigurationOptionsResponse, std::string> >(this, DEVICEIOOPERATION_GETSERIALPORTCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetSerialPortConfigurationOptions"), false),
-    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortsResponse> >(this, DEVICEIOOPERATION_GETSERIALPORTS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetSerialPorts"), false),
-    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetServiceCapabilitiesResponse> >(this, DEVICEIOOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetServiceCapabilities"), false),
-    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, SetAudioOutputConfigurationResponse, AudioOutputConfiguration, bool> >(this, DEVICEIOOPERATION_SETAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetAudioOutputConfiguration"), false),
-    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, SetAudioSourceConfigurationResponse, AudioSourceConfiguration, bool> >(this, DEVICEIOOPERATION_SETAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetAudioSourceConfiguration"), false),
-    std::make_unique< Signal< DEVICEIOOPERATION, DeviceIOClient, SetDigitalInputConfigurationsResponse, std::vector<DigitalInput> > >(this, DEVICEIOOPERATION_SETDIGITALINPUTCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetDigitalInputConfigurations"), false),
-    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, SetRelayOutputSettingsResponse, RelayOutput> >(this, DEVICEIOOPERATION_SETRELAYOUTPUTSETTINGS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetRelayOutputSettings"), false),
-    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, SetRelayOutputStateResponse, std::string, RELAYLOGICALSTATE> >(this, DEVICEIOOPERATION_SETRELAYOUTPUTSTATE, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetRelayOutputState"), false),
-    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, SetSerialPortConfigurationResponse, SerialPortConfiguration, bool> >(this, DEVICEIOOPERATION_SETSERIALPORTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetSerialPortConfiguration"), false)
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputConfigurationResponse, std::string> >(shared_from_this(), DEVICEIOOPERATION_GETAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioOutputConfiguration"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputConfigurationOptionsResponse, std::string> >(shared_from_this(), DEVICEIOOPERATION_GETAUDIOOUTPUTCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioOutputConfigurationOptions"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputsResponse> >(shared_from_this(), DEVICEIOOPERATION_GETAUDIOOUTPUTS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioOutputs"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourceConfigurationResponse, std::string> >(shared_from_this(), DEVICEIOOPERATION_GETAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioSourceConfiguration"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourceConfigurationOptionsResponse, std::string> >(shared_from_this(), DEVICEIOOPERATION_GETAUDIOSOURCECONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioSourceConfigurationOptions"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourcesResponse> >(shared_from_this(), DEVICEIOOPERATION_GETAUDIOSOURCES, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioSources"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetDigitalInputConfigurationOptionsResponse, std::string> >(shared_from_this(), DEVICEIOOPERATION_GETDIGITALINPUTCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetDigitalInputConfigurationOptions"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetDigitalInputsResponse> >(shared_from_this(), DEVICEIOOPERATION_GETDIGITALINPUTS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetDigitalInputs"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetRelayOutputsResponse> >(shared_from_this(), DEVICEIOOPERATION_GETRELAYOUTPUTS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetRelayOutputs"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetRelayOutputOptionsResponse, std::string> >(shared_from_this(), DEVICEIOOPERATION_GETRELAYOUTPUTOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetRelayOutputOptions"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortConfigurationResponse, std::string> >(shared_from_this(), DEVICEIOOPERATION_GETSERIALPORTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetSerialPortConfigurations"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortConfigurationOptionsResponse, std::string> >(shared_from_this(), DEVICEIOOPERATION_GETSERIALPORTCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetSerialPortConfigurationOptions"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortsResponse> >(shared_from_this(), DEVICEIOOPERATION_GETSERIALPORTS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetSerialPorts"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetServiceCapabilitiesResponse> >(shared_from_this(), DEVICEIOOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetServiceCapabilities"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, SetAudioOutputConfigurationResponse, AudioOutputConfiguration, bool> >(shared_from_this(), DEVICEIOOPERATION_SETAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetAudioOutputConfiguration"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, SetAudioSourceConfigurationResponse, AudioSourceConfiguration, bool> >(shared_from_this(), DEVICEIOOPERATION_SETAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetAudioSourceConfiguration"), false),
+    std::make_unique< Signal< DEVICEIOOPERATION, DeviceIOClient, SetDigitalInputConfigurationsResponse, std::vector<DigitalInput> > >(shared_from_this(), DEVICEIOOPERATION_SETDIGITALINPUTCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetDigitalInputConfigurations"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, SetRelayOutputSettingsResponse, RelayOutput> >(shared_from_this(), DEVICEIOOPERATION_SETRELAYOUTPUTSETTINGS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetRelayOutputSettings"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, SetRelayOutputStateResponse, std::string, RELAYLOGICALSTATE> >(shared_from_this(), DEVICEIOOPERATION_SETRELAYOUTPUTSTATE, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetRelayOutputState"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, SetSerialPortConfigurationResponse, SerialPortConfiguration, bool> >(shared_from_this(), DEVICEIOOPERATION_SETSERIALPORTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetSerialPortConfiguration"), false)
   }))
 {
 
@@ -84,29 +84,63 @@ DeviceIOClient::~DeviceIOClient()
   }
 }
 
+int DeviceIOClient::Init(const sock::ProxyParams& proxyparams, const std::string& address, const std::string& username, const std::string& password, const unsigned int maxconcurrentrequests, const bool forcehttpauthentication, const bool forbidreuse)
+{
+  signals_ = new DeviceIOSignals(
+  {
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputConfigurationResponse, std::string> >(shared_from_this(), DEVICEIOOPERATION_GETAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioOutputConfiguration"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputConfigurationOptionsResponse, std::string> >(shared_from_this(), DEVICEIOOPERATION_GETAUDIOOUTPUTCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioOutputConfigurationOptions"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioOutputsResponse> >(shared_from_this(), DEVICEIOOPERATION_GETAUDIOOUTPUTS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioOutputs"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourceConfigurationResponse, std::string> >(shared_from_this(), DEVICEIOOPERATION_GETAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioSourceConfiguration"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourceConfigurationOptionsResponse, std::string> >(shared_from_this(), DEVICEIOOPERATION_GETAUDIOSOURCECONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioSourceConfigurationOptions"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetAudioSourcesResponse> >(shared_from_this(), DEVICEIOOPERATION_GETAUDIOSOURCES, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetAudioSources"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetDigitalInputConfigurationOptionsResponse, std::string> >(shared_from_this(), DEVICEIOOPERATION_GETDIGITALINPUTCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetDigitalInputConfigurationOptions"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetDigitalInputsResponse> >(shared_from_this(), DEVICEIOOPERATION_GETDIGITALINPUTS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetDigitalInputs"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetRelayOutputsResponse> >(shared_from_this(), DEVICEIOOPERATION_GETRELAYOUTPUTS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetRelayOutputs"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetRelayOutputOptionsResponse, std::string> >(shared_from_this(), DEVICEIOOPERATION_GETRELAYOUTPUTOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetRelayOutputOptions"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortConfigurationResponse, std::string> >(shared_from_this(), DEVICEIOOPERATION_GETSERIALPORTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetSerialPortConfigurations"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortConfigurationOptionsResponse, std::string> >(shared_from_this(), DEVICEIOOPERATION_GETSERIALPORTCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetSerialPortConfigurationOptions"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetSerialPortsResponse> >(shared_from_this(), DEVICEIOOPERATION_GETSERIALPORTS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetSerialPorts"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, GetServiceCapabilitiesResponse> >(shared_from_this(), DEVICEIOOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/GetServiceCapabilities"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, SetAudioOutputConfigurationResponse, AudioOutputConfiguration, bool> >(shared_from_this(), DEVICEIOOPERATION_SETAUDIOOUTPUTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetAudioOutputConfiguration"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, SetAudioSourceConfigurationResponse, AudioSourceConfiguration, bool> >(shared_from_this(), DEVICEIOOPERATION_SETAUDIOSOURCECONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetAudioSourceConfiguration"), false),
+    std::make_unique< Signal< DEVICEIOOPERATION, DeviceIOClient, SetDigitalInputConfigurationsResponse, std::vector<DigitalInput> > >(shared_from_this(), DEVICEIOOPERATION_SETDIGITALINPUTCONFIGURATIONS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetDigitalInputConfigurations"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, SetRelayOutputSettingsResponse, RelayOutput> >(shared_from_this(), DEVICEIOOPERATION_SETRELAYOUTPUTSETTINGS, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetRelayOutputSettings"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, SetRelayOutputStateResponse, std::string, RELAYLOGICALSTATE> >(shared_from_this(), DEVICEIOOPERATION_SETRELAYOUTPUTSTATE, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetRelayOutputState"), false),
+    std::make_unique< Signal<DEVICEIOOPERATION, DeviceIOClient, SetSerialPortConfigurationResponse, SerialPortConfiguration, bool> >(shared_from_this(), DEVICEIOOPERATION_SETSERIALPORTCONFIGURATION, true, std::string("http://www.onvif.org/ver10/deviceio/wsdl/SetSerialPortConfiguration"), false)
+  });
+
+  return Client::Init(proxyparams, address, username, password, maxconcurrentrequests, forcehttpauthentication, forbidreuse);
+}
+
 void DeviceIOClient::Destroy()
 {
   Client::Destroy();
 
-  signals_->getaudiooutputconfiguration_->Destroy();
-  signals_->getaudiooutputconfigurationoptions_->Destroy();
-  signals_->getaudiooutputs_->Destroy();
-  signals_->getaudiosourceconfiguration_->Destroy();
-  signals_->getaudiosourceconfigurationoptions_->Destroy();
-  signals_->getaudiosources_->Destroy();
-  signals_->getdigitalinputconfigurationoptions_->Destroy();
-  signals_->getdigitalinputs_->Destroy();
-  signals_->getrelayoutputs_->Destroy();
-  signals_->getrelayoutputoptions_->Destroy();
-  signals_->getserialportconfiguration_->Destroy();
-  signals_->getserialportconfigurationoptions_->Destroy();
-  signals_->getserialports_->Destroy();
-  signals_->setaudiooutputconfiguration_->Destroy();
-  signals_->setaudiosourceconfiguration_->Destroy();
-  signals_->setdigitalinputconfigurations_->Destroy();
-  signals_->setrelayoutputsettings_->Destroy();
-  signals_->setrelayoutputstate_->Destroy();
-  signals_->setserialportconfiguration_->Destroy();
+  if (signals_)
+  {
+    signals_->getaudiooutputconfiguration_->Destroy();
+    signals_->getaudiooutputconfigurationoptions_->Destroy();
+    signals_->getaudiooutputs_->Destroy();
+    signals_->getaudiosourceconfiguration_->Destroy();
+    signals_->getaudiosourceconfigurationoptions_->Destroy();
+    signals_->getaudiosources_->Destroy();
+    signals_->getdigitalinputconfigurationoptions_->Destroy();
+    signals_->getdigitalinputs_->Destroy();
+    signals_->getrelayoutputs_->Destroy();
+    signals_->getrelayoutputoptions_->Destroy();
+    signals_->getserialportconfiguration_->Destroy();
+    signals_->getserialportconfigurationoptions_->Destroy();
+    signals_->getserialports_->Destroy();
+    signals_->setaudiooutputconfiguration_->Destroy();
+    signals_->setaudiosourceconfiguration_->Destroy();
+    signals_->setdigitalinputconfigurations_->Destroy();
+    signals_->setrelayoutputsettings_->Destroy();
+    signals_->setrelayoutputstate_->Destroy();
+    signals_->setserialportconfiguration_->Destroy();
+    delete signals_;
+    signals_ = nullptr;
+  }
 }
 
 // Requests

@@ -1021,6 +1021,7 @@ class MediaClient : public Client<MEDIAOPERATION>, public boost::enable_shared_f
   MediaClient(const boost::shared_ptr<std::recursive_mutex>& mutex);
   virtual ~MediaClient();
 
+  virtual int Init(const sock::ProxyParams& proxyparams, const std::string& address, const std::string& username, const std::string& password, const unsigned int maxconcurrentrequests, const bool forcehttpauthentication, const bool forbidreuse) override;
   virtual void Destroy() override;
 
   // Requests

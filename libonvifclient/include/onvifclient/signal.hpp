@@ -15,7 +15,6 @@
 #include <tuple>
 #include <utility>
 
-#include "client.hpp"
 #include "connection.hpp"
 #include "connectionblock.hpp"
 #include "scopedconnection.hpp"
@@ -45,7 +44,7 @@ class Signal
     return Response(std::get<I>(args)..., params...);
   }
 
-  Signal(Client* client, const Operation operation, const bool authentication, const std::string& action, const bool event) :
+  Signal(const boost::shared_ptr<Client>& client, const Operation operation, const bool authentication, const std::string& action, const bool event) :
     client_(client),
     operation_(operation),
     authentication_(authentication),
@@ -65,15 +64,15 @@ class Signal
   {
     for (auto& promise : promises_)
     {
-      const Response response = GetResponse(std::tuple_cat(std::make_tuple(client_->shared_from_this(), boost::asio::ip::address(), 0LL, std::string("Cancelled")), GetArgs(promise.first)));
+      const Response response = GetResponse(std::tuple_cat(std::make_tuple(client_, boost::asio::ip::address(), 0LL, std::string("Cancelled")), GetArgs(promise.first)));
       promise.second.set_value(response);
       signal_(response);
     }
     promises_.clear();
-
+    
     for (auto& callback : callbacks_)
     {
-      const Response response = GetResponse(std::tuple_cat(std::make_tuple(client_->shared_from_this(), boost::asio::ip::address(), 0LL, std::string("Cancelled")), GetArgs(callback.first)));
+      const Response response = GetResponse(std::tuple_cat(std::make_tuple(client_, boost::asio::ip::address(), 0LL, std::string("Cancelled")), GetArgs(callback.first)));
       callback.second.first->mutex_.lock();
       if (callback.second.first->connected_)
       {
@@ -86,7 +85,7 @@ class Signal
     callbacks_.clear();
     
     signal_.disconnect_all_slots();
-
+    
     args_.clear();
   }
 
@@ -95,7 +94,7 @@ class Signal
     CURL* handle = client_->SendCommand(operation_, authentication_, event_, action_, referenceparameters, to, body, mtomdata);
     if (handle == nullptr)
     {
-      signal_(GetResponse(std::make_tuple(client_->shared_from_this(), boost::asio::ip::address(), 0, std::string("Client::SendCommand() failed")), args...));
+      signal_(GetResponse(std::make_tuple(client_, boost::asio::ip::address(), 0, std::string("Client::SendCommand() failed")), args...));
 
     }
     else
@@ -122,7 +121,7 @@ class Signal
     CURL* handle = client_->SendCommand(operation_, authentication_, event_, action_, referenceparameters, to, body, mtomdata);
     if (handle == nullptr)
     {
-      promise.set_value(Response(client_->shared_from_this(), boost::asio::ip::address(), 0, std::string("Client::SendCommand() failed"), args...));
+      promise.set_value(Response(client_, boost::asio::ip::address(), 0, std::string("Client::SendCommand() failed"), args...));
 
     }
     else
@@ -147,17 +146,17 @@ class Signal
   {
     if (!callback)
     {
-
+    
       return Connection();
     }
     
     CURL* handle = client_->SendCommand(operation_, authentication_, event_, action_, referenceparameters, to, body, mtomdata);
     if (handle == nullptr)
     {
-      callback(Response(client_->shared_from_this(), boost::asio::ip::address(), 0, std::string("Client::SendCommand() failed"), args...));
+      callback(Response(client_, boost::asio::ip::address(), 0, std::string("Client::SendCommand() failed"), args...));
       return Connection();
     }
-
+    
     std::lock_guard<std::recursive_mutex> lock(*client_->GetMutex());
     boost::shared_ptr<ConnectionBlock> connectionblock = boost::make_shared<ConnectionBlock>(true);
     callbacks_[handle] = std::make_pair(connectionblock, callback);
@@ -219,7 +218,7 @@ class Signal
     return args_.find(handle)->second;
   }
   
-  Client* client_;
+  boost::shared_ptr<Client> client_;
   const Operation operation_;
   const bool authentication_;
   const std::string action_;

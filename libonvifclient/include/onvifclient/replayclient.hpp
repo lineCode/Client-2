@@ -75,6 +75,7 @@ class ReplayClient : public Client<REPLAYOPERATION>, public boost::enable_shared
   ReplayClient(const boost::shared_ptr<std::recursive_mutex>& mutex);
   virtual ~ReplayClient();
 
+  virtual int Init(const sock::ProxyParams& proxyparams, const std::string& address, const std::string& username, const std::string& password, const unsigned int maxconcurrentrequests, const bool forcehttpauthentication, const bool forbidreuse) override;
   virtual void Destroy() override;
 
   // Requests

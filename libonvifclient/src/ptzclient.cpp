@@ -37,18 +37,7 @@ class PTZSignals
 
 PTZClient::PTZClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
-  signals_(new PTZSignals(
-  {
-    std::make_unique< Signal<PTZOPERATION, PTZClient, ContinuousMoveResponse, std::string, PTZSpeed, Duration> >(this, PTZOPERATION_CONTINUOUSMOVE, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/ContinuousMove"), false),
-    std::make_unique< Signal<PTZOPERATION, PTZClient, GetCompatibleConfigurationsResponse, std::string> >(this, PTZOPERATION_GETCOMPATIBLECONFIGURATIONS, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetCompatibleConfigurations"), false),
-    std::make_unique< Signal<PTZOPERATION, PTZClient, GetConfigurationResponse, std::string> >(this, PTZOPERATION_GETCONFIGURATION, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetConfiguration"), false),
-    std::make_unique< Signal<PTZOPERATION, PTZClient, GetConfigurationOptionsResponse, std::string> >(this, PTZOPERATION_GETCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetConfigurationOptions"), false),
-    std::make_unique< Signal<PTZOPERATION, PTZClient, GetConfigurationsResponse> >(this, PTZOPERATION_GETCONFIGURATIONS, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetConfigurations"), false),
-    std::make_unique< Signal<PTZOPERATION, PTZClient, GetNodesResponse> >(this, PTZOPERATION_GETNODES, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetNodes"), false),
-    std::make_unique< Signal<PTZOPERATION, PTZClient, GetServiceCapabilitiesResponse> >(this, PTZOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetServiceCapabilities"), false),
-    std::make_unique< Signal<PTZOPERATION, PTZClient, SetConfigurationResponse, PTZConfiguration, bool> >(this, PTZOPERATION_SETCONFIGURATION, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/SetConfiguration"), false),
-    std::make_unique< Signal<PTZOPERATION, PTZClient, StopResponse, std::string, bool, bool> >(this, PTZOPERATION_STOP, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/Stop"), false)
-  }))
+  signals_(nullptr)
 {
 
 }
@@ -62,19 +51,42 @@ PTZClient::~PTZClient()
   }
 }
 
+int PTZClient::Init(const sock::ProxyParams& proxyparams, const std::string& address, const std::string& username, const std::string& password, const unsigned int maxconcurrentrequests, const bool forcehttpauthentication, const bool forbidreuse)
+{
+  signals_ = new PTZSignals(
+  {
+    std::make_unique< Signal<PTZOPERATION, PTZClient, ContinuousMoveResponse, std::string, PTZSpeed, Duration> >(shared_from_this(), PTZOPERATION_CONTINUOUSMOVE, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/ContinuousMove"), false),
+    std::make_unique< Signal<PTZOPERATION, PTZClient, GetCompatibleConfigurationsResponse, std::string> >(shared_from_this(), PTZOPERATION_GETCOMPATIBLECONFIGURATIONS, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetCompatibleConfigurations"), false),
+    std::make_unique< Signal<PTZOPERATION, PTZClient, GetConfigurationResponse, std::string> >(shared_from_this(), PTZOPERATION_GETCONFIGURATION, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetConfiguration"), false),
+    std::make_unique< Signal<PTZOPERATION, PTZClient, GetConfigurationOptionsResponse, std::string> >(shared_from_this(), PTZOPERATION_GETCONFIGURATIONOPTIONS, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetConfigurationOptions"), false),
+    std::make_unique< Signal<PTZOPERATION, PTZClient, GetConfigurationsResponse> >(shared_from_this(), PTZOPERATION_GETCONFIGURATIONS, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetConfigurations"), false),
+    std::make_unique< Signal<PTZOPERATION, PTZClient, GetNodesResponse> >(shared_from_this(), PTZOPERATION_GETNODES, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetNodes"), false),
+    std::make_unique< Signal<PTZOPERATION, PTZClient, GetServiceCapabilitiesResponse> >(shared_from_this(), PTZOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/GetServiceCapabilities"), false),
+    std::make_unique< Signal<PTZOPERATION, PTZClient, SetConfigurationResponse, PTZConfiguration, bool> >(shared_from_this(), PTZOPERATION_SETCONFIGURATION, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/SetConfiguration"), false),
+    std::make_unique< Signal<PTZOPERATION, PTZClient, StopResponse, std::string, bool, bool> >(shared_from_this(), PTZOPERATION_STOP, true, std::string("http://www.onvif.org/ver20/ptz/wsdl/Stop"), false)
+  });
+
+  return Client::Init(proxyparams, address, username, password, maxconcurrentrequests, forcehttpauthentication, forbidreuse);
+}
+
 void PTZClient::Destroy()
 {
   Client::Destroy();
 
-  signals_->continuousmove_->Destroy();
-  signals_->getcompatibleconfigurations_->Destroy();
-  signals_->getconfiguration_->Destroy();
-  signals_->getconfigurationoptions_->Destroy();
-  signals_->getconfigurations_->Destroy();
-  signals_->getnodes_->Destroy();
-  signals_->getservicecapabilities_->Destroy();
-  signals_->setconfiguration_->Destroy();
-  signals_->stop_->Destroy();
+  if (signals_)
+  {
+    signals_->continuousmove_->Destroy();
+    signals_->getcompatibleconfigurations_->Destroy();
+    signals_->getconfiguration_->Destroy();
+    signals_->getconfigurationoptions_->Destroy();
+    signals_->getconfigurations_->Destroy();
+    signals_->getnodes_->Destroy();
+    signals_->getservicecapabilities_->Destroy();
+    signals_->setconfiguration_->Destroy();
+    signals_->stop_->Destroy();
+    delete signals_;
+    signals_ = nullptr;
+  }
 }
 
 // Requests

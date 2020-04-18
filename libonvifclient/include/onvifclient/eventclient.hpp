@@ -117,6 +117,7 @@ class EventClient : public Client<EVENTOPERATION>, public boost::enable_shared_f
   EventClient(const boost::shared_ptr<std::recursive_mutex>& mutex);
   virtual ~EventClient();
 
+  virtual int Init(const sock::ProxyParams& proxyparams, const std::string& address, const std::string& username, const std::string& password, const unsigned int maxconcurrentrequests, const bool forcehttpauthentication, const bool forbidreuse) override;
   virtual void Destroy() override;
 
   // Requests

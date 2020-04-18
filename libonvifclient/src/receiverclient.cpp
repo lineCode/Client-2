@@ -36,17 +36,7 @@ class ReceiverSignals
 
 ReceiverClient::ReceiverClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
-  signals_(new ReceiverSignals(
-  {
-    std::make_unique< Signal<RECEIVEROPERATION, ReceiverClient, ConfigureReceiverResponse, std::string, ReceiverConfiguration> >(this, RECEIVEROPERATION_CONFIGURERECEIVER, true, std::string("http://www.onvif.org/ver10/receiver/wsdl/ConfigureReceiver"), false),
-    std::make_unique< Signal<RECEIVEROPERATION, ReceiverClient, CreateReceiverResponse, ReceiverConfiguration> >(this, RECEIVEROPERATION_CREATERECEIVER, true, std::string("http://www.onvif.org/ver10/receiver/wsdl/CreateReceiver"), false),
-    std::make_unique< Signal<RECEIVEROPERATION, ReceiverClient, DeleteReceiverResponse, std::string> >(this, RECEIVEROPERATION_DELETERECEIVER, true, std::string("http://www.onvif.org/ver10/receiver/wsdl/DeleteReceiver"), false),
-    std::make_unique< Signal<RECEIVEROPERATION, ReceiverClient, GetReceiverResponse, std::string> >(this, RECEIVEROPERATION_GETRECEIVER, true, std::string("http://www.onvif.org/ver10/receiver/wsdl/GetReceiver"), false),
-    std::make_unique< Signal<RECEIVEROPERATION, ReceiverClient, GetReceiversResponse> >(this, RECEIVEROPERATION_GETRECEIVERS, true, std::string("http://www.onvif.org/ver10/receiver/wsdl/GetReceivers"), false),
-    std::make_unique< Signal<RECEIVEROPERATION, ReceiverClient, GetReceiverStateResponse, std::string> >(this, RECEIVEROPERATION_GETRECEIVERSTATE, true, std::string("http://www.onvif.org/ver10/receiver/wsdl/GetReceiverState"), false),
-    std::make_unique< Signal<RECEIVEROPERATION, ReceiverClient, GetServiceCapabilitiesResponse> >(this, RECEIVEROPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/receiver/wsdl/GetServiceCapabilities"), false),
-    std::make_unique< Signal<RECEIVEROPERATION, ReceiverClient, SetReceiverModeResponse, std::string, RECEIVERMODE> >(this, RECEIVEROPERATION_SETRECEIVERMODE, true, std::string("http://www.onvif.org/ver10/receiver/wsdl/SetReceiverMode"), false)
-  }))
+  signals_(nullptr)
 {
 
 }
@@ -60,18 +50,40 @@ ReceiverClient::~ReceiverClient()
   }
 }
 
+int ReceiverClient::Init(const sock::ProxyParams& proxyparams, const std::string& address, const std::string& username, const std::string& password, const unsigned int maxconcurrentrequests, const bool forcehttpauthentication, const bool forbidreuse)
+{
+  signals_ = new ReceiverSignals(
+  {
+    std::make_unique< Signal<RECEIVEROPERATION, ReceiverClient, ConfigureReceiverResponse, std::string, ReceiverConfiguration> >(shared_from_this(), RECEIVEROPERATION_CONFIGURERECEIVER, true, std::string("http://www.onvif.org/ver10/receiver/wsdl/ConfigureReceiver"), false),
+    std::make_unique< Signal<RECEIVEROPERATION, ReceiverClient, CreateReceiverResponse, ReceiverConfiguration> >(shared_from_this(), RECEIVEROPERATION_CREATERECEIVER, true, std::string("http://www.onvif.org/ver10/receiver/wsdl/CreateReceiver"), false),
+    std::make_unique< Signal<RECEIVEROPERATION, ReceiverClient, DeleteReceiverResponse, std::string> >(shared_from_this(), RECEIVEROPERATION_DELETERECEIVER, true, std::string("http://www.onvif.org/ver10/receiver/wsdl/DeleteReceiver"), false),
+    std::make_unique< Signal<RECEIVEROPERATION, ReceiverClient, GetReceiverResponse, std::string> >(shared_from_this(), RECEIVEROPERATION_GETRECEIVER, true, std::string("http://www.onvif.org/ver10/receiver/wsdl/GetReceiver"), false),
+    std::make_unique< Signal<RECEIVEROPERATION, ReceiverClient, GetReceiversResponse> >(shared_from_this(), RECEIVEROPERATION_GETRECEIVERS, true, std::string("http://www.onvif.org/ver10/receiver/wsdl/GetReceivers"), false),
+    std::make_unique< Signal<RECEIVEROPERATION, ReceiverClient, GetReceiverStateResponse, std::string> >(shared_from_this(), RECEIVEROPERATION_GETRECEIVERSTATE, true, std::string("http://www.onvif.org/ver10/receiver/wsdl/GetReceiverState"), false),
+    std::make_unique< Signal<RECEIVEROPERATION, ReceiverClient, GetServiceCapabilitiesResponse> >(shared_from_this(), RECEIVEROPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/receiver/wsdl/GetServiceCapabilities"), false),
+    std::make_unique< Signal<RECEIVEROPERATION, ReceiverClient, SetReceiverModeResponse, std::string, RECEIVERMODE> >(shared_from_this(), RECEIVEROPERATION_SETRECEIVERMODE, true, std::string("http://www.onvif.org/ver10/receiver/wsdl/SetReceiverMode"), false)
+  });
+
+  return Client::Init(proxyparams, address, username, password, maxconcurrentrequests, forcehttpauthentication, forbidreuse);
+}
+
 void ReceiverClient::Destroy()
 {
   Client::Destroy();
 
-  signals_->configurereceiver_->Destroy();
-  signals_->createreceiver_->Destroy();
-  signals_->deletereceiver_->Destroy();
-  signals_->getreceiver_->Destroy();
-  signals_->getreceivers_->Destroy();
-  signals_->getreceiverstate_->Destroy();
-  signals_->getservicecapabilities_->Destroy();
-  signals_->setreceivermode_->Destroy();
+  if (signals_)
+  {
+    signals_->configurereceiver_->Destroy();
+    signals_->createreceiver_->Destroy();
+    signals_->deletereceiver_->Destroy();
+    signals_->getreceiver_->Destroy();
+    signals_->getreceivers_->Destroy();
+    signals_->getreceiverstate_->Destroy();
+    signals_->getservicecapabilities_->Destroy();
+    signals_->setreceivermode_->Destroy();
+    delete signals_;
+    signals_ = nullptr;
+  }
 }
 
 // Requests

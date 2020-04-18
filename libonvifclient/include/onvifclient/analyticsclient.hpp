@@ -58,6 +58,7 @@ class AnalyticsClient : public Client<ANALYTICSOPERATION>, public boost::enable_
   AnalyticsClient(const boost::shared_ptr<std::recursive_mutex>& mutex);
   virtual ~AnalyticsClient();
 
+  virtual int Init(const sock::ProxyParams& proxyparams, const std::string& address, const std::string& username, const std::string& password, const unsigned int maxconcurrentrequests, const bool forcehttpauthentication, const bool forbidreuse) override;
   virtual void Destroy() override;
 
   // Requests

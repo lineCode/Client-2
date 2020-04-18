@@ -49,30 +49,7 @@ class RecordingSignals
 
 RecordingClient::RecordingClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
-  signals_(new RecordingSignals(
-  {
-    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, CreateRecordingResponse, RecordingConfiguration> >(this, RECORDINGOPERATION_CREATERECORDING, true, std::string("http://www.onvif.org/ver10/recording/wsdl/CreateRecording"), false),
-    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, CreateRecordingJobResponse, RecordingJobConfiguration> >(this, RECORDINGOPERATION_CREATERECORDINGJOB, true, std::string("http://www.onvif.org/ver10/recording/wsdl/CreateRecordingJob"), false),
-    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, CreateTrackResponse, std::string, TrackConfiguration> >(this, RECORDINGOPERATION_CREATETRACK, true, std::string("http://www.onvif.org/ver10/recording/wsdl/CreateTrack"), false),
-    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, DeleteRecordingResponse, std::string> >(this, RECORDINGOPERATION_DELETERECORDING, true, std::string("http://www.onvif.org/ver10/recording/wsdl/DeleteRecording"), false),
-    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, DeleteRecordingJobResponse, std::string> >(this, RECORDINGOPERATION_DELETERECORDINGJOB, true, std::string("http://www.onvif.org/ver10/recording/wsdl/DeleteRecordingJob"), false),
-    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, DeleteTrackResponse, std::string, std::string> >(this, RECORDINGOPERATION_DELETETRACK, true, std::string("http://www.onvif.org/ver10/recording/wsdl/DeleteTrack"), false),
-    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, ExportRecordedDataResponse, ws::DateTime, ws::DateTime, SearchScope, std::string, StorageReferencePath> >(this, RECORDINGOPERATION_EXPORTRECORDEDDATA, true, std::string("http://www.onvif.org/ver10/recording/wsdl/ExportRecordedData"), false),
-    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, GetExportRecordedDataStateResponse, std::string> >(this, RECORDINGOPERATION_GETEXPORTRECORDEDDATASTATE, true, std::string("http://www.onvif.org/ver10/recording/wsdl/GetExportRecordedDataState"), false),
-    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, GetRecordingConfigurationResponse, std::string> >(this, RECORDINGOPERATION_GETRECORDINGCONFIGURATION, true, std::string("http://www.onvif.org/ver10/recording/wsdl/GetRecordingConfiguration"), false),
-    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, GetRecordingJobConfigurationResponse, std::string> >(this, RECORDINGOPERATION_GETRECORDINGJOBCONFIGURATION, true, std::string("http://www.onvif.org/ver10/recording/wsdl/GetRecordingJobConfiguration"), false),
-    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, GetRecordingJobsResponse> >(this, RECORDINGOPERATION_GETRECORDINGJOBS, true, std::string("http://www.onvif.org/ver10/recording/wsdl/GetRecordingJobs"), false),
-    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, GetRecordingJobStateResponse, std::string> >(this, RECORDINGOPERATION_GETRECORDINGJOBSTATE, true, std::string("http://www.onvif.org/ver10/recording/wsdl/GetRecordingJobState"), false),
-    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, GetRecordingOptionsResponse, std::string> >(this, RECORDINGOPERATION_GETRECORDINGOPTIONS, true, std::string("http://www.onvif.org/ver10/recording/wsdl/GetRecordingOptions"), false),
-    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, GetRecordingsResponse> >(this, RECORDINGOPERATION_GETRECORDINGS, true, std::string("http://www.onvif.org/ver10/recording/wsdl/GetRecordings"), false),
-    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, GetServiceCapabilitiesResponse> >(this, RECORDINGOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/recording/wsdl/GetServiceCapabilities"), false),
-    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, GetTrackConfigurationResponse, std::string, std::string> >(this, RECORDINGOPERATION_GETTRACKCONFIGURATION, true, std::string("http://www.onvif.org/ver10/recording/wsdl/GetTrackConfiguration"), false),
-    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, SetRecordingConfigurationResponse, std::string, RecordingConfiguration> >(this, RECORDINGOPERATION_SETRECORDINGCONFIGURATION, true, std::string("http://www.onvif.org/ver10/recording/wsdl/SetRecordingConfiguration"), false),
-    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, SetRecordingJobConfigurationResponse, std::string, RecordingJobConfiguration> >(this, RECORDINGOPERATION_SETRECORDINGJOBCONFIGURATION, true, std::string("http://www.onvif.org/ver10/recording/wsdl/SetRecordingJobConfiguration"), false),
-    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, SetRecordingJobModeResponse, std::string, RECORDINGJOBMODE> >(this, RECORDINGOPERATION_SETRECORDINGJOBMODE, true, std::string("http://www.onvif.org/ver10/recording/wsdl/SetRecordingJobMode"), false),
-    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, SetTrackConfigurationResponse, std::string, std::string, TrackConfiguration> >(this, RECORDINGOPERATION_SETTRACKCONFIGURATION, true, std::string("http://www.onvif.org/ver10/recording/wsdl/SetTrackConfiguration"), false),
-    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, StopExportRecordedDataResponse, std::string> >(this, RECORDINGOPERATION_STOPEXPORTRECORDEDDATA, true, std::string("http://www.onvif.org/ver10/recording/wsdl/StopExportRecordedData"), false)
-  }))
+  signals_(nullptr)
 {
 
 }
@@ -86,31 +63,66 @@ RecordingClient::~RecordingClient()
   }
 }
 
+int RecordingClient::Init(const sock::ProxyParams& proxyparams, const std::string& address, const std::string& username, const std::string& password, const unsigned int maxconcurrentrequests, const bool forcehttpauthentication, const bool forbidreuse)
+{
+  signals_ = new RecordingSignals(
+  {
+    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, CreateRecordingResponse, RecordingConfiguration> >(shared_from_this(), RECORDINGOPERATION_CREATERECORDING, true, std::string("http://www.onvif.org/ver10/recording/wsdl/CreateRecording"), false),
+    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, CreateRecordingJobResponse, RecordingJobConfiguration> >(shared_from_this(), RECORDINGOPERATION_CREATERECORDINGJOB, true, std::string("http://www.onvif.org/ver10/recording/wsdl/CreateRecordingJob"), false),
+    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, CreateTrackResponse, std::string, TrackConfiguration> >(shared_from_this(), RECORDINGOPERATION_CREATETRACK, true, std::string("http://www.onvif.org/ver10/recording/wsdl/CreateTrack"), false),
+    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, DeleteRecordingResponse, std::string> >(shared_from_this(), RECORDINGOPERATION_DELETERECORDING, true, std::string("http://www.onvif.org/ver10/recording/wsdl/DeleteRecording"), false),
+    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, DeleteRecordingJobResponse, std::string> >(shared_from_this(), RECORDINGOPERATION_DELETERECORDINGJOB, true, std::string("http://www.onvif.org/ver10/recording/wsdl/DeleteRecordingJob"), false),
+    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, DeleteTrackResponse, std::string, std::string> >(shared_from_this(), RECORDINGOPERATION_DELETETRACK, true, std::string("http://www.onvif.org/ver10/recording/wsdl/DeleteTrack"), false),
+    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, ExportRecordedDataResponse, ws::DateTime, ws::DateTime, SearchScope, std::string, StorageReferencePath> >(shared_from_this(), RECORDINGOPERATION_EXPORTRECORDEDDATA, true, std::string("http://www.onvif.org/ver10/recording/wsdl/ExportRecordedData"), false),
+    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, GetExportRecordedDataStateResponse, std::string> >(shared_from_this(), RECORDINGOPERATION_GETEXPORTRECORDEDDATASTATE, true, std::string("http://www.onvif.org/ver10/recording/wsdl/GetExportRecordedDataState"), false),
+    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, GetRecordingConfigurationResponse, std::string> >(shared_from_this(), RECORDINGOPERATION_GETRECORDINGCONFIGURATION, true, std::string("http://www.onvif.org/ver10/recording/wsdl/GetRecordingConfiguration"), false),
+    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, GetRecordingJobConfigurationResponse, std::string> >(shared_from_this(), RECORDINGOPERATION_GETRECORDINGJOBCONFIGURATION, true, std::string("http://www.onvif.org/ver10/recording/wsdl/GetRecordingJobConfiguration"), false),
+    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, GetRecordingJobsResponse> >(shared_from_this(), RECORDINGOPERATION_GETRECORDINGJOBS, true, std::string("http://www.onvif.org/ver10/recording/wsdl/GetRecordingJobs"), false),
+    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, GetRecordingJobStateResponse, std::string> >(shared_from_this(), RECORDINGOPERATION_GETRECORDINGJOBSTATE, true, std::string("http://www.onvif.org/ver10/recording/wsdl/GetRecordingJobState"), false),
+    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, GetRecordingOptionsResponse, std::string> >(shared_from_this(), RECORDINGOPERATION_GETRECORDINGOPTIONS, true, std::string("http://www.onvif.org/ver10/recording/wsdl/GetRecordingOptions"), false),
+    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, GetRecordingsResponse> >(shared_from_this(), RECORDINGOPERATION_GETRECORDINGS, true, std::string("http://www.onvif.org/ver10/recording/wsdl/GetRecordings"), false),
+    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, GetServiceCapabilitiesResponse> >(shared_from_this(), RECORDINGOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver10/recording/wsdl/GetServiceCapabilities"), false),
+    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, GetTrackConfigurationResponse, std::string, std::string> >(shared_from_this(), RECORDINGOPERATION_GETTRACKCONFIGURATION, true, std::string("http://www.onvif.org/ver10/recording/wsdl/GetTrackConfiguration"), false),
+    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, SetRecordingConfigurationResponse, std::string, RecordingConfiguration> >(shared_from_this(), RECORDINGOPERATION_SETRECORDINGCONFIGURATION, true, std::string("http://www.onvif.org/ver10/recording/wsdl/SetRecordingConfiguration"), false),
+    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, SetRecordingJobConfigurationResponse, std::string, RecordingJobConfiguration> >(shared_from_this(), RECORDINGOPERATION_SETRECORDINGJOBCONFIGURATION, true, std::string("http://www.onvif.org/ver10/recording/wsdl/SetRecordingJobConfiguration"), false),
+    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, SetRecordingJobModeResponse, std::string, RECORDINGJOBMODE> >(shared_from_this(), RECORDINGOPERATION_SETRECORDINGJOBMODE, true, std::string("http://www.onvif.org/ver10/recording/wsdl/SetRecordingJobMode"), false),
+    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, SetTrackConfigurationResponse, std::string, std::string, TrackConfiguration> >(shared_from_this(), RECORDINGOPERATION_SETTRACKCONFIGURATION, true, std::string("http://www.onvif.org/ver10/recording/wsdl/SetTrackConfiguration"), false),
+    std::make_unique< Signal<RECORDINGOPERATION, RecordingClient, StopExportRecordedDataResponse, std::string> >(shared_from_this(), RECORDINGOPERATION_STOPEXPORTRECORDEDDATA, true, std::string("http://www.onvif.org/ver10/recording/wsdl/StopExportRecordedData"), false)
+  });
+
+  return Client::Init(proxyparams, address, username, password, maxconcurrentrequests, forcehttpauthentication, forbidreuse);
+}
+
 void RecordingClient::Destroy()
 {
   Client::Destroy();
 
-  signals_->createrecording_->Destroy();
-  signals_->createrecordingjob_->Destroy();
-  signals_->createtrack_->Destroy();
-  signals_->deleterecording_->Destroy();
-  signals_->deleterecordingjob_->Destroy();
-  signals_->deletetrack_->Destroy();
-  signals_->exportrecordeddata_->Destroy();
-  signals_->getexportrecordeddatastate_->Destroy();
-  signals_->getrecordingconfiguration_->Destroy();
-  signals_->getrecordingjobconfiguration_->Destroy();
-  signals_->getrecordingjobs_->Destroy();
-  signals_->getrecordingjobstate_->Destroy();
-  signals_->getrecordingoptions_->Destroy();
-  signals_->getrecordings_->Destroy();
-  signals_->getservicecapabilities_->Destroy();
-  signals_->gettrackconfiguration_->Destroy();
-  signals_->setrecordingconfiguration_->Destroy();
-  signals_->setrecordingjobconfiguration_->Destroy();
-  signals_->setrecordingjobmode_->Destroy();
-  signals_->settrackconfiguration_->Destroy();
-  signals_->stopexportrecordeddata_->Destroy();
+  if (signals_)
+  {
+    signals_->createrecording_->Destroy();
+    signals_->createrecordingjob_->Destroy();
+    signals_->createtrack_->Destroy();
+    signals_->deleterecording_->Destroy();
+    signals_->deleterecordingjob_->Destroy();
+    signals_->deletetrack_->Destroy();
+    signals_->exportrecordeddata_->Destroy();
+    signals_->getexportrecordeddatastate_->Destroy();
+    signals_->getrecordingconfiguration_->Destroy();
+    signals_->getrecordingjobconfiguration_->Destroy();
+    signals_->getrecordingjobs_->Destroy();
+    signals_->getrecordingjobstate_->Destroy();
+    signals_->getrecordingoptions_->Destroy();
+    signals_->getrecordings_->Destroy();
+    signals_->getservicecapabilities_->Destroy();
+    signals_->gettrackconfiguration_->Destroy();
+    signals_->setrecordingconfiguration_->Destroy();
+    signals_->setrecordingjobconfiguration_->Destroy();
+    signals_->setrecordingjobmode_->Destroy();
+    signals_->settrackconfiguration_->Destroy();
+    signals_->stopexportrecordeddata_->Destroy();
+    delete signals_;
+    signals_ = nullptr;
+  }
 }
 
 // Requests

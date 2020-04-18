@@ -29,10 +29,7 @@ class AnalyticsSignals
 
 AnalyticsClient::AnalyticsClient(const boost::shared_ptr<std::recursive_mutex>& mutex) :
   Client(mutex),
-  signals_(new AnalyticsSignals(
-  {
-    std::make_unique< Signal<ANALYTICSOPERATION, AnalyticsClient, GetServiceCapabilitiesResponse> >(this, ANALYTICSOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver20/analytics/wsdl/GetServiceCapabilities"), false)
-  }))
+  signals_(nullptr)
 {
 
 }
@@ -46,11 +43,26 @@ AnalyticsClient::~AnalyticsClient()
   }
 }
 
+int AnalyticsClient::Init(const sock::ProxyParams& proxyparams, const std::string& address, const std::string& username, const std::string& password, const unsigned int maxconcurrentrequests, const bool forcehttpauthentication, const bool forbidreuse)
+{
+  signals_ = new AnalyticsSignals(
+  {
+    std::make_unique< Signal<ANALYTICSOPERATION, AnalyticsClient, GetServiceCapabilitiesResponse> >(shared_from_this(), ANALYTICSOPERATION_GETSERVICECAPABILITIES, true, std::string("http://www.onvif.org/ver20/analytics/wsdl/GetServiceCapabilities"), false)
+  });
+
+  return Client::Init(proxyparams, address, username, password, maxconcurrentrequests, forcehttpauthentication, forbidreuse);
+}
+
 void AnalyticsClient::Destroy()
 {
   Client::Destroy();
 
-  signals_->getservicecapabilities_->Destroy();
+  if (signals_)
+  {
+    signals_->getservicecapabilities_->Destroy();
+    delete signals_;
+    signals_ = nullptr;
+  }
 }
 
 // Requests
