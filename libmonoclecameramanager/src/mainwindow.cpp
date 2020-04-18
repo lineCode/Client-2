@@ -9,7 +9,7 @@
 #include <QStatusBar>
 #include <QDebug>//TODO remove
 
-#include "monoclecameramanager/onvifitem.h"
+#include "monoclecameramanager/devicetreeonvifitem.h"
 
 ///// Defines /////
 
@@ -84,7 +84,7 @@ void MainWindow::on_devicetree_itemClicked(QTreeWidgetItem* item, int column)
 
 void MainWindow::DiscoverONVIFDevice(const QString& uri)
 {
-  ui_.devicetree->addTopLevelItem(new ONVIFItem(ui_.devicetree, uri, QString(), QString()));
+  ui_.devicetree->addTopLevelItem(new DeviceTreeONVIFItem(ui_.devicetree, uri, QString(), QString()));
 
 }
 

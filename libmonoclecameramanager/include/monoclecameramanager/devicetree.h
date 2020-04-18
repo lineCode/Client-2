@@ -30,6 +30,10 @@ class DeviceTree : public QTreeWidget
   DeviceTree(QWidget* parent);
   ~DeviceTree();
   
+
+ protected:
+
+  void contextMenuEvent(QContextMenuEvent* event) override;
   
 
  private:

@@ -5,7 +5,9 @@
 
 #include "monoclecameramanager/devicetree.h"
 
-#include "monoclecameramanager/onvifitem.h"
+#include <QContextMenuEvent>
+
+#include "monoclecameramanager/devicetreeitem.h"
 
 ///// Namespaces /////
 
@@ -33,20 +35,33 @@ DeviceTree::~DeviceTree()
 
 void DeviceTree::ItemExpanded(QTreeWidgetItem* item)
 {
-  static_cast<ONVIFItem*>(item)->Expanded();
+  static_cast<DeviceTreeItem*>(item)->Expanded();
 
 }
 
 void DeviceTree::ItemCollapsed(QTreeWidgetItem* item)
 {
-  static_cast<ONVIFItem*>(item)->Collapsed();
+  static_cast<DeviceTreeItem*>(item)->Collapsed();
 
 }
 
 void DeviceTree::DoubleClicked(QTreeWidgetItem* item, int)
 {
-  static_cast<ONVIFItem*>(item)->DoubleClicked();
+  static_cast<DeviceTreeItem*>(item)->DoubleClicked();
 
+}
+
+void DeviceTree::contextMenuEvent(QContextMenuEvent* event)
+{
+  QTreeWidgetItem* item = itemAt(event->pos());
+  if (item)
+  {
+    //TODO we are going to run into regular items too now, so ignore them
+      //TODO maybe we need inbetween DeviceTreeItem here too
+
+    static_cast<DeviceTreeItem*>(item)->ContextMenuEvent(event);
+
+  }
 }
 
 }

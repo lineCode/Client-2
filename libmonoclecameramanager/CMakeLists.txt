@@ -7,15 +7,16 @@ set(CMAKE_AUTORCC ON)
 
 SET(LIBMONOCLECAMERAMANAGER_HEADERS
 include/monoclecameramanager/devicetree.h
+include/monoclecameramanager/devicetreeonvifitem.h
 include/monoclecameramanager/mainwindow.h
-include/monoclecameramanager/networkmapper.h
-include/monoclecameramanager/onvifitem.h)
+include/monoclecameramanager/networkmapper.h)
 
 SET(LIBMONOCLECAMERAMANAGER_SOURCES
 src/devicetree.cpp
+src/devicetreeitem.cpp
+src/devicetreeonvifitem.cpp
 src/mainwindow.cpp
-src/networkmapper.cpp
-src/onvifitem.cpp)
+src/networkmapper.cpp)
 
 SET(LIBMONOCLECAMERAMANAGER_FORMS
 mainwindow.ui)
