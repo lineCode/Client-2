@@ -19,6 +19,7 @@
 class QAction;
 class QContextMenuEvent;
 namespace onvif { namespace device { class DeviceClient; } }
+namespace onvif { namespace device { class GetUsersResponse; } }
 
 ///// Namespaces /////
 
@@ -44,7 +45,7 @@ class DeviceTreeONVIFItem : public DeviceTreeItem
 
  private:
 
-  void HackGetUsers(const onvif::device::GetUsersResponse& response);
+  void HackGetUsers(std::vector< std::pair<std::string, std::string> >& credentials);
 
   QString uri_;
   QString username_;
