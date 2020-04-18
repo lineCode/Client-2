@@ -29,6 +29,7 @@ class DeviceTreeItem : public QObject, public QTreeWidgetItem
  public:
 
   DeviceTreeItem(QTreeWidget* parent, const QString& name);
+  DeviceTreeItem(QTreeWidgetItem* parent, const QString& name);
   virtual ~DeviceTreeItem();
 
   virtual void Expanded();
@@ -37,6 +38,11 @@ class DeviceTreeItem : public QObject, public QTreeWidgetItem
   virtual void ContextMenuEvent(QContextMenuEvent* event);
 
   virtual void Update();
+
+
+ protected:
+
+  void Clear();
 
  private:
 

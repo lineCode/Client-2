@@ -51,27 +51,26 @@ DeviceTreeONVIFItem::~DeviceTreeONVIFItem()
 
 void DeviceTreeONVIFItem::Expanded()
 {
-  //TODO clear everything
-  //TODO "Loading..." child
+  Clear();
+  addChild(new DeviceTreeItem(this, "Loading..."));
 
   connection_.Close();
   device_ = boost::make_shared<onvif::device::DeviceClient>(boost::make_shared<std::recursive_mutex>());
-  if (hackdevice_->Init(sock::ProxyParams(), uri_.toStdString(), username_.toStdString(), password_.toStdString(), 1, false, true))
+  if (device_->Init(sock::ProxyParams(), uri_.toStdString(), username_.toStdString(), password_.toStdString(), 1, false, true))
   {
-    //TODO failure child
+    Clear();
+    addChild(new DeviceTreeItem(this, "GetSystemDateAndTime failed"));
     return;
   }
 
-  connection_ = hackdevice_->GetSystemDateAndTimeCallback([this](const onvif::device::GetSystemDateAndTimeResponse& response) mutable
+  connection_ = device_->GetSystemDateAndTimeCallback([this](const onvif::device::GetSystemDateAndTimeResponse& response) mutable
   {
+    //TODO GetCapabilities() I think
 
-
-    //TODO
 
 
   });
 
-  //TODO GetCapabilities() I think
 
   //TODO GetDeviceInformation for stuff about versions and hardware and model... compare to json file
 
@@ -87,7 +86,7 @@ void DeviceTreeONVIFItem::Collapsed()
   connection_.Close();
   device_.reset();
   media_.reset();
-  //TODO clear all the child items
+  Clear();
 }
 
 void DeviceTreeONVIFItem::DoubleClicked()
@@ -134,7 +133,9 @@ void DeviceTreeONVIFItem::HackGetUsers(std::vector< std::pair<std::string, std::
     {
       username_ = QString::fromStdString(hackdevice_->GetUsername());
       password_ = QString::fromStdString(hackdevice_->GetPassword());
+      //TODO save this to QSettings I think... maybe not?
       //TODO success or something? change icon or kick off some new connection?
+        //TODO we need to notify the user somehow
     }
   });
 }
@@ -151,6 +152,8 @@ void DeviceTreeONVIFItem::Hack(bool)
 
   // Gather up potential username and password combinations
   std::vector< std::pair<std::string, std::string> > credentials;//TODO grab these from somewhere... I think we have a json file... Maybe open it every time cos why not... rapidjson is on the server git, not client...
+  //TODO add all teh usernames and pasword we currently have added manually into the device tree...
+    //TODO maybe go back and ask nicely
 //TODO we want to load if from ProgramData I guess ?
   if (username_.size() || password_.size())
   {

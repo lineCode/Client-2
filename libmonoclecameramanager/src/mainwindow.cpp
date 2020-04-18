@@ -50,6 +50,12 @@ MainWindow::MainWindow()
   //TODO Should do basics like GetCapabilities and GetProfiles and GetDeviceInformation etc
   //TODO check for update from local list(json file)... how do we display this?
 
+//TODO when a user selects the ONVIFDevice item itself, it displays something in the right panel widget.. GetDeviceInformation stuff and information about the firmware being up to date or not
+
+//TODO when a uiser click something in the device tree, we are listening and can then connect/disconnect stuff to listen to updates as the item gathers more information
+
+//TODO warning that time is out of sync
+
 MainWindow::~MainWindow()
 {
 

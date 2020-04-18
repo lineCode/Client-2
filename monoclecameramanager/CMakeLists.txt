@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-########## CLIENT ##########
+########## CAMERA MANAGER ##########
 
 if (WIN32)
   set(RESOURCES resources/resources.rc)
@@ -27,9 +27,9 @@ set_property(TARGET monoclecameramanager PROPERTY CXX_STANDARD 17)
 
 # Create a translations directory next to the exe and place the qm files in there after every build
 add_custom_command(TARGET monoclecameramanager PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:monoclecameramanager>/translations)
-foreach(TRANSLATIONQM ${TRANSLATIONSQM})
-  add_custom_command(TARGET monoclecameramanager POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${TRANSLATIONQM} $<TARGET_FILE_DIR:monoclecameramanager>/translations)
-endforeach(TRANSLATIONQM)
+foreach(MONOCLECAMERAMANAGERTRANSLATIONQM ${MONOCLECAMERAMANAGERTRANSLATIONSQM})
+  add_custom_command(TARGET monoclecameramanager POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${MONOCLECAMERAMANAGERTRANSLATIONQM} $<TARGET_FILE_DIR:monoclecameramanager>/translations)
+endforeach(MONOCLECAMERAMANAGERTRANSLATIONQM)
 
 set_directory_properties(PROPERTIES CLEAN_NO_CUSTOM true)
 
