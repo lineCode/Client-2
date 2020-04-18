@@ -44,6 +44,8 @@ class DeviceTreeONVIFItem : public DeviceTreeItem
 
  private:
 
+  void HackGetUsers(const onvif::device::GetUsersResponse& response);
+
   QString uri_;
   QString username_;
   QString password_;

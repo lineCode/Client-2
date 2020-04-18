@@ -74,6 +74,11 @@ void DeviceTreeONVIFItem::ContextMenuEvent(QContextMenuEvent* event)
   menu->exec(event->globalPos());
 }
 
+void DeviceTreeONVIFItem::HackGetUsers(const onvif::device::GetUsersResponse& response)
+{
+
+}
+
 void DeviceTreeONVIFItem::Hack(bool)
 {
   hackconnection_.Close();
@@ -84,7 +89,15 @@ void DeviceTreeONVIFItem::Hack(bool)
     return;
   }
 
-  // Gather up all 
+  // Gather up potential username and password combinations
+  std::vector< std::pair<std::string, std::string> > credentials;//TODO grab these from somewhere...
+  if (username_.size() || password_.size())
+  {
+    credentials.push_back(std::make_pair(username_.toStdString(), password_.toStdString()));
+
+  }
+  credentials.push_back(std::make_pair("test", "test"));
+  credentials.push_back(std::make_pair("admin", "Zoggins6"));
 
   hackconnection_ = hackdevice_->GetSystemDateAndTimeCallback([this](const onvif::device::GetSystemDateAndTimeResponse& response)
   {
