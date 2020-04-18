@@ -22,3 +22,6 @@
 [submodule "Libevent"]
 	path = Libevent
 	url = https://github.com/nmathewson/Libevent.git
+[submodule "rapidjson"]
+	path = rapidjson
+	url = https://github.com/Tencent/rapidjson.git

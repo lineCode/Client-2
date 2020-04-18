@@ -414,7 +414,6 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 
 ##### LIBRARIES #####
 
-target_link_libraries(libmonocleclient ${CUDA_LIBRARIES})
 target_link_libraries(libmonocleclient ${OPENGL_LIBRARIES})
 target_link_libraries(libmonocleclient ${OPENSSL_LIBRARIES})
 target_link_libraries(libmonocleclient ${Qt5Gui_EGL_LIBRARIES})
