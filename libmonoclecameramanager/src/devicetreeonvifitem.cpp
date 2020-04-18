@@ -62,10 +62,23 @@ void DeviceTreeONVIFItem::Expanded()
     return;
   }
 
+  connection_ = hackdevice_->GetSystemDateAndTimeCallback([this](const onvif::device::GetSystemDateAndTimeResponse& response) mutable
+  {
+
+
+    //TODO
+
+
+  });
+
   //TODO GetCapabilities() I think
+
+  //TODO GetDeviceInformation for stuff about versions and hardware and model... compare to json file
 
   //TODO GetProfiles()
     //TODO when a user clicks on a profile, it updates the widget on the right hand panel
+
+  //TODO GetVideoSources()
 
 }
 
@@ -74,6 +87,7 @@ void DeviceTreeONVIFItem::Collapsed()
   connection_.Close();
   device_.reset();
   media_.reset();
+  //TODO clear all the child items
 }
 
 void DeviceTreeONVIFItem::DoubleClicked()
@@ -136,7 +150,8 @@ void DeviceTreeONVIFItem::Hack(bool)
   }
 
   // Gather up potential username and password combinations
-  std::vector< std::pair<std::string, std::string> > credentials;//TODO grab these from somewhere...
+  std::vector< std::pair<std::string, std::string> > credentials;//TODO grab these from somewhere... I think we have a json file... Maybe open it every time cos why not... rapidjson is on the server git, not client...
+//TODO we want to load if from ProgramData I guess ?
   if (username_.size() || password_.size())
   {
     credentials.push_back(std::make_pair(username_.toStdString(), password_.toStdString()));
