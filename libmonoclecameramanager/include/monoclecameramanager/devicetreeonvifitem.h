@@ -20,6 +20,7 @@ class QAction;
 class QContextMenuEvent;
 namespace onvif { namespace device { class DeviceClient; } }
 namespace onvif { namespace device { class GetUsersResponse; } }
+namespace onvif { namespace media { class MediaClient; } }
 
 ///// Namespaces /////
 
@@ -50,6 +51,10 @@ class DeviceTreeONVIFItem : public DeviceTreeItem
   QString uri_;
   QString username_;
   QString password_;
+
+  boost::shared_ptr<onvif::device::DeviceClient> device_;
+  boost::shared_ptr<onvif::media::MediaClient> media_;
+  onvif::Connection connection_;
 
   QAction* hack_;
 

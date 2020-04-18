@@ -51,25 +51,42 @@ DeviceTreeONVIFItem::~DeviceTreeONVIFItem()
 
 void DeviceTreeONVIFItem::Expanded()
 {
-  //TODO kick off a connection and say "loading..." while we grab things
+  //TODO clear everything
+  //TODO "Loading..." child
+
+  connection_.Close();
+  device_ = boost::make_shared<onvif::device::DeviceClient>(boost::make_shared<std::recursive_mutex>());
+  if (hackdevice_->Init(sock::ProxyParams(), uri_.toStdString(), username_.toStdString(), password_.toStdString(), 1, false, true))
+  {
+    //TODO failure child
+    return;
+  }
+
+  //TODO GetCapabilities() I think
+
+  //TODO GetProfiles()
+    //TODO when a user clicks on a profile, it updates the widget on the right hand panel
 
 }
 
 void DeviceTreeONVIFItem::Collapsed()
 {
-  //TODO kill it all off
-
+  connection_.Close();
+  device_.reset();
+  media_.reset();
 }
 
 void DeviceTreeONVIFItem::DoubleClicked()
 {
-  //TODO expand it I think anyway?
+  Expanded();
 
 }
 
 void DeviceTreeONVIFItem::ContextMenuEvent(QContextMenuEvent* event)
 {
   QMenu* menu = new QMenu(treeWidget());
+  //TODO edit menu, which allows us to change address and username/password
+    //TODO if we are expanded, then reconnect go back to Loading...
   menu->addAction(hack_);
   menu->exec(event->globalPos());
 }
